@@ -1,0 +1,21 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsArtTestCases",
+    defaults: ["cts_defaults"],
+    static_libs: ["ctstestrunner-axt"],
+    srcs: ["**/*.java"],
+    manifest: "AndroidManifest.xml",
+    sdk_version: "current",
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    errorprone: {
+        javacflags: [
+            "-Xep:ReturnValueIgnored:WARN",
+        ],
+    },
+}

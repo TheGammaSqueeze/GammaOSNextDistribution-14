@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="android.virtualdevice.cts.applaunch">
+
+    <queries>
+        <package android:name="android.virtualdevice.streamedtestapp" />
+    </queries>
+
+    <application>
+        <uses-library android:name="android.test.runner" />
+        <activity android:name=".AppComponents$EmptyActivity" />
+        <activity android:name=".AppComponents$SecondActivity" />
+        <activity
+            android:name=".ActivityBlockingTest$CannotDisplayOnRemoteActivity"
+            android:canDisplayOnRemoteDevices="false"
+            android:exported="false" />
+        <activity
+            android:name=".RestrictActivityTest$RestrictedActivity"
+            android:requiredDisplayCategory="testActivityCategory"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityInterceptionTest$InterceptedActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.virtualdevice.applaunch.INTERCEPTED_RECEIVER" />
+            </intent-filter>
+        </activity>
+        <service android:name=".AppComponents$TestService" />
+        <service android:name=".VirtualDeviceImeTest$DefaultDeviceTestIme"
+            android:label="Default device Test IME"
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.view.InputMethod"/>
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/defaultdevicetestime"/>
+        </service>
+        <service android:name=".VirtualDeviceImeTest$VirtualDeviceTestIme"
+            android:label="Virtual device Test IME"
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.view.InputMethod"/>
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/virtualdevicetestime"/>
+        </service>
+    </application>
+
+    <uses-feature android:name="android.software.companion_device_setup" />
+
+    <!--
+     * These permissions are used to verify permission behavior in VirtualDevicePermissionTest.
+     * The test module otherwise does not use these permissions.
+     -->
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Needed to test the camera blocking behavior. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                     android:targetPackage="android.virtualdevice.cts.applaunch"
+                     android:label="CTS tests of android.companion.virtual applaunch functionality">
+    </instrumentation>
+
+</manifest>
+

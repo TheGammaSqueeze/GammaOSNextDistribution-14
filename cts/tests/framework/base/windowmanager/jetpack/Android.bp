@@ -1,0 +1,108 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "cts_window-extensions",
+    sdk_version: "test_current",
+    static_libs: [
+        "androidx.window.extensions_extensions-nodeps",
+    ],
+    installable: false,
+}
+
+java_library {
+    name: "cts_window-extensions-core",
+    sdk_version: "test_current",
+    static_libs: [
+        "androidx.window.extensions.core_core-nodeps",
+    ],
+    installable: false,
+}
+
+android_library_import {
+    name: "cts_window-sidecar_nodeps",
+    aars: ["window-sidecar-release.aar"],
+    sdk_version: "current",
+}
+
+java_library {
+    name: "cts_window-sidecar",
+    sdk_version: "test_current",
+    static_libs: [
+        "cts_window-sidecar_nodeps",
+    ],
+    installable: false,
+}
+
+java_library {
+    name: "cts_window_extensions_jetpack_util",
+    srcs: [
+        "src/android/server/wm/jetpack/extensions/util/**/*.java",
+    ],
+    static_libs: [
+        "compatibility-device-util-axt",
+        "cts_window-extensions",
+        "cts_window-extensions-core",
+        "cts_window-sidecar",
+    ],
+    sdk_version: "test_current",
+}
+
+java_library {
+    name: "cts_window_jetpack_utils",
+    srcs: [
+        "src/android/server/wm/jetpack/utils/**/*.java",
+    ],
+    static_libs: [
+        "compatibility-device-util-axt",
+        "cts-wm-util",
+        "cts_window-extensions",
+        "cts_window-extensions-core",
+        "cts_window-sidecar",
+    ],
+    sdk_version: "test_current",
+}
+
+android_test {
+    name: "CtsWindowManagerJetpackTestCases",
+    defaults: ["cts_defaults"],
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "platform-test-annotations",
+        "cts-wm-util",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window-extensions-core",
+    ],
+    libs: [
+        "android.test.base",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "test_current",
+    data: [
+        ":CtsWindowManagerJetpackSecondUidApp",
+        ":CtsWindowManagerJetpackSignedApp",
+    ],
+    per_testcase_directory: true,
+}

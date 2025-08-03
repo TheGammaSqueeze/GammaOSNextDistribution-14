@@ -1,0 +1,12 @@
+{
+    "mainline-presubmit": [
+        {
+            "name": "CtsMediaProviderTranscodeTests[com.google.android.mediaprovider.apex]"
+        }
+    ],
+    "presubmit": [
+        {
+            "name": "CtsMediaProviderTranscodeTests"
+        }
+    ]
+}

@@ -1,0 +1,17 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsJniTestCases"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "CtsJniTestCases"
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "CtsJniTestCases"
+    }
+  ]
+}

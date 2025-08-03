@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2017 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.view.inputmethod.cts"
+     android:targetSandboxVersion="2">
+
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <queries>
+        <intent>
+            <action android:name="android.view.InputMethod" />
+        </intent>
+        <package android:name="com.android.cts.mocka11yime" />
+        <package android:name="com.android.cts.mockspellchecker" />
+        <package android:name="com.android.cts.mocklargeresourceime" />
+        <package android:name="com.android.cts.mockime"/>
+        <package android:name="com.android.cts.mockime2"/>
+        <package android:name="com.android.cts.mockimewithsubtypes" />
+    </queries>
+
+    <application android:label="CtsInputMethodTestCases"
+         android:requestLegacyExternalStorage="true"
+         android:multiArch="true"
+         android:supportsRtl="true"
+         android:debuggable="true"
+         android:testOnly="true">
+
+        <uses-library android:name="android.test.runner"/>
+
+        <!-- TestActivity etc are merged from util/AndroidManifest.xml -->
+        <activity
+            android:name="android.view.inputmethod.ctstestapp.MainActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true"
+            android:label="CtsInputMethodStandaloneTestActivity"
+            android:windowSoftInputMode="stateAlwaysHidden"/>
+
+        <service android:name="android.view.inputmethod.cts.inprocime.InProcIme"
+                 android:label="In-Process Test IME"
+                 android:permission="android.permission.BIND_INPUT_METHOD"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="android.view.InputMethod"/>
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/inprocime"/>
+        </service>
+
+       <service android:name="android.view.inputmethod.cts.disapproveime.DisapproveInputMethodService"
+                 android:label="Disapprove IME"
+                 android:permission="android.permission.BIND_INPUT_METHOD"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="android.view.InputMethod"/>
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/disapproveime"/>
+        </service>
+
+        <uses-library android:name="androidx.window.extensions"
+                      android:required="false" />
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+         android:label="CTS tests of android.view.inputmethod"
+         android:targetPackage="android.view.inputmethod.cts">
+    </instrumentation>
+
+</manifest>

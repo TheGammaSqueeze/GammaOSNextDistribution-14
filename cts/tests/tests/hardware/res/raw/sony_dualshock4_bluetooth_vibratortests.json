@@ -1,0 +1,41 @@
+// Refer to kernel dualshock4_send_output_report() in drivers/hid/hid-sony.c
+[
+  {
+    "id": 1,
+    "durations" : [1000],
+    "amplitudes" : [192],
+    "leftFfIndex": 7,
+    "rightFfIndex": 6,
+    "output" :
+        [
+            {"index" : 0,
+            "data" : 0x11},   // DUALSHOCK4_CONTROLLER_BLUETOOTH
+
+            {"index" : 1,
+             "data" : 0xc4},   // HID + CRC | sc->ds4_bt_poll_interval
+
+            {"index" : 3,
+             "data" : 0x7}    // blink + LED + motor
+        ]
+  },
+
+  {
+    "id": 1,
+    "durations" : [2000, 2000, 2000, 2000, 2000],
+    "amplitudes" : [16, 32, 64, 128, 255],
+    "leftFfIndex": 7,
+    "rightFfIndex": 6,
+    "output" :
+        [
+            {"index" : 0,
+            "data" : 0x11},   // DUALSHOCK4_CONTROLLER_BLUETOOTH
+
+            {"index" : 1,
+             "data" : 0xc4},   // HID + CRC | sc->ds4_bt_poll_interval
+
+            {"index" : 3,
+             "data" : 0x7}    // blink + LED + motor
+        ]
+  }
+
+]

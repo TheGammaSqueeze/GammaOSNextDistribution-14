@@ -1,0 +1,15 @@
+[
+  {
+    "name": "Press BUTTON Play/Pause",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "MEDIA_PLAY_PAUSE"},
+      {"action": "UP", "keycode": "MEDIA_PLAY_PAUSE"}
+    ]
+  }
+
+]

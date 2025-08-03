@@ -1,0 +1,12 @@
+# Bug component: 36137
+include platform/frameworks/base:/OWNERS
+include platform/frameworks/base:/core/java/android/content/OWNERS
+include platform/frameworks/base:/PACKAGE_MANAGER_OWNERS
+
+alexbuy@google.com
+patb@google.com
+schfan@google.com
+zyy@google.com
+per-file ContextTest.java = jacobhobbie@google.com,mpgroover@google.com
+per-file ClipboardAutoClearTest.java = olekarg@google.com,ashfall@google.com
+per-file ActivityRequireContentUriPermissionFromCallerTest.java = mpgroover@google.com,azharaa@google.com

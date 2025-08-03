@@ -1,0 +1,65 @@
+{
+    "comment": "Verify that the task should be reused (vs. the affinity task on top) while start the activity again",
+    "setup": {
+        "initialIntents": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$RegularActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ],
+        "act": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            },
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$RegularActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            },
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ]
+    },
+    "initialState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            }
+        ]
+    },
+    "endState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            },
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,23 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_test_helper_library {
+    name: "compatibility-host-provider-preconditions",
+    srcs: ["src/**/*.java"],
+    libs: [
+        "compatibility-host-util",
+        "cts-tradefed",
+        "tradefed",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+        "mcts-documentsui",
+        "mts-documentsui"
+    ],
+    host_supported: true,
+    device_supported: false,
+}

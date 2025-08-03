@@ -1,0 +1,12 @@
+#version 450 core
+
+layout(local_size_x=8, local_size_y=8, local_size_z=1) in;
+layout(set=0, binding=0, rgba8) uniform image2D image;
+
+void main() {
+  imageStore(image, ivec2(gl_GlobalInvocationID.xy),
+	vec4(
+		gl_LocalInvocationID.xy / 8.0,
+		gl_GlobalInvocationID.xy / 64.0
+		));
+}

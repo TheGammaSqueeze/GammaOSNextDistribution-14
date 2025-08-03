@@ -1,0 +1,9 @@
+package {
+    default_team: "trendy_team_fwk_telephony",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app_certificate {
+    name: "android_telephony_cts_testkey",
+    certificate: "android_telephony_cts_testkey",
+}

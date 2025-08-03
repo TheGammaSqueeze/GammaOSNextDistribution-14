@@ -1,0 +1,68 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsWrapWrapDebugMallocDebugTestCases",
+    compile_multilib: "both",
+    dex_preopt: {
+        enabled: false,
+    },
+    optimize: {
+        enabled: false,
+    },
+    static_libs: [
+        "compatibility-device-util-axt",
+        "androidx.test.rules",
+        // this is for the src files
+        "cts_tests_tests_wrap_src",
+        "wrap_debug_malloc_debug_lib",
+    ],
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+        "android.test.mock.stubs",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "current",
+    manifest: "AndroidManifest.xml",
+    // Jarjar to make WrapTest unique.
+    jarjar_rules: "jarjar-rules.txt",
+    use_embedded_native_libs: false,
+}
+
+java_genrule {
+    name: "wrap_debug_malloc_debug_lib",
+    srcs: ["wrap.sh"],
+    tools: ["soong_zip"],
+    out: ["wrap_debug_malloc_debug_abi.jar"],
+    cmd: "mkdir -p $(genDir)/lib/armeabi-v7a/ && " +
+         "mkdir -p $(genDir)/lib/arm64-v8a/ && " +
+         "mkdir -p $(genDir)/lib/x86/ && " +
+         "mkdir -p $(genDir)/lib/x86_64/ && " +
+         "cp $(in) $(genDir)/lib/armeabi-v7a/ && " +
+         "cp $(in) $(genDir)/lib/arm64-v8a/ && " +
+         "cp $(in) $(genDir)/lib/x86/ && " +
+         "cp $(in) $(genDir)/lib/x86_64/ && " +
+         "$(location soong_zip) -o $(out) -C $(genDir) " +
+         "-D $(genDir)/lib/armeabi-v7a/ -D $(genDir)/lib/arm64-v8a/ " +
+         "-D $(genDir)/lib/x86/ -D $(genDir)/lib/x86_64/",
+}

@@ -1,0 +1,11 @@
+<host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/CtsBackgroundPaymentService"
+    android:shouldDefaultToObserveMode="true">
+    <aid-group android:description="@string/CtsBackgroundPaymentService" android:category="payment">
+        <aid-filter android:name="A000000004101018"/>
+        <aid-filter android:name="A000000004101019"/>
+    </aid-group>
+    <polling-loop-filter android:name="9464965c"/>
+    <polling-loop-filter android:name="b652c8f0"/>
+    <polling-loop-filter android:name="70dca719"/>
+</host-apdu-service>

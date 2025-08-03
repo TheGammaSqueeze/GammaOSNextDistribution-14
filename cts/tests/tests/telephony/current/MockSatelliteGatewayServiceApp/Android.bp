@@ -1,0 +1,27 @@
+package {
+    default_team: "trendy_team_fwk_telephony",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_helper_app {
+    name: "MockSatelliteGatewayServiceApp",
+    defaults: ["cts_defaults"],
+    srcs: [
+        "src/**/*.java",
+        "aidl/**/I*.aidl",
+    ],
+    libs: [
+        "telephony-common",
+    ],
+    static_libs: [
+        "compatibility-device-util-axt",
+    ],
+    aidl: {
+        local_include_dirs: ["aidl/"],
+    },
+    platform_apis: true,
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+}

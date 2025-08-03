@@ -1,0 +1,44 @@
+// Refer to
+//  - struct dualsense_output_report_bt
+//  - dualsense_init_output_report()
+//  - dualsense_output_worker()
+// in drivers/hid/hid-playstation.c
+[
+  {
+    "id": 1,
+    "durations" : [1000],
+    "amplitudes" : [192],
+    "leftFfIndex" : 6,
+    "rightFfIndex" : 5,
+    "output" :
+        [
+            {"index" : 0,
+            "data" : 0x31},   // DS_OUTPUT_REPORT_BT
+
+            {"index" : 3,
+             // DS_OUTPUT_VALID_FLAG0_HAPTICS_SELECT |
+             // DS_OUTPUT_VALID_FLAG0_COMPATIBLE_VIBRATION
+             "data" : 0x03}
+        ]
+  },
+
+  {
+    "id": 1,
+    "durations" : [2000, 2000, 2000, 2000, 2000],
+    "amplitudes" : [16, 32, 64, 128, 255],
+    "leftFfIndex" : 6,
+    "rightFfIndex" : 5,
+    "output" :
+        [
+            {"index" : 0,
+            "data" : 0x31},   // DS_OUTPUT_REPORT_BT
+
+            {"index" : 3,
+             // DS_OUTPUT_VALID_FLAG0_HAPTICS_SELECT |
+             // DS_OUTPUT_VALID_FLAG0_COMPATIBLE_VIBRATION
+             "data" : 0x03}
+        ]
+  }
+
+]
+

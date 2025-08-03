@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Config for app enumeration CTS test cases">
+    <option name="test-suite-tag" value="cts" />
+    <option name="config-descriptor:metadata" key="component" value="packagemanager" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
+    <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <option name="force-skip-system-props" value="true" />
+        <option name="set-global-setting" key="verifier_engprod" value="1" />
+        <option name="set-global-setting" key="verifier_verify_adb_installs" value="0" />
+        <option name="restore-settings" value="true" />
+    </target_preparer>
+
+    <!-- Force service to be installed as non-instant mode, always -->
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="force-queryable" value="false" />
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsAppEnumerationTestCases.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationForceQueryableNormalInstall.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationFilters.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationNoApi.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationStub.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationContactsActivityTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationDocumentsActivityTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationShareActivityTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationWebActivityTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationPrefixWildcardWebActivityTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationBrowserActivityTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationBrowserWildcardActivityTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationSharedUidSource.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationSharedUidTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothing.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingReceivesUri.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingReceivesPermissionProtectedUri.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationWildcardActionSource.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesActivityViaAction.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesServiceViaAction.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesProviderViaAuthority.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesProviderViaAction.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesUnexportedActivityViaAction.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesUnexportedServiceViaAction.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesUnexportedProviderViaAuthority.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesUnexportedProviderViaAction.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesPackage.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesPackageHasProvider.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingTargetsQ.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingHasPermission.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingUsesLibrary.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingUsesOptionalLibrary.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingHasProvider.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationWildcardBrowsableActivitySource.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationWildcardContactsActivitySource.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationWildcardDocumentEditorActivitySource.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationWildcardShareActivitySource.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationWildcardWebActivitySource.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationWildcardBrowserActivitySource.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationSyncadapterTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationSyncadapterSharedUidTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationAppWidgetProviderTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationAppWidgetProviderSharedUidTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationPreferredActivityTarget.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingReceivesPersistableUri.apk" />
+        <option name="test-file-name" value="CtsAppEnumerationQueriesNothingReceivesNonPersistableUri.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="force-queryable" value="true" />
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsAppEnumerationForceQueryable.apk" />
+    </target_preparer>
+
+    <!-- Create place to store apks -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="mkdir -p /data/local/tmp/cts/appenumeration" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/cts"/>
+    </target_preparer>
+
+    <!-- Load additional APKs onto device -->
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="push" value="CtsAppEnumerationNoApi.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationNoApi.apk" />
+        <option name="push" value="CtsAppEnumerationStub.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationStub.apk" />
+        <option name="push" value="CtsAppEnumerationStubSharedUser.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationStubSharedUser.apk" />
+        <option name="push" value="CtsAppEnumerationFilters.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationFilters.apk" />
+        <option name="push" value="CtsAppEnumerationQueriesNothing.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationQueriesNothing.apk" />
+        <option name="push" value="CtsAppEnumerationQueriesNothingHasProvider.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationQueriesNothingHasProvider.apk" />
+        <option name="push" value="CtsAppEnumerationQueriesNothingSeesInstaller.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationQueriesNothingSeesInstaller.apk" />
+        <option name="push" value="CtsAppEnumerationQueriesNothingReceivesPersistableUri.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationQueriesNothingReceivesPersistableUri.apk" />
+        <option name="push" value="CtsAppEnumerationQueriesNothingReceivesNonPersistableUri.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationQueriesNothingReceivesNonPersistableUri.apk" />
+        <option name="push" value="CtsAppEnumerationQueriesNothingReceivesPermissionProtectedUri.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationQueriesNothingReceivesPermissionProtectedUri.apk" />
+        <option name="push" value="CtsAppEnumerationQueriesNothingReceivesUri.apk->/data/local/tmp/cts/appenumeration/CtsAppEnumerationQueriesNothingReceivesUri.apk" />
+        <option name="push" value="CtsMockSpellChecker.apk->/data/local/tmp/cts/appenumeration/CtsMockSpellChecker.apk" />
+        <option name="push" value="CtsInputMethod1.apk->/data/local/tmp/cts/appenumeration/CtsInputMethod1.apk" />
+        <option name="push" value="CtsNoRestartBase.apk->/data/local/tmp/cts/appenumeration/CtsNoRestartBase.apk" />
+        <option name="push" value="CtsNoRestartFeature.apk->/data/local/tmp/cts/appenumeration/CtsNoRestartFeature.apk" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.appenumeration.cts" />
+        <option name="runtime-hint" value="12m30s" />
+    </test>
+</configuration>

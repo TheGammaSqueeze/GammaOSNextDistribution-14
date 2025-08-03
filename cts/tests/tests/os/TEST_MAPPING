@@ -1,0 +1,125 @@
+{
+  "presubmit-large": [
+    {
+      "name": "CtsOsTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.LargeTest"
+        },
+        {
+          "exclude-filter": "android.os.cts.BuildTest#testSdkInt"
+        },
+        {
+          "exclude-filter": "android.os.cts.StrictModeTest#testNonSdkApiUsage"
+        }
+      ]
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "CtsOsTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.LargeTest"
+        },
+        {
+          "exclude-annotation": "android.platform.test.annotations.RestrictedBuildTest"
+        },
+        {
+          // TODO(b/181318429)
+          "exclude-filter": "android.os.cts.AppHibernationIntegrationTest#testUnusedApp_getsForceStopped"
+        },
+        {
+          // TODO(b/243642791)
+          "exclude-filter": "android.os.cts.AutoRevokeTest#testAppWithPermissionsChangedRecently_doesNotGetPermissionRevoked"
+        },
+        {
+          // TODO(b/238904536)
+          "exclude-filter": "android.os.cts.AutoRevokeTest#testAutoRevoke_goToUnusedAppsPage_removesSafetyCenterIssue"
+        },
+        {
+          // TODO(b/182562411)
+          "exclude-filter": "android.os.cts.AutoRevokeTest#testAutoRevoke_userAllowlisting"
+        },
+        {
+          // TODO(b/182563360)
+          "exclude-filter": "android.os.cts.AutoRevokeTest#testPreMinAutoRevokeVersionUnusedApp_doesntGetPermissionRevoked"
+        },
+        {
+          // TODO(b/213570804)
+          "exclude-filter": "android.os.cts.AutoRevokeTest#testInstallGrants_notRevokedImmediately"
+        },
+        {
+          // TODO(b/234629012)
+          "exclude-filter": "android.os.cts.AutoRevokeTest#testUnusedApp_uninstallApp"
+        },
+        {
+          // TODO(b/201545116)
+          "exclude-filter": "android.os.cts.AutoRevokeTest#testUnusedApp_getsPermissionRevoked"
+        },
+        {
+          "exclude-filter": "android.os.cts.AutoRevokeTest#testPreRUnusedApp_doesntGetPermissionRevoked"
+        },
+        {
+          // TODO(b/203876506)
+          "exclude-filter": "android.os.cts.BuildTest#testSdkInt"
+        },
+        {
+          // TODO(b/221873359)
+          "exclude-filter": "android.os.cts.CompanionDeviceManagerTest#testProfiles"
+        },
+        {
+          // Requires a discoverable bluetooth device nearby
+          "exclude-filter": "android.os.cts.CompanionDeviceManagerTest#testRequestNotifications"
+        },
+        {
+          // TODO(b/244594813)
+          "exclude-filter": "android.os.cts.DebugTest#testStartMethodTracingDefaultExternalStorage"
+        },
+        {
+          "exclude-filter": "android.os.cts.FileObserverTest#testConstructor"
+        },
+        {
+          "exclude-filter": "android.os.cts.FileObserverTest#testFileObserver"
+        },
+        {
+          "exclude-filter": "android.os.cts.FileObserverTest#testFileObserverExternal"
+        },
+        {
+          "exclude-filter": "android.os.cts.FileObserverTest#testFileObserverExternalStorageDirectory"
+        },
+        {
+          "exclude-filter": "android.os.cts.FileObserverTest#testFileObserver_multipleFilesFull"
+        },
+        {
+          // TODO(b/180726379)
+          "exclude-filter": "android.os.cts.SeccompTest#testKernelPrecedenceTests"
+        },
+        {
+          // TODO(b/214271070)
+          "exclude-filter": "android.os.storage.cts.StorageManagerTest#testAttemptMountNonObb"
+        },
+        {
+          "exclude-filter": "android.os.storage.cts.StorageManagerTest#testAttemptMountObbWrongPackage"
+        },
+        {
+          "exclude-filter": "android.os.storage.cts.StorageManagerTest#testMountAndUnmountObbNormal"
+        },
+        {
+          // TODO(b/203424057)
+          "exclude-filter": "android.os.storage.cts.StorageManagerTest#testMountAndUnmountTwoObbs"
+        },
+        {
+          // TODO(b/265922604)
+          "exclude-filter": "android.os.cts.VibratorTest"
+        }
+      ]
+    }
+  ],
+  "ravenwood-presubmit": [
+    {
+      "name": "CtsOsTestCasesRavenwood",
+      "host": true
+    }
+  ]
+}

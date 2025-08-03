@@ -1,0 +1,3 @@
+# Bug component: 41727 = per-file CameraDeviceInfo.java
+
+per-file CameraDeviceInfo.java = file:platform/frameworks/av:/camera/OWNERS

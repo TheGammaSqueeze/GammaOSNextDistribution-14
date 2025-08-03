@@ -1,0 +1,43 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.android.interactive.steps.enterprise.systemui;
+
+import androidx.test.uiautomator.UiObject2;
+
+import com.android.interactive.Automation;
+import com.android.interactive.Nothing;
+import com.android.interactive.annotations.AutomationFor;
+
+import com.google.android.interactive.helpers.QuickSettingsHelper;
+
+/** Automation for QuickSettingsTapUpdatedStringWithWorkIconDisableQuietModeStep */
+@AutomationFor("com.google.android.interactive.steps.enterprise.systemui"
+        + ".QuickSettingsTapUpdatedStringWithWorkIconDisableQuietModeStep")
+public final class QuickSettingsTapUpdatedStringWithWorkIconDisableQuietModeStepAutomation
+        implements Automation<Nothing> {
+    @Override
+    public Nothing automate() throws Exception {
+        UiObject2 tile = QuickSettingsHelper.findTileWithLabel("UPDATED STRING");
+
+        if (tile == null) {
+            throw new IllegalStateException("Quick settings work app tile not found");
+        }
+
+        tile.click();
+        return Nothing.NOTHING;
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsMusicRecognitionTestCases"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "CtsMusicRecognitionTestCases"
+    }
+  ]
+}

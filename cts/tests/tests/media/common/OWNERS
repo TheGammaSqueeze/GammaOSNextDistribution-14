@@ -1,0 +1,5 @@
+# Bug component: 1344
+include platform/frameworks/av:/media/OWNERS
+
+per-file *MediaProjection* = file:platform/frameworks/base:/media/java/android/media/projection/OWNERS
+per-file *MediaProjection* = nmusgrave@google.com

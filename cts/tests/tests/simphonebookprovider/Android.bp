@@ -1,0 +1,70 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "cts-simphonebook-rules-sources",
+    srcs: [
+        "src/android/provider/cts/simphonebook/RemovableSims.java",
+        "src/android/provider/cts/simphonebook/SimsCleanupRule.java",
+        "src/android/provider/cts/simphonebook/SimPhonebookRequirementsRule.java",
+    ],
+}
+
+android_library {
+    name: "cts-simphonebook-rules",
+
+    static_libs: [
+        "androidx.test.core",
+        "compatibility-device-util-axt",
+        "hamcrest-library",
+        "junit",
+        "truth",
+    ],
+
+    visibility: [
+        "//cts/tests/tests/simphonebookprovider:__subpackages__",
+    ],
+
+    srcs: [
+        ":cts-simphonebook-rules-sources",
+    ],
+
+    sdk_version: "test_current",
+}
+
+android_test {
+    name: "CtsSimPhonebookProviderTestCases",
+    defaults: ["cts_defaults"],
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    libs: [
+        "android.test.base",
+    ],
+
+    static_libs: [
+        "androidx.test.core",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "cts-simphonebook-rules",
+        "ctstestrunner-axt",
+        "hamcrest-library",
+        "junit",
+        "telephony-common-testing",
+        "truth",
+    ],
+
+    srcs: [
+        "src/**/*.java",
+    ],
+    exclude_srcs: [
+        ":cts-simphonebook-rules-sources",
+    ],
+
+    sdk_version: "test_current",
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Press Yellow",
+    "reports": [
+      [0x7f, 0x7f, 0x02, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_A"},
+      {"action": "UP", "keycode": "BUTTON_A"}
+    ]
+  },
+  {
+    "name": "Press Green",
+    "reports": [
+      [0x7f, 0x7f, 0x04, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_B"},
+      {"action": "UP", "keycode": "BUTTON_B"}
+    ]
+  },
+  {
+    "name": "Press Red",
+    "reports": [
+      [0x7f, 0x7f, 0x01, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_X"},
+      {"action": "UP", "keycode": "BUTTON_X"}
+    ]
+  },
+  {
+    "name": "Press Blue",
+    "reports": [
+      [0x7f, 0x7f, 0x08, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_Y"},
+      {"action": "UP", "keycode": "BUTTON_Y"}
+    ]
+  },
+  {
+    "name": "Press Left Shoulder \"1\"",
+    "reports": [
+      [0x7f, 0x7f, 0x10, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_L1"},
+      {"action": "UP", "keycode": "BUTTON_L1"}
+    ]
+  },
+  {
+    "name": "Press Right Shoulder \"1\"",
+    "reports": [
+      [0x7f, 0x7f, 0x20, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_R1"},
+      {"action": "UP", "keycode": "BUTTON_R1"}
+    ]
+  },
+  {
+    "name": "Press Left Shoulder \"2\"",
+    "reports": [
+      [0x7f, 0x7f, 0x40, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_L2"},
+      {"action": "UP", "keycode": "BUTTON_L2"}
+    ]
+  },
+  {
+    "name": "Press Right Shoulder \"2\"",
+    "reports": [
+      [0x7f, 0x7f, 0x80, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_R2"},
+      {"action": "UP", "keycode": "BUTTON_R2"}
+    ]
+  },
+  {
+    "name": "Press Select",
+    "reports": [
+      [0x7f, 0x7f, 0x00, 0x01],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_SELECT"},
+      {"action": "UP", "keycode": "BUTTON_SELECT"}
+    ]
+  },
+  {
+    "name": "Press Start",
+    "reports": [
+      [0x7f, 0x7f, 0x00, 0x02],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BUTTON_START"},
+      {"action": "UP", "keycode": "BUTTON_START"}
+    ]
+  }
+]

@@ -1,0 +1,119 @@
+# Vehicle property related CTS files
+per-file CarPropertyManagerTest.java=shanyu@google.com,tylertrephan@google.com
+per-file VehiclePropertyIdsTest.java=shanyu@google.com,tylertrephan@google.com
+
+# Audio related CTS files
+per-file CarAudioManagerTest.java=oscarazu@google.com
+per-file CarAudioFocusTest.java=oscarazu@google.com
+
+# Input related CTS files
+per-file CarInputManagerSystemTest.java=kanant@google.com,ycheo@google.com
+per-file CarInputTest.java=kanant@google.com,ycheo@google.com
+
+# Display related CTS files
+per-file CarDisplayInputLockTest.java=ycheo@google.com
+
+# Mainline CTS files
+per-file ApiVersionTest.java=gargmayank@google.com
+per-file CarServiceHelperServiceUpdatableTest.java=gargmayank@google.com
+
+# OEM CTS files
+per-file OemCarServiceImplTest.java=gargmayank@google.com
+
+# Rotary CTS files
+per-file CarRotaryImeTest.java=yabinh@google.com
+
+# Bluetooth CTS files
+per-file CarBluetoothTest.java=salsavage@google.com
+
+# Occupant Zone CTS files
+per-file CarOccupantZoneManagerTest.java=xiangw@google.com,ycheo@google.com
+
+# Comms API CTS files
+per-file CarOccupantConnectionManagerTest.java=xiangw@google.com,ycheo@google.com
+
+# EV CTS files
+per-file EvChargeStateTest.java=changyeon@google.com
+per-file EvChargingConnectorTypeTest.java=changyeon@google.com
+per-file EvRegenerativeBrakingStateTest.java=changyeon@google.com
+per-file EvStoppingModeTest.java=changyeon@google.com
+
+# Platform related CTS files
+per-file PlatformVersionMismatchExceptionTest.java=gargmayank@google.com
+per-file PlatformVersionTest.java=gargmayank@google.com
+
+# Power and Performance CTS files
+per-file CarPowerManagerTest.java=ericjeong@google.com
+per-file CarPerformanceManagerTest.java=lakshmana@google.com,shanyu@google.com
+
+# Media related CTS files
+per-file CarMediaManagerTest.java=bkchoi@google.com
+
+# PackageManager related CTS files
+# TODO(b/282199666): Find an owner for CarPackageManagerTest
+# per-file CarPackageManagerTest.java=
+
+# Remote Access related CTS files
+per-file CarRemoteAccessManagerTest.java=ericjeong@google.com,shanyu@google.com
+per-file CarRemoteDeviceManagerTest.java=ericjeong@google.com,shanyu@google.com
+
+# Car Watchdog related CTS files
+per-file CarWatchdogDaemonTest.java=lakshmana@google.com,jahdiel@google.com
+per-file CarWatchdogManagerTest.java=lakshmana@google.com,jahdiel@google.com
+
+# Telemetry related CTS files
+per-file CarTelemetryManagerTest.java=sgurun@google.com
+
+# User related CTS files
+per-file CarUserManagerTest.java=xiangw@google.com,bkchoi@google.com
+per-file UserCreationRequestTest.java=xiangw@google.com
+per-file UserRemovalRequestTest.java=xiangw@google.com
+per-file UserSwitchRequestTest.java=xiangw@google.com
+
+# VHAL/VehicleStub related CTS files
+per-file VehicleGearTest.java=shanyu@google.com
+per-file VehicleIgnitionStateTest.java=shanyu@google.com
+per-file VehicleLightStateTest.java=shanyu@google.com
+per-file VehicleLightSwitchTest.java=shanyu@google.com
+per-file VehicleOilLevelTest.java=shanyu@google.com
+per-file VehicleTurnSignalTest.java=shanyu@google.com
+
+# Diagnostic related CTS files
+# TODO(b/282199666): Find an owner for  CarInfoManagerTest
+# per-file CarInfoManagerTest.java=
+
+# Car property related CTS files
+per-file CarPropertyConfigTest.java=tylertrephan@google.com,shanyu@google.com
+per-file CarPropertyValueTest.java=tylertrephan@google.com,shanyu@google.com
+per-file PropertyNotAvailableErrorCodeTest.java=evaschen@google.com
+
+# Car Core related CTS files
+# TODO(b/282199666): Find an owner for  Car Core
+# per-file CarTest.java=
+# per-file CarVersionTest.java=
+
+# Location related CTS files
+per-file LocationCharacterizationTest.java=gracemc@google.com
+
+# Miscellaneous
+# TODO(b/282199666): Find an owner for  CarAppFocusManagerTest
+# per-file CarAppFocusManagerTest.java=
+per-file AutomaticEmergencyBrakingStateTest.java=tylertrephan@google.com
+per-file BlindSpotWarningStateTest.java=tylertrephan@google.com
+per-file CarSensorManagerTest.java=tylertrephan@google.com
+per-file CarUxRestrictionsManagerTest.java=xiangw@google.com,gauravbhola@google.com
+per-file CruiseControlCommandTest.java=tylertrephan@google.com
+per-file CruiseControlTypeTest.java=tylertrephan@google.com
+per-file EmergencyLaneKeepAssistStateTest.java=tylertrephan@google.com
+per-file ErrorStateTest.java=tylertrephan@google.com
+per-file ExceptionsTest.java=ericjeong@google.com
+per-file ForwardCollisionWarningStateTest.java=tylertrephan@google.com
+per-file HandsOnDetectionDriverStateTest.java=tylertrephan@google.com
+per-file HandsOnDetectionWarningTest.java=tylertrephan@google.com
+per-file LaneCenteringAssistCommandTest.java=tylertrephan@google.com
+per-file LaneDepartureWarningStateTest.java=tylertrephan@google.com
+per-file LaneKeepAssistStateTest.java=tylertrephan@google.com
+per-file SyncResultCallbackTest.java=gargmayank@google.com
+per-file TrailerStateTest.java=tylertrephan@google.com
+per-file WindshieldWipersStateTest.java=tylertrephan@google.com
+per-file WindshieldWipersSwitchTest.java=tylertrephan@google.com

@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration
+    description="Runs stable set of CTS tests for virtual device slim image">
+
+  <include name="cts-virtual-device-stable"/>
+
+  <option name="plan" value="cts-slim-stable"/>
+
+  <!-- These core test suites are inexplicably not included in cts-virtual-device-stable, so add them here -->
+  <option name="compatibility:include-filter" value="CtsAppTestCases"/>
+  <option name="compatibility:include-filter" value="CtsContentTestCases"/>
+  <option name="compatibility:include-filter" value="CtsDisplayTestCases"/>
+  <option name="compatibility:include-filter" value="CtsGraphicsTestCases"/>
+  <option name="compatibility:include-filter" value="CtsOsTestCases"/>
+  <option name="compatibility:include-filter" value="CtsUtilTestCases"/>
+  <option name="compatibility:include-filter" value="CtsViewTestCases"/>
+  <option name="compatibility:include-filter" value="CtsWidgetTestCases"/>
+
+  <!-- flaky tests -->
+  <option name="compatibility:exclude-filter"
+          value="CtsAppTestCases android.app.cts.ActivityManagerFgsBgStartTest#testOverlappedTempAllowList"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsAppTestCases android.app.cts.ActivityManagerProcessStateTest#testBackgroundCheckActivityService"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsAppTestCases android.app.cts.ActivityManagerProcessStateTest#testFgsSticky1"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.ActivityManagerProcessStateTest#testCantSaveStateLaunchAndSwitch" />
+  <option name="compatibility:exclude-filter"
+          value="CtsAppTestCases android.app.cts.ActivityManagerProcessStateTest#testFgsSticky1"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsAppTestCases android.app.cts.AlertDialog_BuilderTest"/>
+  <option name="compatibility:exclude-filter" value="CtsAppTestCases android.app.cts.NotificationManagerTest#testNotificationUriPermissionsGranted"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsContentTestCases android.content.cts.ContentProviderClientTest#testBulkInsertTimeout"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsContentTestCases android.content.cts.ContentProviderClientTest#testUncanonicalizeTimeout" />
+  <option name="compatibility:exclude-filter"
+      value="CtsContentTestCases android.content.cts.ContentResolverSyncTestCase#testCallMultipleAccounts" />
+  <option name="compatibility:exclude-filter"
+      value="CtsContentTestCases android.content.cts.ContentQueryMapTest#testSetKeepUpdated" />
+  <option name="compatibility:exclude-filter"
+          value="CtsGraphicsTestCases android.graphics.cts.AnimatorLeakTest#testPauseResume"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsLocationFineTestCases android.location.cts.fine.LocationManagerFineTest#testRegisterGnssMeasurementsCallback" />
+  <option name="compatibility:exclude-filter" value="CtsTransitionTestCases"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsVoiceInteractionTestCases android.voiceinteraction.cts.DirectActionsTest" />
+  <option name="compatibility:exclude-filter"
+      value="CtsWidgetTestCases android.widget.cts.ZoomControlsTest#testHasFocus" />
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.TextViewTest#testOnBackInvokedCallback"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.TextViewTest#testUndo_imeInsertAndDeleteLatin"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.TimePickerTest#testConstructorNullContext2"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ToggleButtonTest#testAttributesFromLayout"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ToggleButtonTest#testSetChecked"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ToolbarTest#testNavigationConfiguration"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ToolbarTest#testMenuOverflowShowHide"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ToolbarTest#testTitleAndSubtitleContent"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ToolbarTest#testCurrentContentInsetsRtl"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ToolbarTest#testMenuContent"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.TwoLineListItemTest#testConstructorWithNullContext2"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.TwoLineListItemTest#testConstructor"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ViewAnimatorTest#testAccessDisplayedChild"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ViewAnimatorTest#testGetBaseline"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ZoomButtonTest#testConstructorWithNullContext2"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ZoomControlsTest#testSetZoomSpeed"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.inline.InlineContentViewTest#testSetSurfaceControlCallback"/>
+<option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ViewFlipperTest#testConstructorNullContext"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsWidgetTestCases android.widget.cts.ViewFlipperTest#testConstructor"/>
+
+  <!-- also fails on sdk_phone -->
+  <!-- causes bluetooth crash b/254094190 -->
+  <option name="compatibility:exclude-filter"
+          value="CtsAppTestCases android.app.cts.ActivityManagerProcessStateTest#testFgsSticky3"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.SystemFeaturesTest#testLocationFeatures" />
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.SystemFeaturesTest#testCameraFeatures" />
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.SystemFeaturesTest#testSensorFeatures" />
+  <option name="compatibility:exclude-filter"
+      value="CtsContentTestCases android.content.pm.cts.InstallSessionParamsUnitTest#checkSessionParams[11]" />
+  <option name="compatibility:exclude-filter"
+          value="CtsContentTestCases android.content.pm.cts.ChecksumsTest#testFixedFSVerityDefaultChecksumsIncremental"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsContentTestCases android.content.pm.cts.ChecksumsTest#testFixedFSVerityDefaultChecksums"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsGraphicsTestCases android.graphics.cts.VulkanFeaturesTest#testVulkanHardwareFeatures"/>
+
+  <!-- documentsui dependent tests -->
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.DownloadManagerTest#testDownload_onMediaStoreDownloadsDeleted"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.StrictModeTest#testVmPenaltyListener" />
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.StrictModeTest#testContentUriWithoutPermission" />
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.StrictModeTest#testFileUriExposure" />
+
+  <!-- ime dependent tests -->
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.ActivityKeyboardShortcutsTest#testRequestShowKeyboardShortcuts"/>
+  <option name="compatibility:exclude-filter" value="CtsInputMethodTestCases"/>
+
+  <!-- systemui dependent tests -->
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.NotificationManagerTest#testNotificationManagerBubble_setSuppressBubble"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.NotificationManagerTest#testNotificationManagerBubble_setSuppressBubble_dismissLocusActivity"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.NotificationManagerTest#testNotificationManagerBubble_checkActivityFlagsDocumentLaunchMode"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.NotificationManagerTest#testNotificationManagerBubble_checkIsBubbled_pendingIntent"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsAppTestCases android.app.cts.NotificationManagerTest#testNotificationManagerBubble_checkIsBubbled_shortcut"/>
+  <option name="compatibility:exclude-filter" value="CtsAppTestCases android.app.cts.NotificationManagerBubbleTest"/>
+  <option name="compatibility:exclude-filter" value="CtsAppTestCases android.app.cts.NotificationTemplateTest#testPromoteBigPicture_withLargeIcon"/>         |
+  <option name="compatibility:exclude-filter" value="CtsAppTestCases android.app.cts.NotificationTemplateTest#testPromoteBigPicture_withBigLargeIcon"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.AppHibernationIntegrationTest#testUnusedApp_getsForceStopped" />
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.AutoRevokeTest#testInstallGrants_notRevokedImmediately" />
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.AutoRevokeTest#testAutoRevoke_userAllowlisting" />
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.AutoRevokeTest#testUnusedApp_getsPermissionRevoked" />
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.AutoRevokeTest#testUnusedApp_uninstallApp" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.ViewTest#testGetWindowVisibleDisplayFrame" />
+  <option name="compatibility:exclude-filter"
+      value="CtsWidgetTestCases android.widget.cts.ToastTest" />
+  <option name="compatibility:exclude-filter" value="CtsSliceTestCases android.slice.cts.SlicePermissionsTest#testPermissionIntent"/>
+
+  <!-- other apps dependent tests -->
+  <option name="compatibility:exclude-filter" value="CtsAppTestCases android.app.cts.ActivityManagerTest#testHomeVisibilityListener"/>
+  <option name="compatibility:exclude-filter" value="CtsAppTestCases android.app.cts.ActivityManagerFgsBgStartTest#testVisibleActivityGracePeriod"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsContentTestCases android.content.cts.AvailableIntentsTest"/>
+  <option name="compatibility:exclude-filter"
+          value="CtsGraphicsTestCases android.graphics.cts.SystemPaletteTest#testThemeStyles"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsOsTestCases android.os.cts.AppHibernationIntegrationTest#testAppInfo_RemovePermissionsAndFreeUpSpaceToggleExists" />
+  <option name="compatibility:exclude-filter"
+      value="CtsLocationFineTestCases android.location.cts.fine.ScanningSettingsTest#testWifiScanningSettings" />
+  <option name="compatibility:exclude-filter"
+      value="CtsLocationFineTestCases android.location.cts.fine.ScanningSettingsTest#testBleScanningSettings" />
+  <option name="compatibility:exclude-filter"
+      value="CtsVoiceInteractionTestCases android.voiceinteraction.cts.HotwordDetectionServiceBasicTest#testHotwordDetectionService_onDetectFromExternalSource_success" />
+
+  <!-- hardware renderer dependent tests -->
+  <option name="compatibility:exclude-filter"
+      value="CtsDisplayTestCases android.display.cts.VirtualDisplayTest#testUntrustedSysDecorVirtualDisplay" />
+  <option name="compatibility:exclude-filter"
+      value="CtsGraphicsTestCases android.graphics.cts.BasicVulkanGpuTest" />
+  <option name="compatibility:exclude-filter"
+      value="CtsGraphicsTestCases android.graphics.cts.BitmapTest#testCreateBitmap_Picture_immutable" />
+  <option name="compatibility:exclude-filter"
+      value="CtsGraphicsTestCases android.graphics.drawable.cts.AnimatedImageDrawableTest#testRepeatCounts" />
+  <option name="compatibility:exclude-filter"
+      value="CtsGraphicsTestCases android.graphics.drawable.cts.AnimatedImageDrawableTest#testAddCallbackAfterStart" />
+  <option name="compatibility:exclude-filter"
+      value="CtsGraphicsTestCases android.graphics.drawable.cts.AnimatedImageDrawableTest#testLifeCycle" />
+  <option name="compatibility:exclude-filter"
+          value="CtsGraphicsTestCases android.graphics.cts.HardwareRendererTest#isDrawingEnabled_defaultsTrue"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsNativeHardwareTestCases" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.ASurfaceControlTest" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.ASurfaceControlBackPressureTest" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.FrameMetricsListenerTest" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.PixelCopyTest" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.TextureViewTest#testSamplingWithTransform" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.TextureViewTest#testTransformScale" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.TextureViewTest#testRotateScale" />
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.TextureViewTest#testFirstFrames" />
+  <option name="compatibility:exclude-filter"
+      value="CtsWidgetTestCases android.widget.cts.MagnifierTest" />
+
+  <!-- screenshot reliant tests -->
+  <option name="compatibility:exclude-filter"
+      value="CtsGraphicsTestCases android.graphics.drawable.cts.AnimatedVectorDrawableParameterizedTest#testAnimationOnLayer"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsGraphicsTestCases android.graphics.drawable.cts.AnimatedVectorDrawableParameterizedTest#testInfiniteAVD"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.ViewAnimationMatrixTest#testAnimationMatrixAppliedDuringDrawing"/>
+  <option name="compatibility:exclude-filter"
+      value="CtsViewTestCases android.view.cts.ViewAnimationMatrixTest#testAnimationMatrixClearedWithPassingNull"/>
+  <option name="compatibility:exclude-filter" value="CtsUiRenderingTestCases"/>
+  <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.TextureViewTest#testCropRect"/>
+
+
+</configuration>

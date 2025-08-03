@@ -1,0 +1,9 @@
+# Bug component: 532296
+set noparent
+
+mwachens@google.com
+varunshah@google.com
+yamasani@google.com
+per-file NetworkUsageStatsTest.java = file:/tests/tests/net/OWNERS
+per-file CacheQuotaHintTest.java = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+per-file *Broadcast* = sudheersai@google.com

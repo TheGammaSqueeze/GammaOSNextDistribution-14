@@ -1,0 +1,71 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library_host {
+    name: "QueryableCommon",
+    static_libs: [
+        "NeneCommon",
+        "auto_value_annotations",
+    ],
+    srcs: [
+        "common/src/main/java/**/*.java",
+        "common/src/main/java/**/*.kt",
+    ],
+    plugins: ["auto_annotation_plugin"],
+}
+
+android_library {
+    name: "QueryableCommonAndroid",
+    static_libs: [
+        "NeneCommonAndroid",
+        "auto_value_annotations",
+    ],
+    srcs: [
+        "common/src/main/java/**/*.java",
+        "common/src/main/java/**/*.kt",
+    ],
+    manifest: "src/main/AndroidManifest.xml",
+    sdk_version: "current",
+    min_sdk_version: "29",
+    plugins: ["auto_annotation_plugin"],
+}
+
+android_library {
+    name: "Queryable",
+    sdk_version: "test_current",
+    srcs: [
+        "src/main/java/**/*.java",
+        "src/main/java/**/*.kt",
+    ],
+    static_libs: [
+        "androidx.test.ext.junit",
+        "QueryableCommonAndroid",
+    ],
+    manifest: "src/main/AndroidManifest.xml",
+    min_sdk_version: "29",
+    plugins: ["auto_annotation_plugin"],
+}
+
+android_test {
+    name: "BedsteadQueryableTest",
+    srcs: [
+        "src/test/java/**/*.java",
+        "src/test/java/**/*.kt",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    static_libs: [
+        "Nene",
+        "Harrier",
+        "Queryable",
+        "ActivityContext",
+        "androidx.test.ext.junit",
+        "ctstestrunner-axt",
+        "truth",
+        "testng", // for assertThrows
+    ],
+    manifest: "src/test/AndroidManifest.xml",
+    min_sdk_version: "29",
+}

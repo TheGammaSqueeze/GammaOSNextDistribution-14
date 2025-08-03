@@ -1,0 +1,28 @@
+[
+  {
+    "name": "Press BUTTON VOLUME_UP",
+    "reports": [
+        [0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+        [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "VOLUME_UP"},
+      {"action": "UP", "keycode": "VOLUME_UP"}
+    ]
+  },
+
+  {
+    "name": "Press BUTTON VOLUME_DOWN",
+    "reports": [
+        [0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+        [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | GAMEPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "VOLUME_DOWN"},
+      {"action": "UP", "keycode": "VOLUME_DOWN"}
+    ]
+  }
+
+]

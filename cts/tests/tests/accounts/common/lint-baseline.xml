@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountManager#get`"
+        errorLine1="        AccountManager am = AccountManager.get(context);"
+        errorLine2="                                           ~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="81"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountManager#getAuthenticatorTypes`"
+        errorLine1="        AuthenticatorDescription[] authenticators = am.getAuthenticatorTypes();"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="82"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.AuthenticatorDescription#packageName`"
+        errorLine1="            if (a.packageName.equals(context.getPackageName())) {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="88"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `new android.accounts.Account`"
+        errorLine1="                    Account account = new Account(name, a.type);"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="90"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.AuthenticatorDescription#type`"
+        errorLine1="                    Account account = new Account(name, a.type);"
+        errorLine2="                                                        ~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="90"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountManager#addAccountExplicitly`"
+        errorLine1="                    am.addAccountExplicitly(account, Fixtures.PREFIX_PASSWORD + name, null);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="91"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountManager#get`"
+        errorLine1="        AccountManager am = AccountManager.get(context);"
+        errorLine2="                                           ~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="99"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountManager#getAuthenticatorTypes`"
+        errorLine1="        AuthenticatorDescription[] authenticators = am.getAuthenticatorTypes();"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="100"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.AuthenticatorDescription#packageName`"
+        errorLine1="            if (a.packageName.equals(context.getPackageName())) {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="106"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountManager#getAccountsByType`"
+        errorLine1="                Account[] accountsToRemove = am.getAccountsByType(a.type);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="107"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.AuthenticatorDescription#type`"
+        errorLine1="                Account[] accountsToRemove = am.getAccountsByType(a.type);"
+        errorLine2="                                                                  ~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="107"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 22 (current min is 1): `android.accounts.AccountManager#removeAccountExplicitly`"
+        errorLine1="                    am.removeAccountExplicitly(account);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/AuthenticatorContentProvider.java"
+            line="109"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `Account` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="        out.writeParcelable(account, flags);"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/tx/ConfirmCredentialsTx.java"
+            line="50"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `new android.accounts.Account`"
+        errorLine1="    public static final Account ACCOUNT_UNAFFILIATED_FIXTURE_SUCCESS = new Account("
+        errorLine2="                                                                       ~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/Fixtures.java"
+            line="53"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `new android.accounts.Account`"
+        errorLine1="    public static final Account ACCOUNT_DEFAULT = new Account("
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/Fixtures.java"
+            line="57"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `Account` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="        out.writeParcelable(account, flags);"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/tx/GetAccountRemovalAllowedTx.java"
+            line="46"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `Account` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="        out.writeParcelable(account, flags);"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/tx/GetAuthTokenTx.java"
+            line="54"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `Account` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="        out.writeParcelable(account, flags);"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/tx/HasFeaturesTx.java"
+            line="57"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `Account` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="        out.writeParcelable(account, flags);"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/tx/StartUpdateCredentialsSessionTx.java"
+            line="50"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 5 (current min is 1): `android.accounts.AbstractAccountAuthenticator`"
+        errorLine1="public class TestAccountAuthenticator extends AbstractAccountAuthenticator {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="39"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `new android.accounts.AbstractAccountAuthenticator`"
+        errorLine1="        super(context);"
+        errorLine2="        ~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="47"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `AccountAuthenticatorResponse` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="            intent.putExtra(Fixtures.KEY_CALLBACK, response);"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="89"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountAuthenticatorResponse#onResult`"
+        errorLine1="                response.onResult(result);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="101"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="        if (!mAccountType.equals(account.type)) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="111"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        if (account.name.startsWith(Fixtures.PREFIX_NAME_SUCCESS)) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="120"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="123"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="124"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        } else if (account.name.startsWith(Fixtures.PREFIX_NAME_INTERVENE)) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="125"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="            eventualActivityResultData.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="129"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="            eventualActivityResultData.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="130"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `AccountAuthenticatorResponse` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="            intent.putExtra(Fixtures.KEY_CALLBACK, response);"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="135"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountAuthenticatorResponse#onResult`"
+        errorLine1="                response.onResult(result);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="147"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="        if (!mAccountType.equals(account.type)) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="158"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        if (account.name.startsWith(Fixtures.PREFIX_NAME_SUCCESS)) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="167"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="174"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="175"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        } else if (account.name.startsWith(Fixtures.PREFIX_NAME_INTERVENE)) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="176"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="            eventualActivityResultData.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="184"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="            eventualActivityResultData.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="185"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `AccountAuthenticatorResponse` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="            intent.putExtra(Fixtures.KEY_CALLBACK, response);"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="190"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountAuthenticatorResponse#onResult`"
+        errorLine1="                response.onResult(result);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="203"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="        if (!mAccountType.equals(account.type)) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="222"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        if (account.name.startsWith(Fixtures.PREFIX_NAME_SUCCESS)) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="231"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="233"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="234"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        } else if (account.name.startsWith(Fixtures.PREFIX_NAME_INTERVENE)) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="235"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="            eventualActivityResultData.putExtra(AccountManager.KEY_ACCOUNT_NAME, account.name);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="238"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="            eventualActivityResultData.putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type);"
+        errorLine2="                                                                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="239"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `AccountAuthenticatorResponse` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="            intent.putExtra(Fixtures.KEY_CALLBACK, response);"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="244"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountAuthenticatorResponse#onResult`"
+        errorLine1="                response.onResult(result);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="256"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="        if (!mAccountType.equals(account.type)) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="266"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        if (account.name.startsWith(Fixtures.PREFIX_NAME_SUCCESS)) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="274"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        } else if (account.name.startsWith(Fixtures.PREFIX_NAME_INTERVENE)) {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="277"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `AccountAuthenticatorResponse` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="            intent.putExtra(Fixtures.KEY_CALLBACK, response);"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="284"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountAuthenticatorResponse#onResult`"
+        errorLine1="                response.onResult(result);"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="295"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="        if (!mAccountType.equals(account.type)) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAccountAuthenticator.java"
+            line="365"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `android.accounts.AccountAuthenticatorResponse#onResult`"
+        errorLine1="            response.onResult(result.getExtras());"
+        errorLine2="                     ~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestAuthenticatorActivity.java"
+            line="33"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 5 (current min is 1): `android.accounts.AbstractAccountAuthenticator`"
+        errorLine1="public class TestDefaultAuthenticator extends AbstractAccountAuthenticator {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestDefaultAuthenticator.java"
+            line="34"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 5 (current min is 1): `new android.accounts.AbstractAccountAuthenticator`"
+        errorLine1="        super(context);"
+        errorLine2="        ~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestDefaultAuthenticator.java"
+            line="39"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="        if (!mAccountType.equals(account.type)) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestDefaultAuthenticator.java"
+            line="108"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#name`"
+        errorLine1="        result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name);"
+        errorLine2="                                                          ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestDefaultAuthenticator.java"
+            line="112"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 5 (current min is 1): `android.accounts.Account#type`"
+        errorLine1="        result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type);"
+        errorLine2="                                                          ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/TestDefaultAuthenticator.java"
+            line="113"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `Account` to `Parcelable` requires API level 5 (current min is 1)"
+        errorLine1="        out.writeParcelable(account, flags);"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="cts/tests/tests/accounts/common/src/android/accounts/cts/common/tx/UpdateCredentialsTx.java"
+            line="54"
+            column="29"/>
+    </issue>
+
+</issues>

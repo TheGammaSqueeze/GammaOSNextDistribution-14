@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.CompanionDeviceManager#getMyAssociations`"
+        errorLine1="        List&lt;AssociationInfo&gt; associations = mCompanionDeviceManager.getMyAssociations();"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="106"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.CompanionDeviceManager#getMyAssociations`"
+        errorLine1="            for (AssociationInfo associationInfo : mCompanionDeviceManager.getMyAssociations()) {"
+        errorLine2="                                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="115"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.AssociationInfo#getId`"
+        errorLine1="                if (associationInfo.getId() == mAssociationInfo.getId()) {"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="116"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.AssociationInfo#getId`"
+        errorLine1="                if (associationInfo.getId() == mAssociationInfo.getId()) {"
+        errorLine2="                                                                ~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="116"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.CompanionDeviceManager#getMyAssociations`"
+        errorLine1="                    assertThat(mCompanionDeviceManager.getMyAssociations()).isEmpty();"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="118"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.CompanionDeviceManager#getMyAssociations`"
+        errorLine1="        List&lt;AssociationInfo&gt; associations = mCompanionDeviceManager.getMyAssociations();"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="138"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.AssociationInfo#getId`"
+        errorLine1="            disassociate(association.getId());"
+        errorLine2="                                     ~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="140"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.CompanionDeviceManager#getMyAssociations`"
+        errorLine1="        assertThat(mCompanionDeviceManager.getMyAssociations()).isEmpty();"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="142"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.AssociationInfo#getId`"
+        errorLine1="        disassociate(mAssociationInfo.getId());"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="150"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 30): `android.companion.CompanionDeviceManager#disassociate`"
+        errorLine1="        mCompanionDeviceManager.disassociate(associationId);"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/tests/virtualdevice/common/src/android/virtualdevice/cts/common/FakeAssociationRule.java"
+            line="155"
+            column="33"/>
+    </issue>
+
+</issues>

@@ -1,0 +1,11 @@
+# WindowManager tests
+# Buganizer template url: https://b.corp.google.com/issues/new?component=316245&template=1018194
+# Bug component: 316245
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Surfaces
+
+# Core Graphics Stack tests
+# Buganizer template url: https://b.corp.google.com/issues/new?component=1075130&template=1595188 = per-file *Choreographer*.java
+# Bug component: 1075130 = per-file  *Choreographer*.java
+
+include platform/frameworks/base:/services/core/java/com/android/server/wm/OWNERS
+include platform/cts:/tests/tests/graphics/src/android/graphics/OWNERS

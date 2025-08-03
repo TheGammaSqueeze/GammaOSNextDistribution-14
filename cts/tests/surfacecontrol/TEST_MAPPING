@@ -1,0 +1,19 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsSurfaceControlTests",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+
+    }
+
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "CtsSurfaceControlTests"
+    }
+  ]
+}

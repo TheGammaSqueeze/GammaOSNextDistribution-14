@@ -1,0 +1,45 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "ResourceObserverNativeTest",
+
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+
+    srcs: ["src/ResourceObserverNativeTest.cpp"],
+
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+        "libmediandk",
+    ],
+
+    static_libs: [
+        "libbase_ndk",
+        "libgtest",
+        "resourceobserver_aidl_interface-V1-ndk",
+    ],
+    whole_static_libs: [
+        "libnativetesthelper_jni"
+    ],
+
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+}

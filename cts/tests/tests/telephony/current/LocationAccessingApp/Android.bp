@@ -1,0 +1,29 @@
+package {
+    default_team: "trendy_team_fwk_telephony",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "LocationAccessingApp",
+    defaults: ["cts_defaults"],
+    srcs: [
+        ":location_accessing_app_srcs",
+    ],
+    aidl: {
+        local_include_dirs: ["aidl/"],
+    },
+    sdk_version: "test_current",
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts",
+    ],
+}
+
+filegroup {
+    name: "location_accessing_app_srcs",
+    srcs: [
+        "src/**/*.java",
+        "aidl/**/I*.aidl",
+    ],
+}

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Config for CTS BroadcastResponseStats test cases">
+    <option name="test-suite-tag" value="cts" />
+    <option name="config-descriptor:metadata" key="component" value="framework" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
+    <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsBRSTestCases.apk" />
+        <option name="test-file-name" value="CtsUsageStatsTestApp1.apk" />
+        <option name="test-file-name" value="CtsUsageStatsTestApp2.apk" />
+        <option name="test-file-name" value="CtsUsageStatsTestApp3.apk" />
+        <option name="test-file-name" value="CtsUsageStatsTestApp4.apk" />
+        <option name="test-file-name" value="CtsUsageStatsTestAssistApp.apk" />
+        <option name="test-file-name" value="CtsUsageStatsTestExactAlarmApp.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <option name="force-skip-system-props" value="true" />
+        <option name="set-global-setting" key="verifier_engprod" value="1" />
+        <option name="set-global-setting" key="verifier_verify_adb_installs" value="0" />
+        <option name="set-global-setting" key="device_config_sync_disabled" value="0" />
+        <option name="restore-settings" value="true" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.app.usage.brs.cts" />
+        <option name="hidden-api-checks" value="false" />
+        <option name="isolated-storage" value="false" />
+    </test>
+
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="directory-keys" value="/sdcard/CtsBRSTestCases" />
+        <option name="collect-on-run-ended-only" value="true" />
+    </metrics_collector>
+</configuration>

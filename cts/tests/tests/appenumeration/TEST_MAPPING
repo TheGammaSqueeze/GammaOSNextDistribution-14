@@ -1,0 +1,17 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsAppEnumerationTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.LargeTest"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsAppEnumerationTestCases"
+    }
+  ]
+}

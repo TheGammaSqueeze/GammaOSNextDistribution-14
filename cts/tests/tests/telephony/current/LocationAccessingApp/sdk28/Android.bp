@@ -1,0 +1,18 @@
+package {
+    default_team: "trendy_team_fwk_telephony",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "LocationAccessingAppSdk28",
+    defaults: ["cts_defaults"],
+    srcs: [
+        ":location_accessing_app_srcs",
+    ],
+    sdk_version: "test_current",
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts",
+    ],
+}

@@ -1,0 +1,7 @@
+include platform/frameworks/base:/OWNERS
+
+per-file InstallUtilTest.java = file:platform/frameworks/base:/core/java/android/content/pm/OWNERS
+
+per-file TimeUtilsTest.java = file:platform/frameworks/base:/services/core/java/com/android/server/timezonedetector/OWNERS
+
+per-file TypedValueTest.java = file:platform/frameworks/base:/core/java/android/content/res/OWNERS

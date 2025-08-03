@@ -1,0 +1,36 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Contains tests for networking code that is in the platform and not in mainline modules.
+// These tests are run by CtsNetTestCases and CtsNetTestCasesLatestSdk, so like all the other tests
+// in those suites, they must pass on all Android versions supported by the modules.
+java_library {
+    name: "CtsNetTestsNonUpdatableLib",
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "androidx.test.rules",
+    ],
+    libs: [
+        "net-tests-utils",
+    ],
+    platform_apis: true,
+    visibility: [
+        "//packages/modules/Connectivity/tests:__subpackages__",
+    ],
+}

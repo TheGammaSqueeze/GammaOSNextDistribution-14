@@ -1,0 +1,119 @@
+// Copyright (C) 2008 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsOsTestCases",
+    defaults: ["cts_defaults"],
+    compile_multilib: "both",
+    static_libs: [
+        "android.hidl.manager-V1.0-java",
+        "androidx.test.core",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "testng",
+        "truth",
+        "guava",
+        "junit",
+        "junit-params",
+        "Harrier",
+        "CtsMockInputMethodLib",
+        "hamcrest-library",
+        "platformprotosnano",
+        "device-time-shell-utils",
+        "flag-junit",
+        "ravenwood-junit",
+        "android.os.flags-aconfig-java",
+        "backstage_power_flags_lib",
+        "sdk_sandbox_flags_lib",
+    ],
+    jni_uses_platform_apis: true,
+    jni_libs: [
+        "libcts_jni",
+        "libctsos_jni",
+        "libnativehelper_compat_libc++",
+    ],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+        "src/android/os/cts/IParcelFileDescriptorPeer.aidl",
+        "src/android/os/cts/IEmptyService.aidl",
+        "src/android/os/cts/ISeccompIsolatedService.aidl",
+        "src/android/os/cts/ISecondary.aidl",
+        "src/android/os/cts/ISharedMemoryService.aidl",
+        "src/android/os/cts/IParcelExceptionService.aidl",
+    ],
+    // Set its own test config to prevent sharing with cts-platform-version-check
+    test_config: "CtsOsTestCases.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+        "mts-documentsui",
+        "mcts-documentsui",
+    ],
+    sdk_version: "test_current",
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+    // Do not compress minijail policy files.
+    aaptflags: ["-0 .policy"],
+    min_sdk_version: "29",
+    per_testcase_directory: true,
+}
+
+android_ravenwood_test {
+    name: "CtsOsTestCasesRavenwood",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+    ],
+    srcs: [
+        "src/android/os/cts/BadParcelableExceptionTest.java",
+        "src/android/os/cts/BinderTest.java",
+        "src/android/os/cts/BuildTest.java",
+        "src/android/os/cts/BundleTest.java",
+        "src/android/os/cts/DeadObjectExceptionTest.java",
+        "src/android/os/cts/HandlerTest.java",
+        "src/android/os/cts/HandlerThreadTest.java",
+        "src/android/os/cts/ISecondary.aidl",
+        "src/android/os/cts/LooperTest.java",
+        "src/android/os/cts/MessageQueueTest.java",
+        "src/android/os/cts/MessageTest.java",
+        "src/android/os/cts/ParcelFileDescriptorTest.java",
+        "src/android/os/cts/ParcelFileDescriptor_AutoCloseInputStreamTest.java",
+        "src/android/os/cts/ParcelFileDescriptor_AutoCloseOutputStreamTest.java",
+        "src/android/os/cts/ParcelFormatExceptionTest.java",
+        "src/android/os/cts/ParcelTest.java",
+        "src/android/os/cts/ParcelUuidTest.java",
+        "src/android/os/cts/PatternMatcherTest.java",
+        "src/android/os/cts/PersistableBundleTest.java",
+        "src/android/os/cts/ProcessTest.java",
+        "src/android/os/cts/RemoteExceptionTest.java",
+        "src/android/os/cts/ServiceSpecificExceptionTest.java",
+        "src/android/os/cts/SystemClockTest.java",
+        "src/android/os/cts/UserHandleTest.java",
+    ],
+    auto_gen_config: true,
+}

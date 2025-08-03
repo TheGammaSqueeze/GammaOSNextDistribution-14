@@ -1,0 +1,3 @@
+# Module library in frameworks/libs/net
+rule com.android.net.module.util.** android.net.cts.wifi.util.@1
+

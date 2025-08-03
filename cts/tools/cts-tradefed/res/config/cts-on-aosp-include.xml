@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!--
+    This file is modified from cts-on-aosp-exclude.xml basically by
+    replacing all the "compatibility:exclude-filter" in the latter
+    with "compatibility:include-filter".
+
+    Telephony related tests are not included, though.
+
+    Please remember to update this file when that file is modified.
+-->
+
+<configuration description="Include tests excluded from cts-on-aosp">
+    <!-- Tell all AndroidJUnitTests to exclude certain annotations -->
+    <option name="compatibility:test-arg" value="com.android.tradefed.testtype.AndroidJUnitTest:exclude-annotation:android.platform.test.annotations.RestrictedBuildTest" />
+
+    <!-- Tell all HostTests to exclude certain annotations -->
+    <option name="compatibility:test-arg" value="com.android.tradefed.testtype.HostTest:exclude-annotation:android.platform.test.annotations.RestrictedBuildTest" />
+    <option name="compatibility:test-arg" value="com.android.compatibility.common.tradefed.testtype.JarHostTest:exclude-annotation:android.platform.test.annotations.RestrictedBuildTest" />
+
+    <!-- Radio system of a general system image is not checked -->
+<!-- Not suitable for some GRF devices
+    <option name="compatibility:include-filter" value="CtsTelephonyTestCases" />
+    <option name="compatibility:include-filter" value="CtsTelephony2TestCases" />
+    <option name="compatibility:include-filter" value="CtsAppTestCases android.app.cts.SystemFeaturesTest#testLocationFeatures" />
+-->
+
+    <!-- Exclude telephony related testcases -->
+<!-- Not suitable for some GRF devices
+    <option name="compatibility:include-filter" value="CtsNetTestCasesLegacyApi22 android.net.cts.legacy.api22.ConnectivityManagerLegacyTest#testStartUsingNetworkFeature_enableHipri" />
+    <option name="compatibility:include-filter" value="CtsPermission2TestCases android.permission2.cts.NoReceiveSmsPermissionTest#testAppSpecificSmsToken" />
+    <option name="compatibility:include-filter" value="CtsPermission2TestCases android.permission2.cts.NoReceiveSmsPermissionTest#testReceiveTextMessage" />
+    <option name="compatibility:include-filter" value="CtsUsageStatsTestCases android.app.usage.cts.NetworkUsageStatsTest#testAppDetails" />
+    <option name="compatibility:include-filter" value="CtsUsageStatsTestCases android.app.usage.cts.NetworkUsageStatsTest#testAppSummary" />
+    <option name="compatibility:include-filter" value="CtsUsageStatsTestCases android.app.usage.cts.NetworkUsageStatsTest#testCallback" />
+    <option name="compatibility:include-filter" value="CtsUsageStatsTestCases android.app.usage.cts.NetworkUsageStatsTest#testDeviceSummary" />
+    <option name="compatibility:include-filter" value="CtsUsageStatsTestCases android.app.usage.cts.NetworkUsageStatsTest#testTagDetails" />
+    <option name="compatibility:include-filter" value="CtsUsageStatsTestCases android.app.usage.cts.NetworkUsageStatsTest#testUidDetails" />
+    <option name="compatibility:include-filter" value="CtsUsageStatsTestCases android.app.usage.cts.NetworkUsageStatsTest#testUserSummary" />
+-->
+
+    <!--
+        Exclude testcases failing on Pixel devices
+        TODO(jaeshin@): b/68300743
+    -->
+    <option name="compatibility:include-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testVoiceCommand" />
+    <option name="compatibility:include-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testVoiceSearchHandsFree" />
+
+    <!-- Excluded tese case - TODO(jiyong): b/67739526 to reenable that -->
+    <option name="compatibility:include-filter" value="CtsJniTestCases android.jni.cts.JniStaticTest#test_linker_namespaces" />
+
+    <!-- b/68190722: Remove testcases that require RRO which is planned for Pi -->
+    <option name="compatibility:include-filter" value="CtsAppTestCases android.app.cts.ActionBarTest#testOpenOptionsMenu" />
+    <option name="compatibility:include-filter" value="CtsAppTestCases android.app.cts.ActionBarTest#testOptionsMenuKey" />
+    <option name="compatibility:include-filter" value="CtsAppTestCases android.app.cts.ActivityKeyboardShortcutsTest#testRequestShowKeyboardShortcuts" />
+
+    <!-- b/161837932: Fix MediaPlayerTests that use "too small" resolution -->
+    <option name="compatibility:include-filter" value="CtsMediaPlayerTestCases android.media.player.cts.MediaPlayerTest#testOnSubtitleDataListener" />
+    <option name="compatibility:include-filter" value="CtsMediaPlayerTestCases android.media.player.cts.MediaPlayerTest#testChangeSubtitleTrack" />
+    <option name="compatibility:include-filter" value="CtsMediaPlayerTestCases android.media.player.cts.MediaPlayerTest#testDeselectTrackForSubtitleTracks" />
+    <option name="compatibility:include-filter" value="CtsMediaPlayerTestCases android.media.player.cts.MediaPlayerTest#testGetTrackInfoForVideoWithSubtitleTracks" />
+
+    <!-- b/152359655: ResumeOnReboot can't work on GSI -->
+    <option name="compatibility:include-filter" value="CtsResumeOnRebootHostTestCases android.appsecurity.cts.ResumeOnRebootHostTest" />
+
+    <!-- b/73727333: CtsSystemUiTestCases failure flaky -->
+    <option name="compatibility:include-filter" value="CtsSystemUiTestCases android.systemui.cts.LightBarTests#testLightNavigationBar" />
+
+    <!-- b/80388296: CtsDevicePolicyManagerTestCases failure flaky -->
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testDisallowAutofill_allowed" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testPackageInstallUserRestrictions" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testPermissionAppUpdate" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testPermissionGrant" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testPermissionMixedPolicies" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testPermissionPolicy" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testSuspendPackage" />
+
+    <!-- b/110260628: A confirmed GSI incompatibility (waiver) -->
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedDeviceOwnerTest#testKeyManagement" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedProfileOwnerTest#testKeyManagement" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedManagedProfileOwnerTest#testKeyManagement" />
+
+    <!-- b/110405497: Flaky tests (waiver) -->
+    <option name="compatibility:include-filter" value="CtsKeystoreTestCases android.keystore.cts.KeyAttestationTest#testDeviceIdAttestation" />
+
+    <!-- b/141113818: Allows unlock for CTS-on-GSI -->
+    <option name="compatibility:include-filter" value="CtsKeystoreTestCases android.keystore.cts.KeyAttestationTest#testEcAttestation_DeviceLocked" />
+    <option name="compatibility:include-filter" value="CtsKeystoreTestCases android.keystore.cts.KeyAttestationTest#testRsaAttestation_DeviceLocked" />
+
+    <!-- b/110385515: Flaky due to a particular SIM card requirement (excluded) -->
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.ConnectivityManagerTest#testOpenConnection" />
+    <option name="compatibility:include-filter" value="CtsWifiTestCases android.net.wifi.rtt.cts.WifiRttTest#testRangingToTestAp" />
+
+    <!-- b/111101428: CtsOsTestCases irrelevant test cases -->
+    <option name="compatibility:include-filter" value="CtsOsTestCases android.os.cts.BuildTest#testIsSecureUserBuild" />
+    <option name="compatibility:include-filter" value="CtsOsTestCases android.os.cts.BuildVersionTest#testBuildFingerprint" />
+
+    <!-- b/111967702: CtsSecurityTestCases irrelevant test cases -->
+    <option name="compatibility:include-filter" value="CtsSecurityTestCases android.security.cts.BannedFilesTest#testNoSu" />
+    <option name="compatibility:include-filter" value="CtsSecurityTestCases android.security.cts.BannedFilesTest#testNoSuInPath" />
+
+    <!-- b/157286547 CtsIncidentHostTestCases ErrorsTest failure -->
+    <option name="compatibility:include-filter" value="CtsIncidentHostTestCases com.android.server.cts.ErrorsTest#testNativeCrash" />
+
+    <!-- b/111167329: CtsCameraTestCases failure -->
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.SurfaceViewPreviewTest#testSurfaceSet"/>
+
+    <!-- b/135588722: CtsUsesLibraryHostTestCases (10_r1 waiver) -->
+    <option name="compatibility:include-filter" value="CtsUsesLibraryHostTestCases android.classloaders.cts.UsesLibraryHostTest#testMissingLibrary_full"/>
+    <option name="compatibility:include-filter" value="CtsUsesLibraryHostTestCases android.classloaders.cts.UsesLibraryHostTest#testUsesLibrary_full"/>
+    <option name="compatibility:include-filter" value="CtsCompilationTestCases android.compilation.cts.AdbRootDependentCompilationTest"/>
+
+    <!-- b/145371681: CtsContentSuggestionsTestCases and CtsAppPredictionServiceTestCases (10_r2 waiver) -->
+    <option name="compatibility:include-filter" value="CtsAppPredictionServiceTestCases" />
+    <option name="compatibility:include-filter" value="CtsContentSuggestionsTestCases" />
+
+    <!-- b/155107044: CtsNetTestCases -->
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testInterfaceCountersUdp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm64Tcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testInterfaceCountersUdp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacMd5Tcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha512Tcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacMd5Tcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha512Tcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha1Udp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha1Udp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha1Tcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha1Tcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm128Tcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm128Tcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm96Tcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha1Tcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm96Tcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testCryptTcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm128Udp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testCryptUdp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAuthUdp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testCryptUdp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAuthUdp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testCryptTcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha1Udp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testCryptTcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAuthUdp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testIkeOverUdpEncapSocket"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm128Udp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm128Udp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha256Tcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha256Tcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacMd5Udp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm96Tcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testInterfaceCountersUdp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha512Udp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha512Udp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha256Tcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha384Udp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha384Udp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha256Udp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm64Tcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm64Tcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha512Udp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm96Udp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha384Tcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm96Udp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha384Udp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha256Udp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacMd5Udp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAuthTcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacMd5Udp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAuthTcp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha384Tcp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm128Tcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testCryptUdp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAuthTcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacMd5Tcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm64Udp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha256Udp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm64Udp4"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha384Tcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm64Udp6"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesGcm96Udp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testAesCbcHmacSha512Tcp4UdpEncap"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.TrafficStatsTest#testTrafficStatsForLocalhost"/>
+    <option name="compatibility:include-filter" value="CtsNetTestCases android.net.cts.TrafficStatsTest#testValidTotalStats"/>
+
+    <!-- b/159295445, b/159294948: CtsDevicePolicyManagerTestCases -->
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.MixedDeviceOwnerTest#testDelegatedCertInstallerDeviceIdAttestation" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.OrgOwnedProfileOwnerTest#testDelegatedCertInstallerDeviceIdAttestation" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicyManagerTestCases com.android.cts.devicepolicy.OrgOwnedProfileOwnerTest#testDeviceIdAttestationForProfileOwner" />
+
+    <!-- b/153032202: CtsSystemUiTestCases (10_r3 waiver) -->
+    <option name="compatibility:include-filter" value="CtsSystemUiTestCases android.systemui.cts.WindowInsetsBehaviorTests#swipeOutsideLimit_systemUiVisible_allEventsCanceled"/>
+
+    <!-- b/173662175: CtsStatsdHostTestCases due to insufficient processes running -->
+    <option name="compatibility:include-filter" value="CtsStatsdHostTestCases android.cts.statsd.validation.ProcStatsValidationTests#testProcessStatePssValue"/>
+
+    <!-- b/173560279: CtsAndroidAppTestCases -->
+    <option name="compatibility:include-filter" value="CtsAndroidAppTestCases android.app.cts.ApplyOverrideConfigurationTest#testOverriddenConfigurationIsPassedIntoCallback" />
+
+    <!-- b/173560279: CtsWidgetTestCases -->
+    <option name="compatibility:include-filter" value="CtsWidgetTestCases android.widget.cts.PopupWindowTest#testClipToScreenClipsToInsets" />
+
+    <!-- b/173560279: CtsWindowManagerDeviceTestCases -->
+    <option name="compatibility:include-filter" value="CtsWindowManagerDeviceDisplay android.server.wm.display.AppConfigurationTests#testAppOrientationRequestConfigChanges" />
+    <option name="compatibility:include-filter" value="CtsWindowManagerDeviceKeyguard android.server.wm.keyguard.KeyguardTests#testNoTransientConfigurationWhenShowWhenLockedRequestsOrientation" />
+
+    <!-- b/173560279: CtsDpiTestCases -->
+    <option name="compatibility:include-filter" value="CtsDpiTestCases android.dpi.cts.ConfigurationScreenLayoutTest#testScreenLayout" />
+
+    <!-- b/173560279, b/176457563#comment6: CtsCameraTestCases -->
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.cts.CameraTest#testPreviewCallbackWithPicture" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.CaptureRequestTest#testColorCorrectionControl" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.CaptureRequestTest#testFocusDistanceControl" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.CaptureRequestTest#testAwbModeAndLock" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.CaptureRequestTest#testDigitalZoomPreviewCombinations" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.CaptureRequestTest#testFlashControl" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.CaptureRequestTest#testEffectModes" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.CaptureRequestTest#testFaceDetection" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testTextureImageWriterReaderOperation" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testTextureViewPreviewWithImageReader" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testTextureViewPreview" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testSharedSurfaceSwitch"/>
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testDualTextureViewAndImageReaderPreview" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testDualCameraPreview"/>
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testSharedSurfaces" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testSharedSurfaceBasic" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testSharedSurfaceLimit" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testDualTextureViewPreview" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.MultiViewTest#testSharedSurfaceImageReaderSwitch" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.StillCaptureTest#testFullRawZSLCapture" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.StillCaptureTest#testFullRawCapture" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.StillCaptureTest#testJpegExif" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.StillCaptureTest#testTakePicture" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.StillCaptureTest#testAfRegions" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.RobustnessTest#testVerifyReprocessMandatoryOutputCombinationTables" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.SurfaceViewPreviewTest#testPreparePerformance" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.BurstCaptureTest#testYuvBurst" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceSimplePreview" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceLogicalPhysicalStreaming" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDevicePreviewWithSessionParameters" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceSessionOpenAndClose" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceLogicalPhysicalSettings" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceSharedOutputUpdate" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceSimplePreview" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceLogicalPhysicalStreaming" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDevicePreviewWithSessionParameters" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceSessionOpenAndClose" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceLogicalPhysicalSettings" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeCameraDeviceTest#testCameraDeviceSharedOutputUpdate" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeStillCaptureTest#testStillCapture" />
+    <option name="compatibility:include-filter" value="CtsCameraTestCases android.hardware.camera2.cts.NativeStillCaptureTest#testStillCapture" />
+
+</configuration>

@@ -1,0 +1,326 @@
+[
+  {
+    "name": "Press 1",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_1"},
+      {"action": "UP", "keycode": "KEYCODE_1"}
+    ]
+  },
+  {
+    "name": "Press 2",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_2"},
+      {"action": "UP", "keycode": "KEYCODE_2"}
+    ]
+  },
+  {
+    "name": "Press 3",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_3"},
+      {"action": "UP", "keycode": "KEYCODE_3"}
+    ]
+  },
+  {
+    "name": "Press 4",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_4"},
+      {"action": "UP", "keycode": "KEYCODE_4"}
+    ]
+  },
+  {
+    "name": "Press 5",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_5"},
+      {"action": "UP", "keycode": "KEYCODE_5"}
+    ]
+  },
+  {
+    "name": "Press 6",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x23, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_6"},
+      {"action": "UP", "keycode": "KEYCODE_6"}
+    ]
+  },
+  {
+    "name": "Press 7",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_7"},
+      {"action": "UP", "keycode": "KEYCODE_7"}
+    ]
+  },
+  {
+    "name": "Press 8",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x25, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_8"},
+      {"action": "UP", "keycode": "KEYCODE_8"}
+    ]
+  },
+  {
+    "name": "Press 9",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x26, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_9"},
+      {"action": "UP", "keycode": "KEYCODE_9"}
+    ]
+  },
+  {
+    "name": "Press 0",
+    "reports": [
+      [0x01, 0x00, 0x00, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "KEYCODE_0"},
+      {"action": "UP", "keycode": "KEYCODE_0"}
+    ]
+  },
+  {
+    "name": "Press Subtitles",
+    "reports": [
+      [0x02, 0x61, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "CAPTIONS"},
+      {"action": "UP", "keycode": "CAPTIONS"}
+    ]
+  },
+  {
+    "name": "Press Red",
+    "reports": [
+      [0x02, 0x69, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "PROG_RED"},
+      {"action": "UP", "keycode": "PROG_RED"}
+    ]
+  },
+  {
+    "name": "Press Green",
+    "reports": [
+      [0x02, 0x6a, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "PROG_GREEN"},
+      {"action": "UP", "keycode": "PROG_GREEN"}
+    ]
+  },
+  {
+    "name": "Press Yellow",
+    "reports": [
+      [0x02, 0x6c, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "PROG_YELLOW"},
+      {"action": "UP", "keycode": "PROG_YELLOW"}
+    ]
+  },
+  {
+    "name": "Press Blue",
+    "reports": [
+      [0x02, 0x6b, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "PROG_BLUE"},
+      {"action": "UP", "keycode": "PROG_BLUE"}
+    ]
+  },
+  {
+    "name": "Press Bookmark",
+    "reports": [
+      [0x02, 0x2a, 0x02, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BOOKMARK"},
+      {"action": "UP", "keycode": "BOOKMARK"}
+    ]
+  },
+  {
+    "name": "Press Info",
+    "reports": [
+      [0x02, 0xbd, 0x01, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "INFO"},
+      {"action": "UP", "keycode": "INFO"}
+    ]
+  },
+  {
+    "name": "Press Input",
+    "reports": [
+      [0x02, 0xbb, 0x01, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "TV_INPUT"},
+      {"action": "UP", "keycode": "TV_INPUT"}
+    ]
+  },
+  {
+    "name": "Press D-pad up",
+    "reports": [
+      [0x02, 0x42, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "DPAD_UP"},
+      {"action": "UP", "keycode": "DPAD_UP"}
+    ]
+  },
+  {
+    "name": "Press D-pad left",
+    "reports": [
+      [0x02, 0x44, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "DPAD_LEFT"},
+      {"action": "UP", "keycode": "DPAD_LEFT"}
+    ]
+  },
+  {
+    "name": "Press D-pad right",
+    "reports": [
+      [0x02, 0x45, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "DPAD_RIGHT"},
+      {"action": "UP", "keycode": "DPAD_RIGHT"}
+    ]
+  },
+  {
+    "name": "Press D-pad down",
+    "reports": [
+      [0x02, 0x43, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "DPAD_DOWN"},
+      {"action": "UP", "keycode": "DPAD_DOWN"}
+    ]
+  },
+  {
+    "name": "Press D-pad center",
+    "reports": [
+      [0x02, 0x41, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "DPAD_CENTER"},
+      {"action": "UP", "keycode": "DPAD_CENTER"}
+    ]
+  },
+  {
+    "name": "Press Back",
+    "reports": [
+      [0x02, 0x24, 0x02],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "BACK"},
+      {"action": "UP", "keycode": "BACK"}
+    ]
+  },
+  {
+    "name": "Press Guide",
+    "reports": [
+      [0x02, 0x8d, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "GUIDE"},
+      {"action": "UP", "keycode": "GUIDE"}
+    ]
+  },
+  {
+    "name": "Press Program +",
+    "reports": [
+      [0x02, 0x9c, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "CHANNEL_UP"},
+      {"action": "UP", "keycode": "CHANNEL_UP"}
+    ]
+  },
+  {
+    "name": "Press Program -",
+    "reports": [
+      [0x02, 0x9d, 0x00, 0x00, 0x00],
+      [0x02, 0x00, 0x00, 0x00, 0x00]
+    ],
+    "source": "KEYBOARD | DPAD",
+    "events": [
+      {"action": "DOWN", "keycode": "CHANNEL_DOWN"},
+      {"action": "UP", "keycode": "CHANNEL_DOWN"}
+    ]
+  }
+]

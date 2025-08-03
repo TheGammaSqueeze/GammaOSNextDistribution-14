@@ -1,0 +1,115 @@
+<!--
+  ~ Copyright (C) 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <style name="no_starting_window" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowDisablePreview">true</item>
+    </style>
+    <style name="no_animation" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
+    <style name="WhiteBackgroundTheme" parent="@android:style/Theme.Holo.NoActionBar.Fullscreen">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowOverscan">true</item>
+        <item name="android:fadingEdge">none</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowContentTransitions">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+    <style name="window_activity_transitions" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+    <style name="NoInsetsTheme" parent="@android:style/Theme.NoTitleBar">
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:windowSoftInputMode">stateHidden</item>
+    </style>
+    <style name="NoInsetsTheme.Translucent" parent="NoInsetsTheme">
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+    <style name="Theme.WhiteBackground" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:background">#ffffff</item>
+        <item name="android:windowBackground">#ffffff</item>
+        <item name="android:colorBackground">#ffffff</item>
+    </style>
+    <style name="Theme.EdgeExtensions" parent="Theme.WhiteBackground">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+    <style name="Theme.TranslucentBars" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+    <style name="window_task_animation" parent="@android:style/Theme.DeviceDefault">
+      <item name="android:taskOpenEnterAnimation">@anim/alpha</item>
+      <item name="android:taskOpenExitAnimation">@anim/alpha</item>
+      <item name="android:taskCloseEnterAnimation">@anim/alpha</item>
+      <item name="android:taskCloseExitAnimation">@anim/alpha</item>
+    </style>
+    <style name="BackgroundImage" parent="@android:style/Theme.NoTitleBar.Fullscreen">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:windowSoftInputMode">stateHidden</item>
+    </style>
+    <style name="BlurryDialog" parent="TranslucentDialog">
+        <item name="android:windowBackgroundBlurRadius">@dimen/test_background_blur_radius</item>
+        <item name="android:windowBlurBehindRadius">@dimen/test_blur_behind_radius</item>
+        <item name="android:windowBlurBehindEnabled">true</item>
+    </style>
+
+    <style name="BadBlurryDialog" parent="TranslucentDialog">
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowBlurBehindEnabled">false</item>
+    </style>
+
+    <style name="Floating" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    <style name="Floating.NoMove">
+        <item name="android:windowNoMoveAnimation">true</item>
+    </style>
+    <style name="TranslucentDialog" parent="@android:style/Theme.Material.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowBlurBehindEnabled">true</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowElevation">0dp</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:windowSoftInputMode">stateHidden</item>
+    </style>
+
+    <!--
+        TODO(b/309578419):
+        1. Move insets and display cutout related tests to a targetSdk level which is lower than V.
+        2. Make activities handle insets properly.
+        3. Remove these styles.
+    -->
+    <style name="OptOutEdgeToEdge" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+    <style name="OptOutEdgeToEdge.NoActionBar" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+ </resources>

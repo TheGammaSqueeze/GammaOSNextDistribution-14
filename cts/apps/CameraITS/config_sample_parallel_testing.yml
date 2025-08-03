@@ -1,0 +1,89 @@
+# Copyright 2023 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Note: This is a sample file for reference only. Users should edit and use config.yml instead.
+TestBeds:
+  - Name: TEST_BED_TABLET_SCENES_INDEX_0  # Need 'tablet' in name for tablet scenes
+    Controllers:
+        AndroidDevice:
+          - serial: <device-id-0>  # quotes are needed if serial id is entirely numeric
+            label: dut
+          - serial: <tablet-id-0>  # quotes are needed if serial id is entirely numeric
+            label: tablet
+    TestParams:
+      brightness: 192
+      chart_distance: 22.0
+      debug_mode: "False"  # quotes are needed here
+      lighting_cntl: <controller-type>  # can be arduino or "None"
+      lighting_ch: <controller-channel-0>
+      camera: <camera-id>
+      scene: <scene-name>  # if <scene-name> runs all scenes
+      foldable_device: "False"  # "True" if testing a foldable device
+
+  - Name: TEST_BED_TABLET_SCENES_INDEX_1  # Need 'tablet' in name for tablet scenes
+    Controllers:
+        AndroidDevice:
+          - serial: <device-id-1>  # quotes needed if serial id entirely numeric
+            label: dut
+          - serial: <tablet-id-1>  # quotes needed if serial id entirely numeric
+            label: tablet
+    TestParams:
+      brightness: 192
+      chart_distance: 22.0
+      debug_mode: "False"  # quotes are needed here
+      lighting_cntl: <controller-type>  # can be arduino or "None"
+      lighting_ch: <controller-channel-1>
+      camera: <camera-id>
+      scene: <scene-name>  # if <scene-name> runs all scenes
+      foldable_device: "False"  # "True" if testing a foldable device
+
+  - Name: TEST_BED_TABLET_SCENES_INDEX_2  # Need 'tablet' in name for tablet scenes
+    Controllers:
+        AndroidDevice:
+          - serial: <device-id-2>  # quotes are needed if serial id is entirely numeric
+            label: dut
+          - serial: <tablet-id-2>  # quotes are needed if serial id is entirely numeric
+            label: tablet
+    TestParams:
+      brightness: 192
+      chart_distance: 22.0
+      debug_mode: "False"  # quotes are needed here
+      lighting_cntl: <controller-type>  # can be arduino or "None"
+      lighting_ch: <controller-channel-2>
+      camera: <camera-id>
+      scene: <scene-name>  # if <scene-name> runs all scenes
+      foldable_device: "False"  # "True" if testing a foldable device
+
+  # TEST_BED_SENSOR_FUSION represents testbed index 3
+  # Parallel sensor_fusion is currently unsupported due to Arduino requirements
+  - Name: TEST_BED_SENSOR_FUSION  # Need 'sensor_fusion' in name for SF tests
+    # Test configuration for sensor_fusion/test_sensor_fusion.py
+    Controllers:
+        AndroidDevice:
+          - serial: <device-id>  # quotes are needed if serial id is entirely numeric
+            label: dut
+    TestParams:
+      fps: 30
+      img_size: 640,480
+      test_length: 7
+      debug_mode: "False"  # quotes are needed here
+      chart_distance: 25
+      rotator_cntl: "arduino"  # Note: only sensor fusion supports manual
+      rotator_ch: <controller-channel>
+      camera: <camera-id>
+      foldable_device: "False"  # "True" if testing a foldable device
+      tablet_device: "False"  # "True" if testing a tablet device
+      lighting_cntl: <controller-type>  # can be arduino or "None"
+      lighting_ch: <controller-channel>
+      scene: "sensor_fusion"

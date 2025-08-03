@@ -1,0 +1,204 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_responsible_apis",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "bal-testapp",
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "cts-wm-app-base",
+        "cts-background-activity-common",
+        "cts-background-activity-common-lib",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window_jetpack_utils",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsBackgroundActivityAppA",
+    defaults: ["cts_support_defaults"],
+
+    static_libs: [
+        "bal-testapp",
+        "cts-wm-app-base",
+        "cts-background-activity-common",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window_jetpack_utils",
+    ],
+
+    target_sdk_version: "current",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsBackgroundActivityAppA33",
+    defaults: ["cts_support_defaults"],
+
+    static_libs: [
+        "bal-testapp",
+        "cts-wm-app-base",
+        "cts-background-activity-common",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window_jetpack_utils",
+    ],
+
+    target_sdk_version: "33",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    aaptflags: [
+        "--rename-manifest-package android.server.wm.backgroundactivity.appa33",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsBackgroundActivityAppB",
+    defaults: ["cts_support_defaults"],
+
+    static_libs: [
+        "bal-testapp",
+        "cts-wm-app-base",
+        "cts-background-activity-common",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window_jetpack_utils",
+    ],
+
+    target_sdk_version: "current",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    aaptflags: [
+        "--rename-manifest-package android.server.wm.backgroundactivity.appb",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsBackgroundActivityAppB33",
+    defaults: ["cts_support_defaults"],
+
+    static_libs: [
+        "bal-testapp",
+        "cts-wm-app-base",
+        "cts-background-activity-common",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window_jetpack_utils",
+    ],
+
+    target_sdk_version: "33",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    aaptflags: [
+        "--rename-manifest-package android.server.wm.backgroundactivity.appb33",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsBackgroundActivityAppC",
+    defaults: ["cts_support_defaults"],
+
+    static_libs: [
+        "bal-testapp",
+        "cts-wm-app-base",
+        "cts-background-activity-common",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window_jetpack_utils",
+    ],
+
+    target_sdk_version: "current",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    aaptflags: [
+        "--rename-manifest-package android.server.wm.backgroundactivity.appc",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsBackgroundActivityAppC33",
+    defaults: ["cts_support_defaults"],
+
+    static_libs: [
+        "bal-testapp",
+        "cts-wm-app-base",
+        "cts-background-activity-common",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window_jetpack_utils",
+    ],
+
+    target_sdk_version: "33",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    aaptflags: [
+        "--rename-manifest-package android.server.wm.backgroundactivity.appc33",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsBackgroundActivityAppAllowCrossUidFlagDefault",
+    defaults: ["cts_support_defaults"],
+
+    static_libs: [
+        "bal-testapp",
+        "cts-wm-app-base",
+        "cts-background-activity-common",
+        "cts_window-sidecar",
+        "cts_window-extensions",
+        "cts_window_jetpack_utils",
+    ],
+
+    target_sdk_version: "current",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    manifest: "AndroidManifestAllowCrossUidFlagDefault.xml",
+
+    aaptflags: [
+        "--rename-manifest-package android.server.wm.backgroundactivity.appasmoptout",
+    ],
+}

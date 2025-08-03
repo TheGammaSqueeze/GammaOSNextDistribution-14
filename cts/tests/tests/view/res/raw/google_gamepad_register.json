@@ -1,0 +1,15 @@
+{
+    "id": 1,
+    "type": "uinput",
+    "command": "register",
+    "name": "Gamepad FF (USB Test)",
+    "vid": 0x18d1,
+    "pid": 0xabcd,
+    "bus": "usb",
+    "configuration":[
+        {"type":100, "data":[1, 21]},  // UI_SET_EVBIT : EV_KEY and EV_FF
+        {"type":101, "data":[11, 2, 3, 4]},   // UI_SET_KEYBIT : KEY_0 KEY_1 KEY_2 KEY_3
+        {"type":107, "data":[80]}    //  UI_SET_FFBIT : FF_RUMBLE
+    ],
+    "ff_effects_max" : 1
+}

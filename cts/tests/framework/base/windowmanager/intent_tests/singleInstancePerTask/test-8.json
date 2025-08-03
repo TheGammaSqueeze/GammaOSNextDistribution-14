@@ -1,0 +1,47 @@
+{
+    "comment": "Verify that reusing the same activity even launched with same Uri.",
+    "setup": {
+        "initialIntents": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                "package": "android.server.wm.cts",
+                "data": "https://www.google.com/",
+                "startForResult": false
+            }
+        ],
+        "act": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                "package": "android.server.wm.cts",
+                "data": "https://www.google.com/",
+                "startForResult": false
+            }
+        ]
+    },
+    "initialState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            }
+        ]
+    },
+    "endState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            }
+        ]
+    }
+}

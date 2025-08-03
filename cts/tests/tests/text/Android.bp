@@ -1,0 +1,82 @@
+// Copyright (C) 2008 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_android_text",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsTextTestCases",
+    defaults: ["cts_defaults"],
+    sdk_version: "test_current",
+    stl: "c++_shared",
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+
+    static_libs: [
+        "compatibility-device-util-axt",
+        "ctsdeviceutillegacy-axt",
+        "ctstestrunner-axt",
+        "flag-junit",
+        "ravenwood-junit",
+        "mockito-target-minus-junit4",
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
+        "junit-params",
+        "com.android.text.flags-aconfig-java",
+    ],
+
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+
+    jni_libs: [
+        "libctstext_jni",
+        "libnativehelper_compat_libc++",
+    ],
+    // Include both the 32 and 64 bit versions of libctstext_jni, where
+    // applicable.
+    compile_multilib: "both",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+        "mts",
+        "sts",
+    ],
+    data: [
+        ":CtsTextTestResourceData",
+        ":TestIme",
+    ],
+    per_testcase_directory: true,
+}
+
+android_ravenwood_test {
+    name: "CtsTextTestCasesRavenwood",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+    ],
+    srcs: [
+        "src/android/text/cts/TextUtilsTest.java",
+        "src/android/text/cts/TextUtils_SimpleStringSplitterTest.java",
+    ],
+    auto_gen_config: true,
+}

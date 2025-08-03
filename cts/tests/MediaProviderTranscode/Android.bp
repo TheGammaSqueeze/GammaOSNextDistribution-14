@@ -1,0 +1,71 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+    default_team: "trendy_team_android_storage",
+}
+
+android_test {
+    name: "CtsMediaProviderTranscodeTests",
+    test_suites: [
+        "device-tests",
+        "cts",
+        "mts-mediaprovider",
+        "mcts-mediaprovider",
+    ],
+    compile_multilib: "both",
+
+    manifest: "AndroidManifest.xml",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    libs: [
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+    ],
+
+    static_libs: [
+        "androidx.test.rules",
+        "cts-install-lib",
+        "collector-device-lib-platform",
+        "mockito-target",
+        "truth",
+    ],
+
+    min_sdk_version: "30",
+    target_sdk_version: "33",
+    certificate: "media",
+    java_resources: [
+        ":CtsTranscodeTestAppSupportsHevc",
+        ":CtsTranscodeTestAppSupportsSlowMotion",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsTranscodeTestAppSupportsHevc",
+    manifest: "helper/AndroidManifest.xml",
+    sdk_version: "test_current",
+    resource_dirs: ["helper/res-hevc"],
+    srcs: [
+        "helper/src/**/*.java",
+        "src/android/mediaprovidertranscode/cts/TranscodeTestConstants.java",
+    ],
+    static_libs: ["androidx.legacy_legacy-support-v4"],
+    target_sdk_version: "28",
+    min_sdk_version: "30",
+}
+
+android_test_helper_app {
+    name: "CtsTranscodeTestAppSupportsSlowMotion",
+    manifest: "helper/AndroidManifest.xml",
+    sdk_version: "test_current",
+    resource_dirs: ["helper/res-slow-motion"],
+    srcs: [
+        "helper/src/**/*.java",
+        "src/android/mediaprovidertranscode/cts/TranscodeTestConstants.java",
+    ],
+    static_libs: ["androidx.legacy_legacy-support-v4"],
+    target_sdk_version: "28",
+    min_sdk_version: "30",
+}

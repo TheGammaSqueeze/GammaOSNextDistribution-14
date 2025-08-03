@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2015 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Config for CTS WindowManager test cases {MODULE}">
+    <option name="test-suite-tag" value="cts" />
+    <option name="config-descriptor:metadata" key="component" value="framework"/>
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <option name="force-skip-system-props" value="true" />
+        <option name="restore-settings" value="true" />
+        <!-- settings put global verifier_engprod 1 -->
+        <option name="set-global-setting" key="verifier_engprod" value="1" />
+        <!-- settings put global verifier_verify_adb_installs 0 -->
+        <option name="set-global-setting" key="verifier_verify_adb_installs" value="0" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true"/>
+        <option name="install-arg" value="-t" />
+        <option name="test-file-name" value="{MODULE}.apk"/>
+        <option name="test-file-name" value="CtsPropertyCompatAllowOrientationOverrideApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowDisplayOrientationOverrideApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowMinAspectRatioOverrideOptInApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowMinAspectRatioOverrideOptOutApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowIgnoringOrientationRequestWhenLoopDetectedOptInApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowIgnoringOrientationRequestWhenLoopDetectedOptOutApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowIgnoringOrientationRequestWhenLoopDetectedUnsetApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowResizeableActivityOverridesOptInApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowResizeableActivityOverridesOptOutApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowUserAspectRatioFullscreenOverrideOptInApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowUserAspectRatioFullscreenOverrideOptOutApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowUserAspectRatioOverrideOptInApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatAllowUserAspectRatioOverrideOptOutApp.apk" />
+        <option name="test-file-name" value="CtsDragAndDropSourceApp.apk"/>
+        <option name="test-file-name" value="CtsDragAndDropTargetApp.apk"/>
+        <option name="test-file-name" value="CtsDeviceAlertWindowTestApp.apk"/>
+        <option name="test-file-name" value="CtsAlertWindowService.apk"/>
+        <option name="test-file-name" value="CtsPropertyCompatAllowSandboxingViewBoundsApisApp.apk"/>
+        <option name="test-file-name" value="CtsPropertyCompatOptOutSandboxingViewBoundsApisApp.apk"/>
+        <option name="test-file-name" value="CtsPropertyCompatEnableFakeFocusOptInApp.apk" />
+        <option name="test-file-name" value="CtsPropertyCompatEnableFakeFocusOptOutApp.apk" />
+        <option name="test-file-name" value="CtsPropertyIgnoreOrientationRequestOverrideOptInApp.apk"/>
+        <option name="test-file-name" value="CtsPropertyIgnoreOrientationRequestOverrideOptOutApp.apk"/>
+        <option name="test-file-name" value="CtsPropertyCameraCompatAllowForceRotationApp.apk"/>
+        <option name="test-file-name" value="CtsPropertyCameraCompatAllowRefreshApp.apk"/>
+        <option name="test-file-name" value="CtsPropertyCameraCompatEnableRefreshViaPauseOptInApp.apk"/>
+        <option name="test-file-name" value="CtsPropertyCameraCompatEnableRefreshViaPauseOptOutApp.apk"/>
+        <option name="test-file-name" value="CtsDeviceServicesTestApp.apk" />
+        <option name="test-file-name" value="CtsDeviceServicesTestApp27.apk" />
+        <option name="test-file-name" value="CtsDeviceServicesTestApp30.apk" />
+        <option name="test-file-name" value="CtsDeviceServicesTestSecondApp.apk" />
+        <option name="test-file-name" value="CtsDeviceServicesTestThirdApp.apk" />
+        <option name="test-file-name" value="CtsDeviceDeprecatedSdkApp.apk" />
+        <option name="test-file-name" value="CtsDeviceDeskResourcesApp.apk" />
+        <option name="test-file-name" value="CtsDeviceDisplaySizeApp.apk" />
+        <option name="test-file-name" value="CtsDevicePrereleaseSdkApp.apk" />
+        <option name="test-file-name" value="CtsDeviceProfileableApp.apk" />
+        <option name="test-file-name" value="CtsDeviceTranslucentTestApp.apk" />
+        <option name="test-file-name" value="CtsDeviceTranslucentTestApp26.apk" />
+        <option name="test-file-name" value="CtsMockInputMethod.apk" />
+        <option name="test-file-name" value="CtsDeviceServicesTestShareUidAppA.apk" />
+        <option name="test-file-name" value="CtsDeviceServicesTestShareUidAppB.apk" />
+        <option name="test-file-name" value="CtsWindowManagerJetpackSecondUidApp.apk" />
+        <option name="test-file-name" value="CtsBackLegacyApp.apk" />
+        <option name="test-file-name" value="CtsWindowManagerExternalApp.apk" />
+    </target_preparer>
+    <!-- Some older apk cannot be installed as instant, so we force them full mode -->
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true"/>
+        <option name="force-install-mode" value="FULL"/>
+        <option name="test-file-name" value="CtsDragAndDropTargetAppSdk23.apk"/>
+        <option name="test-file-name" value="CtsDeviceAlertWindowTestAppSdk25.apk"/>
+    </target_preparer>
+    <!-- Necessary for Automotive devices - no-op for other Android verticals -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command"
+                value="settings put secure android.car.ENABLE_INITIAL_NOTICE_SCREEN_TO_USER 0" />
+        <option name="teardown-command"
+                value="settings put secure android.car.ENABLE_INITIAL_NOTICE_SCREEN_TO_USER 1" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+      <!-- Disable hidden API checking, see b/166236554 -->
+        <option name="run-command" value="settings put global hidden_api_policy 1" />
+        <option name="teardown-command" value="settings delete global hidden_api_policy" />
+        <option name="run-command" value="am compat enable ALLOW_TEST_API_ACCESS android.server.wm.app"  />
+        <option name="teardown-command" value="am compat reset ALLOW_TEST_API_ACCESS android.server.wm.app" />
+        <!-- ensure lock screen is enabled -->
+        <option name="run-command" value="locksettings set-disabled false" />
+        <!-- ensure user setup is completed -->
+        <option name="run-command" value="settings put secure user_setup_complete 1" />
+        <!-- disable DeprecatedAbi warning -->
+        <option name="run-command" value="setprop debug.wm.disable_deprecated_abi_dialog 1" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+        <option name="package" value="android.server.wm.cts"/>
+        <option name="runtime-hint" value="1h"/>
+        <option name="device-listeners" value="android.tools.collectors.DefaultUITraceListener"/>
+        <!-- DefaultUITraceListener args -->
+        <option name="instrumentation-arg" key="skip_test_success_metrics" value="true"/>
+        <option name="instrumentation-arg" key="per_class" value="true"/>
+    </test>
+
+    <!-- Collect the files from DumpOnFailure. -->
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="pull-pattern-keys" value="perfetto_file_path*"/>
+        <option name="directory-keys" value="/sdcard/DumpOnFailure" />
+        <option name="directory-keys" value="/data/user/0/android.server.wm.cts/files" />
+        <option name="collect-on-run-ended-only" value="true" />
+    </metrics_collector>
+
+    <!-- Needed for DeprecatedAbiTest -->
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+        <option name="cleanup" value="true" />
+        <option name="push-file" key="CtsDeviceDeprecatedAbiApp.apk" value="/data/local/tmp/cts/CtsDeviceDeprecatedAbiApp.apk" />
+    </target_preparer>
+    <object class="com.android.tradefed.testtype.suite.module.TestFailureModuleController" type="module_controller">
+        <!-- Take screenshot upon test failure -->
+        <option name="screenshot-on-failure" value="true" />
+    </object>
+</configuration>

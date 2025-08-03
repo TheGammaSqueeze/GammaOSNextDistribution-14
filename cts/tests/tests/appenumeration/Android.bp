@@ -1,0 +1,96 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_framework_android_packages",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsAppEnumerationTestCases",
+    defaults: ["cts_defaults"],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    static_libs: [
+        "ctstestrunner-axt",
+        "compatibility-device-util-axt",
+        "androidx.test.ext.junit",
+        "hamcrest-library",
+        "CtsAppEnumerationTestLib",
+        "cts-install-lib",
+        "Harrier",
+        "android.security.flags-aconfig-java-host",
+    ],
+
+    srcs: ["src/**/*.java"],
+    sdk_version: "test_current",
+    data: [
+        ":CtsAppEnumerationQueriesUnexportedProviderViaAuthority",
+        ":CtsAppEnumerationSyncadapterSharedUidTarget",
+        ":CtsAppEnumerationContactsActivityTarget",
+        ":CtsAppEnumerationBrowserWildcardActivityTarget",
+        ":CtsAppEnumerationPrefixWildcardWebActivityTarget",
+        ":CtsAppEnumerationPreferredActivityTarget",
+        ":CtsAppEnumerationQueriesNothingHasProvider",
+        ":CtsAppEnumerationQueriesNothingReceivesUri",
+        ":CtsAppEnumerationQueriesNothingReceivesPersistableUri",
+        ":CtsAppEnumerationQueriesUnexportedActivityViaAction",
+        ":CtsAppEnumerationQueriesNothingTargetsQ",
+        ":CtsAppEnumerationDocumentsActivityTarget",
+        ":CtsAppEnumerationWildcardBrowsableActivitySource",
+        ":CtsAppEnumerationQueriesNothingHasPermission",
+        ":CtsAppEnumerationSyncadapterTarget",
+        ":CtsAppEnumerationWildcardActionSource",
+        ":CtsAppEnumerationWildcardContactsActivitySource",
+        ":CtsAppEnumerationWildcardDocumentEditorActivitySource",
+        ":CtsAppEnumerationQueriesNothingUsesOptionalLibrary",
+        ":CtsAppEnumerationBrowserActivityTarget",
+        ":CtsAppEnumerationSharedUidTarget",
+        ":CtsAppEnumerationQueriesUnexportedServiceViaAction",
+        ":CtsAppEnumerationFilters",
+        ":CtsAppEnumerationNoApi",
+        ":CtsAppEnumerationWebActivityTarget",
+        ":CtsAppEnumerationWildcardBrowserActivitySource",
+        ":CtsAppEnumerationQueriesNothingReceivesNonPersistableUri",
+        ":CtsAppEnumerationQueriesProviderViaAction",
+        ":CtsAppEnumerationAppWidgetProviderTarget",
+        ":CtsAppEnumerationQueriesUnexportedProviderViaAction",
+        ":CtsAppEnumerationQueriesPackageHasProvider",
+        ":CtsAppEnumerationQueriesProviderViaAuthority",
+        ":CtsAppEnumerationQueriesNothingSeesInstaller",
+        ":CtsAppEnumerationQueriesNothingUsesLibrary",
+        ":CtsAppEnumerationWildcardShareActivitySource",
+        ":CtsAppEnumerationShareActivityTarget",
+        ":CtsAppEnumerationStub",
+        ":CtsAppEnumerationStubSharedUser",
+        ":CtsAppEnumerationQueriesServiceViaAction",
+        ":CtsAppEnumerationSharedUidSource",
+        ":CtsAppEnumerationQueriesNothingReceivesPermissionProtectedUri",
+        ":CtsAppEnumerationQueriesNothing",
+        ":CtsAppEnumerationForceQueryableNormalInstall",
+        ":CtsAppEnumerationWildcardWebActivitySource",
+        ":CtsAppEnumerationQueriesActivityViaAction",
+        ":CtsAppEnumerationAppWidgetProviderSharedUidTarget",
+        ":CtsAppEnumerationQueriesPackage",
+        ":CtsAppEnumerationForceQueryable",
+        ":CtsMockSpellChecker",
+        ":CtsInputMethod1",
+        ":CtsNoRestartBase",
+        ":CtsNoRestartFeature",
+    ],
+    per_testcase_directory: true,
+}

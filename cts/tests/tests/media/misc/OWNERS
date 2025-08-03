@@ -1,0 +1,4 @@
+# Bug component: 1344
+include platform/frameworks/av:/media/OWNERS
+etalvala@google.com
+jsharkey@android.com

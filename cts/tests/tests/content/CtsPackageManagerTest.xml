@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Config for CTS PackageManager test cases">
+    <option name="test-suite-tag" value="cts" />
+    <option name="config-descriptor:metadata" key="component" value="framework" />
+
+    <option name="config-descriptor:metadata" key="parameter" value="instant_app" />
+
+    <!-- The framework has some native code involved. -->
+    <option name="config-descriptor:metadata" key="parameter" value="multi_abi" />
+
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
+
+    <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="rm -rf /data/local/tmp/cts" />
+        <option name="run-command" value="mkdir -p /data/local/tmp/cts/content" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/cts"/>
+        <option name="run-command" value="cmd thermalservice override-status 0" />
+        <option name="teardown-command" value="cmd thermalservice reset" />
+        <option name="run-command" value="input keyevent KEYCODE_WAKEUP" />
+        <option name="run-command" value="wm dismiss-keyguard" />
+        <!-- Collapse notifications -->
+        <option name="run-command" value="cmd statusbar collapse" />
+        <!-- dismiss all system dialogs before launch test -->
+        <option name="run-command" value="am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+        <option name="force-skip-system-props" value="true" />
+        <option name="set-global-setting" key="verifier_engprod" value="1" />
+        <option name="set-global-setting" key="verifier_verify_adb_installs" value="0" />
+        <option name="set-global-setting" key="unused_static_shared_lib_min_cache_period" value="0" />
+        <option name="restore-settings" value="true" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer">
+        <option name="force-root" value="false" />
+    </target_preparer>
+
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="cleanup" value="true" />
+        <option name="push" value="CtsPackageManagerTestCases.apk->/data/local/tmp/cts/content/CtsPackageManagerTestCases.apk" />
+        <option name="push" value="CtsPackageManagerTestCases_hdpi-v4.apk->/data/local/tmp/cts/content/CtsPackageManagerTestCases_hdpi-v4.apk" />
+        <option name="push" value="CtsPackageManagerTestCases_mdpi-v4.apk->/data/local/tmp/cts/content/CtsPackageManagerTestCases_mdpi-v4.apk" />
+        <option name="push" value="CtsContentEmptyTestApp.apk->/data/local/tmp/cts/content/CtsContentEmptyTestApp.apk" />
+        <option name="push" value="CtsContentLongPackageNameTestApp.apk->/data/local/tmp/cts/content/CtsContentLongPackageNameTestApp.apk" />
+        <option name="push" value="CtsContentLongSharedUserIdTestApp.apk->/data/local/tmp/cts/content/CtsContentLongSharedUserIdTestApp.apk" />
+        <option name="push" value="CtsContentMaxPackageNameTestApp.apk->/data/local/tmp/cts/content/CtsContentMaxPackageNameTestApp.apk" />
+        <option name="push" value="CtsContentMaxSharedUserIdTestApp.apk->/data/local/tmp/cts/content/CtsContentMaxSharedUserIdTestApp.apk" />
+        <option name="push" value="CtsContentMockLauncherTestApp.apk->/data/local/tmp/cts/content/CtsContentMockLauncherTestApp.apk" />
+        <option name="push" value="CtsContentMockLauncherActivityLabelTestApp.apk->/data/local/tmp/cts/content/CtsContentMockLauncherActivityLabelTestApp.apk" />
+        <option name="push" value="CtsContentMockLauncherApplicationLabelTestApp.apk->/data/local/tmp/cts/content/CtsContentMockLauncherApplicationLabelTestApp.apk" />
+        <option name="push" value="CtsContentMockLauncherInvisibleLabelsTestApp.apk->/data/local/tmp/cts/content/CtsContentMockLauncherInvisibleLabelsTestApp.apk" />
+        <option name="push" value="CtsContentLongLabelNameTestApp.apk->/data/local/tmp/cts/content/CtsContentLongLabelNameTestApp.apk" />
+        <option name="push" value="CtsIntentResolutionTestApp.apk->/data/local/tmp/cts/content/CtsIntentResolutionTestApp.apk" />
+        <option name="push" value="CtsSyncAccountAccessStubs.apk->/data/local/tmp/cts/content/CtsSyncAccountAccessStubs.apk" />
+        <option name="push" value="CtsSyncAccountAccessStubs_mdpi-v4.apk->/data/local/tmp/cts/content/CtsSyncAccountAccessStubs_mdpi-v4.apk" />
+        <option name="push" value="CtsContentLongUsesPermissionNameTestApp.apk->/data/local/tmp/cts/content/CtsContentLongUsesPermissionNameTestApp.apk" />
+        <option name="push" value="CtsContentShellTestApp.apk->/data/local/tmp/cts/content/CtsContentShellTestApp.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+        <option name="cleanup" value="true" />
+        <option name="push-file" key="HelloWorld5.apk" value="/data/local/tmp/cts/content/HelloWorld5.apk" />
+        <option name="push-file" key="HelloWorld5.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5.apk.idsig" />
+        <option name="push-file" key="HelloWorld5_hdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld5_hdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld5_hdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5_hdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorld5_mdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld5_mdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld5_mdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5_mdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorld5_xhdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld5_xhdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld5_xhdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5_xhdpi-v4.apk.idisg" />
+        <option name="push-file" key="HelloWorld5_xxhdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld5_xxhdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld5_xxhdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5_xxhdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorld5_xxxhdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld5_xxxhdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld5_xxxhdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5_xxxhdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorld5NonDefaultFlags.apk" value="/data/local/tmp/cts/content/HelloWorld5NonDefaultFlags.apk" />
+        <option name="push-file" key="HelloWorld5NonDefaultFlags.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5NonDefaultFlags.apk.idsig" />
+        <option name="push-file" key="HelloWorld5DifferentSigner.apk" value="/data/local/tmp/cts/content/HelloWorld5DifferentSigner.apk" />
+        <option name="push-file" key="HelloWorld5DifferentSigner.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5DifferentSigner.apk.idsig" />
+        <option name="push-file" key="HelloWorld5Profileable.apk" value="/data/local/tmp/cts/content/HelloWorld5Profileable.apk" />
+        <option name="push-file" key="HelloWorld5Profileable.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld5Profileable.apk.idsig" />
+        <option name="push-file" key="HelloWorld7.apk" value="/data/local/tmp/cts/content/HelloWorld7.apk" />
+        <option name="push-file" key="HelloWorld7.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld7.apk.idsig" />
+        <option name="push-file" key="HelloWorld7_hdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld7_hdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld7_hdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld7_hdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorld7_mdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld7_mdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld7_mdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld7_mdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorld7_xhdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld7_xhdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld7_xhdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld7_xhdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorld7_xxhdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld7_xxhdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld7_xxhdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld7_xxhdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorld7_xxxhdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorld7_xxxhdpi-v4.apk" />
+        <option name="push-file" key="HelloWorld7_xxxhdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorld7_xxxhdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorldSystem.apk" value="/data/local/tmp/cts/content/HelloWorldSystem.apk" />
+        <option name="push-file" key="HelloWorldSystem.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSystem.apk.idsig" />
+        <option name="push-file" key="HelloWorldSharedUid.apk" value="/data/local/tmp/cts/content/HelloWorldSharedUid.apk" />
+        <option name="push-file" key="HelloWorldSharedUid.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSharedUid.apk.idsig" />
+        <option name="push-file" key="HelloWorldSettings.apk" value="/data/local/tmp/cts/content/HelloWorldSettings.apk" />
+        <option name="push-file" key="HelloWorldSettings.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSettings.apk.idsig" />
+        <option name="push-file" key="HelloWorldSettings2.apk" value="/data/local/tmp/cts/content/HelloWorldSettings2.apk" />
+        <option name="push-file" key="HelloWorldSettings2.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSettings2.apk.idsig" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV1.apk" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV1.apk" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV2V3V4.apk" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV2V3V4.apk" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV2V3V4.apk.idsig" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV2V3V4.apk.idsig" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV2V3V4.digests" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV2V3V4.digests" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV2V3V4.digests.signature" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV2V3V4.digests.signature" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV2V3V4-Sha512withEC.apk" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV2V3V4-Sha512withEC.apk" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV2V3V4-Sha512withEC.apk.idsig" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV2V3V4.apk-Sha512withEC.idsig" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV2V3V4-Verity.apk" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV2V3V4-Verity.apk" />
+        <option name="push-file" key="CtsPkgInstallTinyAppV2V3V4-Verity.apk.idsig" value="/data/local/tmp/cts/content/CtsPkgInstallTinyAppV2V3V4-Verity.apk.idsig" />
+        <option name="push-file" key="CtsApkVerityTestAppPrebuilt.apk" value="/data/local/tmp/cts/content/CtsApkVerityTestAppPrebuilt.apk" />
+        <option name="push-file" key="CtsApkVerityTestAppPrebuilt.apk.idsig" value="/data/local/tmp/cts/content/CtsApkVerityTestAppPrebuilt.apk.idsig" />
+        <option name="push-file" key="CtsApkVerityTestAppPrebuilt.apk.fsv_sig" value="/data/local/tmp/cts/content/CtsApkVerityTestAppPrebuilt.apk.fsv_sig" />
+        <option name="push-file" key="HelloWorld5.digests" value="/data/local/tmp/cts/content/HelloWorld5.digests" />
+        <option name="push-file" key="HelloWorld5.digests.signature" value="/data/local/tmp/cts/content/HelloWorld5.digests.signature" />
+        <option name="push-file" key="HelloWorld5_hdpi-v4.digests" value="/data/local/tmp/cts/content/HelloWorld5_hdpi-v4.digests" />
+        <option name="push-file" key="HelloWorld5_hdpi-v4.digests.signature" value="/data/local/tmp/cts/content/HelloWorld5_hdpi-v4.digests.signature" />
+        <option name="push-file" key="HelloWorld5_mdpi-v4.digests" value="/data/local/tmp/cts/content/HelloWorld5_mdpi-v4.digests" />
+        <option name="push-file" key="HelloWorld5_mdpi-v4.digests.signature" value="/data/local/tmp/cts/content/HelloWorld5_mdpi-v4.digests.signature" />
+        <option name="push-file" key="HelloWorld5.apk" value="/data/local/tmp/cts/content/malformed.apk" />
+        <option name="push-file" key="HelloWorldResHardening.apk" value="/data/local/tmp/cts/content/HelloWorldResHardening.apk" />
+        <option name="push-file" key="HelloWorldResHardening.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldResHardening.apk.idsig" />
+        <option name="push-file" key="HelloWorldResHardening_hdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorldResHardening_hdpi-v4.apk" />
+        <option name="push-file" key="HelloWorldResHardening_hdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldResHardening_hdpi-v4.apk.idsig" />
+        <option name="push-file" key="HelloWorldResHardening_mdpi-v4.apk" value="/data/local/tmp/cts/content/HelloWorldResHardening_mdpi-v4.apk" />
+        <option name="push-file" key="HelloWorldResHardening_mdpi-v4.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldResHardening_mdpi-v4.apk.idsig" />
+        <option name="push-file" key="malformed.apk.idsig" value="/data/local/tmp/cts/content/malformed.apk.idsig" />
+        <option name="push-file" key="test-cert.x509.pem" value="/data/local/tmp/cts/content/test-cert.x509.pem" />
+        <option name="push-file" key="icon.png" value="/data/local/tmp/cts/content/icon.png" />
+        <option name="push-file" key="icon_mono.png" value="/data/local/tmp/cts/content/icon_mono.png" />
+        <option name="push-file" key="cts-testkey1.x509.pem" value="/data/local/tmp/cts/content/cts-testkey1.x509.pem" />
+        <option name="push-file" key="HelloWorldSdk1.apk" value="/data/local/tmp/cts/content/HelloWorldSdk1.apk" />
+        <option name="push-file" key="HelloWorldSdk1.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSdk1.apk.idsig" />
+        <option name="push-file" key="HelloWorldSdk1Updated.apk" value="/data/local/tmp/cts/content/HelloWorldSdk1Updated.apk" />
+        <option name="push-file" key="HelloWorldSdk1Updated.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSdk1Updated.apk.idsig" />
+        <option name="push-file" key="HelloWorldSdk1MajorVersion2.apk" value="/data/local/tmp/cts/content/HelloWorldSdk1MajorVersion2.apk" />
+        <option name="push-file" key="HelloWorldSdk1MajorVersion2.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSdk1MajorVersion2.apk.idsig" />
+        <option name="push-file" key="HelloWorldSdk1DifferentSigner.apk" value="/data/local/tmp/cts/content/HelloWorldSdk1DifferentSigner.apk" />
+        <option name="push-file" key="HelloWorldSdk1DifferentSigner.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSdk1DifferentSigner.apk.idsig" />
+        <option name="push-file" key="HelloWorldSdk2.apk" value="/data/local/tmp/cts/content/HelloWorldSdk2.apk" />
+        <option name="push-file" key="HelloWorldSdk2.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSdk2.apk.idsig" />
+        <option name="push-file" key="HelloWorldSdk2Updated.apk" value="/data/local/tmp/cts/content/HelloWorldSdk2Updated.apk" />
+        <option name="push-file" key="HelloWorldSdk2Updated.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSdk2Updated.apk.idsig" />
+        <option name="push-file" key="HelloWorldSdk3UsingSdk1.apk" value="/data/local/tmp/cts/content/HelloWorldSdk3UsingSdk1.apk" />
+        <option name="push-file" key="HelloWorldSdk3UsingSdk1.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSdk3UsingSdk1.apk.idsig" />
+        <option name="push-file" key="HelloWorldSdk3UsingSdk1And2.apk" value="/data/local/tmp/cts/content/HelloWorldSdk3UsingSdk1And2.apk" />
+        <option name="push-file" key="HelloWorldSdk3UsingSdk1And2.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSdk3UsingSdk1And2.apk.idsig" />
+        <option name="push-file" key="HelloWorldUsingSdk1.apk" value="/data/local/tmp/cts/content/HelloWorldUsingSdk1.apk" />
+        <option name="push-file" key="HelloWorldUsingSdk1.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldUsingSdk1.apk.idsig" />
+        <option name="push-file" key="HelloWorldUsingSdk1Optional.apk" value="/data/local/tmp/cts/content/HelloWorldUsingSdk1Optional.apk" />
+        <option name="push-file" key="HelloWorldUsingSdk1Optional.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldUsingSdk1Optional.apk.idsig" />
+        <option name="push-file" key="HelloWorldUsingSdk1OptionalSdk2.apk" value="/data/local/tmp/cts/content/HelloWorldUsingSdk1OptionalSdk2.apk" />
+        <option name="push-file" key="HelloWorldUsingSdk1OptionalSdk2.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldUsingSdk1OptionalSdk2.apk.idsig" />
+        <option name="push-file" key="HelloWorldUsingSdk1And2.apk" value="/data/local/tmp/cts/content/HelloWorldUsingSdk1And2.apk" />
+        <option name="push-file" key="HelloWorldUsingSdk1And2.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldUsingSdk1And2.apk.idsig" />
+        <option name="push-file" key="HelloWorldUsingSdk3.apk" value="/data/local/tmp/cts/content/HelloWorldUsingSdk3.apk" />
+        <option name="push-file" key="HelloWorldUsingSdk3.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldUsingSdk3.apk.idsig" />
+        <option name="push-file" key="HelloWorldNoAppStorage.apk" value="/data/local/tmp/cts/content/HelloWorldNoAppStorage.apk" />
+        <option name="push-file" key="HelloWorldNoAppStorage.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldNoAppStorage.apk.idsig" />
+        <option name="push-file" key="HelloWorldLotsOfFlags.apk" value="/data/local/tmp/cts/content/HelloWorldLotsOfFlags.apk" />
+        <option name="push-file" key="HelloWorldLotsOfFlags.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldLotsOfFlags.apk.idsig" />
+        <option name="push-file" key="HelloWorldNonUpdatableSystem.apk" value="/data/local/tmp/cts/content/HelloWorldNonUpdatableSystem.apk" />
+        <option name="push-file" key="HelloWorldWithSufficient.apk" value="/data/local/tmp/cts/content/HelloWorldWithSufficient.apk" />
+        <option name="push-file" key="HelloWorldWithSufficient.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldWithSufficient.apk.idsig" />
+        <option name="push-file" key="HelloSufficientVerifierReject.apk" value="/data/local/tmp/cts/content/HelloSufficientVerifierReject.apk" />
+        <option name="push-file" key="HelloSufficientVerifierReject.apk.idsig" value="/data/local/tmp/cts/content/HelloSufficientVerifierReject.apk.idsig" />
+        <option name="push-file" key="HelloVerifierAllow.apk" value="/data/local/tmp/cts/content/HelloVerifierAllow.apk" />
+        <option name="push-file" key="HelloVerifierAllow.apk.idsig" value="/data/local/tmp/cts/content/HelloVerifierAllow.apk.idsig" />
+        <option name="push-file" key="HelloVerifierReject.apk" value="/data/local/tmp/cts/content/HelloVerifierReject.apk" />
+        <option name="push-file" key="HelloVerifierReject.apk.idsig" value="/data/local/tmp/cts/content/HelloVerifierReject.apk.idsig" />
+        <option name="push-file" key="HelloVerifierDelayedReject.apk" value="/data/local/tmp/cts/content/HelloVerifierDelayedReject.apk" />
+        <option name="push-file" key="HelloVerifierDelayedReject.apk.idsig" value="/data/local/tmp/cts/content/HelloVerifierDelayedReject.apk.idsig" />
+        <option name="push-file" key="HelloVerifierDisabled.apk" value="/data/local/tmp/cts/content/HelloVerifierDisabled.apk" />
+        <option name="push-file" key="HelloVerifierDisabled.apk.idsig" value="/data/local/tmp/cts/content/HelloVerifierDisabled.apk.idsig" />
+        <option name="push-file" key="HelloWorldSystemUserOnly.apk" value="/data/local/tmp/cts/content/HelloWorldSystemUserOnly.apk" />
+        <option name="push-file" key="HelloWorldSystemUserOnly.apk.idsig" value="/data/local/tmp/cts/content/HelloWorldSystemUserOnly.apk.idsig" />
+        <option name="push-file" key="CtsMultiArchApp32_arm.apk" value="/data/local/tmp/cts/content/CtsMultiArchApp32_arm.apk" />
+        <option name="push-file" key="CtsMultiArchApp32_x86.apk" value="/data/local/tmp/cts/content/CtsMultiArchApp32_x86.apk" />
+        <option name="push-file" key="CtsMultiArchApp64_arm.apk" value="/data/local/tmp/cts/content/CtsMultiArchApp64_arm.apk" />
+        <option name="push-file" key="CtsMultiArchApp64_x86.apk" value="/data/local/tmp/cts/content/CtsMultiArchApp64_x86.apk" />
+        <option name="push-file" key="CtsMultiArchAppBoth_arm.apk" value="/data/local/tmp/cts/content/CtsMultiArchAppBoth_arm.apk" />
+        <option name="push-file" key="CtsMultiArchAppBoth_x86.apk" value="/data/local/tmp/cts/content/CtsMultiArchAppBoth_x86.apk" />
+        <option name="push-file" key="CtsMultiArchApp32_targetSdk33_arm.apk" value="/data/local/tmp/cts/content/CtsMultiArchApp32_targetSdk33_arm.apk" />
+        <option name="push-file" key="CtsMultiArchApp32_targetSdk33_x86.apk" value="/data/local/tmp/cts/content/CtsMultiArchApp32_targetSdk33_x86.apk" />
+        <option name="push-file" key="CtsMultiArchApp64_targetSdk33_arm.apk" value="/data/local/tmp/cts/content/CtsMultiArchApp64_targetSdk33_arm.apk" />
+        <option name="push-file" key="CtsMultiArchApp64_targetSdk33_x86.apk" value="/data/local/tmp/cts/content/CtsMultiArchApp64_targetSdk33_x86.apk" />
+        <option name="push-file" key="CtsMultiArchAppBoth_targetSdk33_arm.apk" value="/data/local/tmp/cts/content/CtsMultiArchAppBoth_targetSdk33_arm.apk" />
+        <option name="push-file" key="CtsMultiArchAppBoth_targetSdk33_x86.apk" value="/data/local/tmp/cts/content/CtsMultiArchAppBoth_targetSdk33_x86.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsPackageManagerTestCases.apk" />
+        <option name="test-file-name" value="CtsContentDirectBootUnawareTestApp.apk" />
+        <option name="test-file-name" value="CtsContentPartiallyDirectBootAwareTestApp.apk" />
+        <option name="test-file-name" value="CtsSyncAccountAccessStubs.apk" />
+        <option name="test-file-name" value="CtsIntentResolutionTestApp.apk" />
+        <option name="test-file-name" value="CtsContentNoApplicationTestApp.apk" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="runner" value="androidx.test.runner.AndroidJUnitRunner" />
+        <option name="package" value="android.content.cts" />
+        <option name="hidden-api-checks" value="false" />
+    </test>
+</configuration>

@@ -1,0 +1,10 @@
+<host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/WalletRoleCtsPaymentService">
+    <aid-group android:description="@string/WalletRoleCtsPaymentService" android:category="payment">
+        <aid-filter android:name="A000000004101011"/>
+        <aid-filter android:name="A000000004101012"/>
+        <aid-filter android:name="A000000004101013"/>
+        <aid-filter android:name="A000000004101018"/>
+    </aid-group>
+    <polling-loop-filter android:name="5cadc10f"/>
+</host-apdu-service>

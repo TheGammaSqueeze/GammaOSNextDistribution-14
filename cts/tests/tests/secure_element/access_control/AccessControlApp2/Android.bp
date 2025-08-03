@@ -1,0 +1,48 @@
+//////////////////////////////////////////////////////////////////
+// Signed Package
+
+package {
+    default_team: "trendy_team_fwk_nfc",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_import {
+    name: "signed-CtsSecureElementAccessControlTestCases2",
+    apk: "apk/signed-CtsSecureElementAccessControlTestCases2.apk",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    // Make sure the build system doesn't try to resign the APK
+    preprocessed: true,
+    presigned: true,
+    dex_preopt: {
+        enabled: false,
+    },
+}
+
+//#################################################################
+// Unsigned Package
+
+android_test_helper_app {
+    name: "CtsSecureElementAccessControlTestCases2",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "ctstestrunner-axt",
+        "compatibility-device-util-axt",
+    ],
+    srcs: ["src/**/*.java"],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    dist: {
+        targets: ["cts"],
+    },
+}

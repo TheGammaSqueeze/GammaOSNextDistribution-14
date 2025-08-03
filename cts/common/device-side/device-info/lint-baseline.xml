@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="      final WifiManager wifiManager = getContext().getSystemService(WifiManager.class);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ConnectivityDeviceInfo.java"
+            line="88"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.net.wifi.WifiManager#isWifiStandardSupported`"
+        errorLine1="          if (wifiManager.isWifiStandardSupported(standard)) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ConnectivityDeviceInfo.java"
+            line="91"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Method reference requires API level 26 (current min is 21): `Build::getSerial`"
+        errorLine1="                    ShellIdentityUtils.invokeStaticMethodWithShellPermissions(Build::getSerial));"
+        errorLine2="                                                                              ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GenericDeviceInfo.java"
+            line="80"
+            column="79"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.os.Build#getSerial`"
+        errorLine1="            store.addResult(BUILD_SERIAL, Build.getSerial());"
+        errorLine2="                                                ~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GenericDeviceInfo.java"
+            line="82"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 30 (current min is 21): `android.os.Build.VERSION#RELEASE_OR_CODENAME`"
+        errorLine1="            store.addResult(BUILD_VERSION_RELEASE, Build.VERSION.RELEASE_OR_CODENAME);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GenericDeviceInfo.java"
+            line="87"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 21): `android.location.GnssCapabilities#hasLowPowerMode`"
+        errorLine1='        store.addResult("has_low_power_mode", gnssCapabilities.hasLowPowerMode());'
+        errorLine2="                                                               ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="86"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 21): `android.location.GnssCapabilities#hasGeofencing`"
+        errorLine1='        store.addResult("has_geofencing", gnssCapabilities.hasGeofencing());'
+        errorLine2="                                                           ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="87"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 21): `android.location.GnssCapabilities#hasMeasurements`"
+        errorLine1='        store.addResult("has_measurements", gnssCapabilities.hasMeasurements());'
+        errorLine2="                                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="88"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 21): `android.location.GnssCapabilities#hasMeasurementCorrections`"
+        errorLine1='                "has_measurement_corrections", gnssCapabilities.hasMeasurementCorrections());'
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="90"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 21): `android.location.GnssCapabilities#hasMeasurementCorrectionsLosSats`"
+        errorLine1="                gnssCapabilities.hasMeasurementCorrectionsLosSats());"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="93"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 21): `android.location.GnssCapabilities#hasMeasurementCorrectionsExcessPathLength`"
+        errorLine1="                gnssCapabilities.hasMeasurementCorrectionsExcessPathLength());"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="96"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.location.GnssCapabilities#hasSatelliteBlacklist`"
+        errorLine1='            store.addResult("has_satellite_blocklist", gnssCapabilities.hasSatelliteBlacklist());'
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="99"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.location.GnssCapabilities#hasNavMessages`"
+        errorLine1='            store.addResult("has_navigation_messages", gnssCapabilities.hasNavMessages());'
+        errorLine2="                                                                        ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="100"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.location.GnssCapabilities#hasMeasurementCorrectionsReflectingPane`"
+        errorLine1="                    gnssCapabilities.hasMeasurementCorrectionsReflectingPane());"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="103"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 31): `android.location.GnssCapabilities#hasSatelliteBlocklist`"
+        errorLine1='            store.addResult("has_satellite_blocklist", gnssCapabilities.hasSatelliteBlocklist());'
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="105"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 31): `android.location.GnssCapabilities#hasMeasurementCorrectionsReflectingPlane`"
+        errorLine1="                    gnssCapabilities.hasMeasurementCorrectionsReflectingPlane());"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="109"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 31): `android.location.GnssCapabilities#hasSatellitePvt`"
+        errorLine1='            store.addResult("has_satellite_pvt", gnssCapabilities.hasSatellitePvt());'
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="118"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 31): `android.location.GnssCapabilities#hasMeasurementCorrelationVectors`"
+        errorLine1="                    gnssCapabilities.hasMeasurementCorrelationVectors());"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="121"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 31): `android.location.GnssCapabilities#hasMeasurementCorrectionsForDriving`"
+        errorLine1="                    gnssCapabilities.hasMeasurementCorrectionsForDriving());"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="124"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.location.LocationManager#registerGnssMeasurementsCallback`"
+        errorLine1="        locationManager.registerGnssMeasurementsCallback(mMeasurementListener);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="139"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.location.GnssMeasurementsEvent#getMeasurements`"
+        errorLine1="            for (GnssMeasurement measurement : event.getMeasurements()) {"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="143"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.location.GnssMeasurement#getAccumulatedDeltaRangeState`"
+        errorLine1="                if ((measurement.getAccumulatedDeltaRangeState() &amp; ADR_STATE_VALID)"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="144"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.location.LocationManager#unregisterGnssMeasurementsCallback`"
+        errorLine1="        locationManager.unregisterGnssMeasurementsCallback(mMeasurementListener);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="152"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 24 (current min is 21): `android.location.GnssMeasurementsEvent.Callback`"
+        errorLine1="    private class TestGnssMeasurementListener extends GnssMeasurementsEvent.Callback {"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="156"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.location.GnssMeasurementsEvent#getMeasurements`"
+        errorLine1="            if (event.getMeasurements().size() &gt; 0) {"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/GnssDeviceInfo.java"
+            line="175"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="                getContext().getSystemService(Vibrator.class));"
+        errorLine2="                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/HapticsDeviceInfo.java"
+            line="46"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `android.os.Vibrator#getQFactor`"
+        errorLine1='            store.addResult("q_factor", vibrator.getQFactor());'
+        errorLine2="                                                 ~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/HapticsDeviceInfo.java"
+            line="98"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `android.os.Vibrator#getResonantFrequency`"
+        errorLine1='            store.addResult("resonant_frequency", vibrator.getResonantFrequency());'
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/HapticsDeviceInfo.java"
+            line="99"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.os.Vibrator#areAllEffectsSupported`"
+        errorLine1="                vibrator.areAllEffectsSupported(VibrationEffect.EFFECT_CLICK)"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/HapticsDeviceInfo.java"
+            line="118"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.os.Vibrator#areEffectsSupported`"
+        errorLine1="        int[] results = vibrator.areEffectsSupported(effectsToCheck);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/HapticsDeviceInfo.java"
+            line="124"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.os.Vibrator#arePrimitivesSupported`"
+        errorLine1="        boolean[] results = vibrator.arePrimitivesSupported(primitivesToCheck);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/HapticsDeviceInfo.java"
+            line="142"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.content.res.Resources#getFloat`"
+        errorLine1="            store.addResult(resultName, res.getFloat(resId));"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/HapticsDeviceInfo.java"
+            line="197"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `KeyGenParameterSpec` to `AlgorithmParameterSpec` requires API level 23 (current min is 21)"
+        errorLine1="        keyPairGenerator.initialize(spec);"
+        errorLine2="                                    ~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="85"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.security.keystore.KeyGenParameterSpec.Builder`"
+        errorLine1="                new KeyGenParameterSpec.Builder(testAlias, PURPOSE_SIGN | PURPOSE_VERIFY)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="122"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.security.keystore.KeyGenParameterSpec.Builder#setAlgorithmParameterSpec`"
+        errorLine1='                        .setAlgorithmParameterSpec(new ECGenParameterSpec("secp256r1"))'
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="123"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.security.keystore.KeyGenParameterSpec.Builder#setDigests`"
+        errorLine1="                        .setDigests(DIGEST_SHA256)"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="124"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 21): `android.security.keystore.KeyGenParameterSpec.Builder#setDevicePropertiesAttestationIncluded`"
+        errorLine1="                        .setDevicePropertiesAttestationIncluded("
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="125"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.security.keystore.KeyGenParameterSpec.Builder#setAttestationChallenge`"
+        errorLine1="                        .setAttestationChallenge(CHALLENGE)"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="129"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.security.keystore.KeyGenParameterSpec.Builder#setIsStrongBoxBacked`"
+        errorLine1="                        .setIsStrongBoxBacked(isStrongBoxBacked)"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="130"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.security.keystore.KeyGenParameterSpec.Builder#build`"
+        errorLine1="                        .build();"
+        errorLine2="                         ~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="131"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.util.Base64#getEncoder`"
+        errorLine1="                    Base64.getEncoder().encodeToString(rootOfTrust.get().verifiedBootKey));"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="207"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.util.Base64.Encoder#encodeToString`"
+        errorLine1="                    Base64.getEncoder().encodeToString(rootOfTrust.get().verifiedBootKey));"
+        errorLine2="                                        ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="207"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.util.Base64#getEncoder`"
+        errorLine1="                    Base64.getEncoder().encodeToString(rootOfTrust.get().verifiedBootHash));"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="212"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.util.Base64.Encoder#encodeToString`"
+        errorLine1="                    Base64.getEncoder().encodeToString(rootOfTrust.get().verifiedBootHash));"
+        errorLine2="                                        ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/KeystoreAttestationDeviceInfo.java"
+            line="212"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.icu.util.ULocale#getAvailableLocales`"
+        errorLine1="        List&lt;String&gt; icuLocales = Arrays.stream(ULocale.getAvailableLocales())"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="62"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.icu.util.ULocale#toLanguageTag`"
+        errorLine1="            .map((uLocale -&gt; uLocale.toLanguageTag()))"
+        errorLine2="                                     ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="63"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.icu.util.ULocale#toLanguageTag`"
+        errorLine1="            icuLocales.add(ULocale.US.toLanguageTag());"
+        errorLine2="                                      ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="67"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 21): `android.icu.util.ULocale#US`"
+        errorLine1="            icuLocales.add(ULocale.US.toLanguageTag());"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="67"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.nio.file.Files#walk`"
+        errorLine1="        try (Stream&lt;Path&gt; stream = Files.walk(Paths.get(HYPHEN_BINARY_LOCATION))) {"
+        errorLine2="                                         ~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="74"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.nio.file.Paths#get`"
+        errorLine1="        try (Stream&lt;Path&gt; stream = Files.walk(Paths.get(HYPHEN_BINARY_LOCATION))) {"
+        errorLine2="                                                    ~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="74"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.nio.file.Files#isDirectory`"
+        errorLine1="                    .filter(file -&gt; !Files.isDirectory(file))"
+        errorLine2="                                           ~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="76"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Method reference requires API level 26 (current min is 21): `Path::getFileName`"
+        errorLine1="                    .map(Path::getFileName)"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="77"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Method reference requires API level 26 (current min is 21): `Path::toString`"
+        errorLine1="                    .map(Path::toString)"
+        errorLine2="                         ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="78"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.util.regex.Pattern#asPredicate`"
+        errorLine1="                    .filter(HYPHEN_BINARY_PATTERN.asPredicate())"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="79"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.icu.util.VersionInfo#getMajor`"
+        errorLine1="        int icuVersion = VersionInfo.ICU_VERSION.getMajor();"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="100"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 21): `android.icu.util.VersionInfo#ICU_VERSION`"
+        errorLine1="        int icuVersion = VersionInfo.ICU_VERSION.getMajor();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/LocaleDeviceInfo.java"
+            line="100"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 29 (current min is 24): `android.app.role.RoleManager`"
+        errorLine1="        final RoleManager roleManager = getContext().getSystemService(RoleManager.class);"
+        errorLine2="                                                                      ~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/PackageDeviceInfo.java"
+            line="387"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 24): `android.app.role.RoleManager#getRoleHolders`"
+        errorLine1="                () -&gt; roleManager.getRoleHolders(roleName),"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/PackageDeviceInfo.java"
+            line="403"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display#getMode`"
+        errorLine1="        Display.Mode activeMode = display.getMode();"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ScreenDeviceInfo.java"
+            line="124"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display#getSupportedModes`"
+        errorLine1="        Display.Mode[] supportedModes = display.getSupportedModes();"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ScreenDeviceInfo.java"
+            line="128"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Method reference requires API level 23 (current min is 21): `Display.Mode::getPhysicalWidth`"
+        errorLine1="                Display.Mode::getPhysicalWidth).thenComparingInt("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ScreenDeviceInfo.java"
+            line="130"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Method reference requires API level 23 (current min is 21): `Display.Mode::getPhysicalHeight`"
+        errorLine1="                Display.Mode::getPhysicalHeight).thenComparingDouble("
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ScreenDeviceInfo.java"
+            line="131"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Method reference requires API level 23 (current min is 21): `Display.Mode::getRefreshRate`"
+        errorLine1="                Display.Mode::getRefreshRate);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ScreenDeviceInfo.java"
+            line="132"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getPhysicalWidth`"
+        errorLine1='        store.addResult(propertyPrefix + "physical_width_pixels", mode.getPhysicalWidth());'
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ScreenDeviceInfo.java"
+            line="141"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getPhysicalHeight`"
+        errorLine1='        store.addResult(propertyPrefix + "physical_height_pixels", mode.getPhysicalHeight());'
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ScreenDeviceInfo.java"
+            line="142"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getRefreshRate`"
+        errorLine1='        store.addResult(propertyPrefix + "refresh_rate", mode.getRefreshRate());'
+        errorLine2="                                                              ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/device-info/src/com/android/compatibility/common/deviceinfo/ScreenDeviceInfo.java"
+            line="143"
+            column="63"/>
+    </issue>
+
+</issues>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2024 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.app.cts.testcomponentcaller">
+
+    <permission android:name="android.permission.COMPONENT_CALLER_HELPER_UNUSED_PERMISSION" />
+    <permission android:name="android.permission.COMPONENT_CALLER_HELPER_PATH_PROVIDER_READ_PERMISSION" />
+
+    <!-- To allow background activity launches for the tests -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+    <application>
+        <activity android:name=".TestInitialCallerActivity"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="content" />
+                <data android:host="android.app.cts.componentcaller.provider" />
+                <data android:host="android.app.cts.testcomponentcaller.provider" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".TestNewIntentCallerActivities$TestNewIntentGetCurrentCallerActivity"
+            android:exported="true"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="content" />
+                <data android:host="android.app.cts.componentcaller.provider" />
+                <data android:host="android.app.cts.testcomponentcaller.provider" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".TestNewIntentCallerActivities$TestNewIntentOverloadCallerActivity"
+            android:exported="true"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="content" />
+                <data android:host="android.app.cts.componentcaller.provider" />
+                <data android:host="android.app.cts.testcomponentcaller.provider" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".TestResultCallerActivities$TestResultGetCurrentCallerActivity"
+            android:exported="true"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="content" />
+                <data android:host="android.app.cts.componentcaller.provider" />
+                <data android:host="android.app.cts.testcomponentcaller.provider" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".TestResultCallerActivities$TestResultOverloadCallerActivity"
+            android:exported="true"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ATTACH_DATA" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <data android:scheme="content" />
+                <data android:host="android.app.cts.componentcaller.provider" />
+                <data android:host="android.app.cts.testcomponentcaller.provider" />
+            </intent-filter>
+        </activity>
+
+        <provider android:name=".TestProvider"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:authorities="android.app.cts.testcomponentcaller.provider"
+            android:permission="android.permission.COMPONENT_CALLER_HELPER_UNUSED_PERMISSION">
+
+            <path-permission android:pathPrefix="/path"
+                android:readPermission="android.permission.COMPONENT_CALLER_HELPER_PATH_PROVIDER_READ_PERMISSION"
+                android:writePermission="android.permission.COMPONENT_CALLER_HELPER_UNUSED_PERMISSION" />
+        </provider>
+    </application>
+</manifest>
+

@@ -1,0 +1,113 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_java_core_libraries",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libclassdescriptors",
+
+    srcs: ["src/jni/classdescriptors.cpp"],
+    header_libs: ["libopenjdkjvmti_headers"],
+    sdk_version: "current",
+    stl: "c++_static",
+}
+
+java_library {
+    name: "cts-api-signature-test",
+    srcs: ["src/java/**/*.java"],
+    sdk_version: "test_current",
+    static_libs: [
+        // androidx.test.runner depends on android.test classes from this library.
+        "android.test.base-minus-junit",
+        "androidx.test.runner",
+        "compatibility-device-util-axt",
+        "cts-signature-common",
+    ],
+}
+
+// Defaults for signature api checks.
+java_defaults {
+    name: "signature-api-check-defaults",
+    defaults: ["cts_defaults"],
+    srcs: [
+        "src/**/*.java",
+    ],
+    static_libs: [
+        "cts-api-signature-test",
+    ],
+    jni_libs: [
+        "libclassdescriptors",
+    ],
+    sdk_version: "test_current",
+    compile_multilib: "both",
+}
+
+// Filegroup containing the jarjar rules that need to be applied to any test that checks for
+// accessibility (or inaccesibility) of android.test and junit classes from the android.test.base
+// and android.test.runner libraries.
+filegroup {
+    name: "cts-android-test-jarjar-rules",
+    srcs: [
+        "android-test-jarjar-rules.txt",
+    ],
+}
+
+// Defaults for hiddenapi killswitch checks.
+java_defaults {
+    name: "hiddenapi-killswitch-check-defaults",
+    defaults: ["cts_defaults"],
+
+    compile_multilib: "both",
+    jni_libs: [
+        "libcts_dexchecker",
+        "libclassdescriptors",
+    ],
+    stl: "c++_static",
+
+    // Tag this module as a cts test artifact
+    sdk_version: "test_current",
+    static_libs: ["cts-api-signature-test"],
+}
+
+filegroup {
+    name: "cts-api-hiddenapi-filter-csv",
+    srcs: [
+        "hiddenapi-filter.csv",
+    ],
+}
+
+// Defaults for hiddenapi blocklist checks.
+java_defaults {
+    name: "hiddenapi-blocklist-check-defaults",
+    defaults: ["signature-api-check-defaults"],
+    java_resources: [
+        ":platform-bootclasspath{hiddenapi-flags.csv}",
+        ":cts-api-hiddenapi-filter-csv",
+    ],
+    jni_libs: [
+        "libcts_dexchecker",
+    ],
+}
+
+// The CtsHiddenApiBlocklistApiDynamicConfig file is intended to be used by
+// multiple CtsHiddenApiBlocklist...TestCases.
+filegroup {
+    name: "CtsHiddenApiBlocklistApiDynamicConfig",
+    srcs: [
+        "CtsHiddenApiBlocklistApiDynamicConfig.dynamic",
+    ],
+}

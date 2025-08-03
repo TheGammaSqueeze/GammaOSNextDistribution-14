@@ -1,0 +1,150 @@
+// Copyright 2013 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "cts-keystore-user-auth-helper-library",
+
+    srcs: ["src/android/server/**/*.java"],
+
+    static_libs: [
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "hamcrest-library",
+        "junit",
+        "platformprotosnano",
+    ],
+
+    platform_apis: true,
+}
+
+java_library {
+    name: "cts-keystore-test-util",
+
+    srcs: ["src/android/keystore/cts/util/**/*.java"],
+
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+        "androidx.test.rules",
+        "junit",
+    ],
+
+    platform_apis: true,
+}
+
+android_test {
+    name: "CtsKeystoreTestCases",
+    defaults: ["cts_defaults"],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    libs: [
+        "bouncycastle-unbundled",
+        "android.test.runner",
+        "android.test.base",
+    ],
+    static_libs: [
+        "DeviceAdminApp",
+        "Harrier",
+        "Nene",
+        "android-key-attestation",
+        "android.security.flags-aconfig-java",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "core-tests-support",
+        "cts-keystore-test-util",
+        "cts-keystore-user-auth-helper-library",
+        "cts-security-test-support-library",
+        "cts-wm-util",
+        "ctstestrunner-axt",
+        "flag-junit",
+        "guava",
+        "hamcrest-library",
+        "junit",
+        "platformprotosnano",
+        "testng",
+    ],
+    srcs: ["src/android/keystore/cts/*.java"],
+    // Can't use public/test API only because some tests use hidden API
+    // (e.g. device-provided Bouncy Castle).
+    //
+    // The comment below is not particularly accurate, but it's copied from other
+    // tests that do the same thing, so anyone grepping for it will find it here.
+    //
+    // Uncomment when b/13282254 is fixed.
+    // sdk_version: "current"
+    platform_apis: true,
+}
+
+android_test {
+    name: "CtsKeystorePerformanceTestCases",
+    defaults: ["cts_defaults"],
+    manifest: "CtsKeystorePerformanceTestManifest.xml",
+    test_config: "CtsKeystorePerformanceTestConfig.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "core-tests-support",
+        "cts-keystore-test-util",
+        "ctstestrunner-axt",
+        "junit",
+        "platformprotosnano",
+    ],
+    srcs: [
+        "src/android/keystore/cts/performance/**/*.java",
+    ],
+    // sdk_version: "test_current",
+    platform_apis: true,
+}
+
+android_test {
+    name: "CtsKeystoreWycheproofTestCases",
+    defaults: ["cts_defaults"],
+    manifest: "CtsKeystoreWycheproofTestManifest.xml",
+    test_config: "CtsKeystoreWycheproofTestConfig.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+    ],
+    static_libs: [
+        "bouncycastle-bcpkix-unbundled",
+        "bouncycastle-unbundled",
+        "cts-core-test-runner-axt",
+        "wycheproof-keystore",
+        "gson",
+        "cts-keystore-test-util",
+    ],
+    // sdk_version: "test_current",
+    platform_apis: true,
+}

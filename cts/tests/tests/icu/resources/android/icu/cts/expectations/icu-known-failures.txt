@@ -1,0 +1,20 @@
+/*
+ * This file contains expectations for tests that are known to fail.
+ */
+[
+{
+  description: "Serialized forms have not been converted to use repackaged classes",
+  name: "android.icu.dev.test.format.NumberFormatRegressionTest#TestSerialization",
+  bug: "27374606"
+},
+{
+  description: "Checks differences in DecimalFormat classes from ICU4J and JDK but on Android java.text.DecimalFormat is implemented in terms of ICU4J",
+  name: "android.icu.dev.test.format.NumberFormatTest#TestDataDrivenJDK",
+  bug: "27711713"
+},
+{
+  description: "ICU4J has a bug when using ISO8601 calendar type.",
+  name: "android.icu.dev.test.format.DateTimeGeneratorTest#testISO8601",
+  bug: "246008398"
+}
+]

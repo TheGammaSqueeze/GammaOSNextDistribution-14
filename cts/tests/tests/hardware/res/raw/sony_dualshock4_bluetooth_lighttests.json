@@ -1,0 +1,51 @@
+// Refer to kernel sony_set_leds() in drivers/hid/hid-sony.c
+[
+  {
+    "id": 1,
+    "type": "INPUT",
+    "capabilities": "RGB | BRIGHTNESS",
+    "name": "RGB",
+    "report": [],
+    "color": 0xff446688,
+    "playerId": 0,
+    "hidEventType": "UHID_OUTPUT",
+    "ledsHidOutput":   // RGB leds brightness
+        [ { "index": 8, "data": 0x44 },
+          { "index": 9, "data": 0x66 },
+          { "index": 10, "data": 0x88 }
+        ]
+  },
+
+  {
+    "id": 1,
+    "type": "INPUT",
+    "capabilities": "RGB | BRIGHTNESS",
+    "name": "RGB",
+    "report": [],
+    "color": 0x7f446688,
+    "playerId": 0,
+    "hidEventType": "UHID_OUTPUT",
+    "ledsHidOutput":   // RGB leds brightness
+        [ { "index": 8, "data": 0x22 },
+          { "index": 9, "data": 0x33 },
+          { "index": 10, "data": 0x44 }
+        ]
+  },
+
+  {
+    "id": 1,
+    "type": "INPUT",
+    "capabilities": "RGB | BRIGHTNESS",
+    "name": "RGB",
+    "report": [],
+    "color": 0x00000000,
+    "playerId": 0,
+    "hidEventType": "UHID_OUTPUT",
+    "ledsHidOutput":   // RGB leds brightness
+        [ { "index": 8, "data": 0x0 },
+          { "index": 9, "data": 0x0 },
+          { "index": 10, "data": 0x0 }
+        ]
+  }
+
+]

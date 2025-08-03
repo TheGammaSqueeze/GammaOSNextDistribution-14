@@ -1,0 +1,12 @@
+# Bug component: 533114
+include platform/frameworks/base:/OWNERS
+include platform/frameworks/base:/core/java/android/app/OWNERS
+
+winsonc@google.com
+hwwang@google.com
+
+per-file Android.bp = mpgroover@google.com
+per-file AndroidManifest.xml = mpgroover@google.com
+per-file AndroidTest.xml = mpgroover@google.com
+per-file ShareIdentityTest.java = mpgroover@google.com
+per-file ComponentCallerTest.java = mpgroover@google.com,azharaa@google.com

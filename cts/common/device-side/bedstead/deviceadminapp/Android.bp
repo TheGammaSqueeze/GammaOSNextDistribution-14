@@ -1,0 +1,41 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "DeviceAdminApp",
+    sdk_version: "test_current",
+    manifest: "src/main/AndroidManifest.xml",
+    static_libs: [
+        "EventLib",
+    ],
+    srcs: [
+        "src/main/java/**/*.java",
+        "src/main/java/**/*.kt",
+    ],
+    resource_dirs: ["src/main/res"],
+    min_sdk_version: "29",
+}
+
+android_test {
+    name: "DeviceAdminAppTest",
+    srcs: [
+        "src/test/java/**/*.java",
+        "src/test/java/**/*.kt",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    static_libs: [
+        "Nene",
+        "Harrier",
+        "EventLib",
+        "DeviceAdminApp",
+        "androidx.test.ext.junit",
+        "ctstestrunner-axt",
+        "compatibility-device-util-axt",
+        "truth",
+    ],
+    manifest: "src/test/AndroidManifest.xml",
+    min_sdk_version: "29",
+}

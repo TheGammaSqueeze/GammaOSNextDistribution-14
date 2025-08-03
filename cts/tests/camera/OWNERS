@@ -1,0 +1,5 @@
+# Bug component: 41727
+include platform/frameworks/av:/camera/OWNERS
+
+per-file *ImageReader* = file:platform/frameworks/base:/graphics/java/android/graphics/OWNERS
+per-file *ImageWriter* = file:platform/frameworks/base:/graphics/java/android/graphics/OWNERS

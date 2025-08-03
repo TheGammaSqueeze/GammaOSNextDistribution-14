@@ -1,0 +1,19 @@
+# Bug component: 351486
+# Autofill
+include platform/frameworks/base:/core/java/android/view/autofill/OWNERS
+
+# co-own by both teams
+per-file src/android/autofillservice/cts/activities/* = file:platform/frameworks/base:/core/java/android/view/autofill/OWNERS
+per-file src/android/autofillservice/cts/activities/* = wangqi@google.com
+per-file src/android/autofillservice/cts/commontests/* = file:platform/frameworks/base:/core/java/android/view/autofill/OWNERS
+per-file src/android/autofillservice/cts/commontests/* = wangqi@google.com
+per-file src/android/autofillservice/cts/testcore/* = file:platform/frameworks/base:/core/java/android/view/autofill/OWNERS
+per-file src/android/autofillservice/cts/testcore/* = wangqi@google.com
+
+# Bug component: 543785 = per-file src/android/autofillservice/cts/augmented/*
+# Augmented Autofill
+per-file src/android/autofillservice/cts/augmented/* = file:platform/frameworks/base:/core/java/android/service/autofill/augmented/OWNERS
+
+# Bug component: 1195602 = per-file src/android/autofillservice/cts/inline/*
+# Inline suggestion
+per-file src/android/autofillservice/cts/inline/* = file:platform/frameworks/base:/core/java/android/widget/inline/OWNERS

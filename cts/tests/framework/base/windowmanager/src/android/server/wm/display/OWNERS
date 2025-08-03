@@ -1,0 +1,29 @@
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Multi-display
+# Bug template url: https://b.corp.google.com/issues/new?component=316280&template=1018196 = per-file *MultiDisplay*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Surfaces
+# Bug template url: https://b.corp.google.com/issues/new?component=316245&template=1018194 = per-file *DisplayHashManagerTest*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Insets & Display Cutout (Notch)
+# Bug template url: https://b.corp.google.com/issues/new?component=339570&template=1037597 = per-file DisplayCutoutTests*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Animations/Transitions > Layout
+# Bug template url: https://b.corp.google.com/issues/new?component=1517318&template=1946513 = per-file Display*, KeepScreenOnTests*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > App Compat
+# Bug template url: https://b.corp.google.com/issues/new?component=970984&template=1516678 = per-file *Compat*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Input Method Editors
+# Bug template url: https://b.corp.google.com/issues/new?component=34867&template=195938 = per-file *MultiDisplayIme*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Activity Manager > Task and Activity lifecycle
+# Bug template url: https://b.corp.google.com/issues/new?component=316020&template=1018174 = per-file *AppConfiguration*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > WM Shell > Freeform
+# Bug template url: https://b.corp.google.com/issues/new?component=929241&template=1490914 = per-file *Freeform*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > WindowContext/WindowMetrics
+# Bug template url: https://buganizer.corp.google.com/issues/new?component=1519745&template=1948140 = per-file WindowContext*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Other
+# Bug template url: https://b.corp.google.com/issues/new?component=316125&template=1018199

@@ -1,0 +1,44 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsContactsProviderTestCases",
+    defaults: ["cts_defaults"],
+
+    compile_multilib: "both",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+    ],
+
+    libs: [
+        "android.test.mock",
+        "android.test.base",
+        "android.test.runner",
+    ],
+
+    static_libs: [
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "junit",
+        "truth",
+        "androidx.test.rules",
+    ],
+
+    srcs: [
+        "src/**/*.java",
+
+        // Include the GAL provider source code to pull in the constants.
+        "gal/src/**/*.java",
+    ],
+
+    sdk_version: "test_current",
+    min_sdk_version: "30",
+    data: [
+        ":CtsContactsProviderGalProvider",
+    ],
+    per_testcase_directory: true,
+}

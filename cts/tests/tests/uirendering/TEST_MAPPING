@@ -1,0 +1,95 @@
+{
+  // Presubmit variants
+  "presubmit": [
+    {
+      "name": "CtsUiRenderingTestCases",
+      "options": [
+        {
+          "exclude-annotation": "android.uirendering.cts.runner.SkipPresubmit"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "CtsUiRenderingTestCases",
+      "options": [
+        {
+          "exclude-annotation": "android.uirendering.cts.runner.SkipPresubmit"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        },
+        {
+          // TODO(b/204095269)
+          "exclude-filter": "android.uirendering.cts.testclasses.PathClippingTests#testCircleWithPoints"
+        },
+        {
+          // TODO(b/190538215)
+          "exclude-filter": "android.uirendering.cts.testclasses.TextureViewTests#testReuseSurfaceTexture"
+        },
+        {
+          // TODO(b/244345827)
+          "exclude-filter": "android.uirendering.cts.testclasses.AnimatedImageDrawableTest#testSetBoundsPostProcess"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.CanvasTests#testAntiAliasClipping"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.CanvasTests#testDrawDoubleRoundRectWithRadii"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.ExactCanvasTests#testDrawLine"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.PathClippingTests#testTextClip"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.PathTests#testTextPathWithOffset"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.PathClippingTests#testCircleWithCircle"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.PathClippingTests#testPathScale"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.SweepTests#testBasicShaders"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.SweepTests#testBasicDraws"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.ViewAnimationUtilsTests#testCreateCircularReveal"
+        },
+        {
+          "exclude-filter": "android.uirendering.cts.testclasses.ViewClippingTests#testConcaveOutlineClip"
+        }
+      ]
+    }
+  ],
+  // Postsubmit variants
+  "postsubmit": [
+    {
+      "name": "CtsUiRenderingTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "CtsUiRenderingTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ]
+}

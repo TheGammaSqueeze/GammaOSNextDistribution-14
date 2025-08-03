@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.photopicker.cts">
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+<application android:label="Photo Picker Device Tests">
+    <uses-library android:name="android.test.runner" />
+    <activity android:name="android.photopicker.cts.GetResultActivity"
+              android:exported="false"
+              android:enabled="true">
+        <intent-filter android:priority="999">
+            <action android:name="android.provider.action.PICK_IMAGES" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <data android:mimeType="image/*" />
+            <data android:mimeType="video/*" />
+        </intent-filter>
+        <intent-filter android:priority="999">
+            <action android:name="android.provider.action.PICK_IMAGES" />
+            <category android:name="android.intent.category.DEFAULT" />
+        </intent-filter>
+    </activity>
+
+
+    <provider android:name="android.photopicker.cts.cloudproviders.CloudProviderPrimary"
+              android:authorities="android.photopicker.cts.cloudproviders.cloud_primary"
+              android:permission="com.android.providers.media.permission.MANAGE_CLOUD_MEDIA_PROVIDERS"
+              android:exported="true">
+      <intent-filter>
+        <action android:name="android.content.action.CLOUD_MEDIA_PROVIDER" />
+      </intent-filter>
+    </provider>
+
+    <provider android:name="android.photopicker.cts.cloudproviders.CloudProviderSecondary"
+              android:authorities="android.photopicker.cts.cloudproviders.cloud_secondary"
+              android:permission="com.android.providers.media.permission.MANAGE_CLOUD_MEDIA_PROVIDERS"
+              android:exported="true">
+      <intent-filter>
+        <action android:name="android.content.action.CLOUD_MEDIA_PROVIDER" />
+      </intent-filter>
+    </provider>
+
+    <provider android:name="android.photopicker.cts.cloudproviders.CloudProviderNoPermission"
+              android:authorities="android.photopicker.cts.cloudproviders.cloud_no_permission"
+              android:exported="true">
+      <intent-filter>
+        <action android:name="android.content.action.CLOUD_MEDIA_PROVIDER" />
+      </intent-filter>
+    </provider>
+
+    <provider android:name="android.photopicker.cts.cloudproviders.CloudProviderNoIntentFilter"
+              android:authorities="android.photopicker.cts.cloudproviders.cloud_no_intent_filter"
+              android:permission="com.android.providers.media.permission.MANAGE_CLOUD_MEDIA_PROVIDERS"
+              android:exported="true">
+    </provider>
+</application>
+
+<instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                 android:targetPackage="android.photopicker.cts"
+                 android:label="Device-only photo picker tests" />
+
+</manifest>

@@ -1,0 +1,4 @@
+# Bug component: 316234
+set noparent
+
+file:platform/frameworks/base:/services/core/java/com/android/server/am/OWNERS

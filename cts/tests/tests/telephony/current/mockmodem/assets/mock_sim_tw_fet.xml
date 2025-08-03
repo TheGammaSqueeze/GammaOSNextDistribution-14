@@ -1,0 +1,23 @@
+<MockSim numofapp="1" atr="3B9E95801FC78031E073FE211B66D001A0E50F0048">
+<MockSimProfile id="0" type="APPTYPE_USIM">
+    <PinProfile appstate="APPSTATE_READY">
+        <Pin1State>PINSTATE_DISABLED</Pin1State>
+        <Pin2State>PINSTATE_ENABLED_NOT_VERIFIED</Pin2State>
+    </PinProfile>
+
+    <FacilityLock>
+        <FD>LOCK_DISABLED</FD>
+        <SC>LOCK_DISABLED</SC>
+    </FacilityLock>
+
+    <MF name="MF" path="3F00">
+        <EFDIR name="ADF1" curr_active="true">A0000000871002FF33FFFF8901010100</EFDIR>
+    </MF>
+
+    <ADF aid="A0000000871002FF33FFFF8901010100">
+        <EF name="EF_IMSI" id="6F07" command="" mnc-digit="2">466011122334455</EF>
+        <EF name="EF_ICCID" id="2FE2" command="0xb0">89886021157300856597</EF>
+        <EF name="EF_ICCID" id="2FE2" command="0xc0">0000000A2FE2040000FFFF01020002</EF>
+    </ADF>
+</MockSimProfile>
+</MockSim>

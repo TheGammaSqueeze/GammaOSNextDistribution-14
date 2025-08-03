@@ -1,0 +1,35 @@
+{
+  "kernel-presubmit": [
+    {
+      "name": "CtsDisplayTestCases",
+      "options": [
+        {
+          // TODO(b/247135992)
+          "exclude-filter": "android.display.cts.DisplayManagerTest#testCreateVirtualDisplayFromShell"
+        },
+        {
+          // TODO(b/270222666)
+          "exclude-filter": "android.display.cts.VirtualDisplayTest#testVirtualDisplayWithRequestedRefreshRate"
+        },
+        {
+          // TODO(b/248273657)
+          "exclude-filter": "android.graphics.cts.SetFrameRateTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsStatsdAtomHostTestCases",
+      "options": [
+        {
+          "include-filter": "android.cts.statsdatom.statsd.UidAtomTests#testScreenBrightness"
+        },
+        {
+          "include-filter": "android.cts.statsdatom.display.DisplayBrightnessChangedStatsTests"
+        },
+        {
+          "include-filter": "android.cts.statsdatom.display.DisplayWakeReportedStatsTests"
+        }
+      ]
+    }
+  ]
+}

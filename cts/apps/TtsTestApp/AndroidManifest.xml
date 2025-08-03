@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.cts.tts.helper">
+<application
+  android:label="TTS CTS Test Helper App">
+  <service
+    android:name=".TTSHelperService"
+    android:exported="true">
+    <intent-filter android:priority="100">
+      <action android:name="android.intent.action.TTS_SERVICE" />
+      <category android:name="android.intent.category.DEFAULT" />
+    </intent-filter>
+  </service>
+  <activity
+        android:name="CheckVoiceData"
+        android:directBootAware="true"
+        android:exported="true"
+        android:theme="@android:style/Theme.NoDisplay">
+      <intent-filter>
+        <action android:name="android.speech.tts.engine.CHECK_TTS_DATA"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </activity>
+    <activity
+        android:name="GetSampleText"
+        android:directBootAware="true"
+        android:exported="true"
+        android:theme="@android:style/Theme.NoDisplay">
+      <intent-filter>
+        <action android:name="android.speech.tts.engine.GET_SAMPLE_TEXT"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </activity>
+</application>
+</manifest>

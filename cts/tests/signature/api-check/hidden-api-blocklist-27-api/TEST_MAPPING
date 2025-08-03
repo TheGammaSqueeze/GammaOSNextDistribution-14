@@ -1,0 +1,7 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsHiddenApiBlocklistApi27TestCases"
+    }
+  ]
+}

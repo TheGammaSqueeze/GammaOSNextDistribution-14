@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MockNetwork carrierid="2">
+    <MockCellProperty>
+        <EHPLMNLIST>46601,46605</EHPLMNLIST>
+        <AllowRoamingList>310026</AllowRoamingList>
+    </MockCellProperty>
+
+    <MockNetworkProfile id="0" rat="WCDMA" connection="primary">
+        <MockCellIdentity>
+            <MCC>466</MCC>
+            <MNC>01</MNC>
+            <LAC>8122</LAC>
+            <CID>16249</CID>
+            <PSC>413</PSC>
+            <UARFCN>10613</UARFCN>
+            <OperatorInfo>
+                <AlphaLong>Far EasTone</AlphaLong>
+                <AlphaShort>FET</AlphaShort>
+                <OperatorNumeric>46601</OperatorNumeric>
+            </OperatorInfo>
+        </MockCellIdentity>
+
+        <MockCellSignalStrength>
+            <SignalStrength>10</SignalStrength>
+            <BitErrorRate>6</BitErrorRate>
+            <RSCP>55</RSCP>
+            <ECNO>15</ECNO>
+        </MockCellSignalStrength>
+    </MockNetworkProfile>
+</MockNetwork>

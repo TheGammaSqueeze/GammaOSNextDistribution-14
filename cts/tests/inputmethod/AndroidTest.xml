@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2017 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<configuration description="Config for CTS InputMethod test cases">
+    <option name="test-suite-tag" value="cts" />
+    <option name="config-descriptor:metadata" key="component" value="inputmethod" />
+    <option name="config-descriptor:metadata" key="parameter" value="all_foldable_states" />
+    <option name="config-descriptor:metadata" key="parameter" value="instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user_on_secondary_display" />
+    <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+    <!--
+        TODO(yukawa): come up with a proper way to take care of devices that do not support
+        installable IMEs.  Ideally target_preparer should have an option to annotate required
+        features, e.g. android.software.input_methods so that we can conditionally install APKs
+        based on the feature supported in the target device.
+    -->
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <!--
+            MockIME always needs to be instaleld as a full package, even when CTS is running
+            for instant apps.
+        -->
+        <option name="force-install-mode" value="FULL"/>
+        <option name="test-file-name" value="CtsMockInputMethod.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <!--
+            MockIME always needs to be installed as a full package, even when CTS is running
+            for instant apps.
+        -->
+        <option name="force-install-mode" value="FULL"/>
+        <option name="test-file-name" value="CtsMockInputMethod2.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <!--
+            MockSpellChecker always needs to be instaleld as a full package, even when CTS is
+            running for instant apps.
+        -->
+        <option name="force-install-mode" value="FULL"/>
+        <option name="test-file-name" value="CtsMockSpellChecker.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <!--
+            SpellCheckingIme always needs to be instaleld as a full package, even when CTS is
+            running for instant apps.
+        -->
+        <option name="force-install-mode" value="FULL"/>
+        <option name="test-file-name" value="CtsSpellCheckingIme.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <!--
+            HiddenFromPickerIme always needs to be installed as a full package, even when CTS is
+            running for instant apps.
+        -->
+        <option name="force-install-mode" value="FULL"/>
+        <option name="test-file-name" value="CtsHiddenFromPickerIme.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <!--
+            CtsMockA11yInputMethod always needs to be instaleld as a full package, even when CTS is
+            running for instant apps.
+        -->
+        <option name="force-install-mode" value="FULL"/>
+        <option name="test-file-name" value="CtsMockA11yInputMethod.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="cleanup" value="true" />
+        <!--
+            CtsMockLargeResourceInputMethod should not always be installed, but the apk must be
+            available.
+        -->
+        <option name="push" value="CtsMockLargeResourceInputMethod.apk->/data/local/tmp/cts/inputmethod/CtsMockLargeResourceInputMethod.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <!--
+            CtsMockInputMethodWithSubtypes always needs to be installed as a full package, even when
+            CTS is running for instant apps.
+        -->
+        <option name="force-install-mode" value="FULL"/>
+        <option name="test-file-name" value="CtsMockInputMethodWithSubtypes.apk" />
+    </target_preparer>
+
+    <!--
+        TODO(yukawa): come up with a proper way to take care of devices that do not support
+        installable IMEs.  Ideally target_preparer should have an option to annotate required
+        features, e.g. android.software.input_methods so that we can conditionally install APKs
+        based on the feature supported in the target device.
+    -->
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="input keyevent KEYCODE_WAKEUP" />
+        <option name="run-command" value="wm dismiss-keyguard" />
+    </target_preparer>
+
+    <!--
+        A (separate) standalone test app APK is needed to test implicit app-visibility from the IME
+        process to the IME target process, because if the IME target process is directly interacting
+        with MockIme process via MockImeSession, then the system would already give the MockIme an
+        implicit app-visibility back to the test app.  To fully test app-visibility scenario,
+        MockImeSession cannot be used in the process where the focused Activity is hosted.
+    -->
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <!--
+            In order to simulate the scenario where the IME client process is normally
+            installed, explicitly set false here.  Otherwise, the test APP will be installed under
+            force-queryable mode, which makes the test useless.
+        -->
+        <option name="force-queryable" value="false" />
+        <option name="test-file-name" value="CtsInputMethodStandaloneTestApp.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsInputMethodTestLauncher.apk" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="install-arg" value="-t" />
+        <option name="test-file-name" value="CtsInputMethodTestCases.apk" />
+    </target_preparer>
+    <!-- Enabling change id ALLOW_TEST_API_ACCESS allows that package to access @TestApi methods -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="am compat enable ALLOW_TEST_API_ACCESS com.android.cts.mockime"  />
+        <option name="teardown-command" value="am compat reset ALLOW_TEST_API_ACCESS com.android.cts.mockime" />
+        <option name="run-command" value="am compat enable ALLOW_TEST_API_ACCESS com.android.cts.mockime2"  />
+        <option name="teardown-command" value="am compat reset ALLOW_TEST_API_ACCESS com.android.cts.mockime2" />
+        <option name="run-command" value="am compat enable ALLOW_TEST_API_ACCESS com.android.cts.mocka11yime"  />
+        <option name="teardown-command" value="am compat reset ALLOW_TEST_API_ACCESS com.android.cts.mocka11yime" />
+        <option name="run-command" value="am compat enable ALLOW_TEST_API_ACCESS android.view.inputmethod.ctstestapp"  />
+        <option name="teardown-command" value="am compat reset ALLOW_TEST_API_ACCESS android.view.inputmethod.ctstestapp" />
+        <option name="run-command" value="am compat enable ALLOW_TEST_API_ACCESS android.view.inputmethod.mocklargeresourceime"  />
+        <option name="teardown-command" value="am compat reset ALLOW_TEST_API_ACCESS android.view.inputmethod.mocklargeresourceime" />
+        <option name="teardown-command" value="am compat reset ALLOW_TEST_API_ACCESS android.view.inputmethod.mockimewithsubtypes" />
+
+        <!-- Wait for PACKAGE_ADDED broadcasts to be delivered to InputMethodManagerService. -->
+        <option name="run-command" value="am wait-for-broadcast-barrier"  />
+        <!-- Dismiss any system dialogs (e.g. crashes, ANR). -->
+        <option name="run-command" value="am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS --receiver-foreground"  />
+    </target_preparer>
+
+    <!-- Create a place to store files for DumpOnFailure -->
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="mkdir -p /sdcard/DumpOnFailure" />
+    </target_preparer>
+    <!-- Collect the files from DumpOnFailure. -->
+    <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+        <option name="directory-keys" value="/sdcard/DumpOnFailure" />
+        <option name="collect-on-run-ended-only" value="true" />
+    </metrics_collector>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.view.inputmethod.cts" />
+        <option name="runtime-hint" value="1m0s" />
+    </test>
+</configuration>

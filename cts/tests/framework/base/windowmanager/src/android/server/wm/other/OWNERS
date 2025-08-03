@@ -1,0 +1,29 @@
+# Android > Android OS & Apps > Framework (Java + Native) > Input Flinger
+# Bug template url: https://b.corp.google.com/issues/new?component=136048&template=115201 = per-file WallpaperWindowInput*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > WM Shell > Picture-In-Picture
+# Bug template url: https://b.corp.google.com/issues/new?component=316251&template=1018197 = per-file PinnedStackTests.java
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > App Compat
+# Bug template url: https://b.corp.google.com/issues/new?component=970984&template=1516678 = per-file CompatScale*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Animations/Transitions > Layout
+# Bug template url: https://b.corp.google.com/issues/new?component=1517318&template=1946513 = per-file Blur*, MinimalPostProcessing*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Input Method Editors
+# Bug template url: https://b.corp.google.com/issues/new?component=34867&template=195938 = per-file WindowManagerReflection*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Animations/Transitions
+# Bug template url: https://b.corp.google.com/issues/new?component=316275&template=1018192 = per-file WindowManagerTests*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > WM Shell > Drag and Drop
+# Bug template url: https://b.corp.google.com/issues/new?component=1214056&template=1713787 = per-file DragDrop*
+
+# Android > Android OS & Apps > System UI > Internal Only > Screensavers (Dreams)
+# Bug template url: https://b.corp.google.com/issues/new?component=66910&template=188786 = per-file DreamManagerService*
+
+# Android > Android OS & Apps > TV > Framework
+# Bug template url: https://b.corp.google.com/issues/new?component=761894&template=1433482 = per-file TvMaxWindowSize*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Other
+# Bug template url: https://b.corp.google.com/issues/new?component=316125&template=1018199

@@ -1,0 +1,304 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsWallpaperTestCases",
+      "options": [
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperColorsTest#equalsTest"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperColorsTest#fromBitmapTest"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperColorsTest#fromDrawableDoesntMutateBounds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperColorsTest#fromDrawableTest"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperColorsTest#getWallpaperColorsTest"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperColorsTest#parcelTest"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperColorsTest#wallpaperColorsHints_ctor"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperColorsTest#wallpaperColorsHints_default"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperInfoTest#test_defaultUnfoldTransitionDisabled"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperInfoTest#test_wallpaperInfoOptions"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperInfoTest#test_wallpaperServiceQuery"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#addRemoveOnColorsChangedListenerTest_onlyInvokeAdded"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getDrawable_default_sameAsHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getDrawable_homeScreen_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getDrawable_lockScreenSet_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getDrawable_lockScreenUnset_returnsNull"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getFastDrawable_default_sameAsHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getFastDrawable_homeScreen_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getFastDrawable_lockScreenSet_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getFastDrawable_lockScreenUnset_returnsNull"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#getWallpaperInfo_badFlagsArgument_throwsException"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#highRatioWallpaper_largeHeight"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#highRatioWallpaper_largeWidth"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#highResolutionWallpaper"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#invokeOnColorsChangedListenerTest_both"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#invokeOnColorsChangedListenerTest_clearLock"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#invokeOnColorsChangedListenerTest_clearSystem"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#invokeOnColorsChangedListenerTest_lockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#invokeOnColorsChangedListenerTest_systemOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekDrawable_default_sameAsHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekDrawable_homeScreen_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekDrawable_lockScreenSet_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekDrawable_lockScreenUnset_returnsNull"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekFastDrawable_default_sameAsHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekFastDrawable_homeScreen_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekFastDrawable_lockScreenSet_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekFastDrawable_lockScreenUnset_returnsNull"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekWallpaperCaching_bitmapRecycled_doesNotReturnCached"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekWallpaperCaching_cachesWallpaper"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekWallpaperCaching_differentUser_doesNotReturnCached"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekWallpaperCaching_differentWhich_doesNotReturnCached"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekWallpaperDimensions_homeScreen_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekWallpaperDimensions_lockScreenSet_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#peekWallpaperDimensions_lockScreenUnset_succeeds"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setBitmap_both_lockScreenSet_changesHomeAndClearsLock"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setBitmap_both_lockScreenUnset_changesHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setBitmap_default_lockScreenUnset_sameAsBoth"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setBitmap_homeScreen_homeLive_lockScreenUnset_setsLockToHomeAndUpdatesHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setBitmap_homeScreen_homeStatic_lockScreenUnset_setsLockToHomeAndUpdatesHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setBitmap_lockScreen_lockScreenSet_changesLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setBitmap_lockScreen_lockScreenUnset_changesLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setLiveWallpaper_homeScreen_setsHomeWallpaperInfo"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setLiveWallpaper_lockScreen_multiEngine_setsLockWallpaperInfo"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setResource_both_lockScreenSet_changesHomeAndClearsLock"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setResource_both_lockScreenUnset_changesHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setResource_default_lockScreenUnset_sameAsBoth"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setResource_homeScreen_homeLive_lockScreenUnset_setsLockToHomeAndUpdatesHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setResource_homeScreen_homeStatic_lockScreenUnset_setsLockToHomeAndUpdatesHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setResource_homeScreen_lockScreenSet_changesHomeOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setResource_lockScreen_lockScreenSet_changesLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setResource_lockScreen_lockScreenUnset_changesLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setStaticWallpaper_doesNotSetWallpaperInfo"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_both_multiEngine_lockScreenSet_changesLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_both_multiEngine_lockScreenUnset_setsHomeToBoth"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_default_multiEngine_lockScreenUnset_behavesLikeBoth"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_homeScreen_homeLive_lockScreenUnset_migratesThenSetsHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_homeScreen_homeStatic_lockScreenUnset_migratesThenSetsHome"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_homeScreen_lockScreenSet_changesHomeOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_lockScreen_multiEngine_lockScreenSet_changeLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_lockScreen_multiEngine_lockScreenUnset_changesLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#suggestDesiredDimensionsTest"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testExistingWallpaperWindows"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testIndependentWallpaperVisibilityBehindActivity_onLockScreen"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testSharedWallpaperVisibilityBehindActivity_onLockScreen"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testSystemAndLockWallpaperVisibility_onHomeScreen"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testSystemAndLockWallpaperVisibility_onLockScreen"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testWallpaperSupportsWcg"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testWideGamutWallpaper"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#wallpaperCallbackMainThreadTest"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#wallpaperChangedBroadcastTest"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#wallpaperClearBroadcastTest"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsWallpaperTestCases",
+      "options": [
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setLiveWallpaper_lockScreen_setsLockWallpaperInfo"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_both_lockScreenSet_changesLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_both_lockScreenUnset_setsHomeToBoth"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_default_lockScreenUnset_behavesLikeBoth"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_lockScreen_lockScreenSet_changeLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#setWallpaperComponent_lockScreen_lockScreenUnset_changesLockOnly"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testClear"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testEngineCallbackCountsParam[LIVE_DIFF_MULTI]"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testEngineCallbackCountsParam[LIVE_SAME_MULTI]"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testEngineCallbackCountsParam[LIVE_SAME_SINGLE]"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testEngineCallbackCountsParam[LIVE_STATIC_MULTI]"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testEngineCallbackCountsParam[STATIC_DIFF_MULTI]"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testEngineCallbackCountsParam[STATIC_LIVE_MULTI]"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testEngineCallbackCountsParam[STATIC_SAME_MULTI]"
+        },
+        {
+          "include-filter": "android.app.cts.wallpapers.WallpaperManagerTest#testEngineCallbackCountsParam[STATIC_SAME_SINGLE]"
+        }
+      ]
+    }
+  ]
+}

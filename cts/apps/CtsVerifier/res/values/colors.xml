@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <color name="red">#F00</color>
+    <color name="green">#0F0</color>
+
+    <!-- Sensor tests log colors -->
+    <color name="snsr_error_background">#F5D1D1</color>
+    <color name="snsr_error">#AA0404</color>
+    <color name="snsr_success_background">#DDF6D2</color>
+    <color name="snsr_success">#467701</color>
+    <color name="snsr_warning_background">#F0E4B6</color>
+    <color name="snsr_warning">#75540C</color>
+    <color name="snsr_information_background">#D0D2F6</color>
+    <color name="snsr_information">#41576B</color>
+
+    <!-- 6DoF test colors -->
+    <item name="textPrimary" type="color">#FFFFFF</item>
+    <item name="primary" type="color">#43A047</item>
+    <item name="primaryPressed" type="color">#81C784</item>
+    <color name="backgroundGrey">#303030</color>
+    <color name="textSecondary">#B3FFFFFF</color>
+    <color name="yellow">#C0FFFF00</color>
+
+    <!-- WaveFormView colors -->
+    <color name="waveform_line">#ff101080</color>
+    <color name="waveform_background">#ffc0f0c0</color>
+</resources>

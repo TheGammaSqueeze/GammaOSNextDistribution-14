@@ -1,0 +1,37 @@
+package {
+    default_team: "trendy_team_platform_security",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "CtsNativeVerifiedBootTestCases",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    srcs: [
+        "VerifiedBootTest.cpp",
+    ],
+    static_libs: [
+        "libavb_user",
+        "libavb",
+        "libfs_mgr",
+        "libctssecurity_native_test_utils",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+    ],
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+}

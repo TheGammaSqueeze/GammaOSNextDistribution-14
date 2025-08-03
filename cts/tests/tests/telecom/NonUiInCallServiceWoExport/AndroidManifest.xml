@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2022 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.telecom.cts.nonuiincallservicewoexport"
+          android:versionCode="1"
+          android:versionName="1.0"
+          android:sharedUserId="android.telecom.cts">
+
+    <!-- sdk 15 is the max for read call log -->
+    <uses-sdk android:minSdkVersion="15"/>
+
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.CALL_COMPANION_APP"/>
+    <uses-permission android:name="android.permission.MANAGE_ONGOING_CALLS"/>
+    <uses-permission android:name="android.permission.CONTROL_INCALL_EXPERIENCE"/>
+
+    <application android:label="InCallServiceWoExport"
+                 android:debuggable="true">
+
+        <service android:name=".CtsNonUiInCallServiceWoExport"
+                 android:permission="android.permission.BIND_INCALL_SERVICE"
+                 android:launchMode="singleInstance"
+                 android:enabled="true"
+                 android:exported="false"> <!-- NOTE: exported is purposely set to false! -->
+
+            <intent-filter>
+                <action android:name="android.telecom.InCallService"/>
+            </intent-filter>
+
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI"
+                       android:value="false"/><!-- NOTE: this is a NON-Ui-InCallService! -->
+            <meta-data android:name="android.telecom.INCLUDE_EXTERNAL_CALLS"
+                       android:value="true"/>
+            <meta-data android:name="android.telecom.INCLUDE_SELF_MANAGED_CALLS"
+                       android:value="true"/>
+        </service>
+
+
+        <service android:name=".CtsNonUiInCallServiceWoExportControl"
+                 android:launchMode="singleInstance"
+                 android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="android.telecom.cts.nonuiincallservicewoexport.ACTION_iCSWE_CONTROL"/>
+            </intent-filter>
+        </service>
+
+    </application>
+
+
+</manifest>

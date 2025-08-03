@@ -1,0 +1,12 @@
+{
+    "mainline-presubmit": [
+    {
+        "name": "CtsDeviceConfigTestCases[com.google.android.configinfrastructure.apex]"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "CtsDeviceConfigTestCases"
+    }
+  ]
+}

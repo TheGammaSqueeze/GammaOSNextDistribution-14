@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView"
+    style="@style/RootLayoutPadding">
+
+<LinearLayout android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <include layout="@layout/uap_usb_confirm"/>
+
+    <include layout="@layout/uap_profile_header"/>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <TextView
+                android:text="@string/uapPeripheralProfileAttributes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                android:text="@string/audio_general_Input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                android:text="----"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_inChanMasksTx"/>
+
+        <TextView
+                android:text="----"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_inPosMasksTx"/>
+
+        <TextView
+                android:text="----"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_inEncodingsTx"/>
+
+        <TextView
+                android:text="----"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_inRatesTx"/>
+
+        <TextView
+                android:text="@string/audio_general_Output"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                android:text="----"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_outChanMasksTx"/>
+
+        <TextView
+                android:text="----"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_outPosMasksTx"/>
+
+        <TextView
+                android:text="----"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_outEncodingsTx"/>
+
+        <TextView
+                android:text="----"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_outRatesTx"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <TextView
+                android:text="@string/audio_general_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <TextView
+                android:text="status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/uap_attribsStatusTx"
+                android:paddingLeft="16dp"
+                android:textSize="18sp"/>
+    </LinearLayout>
+
+    <include layout="@layout/pass_fail_buttons"/>
+</LinearLayout>
+</ScrollView>

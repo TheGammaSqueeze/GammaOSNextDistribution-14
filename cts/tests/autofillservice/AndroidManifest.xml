@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.autofillservice.cts"
+     android:targetSandboxVersion="2">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.INJECT_EVENTS"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
+    <!--  Some tests use sticky broadcasts to ensure that inline suggestion extras
+    are delivered to the IME even when its process is not running persistently.
+    This can happen when the IME is unbound as a result of enabling
+    the config_preventImeStartupUnlessTextEditor option. -->
+    <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
+    <uses-permission android:name="android.permission.MANAGE_ROLE_HOLDERS"/>
+    <uses-permission android:name="android.permission.PROVIDE_OWN_AUTOFILL_SUGGESTIONS"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.LIST_ENABLED_CREDENTIAL_PROVIDERS"/>
+    <uses-permission android:name="android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS"/>
+
+    <queries>
+        <package android:name="com.android.cts.mockime" />
+    </queries>
+
+    <application>
+
+        <uses-library android:name="android.test.runner"/>
+
+        <activity android:name=".activities.LoginActivity"
+             android:exported="true">
+            <intent-filter>
+                <!-- This intent filter is not really needed by CTS, but it makes easier to launch
+                                         this app during CTS development... -->
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.PreFilledLoginActivity"/>
+        <activity android:name=".activities.LoginWithCustomHighlightActivity"
+             android:theme="@style/MyAutofilledHighlight"/>
+        <activity android:name=".activities.LoginWithStringsActivity"/>
+        <activity android:name=".activities.LoginNotImportantForAutofillActivity"/>
+        <activity android:name=".activities.LoginNotImportantUsernameImportantPasswordActivity"/>
+        <activity android:name=".activities.MultilineLoginActivity"/>
+        <activity android:name=".activities.ImeOptionActivity"/>
+        <activity android:name=".activities.LoginNotImportantForAutofillWrappedActivityContextActivity"/>
+        <activity android:name=".activities.LoginNotImportantForAutofillWrappedApplicationContextActivity"/>
+        <activity android:name=".activities.LoginImportantForCredentialManagerActivity"/>
+        <activity android:name=".activities.LoginMixedImportantForCredentialManagerActivity"/>
+        <activity android:name=".activities.LoginCredentialMixedActivity"/>
+        <activity android:name=".activities.WelcomeActivity"
+             android:taskAffinity=".WelcomeActivity"/>
+        <activity android:name=".activities.ViewActionActivity"
+             android:taskAffinity=".ViewActionActivity"
+             android:launchMode="singleTask"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <data android:scheme="autofillcts"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.SecondActivity"
+             android:taskAffinity=".SecondActivity"/>
+        <activity android:name=".activities.ViewAttributesTestActivity"/>
+        <activity android:name=".activities.AuthenticationActivity"/>
+        <activity android:name=".activities.ManualAuthenticationActivity"/>
+        <activity android:name=".activities.CheckoutActivity"
+             android:taskAffinity=".CheckoutActivity"/>
+        <activity android:name=".activities.InitializedCheckoutActivity"/>
+        <activity android:name=".activities.DatePickerCalendarActivity"/>
+        <activity android:name=".activities.DatePickerSpinnerActivity"/>
+        <activity android:name=".activities.TimePickerClockActivity"/>
+        <activity android:name=".activities.TimePickerSpinnerActivity"/>
+        <activity android:name=".activities.FatActivity"/>
+        <activity android:name=".activities.VirtualContainerActivity"
+             android:exported="true">
+            <intent-filter>
+                <!-- This intent filter is not really needed by CTS, but it makes easier to launch
+                                         this app during CTS development... -->
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.OptionalSaveActivity"/>
+        <activity android:name=".activities.GridActivity"/>
+        <activity android:name=".activities.EmptyActivity"/>
+        <activity android:name=".activities.DummyActivity"/>
+        <activity android:name=".activities.OutOfProcessLoginActivity"
+             android:process="android.autofillservice.cts.outside"/>
+        <activity android:name=".activities.FragmentContainerActivity"/>
+        <activity android:name=".activities.DuplicateIdActivity"
+             android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name=".activities.SimpleSaveActivity"
+             android:theme="@style/OptOutEdgeToEdge"/>
+        <activity android:name=".activities.PreSimpleSaveActivity"
+             android:exported="true">
+            <intent-filter>
+                <!-- This intent filter is not really needed by CTS, but it makes easier to launch
+                                         this app during CTS development... -->
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.WebViewActivity"/>
+        <activity android:name=".activities.WebViewMultiScreenLoginActivity"/>
+        <activity android:name=".activities.TrampolineWelcomeActivity"/>
+        <activity android:name=".activities.AttachedContextActivity"/>
+        <activity android:name=".activities.DialogLauncherActivity"
+             android:exported="true">
+            <intent-filter>
+                <!-- This intent filter is not really needed by CTS, but it makes easier to launch
+                                         this app during CTS development... -->
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.MultiWindowLoginActivity"
+             android:resizeableActivity="true"
+             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"/>
+        <activity android:name=".activities.MultiWindowEmptyActivity"
+             android:resizeableActivity="true"
+             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout"
+             android:taskAffinity="nobody.but.EmptyActivity"
+             android:exported="true"/>
+
+        <activity android:name=".activities.TrampolineForResultActivity"/>
+        <activity android:name=".activities.OnCreateServiceStatusVerifierActivity"/>
+        <activity android:name=".activities.UsernameOnlyActivity"
+             android:theme="@style/OptOutEdgeToEdge"
+             android:exported="true">
+            <intent-filter>
+                <!-- This intent filter is not really needed by CTS, but it makes easier to launch
+                                         this app during CTS development... -->
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.PasswordOnlyActivity"
+             android:exported="true">
+            <intent-filter>
+                <!-- This intent filter is not really needed by CTS, but it makes easier to launch
+                                         this app during CTS development... -->
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.AugmentedLoginActivity"
+             android:exported="true">
+            <intent-filter>
+                <!-- This intent filter is not really needed by CTS, but it makes easier to launch
+                                         this app during CTS development... -->
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.FadeInActivity"/>
+        <activity android:name=".activities.MultipleStepsSignInActivity"/>
+        <activity android:name=".activities.FieldsNoPasswordActivity"/>
+        <activity android:name=".activities.AugmentedAuthActivity" />
+        <activity android:name=".activities.SimpleAfterLoginActivity"/>
+        <activity android:name=".activities.SimpleBeforeLoginActivity"/>
+        <activity android:name=".activities.NonAutofillableActivity"/>
+
+        <receiver android:name=".testcore.SelfDestructReceiver"
+             android:exported="true"
+             android:process="android.autofillservice.cts.outside"/>
+        <receiver android:name=".testcore.OutOfProcessLoginActivityFinisherReceiver"
+             android:exported="true"
+             android:process="android.autofillservice.cts.outside"/>
+
+        <service android:name=".testcore.InstrumentedAutoFillService"
+             android:label="InstrumentedAutoFillService"
+             android:permission="android.permission.BIND_AUTOFILL_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService"/>
+            </intent-filter>
+        </service>
+        <service android:name=".testcore.InstrumentedAutoFillServiceCompatMode"
+             android:label="testcore.InstrumentedAutoFillServiceCompatMode"
+             android:permission="android.permission.BIND_AUTOFILL_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService"/>
+            </intent-filter>
+            <meta-data android:name="android.autofill"
+                 android:resource="@xml/autofill_service_compat_mode_config">
+            </meta-data>
+        </service>
+        <service android:name=".testcore.InstrumentedAutoFillServiceInlineEnabled"
+             android:label="InstrumentedAutoFillServiceInlineEnabled"
+             android:permission="android.permission.BIND_AUTOFILL_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService"/>
+            </intent-filter>
+            <meta-data android:name="android.autofill"
+                 android:resource="@xml/autofill_service_inline_enabled">
+            </meta-data>
+        </service>
+        <service android:name=".testcore.NoOpAutofillService"
+             android:label="NoOpAutofillService"
+             android:permission="android.permission.BIND_AUTOFILL_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService"/>
+            </intent-filter>
+        </service>
+        <!--  BadAutofillService does not declare the proper permission -->
+        <service android:name=".testcore.BadAutofillService"
+             android:label="testcore.BadAutofillService"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".testcore.CtsAugmentedAutofillService"
+             android:label="CtsAugmentedAutofillService"
+             android:permission="android.permission.BIND_AUGMENTED_AUTOFILL_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService"/>
+            </intent-filter>
+        </service>
+        <service android:name=".testcore.InstrumentedFieldClassificationService"
+            android:label="InstrumentedFieldClassificationService"
+            android:permission="android.permission.BIND_FIELD_CLASSIFICATION_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.assist.classification.FieldClassificationService"/>
+            </intent-filter>
+        </service>
+        <service
+            android:exported="true"
+            android:name="android.autofillservice.cts.credman.CtsCredentialProviderService"
+            android:label="Test Provider Service"
+            android:permission="android.permission.BIND_CREDENTIAL_PROVIDER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.credentials.CredentialProviderService"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.credentials.provider"
+                android:resource="@xml/provider"/>
+        </service>
+
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+         android:label="CTS tests for the AutoFill Framework APIs."
+         android:targetPackage="android.autofillservice.cts">
+    </instrumentation>
+
+</manifest>

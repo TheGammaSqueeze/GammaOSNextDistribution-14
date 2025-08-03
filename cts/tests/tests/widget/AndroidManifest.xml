@@ -1,0 +1,749 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.widget.cts"
+     android:targetSandboxVersion="2">
+
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+
+    <queries>
+        <package android:name="com.android.cts.mockime" />
+    </queries>
+
+    <application android:label="Android TestCase"
+         android:icon="@drawable/size_48x48"
+         android:maxRecents="1"
+         android:multiArch="true"
+         android:name="android.widget.cts.MockApplication"
+         android:supportsRtl="true"
+         android:enableOnBackInvokedCallback="true"
+         android:theme="@android:style/Theme.Material.Light.DarkActionBar">
+
+        <uses-library android:name="android.test.runner"/>
+
+        <activity android:name="android.widget.cts.EmptyCtsActivity"
+             android:label="EmptyCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.EditTextCursorCtsActivity"
+                  android:label="Empty test activity"
+                  android:theme="@style/OptOutEdgeToEdgeEnforcement"
+                  android:launchMode="singleTop"
+                  android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
+            </intent-filter>
+        </activity>
+        <activity android:name="android.widget.cts.TextViewMouseInteractionActivity"
+             android:label="TextViewMouseInteractionActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.AbsoluteLayoutCtsActivity"
+             android:label="AbsoluteLayoutCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.TwoLineListItemCtsActivity"
+             android:label="TwoLineListItemCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ViewFlipperCtsActivity"
+             android:label="ViewFlipperCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.HorizontalScrollViewCtsActivity"
+             android:label="HorizontalScrollViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.SlidingDrawerCtsActivity"
+             android:label="SlidingDrawerCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.DigitalClockCtsActivity"
+             android:label="DigitalClockCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ImageViewCtsActivity"
+             android:label="ImageViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ImageSwitcherCtsActivity"
+             android:label="ImageSwitcherCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.TextSwitcherCtsActivity"
+             android:label="TextSwitcherCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.SwitchCtsActivity"
+             android:label="SwitchCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.SpinnerCtsActivity"
+             android:label="SpinnerCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ToolbarCtsActivity"
+             android:theme="@android:style/Theme.Material.Light.NoActionBar"
+             android:label="ToolbarCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ToolbarWithMarginsCtsActivity"
+             android:theme="@android:style/Theme.Material.Light.NoActionBar"
+             android:label="ToolbarWithMarginsCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ActionMenuViewCtsActivity"
+             android:label="ActionMenuViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.SeekBarCtsActivity"
+             android:label="SeekBarCtsActivity"
+             android:theme="@style/OptOutEdgeToEdgeEnforcement"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ScrollViewCtsActivity"
+             android:label="ScrollViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.FrameLayoutCtsActivity"
+             android:label="FrameLayoutCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.LinearLayoutCtsActivity"
+             android:label="LinearLayoutCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.GridLayoutCtsActivity"
+             android:label="GridLayoutCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.LayoutDirectionCtsActivity"
+             android:label="LayoutDirectionCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.AbsSeekBarCtsActivity"
+             android:label="AbsSeekBarCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ProgressBarCtsActivity"
+             android:label="ProgressBarCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ChronometerCtsActivity"
+             android:label="ChronometerCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.MediaControllerCtsActivity"
+             android:label="MediaControllerCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.RatingBarCtsActivity"
+             android:label="RatingBarCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.RemoteViewsCtsActivity"
+             android:label="RemoteViewsCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ExpandableListBasic"
+             android:label="ExpandableListBasic"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ExpandableList"
+             android:label="ExpandableList"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.CtsActivity"
+             android:label="CtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ExpandableListWithHeaders"
+             android:label="ExpandableListWithHeaders"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.GalleryCtsActivity"
+             android:label="GalleryCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.PopupWindowCtsActivity"
+             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
+             android:label="PopupWindowCtsActivity"
+             android:theme="@style/Theme.PopupWindowCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.PopupMenuCtsActivity"
+             android:label="PopupMenuCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ListPopupWindowCtsActivity"
+             android:label="ListPopupWindowCtsActivity"
+             android:windowSoftInputMode="stateAlwaysHidden"
+             android:theme="@style/Theme_NoSwipeDismiss"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ListViewCtsActivity"
+             android:label="ListViewCtsActivity"
+             android:theme="@style/OptOutEdgeToEdgeEnforcement"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ListViewFixedCtsActivity"
+             android:label="ListViewFixedCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.TextClockCtsActivity"
+             android:label="TextClockCtsActivity"
+             android:screenOrientation="nosensor"
+             android:windowSoftInputMode="stateAlwaysHidden"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.TextViewCtsActivity"
+                  android:label="TextViewCtsActivity"
+                  android:screenOrientation="locked"
+                  android:exported="true"
+                  android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.TextViewFontScalingTest$TextViewFontScalingActivity"
+                  android:label="TextViewFontScalingActivity"
+                  android:screenOrientation="locked"
+                  android:exported="true"
+                  android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.TextViewHandwritingCtsActivity"
+                  android:label="TextViewHandwritingCtsActivity"
+                  android:screenOrientation="locked"
+                  android:exported="true"
+                  android:windowSoftInputMode="stateAlwaysHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.EditTextCtsActivity"
+             android:label="EditTextCtsActivity"
+             android:theme="@style/OptOutEdgeToEdgeEnforcement"
+             android:screenOrientation="nosensor"
+             android:windowSoftInputMode="stateAlwaysHidden"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.DialerFilterCtsActivity"
+             android:label="DialerFilterCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.MultiAutoCompleteTextViewCtsActivity"
+             android:label="MultiAutoCompleteTextView Test Activity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.VideoViewCtsActivity"
+             android:configChanges="keyboardHidden|orientation|screenSize"
+             android:label="VideoViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.AutoCompleteCtsActivity"
+             android:label="AutoCompleteCtsActivity"
+             android:screenOrientation="nosensor"
+             android:windowSoftInputMode="stateAlwaysHidden"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ViewAnimatorCtsActivity"
+             android:label="ViewAnimatorCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.GridViewCtsActivity"
+             android:label="GridViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.RelativeLayoutCtsActivity"
+             android:label="RelativeLayoutCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.FrameLayoutCtsActivity"
+             android:label="FrameLayoutCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.AdapterViewCtsActivity"
+             android:label="AdapterViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.CheckedTextViewCtsActivity"
+             android:label="CheckedTextViewCtsActivity"/>
+
+        <activity android:name="android.widget.cts.TableCtsActivity"
+             android:label="TableCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.TabHostCtsActivity"
+             android:label="TabHostCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ZoomButtonCtsActivity"
+             android:label="ZoomButtonCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.DatePickerDialogCtsActivity"
+             android:label="DatePickerDialogCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.CalendarViewCtsActivity"
+             android:label="CalendarViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.DatePickerCtsActivity"
+             android:label="DatePickerCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.SearchViewCtsActivity"
+             android:label="SearchViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ImageButtonCtsActivity"
+             android:label="ImageButtonCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.NumberPickerCtsActivity"
+             android:label="NumberPickerCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.CheckBoxCtsActivity"
+             android:label="CheckBoxCtsActivity"
+             android:theme="@style/OptOutEdgeToEdgeEnforcement"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.CompoundButtonCtsActivity"
+             android:label="CompoundButtonCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.RadioButtonCtsActivity"
+             android:label="RadioButtonCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.ToggleButtonCtsActivity"
+             android:label="ToggleButtonCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.TimePickerCtsActivity"
+             android:label="TimePickerCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.BackwardNavigationCtsActivity"
+             android:label="BackwardNavigationCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.RadioGroupCtsActivity"
+             android:label="RadioGroupCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.Activity"
+             android:label="Activity"
+             android:theme="@style/WidgetAttributeTestTheme"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.ActivityGroup"
+             android:label="ActivityGroup"/>
+
+        <activity android:name="android.widget.cts.MockURLSpanTestActivity"
+             android:label="MockURLSpanTestActivity"
+             android:launchMode="singleTask"
+             android:alwaysRetainTaskState="true"
+             android:configChanges="orientation|keyboardHidden"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+                <data android:scheme="ctstest"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.PointerIconCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.MagnifierCtsActivity"
+             android:label="MagnifierCtsActivity"
+             android:theme="@style/OptOutEdgeToEdgeEnforcement"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.widget.cts.inline.InlineContentViewCtsActivity"
+             android:label="InlineContentViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+    </application>
+
+    <instrumentation android:name="android.widget.cts.runner.WidgetRunner"
+                     android:targetPackage="android.widget.cts"
+                     android:label="CTS tests of android.widget">
+    </instrumentation>
+
+</manifest>

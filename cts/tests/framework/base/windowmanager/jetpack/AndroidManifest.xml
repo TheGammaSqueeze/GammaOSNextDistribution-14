@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.server.wm.jetpack"
+          android:targetSandboxVersion="2">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+
+    <application android:label="CtsWindowManagerJetpackTestCases">
+        <uses-library android:name="android.test.runner" />
+        <uses-library android:name="androidx.window.extensions"
+                      android:required="false" />
+        <uses-library android:name="androidx.window.sidecar"
+                      android:required="false" />
+        <activity android:name="android.server.wm.jetpack.utils.TestActivity" />
+        <activity android:name="android.server.wm.jetpack.utils.TestConfigChangeHandlingActivity"
+                  android:supportsPictureInPicture="true"
+                  android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestLetterboxPortraitActivity"
+                  android:supportsPictureInPicture="true"
+                  android:screenOrientation="portrait"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestLetterboxLandscapeActivity"
+                  android:supportsPictureInPicture="true"
+                  android:screenOrientation="landscape"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestLetterboxPortraitSlimActivity"
+                  android:screenOrientation="portrait"
+                  android:resizeableActivity="false"
+                  android:minAspectRatio="3"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestLetterboxLandscapeSlimActivity"
+                  android:supportsPictureInPicture="true"
+                  android:screenOrientation="landscape"
+                  android:resizeableActivity="false"
+                  android:minAspectRatio="3"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestGetWindowLayoutInfoActivity" />
+        <activity android:name="android.server.wm.jetpack.utils.TestActivityWithId"
+                  android:supportsPictureInPicture="true"
+                  android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+                  android:exported="true"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestActivityWithId2"
+                  android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+                  android:exported="true"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestActivityKnownEmbeddingCerts"
+                  android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+                  android:knownActivityEmbeddingCerts="6a8b96e278e58f62cfe3584022cec1d0527fcb85a9e5d2e1694eb0405be5b599"
+                  android:exported="true"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestRearDisplayActivity"
+                  android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+                  android:exported="true"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestRearDisplayShowWhenLockedActivity"
+                  android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+                  android:exported="true"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestRearDisplayCrashingActivity"
+                  android:process=":Rear_display_crash_process"
+                  android:exported="true"
+        />
+        <activity android:name="android.server.wm.jetpack.utils.TestFocusPrimaryActivity"
+                  android:label="TestFocusPrimaryActivity" />
+        <activity android:name="android.server.wm.jetpack.utils.TestFocusSecondaryActivity"
+                  android:label="TestFocusSecondaryActivity" />
+
+        <!-- The provider properties must match the shared one defined in the util module. -->
+        <provider android:name="android.server.wm.activity.lifecycle.EventLog"
+                  android:authorities="android.server.wm.jetpack.logprovider"
+                  android:exported="true"/>
+
+        <!-- ActivityEmbedding Property -->
+        <property
+            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
+            android:value="true" />
+    </application>
+
+    <!--  self-instrumenting test package. -->
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:label="CTS tests of Jetpack Window Manager"
+        android:targetPackage="android.server.wm.jetpack" >
+    </instrumentation>
+</manifest>

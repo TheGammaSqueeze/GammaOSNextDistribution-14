@@ -1,0 +1,23 @@
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Animations/Transitions > Layout
+# Bug template url: https://b.corp.google.com/issues/new?component=1517318&template=1946513 = per-file *Layout*, Location*, DialogFrame*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Activity Manager > Task and Activity lifecycle
+# Bug template url: https://b.corp.google.com/issues/new?component=316020&template=1018174 = per-file Activity*, AspectRatio*, ConfigChange*, ConfigurationCallbacks*, DialogFrame*, *WindowCtsActivity*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Animations/Transitions > Splash Screens
+# Bug template url: https://b.corp.google.com/issues/new?component=1514550&template=0 = per-file *Splashscreen*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Multi-display
+# Bug template url: https://b.corp.google.com/issues/new?component=316280&template=1018196 = per-file *WindowFocus*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Animations/Transitions
+# Bug template url: https://b.corp.google.com/issues/new?component=316275&template=1018192 = per-file *MoveAnimation*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Input Flinger
+# Bug template url: https://b.corp.google.com/issues/new?component=136048&template=115201 = per-file *WindowInput*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > WM Shell > Split screen
+# Bug template url: https://b.corp.google.com/issues/new?component=928697&template=1490890 = per-file *MultiWindow*
+
+# Android > Android OS & Apps > Framework (Java + Native) > Window Manager > Other
+# Bug template url: https://b.corp.google.com/issues/new?component=316125&template=1018199

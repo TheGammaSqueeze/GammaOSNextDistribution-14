@@ -1,0 +1,96 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_helper_app {
+    name: "CtsNotificationExtenders34TestApp",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "androidx.test.rules",
+        "cts-install-lib",
+        "junit",
+        "truth",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+    srcs: [
+        "src/android/app/notification/extenders/cts/api34/WearableExtenderApi34Test.kt",
+    ],
+    manifest: "src/android/app/notification/extenders/cts/api34/AndroidManifest.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "34",
+    target_sdk_version: "34",
+    min_sdk_version: "34",
+}
+
+android_test_helper_app {
+    name: "CtsNotificationExtendersCurrentTestApp",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "androidx.test.rules",
+        "cts-install-lib",
+        "junit",
+        "truth",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+    srcs: [
+        "src/android/app/notification/extenders/cts/current/WearableExtenderApiCurrentTest.kt",
+    ],
+    manifest: "src/android/app/notification/extenders/cts/current/AndroidManifest.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "34",
+    target_sdk_version: "current",
+    min_sdk_version: "34",
+}
+
+java_test_host {
+    name: "CtsNotificationExtendersTestCases",
+    defaults: ["cts_defaults"],
+    libs: [
+        "cts-tradefed",
+        "tradefed",
+        "guava",
+    ],
+    static_libs: [
+        "CompatChangeGatingTestBase",
+    ],
+    srcs: [
+        "src/android/app/notification/extenders/cts/WearableExtenderApiTestHost.kt",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    data: [
+        ":CtsNotificationExtenders34TestApp",
+        ":CtsNotificationExtendersCurrentTestApp",
+    ],
+}

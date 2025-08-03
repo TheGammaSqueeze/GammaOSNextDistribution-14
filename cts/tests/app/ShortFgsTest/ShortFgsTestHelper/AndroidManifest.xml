@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.app.cts.shortfgstesthelper">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+
+    <application
+        android:name="android.app.cts.shortfgstesthelper.MyApplication">
+        <activity android:name=".MyActivity"
+            android:exported="true">
+        </activity>
+        <receiver android:name=".ShortFgsMessageReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".Fgs0"
+            android:foregroundServiceType="shortService|specialUse"
+            android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="cts" />
+        </service>
+        <service android:name=".Fgs1"
+            android:foregroundServiceType="shortService|specialUse"
+            android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="cts" />
+        </service>
+        <service android:name=".Fgs2"
+            android:foregroundServiceType="shortService|specialUse"
+            android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="cts" />
+        </service>
+        <service android:name=".BoundService"
+            android:exported="true">
+        </service>
+    </application>
+
+</manifest>

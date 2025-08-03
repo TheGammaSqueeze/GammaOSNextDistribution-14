@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 Google Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<dynamicConfig>
+    <entry key ="expected_failures">
+      <!--
+       ! Each value in this section identifies an expected failure and is of the
+       ! form:
+       !    <failure-type>:<signature of class/member>
+       !
+       ! These entries are loaded by AnnotationTest which uses them to construct
+       ! an ExpectedFailuresFilter which discards them.
+       !
+       ! e.g. If the test fails with the following error message:
+       ! junit.framework.AssertionFailedError:
+       ! extra_class:	android.media.MediaParceledListSlice	Error: Class annotated with android.annotation.SystemApi does not exist in the documented API
+       ! extra_class:	android.media.MediaFrameworkInitializer	Error: Class annotated with android.annotation.SystemApi does not exist in the documented API
+       ! extra_interface:	android.media.MediaCommunicationManager$SessionCallback	Error: Class annotated with android.annotation.SystemApi does not exist in the documented API
+       ! extra_class:	android.media.MediaTranscodingManager	Error: Class annotated with android.annotation.SystemApi does not exist in the documented API
+       ! ClassLoader hierarchy
+       !
+       ! The first step is to check that the extra classes are expected (e.g.
+       ! because they have been annotated with the @SystemApi since this version
+       ! of the CTS tests were released and the tests are being run on an
+       ! Android system with a version of the mainline modules that includes
+       ! those changes.
+       !
+       ! If they are not expected then this must be caused by a partner
+       ! inadvertently adding something to the @SystemApi so the correct
+       ! response is for them to stop doing that.
+       !
+       ! If they are expected then additional entries should be added to this
+       ! section. That simply requires copying each error message into their own
+       ! <value></value> element and then removing the whitespace after the
+       ! first : and also removing the trailing " Error: ..." part (including
+       ! the leading white space).
+       !
+       ! See below for some examples.
+       !-->
+      <!-- Bug: 204520502 -->
+      <value>extra_class:android.media.MediaParceledListSlice</value>
+      <value>extra_class:android.media.MediaFrameworkInitializer</value>
+      <value>extra_interface:android.media.MediaCommunicationManager$SessionCallback</value>
+      <value>extra_class:android.media.MediaTranscodingManager</value>
+      <!-- Bug: 202684112 -->
+      <value>extra_class:android.net.TetheringInterface</value>
+      <value>extra_field:public static final java.lang.String android.provider.MediaStore.QUERY_ARG_DEFER_SCAN</value>
+      <value>extra_field:public static final byte android.util.StatsLog.ANNOTATION_ID_IS_UID</value>
+      <value>extra_field:public static final byte android.util.StatsLog.ANNOTATION_ID_TRUNCATE_TIMESTAMP</value>
+      <value>extra_field:public static final byte android.util.StatsLog.ANNOTATION_ID_DEFAULT_STATE</value>
+      <value>extra_field:public static final byte android.util.StatsLog.ANNOTATION_ID_PRIMARY_FIELD</value>
+      <value>extra_field:public static final byte android.util.StatsLog.ANNOTATION_ID_TRIGGER_STATE_RESET</value>
+      <value>extra_field:public static final byte android.util.StatsLog.ANNOTATION_ID_EXCLUSIVE_STATE</value>
+      <value>extra_field:public static final byte android.util.StatsLog.ANNOTATION_ID_PRIMARY_FIELD_FIRST_UID</value>
+      <value>extra_field:public static final byte android.util.StatsLog.ANNOTATION_ID_STATE_NESTED</value>
+      <!-- Bug: 202968174 -->
+      <value>extra_interface:android.net.wifi.WifiManager$WifiVerboseLoggingStatusChangedListener</value>
+      <value>extra_class:android.net.wifi.WifiConnectedSessionInfo</value>
+      <value>extra_class:android.net.wifi.WifiManager$CoexCallback</value>
+      <value>extra_class:android.net.wifi.CoexUnsafeChannel</value>
+      <value>extra_class:android.net.wifi.WifiAvailableChannel</value>
+      <value>extra_method:public int android.net.wifi.WifiNetworkSuggestion.getCarrierId()</value>
+      <value>extra_method:public boolean android.net.wifi.WifiNetworkSuggestion.isOemPaid()</value>
+      <value>extra_method:public boolean android.net.wifi.WifiNetworkSuggestion.isOemPrivate()</value>
+      <value>extra_method:public java.util.List android.net.wifi.rtt.RangingRequest.getRttResponders()</value>
+      <value>extra_method:public boolean android.net.wifi.WifiInfo.isCarrierMerged()</value>
+      <value>extra_method:public boolean android.net.wifi.WifiInfo.isOemPrivate()</value>
+      <value>extra_method:public boolean android.net.wifi.WifiInfo.isPrimary()</value>
+      <value>extra_method:public boolean android.net.wifi.WifiInfo.isTrusted()</value>
+      <value>extra_method:public boolean android.net.wifi.WifiInfo.isOemPaid()</value>
+      <value>extra_method:public int android.net.wifi.SoftApConfiguration.getMacRandomizationSetting()</value>
+      <value>extra_method:public boolean android.net.wifi.SoftApConfiguration.isUserConfiguration()</value>
+      <value>extra_method:public android.util.SparseIntArray android.net.wifi.SoftApConfiguration.getChannels()</value>
+      <value>extra_method:public boolean android.net.wifi.SoftApConfiguration.isBridgedModeOpportunisticShutdownEnabled()</value>
+      <value>extra_method:public boolean android.net.wifi.SoftApConfiguration.isIeee80211axEnabled()</value>
+      <value>extra_method:public int android.net.wifi.WifiConfiguration.getDeletionPriority()</value>
+      <value>extra_method:public java.lang.String android.net.wifi.WifiConfiguration.getProfileKey()</value>
+      <value>extra_method:public void android.net.wifi.WifiConfiguration.setDeletionPriority(int) throws java.lang.IllegalArgumentException</value>
+      <value>extra_method:public void android.net.wifi.aware.WifiAwareManager.enableInstantCommunicationMode(boolean)</value>
+      <value>extra_method:public void android.net.wifi.EasyConnectStatusCallback.onBootstrapUriGenerated(android.net.Uri)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.setCarrierNetworkOffloadEnabled(int,boolean,boolean)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.setCoexUnsafeChannels(java.util.List,int)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.unregisterCoexCallback(android.net.wifi.WifiManager$CoexCallback)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.removeAppState(int,java.lang.String)</value>
+      <value>extra_method:public static int android.net.wifi.WifiManager.getEasyConnectMaxAllowedResponderDeviceInfoLength()</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.stopRestrictingAutoJoinToSubscriptionId()</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.setDefaultCountryCode(java.lang.String)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.addWifiVerboseLoggingStatusChangedListener(java.util.concurrent.Executor,android.net.wifi.WifiManager$WifiVerboseLoggingStatusChangedListener)</value>
+      <value>extra_method:public boolean android.net.wifi.WifiManager.isStaConcurrencyForRestrictedConnectionsSupported()</value>
+      <value>extra_method:public java.util.List android.net.wifi.WifiManager.getAllowedChannels(int,int)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.clearOverrideCountryCode()</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.startRestrictingAutoJoinToSubscriptionId(int)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.restartWifiSubsystem()</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.removeWifiVerboseLoggingStatusChangedListener(android.net.wifi.WifiManager$WifiVerboseLoggingStatusChangedListener)</value>
+      <value>extra_method:public int android.net.wifi.WifiManager.getVerboseLoggingLevel()</value>
+      <value>extra_method:public java.util.List android.net.wifi.WifiManager.getUsableChannels(int,int)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.setVerboseLoggingLevel(int)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.setOverrideCountryCode(java.lang.String)</value>
+      <value>extra_method:public boolean android.net.wifi.WifiManager.setWifiScoringEnabled(boolean)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.startEasyConnectAsEnrolleeResponder(java.lang.String,int,java.util.concurrent.Executor,android.net.wifi.EasyConnectStatusCallback)</value>
+      <value>extra_method:public void android.net.wifi.WifiManager.registerCoexCallback(java.util.concurrent.Executor,android.net.wifi.WifiManager$CoexCallback)</value>
+      <value>extra_method:public android.net.wifi.WifiNetworkSuggestion$Builder android.net.wifi.WifiNetworkSuggestion$Builder.setOemPrivate(boolean)</value>
+      <value>extra_method:public android.net.wifi.WifiNetworkSuggestion$Builder android.net.wifi.WifiNetworkSuggestion$Builder.setOemPaid(boolean)</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_MBO_ASSOC_DISALLOWED_AUTH_SERVER_OVERLOADED</value>
+      <value>extra_field:public boolean android.net.wifi.WifiConfiguration.carrierMerged</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_DISCONNECTION_AP_BUSY</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_OCE_RSSI_BASED_ASSOCIATION_REJECTION</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_POOR_CHANNEL_CONDITIONS</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_MBO_ASSOC_DISALLOWED_INSUFFICIENT_RSSI</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_REFUSED_TEMPORARILY</value>
+      <value>extra_field:public int android.net.wifi.WifiConfiguration.lastConnectUid</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RANDOMIZATION_AUTO</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_MBO_ASSOC_DISALLOWED_MAX_NUM_STA_ASSOCIATED</value>
+      <value>extra_field:public int android.net.wifi.WifiConfiguration.subscriptionId</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RANDOMIZATION_NON_PERSISTENT</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_MBO_ASSOC_DISALLOWED_UNSPECIFIED</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_NETWORK_NOT_FOUND</value>
+      <value>extra_field:public static final int android.net.wifi.WifiConfiguration.RECENT_FAILURE_MBO_ASSOC_DISALLOWED_AIR_INTERFACE_OVERLOADED</value>
+      <value>extra_field:public static final int android.net.wifi.ScanResult.CIPHER_BIP_GMAC_128</value>
+      <value>extra_field:public static final int android.net.wifi.ScanResult.CIPHER_GCMP_128</value>
+      <value>extra_field:public static final int android.net.wifi.ScanResult.CIPHER_BIP_CMAC_256</value>
+      <value>extra_field:public static final int android.net.wifi.ScanResult.CIPHER_BIP_GMAC_256</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.EASY_CONNECT_CRYPTOGRAPHY_CURVE_BRAINPOOLP384R1</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.EASY_CONNECT_CRYPTOGRAPHY_CURVE_BRAINPOOLP512R1</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.VERBOSE_LOGGING_LEVEL_ENABLED</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.EASY_CONNECT_CRYPTOGRAPHY_CURVE_BRAINPOOLP256R1</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.VERBOSE_LOGGING_LEVEL_DISABLED</value>
+      <value>extra_field:public static final java.lang.String android.net.wifi.WifiManager.ACTION_REFRESH_USER_PROVISIONING</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.EASY_CONNECT_CRYPTOGRAPHY_CURVE_PRIME256V1</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.COEX_RESTRICTION_SOFTAP</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.EASY_CONNECT_CRYPTOGRAPHY_CURVE_SECP521R1</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.VERBOSE_LOGGING_LEVEL_ENABLED_SHOW_KEY</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.COEX_RESTRICTION_WIFI_AWARE</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.EASY_CONNECT_CRYPTOGRAPHY_CURVE_SECP384R1</value>
+      <value>extra_field:public static final int android.net.wifi.WifiManager.COEX_RESTRICTION_WIFI_DIRECT</value>
+      <value>extra_field:public static final int android.net.wifi.SoftApConfiguration.BAND_60GHZ</value>
+      <value>extra_field:public static final int android.net.wifi.SoftApConfiguration.RANDOMIZATION_PERSISTENT</value>
+      <value>extra_field:public static final int android.net.wifi.SoftApConfiguration.RANDOMIZATION_NONE</value>
+    </entry>
+</dynamicConfig>

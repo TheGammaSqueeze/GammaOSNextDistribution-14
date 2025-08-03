@@ -1,0 +1,74 @@
+// Copyright (C) 2015 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_camera_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libctscamera2_jni",
+    srcs: [
+        "native-camera-jni.cpp",
+        "dng-validate-jni.cpp",
+        "dynamic-depth-validate-jni.cpp",
+    ],
+    // Flags needed by DNG SDK
+    cflags: [
+        "-DUNIX_ENV=1",
+        "-DqDNGBigEndian=0",
+        "-DqDNGThreadSafe=1",
+        "-DqDNGUseLibJPEG=1",
+        "-DqDNGUseXMP=0",
+        "-DqDNGValidate=1",
+        "-DqDNGValidateTarget=1",
+        "-DqAndroid=1",
+        "-fexceptions",
+        "-Wsign-compare",
+        "-Wno-reorder",
+        "-Wframe-larger-than=20000",
+        // Flags to avoid warnings from DNG SDK
+        "-Wno-unused-parameter",
+        "-Wno-unused-value",
+        "-Wno-unused-variable",
+        // Flags related to dynamic depth
+        "-Wno-ignored-qualifiers",
+        "-DSTATIC_LIBXML=1",
+    ],
+    header_libs: [
+        "jni_headers",
+        "liblog_headers",
+    ],
+    static_libs: [
+        "libdng_sdk_validate",
+        "libjpeg_static_ndk",
+        "libdynamic_depth_ndk",
+        "libimage_io_ndk",
+        "libbase_ndk",
+        "libxml2_ndk",
+    ],
+    // Dynamic depth libraries
+    shared_libs: [
+        "libandroid",
+        "libnativehelper_compat_libc++",
+        "liblog",
+        "libcamera2ndk",
+        "libmediandk",
+        "libz",
+    ],
+    // NDK build, shared C++ runtime
+    sdk_version: "current",
+    stl: "c++_shared",
+}

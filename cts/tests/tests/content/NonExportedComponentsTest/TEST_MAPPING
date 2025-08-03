@@ -1,0 +1,16 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsLaunchNonExportedComponentsTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        },
+        {
+          "exclude-annotation": "org.junit.Ignore"
+        }
+      ]
+    }
+  ]
+}
+

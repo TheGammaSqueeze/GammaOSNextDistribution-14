@@ -1,0 +1,108 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// We build the main test APK and helper APKs from the same source code,
+// just so they can easily share the constants, etc.
+
+java_library {
+    name: "CtsProcessTestCore",
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "guava",
+        "truth",
+        "testng",
+    ],
+    libs: ["android.test.base"],
+    srcs: [
+        "src/**/*.java",
+    ],
+}
+
+java_defaults {
+    name: "CtsProcessTest_default",
+    static_libs: [
+        "CtsProcessTestCore",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "test_current",
+}
+
+android_test {
+    name: "CtsProcessTest",
+    defaults: [
+        "cts_defaults",
+        "CtsProcessTest_default",
+    ],
+    manifest: "AndroidManifest_main.xml",
+    data: [
+        ":CtsProcessTestHelper4",
+        ":CtsProcessTestHelper1",
+        ":CtsProcessTestHelper2",
+        ":CtsProcessTestHelper3",
+    ],
+    per_testcase_directory: true,
+}
+
+android_test_helper_app {
+    name: "CtsProcessTestHelper1",
+    defaults: ["CtsProcessTest_default"],
+
+    manifest: "AndroidManifest_helper1.xml",
+    additional_manifests: [
+        "AndroidManifest_helper.xml",
+    ],
+    package_name: "android.os.cts.process.helper1",
+}
+
+android_test_helper_app {
+    name: "CtsProcessTestHelper2",
+    defaults: ["CtsProcessTest_default"],
+
+    manifest: "AndroidManifest_helper2.xml",
+    additional_manifests: [
+        "AndroidManifest_helper.xml",
+    ],
+    package_name: "android.os.cts.process.helper2",
+}
+
+android_test_helper_app {
+    name: "CtsProcessTestHelper3",
+    defaults: ["CtsProcessTest_default"],
+
+    manifest: "AndroidManifest_helper3.xml",
+    additional_manifests: [
+        "AndroidManifest_helper.xml",
+    ],
+    package_name: "android.os.cts.process.helper3",
+}
+
+android_test_helper_app {
+    name: "CtsProcessTestHelper4",
+    defaults: ["CtsProcessTest_default"],
+
+    manifest: "AndroidManifest_helper4.xml",
+    additional_manifests: [
+        "AndroidManifest_helper.xml",
+    ],
+    package_name: "android.os.cts.process.helper4",
+}

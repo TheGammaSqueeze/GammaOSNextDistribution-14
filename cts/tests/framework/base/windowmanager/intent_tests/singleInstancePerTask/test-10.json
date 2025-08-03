@@ -1,0 +1,45 @@
+{
+    "comment": "Verify the SingleInstancePerTask with documentLaunchMode-never Activity won't be started in new task via NEW_DOCUMENT",
+    "setup": {
+        "initialIntents": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ],
+        "act": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_NEW_DOCUMENT",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ]
+    },
+    "initialState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            }
+        ]
+    },
+    "endState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            }
+        ]
+    }
+}

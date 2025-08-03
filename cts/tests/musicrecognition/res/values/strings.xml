@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2" xmlns:tools="http://schemas.android.com/tools">
+    <!-- Attribution for MusicRecognitionManagerService. [CHAR LIMIT=NONE]-->
+    <string name="music_recognition_manager_service">Music Recognition Manager Service</string>
+    <!-- Attribution for CtsMusicRecognitionService. [CHAR LIMIT=NONE]-->
+    <string name="cts_music_recognition_service">CTS Music Recognition Service</string>
+</resources>

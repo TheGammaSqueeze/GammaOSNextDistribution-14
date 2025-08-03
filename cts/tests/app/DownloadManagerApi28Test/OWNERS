@@ -1,0 +1,3 @@
+# Bug component: https://b.corp.google.com/issues/new?component=150070&template=328402
+
+include platform/frameworks/base:/core/java/android/os/storage/OWNERS

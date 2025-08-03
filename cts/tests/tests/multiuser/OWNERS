@@ -1,0 +1,4 @@
+# Bug component: 71510
+set noparent
+
+file:platform/frameworks/base:/MULTIUSER_OWNERS

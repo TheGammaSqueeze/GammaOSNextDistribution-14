@@ -1,0 +1,121 @@
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// Reusable Sensor test classes and helpers
+//
+package {
+    default_team: "trendy_team_android_sensors",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "cts-sensors-tests",
+    defaults: ["cts_error_prone_rules_tests"],
+
+    static_libs: [
+        "compatibility-device-util-axt",
+        "cts-input-lib",
+    ],
+
+    libs: [
+        "platform-test-annotations",
+        "android.test.base.stubs",
+    ],
+
+    sdk_version: "test_current",
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    exclude_srcs: [
+        // Depends on resources, so can't be included in a java_library - we add
+        // this file explicitly to CtsSensorTestCases, which is the only place
+        // it's actually needed
+        "src/android/hardware/cts/SensorHeadTrackerTest.java",
+    ],
+}
+
+//
+// JNI components for testing NDK
+//
+cc_library_shared {
+    name: "libcts-sensors-ndk-jni",
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wextra",
+    ],
+
+    srcs: [
+        "jni/SensorTest.cpp",
+        "jni/SensorTestCases.cpp",
+        "jni/android_hardware_cts_SensorDirectReportTest.cpp",
+        "jni/android_hardware_cts_SensorNativeTest.cpp",
+        "jni/nativeTestHelper.cpp",
+    ],
+
+    header_libs: ["jni_headers"],
+
+    shared_libs: [
+        "libandroid",
+        "liblog",
+    ],
+
+    sdk_version: "current",
+
+    stl: "c++_shared",
+}
+
+//
+// CtsSensorTestCases package
+//
+android_test {
+    name: "CtsSensorTestCases",
+    defaults: [
+        "cts_defaults",
+    ],
+
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    // include both the 32 and 64 bit versions
+    compile_multilib: "both",
+
+    static_libs: [
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-sensors-tests",
+    ],
+
+    jni_libs: ["libcts-sensors-ndk-jni"],
+
+    sdk_version: "test_current",
+
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+
+    srcs: [
+        "src/android/hardware/cts/SensorHeadTrackerTest.java",
+    ],
+
+    stl: "c++_shared",
+}

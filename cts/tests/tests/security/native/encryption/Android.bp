@@ -1,0 +1,36 @@
+package {
+    default_team: "trendy_team_platform_security",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "CtsNativeEncryptionTestCases",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-error=#warnings",
+    ],
+    srcs: [
+        "FileBasedEncryptionPolicyTest.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+    ],
+    static_libs: [
+        "libctssecurity_native_test_utils",
+        "libfscrypt",
+    ],
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+}

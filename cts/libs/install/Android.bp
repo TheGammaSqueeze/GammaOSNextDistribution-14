@@ -1,0 +1,236 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_framework_android_packages",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_helper_app {
+    name: "TestAppSv1",
+    manifest: "testapp/Sv1.xml",
+    srcs: ["testapp/src/**/*.java"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppSv2",
+    manifest: "testapp/Sv2.xml",
+    srcs: ["testapp/src/**/*.java"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppAv1",
+    manifest: "testapp/Av1.xml",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v1"],
+    apex_available: ["com.android.apex.apkrollback.test_v1"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppAv2",
+    manifest: "testapp/Av2.xml",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+    apex_available: ["com.android.apex.apkrollback.test_v2"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppAv3",
+    manifest: "testapp/Av3.xml",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v3"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppACrashingV2",
+    manifest: "testapp/ACrashingV2.xml",
+    sdk_version: "current",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+    apex_available: ["com.android.apex.apkrollback.test_v2Crashing"],
+}
+
+android_test_helper_app {
+    name: "TestAppBv1",
+    manifest: "testapp/Bv1.xml",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v1"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppBv2",
+    manifest: "testapp/Bv2.xml",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppBv3",
+    manifest: "testapp/Bv3.xml",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v3"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppCv1",
+    manifest: "testapp/Cv1.xml",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v1"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppCv2",
+    manifest: "testapp/Cv2.xml",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+    min_sdk_version: "28",
+    target_sdk_version: "28",
+}
+
+android_test_helper_app {
+    name: "TestAppASplitV1",
+    manifest: "testapp/Av1.xml",
+    sdk_version: "current",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v1"],
+    package_splits: ["anydpi"],
+}
+
+android_test_helper_app {
+    name: "TestAppASplitV2",
+    manifest: "testapp/Av2.xml",
+    sdk_version: "current",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+    package_splits: ["anydpi"],
+}
+
+android_test_helper_app {
+    name: "TestAppAOriginalV1",
+    manifest: "testapp/Av1.xml",
+    sdk_version: "current",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v1"],
+    certificate: ":cts-ec-p256",
+    apex_available: ["com.android.apex.apkrollback.test_v1"],
+}
+
+android_test_helper_app {
+    name: "TestAppARotatedV2",
+    manifest: "testapp/Av2.xml",
+    sdk_version: "current",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+    certificate: ":cts-ec-p256",
+    additional_certificates: [":cts-ec-p256_2"],
+    lineage: "testapp/signing/ec-p256-por-1_2",
+    apex_available: ["com.android.apex.apkrollback.test_v2"],
+}
+
+android_test_helper_app {
+    name: "TestAppARollbackWipeV2",
+    manifest: "testapp/ARollbackWipeV2.xml",
+    sdk_version: "current",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+    apex_available: ["com.android.apex.apkrollback.test_v2"],
+}
+
+android_test_helper_app {
+    name: "TestAppBRollbackRestoreV2",
+    manifest: "testapp/BRollbackRestoreV2.xml",
+    sdk_version: "current",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+}
+
+android_test_helper_app {
+    name: "TestAppCRollbackRetainV2",
+    manifest: "testapp/CRollbackRetainV2.xml",
+    sdk_version: "current",
+    srcs: ["testapp/src/**/*.java"],
+    resource_dirs: ["testapp/res_v2"],
+}
+
+java_library {
+    name: "cts-install-lib-java",
+    srcs: ["src/**/lib/*.java"],
+    static_libs: [
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "cts-shim-lib",
+        "modules-utils-build",
+        "truth",
+    ],
+    sdk_version: "test_current",
+    java_resources: [
+        ":TestAppAv1",
+        ":TestAppAv2",
+        ":TestAppAv3",
+        ":TestAppBv1",
+        ":TestAppBv2",
+        ":TestAppBv3",
+        ":TestAppCv1",
+        ":TestAppCv2",
+        ":TestAppSv1",
+        ":TestAppSv2",
+        ":TestAppACrashingV2",
+        ":TestAppASplitV1",
+        ":TestAppASplitV2",
+        ":TestAppAOriginalV1",
+        ":TestAppARotatedV2",
+        ":TestAppARollbackWipeV2",
+        ":TestAppBRollbackRestoreV2",
+        ":TestAppCRollbackRetainV2",
+        ":StagedInstallTestApexV1",
+        ":StagedInstallTestApexV2",
+        ":StagedInstallTestApexV3",
+    ],
+}
+
+android_library {
+    name: "cts-install-lib",
+    manifest: "AndroidManifest.xml",
+    static_libs: [
+        "cts-install-lib-java",
+    ],
+    min_sdk_version: "29",
+}
+
+java_library_host {
+    name: "cts-install-lib-host",
+    srcs: ["src/**/host/InstallUtilsHost.java"],
+    libs: [
+        "tradefed",
+        "cts-shim-host-lib",
+    ],
+}

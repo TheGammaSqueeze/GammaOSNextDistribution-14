@@ -1,0 +1,6 @@
+# No password, otherwise building during 'atest' will fail waiting on a password
+# These files shouldn't need to change unless you want to generate new certificates to sign the APKs
+#
+# Generated with:
+development/tools/make_key cts-appsearch-helper-cert-a '/CN=cts-appsearch-helper-cert-a'
+development/tools/make_key cts-appsearch-helper-cert-b '/CN=cts-appsearch-helper-cert-b'

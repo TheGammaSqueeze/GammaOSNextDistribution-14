@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Config for CTS ICU4C test cases">
+    <option name="test-suite-tag" value="cts" />
+    <option name="config-descriptor:metadata" key="component" value="libcore" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="cleanup" value="true" />
+        <option name="append-bitness" value="true" />
+        <option name="push" value="cintltst->/data/local/tmp/cintltst" />
+        <option name="post-push" value="chmod a+x /data/local/tmp/cintltst" />
+    </target_preparer>
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="cleanup" value="true" />
+        <option name="append-bitness" value="true" />
+        <option name="push" value="intltest->/data/local/tmp/intltest" />
+        <option name="post-push" value="chmod a+x /data/local/tmp/intltest" />
+    </target_preparer>
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="cleanup" value="true" />
+        <option name="push" value="icu4c_test_data.zip->/data/local/tmp/icu4c_test_data.zip" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <option name="run-command" value="unzip -o -d /data/local/tmp/ /data/local/tmp/icu4c_test_data.zip" />
+        <option name="teardown-command" value="rm -r /data/local/tmp/test /data/local/tmp/data" />
+    </target_preparer>
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsIcu4cTestApp.apk" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.icu4c.cts" />
+        <option name="runtime-hint" value="5s" />
+        <option name="device-listeners" value="com.android.modules.utils.testing.NativeCoverageHackInstrumentationListener" />
+    </test>
+    <test class="com.android.tradefed.testtype.HostTest" >
+        <option name="jar" value="ICU4CTestRunner.jar" />
+        <option name="set-option" value="module-name:cintltst" />
+        <option name="set-option" value="runtime-hint:20s" />
+        <option name="set-option" value="no-fail-data-errors:true" />
+        <option name="set-option" value="native-test-timeout:300000" />
+        <option name="set-option" value="command-filter-prefix:/" />
+        <!-- Sample include-filter to run a subset of tests in putiltst-->
+        <!-- <option name="set-option" value="include-filter:cintltst.putiltst" /> -->
+    </test>
+
+    <test class="com.android.tradefed.testtype.HostTest" >
+        <option name="jar" value="ICU4CTestRunner.jar" />
+        <option name="set-option" value="module-name:intltest" />
+        <option name="set-option" value="runtime-hint:1m30s" />
+        <option name="set-option" value="no-fail-data-errors:true" />
+        <!-- test-timeout unit is ms, value = 18 minutes -->
+        <option name="set-option" value="native-test-timeout:1080000" />
+        <!-- Sample include-filter to run a subset of tests in utility-->
+        <!-- <option name="set-option" value="include-filter:intltest.utility" /> -->
+    </test>
+</configuration>
+

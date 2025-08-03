@@ -1,0 +1,40 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "CtsSimpleperfTestCases",
+    defaults: ["simpleperf_static_libs"],
+    host_supported: false,
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    whole_static_libs: ["libsimpleperf_cts_test"],
+    static_libs: [
+        "libdexfile_static",
+        "libgtest",
+    ],
+    target: {
+        windows: {
+            enabled: false,
+        },
+    },
+    use_version_lib: false,
+    per_testcase_directory: true,
+    data: [
+        ":CtsSimpleperfProfileableApp",
+        ":CtsSimpleperfDebuggableApp",
+        ":system-extras-simpleperf-testdata",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+}

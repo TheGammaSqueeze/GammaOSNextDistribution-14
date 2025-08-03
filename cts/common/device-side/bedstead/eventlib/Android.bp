@@ -1,0 +1,47 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "EventLib",
+    sdk_version: "test_current",
+    srcs: [
+        "src/main/java/**/*.java",
+        "src/main/java/**/*.kt",
+        "src/main/aidl/**/I*.aidl",
+    ],
+    aidl: {
+        local_include_dirs: ["src/main/aidl/"],
+    },
+    static_libs: [
+        "NeneInternal",
+        "Queryable",
+    ],
+    manifest: "src/main/AndroidManifest.xml",
+    min_sdk_version: "29",
+}
+
+android_test {
+    name: "EventLibTest",
+    srcs: [
+        "src/test/java/**/*.java",
+        "src/test/java/**/*.kt",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    static_libs: [
+        "EventLib",
+        "Harrier",
+        "ActivityContext",
+        "androidx.test.ext.junit",
+        "ctstestrunner-axt",
+        "truth",
+        "testng", // for assertThrows
+        "compatibility-device-util-axt", // used for SystemUtil.runShellCommandOrThrow
+    ],
+    resource_dirs: ["src/test/res"],
+    data: [":EventLibTestApp"],
+    manifest: "src/test/AndroidManifest.xml",
+    min_sdk_version: "29",
+}

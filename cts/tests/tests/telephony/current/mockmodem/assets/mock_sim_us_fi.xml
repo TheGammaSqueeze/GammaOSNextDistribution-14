@@ -1,0 +1,32 @@
+<MockSim numofapp="2" atr="3B9F97C00A3FC6828031E073FE211F65D002341512810F51">
+<MockSimProfile id="0" type="APPTYPE_USIM">
+    <PinProfile appstate="APPSTATE_READY">
+        <Pin1State>PINSTATE_DISABLED</Pin1State>
+        <Pin2State>PINSTATE_ENABLED_NOT_VERIFIED</Pin2State>
+    </PinProfile>
+
+    <FacilityLock>
+        <FD>LOCK_DISABLED</FD>
+        <SC>LOCK_DISABLED</SC>
+    </FacilityLock>
+
+    <MF name="MF" path="3F00">
+        <EFDIR name="ADF1" curr_active="true">A0000000871002F310FFFF89190417FF</EFDIR>
+    </MF>
+
+    <ADF aid="A0000000871002F310FFFF89190417FF">
+        <EF name="EF_IMSI" id="6F07" command="" mnc-digit="3">312580123456789</EF>
+        <EF name="EF_ICCID" id="2FE2" command="0xb0">89015801000037773143</EF>
+        <EF name="EF_ICCID" id="2FE2" command="0xc0">0000000A2FE2040000FFFF01020002</EF>
+        <EF name="EF_GID1" id="6F3E" command="0xb0">0001</EF>
+        <EF name="EF_GID1" id="6F3E" command="0xc0">000000026F3E040000FFFF01020002</EF>
+    </ADF>
+</MockSimProfile>
+
+<MockSimProfile id="1" type="APPTYPE_ISIM">
+    <PinProfile appstate="APPSTATE_DETECTED">
+        <Pin1State>PINSTATE_DISABLED</Pin1State>
+        <Pin2State>PINSTATE_ENABLED_NOT_VERIFIED</Pin2State>
+    </PinProfile>
+</MockSimProfile>
+</MockSim>

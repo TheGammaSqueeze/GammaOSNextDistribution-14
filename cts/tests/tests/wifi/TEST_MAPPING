@@ -1,0 +1,22 @@
+{
+  "presubmit-large": [
+    {
+      "name": "CtsWifiTestCases"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "CtsWifiNonUpdatableTestCases"
+    }
+  ],
+  "mainline-presubmit": [
+    {
+      "name": "CtsWifiTestCases[com.google.android.wifi.apex]",
+      "options": [
+        {
+          "exclude-annotation": "com.android.compatibility.common.util.NonMainlineTest"
+        }
+      ]
+    }
+  ]
+}

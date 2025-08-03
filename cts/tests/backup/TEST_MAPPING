@@ -1,0 +1,23 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsBackupTestCases",
+      "options": [
+        {
+          // Remove from presubmit until b/273295079 is resolved.
+          "exclude-filter": "android.backup.cts.BackupRestoreEventLoggerTest"
+        }
+      ]
+    }
+  ],
+  "mainline-presubmit": [
+    {
+      "name": "CtsBackupTestCases[com.google.android.permission.apex]",
+      "options": [
+        {
+          "include-filter": "android.backup.cts.PermissionTest"
+        }
+      ]
+    }
+  ]
+}

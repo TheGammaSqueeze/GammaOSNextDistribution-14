@@ -1,0 +1,33 @@
+{
+  "kernel-presubmit": [
+    {
+      "name": "CtsSystemUiTestCases",
+      "options": [
+        {
+          // TODO(b/248506610)
+          "exclude-filter": "android.systemui.cts.WindowInsetsBehaviorTests#swipeInsideLimit_immersiveSticky_noEventCanceled"
+        },
+        {
+          "exclude-filter": "android.systemui.cts.WindowInsetsBehaviorTests#swipeInsideLimit_systemUiVisible_noEventCanceled"
+        },
+        {
+          "exclude-filter": "android.systemui.cts.WindowInsetsBehaviorTests#swipeOutsideLimit_immersiveSticky_noEventCanceled"
+        },
+        {
+          "exclude-filter": "android.systemui.cts.WindowInsetsBehaviorTests#tappableElements_tapSamplePoints_excludeViewRects_withoutAnyCancel"
+        },
+        {
+          "exclude-filter": "android.systemui.cts.WindowInsetsBehaviorTests#tappableElements_tapSamplePoints_notExcludeViewRects_withoutAnyCancel"
+        },
+        {
+          // TODO(b/238861307)
+          "exclude-filter": "android.systemui.cts.MediaOutputDialogTest#mediaOutputDialog_correctDialog"
+        },
+        {
+          // TODO(b/186201470)
+          "exclude-filter": "android.systemui.cts.LightBarTests#testLightBarIsNotAllowed_fitStatusBar"
+        }
+      ]
+    }
+  ]
+}

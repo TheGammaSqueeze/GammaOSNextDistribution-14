@@ -1,0 +1,81 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "compatibility-device-util-axt-default",
+    sdk_version: "test_current",
+    min_sdk_version: "21",
+    dxflags: ["--multi-dex"],
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+        "src/**/*.aidl",
+    ],
+
+    static_libs: [
+        "compatibility-common-util-devicesidelib",
+        "androidx.test.rules",
+        "androidx.test.ext.junit",
+        "ub-uiautomator",
+        "androidx.annotation_annotation",
+        "androidx.test.uiautomator_uiautomator",
+        "error_prone_annotations",
+        "truth",
+        "modules-utils-build_system",
+        "android.os.flags-aconfig-java",
+        "flag-junit",
+    ],
+
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+
+    jarjar_rules: "protobuf-jarjar-rules.txt",
+}
+
+java_library_static {
+    name: "compatibility-device-util-axt",
+    defaults: ["compatibility-device-util-axt-default"],
+    static_libs: [
+        "mockito-target-minus-junit4",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+// This target can be used with ExtendedMockito
+java_library {
+    name: "compatibility-device-util-axt-minus-dexmaker",
+    defaults: ["compatibility-device-util-axt-default"],
+    static_libs: [
+        "mockito",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+filegroup {
+    name: "compatibility-device-util-nodeps",
+    srcs: [
+        "src/com/android/compatibility/common/util/IBinderParcelable.java",
+    ],
+}

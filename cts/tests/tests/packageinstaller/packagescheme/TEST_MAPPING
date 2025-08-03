@@ -1,0 +1,15 @@
+{
+  "postsubmit": [
+    {
+      "name": "CtsPackageSchemeTestsWithVisibility",
+      "options": [
+        {
+          "include-filter": "android.packageinstaller.packagescheme.cts.withvisibility.WithVisibilityPackageSchemeTest#whenTargetAppIsInstalled_TestCanFindIt"
+        },
+        {
+          "include-filter": "android.packageinstaller.packagescheme.cts.withvisibility.WithVisibilityPackageSchemeTest#whenTargetAppIsNotInstalled_TestCantFindIt"
+        }
+      ]
+    }
+  ]
+}

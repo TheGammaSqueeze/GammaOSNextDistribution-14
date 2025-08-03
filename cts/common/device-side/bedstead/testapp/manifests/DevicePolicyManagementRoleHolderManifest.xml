@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.DevicePolicyManagerRoleHolder" android:targetSandboxVersion="2">
+    <uses-permission android:name="android.permission.BIND_DEVICE_ADMIN" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_ADMINS" />
+    <uses-permission android:name="android.permission.NETWORK_MANAGED_PROVISIONING" />
+    <uses-permission android:name="android.permission.PEERS_MAC_ADDRESS" />
+    <uses-permission android:name="android.permission.USE_COLORIZED_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.MASTER_CLEAR" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+    <uses-permission android:name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
+    <uses-permission android:name="android.permission.START_FOREGROUND_SERVICES_FROM_BACKGROUND" />
+    <uses-permission android:name="android.permission.MANAGE_PROFILE_AND_DEVICE_OWNERS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <uses-permission android:name="com.android.permission.INSTALL_EXISTING_PACKAGES" />
+    <uses-permission android:name="android.permission.DELETE_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_PDB_STATE" />
+    <uses-permission android:name="android.permission.MARK_DEVICE_ORGANIZATION_OWNED" />
+    <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE" />
+    <uses-permission android:name="android.permission.SET_TIME" />
+    <uses-permission android:name="android.permission.SET_TIME_ZONE" />
+    <uses-permission android:name="android.permission.CRYPT_KEEPER" />
+    <uses-permission android:name="android.permission.SHUTDOWN" />
+    <uses-permission android:name="android.permission.PERFORM_CDMA_PROVISIONING" />
+    <uses-permission android:name="android.permission.CONFIGURE_INTERACT_ACROSS_PROFILES" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.LAUNCH_DEVICE_MANAGER_SETUP" />
+    <uses-permission android:name="android.permission.INSTALL_DPC_PACKAGES" />
+    <uses-permission android:name="android.permission.QUERY_USERS" />
+    <uses-permission android:name="android.permission.UPDATE_DEVICE_MANAGEMENT_RESOURCES" />
+    <uses-permission android:name="android.permission.QUERY_ADMIN_POLICY" />
+    <uses-permission android:name="android.permission.TRIGGER_LOST_MODE" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_APP_EXEMPTIONS" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_ACCOUNT_MANAGEMENT" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_AIRPLANE_MODE" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_CAMERA" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_CERTIFICATES" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_COMMON_CRITERIA_MODE" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_DEFAULT_SMS" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_FACTORY_RESET" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_INPUT_METHODS" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_KEYGUARD" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_LOCK" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_LOCK_CREDENTIALS" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_MOBILE_NETWORK" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_MTE" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_PACKAGE_STATE" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_PROFILES" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_RESTRICT_PRIVATE_DNS" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_SCREEN_CAPTURE" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_SECURITY_LOGGING" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_AUDIT_LOGGING" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_SUSPEND_PERSONAL_APPS" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_SYSTEM_UPDATES" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_TIME" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_USB_DATA_SIGNALLING" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_WIFI" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_WIPE_DATA" />
+    <uses-permission android:name="android.permission.SET_TIME" />
+    <uses-permission android:name="android.permission.SET_TIME_ZONE" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_DEBUGGING_FEATURES" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_MODIFY_USERS" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_SAFE_BOOT" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_MICROPHONE" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_USB_FILE_TRANSFER" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_CONTENT_PROTECTION" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_QUERY_SYSTEM_UPDATES" />
+    <uses-permission android:name="android.permission.MANAGE_DEVICE_POLICY_THEFT_DETECTION" />
+
+    <application
+        android:label="DevicePolicyManagerRoleHolder" android:testOnly="true">
+    <!-- Don't allow this test app to be returned by queries unless filtered by package name -->
+        <meta-data android:name="testapp-package-query-only" android:value="true" />
+
+        <activity android:name=".provision_managed_device_from_trusted_source" android:exported="true" android:permission="android.permission.LAUNCH_DEVICE_MANAGER_SETUP">
+            <intent-filter>
+                <action android:name="android.app.action.ROLE_HOLDER_PROVISION_MANAGED_DEVICE_FROM_TRUSTED_SOURCE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".role_holder_provision_managed_profile" android:exported="true" android:permission="android.permission.LAUNCH_DEVICE_MANAGER_SETUP">
+            <intent-filter>
+                <action android:name="android.app.action.ROLE_HOLDER_PROVISION_MANAGED_PROFILE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".role_holder_provision_finalization" android:exported="true" android:permission="android.permission.LAUNCH_DEVICE_MANAGER_SETUP">
+            <intent-filter>
+                <action android:name="android.app.action.ROLE_HOLDER_PROVISION_FINALIZATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name=".RoleHolderReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MANAGED_PROFILE_REMOVED" />
+                <action android:name="android.intent.action.MANAGED_PROFILE_AVAILABLE" />
+                <action android:name="android.intent.action.MANAGED_PROFILE_UNAVAILABLE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".FinancedDeviceStateReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.admin.action.DEVICE_FINANCING_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Ideally it's not required for role holder to act as a dpc, but its required for
+        some of our ManagedSubscriptionsPolicy test, adding this receiver only for this reason.-->
+        <receiver android:name=".DeviceAdminReceiver"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:exported="true">
+            <meta-data android:name="android.app.device_admin"
+                android:resource="@xml/device_admin"/>
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>
+                <action android:name="android.app.action.NOTIFY_PENDING_SYSTEM_UPDATE"/>
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

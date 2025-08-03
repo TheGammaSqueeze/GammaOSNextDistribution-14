@@ -1,0 +1,5 @@
+<dynamicConfig>
+    <entry key="media_files_url">
+      <value>https://dl.google.com/android/xts/cts/tests/video/CtsVideoTestCases-1.3.zip</value>
+    </entry>
+</dynamicConfig>

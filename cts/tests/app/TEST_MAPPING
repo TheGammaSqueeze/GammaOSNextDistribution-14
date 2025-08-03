@@ -1,0 +1,23 @@
+{
+  "presubmit-large": [
+    {
+      "name": "CtsAppTestCases",
+      "options": [
+        {
+          "exclude-annotation": "android.platform.test.annotations.FlakyTest"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.LargeTest"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsAppTestCases"
+    }
+  ]
+}

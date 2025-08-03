@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.telephony.cts">
+
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS"/>
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.READ_LOGS"/>
+    <uses-permission android:name="android.permission.READ_ACTIVE_EMERGENCY_SESSION"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_MMS"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <uses-permission android:name="android.permission.USE_SIP"/>
+    <uses-permission android:name="android.telephony.embms.cts.permission.TEST_BROADCAST"/>
+    <uses-permission android:name="android.permission.WRITE_EMBEDDED_SUBSCRIPTIONS" />
+    <uses-permission android:name="android.permission.USE_ICC_AUTH_WITH_DEVICE_IDENTIFIER" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.SATELLITE_COMMUNICATION"/>
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <uses-permission android:name="android.permission.READ_DROPBOX_DATA"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
+    <permission android:name="android.telephony.embms.cts.permission.TEST_BROADCAST"
+         android:protectionLevel="signature"/>
+    <!-- Must be debuggable for compat shell commands to work on user builds -->
+    <application android:debuggable="true">
+
+        <provider android:name="android.telephony.cts.MmsPduProvider"
+             android:authorities="telephonyctstest"
+             android:grantUriPermissions="true"/>
+
+        <!-- SmsReceiver, MmsReceiver, ComposeSmsActivity, HeadlessSmsSendService together make
+                    this a valid SmsApplication (that can be set as the default SMS app). Although some of these
+                    classes don't do anything, they are needed to make this a valid candidate for default SMS
+                    app. -->
+        <!-- BroadcastReceiver that listens for incoming SMS messages -->
+        <receiver android:name=".SmsReceiver"
+             android:permission="android.permission.BROADCAST_SMS"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_DELIVER"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- BroadcastReceiver that listens for incoming MMS messages -->
+        <receiver android:name=".MmsReceiver"
+             android:permission="android.permission.BROADCAST_WAP_PUSH"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER"/>
+                <data android:mimeType="application/vnd.wap.mms-message"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Activity that allows the user to send new SMS/MMS messages -->
+        <activity android:name=".ComposeSmsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <action android:name="android.intent.action.SENDTO"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sms"/>
+                <data android:scheme="smsto"/>
+                <data android:scheme="mms"/>
+                <data android:scheme="mmsto"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Service that delivers messages from the phone "quick response"
+             -->
+        <service android:name=".HeadlessSmsSendService"
+             android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="sms"/>
+                <data android:scheme="smsto"/>
+                <data android:scheme="mms"/>
+                <data android:scheme="mmsto"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.telephony.cts.InCallServiceStateValidator"
+             android:permission="android.permission.BIND_INCALL_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.telecom.InCallService"/>
+            </intent-filter>
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI"
+                 android:value="true"/>
+        </service>
+
+        <service android:name=".MockVisualVoicemailService"
+             android:permission="android.permission.BIND_VISUAL_VOICEMAIL_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.telephony.VisualVoicemailService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".PermissionlessVisualVoicemailService"
+             android:enabled="false"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.telephony.VisualVoicemailService"/>
+            </intent-filter>
+
+        </service>
+
+        <service android:name="com.android.compatibility.common.util.BlockedNumberService"
+             android:exported="true"
+             android:singleUser="true">
+            <intent-filter>
+                <action android:name="android.telecom.cts.InsertBlockedNumber"/>
+                <action android:name="android.telecom.cts.DeleteBlockedNumber"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.telephony.euicc.cts.MockEuiccService"
+             android:permission="android.permission.BIND_EUICC_SERVICE"
+             android:exported="true">
+            <intent-filter android:priority="100">
+                <action android:name="android.service.euicc.EuiccService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.telephony.ims.cts.TestImsService"
+             android:directBootAware="true"
+             android:persistent="true"
+             android:permission="android.permission.BIND_IMS_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.telephony.ims.ImsService"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="android.telephony.cts.FakeCarrierMessagingService"
+            android:permission="android.permission.BIND_CARRIER_SERVICES"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.service.carrier.CarrierMessagingService" />
+            </intent-filter>
+        </service>
+
+        <service android:name="android.telephony.cts.TestDomainSelectionService"
+             android:directBootAware="true"
+             android:persistent="true"
+             android:permission="android.permission.BIND_DOMAIN_SELECTION_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.telephony.DomainSelectionService"/>
+            </intent-filter>
+        </service>
+
+        <!-- Activity that allows the user to trigger the UCE APIs -->
+        <activity android:name="android.telephony.ims.cts.UceActivity"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.telephony.ims.cts.action_finish"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name="android.telephony.gba.cts.TestGbaService"
+            android:directBootAware="true"
+            android:permission="android.permission.BIND_GBA_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.telephony.gba.GbaService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.telephony.satellite.cts.MockSatelliteService"
+             android:directBootAware="true"
+             android:persistent="true"
+             android:permission="android.permission.BIND_SATELLITE_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.telephony.satellite.SatelliteService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.telephony.satellite.cts.MockSatelliteGatewayService"
+             android:directBootAware="true"
+             android:persistent="true"
+             android:permission="android.permission.BIND_SATELLITE_GATEWAY_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.telephony.satellite.SatelliteGatewayService"/>
+            </intent-filter>
+        </service>
+
+        <activity android:name="android.telephony.satellite.cts.MockPointingUiActivity"
+             android:exported="true">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.telephony.cts.StubDialerActvity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:mimeType="vnd.android.cursor.item/phone"/>
+                <data android:mimeType="vnd.android.cursor.item/person"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="voicemail"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.DIAL"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="tel"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.telephony.euicc.cts.EuiccTestResolutionActivity"/>
+
+        <activity android:name="android.telephony.euicc.cts.EuiccResolutionActivity"/>
+
+        <activity android:name="android.telephony.euicc.cts.EuiccTestServiceActionResolutionActivity"
+                  android:screenOrientation="behind"
+                  android:exported="true"
+                  android:theme="@android:style/Theme.NoDisplay"
+                  android:permission="android.permission.BIND_EUICC_SERVICE">
+            <intent-filter android:priority="100">
+                <action android:name="android.service.euicc.action.PROVISION_EMBEDDED_SUBSCRIPTION" />
+                <action android:name="android.service.euicc.action.MANAGE_EMBEDDED_SUBSCRIPTIONS"/>
+                <action android:name="android.service.euicc.action.TRANSFER_EMBEDDED_SUBSCRIPTIONS"/>
+                <action android:name="android.service.euicc.action.CONVERT_TO_EMBEDDED_SUBSCRIPTION"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.service.euicc.category.EUICC_UI" />
+            </intent-filter>
+        </activity>
+
+        <uses-library android:name="android.test.runner"/>
+
+
+        <!-- This is the receiver defined by the MBMS api. -->
+        <receiver android:name="android.telephony.mbms.MbmsDownloadReceiver"
+             android:permission="android.telephony.cts.embmstestapp.CTS_DOWNLOAD_PERMISSION"
+             android:enabled="true"
+             android:exported="true">
+        </receiver>
+
+        <provider android:name="android.telephony.mbms.MbmsTempFileProvider"
+             android:authorities="android.telephony.mbms.cts"
+             android:exported="false"
+             android:grantUriPermissions="true">
+        </provider>
+
+        <meta-data android:name="mbms-streaming-service-override"
+             android:value="android.telephony.cts.embmstestapp/.CtsStreamingService"/>
+        <meta-data android:name="mbms-download-service-override"
+             android:value="android.telephony.cts.embmstestapp/.CtsDownloadService"/>
+        <meta-data android:name="mbms-group-call-service-override"
+             android:value="android.telephony.cts.embmstestapp/.CtsGroupCallService"/>
+        <meta-data android:name="mbms-file-provider-authority"
+             android:value="android.telephony.mbms.cts"/>
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+         android:targetPackage="android.telephony.cts"
+         android:label="CTS tests of android.telephony">
+    </instrumentation>
+
+    <!-- Make sure the cts can connect to the test services -->
+    <queries>
+        <intent>
+            <action android:name="android.service.carrier.CarrierMessagingService" />
+        </intent>
+        <intent>
+            <action android:name="android.telephony.cts.embmstestapp.ACTION_CONTROL_MIDDLEWARE" />
+        </intent>
+        <intent>
+            <action android:name="android.telephony.cts.locationaccessingapp.ACTION_CONTROL" />
+        </intent>
+        <package android:name="android.telephony.cts.financialsms" />
+        <package android:name="android.telephony.cts.sms" />
+        <package android:name="android.telephony.cts.sms23" />
+        <package android:name="android.telephony.cts.externalimsservice" />
+        <package android:name="android.telephony.cts.externalsatellitegatewayservice" />
+        <package android:name="android.telephony.cts.externalsatelliteservice" />
+        <package android:name="android.telephony.cts.externalpointingui" />
+    </queries>
+</manifest>

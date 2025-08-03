@@ -1,0 +1,17 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "hotspot",
+    defaults: ["cts_defaults"],
+    srcs: ["src/**/*.java"],
+    sdk_version: "current",
+    static_libs: ["android-support-v4"],
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+    ],
+}

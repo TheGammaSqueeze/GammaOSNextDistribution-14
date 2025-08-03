@@ -1,0 +1,7 @@
+{
+  "kernel-postsubmit": [
+    {
+      "name": "CtsLibcoreFileIOTestCases"
+    }
+  ]
+}

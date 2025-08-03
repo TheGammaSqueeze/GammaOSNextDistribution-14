@@ -1,0 +1,68 @@
+record mmap2: type 10, misc 1, size 136
+  pid 23365, tid 23365, addr 0x58b817b000, len 0x3228000
+  pgoff 0x0, maj 253, min 9, ino 14709, ino_generation 2575019956
+  prot 1, flags 6146, filename file_0
+  sample_id: pid 23365, tid 23365
+  sample_id: time 595063921188552
+  sample_id: id 23808
+  sample_id: cpu 4, res 0
+record mmap2: type 10, misc 8194, size 136
+  pid 23365, tid 23365, addr 0x58b817b000, len 0x3228000
+  pgoff 0x0, maj 253, min 9, ino 14709, ino_generation 2575019956
+  prot 1, flags 6146, filename file_1
+  sample_id: pid 23365, tid 23365
+  sample_id: time 595063921188552
+  sample_id: id 23808
+  sample_id: cpu 4, res 0
+record comm: type 3, misc 0, size 64
+  pid 23365, tid 23365, comm simpleperf
+  sample_id: pid 0, tid 0
+  sample_id: time 0
+  sample_id: id 23804
+  sample_id: cpu 0, res 0
+record comm: type 3, misc 8192, size 64
+  pid 23365, tid 23365, comm deqp-binary64
+  sample_id: pid 23365, tid 23365
+  sample_id: time 595063921159958
+  sample_id: id 23808
+  sample_id: cpu 4, res 0
+record mmap2: type 10, misc 8194, size 136
+  pid 23365, tid 23365, addr 0x58b817b000, len 0x3228000
+  pgoff 0x0, maj 253, min 9, ino 14709, ino_generation 2575019956
+  prot 1, flags 6146, filename file_2
+  sample_id: pid 23365, tid 23365
+  sample_id: time 595063921188552
+  sample_id: id 23808
+  sample_id: cpu 4, res 0
+record mmap2: type 10, misc 8194, size 136
+  pid 23365, tid 23365, addr 0x58b817b000, len 0x3228000
+  pgoff 0x0, maj 253, min 9, ino 14709, ino_generation 2575019956
+  prot 1, flags 6146, filename /data/file
+  sample_id: pid 23365, tid 23365
+  sample_id: time 595063921188552
+  sample_id: id 23808
+  sample_id: cpu 4, res 0
+record mmap2: type 10, misc 8194, size 136
+  pid 23365, tid 23365, addr 0x58b817b000, len 0x3228000
+  pgoff 0x0, maj 253, min 9, ino 14709, ino_generation 2575019956
+  prot 1, flags 6146, filename /dmabuf:dmabuf1234
+  sample_id: pid 23365, tid 23365
+  sample_id: time 595063921188552
+  sample_id: id 23808
+  sample_id: cpu 4, res 0
+record mmap2: type 10, misc 8194, size 136
+  pid 23365, tid 23365, addr 0x58b817b000, len 0x3228000
+  pgoff 0x0, maj 253, min 9, ino 14709, ino_generation 2575019956
+  prot 1, flags 6146, filename [vdso]
+  sample_id: pid 23365, tid 23365
+  sample_id: time 595063921188552
+  sample_id: id 23808
+  sample_id: cpu 4, res 0
+record mmap2: type 10, misc 8194, size 136
+  pid 23365, tid 23365, addr 0x58b817b000, len 0x3228000
+  pgoff 0x0, maj 253, min 9, ino 14709, ino_generation 2575019956
+  prot 1, flags 6146, filename file_3
+  sample_id: pid 23365, tid 23365
+  sample_id: time 595063921188552
+  sample_id: id 23808
+  sample_id: cpu 4, res 0

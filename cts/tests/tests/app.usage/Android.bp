@@ -1,0 +1,175 @@
+// Copyright (C) 2014 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsUsageStatsTestCases",
+    defaults: ["cts_defaults"],
+    platform_apis: true,
+    static_libs: [
+        "android.app.usage.flags-aconfig-java",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "flag-junit",
+        "junit",
+        "permission-test-util-lib",
+        "androidx.test.uiautomator_uiautomator",
+        "sts-device-util",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+    ],
+    srcs: [
+        "src/**/*.java",
+        "TestApp1/**/*.java",
+        "TestApp1/**/*.aidl",
+        "TestApp2/**/*.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+    ],
+    data: [
+        ":CtsUsageStatsTestApp1",
+        ":CtsUsageStatsTestApp2",
+        ":CtsUsageStatsTestApp3",
+        ":CtsUsageStatsTestApp4",
+        ":CtsUsageStatsTestAppApi32",
+        ":CtsUsageStatsTestAssistApp",
+        ":CtsUsageStatsTestExactAlarmApp",
+    ],
+    per_testcase_directory: true,
+}
+
+java_defaults {
+    name: "test_app_defaults",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "junit",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+    ],
+    srcs: [
+        "TestApp1/src/**/*.java",
+        "TestApp1/aidl/**/*.aidl",
+    ],
+    manifest: "TestApp1/AndroidManifest.xml",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "general-tests",
+    ],
+    sdk_version: "test_current",
+}
+
+android_test_helper_app {
+    name: "CtsUsageStatsTestApp1",
+    resource_dirs: [
+        "TestApp1/res",
+    ],
+    defaults: ["test_app_defaults"],
+}
+
+android_test_helper_app {
+    name: "CtsUsageStatsTestApp3",
+    defaults: ["test_app_defaults"],
+    resource_dirs: [
+        "TestApp1/res",
+        "TestApp3/res",
+    ],
+    aaptflags: [
+        "--rename-manifest-package android.app.usage.cts.test3",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsUsageStatsTestApp4",
+    defaults: ["test_app_defaults"],
+    resource_dirs: [
+        "TestApp1/res",
+        "TestApp4/res",
+    ],
+    aaptflags: [
+        "--rename-manifest-package android.app.usage.cts.test4",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsUsageStatsTestAppApi32",
+    defaults: ["test_app_defaults"],
+    resource_dirs: [
+        "TestApp1/res",
+        "TestAppApi32/res",
+    ],
+    target_sdk_version: "32",
+    aaptflags: [
+        "--rename-manifest-package android.app.usage.cts.testapi32",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsUsageStatsTestAssistApp",
+    defaults: ["test_app_defaults"],
+    resource_dirs: [
+        "TestApp1/res",
+        "TestAssistApp/res",
+    ],
+    manifest: "TestAssistApp/AndroidManifest.xml",
+    aaptflags: [
+        "--rename-manifest-package android.app.usage.cts.test.assist",
+    ],
+}
+
+android_test_helper_app {
+    name: "CtsUsageStatsTestExactAlarmApp",
+    defaults: ["test_app_defaults"],
+    resource_dirs: [
+        "TestApp1/res",
+        "TestExactAlarmApp/res",
+    ],
+    manifest: "TestExactAlarmApp/AndroidManifest.xml",
+    aaptflags: [
+        "--rename-manifest-package android.app.usage.cts.test.exactalarm",
+    ],
+}
+
+filegroup {
+    name: "cts-common-test-src",
+    srcs: [
+        "src/**/UsageStatsTestRunner.java",
+        "src/**/DumpOnFailureRule.java",
+    ],
+    path: "src",
+}
+
+filegroup {
+    name: "cts-common-test-aidl",
+    srcs: [
+        "TestApp1/aidl/**/*.aidl",
+    ],
+    path: "TestApp1/aidl",
+}

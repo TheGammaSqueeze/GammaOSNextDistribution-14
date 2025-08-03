@@ -1,0 +1,49 @@
+{
+    "comment": "Verify that a new task should not be created when the DocumentLaunchNeverActivity was started, even if the Intent contains FLAG_ACTIVITY_NEW_DOCUMENT and FLAG_ACTIVITY_MULTIPLE_TASK",
+    "setup": {
+        "initialIntents": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$RegularActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ],
+        "act": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_DOCUMENT | FLAG_ACTIVITY_MULTIPLE_TASK",
+                "class": "android.server.wm.intent.Activities$DocumentLaunchNeverActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ]
+    },
+    "initialState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            }
+        ]
+    },
+    "endState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$DocumentLaunchNeverActivity",
+                        "state": "RESUMED"
+                    },
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            }
+        ]
+    }
+}

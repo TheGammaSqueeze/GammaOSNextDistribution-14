@@ -1,0 +1,73 @@
+{
+  "id": 1,
+  "type": "uinput",
+  "command": "register",
+  "name": "Test Stylus (USB)",
+  "vid": 0x18d1,
+  "pid": 0xabcd,
+  "bus": "usb",
+  "port": "usb:1",
+  "configuration": [
+    {"type": "UI_SET_EVBIT", "data": ["EV_KEY", "EV_ABS"]},
+    {"type": "UI_SET_KEYBIT", "data": ["BTN_TOUCH", "BTN_TOOL_PEN"]},
+    {"type": "UI_SET_ABSBIT", "data": [
+      "ABS_MT_SLOT",
+      "ABS_MT_TOUCH_MAJOR",
+      "ABS_MT_POSITION_X",
+      "ABS_MT_POSITION_Y",
+      "ABS_MT_TRACKING_ID",
+      "ABS_MT_TOOL_TYPE"
+    ]},
+    {"type": "UI_SET_PROPBIT", "data": ["INPUT_PROP_POINTER"]}
+  ],
+  "abs_info": [
+    {"code": "ABS_MT_SLOT", "info": {
+      "value": 0,
+      "minimum": 0,
+      "maximum": 9,
+      "fuzz": 0,
+      "flat": 0,
+      "resolution": 0
+    }},
+    {"code": "ABS_MT_TRACKING_ID", "info": {
+      "value": 0,
+      "minimum": 0,
+      "maximum": 9,
+      "fuzz": 0,
+      "flat": 0,
+      "resolution": 0
+    }},
+    {"code": "ABS_MT_TOUCH_MAJOR", "info": {
+      "value": 0,
+      "minimum": 0,
+      "maximum": 31,
+      "fuzz": 0,
+      "flat": 0,
+      "resolution": 0
+    }},
+    {"code": "ABS_MT_POSITION_X", "info": {
+      "value": 0,
+      "minimum": 0,
+      "maximum": 0,               // Will be replaced to real display's width - 1
+      "fuzz": 0,
+      "flat": 0,
+      "resolution": 0
+    }},
+    {"code": "ABS_MT_POSITION_Y", "info": {
+      "value": 0,
+      "minimum": 0,
+      "maximum": 0,               // Will be replaced to real display's height - 1
+      "fuzz": 0,
+      "flat": 0,
+      "resolution": 0
+    }},
+    {"code": "ABS_MT_TOOL_TYPE", "info": {
+      "value": 0,
+      "minimum": 0x00,            // MT_TOOL_FINGER
+      "maximum": 0x02,            // MT_TOOL_PALM
+      "fuzz": 0,
+      "flat": 0,
+      "resolution": 0
+    }}
+  ]
+}

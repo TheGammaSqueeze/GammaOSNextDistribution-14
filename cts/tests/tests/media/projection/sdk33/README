@@ -1,0 +1,8 @@
+A test package for validating the security changes in Android U. The platform
+changes detect when an app is re-using the user's consent, and either:
+1. target SDK U+: throw an exception
+2. re-show the permission dialog
+
+The test app re-uses the user's consent token through two possible mechanisms:
+1. caching the Intent result containing the user's consent token
+2. capturing the display more than once from the same MediaProjection instance

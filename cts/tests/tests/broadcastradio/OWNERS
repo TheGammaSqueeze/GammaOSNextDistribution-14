@@ -1,0 +1,2 @@
+# Bug component: 533946
+include platform/frameworks/base:/core/java/android/hardware/radio/OWNERS

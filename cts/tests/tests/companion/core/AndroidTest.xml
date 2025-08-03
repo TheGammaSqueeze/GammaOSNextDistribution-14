@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Configuration for Core CTS tests for CompanionDeviceManager">
+    <option name="config-descriptor:metadata" key="component" value="framework" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+
+    <option name="not-shardable" value="true" />
+    <option name="test-suite-tag" value="cts" />
+
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsCompanionDeviceManagerCoreTestCases.apk" />
+        <option name="test-file-name" value="CompanionDeviceTestApp.apk" />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.companion.cts.core" />
+        <option name="runtime-hint" value="1s" />
+    </test>
+
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+        <!-- Create a temporary directory for test APKs.  -->
+        <option name="run-command" value="mkdir -p /data/local/tmp/cts/companion" />
+        <option name="teardown-command" value="rm -rf /data/local/tmp/cts/companion" />
+
+        <option name="run-command" value="am wait-for-broadcast-idle" />
+    </target_preparer>
+
+    <!-- Push test APKs into the temporary directory. -->
+    <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+        <option name="push" value="CompanionDeviceTestApp.apk->/data/local/tmp/cts/companion/CompanionDeviceTestApp.apk" />
+    </target_preparer>
+</configuration>

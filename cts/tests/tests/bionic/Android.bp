@@ -1,0 +1,81 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "CtsBionicTestCases",
+
+    defaults: ["cts_bionic_defaults"],
+
+    test_suites: [
+        "cts",
+    ],
+
+}
+
+cc_defaults {
+    name: "cts_bionic_defaults",
+
+    defaults: ["bionic_unit_tests_data"],
+
+    compile_multilib: "both",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    ldflags: [
+        "-Wl,--rpath,$ORIGIN/bionic-loader-test-libs",
+        "-Wl,--enable-new-dtags",
+        "-Wl,--export-dynamic",
+    ],
+
+    shared_libs: [
+        "ld-android",
+        "libdl",
+        "libdl_android",
+        "libdl_preempt_test_1",
+        "libdl_preempt_test_2",
+        "libdl_test_df_1_global",
+        "libtest_elftls_shared_var",
+        "libtest_elftls_tprel",
+    ],
+
+    whole_static_libs: [
+        "libBionicTests",
+        "libBionicLoaderTests",
+        "libBionicElfTlsLoaderTests",
+        "libBionicCtsGtestMain",
+    ],
+
+    static_libs: [
+        "libbase",
+        "libmeminfo",
+        "libziparchive",
+        "libtinyxml2",
+        "liblog",
+        "libz",
+        "libutils",
+        "libgtest",
+    ],
+
+    // Use the bootstrap version of bionic because some tests call private APIs
+    // that aren't exposed by the APEX bionic stubs.
+    bootstrap: true,
+
+    stl: "libc++_static",
+
+    test_suites: [
+        "general-tests",
+        "mts-mainline-infra",
+        "mcts-mainline-infra",
+    ],
+
+    data: [
+        ":libdlext_test_runpath_zip_zipaligned",
+        ":libdlext_test_zip_zipaligned",
+    ],
+
+    per_testcase_directory: true,
+}

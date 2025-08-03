@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     package="android.test.settings" android:sharedUserId="android.uid.system">
+
+    <application android:hasCode="false" android:label="Empty" />
+
+</manifest>
+

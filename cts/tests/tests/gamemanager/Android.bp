@@ -1,0 +1,43 @@
+package {
+    default_team: "trendy_team_games",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsGameManagerTestCases",
+    defaults: ["cts_defaults"],
+
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+    ],
+
+    static_libs: [
+        "androidx.test.core",
+        "compatibility-device-util-axt",
+        "ctsdeviceutillegacy-axt",
+        "ctstestrunner-axt",
+        "ctstestserver",
+        "framework-annotations-lib",
+        "junit",
+        "truth",
+    ],
+
+    data: [
+        ":CtsGameTestApp",
+        ":CtsGameTestAppWithBatteryMode",
+        ":CtsGameTestAppWithPerformanceMode",
+        ":CtsGameTestAppWithTiramisuTarget",
+        ":CtsLegacyGameTestApp",
+        ":CtsNotGameTestApp",
+    ],
+
+    srcs: ["src/**/*.java"],
+
+    sdk_version: "test_current",
+}

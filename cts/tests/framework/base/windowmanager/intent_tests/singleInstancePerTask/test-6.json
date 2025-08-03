@@ -1,0 +1,49 @@
+{
+    "comment": "Verify that a regular activity can be launched on the same task of a singleInstancePerTask activity",
+    "setup": {
+        "initialIntents": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ],
+        "act": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$RegularActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ]
+    },
+    "initialState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            }
+        ]
+    },
+    "endState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "RESUMED"
+                    },
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            }
+        ]
+    }
+}

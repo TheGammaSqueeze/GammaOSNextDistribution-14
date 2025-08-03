@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsBroadcastRadioTestCases"
+    }
+  ],
+  "auto-presubmit": [
+    {
+      "name": "CtsBroadcastRadioTestCases"
+    }
+  ]
+}

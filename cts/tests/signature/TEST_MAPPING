@@ -1,0 +1,69 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsAndroidTestMockCurrentApiSignatureTestCases"
+    },
+    {
+      "name": "CtsAndroidTestRunnerCurrentApiSignatureTestCases"
+    },
+    {
+      "name": "CtsApacheHttpLegacyCurrentApiSignatureTestCases"
+    },
+    {
+      "name": "CtsCurrentApiSignatureTestCases"
+    },
+    {
+      "name": "CtsAndroidTestBase29ApiSignatureTestCases"
+    },
+    {
+      "name": "CtsAndroidTestBaseUsesLibraryApiSignatureTestCases"
+    },
+    {
+      "name": "CtsAndroidTestBaseCurrentApiSignatureTestCases"
+    },
+    {
+      "name": "CtsApacheHttpLegacy27ApiSignatureTestCases"
+    },
+    {
+      "name": "CtsApacheHttpLegacyUsesLibraryApiSignatureTestCases"
+    },
+    {
+      "name": "CtsIntentSignatureTestCases"
+    },
+    {
+        "name": "CtsSystemApiAnnotationTestCases"
+    },
+    {
+        "name": "CtsSystemApiSignatureTestCases"
+    },
+    {
+      "name": "CtsSharedLibsApiSignatureTestCases"
+    }
+  ],
+  "postsubmit": [
+    {
+        "name": "CtsHiddenApiKillswitchDebugClassTestCases"
+    },
+    {
+        "name": "CtsHiddenApiKillswitchSdkListTestCases"
+    },
+    {
+        "name": "CtsHiddenApiKillswitchWildcardTestCases"
+    },
+    {
+      "name": "CtsHiddenApiBlocklistApi27TestCases"
+    },
+    {
+        "name": "CtsHiddenApiBlocklistApi28TestCases"
+    },
+    {
+      "name": "CtsHiddenApiBlocklistCurrentApiTestCases"
+    },
+    {
+      "name": "CtsHiddenApiBlocklistTestApiTestCases"
+    },
+    {
+      "name": "CtsHiddenApiBlocklistDebugClassTestCases"
+    }
+  ]
+}

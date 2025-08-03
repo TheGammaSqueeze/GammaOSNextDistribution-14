@@ -1,0 +1,7 @@
+# Bug component: 533220
+
+# co-own by voice and autofill team
+# voice team should do initial check
+
+include platform/frameworks/base:/core/java/android/app/assist/OWNERS
+include platform/frameworks/base:/core/java/android/view/autofill/OWNERS

@@ -1,0 +1,41 @@
+// Refer to kernel dualshock4_send_output_report() in drivers/hid/hid-sony.c
+[
+  {
+    "id": 1,
+    "durations" : [1000],
+    "amplitudes" : [192],
+    "leftFfIndex": 5,
+    "rightFfIndex": 4,
+    "output" :
+        [
+            {"index" : 0,
+            "data" : 0x5},   // DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE
+
+            {"index" : 1,
+             "data" : 0x7},   // blink + LED + motor
+
+            {"index" : 3,
+             "data" : 0x0}
+        ]
+  },
+
+  {
+    "id": 1,
+    "durations" : [2000, 2000, 2000, 2000, 2000],
+    "amplitudes" : [16, 32, 64, 128, 255],
+    "leftFfIndex": 5,
+    "rightFfIndex": 4,
+    "output" :
+        [
+          {"index" : 0,
+            "data" : 0x5},   // DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE
+
+            {"index" : 1,
+             "data" : 0x7},   // blink + LED + motor
+
+            {"index" : 3,
+             "data" : 0x0}
+        ]
+  }
+
+]

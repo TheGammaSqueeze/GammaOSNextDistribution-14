@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/telecom_audio_call_test_info"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/js_padding"
+            android:layout_marginBottom="@dimen/js_padding">
+
+            <ImageView
+                android:id="@+id/step_1_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/telecom_status_image_description"
+                android:src="@drawable/fs_indeterminate"
+                android:layout_marginEnd="@dimen/js_padding"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
+            <TextView
+                android:id="@+id/step_1_instructions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tel_as1_instructions"
+                android:textSize="16sp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@id/step_1_status"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_below="@id/step_1_instructions"
+                android:layout_toEndOf="@id/step_1_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dip"
+                    android:layout_marginEnd="20dip"
+                    android:id="@+id/telecom_set_default_button"
+                    android:text="@string/tel_set_default_outgoing_account_text"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dip"
+                    android:layout_marginEnd="20dip"
+                    android:id="@+id/telecom_verify_start_state_button"
+                    android:text="@string/tel_verify_start_state"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/js_padding"
+            android:layout_marginBottom="@dimen/js_padding">
+
+            <ImageView
+                android:id="@+id/step_2_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/telecom_status_image_description"
+                android:src="@drawable/fs_indeterminate"
+                android:layout_marginEnd="@dimen/js_padding"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
+            <TextView
+                android:id="@+id/step_2_instructions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tel_as2_instructions"
+                android:textSize="16sp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@id/step_2_status"/>
+            <Button
+                android:id="@+id/telecom_incoming_call_dial_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/step_2_instructions"
+                android:layout_marginStart="20dip"
+                android:layout_marginEnd="20dip"
+                android:layout_toEndOf="@id/step_2_status"
+                android:text="@string/tel_start_self_managed_call_text"/>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/js_padding"
+            android:layout_marginBottom="@dimen/js_padding">
+
+            <ImageView
+                android:id="@+id/step_3_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/telecom_status_image_description"
+                android:src="@drawable/fs_indeterminate"
+                android:layout_marginEnd="@dimen/js_padding"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
+            <TextView
+                android:id="@+id/step_3_instructions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tel_as3_instructions"
+                android:textSize="16sp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@id/step_3_status"/>
+            <Button
+                android:id="@+id/telecom_incoming_call_confirm_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/step_3_instructions"
+                android:layout_marginStart="20dip"
+                android:layout_marginEnd="20dip"
+                android:layout_toEndOf="@id/step_3_status"
+                android:text="@string/tel_verify_self_managed_audio_text"
+            />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/js_padding"
+            android:layout_marginBottom="@dimen/js_padding">
+
+            <ImageView
+                android:id="@+id/step_4_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/telecom_status_image_description"
+                android:src="@drawable/fs_indeterminate"
+                android:layout_marginEnd="@dimen/js_padding"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
+            <TextView
+                android:id="@+id/step_4_instructions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tel_as4_instructions"
+                android:textSize="16sp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@id/step_4_status"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_below="@id/step_4_instructions"
+                android:layout_toEndOf="@id/step_4_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/dial_out_number"
+                    android:inputType="number"
+                    android:autofillHints="@string/tel_enter_phone_number_autofill_hints_text"
+                    android:hint="@string/tel_enter_phone_number_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <Button
+                    android:id="@+id/telecom_place_sim_call"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dip"
+                    android:layout_marginEnd="20dip"
+                    android:text="@string/tel_dial_sim_call_text"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/js_padding"
+            android:layout_marginBottom="@dimen/js_padding">
+
+            <ImageView
+                android:id="@+id/step_5_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/telecom_status_image_description"
+                android:src="@drawable/fs_indeterminate"
+                android:layout_marginEnd="@dimen/js_padding"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
+            <TextView
+                android:id="@+id/step_5_instructions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tel_as5_instructions"
+                android:textSize="16sp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@id/step_5_status"/>
+            <Button
+                android:id="@+id/telecom_place_sim_call_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/step_5_instructions"
+                android:layout_marginStart="20dip"
+                android:layout_marginEnd="20dip"
+                android:layout_toEndOf="@id/step_5_status"
+                android:text="@string/tel_verify_sim_audio_text"/>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/js_padding"
+            android:layout_marginBottom="@dimen/js_padding">
+
+            <ImageView
+                android:id="@+id/step_6_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/telecom_status_image_description"
+                android:src="@drawable/fs_indeterminate"
+                android:layout_marginEnd="@dimen/js_padding"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
+            <TextView
+                android:id="@+id/step_6_instructions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tel_as6_instructions"
+                android:textSize="16sp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@id/step_6_status"/>
+            <Button
+                android:id="@+id/verifySelfManagedAudioAfterSimBasedCallButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@id/step_6_instructions"
+                android:layout_marginStart="20dip"
+                android:layout_marginEnd="20dip"
+                android:layout_toEndOf="@id/step_6_status"
+                android:text="@string/tel_verify_self_managed_audio_text"
+            />
+        </RelativeLayout>
+
+        <include layout="@layout/pass_fail_buttons"/>
+    </LinearLayout>
+</ScrollView>

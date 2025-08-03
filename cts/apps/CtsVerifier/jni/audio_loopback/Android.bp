@@ -1,0 +1,35 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test_library {
+    name: "libaudioloopback_jni",
+    srcs: [
+        "jni-bridge.cpp",
+        "NativeAudioAnalyzer.cpp",
+    ],
+    include_dirs: [
+        "system/core/include/cutils",
+        "cts/apps/CtsVerifier/jni/megaaudio/player",
+        "cts/apps/CtsVerifier/jni/megaaudio/recorder",
+        "external/oboe/include",
+        "external/oboe/src",
+        "external/oboe/src/common",
+        "external/oboe/src/aaudio",
+    ],
+    header_libs: ["jni_headers"],
+    shared_libs: [
+        "libaaudio",
+        "liblog",
+    ],
+    stl: "libc++_static",
+    ldflags: ["-Wl,--hash-style=sysv"],
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wno-unused-parameter",
+        // For slCreateEngine
+        "-Wno-deprecated",
+    ],
+    sdk_version: "current",
+}

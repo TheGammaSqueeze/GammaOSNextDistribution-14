@@ -1,0 +1,14 @@
+per-file BitmapColorSpaceTest.java = file:platform/frameworks/native:/libs/shaders/OWNERS
+per-file ColorSpaceTest.java = file:platform/frameworks/native:/libs/shaders/OWNERS
+per-file ColorTest.java = arteiro@google.com, dupin@google.com
+per-file FrameRateOverrideTest.java = adyabr@google.com, rnlee@google.com
+per-file GainmapTest.java = file:platform/frameworks/native:/libs/shaders/OWNERS
+per-file ImageDecoderTest.java = scroggo@google.com, dichenzhang@google.com
+per-file ParcelableColorSpaceTest.java = file:platform/frameworks/native:/libs/shaders/OWNERS
+per-file SystemPaletteTest.kt = arteiro@google.com, dupin@google.com
+
+# Bug template url: https://b.corp.google.com/issues/new?component=25699&template=183271 = per-file Typeface*.java
+per-file Typeface* = nona@google.com, haoyuchang@google.com, justinghan@google.com
+
+# Bug template url: https://b.corp.google.com/issues/new?component=122570&template=195524 = per-file Vulkan*.java
+per-file Vulkan*.java = ianelliott@google.com, cclao@google.com, cnorthrop@google.com, vantablack@google.com, chrisforbes@google.com

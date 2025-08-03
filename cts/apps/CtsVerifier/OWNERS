@@ -1,0 +1,2 @@
+per-file AndroidManifest*.xml = rossyeh@google.com,robinjacob@google.com,mariay@google.com,slotus@google.com,kgui@google.com
+per-file AndroidManifest*.xml = normancheung@google.com #{LAST_RESORT_SUGGESTION}

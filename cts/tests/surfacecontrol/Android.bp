@@ -1,0 +1,76 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_windowing_infra_",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsSurfaceControlTests",
+    defaults: ["cts_defaults"],
+
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+
+    compile_multilib: "both",
+
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.ext.junit",
+        "compatibility-device-util-axt",
+        "ctsdeviceutillegacy-axt",
+        "ctstestrunner-axt",
+        "cts-input-lib",
+        "cts-hardware-lib",
+        "junit-params",
+        "mockito-target-minus-junit4",
+        "platform-test-annotations",
+        "androidx.test.uiautomator_uiautomator",
+        "truth",
+        "CtsSurfaceValidatorLib",
+        "cts-wm-util",
+        "CtsMockInputMethodLib",
+        "CtsCrossProcessSurfaceControlViewHostTestService",
+        "flag-junit",
+        "com.android.window.flags.window-aconfig-java",
+        "hwui_flags_java_lib",
+        "ui-trace-collector",
+    ],
+
+    jni_libs: [
+        "libctssurfacecontrol_jni",
+        "libnativehelper_compat_libc++",
+    ],
+
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+    ],
+
+    data: [
+        ":CtsCrossProcessSurfaceControlViewHostTestService",
+        ":CtsMockInputMethod",
+    ],
+
+    sdk_version: "test_current",
+}

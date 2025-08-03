@@ -1,0 +1,13 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app_certificate {
+  name: "cts-appsearch-helper-cert-a",
+  certificate: "cts-appsearch-helper-cert-a",
+}
+
+android_app_certificate {
+  name: "cts-appsearch-helper-cert-b",
+  certificate: "cts-appsearch-helper-cert-b",
+}

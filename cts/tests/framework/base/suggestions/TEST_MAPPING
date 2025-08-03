@@ -1,0 +1,18 @@
+{
+  "postsubmit": [
+    {
+      "name": "CtsSettingsSuggestionsTest",
+      "options": [
+        {
+          "include-filter": "android.service.settings.suggestions.SuggestionTest#buildSuggestion_allFieldsShouldBeSet"
+        },
+        {
+          "include-filter": "android.service.settings.suggestions.SuggestionTest#buildSuggestion_emptyKey_shouldCrash"
+        },
+        {
+          "include-filter": "android.service.settings.suggestions.SuggestionTest#buildSuggestion_fromParcelable"
+        }
+      ]
+    }
+  ]
+}

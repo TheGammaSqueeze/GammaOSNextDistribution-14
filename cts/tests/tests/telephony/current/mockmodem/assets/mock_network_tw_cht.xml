@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MockNetwork carrierid="1">
+    <MockCellProperty>
+        <EHPLMNLIST>46692</EHPLMNLIST>
+        <AllowRoamingList>310026</AllowRoamingList>
+    </MockCellProperty>
+
+    <MockNetworkProfile id="0" rat="LTE" connection="primary">
+        <MockCellIdentity>
+            <MCC>466</MCC>
+            <MNC>92</MNC>
+            <CI>101</CI>
+            <PCI>273</PCI>
+            <TAC>13100</TAC>
+            <EARFCN>9260</EARFCN>
+            <OperatorInfo>
+                <AlphaLong>Chung Hwa Telecom</AlphaLong>
+                <AlphaShort>CHT</AlphaShort>
+                <OperatorNumeric>46692</OperatorNumeric>
+            </OperatorInfo>
+        </MockCellIdentity>
+
+        <MockCellSignalStrength>
+            <SignalStrength>20</SignalStrength>
+            <RSRP>71</RSRP>
+            <RSRQ>6</RSRQ>
+            <RSSNR>100</RSSNR>
+            <CQI>13</CQI>
+            <TimingAdvance>0</TimingAdvance>
+            <CqiTableIndex>1</CqiTableIndex>
+        </MockCellSignalStrength>
+    </MockNetworkProfile>
+
+    <MockNetworkProfile id="1" rat="WCDMA">
+        <MockCellIdentity>
+            <MCC>466</MCC>
+            <MNC>92</MNC>
+            <LAC>9222</LAC>
+            <CID>14549</CID>
+            <PSC>413</PSC>
+            <UARFCN>10613</UARFCN>
+            <OperatorInfo>
+                <AlphaLong>Chung Hwa Telecom</AlphaLong>
+                <AlphaShort>CHT</AlphaShort>
+                <OperatorNumeric>46692</OperatorNumeric>
+            </OperatorInfo>
+        </MockCellIdentity>
+
+        <MockCellSignalStrength>
+            <SignalStrength>20</SignalStrength>
+            <BitErrorRate>3</BitErrorRate>
+            <RSCP>45</RSCP>
+            <ECNO>25</ECNO>
+        </MockCellSignalStrength>
+    </MockNetworkProfile>
+</MockNetwork>

@@ -1,0 +1,17 @@
+{
+  "presubmit": [
+    {
+      "name": "minikin_tests"
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsViewTestCases",
+      "options": [
+        {
+          "include-filter": "android.view.cts.SurfaceOOMTest"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.bedstead.remoteframeworkclasses;
+
+import android.content.RemoteContentResolver;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.google.android.enterprise.connectedapps.annotations.CustomParcelableWrapper;
+import com.google.android.enterprise.connectedapps.internal.Bundler;
+import com.google.android.enterprise.connectedapps.internal.BundlerType;
+
+/**
+ * This parcelable wrapper just passes null to callers.
+ *
+ * <p>It is not functional and only enables use of {@link RemoteContentResolver} for clients
+ * which do not need to actually use the {@link RemoteContentResolver} param or return value.
+ */
+@CustomParcelableWrapper(originalType = RemoteContentResolver.class)
+public final class NullParcelableRemoteContentResolver implements Parcelable {
+
+    /**
+     * Create a wrapper for a given {@link RemoteContentResolver}.
+     */
+    public static <F> NullParcelableRemoteContentResolver of(
+            Bundler bundler, BundlerType type,
+            RemoteContentResolver remoteContentResolver) {
+        return new NullParcelableRemoteContentResolver();
+    }
+
+    private NullParcelableRemoteContentResolver() {
+    }
+
+    public RemoteContentResolver get() {
+        return null;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static final Creator<NullParcelableRemoteContentResolver> CREATOR =
+            new Creator<NullParcelableRemoteContentResolver>() {
+                @Override
+                public NullParcelableRemoteContentResolver createFromParcel(Parcel in) {
+                    return new NullParcelableRemoteContentResolver();
+                }
+
+                @Override
+                public NullParcelableRemoteContentResolver[] newArray(int size) {
+                    return new NullParcelableRemoteContentResolver[size];
+                }
+            };
+}

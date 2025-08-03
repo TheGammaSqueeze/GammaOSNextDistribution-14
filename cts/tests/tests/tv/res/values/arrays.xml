@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sub_iapp_service_types">
+        <item>ginga</item>
+        <item>hbbtv</item>
+        <item>custom_type</item>
+        <item>another</item>
+    </string-array>
+
+    <string-array name="sub_ad_service_types">
+        <item>linear</item>
+        <item>static</item>
+        <item>overlay</item>
+        <item>type4</item>
+    </string-array>
+</resources>

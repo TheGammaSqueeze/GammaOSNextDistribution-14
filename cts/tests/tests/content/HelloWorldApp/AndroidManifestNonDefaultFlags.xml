@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     package="com.example.helloworld">
+
+    <application android:allowBackup="false"
+         android:allowClearUserData="false"
+         android:allowClearUserDataOnFailedRestore="false"
+         android:defaultToDeviceProtectedStorage="true"
+         android:requestLegacyExternalStorage="true"
+         android:hasFragileUserData="true"
+         android:icon="@mipmap/ic_launcher"
+         android:label="@string/app_name"
+         android:roundIcon="@mipmap/ic_launcher_round"
+         android:theme="@style/AppTheme">
+
+        <activity android:name=".MainActivity"
+             android:label="@string/app_name"
+             android:theme="@style/AppTheme.NoActionBar"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- (b/197936012) Remove startup provider due to test timeout issue -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
+
+    </application>
+
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:resizeable="true"
+        android:anyDensity="true"
+    />
+
+</manifest>

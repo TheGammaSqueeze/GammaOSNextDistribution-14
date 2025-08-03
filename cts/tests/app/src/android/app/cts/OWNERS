@@ -1,0 +1,8 @@
+# Bug component: 803062 = per-file Nearby*, UpdateMediaTapToTransfer*.kt
+per-file Nearby*, UpdateMediaTapToTransfer*.kt = file:platform/frameworks/base:/packages/SystemUI/OWNERS
+
+# Bug component: 46626 = per-file DownloadManager*
+per-file DownloadManager* = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+
+# Bug component: 41727 = per-file SystemFeaturesTest*
+per-file SystemFeaturesTest* = file:platform/frameworks/av:/camera/OWNERS

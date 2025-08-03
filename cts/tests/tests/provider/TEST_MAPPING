@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsProviderTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.LargeTest"
+        }
+      ]
+    }
+  ]
+}

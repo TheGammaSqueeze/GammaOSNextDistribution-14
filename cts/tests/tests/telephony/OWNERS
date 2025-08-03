@@ -1,0 +1,21 @@
+# Bug component: 20868
+amagup@google.com
+amallampati@google.com
+amruthr@google.com
+breadley@google.com
+fionaxu@google.com
+huiwang@google.com
+jackyu@google.com
+jayachandranc@google.com
+linggm@google.com
+rgreenwalt@google.com
+sarahchin@google.com
+sasindran@google.com
+tgunn@google.com
+tjstuart@google.com
+xiaotonj@google.com
+grantmenke@google.com
+pmadapurmath@google.com
+
+# Domain Selection code is co-owned, adding additional owners for this code
+per-file *DomainSelection*=hwangoo@google.com,forestchoi@google.com,avinashmp@google.com,mkoon@google.com,seheele@google.com,jdyou@google.com

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!--
+ ! Test that APKs with targetSdkVersion <= 29 have access to the android.test.base APIs by default.
+ !
+ ! The test name is 29 because that was the initial targetSdkVersion where android.test.base was no
+ ! longer available on the bootclasspath. Unfortunately, the changes were not ready in time and so
+ ! it was eventually removed from 29. The test has not been renamed.
+ !-->
+<configuration description="Config for CTS Android Test Base 29 API Signature test cases">
+    <option name="test-suite-tag" value="cts" />
+    <option name="config-descriptor:metadata" key="component" value="systems" />
+    <option name="config-descriptor:metadata" key="parameter" value="instant_app" />
+    <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+    <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+    <option name="config-descriptor:metadata" key="parameter" value="no_foldable_states" />
+    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+        <option name="cleanup-apks" value="true" />
+        <option name="test-file-name" value="CtsAndroidTestBase29ApiSignatureTestCases.apk" />
+    </target_preparer>
+    <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
+        <option name="package" value="android.signature.cts.api.android_test_base_29" />
+        <option name="runner" value="androidx.test.runner.AndroidJUnitRunner" />
+        <option name="class" value="android.signature.cts.api.api29.test.SignatureTest" />
+        <!--
+         ! android.test.base classes must be accessible to this test as this test's targetSdkVersion
+         ! is 29 which provided the classes by default on the bootclasspath.
+         !-->
+        <option name="instrumentation-arg" key="expected-api-files" value="android-test-base-current.api.gz" />
+        <!--
+         ! android.test.mock and android.test.runner classes must not be accessible to this test as
+         ! they are only provided when specifically requested using a <uses-library> element in the
+         ! manifest.
+         !-->
+        <option name="instrumentation-arg" key="unexpected-api-files" value="android-test-runner-current.api.gz,android-test-mock-current.api.gz" />
+        <option name="runtime-hint" value="5s" />
+        <!-- Disable hidden API checks (http://b/171459260). -->
+        <option name="hidden-api-checks" value="false" />
+    </test>
+</configuration>

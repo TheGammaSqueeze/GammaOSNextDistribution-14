@@ -1,0 +1,68 @@
+{
+    "id": 1,
+    "type": "uinput",
+    "command": "register",
+    "name": "Gamepad with Motion Sensors (USB Test)",
+    "vid": 0x054c,
+    "pid": 0x05c4,
+    "bus": "usb",
+    "configuration":[
+        {"type":100, "data":[1, 3, 4, 21]},  // UI_SET_EVBIT : EV_KEY EV_ABS EV_MSC and EV_FF
+        {"type":101, "data":[11, 2, 3, 4]},   // UI_SET_KEYBIT : KEY_0 KEY_1 KEY_2 KEY_3
+        {"type":107, "data":[80]},    //  UI_SET_FFBIT : FF_RUMBLE
+        {"type":110, "data":[6]},    //  UI_SET_PROP :  INPUT_PROP_ACCELEROMETER
+        {"type":104, "data":[5]},        // UI_SET_MSCBIT : MSC_TIMESTAMP
+        {"type":103, "data":[0, 1, 2, 3, 4, 5]}   // UI_SET_ABSBIT : ABS_X/Y/Z/RX/RY/RZ
+    ],
+    "ff_effects_max" : 1,
+    "abs_info": [
+        {"code":0, "info": {       // ABS_X
+            "value": 100,
+            "minimum": -32768,
+            "maximum": 32768,
+            "fuzz": 16,
+            "flat": 0,
+            "resolution": 8192
+        }},
+        {"code":1, "info": {       // ABS_Y
+            "value": 100,
+            "minimum": -32768,
+            "maximum": 32768,
+            "fuzz": 16,
+            "flat": 0,
+            "resolution": 8192
+        }},
+        {"code":2, "info": {       // ABS_Z
+            "value": 100,
+            "minimum": -32768,
+            "maximum": 32768,
+            "fuzz": 16,
+            "flat": 0,
+            "resolution": 8192
+        }},
+        {"code":3, "info": {       // ABS_RX
+            "value": 100,
+            "minimum": -2097152,
+            "maximum": 2097152,
+            "fuzz": 16,
+            "flat": 0,
+            "resolution": 1024
+        }},
+        {"code":4, "info": {       // ABS_RY
+            "value": 100,
+            "minimum": -2097152,
+            "maximum": 2097152,
+            "fuzz": 16,
+            "flat": 0,
+            "resolution": 1024
+        }},
+        {"code":5, "info": {       // ABS_RZ
+            "value": 100,
+            "minimum": -2097152,
+            "maximum": 2097152,
+            "fuzz": 16,
+            "flat": 0,
+            "resolution": 1024
+        }}
+    ]
+}

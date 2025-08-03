@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 34 (current min is 29): `android.service.credentials.CredentialProviderService`"
+        errorLine1="public class BaseTestAppCredentialProviderService extends CredentialProviderService {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/testapp/src/testapps/main/java/com/android/bedstead/testapp/BaseTestAppCredentialProviderService.java"
+            line="31"
+            column="59"/>
+    </issue>
+
+</issues>

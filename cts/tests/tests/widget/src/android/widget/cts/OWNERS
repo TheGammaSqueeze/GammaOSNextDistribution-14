@@ -1,0 +1,3 @@
+per-file TextView*,EditText* = file:/tests/tests/text/OWNERS
+per-file ToastTest.java = beverlyt@google.com, brufino@google.com, jtomljanovic@google.com, juliacr@google.com
+per-file RemoteViews* = file:/tests/tests/appwidget/OWNERS

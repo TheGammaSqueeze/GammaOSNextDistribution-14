@@ -1,0 +1,33 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "bedstead-flags",
+    srcs: [
+        "src/main/kotlin/**/*.kt",
+    ],
+    manifest: "src/main/AndroidManifest.xml",
+    min_sdk_version: "29",
+    static_libs: [
+        "Harrier",
+        "device_policy_aconfig_flags_lib",
+    ],
+}
+
+android_test {
+    name: "bedstead-flags-test",
+    srcs: [
+        "src/test/kotlin/**/*.kt",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    static_libs: [
+        "Harrier",
+        "truth",
+        "bedstead-flags",
+    ],
+    manifest: "src/test/AndroidManifest.xml",
+    min_sdk_version: "29",
+}

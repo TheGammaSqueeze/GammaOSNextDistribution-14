@@ -1,0 +1,10 @@
+# Bug template url: https://b.corp.google.com/issues/new?component=1337891&template=1814288 = per-file CA*.java, Ca*.java, KeyChainTest.java
+# Bug template url: https://b.corp.google.com/issues/new?component=1337891&template=1814288 = per-file LockConfirmBypassTest.java, SetNewPasswordComplexityTest.java
+# Bug template url: https://b.corp.google.com/issues/new?component=746324&template=1398789 = per-file: SecurityModeFeatureVerifierActivity.java
+# Bug component: 189335 = per-file FingerprintBoundKeysTest.java, ProtectedConfirmationTest.java, LskfBoundKeysTest.java, UnlockedDeviceRequiredKeysTest.java
+# Bug component: 1084909 = per-file IdentityCredential*.java
+per-file CA*.java, Ca*.java, KeyChainTest.java = file:platform/frameworks/base:/core/java/android/app/admin/EnterprisePlatformSecurity_OWNERS
+per-file LockConfirmBypassTest.java, SetNewPasswordComplexityTest.java, CredentialManagementAppActivity.java = file:platform/frameworks/base:/core/java/android/app/admin/EnterprisePlatformSecurity_OWNERS
+per-file FingerprintBoundKeysTest.java, ProtectedConfirmationTest.java, LskfBoundKeysTest.java, UnlockedDeviceRequiredKeysTest.java = file:platform/frameworks/base:/keystore/OWNERS
+per-file SecurityModeFeatureVerifierActivity.java = jjoslin@google.com, tomcherry@google.com
+per-file IdentityCredential*.java = zeuthen@google.com

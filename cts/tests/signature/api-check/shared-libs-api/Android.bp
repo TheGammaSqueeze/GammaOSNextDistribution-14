@@ -1,0 +1,158 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_mainline_modularization",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "cts-api-signature-multilib-test",
+    srcs: ["src/**/*.java"],
+    sdk_version: "test_current",
+    static_libs: [
+        "cts-api-signature-test",
+        "compatibility-device-util-axt",
+        "junit-params",
+    ],
+}
+
+android_test {
+    name: "CtsSharedLibsApiSignatureTestCases",
+    defaults: ["cts_defaults"],
+
+    // Ensure that any android.test and junit classes embedded within this test do not conflict with
+    // the classes provided by the android.test.base or android.test.runner shared libraries.
+    jarjar_rules: ":cts-android-test-jarjar-rules",
+
+    java_resources: [
+        ":cts-current-api-gz",
+        ":cts-shared-libs-names.txt",
+        ":CtsSharedLibsApiSignatureTestCases_cts-shared-libs-all-current.api",
+        ":CtsSharedLibsApiSignatureTestCases_cts-shared-libs-all-previous.api",
+    ],
+    static_libs: [
+        "cts-api-signature-multilib-test",
+        "cts-api-signature-test",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "current",
+    jni_libs: ["libclassdescriptors"],
+    compile_multilib: "both",
+    dex_preopt: {
+        enabled: false,
+    },
+    optimize: {
+        enabled: false,
+    },
+    use_embedded_native_libs: false,
+    srcs: ["src/**/*.java"],
+}
+
+genrule {
+    name: "cts-shared-libs-names.txt",
+    srcs: [
+        "AndroidManifest.xml",
+    ],
+    out: [
+        "shared-libs-names.txt",
+    ],
+    cmd: "grep 'uses-library' $(in) | cut -f2 -d\\\" | sort > $(out)",
+}
+
+// Generates a zip file containing the current public and system API files for shared libraries.
+genrule {
+    name: "CtsSharedLibsApiSignatureTestCases_cts-shared-libs-all-current.api",
+    srcs: [
+        ":android.net.ipsec.ike{.public.api.txt}",
+        ":android.net.ipsec.ike{.system.api.txt}",
+        ":android.test.base{.public.api.txt}",
+        ":android.test.base{.system.api.txt}",
+        ":android.test.runner{.public.api.txt}",
+        ":android.test.runner{.system.api.txt}",
+        ":android.test.mock{.public.api.txt}",
+        ":android.test.mock{.system.api.txt}",
+        ":com.android.future.usb.accessory{.public.api.txt}",
+        ":com.android.future.usb.accessory{.system.api.txt}",
+        ":com.android.libraries.tv.tvsystem{.public.api.txt}",
+        ":com.android.libraries.tv.tvsystem{.system.api.txt}",
+        ":com.android.location.provider{.public.api.txt}",
+        ":com.android.location.provider{.system.api.txt}",
+        ":com.android.mediadrm.signer{.public.api.txt}",
+        ":com.android.mediadrm.signer{.system.api.txt}",
+        ":com.android.media.remotedisplay{.public.api.txt}",
+        ":com.android.media.remotedisplay{.system.api.txt}",
+        ":com.android.media.tv.remoteprovider{.public.api.txt}",
+        ":com.android.media.tv.remoteprovider{.system.api.txt}",
+        ":com.android.nfc_extras{.public.api.txt}",
+        ":com.android.nfc_extras{.system.api.txt}",
+        ":javax.obex{.public.api.txt}",
+        ":javax.obex{.system.api.txt}",
+        ":org.apache.http.legacy{.public.api.txt}",
+        ":org.apache.http.legacy{.system.api.txt}",
+    ],
+    tools: [
+        "soong_zip",
+        "metalava",
+    ],
+    out: [
+        "shared-libs-all-current.api.zip",
+    ],
+    cmd: "mkdir -p $(genDir)/list && " +
+        "for f in $(in); do " +
+        // Extract the module name from the path.
+        "  fileName=$$(basename $${f} .txt) && " +
+        "  fileName=$${fileName%%.stubs.source*} && " +
+        // Extract the api level, i.e. public|system from the path.
+        "  apiLevel=$${f##*.stubs.source} && " +
+        "  apiLevel=$${apiLevel#.} && " +
+        "  apiLevel=$${apiLevel%_api.txt} && " +
+        "  if [ -z $${apiLevel} ]; then apiLevel=public; fi && " +
+        // Convert the .txt file into its XML representation.
+        "  $(location metalava) -J--add-opens=java.base/java.util=ALL-UNNAMED " +
+        "  signature-to-jdiff $${f} $(genDir)/list/$${fileName}-current-$${apiLevel}.api; " +
+        "done && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/list -D $(genDir)/list",
+}
+
+// Generates a zip file containing all the API files from previous releases >= 28 excluding the
+// android.txt and removed files.
+genrule {
+    name: "CtsSharedLibsApiSignatureTestCases_cts-shared-libs-all-previous.api",
+    srcs: [
+        ":prebuilt_sdk_system_public_api_txt",
+    ],
+    tools: [
+        "soong_zip",
+        "metalava",
+    ],
+    out: [
+        "shared-libs-all-previous.api.zip",
+    ],
+    cmd: "for f in $(in); do " +
+        "  fileName=$$(basename $${f} .txt) && " +
+        "  if [ $${fileName} == android ] || [[ $${fileName} =~ removed ]] || [[ $${fileName} =~ incompatibilities ]]; " +
+        "    then continue; fi && " +
+        "  platformSdkVersion=$$(echo $${f} | awk -F/ '{print $$(3)}') && " +
+        "  if [ $${platformSdkVersion} -lt 28 ]; then continue; fi && " +
+        "  apiLevel=$$(echo $${f} | awk -F/ '{print $$(4)}') && " +
+        "  $(location metalava) -J--add-opens=java.base/java.util=ALL-UNNAMED " +
+        "  signature-to-jdiff $${f} $(genDir)/list/$${fileName}-$${platformSdkVersion}-$${apiLevel}.api; " +
+        "done && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/list -D $(genDir)/list",
+}

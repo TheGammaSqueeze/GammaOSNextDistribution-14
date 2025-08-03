@@ -1,0 +1,7 @@
+# Bug component: 41727 = per-file camera_*.xml
+# Bug component: 41727 = per-file cam_*.xml
+# Bug component: 41727 = per-file co_main.xml,ci_main.xml,cb_main.xml,cf_main.xml
+
+per-file camera_*.xml = file:platform/frameworks/av:/camera/OWNERS
+per-file cam_*.xml = file:platform/frameworks/av:/camera/OWNERS
+per-file co_main.xml,ci_main.xml,cb_main.xml,cf_main.xml = file:platform/frameworks/av:/camera/OWNERS

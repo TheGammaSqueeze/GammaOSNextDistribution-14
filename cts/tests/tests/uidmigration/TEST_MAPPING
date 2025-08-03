@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsSharedUserMigrationTestCases",
+      "options": [
+        {
+          "include-filter": "android.uidmigration.cts"
+        }
+      ]
+    }
+  ]
+}

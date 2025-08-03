@@ -1,0 +1,39 @@
+// Copyright (C) 2014 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// Zip all the files in this directory together for merging into cts-verifier.zip.
+// build/envsetup.sh is used as a known file to get the location of the top of the
+// directory.
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+genrule {
+    name: "camera-its",
+    srcs: [
+        "**/*",
+        // Placeholder file outside the glob used to find the top of the directory.
+        "build/envsetup.sh",
+    ],
+    exclude_srcs: [
+        ".gitignore",
+        "Android.bp",
+        "OWNERS",
+    ],
+    tools: ["soong_zip"],
+    out: ["camera-its.zip"],
+    cmd: "echo $(locations **/*) >$(genDir)/list && " +
+        "$(location soong_zip) -o $(out) -P android-cts-verifier/CameraITS -C $$(dirname $(location build/envsetup.sh))/.. -l $(genDir)/list",
+}

@@ -1,0 +1,11 @@
+# Bug component: 1084732
+#
+# Bugs for failures on Pixel devices should be assigned to frankwoo@, cc tommychiu@
+# Bugs for failures on Cuttlefish should be assigned to cloud-android-devs@
+# Bugs for failures that affect many/all devices should be assigned to android-hardware-security@
+#
+# Please CC android-hardware-security on all bugs.
+swillden@google.com
+jbires@google.com
+eranm@google.com
+drysdale@google.com

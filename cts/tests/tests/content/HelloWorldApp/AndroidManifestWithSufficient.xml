@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+     package="com.example.helloworld">
+
+    <package-verifier android:name="com.example.hellosufficient"
+         android:publicKey="MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5gRzAAW2vBFxWkY2LMc/Nng6G/CbSFgBfcMpIb+UNc4pXvzjWyjh5V9F9iKKzx/4QJSScRfrF8tWRqHRePPs2QnlkDkTiy3vWEA3y26m/iNnKxrs6E06lKChE0kSigTn1DmtHZ+D6s6uVi0/l9kFZdX7Fu81cBo1ZwSf58W5KZjqdYB9zI1xFm0GpoC6jxjz2kn/YKhqUV/aJGLOsf6ITEJlzvqi14A+LL3pXkosHlv79IKr7lM/xJeVl6amaz43cf0OBD0eV8uigsvrm6uzwILDwOID9GXoChdM+syzFlGNtHfUymcb3JLlg+3hXWzwbOoBeJsiDgaJemFYgLIhsQIDAQAB" />
+
+    <application android:allowBackup="true"
+         android:debuggable="true"
+         android:icon="@mipmap/ic_launcher"
+         android:label="@string/app_name"
+         android:roundIcon="@mipmap/ic_launcher_round"
+         android:supportsRtl="true"
+         android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity"
+             android:label="@string/app_name"
+             android:theme="@style/AppTheme.NoActionBar"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PMTEST"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <!-- (b/197936012) Remove startup provider due to test timeout issue -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
+
+    </application>
+
+</manifest>

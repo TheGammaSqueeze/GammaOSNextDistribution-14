@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_helper_app {
+    name: "EventLibTestApp",
+    sdk_version: "current",
+    srcs: [
+        "src/main/**/*.java",
+    ],
+    static_libs: [
+        "EventLib",
+    ],
+    manifest: "src/main/AndroidManifest.xml",
+    min_sdk_version: "29",
+}

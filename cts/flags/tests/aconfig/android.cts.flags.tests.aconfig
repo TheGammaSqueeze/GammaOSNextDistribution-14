@@ -1,0 +1,22 @@
+package: "android.cts.flags.tests"
+container: "system"
+flag {
+  name: "readwrite_disabled_flag"
+  namespace: "cts"
+  description: "testing flag that is always disabled"
+  bug: "<none>"
+}
+
+flag {
+  name: "readwrite_disabled_flag_2"
+  namespace: "cts"
+  description: "another testing flag that is always disabled"
+  bug: "<none>"
+}
+
+flag {
+  name: "readwrite_enabled_flag"
+  namespace: "cts"
+  description: "testing flag that is always enabled"
+  bug: "<none>"
+}

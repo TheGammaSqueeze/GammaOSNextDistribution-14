@@ -1,0 +1,338 @@
+// Copyright (C) 2008 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsFgsBootCompletedTestCases",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "org.apache.http.legacy",
+        "android.test.base",
+    ],
+    static_libs: [
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "mockito-target-minus-junit4",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "platform-test-annotations",
+        "flag-junit",
+        "am_flags_lib",
+        "androidx.test.core",
+        "CtsAppTestStubsShared",
+    ],
+    srcs: [
+        "src/android/app/cts/fgs/bootcompleted/BootCompletedFgsStartTest.java",
+        "src/android/app/cts/LocationBootCompletedFgs.java",
+        "app/src/android/app/stubs/BootCompletedFgs.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    data: [
+        ":CtsSimpleApp",
+        ":CtsAppTestDelayedStart",
+        ":CtsAppTestStubs",
+    ],
+    min_sdk_version: "21",
+    per_testcase_directory: true,
+    manifest: "src/android/app/cts/fgs/bootcompleted/AndroidManifest.xml",
+    test_config: "src/android/app/cts/fgs/bootcompleted/AndroidTest.xml",
+}
+
+android_test {
+    name: "CtsFgsBootCompletedTestCasesApi35",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "org.apache.http.legacy",
+        "android.test.base",
+    ],
+    static_libs: [
+        "ctstestrunner-axt",
+        "cts-wm-util",
+        "mockito-target-minus-junit4",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "platform-test-annotations",
+        "flag-junit",
+        "am_flags_lib",
+        "androidx.test.core",
+        "CtsAppTestStubsShared",
+    ],
+    srcs: [
+        "src/android/app/cts/fgs/bootcompleted/BootCompletedFgsStartTest.java",
+        "src/android/app/cts/LocationBootCompletedFgs.java",
+        "app/src/android/app/stubs/BootCompletedFgs.java",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    data: [
+        ":CtsSimpleApp",
+        ":CtsAppTestDelayedStart",
+        ":CtsAppTestStubs",
+        ":CtsFgsBootCompletedTestCases",
+    ],
+    target_sdk_version: "35",
+    per_testcase_directory: true,
+    manifest: "src/android/app/cts/fgs/bootcompleted/AndroidManifest.xml",
+    test_config: "src/android/app/cts/fgs/bootcompleted/AndroidTest.xml",
+}
+
+android_test {
+    name: "CtsAppTestCases",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "org.apache.http.legacy",
+        "android.test.base",
+    ],
+    static_libs: [
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "ctstestserver",
+        "cts-wm-util",
+        "mockito-target-minus-junit4",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "platform-test-annotations",
+        "platformprotosnano",
+        "permission-test-util-lib",
+        "CtsAppTestStubsShared",
+        "android.content.pm.flags-aconfig-java",
+        "android.multiuser.flags-aconfig-java",
+        "flag-junit",
+        "com.android.media.flags.bettertogether-aconfig-java",
+        "android.app.flags-aconfig-java",
+        "ravenwood-junit",
+    ],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+    ],
+    instrumentation_for: "CtsAppTestStubs",
+    sdk_version: "test_current",
+    // 21 required for multi-dex.
+    min_sdk_version: "21",
+    // Disable coverage since it pushes us over the dex limit and we don't
+    // actually need to measure the tests themselves.
+    jacoco: {
+        exclude_filter: ["**"],
+    },
+    // Even with coverage disabled, we're close to the single dex limit, so allow use of multi-dex.
+    dxflags: ["--multi-dex"],
+    data: [
+        ":CtsSimpleApp",
+        ":CtsAppTestDelayedStart",
+        ":CtsAppTestStubs",
+        ":CtsAppTestStubsApp1",
+        ":CtsAppTestStubsApp3",
+        ":CtsAppTestStubsApp2",
+        ":CtsAppTestStubsApi30",
+        ":CtsAppTestWedgedStart",
+        ":CtsBadProviderStubs",
+        ":CtsCantSaveState1",
+        ":CtsCantSaveState2",
+        ":StorageDelegator",
+        ":CtsActivityManagerApi29",
+        ":WallpaperTest",
+    ],
+    per_testcase_directory: true,
+}
+
+android_ravenwood_test {
+    name: "CtsAppTestCasesRavenwood",
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+    ],
+    srcs: [
+        "src/android/app/cts/ActivityOptionsTest.java",
+        "src/android/app/cts/BroadcastOptionsTest.java",
+    ],
+    auto_gen_config: true,
+}
+
+android_test {
+    name: "CtsDownloadManagerApi28",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "org.apache.http.legacy",
+        "android.test.base",
+    ],
+    static_libs: [
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "ctstestserver",
+        "mockito-target-minus-junit4",
+        "androidx.test.rules",
+        "platform-test-annotations",
+    ],
+    srcs: [
+        "DownloadManagerApi28Test/src/**/*.java",
+        "src/android/app/cts/DownloadManagerTestBase.java",
+    ],
+    resource_dirs: ["app/res"],
+    asset_dirs: ["app/assets"],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "test_current",
+    min_sdk_version: "19",
+    manifest: "DownloadManagerApi28Test/AndroidManifest.xml",
+    test_config: "DownloadManagerApi28Test/AndroidTest.xml",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+android_test {
+    name: "CtsDownloadManagerInstaller",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "org.apache.http.legacy",
+        "android.test.base",
+    ],
+    static_libs: [
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "ctstestserver",
+        "mockito-target-minus-junit4",
+        "androidx.test.rules",
+        "platform-test-annotations",
+    ],
+    srcs: [
+        "DownloadManagerInstallerTest/src/**/*.java",
+        "src/android/app/cts/DownloadManagerTestBase.java",
+    ],
+    resource_dirs: ["app/res"],
+    asset_dirs: ["app/assets"],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "test_current",
+    min_sdk_version: "19",
+    manifest: "DownloadManagerInstallerTest/AndroidManifest.xml",
+    test_config: "DownloadManagerInstallerTest/AndroidTest.xml",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+android_test {
+    name: "CtsAppExitTestCases",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "org.apache.http.legacy",
+        "android.test.base",
+    ],
+    static_libs: [
+        "androidx.test.uiautomator_uiautomator",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "CtsExternalServiceCommon",
+        "cts-wm-util",
+        "libprotobuf-java-lite",
+    ],
+    aidl: {
+        local_include_dirs: ["app/src"],
+    },
+    srcs: [
+        ":libtombstone_proto-src",
+        "AppExitTest/src/**/*.java",
+        "app/src/**/*.aidl",
+        "src/android/app/cts/android/app/cts/tools/WatchUidRunner.java",
+    ],
+    jarjar_rules: "AppExitTest/jarjar-rules.txt",
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    manifest: "AppExitTest/AndroidManifest.xml",
+    test_config: "AppExitTest/AndroidTest.xml",
+    platform_apis: true,
+    data: [
+        ":CtsSimpleApp",
+        ":CtsExternalServiceService",
+        ":CtsAppTestStubs",
+    ],
+    per_testcase_directory: true,
+}
+
+android_test {
+    name: "CtsAppFgsTestCases",
+    defaults: ["cts_defaults"],
+    libs: [
+        "android.test.runner",
+        "org.apache.http.legacy",
+        "android.test.base",
+    ],
+    static_libs: [
+        "androidx.test.uiautomator_uiautomator",
+        "androidx.test.rules",
+        "compatibility-device-util-axt",
+        "CtsExternalServiceCommon",
+        "cts-wm-util",
+        "libprotobuf-java-lite",
+        "flag-junit",
+        "android.content.pm.flags-aconfig-java",
+    ],
+    aidl: {
+        local_include_dirs: ["app/src"],
+    },
+    srcs: [
+        "FgsTest/src/**/*.java",
+        "app/src/**/*.aidl",
+        "app/src/android/app/stubs/ScreenOnActivity.java",
+        "src/android/app/cts/android/app/cts/tools/WatchUidRunner.java",
+        "FgsTestHelper/src/android/app/fgstesthelper/LocalForegroundServiceBase.java",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    instrumentation_for: "CtsAppTestFgsTestHelper",
+    manifest: "FgsTest/AndroidManifest.xml",
+    test_config: "FgsTest/AndroidTest.xml",
+    platform_apis: true,
+    data: [
+        ":CtsAppTestFgsTestHelper",
+        ":CtsAppTestFgsTestHelperCurrent",
+        ":CtsAppTestFgsTestHelperApi33",
+    ],
+    per_testcase_directory: true,
+}

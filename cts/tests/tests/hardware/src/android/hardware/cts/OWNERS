@@ -1,0 +1,2 @@
+per-file HardwareBuffer*=file:platform/frameworks/base:/graphics/java/android/graphics/OWNERS
+per-file DataSpace*=file:platform/frameworks/base:/graphics/java/android/graphics/OWNERS

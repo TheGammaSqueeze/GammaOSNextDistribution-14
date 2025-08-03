@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.view.surfacecontrol.cts"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:targetSandboxVersion="2">
+
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <queries>
+        <package android:name="com.android.cts.mockime" />
+        <package android:name="android.server.wm.scvh" />
+    </queries>
+
+    <application android:label="Android TestCase"
+         android:maxRecents="1"
+         android:multiArch="true"
+         android:supportsRtl="true">
+        <uses-library android:name="android.test.runner"/>
+
+        <activity android:name="android.view.surfacecontrol.cts.CtsActivity"
+             android:screenOrientation="locked"
+             android:label="CtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.view.cts.surfacevalidator.CapturedActivity"
+             android:screenOrientation="locked"
+             android:theme="@style/WhiteBackgroundTheme"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.view.cts.surfacevalidator.ASurfaceControlTestActivity"
+            android:screenOrientation="locked"
+            android:theme="@style/WhiteBackgroundTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.view.cts.surfacevalidator.CapturedActivityWithResource"
+             android:screenOrientation="locked"
+             android:theme="@style/WhiteBackgroundTheme"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.view.surfacecontrol.cts.TrustedPresentationCallbackTest$TestActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.view.surfacecontrol.cts.SurfaceViewCtsActivity"
+             android:screenOrientation="locked"
+             android:turnScreenOn="true"
+             android:showWhenLocked="true"
+             android:label="SurfaceViewCtsActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.view.surfacecontrol.cts.TestActivity"
+                  android:exported="true"
+                  android:turnScreenOn="true"
+                  android:showWhenLocked="true"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+        <activity android:name="android.view.surfacecontrol.cts.TrustedPresentationListenerTest$TestActivity"
+            android:exported="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
+
+        <activity android:name="android.view.surfacecontrol.cts.HandleConfigurationActivity"
+                  android:screenOrientation="locked"
+                  android:label="HandleConfigurationActivity"
+                  android:rotationAnimation="jumpcut"
+                  android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+                  android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.view.surfacecontrol.cts.SurfaceSyncGroupActivity"
+            android:screenOrientation="locked"
+            android:turnScreenOn="true"
+            android:theme="@style/WhiteBackgroundTheme"
+            android:exported="true"/>
+
+        <activity android:name="android.view.surfacecontrol.cts.SurfaceControlViewHostTests$TestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+        <service android:name="android.view.cts.surfacevalidator.EmbeddedSCVHService"
+            android:process="android.view.cts.surfacevalidator.embedded_process" />
+        <service android:name="android.view.cts.surfacevalidator.SurfaceControlViewHostHelper$InProcessEmbeddedSCVHService" />
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+         android:targetPackage="android.view.surfacecontrol.cts"
+         android:label="SurfaceControl related CTS tests">
+    </instrumentation>
+
+</manifest>

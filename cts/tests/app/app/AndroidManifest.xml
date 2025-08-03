@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2007 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
+     package="android.app.stubs">
+
+    <permission android:name="android.app.stubs.permission.TEST_GRANTED"
+         android:protectionLevel="normal"
+         android:label="@string/permlab_testGranted"
+         android:description="@string/permdesc_testGranted">
+        <meta-data android:name="android.app.stubs.string"
+             android:value="foo"/>
+        <meta-data android:name="android.app.stubs.boolean"
+             android:value="true"/>
+        <meta-data android:name="android.app.stubs.integer"
+             android:value="100"/>
+        <meta-data android:name="android.app.stubs.color"
+             android:value="#ff000000"/>
+        <meta-data android:name="android.app.stubs.float"
+             android:value="100.1"/>
+        <meta-data android:name="android.app.stubs.reference"
+             android:resource="@xml/metadata"/>
+    </permission>
+
+    <queries>
+        <package android:name="com.android.test.notificationtrampoline.current" />
+        <package android:name="com.android.test.notificationtrampoline.api30" />
+    </queries>
+
+    <attribution android:tag="localActivity" android:label="@string/sample_text" />
+    <attribution android:tag="localActivityAlias" android:label="@string/sample_text" />
+    <attribution android:tag="localService" android:label="@string/sample_text" />
+    <attribution android:tag="localProvider" android:label="@string/sample_text" />
+    <attribution android:tag="localReceiver" android:label="@string/sample_text" />
+
+    <uses-permission android:name="android.app.stubs.permission.TEST_GRANTED"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.BODY_SENSORS"/>
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
+    <uses-permission android:name="android.permission.SET_WALLPAPER"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL"/>
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
+    <uses-permission android:name="android.permission.REVOKE_RUNTIME_PERMISSIONS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" />
+
+
+    <application android:label="Android TestCase"
+         android:icon="@drawable/size_48x48"
+         android:maxRecents="1"
+         android:multiArch="true"
+         android:name="android.app.stubs.MockApplication"
+         android:supportsRtl="true"
+         android:networkSecurityConfig="@xml/network_security_config"
+         android:zygotePreloadName=".ZygotePreload">
+        <uses-library android:name="android.test.runner"/>
+        <uses-library android:name="org.apache.http.legacy"
+             android:required="false"/>
+
+        <activity android:name="android.app.stubs.ScreenOnActivity"/>
+        <activity android:name="android.app.stubs.GetResultActivity"/>
+
+        <activity android:name="android.app.stubs.ActionBarActivity"/>
+
+        <activity android:name="android.app.stubs.ActivityCallbacksTestActivity"/>
+
+        <activity android:name="android.app.stubs.MockActivity"
+             android:label="MockActivity">
+            <meta-data android:name="android.app.alias"
+                 android:resource="@xml/alias"/>
+            <meta-data android:name="android.app.intent.filter"
+                 android:resource="@xml/intentfilter"/>
+        </activity>
+
+        <activity android:name="android.app.stubs.MockApplicationActivity"
+             android:label="MockApplicationActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.InstrumentationTestActivity"
+             android:label="InstrumentationTestActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="vnd.android.cursor.dir/person"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.app.stubs.activity.INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.ActivityMonitorTestActivity"
+             android:label="ActivityMonitorTestActivity"/>
+
+        <activity android:name="android.app.stubs.AliasActivityStub">
+            <meta-data android:name="android.app.alias"
+                 android:resource="@xml/alias"/>
+        </activity>
+
+        <activity android:name="android.app.stubs.ChildActivity"
+             android:label="ChildActivity"/>
+
+        <receiver android:name="android.app.stubs.MockReceiver"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.stubs.PendingIntentTest.TEST_RECEIVER"/>
+            </intent-filter>
+        </receiver>
+
+        <service android:name="android.app.stubs.MockService"/>
+
+        <service android:name="android.app.stubs.NullService"/>
+
+        <activity android:name="android.app.stubs.SearchManagerStubActivity"
+             android:label="SearchManagerStubActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                 android:resource="@xml/searchable"/>
+        </activity>
+
+        <service android:name="android.app.stubs.LocalService"
+             android:attributionTags="localService"
+             android:exported="true">
+            <meta-data android:name="android.app.stubs.string"
+                 android:value="foo"/>
+            <meta-data android:name="android.app.stubs.boolean"
+                 android:value="true"/>
+            <meta-data android:name="android.app.stubs.integer"
+                 android:value="100"/>
+            <meta-data android:name="android.app.stubs.color"
+                 android:value="#ff000000"/>
+            <meta-data android:name="android.app.stubs.float"
+                 android:value="100.1"/>
+            <meta-data android:name="android.app.stubs.reference"
+                 android:resource="@xml/metadata"/>
+        </service>
+
+        <service android:name="android.app.stubs.LocalStoppedService"/>
+
+        <service android:name="android.app.stubs.LocalForegroundService"
+             android:foregroundServiceType="camera|microphone|specialUse"
+             android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="cts" />
+        </service>
+
+        <service android:name="android.app.stubs.BootCompletedFgs"
+                 android:foregroundServiceType="camera|microphone|specialUse|health|remoteMessaging|systemExempted|location"
+                 android:exported="true">
+        </service>
+
+        <service android:name="android.app.stubs.LocalPhoneCallService"
+             android:foregroundServiceType="microphone|phoneCall|specialUse"
+             android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="cts" />
+        </service>
+
+        <service android:name="android.app.stubs.LocalForegroundServiceLocation"
+             android:foregroundServiceType="location|camera|microphone|specialUse"
+             android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="cts" />
+        </service>
+
+        <service android:name="android.app.stubs.LocalForegroundServiceSticky"
+                 android:foregroundServiceType="location|camera|microphone|specialUse"
+                 android:exported="true">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="cts" />
+        </service>
+
+        <service android:name="android.app.stubs.LocalGrantedService"
+             android:permission="android.app.stubs.permission.TEST_GRANTED"
+             android:exported="true" />
+
+        <service android:name="android.app.stubs.LocalDeniedService"
+             android:permission="android.app.stubs.permission.TEST_DENIED"
+             android:exported="true" />
+
+        <service android:name="android.app.stubs.IsolatedService"
+             android:isolatedProcess="true"
+             android:useAppZygote="true">
+        </service>
+
+        <activity android:name="android.app.stubs.TestedScreen"
+             android:process=":remoteScreen">
+        </activity>
+        <activity android:name="android.app.stubs.LocalScreen"
+             android:multiprocess="true">
+        </activity>
+        <activity android:name="android.app.stubs.ClearTop"
+             android:multiprocess="true"
+             android:launchMode="singleTop">
+        </activity>
+        <activity android:name="android.app.stubs.LocalDialog"
+             android:multiprocess="true"
+             android:theme="@android:style/Theme.Dialog">
+        </activity>
+
+        <activity android:name="android.app.stubs.PendingIntentStubActivity"
+             android:label="PendingIntentStubActivity"/>
+
+        <activity android:name="android.app.stubs.LocalActivityManagerStubActivity"
+             android:label="LocalActivityManagerStubActivity"/>
+
+        <activity android:name="android.app.stubs.LocalActivityManagerTestHelper"
+             android:label="LocalActivityManagerTestHelper"/>
+
+        <activity android:name="android.app.stubs.LaunchpadTabActivity"
+             android:multiprocess="true">
+        </activity>
+
+        <activity android:name="android.app.stubs.LocalActivity"
+             android:attributionTags="localActivity"
+             android:multiprocess="true"
+             android:exported="true">
+            <meta-data android:name="android.app.stubs.string"
+                 android:value="foo"/>
+            <meta-data android:name="android.app.stubs.boolean"
+                 android:value="true"/>
+            <meta-data android:name="android.app.stubs.integer"
+                 android:value="100"/>
+            <meta-data android:name="android.app.stubs.color"
+                 android:value="#ff000000"/>
+            <meta-data android:name="android.app.stubs.float"
+                 android:value="100.1"/>
+            <meta-data android:name="android.app.stubs.reference"
+                 android:resource="@xml/metadata"/>
+        </activity>
+
+        <activity-alias android:name="android.app.stubs.LocalActivityAlias"
+             android:targetActivity="android.app.stubs.LocalActivity"
+             android:attributionTags="localActivityAlias"
+             android:exported="true" />
+
+        <activity android:name="android.app.stubs.TestedActivity"
+             android:process=":remoteActivity">
+        </activity>
+
+        <activity android:name="android.app.stubs.ExpandableListTestActivity"
+             android:label="ExpandableListTestActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.FragmentTestActivity"
+             android:label="FragmentTestActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.FragmentResultActivity"
+             android:label="FragmentResultActivity"/>
+
+        <activity android:name="android.app.stubs.LauncherActivityStub"
+             android:label="LauncherActivityStub"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.shared.NotificationHostActivity"
+            android:label="NotificationHostActivity"/>
+
+        <activity android:name="android.app.stubs.MockTabActivity"
+             android:label="MockTabActivity"/>
+
+        <activity android:name="android.app.stubs.MockListActivity"
+             android:label="MockListActivity"/>
+
+        <activity android:name="android.app.stubs.AppStubActivity"
+             android:label="AppStubActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.DialogStubActivity"
+             android:theme="@style/Theme_NoSwipeDismiss"
+             android:label="DialogStubActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.ActivityManagerStubFooActivity"
+             android:label="ActivityManagerStubFooActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.ActivityManagerRecentOneActivity"
+             android:label="ActivityManagerRecentOneActivity"
+             android:allowTaskReparenting="true"
+             android:taskAffinity="android.app.stubs.recentOne"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.ActivityManagerRecentTwoActivity"
+             android:label="ActivityManagerRecentTwoActivity"
+             android:theme="@style/Theme_NoSwipeDismiss"
+             android:allowTaskReparenting="true"
+             android:taskAffinity="android.app.stubs.recentTwo"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.ActivityManagerStubCrashActivity"
+             android:label="ActivityManagerStubCrashActivity"
+             android:process=":ActivityManagerStubCrashActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <service android:name="android.app.stubs.StubRemoteService"
+             android:process=":remote"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.stubs.ISecondary"/>
+                <action android:name="android.app.REMOTESERVICE"/>
+            </intent-filter>
+        </service>
+
+        <activity android:name="android.app.ActivityGroup"
+             android:label="ActivityGroup"/>
+
+        <activity android:name="android.app.stubs.KeyguardManagerActivity"
+             android:label="KeyguardManagerActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <service android:name="android.app.stubs.IntentServiceStub"/>
+
+        <activity android:name="android.app.stubs.LaunchpadActivity"
+             android:configChanges="keyboardHidden|orientation|screenSize"
+             android:multiprocess="true">
+        </activity>
+
+        <activity android:name="android.app.stubs.ActivityManagerMemoryClassLaunchActivity"/>
+
+        <activity android:name="android.app.stubs.ActivityManagerMemoryClassTestActivity"
+             android:process=":memoryclass"/>
+
+        <activity android:name="android.app.stubs.PipNotSupportedActivity"
+             android:label="PipNotSupportedActivity"
+             android:resizeableActivity="true"
+             android:supportsPictureInPicture="false"
+             android:configChanges="smallestScreenSize|orientation|screenSize|screenLayout"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.KeyboardShortcutsActivity"/>
+
+        <activity android:name="android.app.stubs.NewDocumentTestActivity"
+             android:documentLaunchMode="intoExisting"/>
+
+        <activity android:name="android.app.stubs.DisplayTestActivity"
+             android:configChanges="smallestScreenSize|orientation|screenSize|screenLayout"/>
+
+        <activity android:name="android.app.stubs.ToolbarActivity"
+             android:theme="@android:style/Theme.Material.Light.NoActionBar"/>
+
+        <service android:name="android.app.stubs.shared.TestNotificationListener"
+             android:exported="false"
+             android:label="TestNotificationListener"
+             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.app.stubs.shared.TestNotificationAssistant"
+                 android:exported="true"
+                 android:label="TestNotificationAssistant"
+                 android:permission="android.permission.BIND_NOTIFICATION_ASSISTANT_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationAssistantService"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.app.stubs.TestTileService"
+             android:exported="true"
+             android:label="TestTileService"
+             android:icon="@drawable/robot"
+             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
+
+        <service android:name="android.app.stubs.NotExportedTestTileService"
+                 android:exported="false"
+                 android:label="NotExportedTestTileService"
+                 android:icon="@drawable/robot"
+                 android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
+
+        <activity android:name="android.app.stubs.AutomaticZenRuleActivity"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.action.AUTOMATIC_ZEN_RULE"/>
+            </intent-filter>
+            <meta-data android:name="android.service.zen.automatic.ruleType"
+                 android:value="@string/automatic_zen_rule_name"/>
+            <meta-data android:name="android.service.zen.automatic.ruleInstanceLimit"
+                 android:value="2"/>
+        </activity>
+
+        <receiver android:name="android.app.stubs.CommandReceiver"
+             android:exported="true"/>
+
+        <activity android:name="android.app.stubs.SendBubbleActivity"
+             android:turnScreenOn="true"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.SEND"/>
+                <data android:mimeType="text/plain"/>
+                <data android:mimeType="image/*"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="android.app.stubs.BubbledActivity"
+             android:turnScreenOn="true"
+             android:resizeableActivity="true"/>
+
+        <service android:name="android.app.stubs.BubblesTestService"
+             android:label="BubblesTestsService"
+             android:exported="true"
+             android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="cts" />
+        </service>
+
+        <service android:name="android.app.stubs.LocalAlertService"/>
+
+        <activity android:name=".SimpleActivity"
+             android:theme="@style/Theme_NoSwipeDismiss"
+             android:excludeFromRecents="true"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <meta-data android:name="android.app.shortcuts"
+                 android:resource="@xml/shortcuts"/>
+        </activity>
+
+        <!-- Disable home activities by default or it may disturb other tests by
+                showing ResolverActivity when start home activity.
+             Set the task affinity to empty not to group with the other Activities in this app. -->
+        <activity
+            android:name="android.app.stubs.TestHomeActivity"
+            android:enabled="false"
+            android:taskAffinity=""
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <receiver android:name="android.app.stubs.HeartbeatReceiver"
+            android:enabled="true"
+            android:process=":hbact"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.stubs.HEARTBEAT_DONE"/>
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".HeartbeatService"
+            android:process=":hbsvc"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.stubs.HeartbeatService"/>
+            </intent-filter>
+        </service>
+        <activity android:name=".HeartbeatActivity"
+            android:label=":CountdownActivity"
+            android:process=":hbact"
+            android:launchMode="singleInstance"
+            android:exported="true"/>
+
+        <service android:name="android.app.stubs.TrimMemService"
+            android:exported="true"
+            android:isolatedProcess="true">
+        </service>
+
+        <service android:name=".CloseSystemDialogsTestService"
+            android:exported="true" />
+
+        <receiver android:name="android.app.stubs.LocalReceiver"
+             android:attributionTags="localReceiver"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.stubs.activity.RECEIVER_LOCAL"/>
+            </intent-filter>
+        </receiver>
+
+        <activity android:name="android.app.stubs.RemoteActivity"
+            android:process=":remote"
+            android:excludeFromRecents="true"
+            android:exported="true" />
+
+        <activity android:name=".DisplayEventActivity"
+            android:launchMode="singleInstance"
+            android:exported="true" />
+
+        <!-- (b/197936012) Remove startup provider due to test timeout issue -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
+
+        <receiver
+            android:name="android.app.stubs.BootReceiver"
+            android:directBootAware="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name="android.app.stubs.Receiver_getBindingUidImportance"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="ACTION_TEST_SERVICE_BINDING"/>
+                <action android:name="ACTION_TEST_PROVIDER"/>
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

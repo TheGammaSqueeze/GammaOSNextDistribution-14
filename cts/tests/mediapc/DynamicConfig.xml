@@ -1,0 +1,6 @@
+<dynamicConfig>
+    <entry key="media_files_url">
+      <value>https://dl.google.com/android/xts/cts/tests/mediapc/CtsMediaPerformanceClassTestCases-3.0.zip</value>
+    </entry>
+</dynamicConfig>
+

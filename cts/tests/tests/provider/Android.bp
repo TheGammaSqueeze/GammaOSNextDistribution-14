@@ -1,0 +1,68 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsProviderTestCases",
+    defaults: ["cts_defaults"],
+
+    compile_multilib: "both",
+
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+    ],
+
+    libs: [
+        "android.test.mock",
+        "android.test.base",
+        "android.test.runner",
+        "telephony-common",
+    ],
+
+    static_libs: [
+        "androidx.test.core",
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "junit",
+        "truth",
+        "mockito-target-minus-junit4",
+        // TODO: remove testng once Android migrates to JUnit 4.12, which provides assertThrows
+        "testng",
+        "sts-device-util",
+    ],
+
+    jni_libs: [
+        "libcts_jni",
+        "libnativehelper_compat_libc++",
+    ],
+
+    srcs: [
+        "src/**/*.java",
+        "app/GalleryTestApp/src/**/*.java",
+        "app/MultiAuthorityApp/src/**/*.java",
+    ],
+
+    // uncomment when b/140885436 is fixed
+    // sdk_version: "test_current",
+    min_sdk_version: "21",
+    target_sdk_version: "33",
+
+    platform_apis: true,
+
+    data: [
+        ":CtsProviderGalleryTestApp",
+        ":CtsProviderMultiAuthorityApp",
+    ],
+
+    host_required: ["compatibility-host-provider-preconditions"],
+}
+
+filegroup {
+    name: "CtsProviderTestUtils",
+    srcs: [
+        "src/android/provider/cts/ProviderTestUtils.java",
+        "src/android/provider/cts/media/MediaStoreUtils.java",
+    ],
+}

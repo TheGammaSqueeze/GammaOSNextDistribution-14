@@ -1,0 +1,1 @@
+rule com.android.server.os.** android.app.cts.appexit.@1

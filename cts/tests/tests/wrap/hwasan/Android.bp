@@ -1,0 +1,95 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "cts_tests_tests_hwasan_src",
+    srcs: ["src/**/*.java"],
+    libs: [
+        "compatibility-device-util-axt",
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+}
+
+filegroup {
+    name: "hwasan_wrap.sh",
+    srcs: [
+        "wrap.sh",
+    ],
+    path: ".",
+}
+
+android_test {
+    name: "CtsWrapHwasanTestCases",
+    compile_multilib: "both",
+    dex_preopt: {
+        enabled: false,
+    },
+    optimize: {
+        enabled: false,
+    },
+    static_libs: [
+        "compatibility-device-util-axt",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "hwasan_debug_lib",
+        "cts_tests_tests_hwasan_src",
+    ],
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+    jni_libs: [
+        "libcts_wrap_hwasan_jni",
+        "libcts_jni",
+    ],
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    sdk_version: "test_current",
+    manifest: "AndroidManifest.xml",
+    use_embedded_native_libs: false,
+}
+
+cc_library {
+    name: "libcts_wrap_hwasan_jni",
+    srcs: ["jni/cts_wrap_hwasan_jni.cpp"],
+    header_libs: ["jni_headers"],
+    sdk_version: "current",
+    stl: "libc++",
+}
+
+java_genrule {
+    name: "hwasan_debug_lib",
+    srcs: [":hwasan_wrap.sh"],
+    tools: ["soong_zip"],
+    out: ["hwasan_debug_abi.jar"],
+    cmd: "mkdir -p $(genDir)/lib/armeabi-v7a/ && " +
+         "mkdir -p $(genDir)/lib/arm64-v8a/ && " +
+         "mkdir -p $(genDir)/lib/x86/ && " +
+         "mkdir -p $(genDir)/lib/x86_64/ && " +
+         "cp $(in) $(genDir)/lib/armeabi-v7a/ && " +
+         "cp $(in) $(genDir)/lib/arm64-v8a/ && " +
+         "cp $(in) $(genDir)/lib/x86/ && " +
+         "cp $(in) $(genDir)/lib/x86_64/ && " +
+         "$(location soong_zip) -o $(out) -C $(genDir) " +
+         "-D $(genDir)/lib/armeabi-v7a/ -D $(genDir)/lib/arm64-v8a/ " +
+         "-D $(genDir)/lib/x86/ -D $(genDir)/lib/x86_64/",
+}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 Google Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<dynamicConfig>
+    <entry key ="expected_failures">
+        <!--
+         ! Each value in this section identifies an expected failure and is of the
+         ! form:
+         !    <failure-type>:<signature of class/member>
+         !
+         ! These entries are loaded by AnnotationTest which uses them to construct
+         ! an ExpectedFailuresFilter which discards them.
+         !
+         ! e.g. If the test fails with the following error message:
+         ! junit.framework.AssertionFailedError:
+         ! extra_class:	android.media.MediaParceledListSlice	Error: Class annotated with android.annotation.SystemApi does not exist in the documented API
+         ! extra_class:	android.media.MediaFrameworkInitializer	Error: Class annotated with android.annotation.SystemApi does not exist in the documented API
+         ! extra_interface:	android.media.MediaCommunicationManager$SessionCallback	Error: Class annotated with android.annotation.SystemApi does not exist in the documented API
+         ! extra_class:	android.media.MediaTranscodingManager	Error: Class annotated with android.annotation.SystemApi does not exist in the documented API
+         ! ClassLoader hierarchy
+         !
+         ! The first step is to check that the extra classes are expected (e.g.
+         ! because they have been annotated with the @SystemApi since this version
+         ! of the CTS tests were released and the tests are being run on an
+         ! Android system with a version of the mainline modules that includes
+         ! those changes.
+         !
+         ! If they are not expected then this must be caused by a partner
+         ! inadvertently adding something to the @SystemApi so the correct
+         ! response is for them to stop doing that.
+         !
+         ! If they are expected then additional entries should be added to this
+         ! section. That simply requires copying each error message into their own
+         ! <value></value> element and then removing the whitespace after the
+         ! first : and also removing the trailing " Error: ..." part (including
+         ! the leading white space).
+         !
+         ! See below for some examples.
+         !-->
+        <!-- Bug: 204723907 -->
+        <value>extra_field:int android.net.wifi.ScanResult.UNSPECIFIED</value>
+        <value>extra_method:boolean android.net.wifi.WifiInfo.isTrusted()</value>
+        <value>extra_method:long[] android.net.wifi.hotspot2.pps.HomeSp.getMatchAllOis()</value>
+        <value>extra_method:long[] android.net.wifi.hotspot2.pps.HomeSp.getMatchAnyOis()</value>
+        <value>extra_method:void android.net.wifi.hotspot2.pps.HomeSp.setMatchAllOis(long[])</value>
+        <value>extra_method:void android.net.wifi.hotspot2.pps.HomeSp.setMatchAnyOis(long[])</value>
+        <!--
+         ! Add any new entries before this.
+         !-->
+    </entry>
+</dynamicConfig>

@@ -1,0 +1,58 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "ActivityContext",
+    sdk_version: "29",
+    srcs: [
+        "src/main/java/**/*.java",
+        "src/main/java/**/*.kt",
+    ],
+    static_libs: [
+        "EventLib",
+        "compatibility-device-util-axt",
+    ],
+    manifest: "src/main/AndroidManifest.xml",
+}
+
+android_test {
+    name: "ActivityContextTest",
+    srcs: [
+        "src/test/java/**/*.java",
+        "src/test/java/**/*.kt",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    static_libs: [
+        "Harrier",
+        "ActivityContext",
+        "androidx.test.ext.junit",
+        "ctstestrunner-axt",
+        "truth",
+        "testng", // Used for assertThrows
+    ],
+    manifest: "src/test/AndroidManifest.xml",
+}
+
+android_test {
+    name: "ActivityContextInstrumentOtherAppTest",
+    srcs: [
+        "src/test/java/**/*.java",
+        "src/test/java/**/*.kt",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    static_libs: [
+        "ActivityContext",
+        "androidx.test.ext.junit",
+        "ctstestrunner-axt",
+        "truth",
+        "testng", // Used for assertThrows
+    ],
+    manifest: "src/test/AndroidManifestInstrumentEmptyTestApp.xml",
+    data: [":EmptyTestApp"],
+    test_config: "ActivityContextInstrumentOtherAppTest.xml",
+}

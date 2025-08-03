@@ -1,0 +1,124 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_fwk_telephony",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "CtsTelecomCujTestCases",
+    defaults: ["cts_defaults"],
+    static_libs: [
+        "compatibility-device-util-axt",
+        "ctstestrunner-axt",
+        "androidx.test.core",
+        "androidx.test.rules",
+        "TelecomTestAppUtilsLib",
+        "telecom_flags_core_java_lib",
+        "telephony_flags_core_java_lib",
+        "flag-junit",
+    ],
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+    ],
+    srcs: [
+        "src/**/*.java",
+        "aidl/**/I*.aidl",
+    ],
+    sdk_version: "test_current",
+    min_sdk_version: "21",
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    data: [
+        ":ManagedConnectionServiceApp",
+        ":TransactionalVoipAppMain",
+        ":TransactionalVoipAppClone",
+        ":ConnectionServiceVoipAppMain",
+        ":ConnectionServiceVoipAppClone",
+    ],
+    per_testcase_directory: true,
+}
+
+// Generates stubs for test documentation.
+droidstubs {
+    name: "telecom-cuj-doc-stubs",
+    srcs: [
+        "src/**/*.java",
+    ],
+    create_doc_stubs: true,
+    annotations_enabled: true,
+    //api_levels_annotations_enabled: true,
+    //api_levels_jar_filename: "android.telecom.jar",
+    //api_levels_annotations_dirs: [
+    //    "sdk-dir",
+    //    "api-versions-jars-dir",
+    //],
+    merge_annotations_dirs: [
+        "metalava-manual",
+    ],
+    arg_files: [
+        "AndroidManifest.xml",
+    ],
+    // Add --verbose to print metalava details.
+    args: "--manifest $(location AndroidManifest.xml) " +
+        "--error UnhiddenSystemApi " +
+        "--hide RequiresPermission " +
+        "--hide CallbackInterface " +
+        "--hide MissingPermission " +
+        "--hide HiddenSuperclass --hide DeprecationMismatch --hide UnavailableSymbol " +
+        "--hide SdkConstant --hide HiddenTypeParameter " +
+        "--hide Todo ",
+    write_sdk_values: true,
+}
+
+// Generates API docs for go/devsite.
+//
+// How API docs are generated:
+//    source files -> (droidstubs/metalava) -> stub source files -> (droiddoc/doclava) -> docs
+//
+// The metalava conversion is done by droidstub module "telcom-doc-stubs".
+droiddoc {
+    name: "telecom-cuj-docs",
+    srcs: [
+        ":telecom-cuj-doc-stubs",
+    ],
+    libs: [
+        "stub-annotations",
+        "unsupportedappusage",
+    ],
+    custom_template: "droiddoc-templates-sdk",
+    // These variables that are used in doclava templates.
+    hdf: [
+        "dac true",
+        "sdk.preview 0", // Not a preview version.
+        "sdk.version 31",
+        "android.whichdoc offline",
+        "android.hasSamples false",
+    ],
+    arg_files: [
+        "AndroidManifest.xml",
+    ],
+    proofread_file: "ds-sdk-docs-proofrerad.txt",
+    // See doclava docs in https://github.com/tinks/doclava.
+    // See error numbers in external/doclava/src/com/google/doclava/Errors.java.
+    // TODO(b/163831343): Add -werror -lerror to catch bad javadocs
+    args: "-android -manifest $(location AndroidManifest.xml) -toroot / -devsite -yamlV2 " +
+        "-hide 111 -hide 113 -hide 125 -hide 126 -hide 127 -hide 128 " +
+        "-stubpackages android.telecom -dac_libraryroot android/telecom ",
+}

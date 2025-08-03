@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 20): `new java.util.concurrent.CompletableFuture`"
+        errorLine1="            new CompletableFuture&lt;&gt;();"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/AppAccessibilityService.java"
+            line="36"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 20): `android.content.Context#getSystemService`"
+        errorLine1="        mWindowManager = getSystemService(WindowManager.class);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/AppAccessibilityService.java"
+            line="54"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 20): `java.util.concurrent.CompletableFuture#obtrudeValue`"
+        errorLine1="        sServiceFuture.obtrudeValue(this);"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/AppAccessibilityService.java"
+            line="71"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 20): `new java.util.concurrent.CompletableFuture`"
+        errorLine1="        sServiceFuture = new CompletableFuture&lt;&gt;();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/AppAccessibilityService.java"
+            line="86"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 20): `android.content.Context#getSystemService`"
+        errorLine1="        mNotificationManager = getSystemService(NotificationManager.class);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/CloseSystemDialogsTestService.java"
+            line="64"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 20): `new android.app.Notification.Builder`"
+        errorLine1="                new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/CloseSystemDialogsTestService.java"
+            line="174"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 20): `new android.app.NotificationChannel`"
+        errorLine1="        NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/CloseSystemDialogsTestService.java"
+            line="178"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 20): `android.app.NotificationManager#createNotificationChannel`"
+        errorLine1="        mNotificationManager.createNotificationChannel(notificationChannel);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/CloseSystemDialogsTestService.java"
+            line="180"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 20): `new java.util.concurrent.CompletableFuture`"
+        errorLine1="    private volatile CompletableFuture&lt;IBinder&gt; mFuture = new CompletableFuture&lt;&gt;();"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/FutureServiceConnection.java"
+            line="30"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 20): `java.util.concurrent.CompletableFuture#get`"
+        errorLine1="        return mFuture.get(timeoutMs, TimeUnit.MILLISECONDS);"
+        errorLine2="                       ~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/FutureServiceConnection.java"
+            line="33"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 20): `java.util.concurrent.CompletableFuture#complete`"
+        errorLine1="        mFuture.complete(service);"
+        errorLine2="                ~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/FutureServiceConnection.java"
+            line="38"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 20): `new java.util.concurrent.CompletableFuture`"
+        errorLine1="        mFuture = new CompletableFuture&lt;&gt;();"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/FutureServiceConnection.java"
+            line="44"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 20): `android.content.Context#getSystemService`"
+        errorLine1="        mNotificationManager = mContext.getSystemService(NotificationManager.class);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="86"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 20): `android.app.NotificationManager#getActiveNotifications`"
+        errorLine1="                        Arrays.asList(mNotificationManager.getActiveNotifications()));"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="173"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 20): `android.service.notification.NotificationListenerService#getSnoozedNotifications`"
+        errorLine1="                        Arrays.asList(mNotificationListener.getSnoozedNotifications()));"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="180"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 20): `android.content.Context#getSystemService`"
+        errorLine1="        final NotificationManager nm = mContext.getSystemService(NotificationManager.class);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="206"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 27 (current min is 20): `android.app.NotificationManager#isNotificationListenerAccessGranted`"
+        errorLine1="                false, nm.isNotificationListenerAccessGranted(component));"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="208"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 20): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1='                .adoptShellPermissionIdentity("android.permission.STATUS_BAR_SERVICE",'
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="216"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 20): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="                .getUiAutomation().dropShellPermissionIdentity();"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="227"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 20): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1='                .adoptShellPermissionIdentity("android.permission.STATUS_BAR_SERVICE",'
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="236"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 20): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="                .getUiAutomation().dropShellPermissionIdentity();"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="245"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `android.app.UiAutomation#executeShellCommand`"
+        errorLine1="        try (ParcelFileDescriptor fd = uiAutomation.executeShellCommand(command)) {"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHelper.java"
+            line="253"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 20): `android.app.Activity#requireViewById`"
+        errorLine1="        get() = requireViewById&lt;FrameLayout&gt;(R.id.content).getChildAt(0)"
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/NotificationHostActivity.kt"
+            line="39"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 20): `android.content.Context#getSystemService`"
+        errorLine1="        mNotificationManager = getSystemService(NotificationManager.class);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationAssistant.java"
+            line="73"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `new android.service.notification.NotificationListenerService.Ranking`"
+        errorLine1="        Ranking ranking = new Ranking();"
+        errorLine2="                          ~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationAssistant.java"
+            line="130"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `android.service.notification.NotificationListenerService.RankingMap#getRanking`"
+        errorLine1="        rankingMap.getRanking(sbn.getKey(), ranking);"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationAssistant.java"
+            line="131"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `android.service.notification.NotificationListenerService.Ranking#getRank`"
+        errorLine1="        mNotificationRank = ranking.getRank();"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationAssistant.java"
+            line="132"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `android.service.notification.StatusBarNotification#getUser`"
+        errorLine1="                sbn.getUser());"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationAssistant.java"
+            line="144"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `android.service.notification.NotificationListenerService.RankingMap#getOrderedKeys`"
+        errorLine1="        for (String key : rankingMap.getOrderedKeys()) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationListener.java"
+            line="188"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `new android.service.notification.NotificationListenerService.Ranking`"
+        errorLine1="            Ranking rank = new Ranking();"
+        errorLine2="                           ~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationListener.java"
+            line="189"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `android.service.notification.NotificationListenerService.RankingMap#getRanking`"
+        errorLine1="            if (rankingMap.getRanking(key, rank)) {"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationListener.java"
+            line="190"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 20): `android.service.notification.NotificationListenerService.Ranking#matchesInterruptionFilter`"
+        errorLine1="                mIntercepted.put(key, !rank.matchesInterruptionFilter());"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/tests/app/shared/src/android/app/stubs/shared/TestNotificationListener.java"
+            line="193"
+            column="45"/>
+    </issue>
+
+</issues>

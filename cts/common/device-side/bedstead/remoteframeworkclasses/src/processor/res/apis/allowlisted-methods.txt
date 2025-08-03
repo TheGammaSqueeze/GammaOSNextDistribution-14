@@ -1,0 +1,6 @@
+public android.accounts.AccountManagerFuture<android.os.Bundle> addAccount(String, String, String[], android.os.Bundle, android.app.Activity, android.accounts.AccountManagerCallback<android.os.Bundle>, android.os.Handler)
+public android.accounts.AccountManagerFuture<android.os.Bundle> removeAccount(android.accounts.Account, android.app.Activity, android.accounts.AccountManagerCallback<android.os.Bundle>, android.os.Handler)
+public android.app.admin.DevicePolicyManager getParentProfileInstance(@NonNull android.content.ComponentName)
+public android.accounts.AccountManagerFuture<android.os.Bundle> updateCredentials(android.accounts.Account, String, android.os.Bundle, android.app.Activity, android.accounts.AccountManagerCallback<android.os.Bundle>, android.os.Handler)
+public android.content.ContentResolver getContentResolver()
+public static java.security.PrivateKey getPrivateKey(@NonNull android.content.Context, @NonNull String) throws java.lang.InterruptedException, android.security.KeyChainException

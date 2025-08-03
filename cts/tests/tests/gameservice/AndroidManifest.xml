@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.gameservice.cts">
+
+    <uses-permission android:name="android.permission.MANAGE_GAME_ACTIVITY"/>
+    <uses-permission android:name="android.service.games.cts.TEST_START_ACTIVITY"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_MEDIA"/>
+
+    <queries>
+        <package android:name="android.service.games.cts.falsepositive" />
+        <package android:name="android.service.games.cts.finishonbackgame" />
+        <package android:name="android.service.games.cts.game" />
+        <package android:name="android.service.games.cts.notgame" />
+        <package android:name="android.service.games.cts.restartgameverifier" />
+        <package android:name="android.service.games.cts.startactivityverifier" />
+        <package android:name="android.service.games.cts.systembarverifier" />
+        <package android:name="android.service.games.cts.takescreenshotverifier" />
+        <package android:name="android.service.games.cts.touchverifier" />
+    </queries>
+
+    <application android:label="CtsGameServiceTestApp">
+
+        <service
+            android:name="android.service.games.TestGameService"
+            android:exported="true"
+            android:permission="android.permission.BIND_GAME_SERVICE">
+            <meta-data android:name="android.game_service" android:resource="@xml/game_service"/>
+            <intent-filter>
+                <action android:name="android.service.games.action.GAME_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="android.service.games.TestGameSessionService"
+            android:exported="true"
+            android:permission="android.permission.BIND_GAME_SERVICE"/>
+
+        <service
+            android:name="android.service.games.GameServiceTestService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.service.games.action.TEST_SERVICE"/>
+            </intent-filter>
+        </service>
+
+        <uses-library android:name="android.test.runner" />
+        <activity android:name="android.service.games.testing.GetResultActivity"/>
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                     android:targetPackage="android.gameservice.cts"
+                     android:label="CTS tests for Android Game Service">
+    </instrumentation>
+
+</manifest>

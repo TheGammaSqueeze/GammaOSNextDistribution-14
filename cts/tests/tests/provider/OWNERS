@@ -1,0 +1,31 @@
+nicksauer@google.com
+
+# Storage team ownership
+
+# Bug component: 655625 = per-file *MediaStore*
+
+per-file *MediaStore* = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+per-file Android.bp = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+per-file AndroidManifest.xml = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+per-file AndroidTest.xml = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+per-file OWNERS = file:platform/frameworks/base:/core/java/android/os/storage/OWNERS
+
+# Settings Provider ownership
+# Bug component: 856262 = per-file src/android/provider/cts/settings/*
+
+per-file src/android/provider/cts/settings/* = file:platform/frameworks/base:/packages/SettingsProvider/OWNERS
+
+# Call log provider ownership (Telecom team)
+# Bug component: 151185 = per-file src/android/provider/cts/BlockedNumber*
+# Bug component: 151185 = per-file src/android/provider/cts/contacts/*
+per-file src/android/provider/cts/BlockedNumber* =  file:../telecom/OWNERS
+per-file src/android/provider/cts/contacts/* = file:../telecom/OWNERS
+
+# Device Config ownership
+# Bug component: 326016 = per-file src/android/provider/cts/settings/Settings_ConfigTest.java
+
+per-file src/android/provider/cts/settings/Settings_ConfigTest.java = file:../deviceconfig/OWNERS
+
+# Downloadable font ownership
+# Bug component: 25699 = per-file *Font*
+per-file *Font* = file:platform/frameworks/base:/core/java/android/text/OWNERS

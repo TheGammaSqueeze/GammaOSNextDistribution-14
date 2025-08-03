@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <base-config>
+      <certificateTransparency enabled="true" />
+  </base-config>
+  <domain-config>
+      <domain includeSubdomains="false">foo.bar</domain>
+  </domain-config>
+  <domain-config>
+      <domain includeSubdomains="false">android.com</domain>
+      <certificateTransparency enabled="false" />
+  </domain-config>
+  <domain-config>
+      <domain includeSubdomains="true">example.com</domain>
+  </domain-config>
+  <domain-config>
+      <domain includeSubdomains="true">wikipedia.org</domain>
+      <certificateTransparency enabled="false" />
+  </domain-config>
+</network-security-config>

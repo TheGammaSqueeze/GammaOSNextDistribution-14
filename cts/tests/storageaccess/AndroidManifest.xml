@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.storageaccess.cts">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application>
+        <uses-library android:name="android.test.runner"/>
+
+        <activity android:name="android.storageaccess.cts.ClientActivity"
+                  android:exported="true"/>
+
+        <!-- Manifest merging is disabled for the CtsStorageAccessTestCases test module, so we
+             declare activities used by the androidx.test.core library "manually". -->
+        <activity android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity"
+                  android:exported="true"/>
+
+    </application>
+
+    <!--  Self-instrumenting test package. -->
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                     android:label="Storage Access CTS Tests"
+                     android:targetPackage="android.storageaccess.cts">
+    </instrumentation>
+</manifest>

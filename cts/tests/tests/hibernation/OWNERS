@@ -1,0 +1,5 @@
+# Bug component: 1051079
+include platform/frameworks/base:/core/java/android/apphibernation/OWNERS
+include platform/frameworks/base:/core/java/android/permission/OWNERS
+
+per-file *AppHibernationIntegration* = file:platform/frameworks/base:/core/java/android/apphibernation/OWNERS

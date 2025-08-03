@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.musicrecognition.cts"
+     android:targetSandboxVersion="2">
+
+    <uses-permission android:name="android.permission.MANAGE_MUSIC_RECOGNITION" />
+
+    <!-- Attribution for MusicRecognitionManagerService. -->
+    <attribution android:tag="MusicRecognitionManagerService"
+        android:label="@string/music_recognition_manager_service"/>
+
+    <!-- Attribution for CTS MusicRecognitionService. In this test, music recognition
+    manager and service are in the same process. Otherwise this tag needs to exist
+    in a separate manifest file (in the app implementing MusicRecognitionService). -->
+    <attribution android:tag="CtsMusicRecognitionAttributionTag"
+        android:label="@string/cts_music_recognition_service"/>
+
+    <application>
+
+        <uses-library android:name="android.test.runner"/>
+
+        <service android:name=".CtsMusicRecognitionService"
+             android:label="CtsCMusicRecognitionService"
+             android:permission="android.permission.BIND_MUSIC_RECOGNITION_SERVICE"
+             android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.musicrecognition.MUSIC_RECOGNITION"/>
+            </intent-filter>
+        </service>
+    </application>
+
+    <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+         android:label="CTS tests for the MusicRecognitionManager APIs."
+         android:targetPackage="android.musicrecognition.cts">
+    </instrumentation>
+
+</manifest>

@@ -1,0 +1,15 @@
+per-file ASurfaceControlBackPressureTest.java = file:platform/frameworks/base:/services/core/java/com/android/server/wm/OWNERS
+per-file ASurfaceControlTest.java = file:platform/frameworks/base:/services/core/java/com/android/server/wm/OWNERS
+per-file AttachedSurfaceControlSyncTest.java = file:platform/frameworks/base:/services/core/java/com/android/server/wm/OWNERS
+per-file AttachedSurfaceControlTest.java = file:platform/frameworks/base:/services/core/java/com/android/server/wm/OWNERS
+per-file SurfaceControlTest.java = file:platform/frameworks/base:/services/core/java/com/android/server/wm/OWNERS
+per-file SurfaceViewSyncTest.java = file:platform/frameworks/base:/services/core/java/com/android/server/wm/OWNERS
+
+per-file *ScrollCapture*.java = file:platform/frameworks/base:/packages/SystemUI/src/com/android/systemui/screenshot/OWNERS
+
+per-file *InputEvent* = file:platform/frameworks/base:/INPUT_OWNERS
+per-file *InputQueue* = file:platform/frameworks/base:/INPUT_OWNERS
+per-file *KeyEvent* = file:platform/frameworks/base:/INPUT_OWNERS
+per-file *PointerCapture* = file:platform/frameworks/base:/INPUT_OWNERS
+per-file *MotionEvent* = file:platform/frameworks/base:/INPUT_OWNERS
+per-file *VelocityTracker* = file:platform/frameworks/base:/INPUT_OWNERS

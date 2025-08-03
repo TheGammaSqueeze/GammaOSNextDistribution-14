@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 29): `android.credentials.CredentialManager#isServiceEnabled`"
+        errorLine1="        if (!CredentialManager.isServiceEnabled(context)) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/credentials/Credentials.java"
+            line="87"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 34 (current min is 29): `android.credentials.CredentialManager`"
+        errorLine1="        return context.getSystemService(CredentialManager.class);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/credentials/Credentials.java"
+            line="92"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 29): `android.app.admin.DevicePolicyManager#canAdminGrantSensorsPermissions`"
+        errorLine1="        } else devicePolicyManager.canAdminGrantSensorsPermissions()"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/devicepolicy/DevicePolicy.kt"
+            line="603"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 30 (current min is 29): `android.net.VpnManager`"
+        errorLine1="        sServiceMapping.put(Context.VPN_MANAGEMENT_SERVICE, VpnManager.class);"
+        errorLine2="                                                            ~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="195"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.app.people.PeopleManager`"
+        errorLine1="        sServiceMapping.put(Context.PEOPLE_SERVICE, PeopleManager.class);"
+        errorLine2="                                                    ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="213"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.os.PerformanceHintManager`"
+        errorLine1="        sServiceMapping.put(Context.PERFORMANCE_HINT_SERVICE, PerformanceHintManager.class);"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="215"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.os.VibratorManager`"
+        errorLine1="        sServiceMapping.put(Context.VIBRATOR_MANAGER_SERVICE, VibratorManager.class);"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="232"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 34 (current min is 29): `android.companion.virtual.VirtualDeviceManager`"
+        errorLine1="        sServiceMapping.put(Context.VIRTUAL_DEVICE_SERVICE, VirtualDeviceManager.class);"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="244"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 33 (current min is 29): `android.media.tv.interactive.TvInteractiveAppManager`"
+        errorLine1="        sServiceMapping.put(Context.TV_INTERACTIVE_APP_SERVICE, TvInteractiveAppManager.class);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="251"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 34 (current min is 29): `android.content.om.OverlayManager`"
+        errorLine1="        sServiceMapping.put(Context.OVERLAY_SERVICE, OverlayManager.class);"
+        errorLine2="                                                     ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="265"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.os.BugreportManager`"
+        errorLine1="        sServiceMapping.put(Context.BUGREPORT_SERVICE, BugreportManager.class);"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="270"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 34 (current min is 29): `android.credentials.CredentialManager`"
+        errorLine1="        sServiceMapping.put(Context.CREDENTIAL_SERVICE, CredentialManager.class);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="272"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.view.translation.TranslationManager`"
+        errorLine1="        sServiceMapping.put(Context.TRANSLATION_MANAGER_SERVICE, TranslationManager.class);"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="275"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.view.translation.UiTranslationManager`"
+        errorLine1="        sServiceMapping.put(Context.UI_TRANSLATION_SERVICE, UiTranslationManager.class);"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="276"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 33 (current min is 29): `android.app.LocaleManager`"
+        errorLine1="        sServiceMapping.put(Context.LOCALE_SERVICE, LocaleManager.class);"
+        errorLine2="                                                    ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="295"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 30 (current min is 29): `android.security.FileIntegrityManager`"
+        errorLine1="        sServiceMapping.put(Context.FILE_INTEGRITY_SERVICE, FileIntegrityManager.class);"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="297"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.media.metrics.MediaMetricsManager`"
+        errorLine1="        sServiceMapping.put(Context.MEDIA_METRICS_SERVICE, MediaMetricsManager.class);"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="302"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.app.GameManager`"
+        errorLine1="        sServiceMapping.put(Context.GAME_SERVICE, GameManager.class);"
+        errorLine2="                                                  ~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="303"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.content.pm.verify.domain.DomainVerificationManager`"
+        errorLine1="        sServiceMapping.put(Context.DOMAIN_VERIFICATION_SERVICE, DomainVerificationManager.class);"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="304"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 31 (current min is 29): `android.view.displayhash.DisplayHashManager`"
+        errorLine1="        sServiceMapping.put(Context.DISPLAY_HASH_SERVICE, DisplayHashManager.class);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="305"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 34 (current min is 29): `android.app.GrammaticalInflectionManager`"
+        errorLine1="        sServiceMapping.put(Context.GRAMMATICAL_INFLECTION_SERVICE, GrammaticalInflectionManager.class);"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="308"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 29): `android.os.UserManager#isUserForeground`"
+        errorLine1="            boolean isIt = mUserManager.isUserForeground();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/users/UserReference.java"
+            line="506"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 30 (current min is 29): `android.os.Build.VERSION#RELEASE_OR_CODENAME`"
+        errorLine1="                    ? Build.VERSION.RELEASE_OR_CODENAME : Integer.toString(Build.VERSION.SDK_INT);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/utils/Versions.java"
+            line="56"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 35 (current min is 29): `android.service.persistentdata.PersistentDataBlockManager`"
+        errorLine1="        sServiceMapping.put(Context.PERSISTENT_DATA_BLOCK_SERVICE, PersistentDataBlockManager.class);"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/bedstead/nene/src/main/java/com/android/bedstead/nene/services/Services.java"
+            line="256"
+            column="68"/>
+    </issue>
+
+</issues>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Excluded tests depending on APKs not in gsi_$arch">
+    <!--
+        Please remember to update cts-on-gsi-include-apks.xml when
+        this file is modified. See comments there for how.
+    -->
+
+    <!-- No Calendar -->
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testCalendarAddAppointment" />
+
+    <!-- No Contacts -->
+    <option name="compatibility:exclude-filter" value="CtsContactsProviderTestCases android.provider.cts.contacts.ContactsContractIntentsTest#testPickContactDir" />
+    <option name="compatibility:exclude-filter" value="CtsContactsProviderTestCases android.provider.cts.contacts.ContactsContractIntentsTest#testViewContactDir" />
+    <option name="compatibility:exclude-filter" value="CtsContactsProviderTestCases android.provider.cts.contacts.ContactsContract_ContactsTest#testContentUri" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testContactsCallLogs" />
+
+    <!-- No DeskClock -->
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testAlarmClockDismissAlarm" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testAlarmClockSetAlarm" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testAlarmClockSetTimer" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testAlarmClockShowAlarms" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testAlarmClockShowTimers" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testAlarmClockSnoozeAlarm" />
+
+    <!-- No Gallery2 -->
+    <option name="compatibility:exclude-filter" value="CtsAppSecurityHostTestCases android.appsecurity.cts.ExternalStorageHostTest#testSystemGalleryExists" />
+    <option name="compatibility:exclude-filter" value="CtsOsTestCases android.os.cts.StrictModeTest#testFileUriExposure" />
+    <option name="compatibility:exclude-filter" value="CtsOsTestCases android.os.cts.StrictModeTest#testVmPenaltyListener" />
+    <option name="compatibility:exclude-filter" value="CtsOsTestCases android.os.cts.StrictModeTest#testContentUriWithoutPermission" />
+    <option name="compatibility:exclude-filter" value="CtsOsTestCases android.os.cts.AutoRevokeTest" />
+
+    <!-- No Gallery2, Music -->
+    <option name="compatibility:exclude-filter" value="CtsProviderTestCases android.provider.cts.media.MediaStoreIntentsTest" />
+
+    <!-- No Music -->
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testMusicPlayback" />
+
+    <!-- No QuickSearchBox -->
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testWebSearchNormalUrl" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testWebSearchPlainText" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testWebSearchSecureUrl" />
+
+    <!-- No SettingsIntelligence -->
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases android.content.cts.AvailableIntentsTest#testSettingsSearchIntent" />
+
+    <!-- No AccessibilityService -->
+    <option name="compatibility:exclude-filter" value="CtsAccessibilityServiceTestCases android.accessibilityservice.cts" />
+
+    <!-- No Statsd -->
+    <option name="compatibility:exclude-filter" value="CtsStatsdHostTestCases" />
+
+    <!-- No AppOps -->
+    <option name="compatibility:exclude-filter" value="CtsStatsdAtomHostTestCases android.cts.statsdatom.appops.AppOpsTests" />
+
+    <!-- b/183654427 Remove CtsTelecomTestCases from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsTelecomTestCases" />
+
+    <!-- b/183655483 Remove CtsTelephonySdk28TestCases from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsTelephonySdk28TestCases" />
+
+    <!-- b/183234756, b/80388296, b/110260628, b/159295445, b/159294948 CtsDevicePolicyManagerTestCases -->
+    <option name="compatibility:exclude-filter" value="CtsDevicePolicyManagerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDevicePolicyTestCases" />
+
+    <!-- b/183636777 Remove CtsShortcutManagerPackage4 from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerPackage4" />
+
+    <!-- b/230829938 Remove CtsShortcutHostTestCases from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsShortcutHostTestCases" />
+
+    <!-- b/185451791. Can't have single overlay package for both AOSP version and Google-signed mainline modules -->
+    <option name="compatibility:exclude-filter" value="CtsWifiTestCases android.net.wifi.cts.ConcurrencyTest#testPersistentGroupOperation" />
+    <option name="compatibility:exclude-filter" value="CtsWifiTestCases android.net.wifi.cts.ConcurrencyTest#testRequestNetworkInfo" />
+
+    <!-- b/192916298, b/192013761, b/193544088  CtsAppCloningHostTest from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsAppCloningHostTest android.scopedstorage.cts.host.AppCloningHostTest#testCreateCloneUserFile" />
+
+    <!-- b/194146521 -->
+    <option name="compatibility:exclude-filter" value="CtsPermissionUiTestCases android.permissionui.cts.PermissionTest23#testNoResidualPermissionsOnUninstall" />
+
+      <!-- b/199996926 - No UWB stack support in AOSP for Android S -->
+    <option name="compatibility:exclude-filter" value="CtsUwbTestCases" />
+
+    <!-- b/183653612: CtsTransitionTestCases -->
+    <option name="compatibility:exclude-filter" value="CtsTransitionTestCases" />
+
+    <!-- b/272163895 mediapc tests are disabled in GSI builds -->
+    <option name="compatibility:exclude-filter" value="CtsMediaPerformanceClassTestCases" />
+
+    <!-- b/198226244 -->
+    <!-- b/259733096 Performance tests are disabled in GSI builds -->
+    <option name="compatibility:exclude-filter" value="CtsVideoTestCases android.video.cts.CodecEncoderPerformanceTest" />
+
+    <!-- b/279554698 Performance tests are disabled in GSI builds -->
+    <option name="compatibility:exclude-filter" value="CtsVideoTestCases android.video.cts.VideoEncoderDecoderTest#testPerf" />
+
+    <!-- b/203177211 -->
+    <option name="compatibility:exclude-filter" value="CtsAppSecurityHostTestCases android.appsecurity.cts.ListeningPortsTest#testNoRemotelyAccessibleListeningUdpPorts" />
+
+    <!-- b/192912975 Remove CtsMediaTestCases android.media.cts.DecodeAccuracyTest from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsMediaTestCases android.media.cts.DecodeAccuracyTest" />
+
+    <!-- b/228390608 No Tv Input Service implementation on GSI -->
+    <option name="compatibility:exclude-filter" value="CtsHdmiCecHostTestCases android.hdmicec.cts.tv.HdmiCecRemoteControlPassThroughTest" />
+    <option name="compatibility:exclude-filter" value="CtsHdmiCecHostTestCases android.hdmicec.cts.tv.HdmiCecRoutingControlTest" />
+    <option name="compatibility:exclude-filter" value="CtsHdmiCecHostTestCases android.hdmicec.cts.tv.HdmiCecTvOneTouchPlayTest" />
+    <option name="compatibility:exclude-filter" value="CtsHdmiCecHostTestCases android.hdmicec.cts.common.HdmiCecInvalidMessagesTest#cect_IgnoreBroadcastedFromSameSource" />
+    <option name="compatibility:exclude-filter" value="CtsHdmiCecHostTestCases android.hdmicec.cts.tv.HdmiCecGeneralProtocolTest#cectIgnoreAdditionalParamsAsMessage" />
+    <option name="compatibility:exclude-filter" value="CtsHdmiCecHostTestCases android.hdmicec.cts.tv.HdmiCecGeneralProtocolTest#cect_hf_ignoreAdditionalParams" />
+
+    <!-- b/192113622, b/203031609, b/204402327, b/204615046, b/204860049  Remove tests for S "optional" algorithms for GRF devices -->
+    <option name="compatibility:exclude-filter" value="CtsNetTestCases android.net.cts.IpSecAlgorithmImplTest#testChaCha20Poly1305" />
+    <option name="compatibility:exclude-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testChaCha20Poly1305Tcp4" />
+    <option name="compatibility:exclude-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testChaCha20Poly1305Tcp6" />
+    <option name="compatibility:exclude-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testChaCha20Poly1305Udp4" />
+    <option name="compatibility:exclude-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testChaCha20Poly1305Udp6" />
+    <option name="compatibility:exclude-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testChaCha20Poly1305Udp4UdpEncap" />
+    <option name="compatibility:exclude-filter" value="CtsNetTestCases android.net.cts.IpSecManagerTest#testChaCha20Poly1305Tcp4UdpEncap" />
+
+    <!-- b/285247534 Remove WM Extension tests on GSI -->
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerJetpackTestCases android.server.wm.jetpack.SdkAvailabilityTest" />
+
+    <!-- b/284917528 -->
+    <option name="compatibility:exclude-filter" value="MicrodroidHostTestCases" />
+    <option name="compatibility:exclude-filter" value="MicrodroidTestApp" />
+    <option name="compatibility:exclude-filter" value="odsign_e2e_tests" />
+
+    <!-- b/285455242 Temporarily exclude some save save UI tests failing due to layout issue -->
+    <option name="compatibility:exclude-filter" value="CtsAutoFillServiceTestCases android.autofillservice.cts.servicebehavior.MultiScreenLoginTest#testSaveBothFieldsAtOnceNoClientStateOnSecondRequest" />
+    <option name="compatibility:exclude-filter" value="CtsAutoFillServiceTestCases android.autofillservice.cts.dropdown.MultipleFragmentLoginTest#loginOnTwoFragments" />
+    <option name="compatibility:exclude-filter" value="CtsAutoFillServiceTestCases android.autofillservice.cts.servicebehavior.MultiScreenLoginTest#testSaveEachFieldSeparately" />
+    <option name="compatibility:exclude-filter" value="CtsAutoFillServiceTestCases android.autofillservice.cts.SessionLifecycleTest#testDatasetAuthResponseWhileAutofilledAppIsLifecycled" />
+    <option name="compatibility:exclude-filter" value="CtsAutoFillServiceTestCases android.autofillservice.cts.SessionLifecycleTest#testSaveRemainsWhenAutofilledAppIsKilled" />
+    <option name="compatibility:exclude-filter" value="CtsAutoFillServiceTestCases android.autofillservice.cts.servicebehavior.MultiScreenLoginTest#testSaveBothFieldsAtOnceWithClientStateOnBothRequests" />
+
+    <!-- b/284365711, b/285449475 -->
+    <option name="compatibility:exclude-filter" value="CtsBluetoothMultiDevicesTestCases BluetoothMultiDevicesTest" />
+
+    <!-- b/284406623 Exclude uwb tests since there is a vendor partition dependency -->
+    <option name="compatibility:exclude-filter" value="CtsUwbMultiDeviceTestCase_UwbManagerTests" />
+    <option name="compatibility:exclude-filter" value="CtsUwbMultiDeviceTestCase_FiraRangingTests" />
+
+    <!-- b/296896687 -->
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.ASurfaceControlTest#testSurfaceTransaction_setDesiredPresentTime_30ms" />
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.ASurfaceControlTest#testSurfaceTransaction_setDesiredPresentTime_100ms" />
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.ASurfaceControlTest#testSurfaceTransaction_setFrameTimeline_preferredIndex" />
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases android.view.cts.ASurfaceControlTest#testSurfaceTransaction_setFrameTimeline_notPreferredIndex" />
+
+    <!-- b/298915013 Remove CtsKeystoreTestCases android.keystore.cts.KeyAttestationTest from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsKeystoreTestCases android.keystore.cts.AttestKeyTest#testEcAttestKey_StrongBox" />
+    <option name="compatibility:exclude-filter" value="CtsKeystoreTestCases android.keystore.cts.AttestKeyTest#testRsaAttestKey_StrongBox" />
+    <option name="compatibility:exclude-filter" value="CtsKeystoreTestCases android.keystore.cts.KeyAttestationTest#testAttestationKmVersionMatchesFeatureVersionStrongBox" />
+    <option name="compatibility:exclude-filter" value="CtsKeystoreTestCases android.keystore.cts.DeviceOwnerKeyManagementTest#testAllVariationsOfDeviceIdAttestationUsingStrongBox" />
+
+    <!-- b/318588433 Remove CtsAppTestCases android.app.cts.SystemFeaturesTest#testNfcFeatures from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsAppTestCases android.app.cts.SystemFeaturesTest#testNfcFeatures" />
+
+    <!-- b/310810735 Remove CtsCameraTestCases android.hardware.camera2.cts.ImageReaderTest#testImageReaderYuvAndPrivate from cts-on-gsi -->
+    <option name="compatibility:exclude-filter" value="CtsCameraTestCases android.hardware.camera2.cts.ImageReaderTest#testImageReaderYuvAndPrivate" />
+
+    <!-- b/236205588#comment26 -->
+    <option name="compatibility:exclude-filter" value="CtsGraphicsTestCases android.graphics.cts.ImageDecoderTest#testDecode10BitHeifWithLowRam" />
+    <option name="compatibility:exclude-filter" value="CtsGraphicsTestCases[instant] android.graphics.cts.ImageDecoderTest#testDecode10BitHeifWithLowRam" />
+</configuration>

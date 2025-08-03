@@ -1,0 +1,3 @@
+# Bug component: 137631
+# go/android-fwk-media-solutions for info on areas of ownership.
+include platform/frameworks/av:/media/janitors/media_solutions_OWNERS

@@ -1,0 +1,115 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+        "cts_tests_tests_media_license", // CC-BY
+    ],
+}
+
+cc_test_library {
+    name: "libaudiocts_jni",
+    srcs: [
+        "jni/AudioPlayer_jni.cpp",
+        "jni/AudioPlayer.cpp",
+        "jni/AudioRecorder_jni.cpp",
+        "jni/AudioRecorder.cpp",
+        "jni/AudioSource.cpp",
+        "jni/OpenSLESUtils.cpp",
+        "jni/PeriodicAudioSource.cpp",
+        "jni/SystemParams.cpp",
+        "jni/WaveTableGenerator.cpp",
+        "jni/WaveTableOscillator.cpp",
+        "jni/appendix-b-1-1-buffer-queue.cpp",
+        "jni/appendix-b-1-2-recording.cpp",
+        "jni/audio-metadata-native.cpp",
+        "jni/audio-record-native.cpp",
+        "jni/audio-track-native.cpp",
+        "jni/sl-utils.cpp",
+    ],
+    include_dirs: [
+        "frameworks/wilhelm/include",
+        "frameworks/wilhelm/src/android",
+        "system/core/include",
+    ],
+    shared_libs: [
+        "libandroid",
+        "liblog",
+        "libnativehelper_compat_libc++",
+        "libOpenSLES",
+    ],
+    header_libs: [
+        "libaudioutils_headers",
+        "liblog_headers",
+
+    ],
+    stl: "libc++_static",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-deprecated-declarations",
+    ],
+    gtest: false,
+    // this test suite will run on sdk 29 as part of MTS, make sure it's compatible
+    // (revisit if/when we add features to this library that require newer sdk.
+    sdk_version: "29",
+}
+
+android_test {
+    name: "CtsMediaAudioTestCases",
+    defaults: ["cts_defaults"],
+    // include both the 32 and 64 bit versions
+    compile_multilib: "both",
+    static_libs: [
+        "android.media.audio-aconfig-java",
+        "com.android.media.audioserver-aconfig-java",
+        "CtsVirtualDeviceCommonLib",
+        "androidx.test.ext.junit",
+        "compatibility-device-util-axt",
+        "cts-media-common",
+        "ctstestrunner-axt",
+        "flag-junit",
+        "guava-android-testlib",
+        "hamcrest-library",
+        "junit-params",
+        "mediatestutils",
+        "platform-test-annotations",
+        "testng",
+        "Nene",
+        "Harrier",
+    ],
+    jni_libs: [
+        "libaudiocts_jni",
+    ],
+    resource_dirs: ["res"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    platform_apis: true,
+    jni_uses_sdk_apis: true,
+    libs: [
+        "android.test.base",
+        "android.test.runner",
+    ],
+    // Tag this module as a cts test artifact
+    test_suites: [
+        "cts",
+        "general-tests",
+    ],
+    target_sdk_version: "31",
+}

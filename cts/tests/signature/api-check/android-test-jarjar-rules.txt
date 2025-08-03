@@ -1,0 +1,27 @@
+# All classes from android.test.base
+rule android.test.AndroidTestCase** repackaged.@0
+rule android.test.FlakyTest** repackaged.@0
+rule android.test.InstrumentationTestCase** repackaged.@0
+rule android.test.InstrumentationTestSuite** repackaged.@0
+rule android.test.PerformanceTestCase** repackaged.@0
+rule android.test.PerformanceTestCase.Intermediates** repackaged.@0
+rule android.test.RepetitiveTest** repackaged.@0
+rule android.test.UiThreadTest** repackaged.@0
+rule android.test.suitebuilder.annotation.LargeTest** repackaged.@0
+rule android.test.suitebuilder.annotation.MediumTest** repackaged.@0
+rule android.test.suitebuilder.annotation.SmallTest** repackaged.@0
+rule android.test.suitebuilder.annotation.Smoke** repackaged.@0
+rule android.test.suitebuilder.annotation.Suppress** repackaged.@0
+rule com.android.internal.util.Predicate** repackaged.@0
+rule junit.framework.Assert** repackaged.@0
+rule junit.framework.AssertionFailedError** repackaged.@0
+rule junit.framework.ComparisonFailure** repackaged.@0
+rule junit.framework.Protectable** repackaged.@0
+rule junit.framework.Test** repackaged.@0
+rule junit.framework.TestCase** repackaged.@0
+rule junit.framework.TestFailure** repackaged.@0
+rule junit.framework.TestListener** repackaged.@0
+rule junit.framework.TestResult** repackaged.@0
+rule junit.framework.TestSuite** repackaged.@0
+rule junit.runner.BaseTestRunner** repackaged.@0
+rule junit.runner.Version** repackaged.@0

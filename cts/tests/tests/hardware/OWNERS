@@ -1,0 +1,10 @@
+# Bug component: 533114
+michaelwr@google.com
+
+# For HardwareBuffer & friends
+include platform/frameworks/base:/graphics/java/android/graphics/OWNERS
+
+# Trust that people only touch their own resources.
+per-file *.xml=*
+# Only input tests use JSON so far
+per-file *.json=file:platform/frameworks/base:/INPUT_OWNERS

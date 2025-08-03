@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.app.fgsstarttesthelper">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+
+    <application>
+        <receiver android:name="android.app.fgsstarttesthelper.FgsNewLogicTest"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="ACTION_START_NEW_LOGIC_TEST" />
+            </intent-filter>
+        </receiver>
+        <!-- The test binds to this service to "un-stop" this package. -->
+        <service android:name="android.app.fgsstarttesthelper.EmptyService"
+            android:exported="true">
+        </service>
+        <service android:name="android.app.fgsstarttesthelper.FgsNewLogicTest$Fgs"
+            android:foregroundServiceType="specialUse"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="foo" />
+        </service>
+        <!-- TODO Remove it -->
+        <activity android:name="android.app.fgsstarttesthelper.MyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

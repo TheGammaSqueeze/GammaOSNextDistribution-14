@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2019 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="android.server.wm.backgroundactivity.appa">
+
+    <!-- To enable the app to start activities from the background. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <queries>
+        <package android:name="android.server.wm.backgroundactivity.appa" />
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
+    <application android:testOnly="true" android:manageSpaceActivity=".BackgroundActivity">
+        <uses-library android:name="androidx.window.extensions"
+            android:required="false" />
+        <service android:name="android.server.wm.backgroundactivity.common.TestService"
+             android:exported="true"/>
+        <receiver android:name=".SimpleAdminReceiver"
+             android:permission="android.permission.BIND_DEVICE_ADMIN"
+             android:exported="true">
+            <meta-data android:name="android.app.device_admin"
+                 android:resource="@xml/device_admin"/>
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>
+            </intent-filter>
+        </receiver>
+        <activity android:name=".ForegroundActivity"
+             android:taskAffinity=".am_cts_bg_task_a"
+             android:allowUntrustedActivityEmbedding="true"
+             android:exported="true"/>
+        <activity android:name=".ForegroundEmbeddingActivity"
+            android:taskAffinity=".am_cts_bg_task_asd"
+            android:exported="true"/>
+        <activity android:name=".BackgroundActivity"
+                  android:taskAffinity=".am_cts_bg_task_b"
+                  android:exported="true">
+            <intent-filter android:priority="-1">
+                <action android:name="StartNextMatchingActivityAction" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".SecondBackgroundActivity"
+             android:exported="true"/>
+        <activity android:name=".RelaunchingActivity"
+                  android:exported="true"/>
+        <activity android:name=".PipActivity"
+                  android:exported="true"
+                  android:supportsPictureInPicture="true"/>
+        <activity android:name=".LaunchIntoPipActivity"
+                    android:exported="true"/>
+        <activity android:name=".VirtualDisplayActivity"
+                  android:exported="true"/>
+        <activity android:name=".WidgetConfigTestActivity"
+                  android:exported="true"/>
+        <activity
+            android:name=".StartNextMatchingActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="StartNextMatchingActivityAction" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <receiver android:name=".WidgetProvider" android:exported="true" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                       android:resource="@xml/my_appwidget_info" />
+        </receiver>
+        <activity android:name=".SystemBoundRelaunchingActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".ActivityStarterService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+        <receiver
+            android:name=".SimpleBroadcastReceiver"
+            android:exported="true"/>
+        <activity
+            android:name=".StartPendingIntentActivity"
+            android:exported="true"/>
+        <activity
+            android:name=".BindServiceActivity"
+            android:exported="true" />
+    </application>
+</manifest>

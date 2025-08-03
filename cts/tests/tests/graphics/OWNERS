@@ -1,0 +1,3 @@
+# Bug component: 1075130
+include platform/frameworks/base:/OWNERS
+include platform/frameworks/base:/graphics/java/android/graphics/OWNERS

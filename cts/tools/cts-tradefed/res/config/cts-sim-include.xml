@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Include CTS test that require SIM card">
+
+    <!-- CTS tests that need SIM card-->
+    <option name="compatibility:include-filter" value="signed-CtsOmapiTestCases" />
+    <option name="compatibility:include-filter" value="signed-CtsSecureElementAccessControlTestCases1" />
+    <option name="compatibility:include-filter" value="signed-CtsSecureElementAccessControlTestCases2" />
+    <option name="compatibility:include-filter" value="signed-CtsSecureElementAccessControlTestCases3" />
+    <option name="compatibility:include-filter" value="CtsCarrierApiTestCases" />
+    <option name="compatibility:include-filter" value="CtsHostsideNetworkTests" />
+    <option name="compatibility:include-filter" value="CtsJobSchedulerTestCases" />
+    <option name="compatibility:include-filter" value="CtsNativeNetDnsTestCases" />
+    <option name="compatibility:include-filter" value="CtsNetTestCases" />
+    <option name="compatibility:include-filter" value="CtsNetTestCasesInternetPermission" />
+    <option name="compatibility:include-filter" value="CtsNetTestCasesLegacyApi22" />
+    <option name="compatibility:include-filter" value="CtsNetTestCasesUpdateStatsPermission" />
+    <option name="compatibility:include-filter" value="CtsOmapiTestCases" />
+    <option name="compatibility:include-filter" value="CtsPermissionTestCases" />
+    <option name="compatibility:include-filter" value="CtsPermissionPolicyTestCases" />
+    <option name="compatibility:include-filter" value="CtsSecureElementAccessControlTestCases1" />
+    <option name="compatibility:include-filter" value="CtsSecureElementAccessControlTestCases2" />
+    <option name="compatibility:include-filter" value="CtsSecureElementAccessControlTestCases3" />
+    <option name="compatibility:include-filter" value="CtsSimPhonebookProviderTestCases" />
+    <option name="compatibility:include-filter" value="CtsSimRestrictedApisTestCases" />
+    <option name="compatibility:include-filter" value="CtsStatsdHostTestCases" />
+    <option name="compatibility:include-filter" value="CtsStatsdAtomHostTestCases" />
+    <option name="compatibility:include-filter" value="CtsTelecomTestCases" />
+    <option name="compatibility:include-filter" value="CtsTelecomTestCases2" />
+    <option name="compatibility:include-filter" value="CtsTelecomTestCases3" />
+    <option name="compatibility:include-filter" value="CtsTelephonyTestCases" />
+    <option name="compatibility:include-filter" value="CtsTelephony2TestCases" />
+    <option name="compatibility:include-filter" value="CtsTelephony3TestCases" />
+    <option name="compatibility:include-filter" value="CtsTetheringTest" />
+    <option name="compatibility:include-filter" value="CtsUsageStatsTestCases" />
+    <option name="compatibility:include-filter" value="CtsVcnTestCases" />
+    <option name="compatibility:include-filter" value="CtsDevicePolicySimTestCases" />
+</configuration>

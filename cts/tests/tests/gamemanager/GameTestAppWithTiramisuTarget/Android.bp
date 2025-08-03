@@ -1,0 +1,17 @@
+package {
+    default_team: "trendy_team_games",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_helper_app {
+    name: "CtsGameTestAppWithTiramisuTarget",
+    srcs: [
+        "src/**/*.java",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "guava",
+    ],
+    defaults: ["cts_support_defaults"],
+    min_sdk_version: "current",
+}

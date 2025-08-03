@@ -1,0 +1,7 @@
+# Bug component: 82728
+include platform/frameworks/base:/OWNERS
+include platform/frameworks/base:/core/java/android/accounts/OWNERS
+
+aseemk@google.com
+dementyev@google.com
+mpape@google.com

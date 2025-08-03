@@ -1,0 +1,5 @@
+# Bug component: 878256
+include platform/frameworks/base:/services/core/java/com/android/server/app/OWNERS
+chingtangyu@google.com
+lpy@google.com
+xwxw@google.com

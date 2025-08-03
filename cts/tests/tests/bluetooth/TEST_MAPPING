@@ -1,0 +1,17 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsBluetoothTestCases"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "CtsBluetoothTestCases"
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "CtsBluetoothTestCases"
+    }
+  ]
+}

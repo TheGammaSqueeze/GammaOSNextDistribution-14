@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <AnalogClock
+        android:id="@+id/clock"
+        android:layout_width="60dp"
+        android:layout_height="60dp"/>
+    <AnalogClock
+        android:id="@+id/clock_with_attrs"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:dial="@drawable/blue_fill"
+        android:dialTint="@color/testcolorstatelist1"
+        android:dialTintMode="src_in"
+        android:hand_hour="@drawable/green_fill"
+        android:hand_hourTint="@color/testcolor1"
+        android:hand_hourTintMode="src_over"
+        android:hand_minute="@drawable/magenta_fill"
+        android:hand_minuteTint="@color/testcolor2"
+        android:hand_minuteTintMode="screen"
+        android:hand_second="@drawable/yellow_fill"
+        android:hand_secondTint="@color/testcolor3"
+        android:hand_secondTintMode="add"
+        android:timeZone="America/New_York"/>
+</LinearLayout>
+

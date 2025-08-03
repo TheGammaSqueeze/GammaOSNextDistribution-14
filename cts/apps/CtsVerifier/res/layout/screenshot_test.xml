@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2023 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/root_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/RootLayoutPadding">
+
+    <TextView android:id="@+id/provisioning_byod_screenshot_description"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/provisioning_byod_screenshot_start"
+              android:padding="8dp"
+              android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/provisioning_byod_screenshot_capture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/provisioning_byod_screenshot_open"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/provisioning_byod_screenshot_description"/>
+
+    <TextView
+        android:id="@+id/provisioning_byod_screenshot_preview_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:fontFamily="monospace"
+        android:padding="8dp"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:layout_below="@id/provisioning_byod_screenshot_description" />
+
+    <ImageView
+        android:id="@+id/provisioning_byod_screenshot_preview_image"
+        android:adjustViewBounds="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:padding="16dp"
+        android:background="@drawable/checkerboard"
+        android:layout_below="@id/provisioning_byod_screenshot_preview_label"
+        android:layout_above="@id/pass_fail_buttons" />
+
+
+
+    <include android:id="@+id/pass_fail_buttons"
+             layout="@layout/pass_fail_buttons"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_alignParentBottom="true" />
+</RelativeLayout>

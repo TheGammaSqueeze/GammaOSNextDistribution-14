@@ -1,0 +1,53 @@
+{
+    "comment": "Verify the SingleInstancePerTask with documentLaunchMode-never Activity can be created in a new task with MULTIPLE_TASK flag",
+    "setup": {
+        "initialIntents": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ],
+        "act": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_MULTIPLE_TASK",
+                "class": "android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            }
+        ]
+    },
+    "initialState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            }
+        ]
+    },
+    "endState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            },
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$SingleInstancePerTaskDocumentNeverActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            }
+        ]
+    }
+}

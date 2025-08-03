@@ -1,0 +1,77 @@
+{
+    "comment": "Verify that DocumentLaunchAlwaysActivity always creates a new task for the document",
+    "setup": {
+        "initialIntents": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$RegularActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            },
+            {
+                "flags": "",
+                "class": "android.server.wm.intent.Activities$DocumentLaunchAlwaysActivity",
+                "package": "android.server.wm.cts",
+                "data" : "test",
+                "startForResult": false
+            }
+        ],
+        "act": [
+            {
+                "flags": "",
+                "class": "android.server.wm.intent.Activities$DocumentLaunchAlwaysActivity",
+                "package": "android.server.wm.cts",
+                "data" : "test",
+                "startForResult": false
+            }
+        ]
+    },
+    "initialState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$DocumentLaunchAlwaysActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            },
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            }
+        ]
+    },
+    "endState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$DocumentLaunchAlwaysActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            },
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$DocumentLaunchAlwaysActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            },
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            }
+        ]
+    }
+}

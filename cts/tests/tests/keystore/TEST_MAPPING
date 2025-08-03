@@ -1,0 +1,50 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsKeystoreTestCases",
+      "options": [
+        {
+          "include-annotation": "android.platform.test.annotations.RequiresDevice"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.SignatureTest"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.MacTest#testLargeMsgKat"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.KeyPairGeneratorTest"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.KeyGeneratorTest#testHmacKeySupportedSizes"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.CipherTest"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.AndroidKeyStoreTest"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.AESCipherNistCavpKatTest"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.DESedeECBPKCS7PaddingCipherTest"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.DESedeECBNoPaddingCipherTest"
+        },
+        {
+          "exclude-filter": "android.keystore.cts.DESedeECBPKCS7PaddingCipherTest"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsKeystoreTestCases"
+    },
+    {
+      "name": "CtsKeystorePerformanceTestCases"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsAccessibilityServiceTestCases",
+      "options": [
+        {
+          "exclude-annotation": "android.support.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ]
+}

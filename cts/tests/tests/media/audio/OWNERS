@@ -1,0 +1,30 @@
+# Bug component: 48436
+# include media developers and framework audio team
+include platform/frameworks/av:/media/OWNERS
+
+per-file src/android/media/audio/cts/AudioMetadataTest.java = hunga@google.com
+per-file src/android/media/audio/cts/AudioRecordTest.java = hunga@google.com
+per-file src/android/media/audio/cts/AudioRecord_BufferSizeTest.java = hunga@google.com
+per-file src/android/media/audio/cts/AudioTrackLatencyTest.java = hunga@google.com
+per-file src/android/media/audio/cts/AudioTrackOffloadTest.java = hunga@google.com
+per-file src/android/media/audio/cts/AudioTrackSurroundTest.java = hunga@google.com
+per-file src/android/media/audio/cts/AudioTrackTest.java = hunga@google.com
+per-file src/android/media/audio/cts/AudioTrack_ListenerTest.java = hunga@google.com
+per-file src/android/media/audio/cts/SoundPoolAacTest.java = hunga@google.com
+per-file src/android/media/audio/cts/SoundPoolHapticTest.java = hunga@google.com
+per-file src/android/media/audio/cts/SoundPoolMidiTest.java = hunga@google.com
+per-file src/android/media/audio/cts/SoundPoolOggTest.java = hunga@google.com
+per-file src/android/media/audio/cts/SoundPoolTest.java = hunga@google.com
+per-file src/android/media/audio/cts/VolumeShaperTest.java = hunga@google.com
+
+per-file src/android/media/audio/cts/AudioAttributesTest.java = jmtrivi@google.com
+per-file src/android/media/audio/cts/AudioFocusTest.java = jmtrivi@google.com
+per-file src/android/media/audio/cts/AudioPlaybackConfigurationTest.java = jmtrivi@google.com
+per-file src/android/media/audio/cts/AudioRecordingConfigurationTest.java = jmtrivi@google.com
+per-file src/android/media/audio/cts/LoudnessEnhancerTest.java = jmtrivi@google.com
+per-file src/android/media/audio/cts/*Ringtone*.java = jmtrivi@google.com
+per-file src/android/media/audio/cts/*Ringtone*.java = file:platform/frameworks/base:/services/core/java/com/android/server/vibrator/OWNERS
+
+per-file src/android/media/audio/cts/AudioPlayRoutingNative.java = philburk@google.com
+per-file src/android/media/audio/cts/AudioRecordRoutingNative.java = philburk@google.com
+per-file src/android/media/audio/cts/MidiSoloTest.java = philburk@google.com

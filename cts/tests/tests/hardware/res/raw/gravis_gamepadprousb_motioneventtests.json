@@ -1,0 +1,59 @@
+[
+  {
+    "name": "Neutrality check - ought not produce any events",
+    "reports": [
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "JOYSTICK",
+    "events": [
+    ]
+  },
+  {
+    "name": "Press D-Pad Left",
+    "reports": [
+      [0x00, 0x7f, 0x00, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "JOYSTICK",
+    "events": [
+      {"action": "MOVE", "axes": {"AXIS_HAT_X": -1}},
+      {"action": "MOVE", "axes": {"AXIS_HAT_X": 0}}
+    ]
+  },
+  {
+    "name": "Press D-Pad Right",
+    "reports": [
+      [0xff, 0x7f, 0x00, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "JOYSTICK",
+    "events": [
+      {"action": "MOVE", "axes": {"AXIS_HAT_X": 1}},
+      {"action": "MOVE", "axes": {"AXIS_HAT_X": 0}}
+    ]
+  },
+  {
+    "name": "Press D-Pad Up",
+    "reports": [
+      [0x7f, 0x00, 0x00, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "JOYSTICK",
+    "events": [
+      {"action": "MOVE", "axes": {"AXIS_HAT_Y": -1}},
+      {"action": "MOVE", "axes": {"AXIS_HAT_Y": 0}}
+    ]
+  },
+  {
+    "name": "Press D-Pad Down",
+    "reports": [
+      [0x7f, 0xff, 0x00, 0x00],
+      [0x7f, 0x7f, 0x00, 0x00]
+    ],
+    "source": "JOYSTICK",
+    "events": [
+      {"action": "MOVE", "axes": {"AXIS_HAT_Y": 1}},
+      {"action": "MOVE", "axes": {"AXIS_HAT_Y": 0}}
+    ]
+  }
+]

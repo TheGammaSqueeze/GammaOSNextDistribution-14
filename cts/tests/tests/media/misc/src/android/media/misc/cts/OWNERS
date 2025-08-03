@@ -1,0 +1,3 @@
+per-file ExifInterfaceTest.java,MediaMetadataRetrieverTest.java=set noparent
+per-file ExifInterfaceTest.java,MediaMetadataRetrieverTest.java=file:platform/frameworks/av:/media/janitors/media_solutions_OWNERS
+per-file ResourceManager* = girishshetty@google.com

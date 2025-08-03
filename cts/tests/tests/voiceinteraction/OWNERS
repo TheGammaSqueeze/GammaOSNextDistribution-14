@@ -1,0 +1,3 @@
+# Bug component: 533220
+
+include platform/frameworks/base:/core/java/android/service/voice/OWNERS

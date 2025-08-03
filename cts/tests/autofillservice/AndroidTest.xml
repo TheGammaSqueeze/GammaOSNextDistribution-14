@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<configuration description="Config for AutoFill Framework CTS tests.">
+  <option name="test-suite-tag" value="cts" />
+  <option name="config-descriptor:metadata" key="parameter" value="all_foldable_states" />
+  <option name="config-descriptor:metadata" key="component" value="autofill" />
+  <option name="config-descriptor:metadata" key="parameter" value="instant_app" />
+  <option name="config-descriptor:metadata" key="parameter" value="not_multi_abi" />
+  <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+  <option name="config-descriptor:metadata" key="parameter" value="secondary_user_on_secondary_display" />
+  <option name="config-descriptor:metadata" key="parameter" value="run_on_sdk_sandbox" />
+
+  <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+    <option name="cleanup-apks" value="true" />
+    <option name="test-file-name" value="CtsAutoFillServiceTestCases.apk" />
+    <option name="test-file-name" value="TestAutofillServiceApp.apk" />
+  </target_preparer>
+
+  <!-- Load additional APKs onto device -->
+  <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
+    <option name="push" value="TestAutofillServiceApp.apk->/data/local/tmp/cts/autofill/TestAutofillServiceApp.apk" />
+  </target_preparer>
+
+  <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
+    <option name="cleanup-apks" value="true" />
+      <!--
+          MockIME always needs to be installed as a full package, even when CTS is running
+          for instant apps.
+      -->
+    <option name="force-install-mode" value="FULL"/>
+    <option name="test-file-name" value="CtsMockInputMethod.apk" />
+  </target_preparer>
+
+  <!--  TODO: preparer below should be enabled only when running as cts-instant -->
+  <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="cmd autofill set bind-instant-service-allowed true" />
+    <option name="teardown-command" value="cmd autofill set bind-instant-service-allowed false" />
+
+    <!-- Wait for PACKAGE_ADDED broadcasts to be delivered to InputMethodManagerService. -->
+    <option name="run-command" value="am wait-for-broadcast-barrier"  />
+  </target_preparer>
+
+  <!--  Remove the pushed APK after test is done. -->
+  <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="teardown-command" value="rm -rf /data/local/tmp/cts/autofill" />
+  </target_preparer>
+
+  <!--  Disable GPP -->
+  <target_preparer class="com.android.tradefed.targetprep.DeviceSetup">
+      <option name="force-skip-system-props" value="true" />
+      <option name="set-global-setting" key="verifier_engprod" value="1" />
+      <option name="set-global-setting" key="verifier_verify_adb_installs" value="0" />
+      <option name="restore-settings" value="true" />
+  </target_preparer>
+
+
+  <test class="com.android.tradefed.testtype.AndroidJUnitTest">
+    <option name="package" value="android.autofillservice.cts" />
+    <!-- 20x default timeout of 600sec -->
+    <option name="shell-timeout" value="12000000"/>
+    <option name="isolated-storage" value="false" />
+  </test>
+
+  <!-- Collect the files generated on error -->
+  <metrics_collector class="com.android.tradefed.device.metric.FilePullerLogCollector">
+    <option name="directory-keys" value="/sdcard/CtsAutoFillServiceTestCases" />
+    <option name="collect-on-run-ended-only" value="true" />
+    <option name="clean-up" value="false" />
+  </metrics_collector>
+</configuration>

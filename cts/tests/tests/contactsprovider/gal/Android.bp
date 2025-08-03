@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test_helper_app {
+    name: "CtsContactsProviderGalProvider",
+    defaults: ["cts_defaults"],
+
+    test_suites: [
+        "cts",
+        "general-tests",
+        "sts",
+    ],
+
+    srcs: ["src/**/*.java"],
+
+    min_sdk_version: "30",
+}

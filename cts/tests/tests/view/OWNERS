@@ -1,0 +1,11 @@
+# Bug component: 25700
+adamp@google.com
+clarabayarri@google.com
+jreck@google.com
+njawad@google.com
+svv@google.com
+
+# Core Graphics Stack tests
+# Buganizer template url: https://b.corp.google.com/issues/new?component=1075130&template=1595188 = per-file *TextureView*.java, *PixelCopy*.java
+# Bug component: 1075130 = per-file *TextureView*.java, *PixelCopy*.java
+per-file *TextureView*.java, *PixelCopy*.java = jreck@google.com, njawad@google.com, sumir@google.com

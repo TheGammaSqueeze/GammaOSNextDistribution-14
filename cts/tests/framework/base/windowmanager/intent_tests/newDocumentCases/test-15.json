@@ -1,0 +1,71 @@
+{
+    "comment": "Verify that reuse the existing DocumentLaunchIntoActivity while launch the activity again",
+    "setup": {
+        "initialIntents": [
+            {
+                "flags": "FLAG_ACTIVITY_NEW_TASK",
+                "class": "android.server.wm.intent.Activities$RegularActivity",
+                "package": "android.server.wm.cts",
+                "startForResult": false
+            },
+            {
+                "flags": "",
+                "class": "android.server.wm.intent.Activities$DocumentLaunchIntoActivity",
+                "package": "android.server.wm.cts",
+                "data": "test",
+                "startForResult": false
+            }
+        ],
+        "act": [
+            {
+                "flags": "",
+                "class": "android.server.wm.intent.Activities$DocumentLaunchIntoActivity",
+                "package": "android.server.wm.cts",
+                "data": "test",
+                "startForResult": false
+            }
+        ]
+    },
+    "initialState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$DocumentLaunchIntoActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            },
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            }
+        ]
+
+    },
+    "endState": {
+        "tasks": [
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$DocumentLaunchIntoActivity",
+                        "state": "RESUMED"
+                    }
+                ]
+            },
+            {
+                "activities": [
+                    {
+                        "name": "android.server.wm.cts/android.server.wm.intent.Activities$RegularActivity",
+                        "state": "STOPPED"
+                    }
+                ]
+            }
+        ]
+
+    }
+}
