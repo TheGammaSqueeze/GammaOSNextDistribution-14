@@ -1,0 +1,740 @@
+<html><body>
+<style>
+
+body, h1, h2, h3, div, span, p, pre, a {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+
+body {
+  font-size: 13px;
+  padding: 1em;
+}
+
+h1 {
+  font-size: 26px;
+  margin-bottom: 1em;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 1em;
+}
+
+h3 {
+  font-size: 20px;
+  margin-bottom: 1em;
+  margin-top: 1em;
+}
+
+pre, code {
+  line-height: 1.5;
+  font-family: Monaco, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Lucida Console', monospace;
+}
+
+pre {
+  margin-top: 0.5em;
+}
+
+h1, h2, h3, p {
+  font-family: Arial, sans serif;
+}
+
+h1, h2, h3 {
+  border-bottom: solid #CCC 1px;
+}
+
+.toc_element {
+  margin-top: 0.5em;
+}
+
+.firstline {
+  margin-left: 2 em;
+}
+
+.method  {
+  margin-top: 1em;
+  border: solid 1px #CCC;
+  padding: 1em;
+  background: #EEE;
+}
+
+.details {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+</style>
+
+<h1><a href="cloudkms_v1.html">Cloud Key Management Service (KMS) API</a> . <a href="cloudkms_v1.projects.html">projects</a> . <a href="cloudkms_v1.projects.locations.html">locations</a> . <a href="cloudkms_v1.projects.locations.keyRings.html">keyRings</a> . <a href="cloudkms_v1.projects.locations.keyRings.cryptoKeys.html">cryptoKeys</a> . <a href="cloudkms_v1.projects.locations.keyRings.cryptoKeys.cryptoKeyVersions.html">cryptoKeyVersions</a></h1>
+<h2>Instance Methods</h2>
+<p class="toc_element">
+  <code><a href="#asymmetricDecrypt">asymmetricDecrypt(name, body=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Decrypts data that was encrypted with a public key retrieved from GetPublicKey corresponding to a CryptoKeyVersion with CryptoKey.purpose ASYMMETRIC_DECRYPT.</p>
+<p class="toc_element">
+  <code><a href="#asymmetricSign">asymmetricSign(name, body=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Signs data using a CryptoKeyVersion with CryptoKey.purpose ASYMMETRIC_SIGN, producing a signature that can be verified with the public key retrieved from GetPublicKey.</p>
+<p class="toc_element">
+  <code><a href="#close">close()</a></code></p>
+<p class="firstline">Close httplib2 connections.</p>
+<p class="toc_element">
+  <code><a href="#create">create(parent, body=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Create a new CryptoKeyVersion in a CryptoKey. The server will assign the next sequential id. If unset, state will be set to ENABLED.</p>
+<p class="toc_element">
+  <code><a href="#destroy">destroy(name, body=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Schedule a CryptoKeyVersion for destruction. Upon calling this method, CryptoKeyVersion.state will be set to DESTROY_SCHEDULED, and destroy_time will be set to the time destroy_scheduled_duration in the future. At that time, the state will automatically change to DESTROYED, and the key material will be irrevocably destroyed. Before the destroy_time is reached, RestoreCryptoKeyVersion may be called to reverse the process.</p>
+<p class="toc_element">
+  <code><a href="#get">get(name, x__xgafv=None)</a></code></p>
+<p class="firstline">Returns metadata for a given CryptoKeyVersion.</p>
+<p class="toc_element">
+  <code><a href="#getPublicKey">getPublicKey(name, x__xgafv=None)</a></code></p>
+<p class="firstline">Returns the public key for the given CryptoKeyVersion. The CryptoKey.purpose must be ASYMMETRIC_SIGN or ASYMMETRIC_DECRYPT.</p>
+<p class="toc_element">
+  <code><a href="#import_">import_(parent, body=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Import wrapped key material into a CryptoKeyVersion. All requests must specify a CryptoKey. If a CryptoKeyVersion is additionally specified in the request, key material will be reimported into that version. Otherwise, a new version will be created, and will be assigned the next sequential id within the CryptoKey.</p>
+<p class="toc_element">
+  <code><a href="#list">list(parent, filter=None, orderBy=None, pageSize=None, pageToken=None, view=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Lists CryptoKeyVersions.</p>
+<p class="toc_element">
+  <code><a href="#list_next">list_next(previous_request, previous_response)</a></code></p>
+<p class="firstline">Retrieves the next page of results.</p>
+<p class="toc_element">
+  <code><a href="#macSign">macSign(name, body=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Signs data using a CryptoKeyVersion with CryptoKey.purpose MAC, producing a tag that can be verified by another source with the same key.</p>
+<p class="toc_element">
+  <code><a href="#macVerify">macVerify(name, body=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Verifies MAC tag using a CryptoKeyVersion with CryptoKey.purpose MAC, and returns a response that indicates whether or not the verification was successful.</p>
+<p class="toc_element">
+  <code><a href="#patch">patch(name, body=None, updateMask=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Update a CryptoKeyVersion's metadata. state may be changed between ENABLED and DISABLED using this method. See DestroyCryptoKeyVersion and RestoreCryptoKeyVersion to move between other states.</p>
+<p class="toc_element">
+  <code><a href="#restore">restore(name, body=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Restore a CryptoKeyVersion in the DESTROY_SCHEDULED state. Upon restoration of the CryptoKeyVersion, state will be set to DISABLED, and destroy_time will be cleared.</p>
+<h3>Method Details</h3>
+<div class="method">
+    <code class="details" id="asymmetricDecrypt">asymmetricDecrypt(name, body=None, x__xgafv=None)</code>
+  <pre>Decrypts data that was encrypted with a public key retrieved from GetPublicKey corresponding to a CryptoKeyVersion with CryptoKey.purpose ASYMMETRIC_DECRYPT.
+
+Args:
+  name: string, Required. The resource name of the CryptoKeyVersion to use for decryption. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # Request message for KeyManagementService.AsymmetricDecrypt.
+  &quot;ciphertext&quot;: &quot;A String&quot;, # Required. The data encrypted with the named CryptoKeyVersion&#x27;s public key using OAEP.
+  &quot;ciphertextCrc32c&quot;: &quot;A String&quot;, # Optional. An optional CRC32C checksum of the AsymmetricDecryptRequest.ciphertext. If specified, KeyManagementService will verify the integrity of the received AsymmetricDecryptRequest.ciphertext using this checksum. KeyManagementService will report an error if the checksum verification fails. If you receive a checksum error, your client should verify that CRC32C(AsymmetricDecryptRequest.ciphertext) is equal to AsymmetricDecryptRequest.ciphertext_crc32c, and if so, perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+}
+
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # Response message for KeyManagementService.AsymmetricDecrypt.
+  &quot;plaintext&quot;: &quot;A String&quot;, # The decrypted data originally encrypted with the matching public key.
+  &quot;plaintextCrc32c&quot;: &quot;A String&quot;, # Integrity verification field. A CRC32C checksum of the returned AsymmetricDecryptResponse.plaintext. An integrity check of AsymmetricDecryptResponse.plaintext can be performed by computing the CRC32C checksum of AsymmetricDecryptResponse.plaintext and comparing your results to this field. Discard the response in case of non-matching checksum values, and perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # The ProtectionLevel of the CryptoKeyVersion used in decryption.
+  &quot;verifiedCiphertextCrc32c&quot;: True or False, # Integrity verification field. A flag indicating whether AsymmetricDecryptRequest.ciphertext_crc32c was received by KeyManagementService and used for the integrity verification of the ciphertext. A false value of this field indicates either that AsymmetricDecryptRequest.ciphertext_crc32c was left unset or that it was not delivered to KeyManagementService. If you&#x27;ve set AsymmetricDecryptRequest.ciphertext_crc32c but this field is still false, discard the response and perform a limited number of retries.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="asymmetricSign">asymmetricSign(name, body=None, x__xgafv=None)</code>
+  <pre>Signs data using a CryptoKeyVersion with CryptoKey.purpose ASYMMETRIC_SIGN, producing a signature that can be verified with the public key retrieved from GetPublicKey.
+
+Args:
+  name: string, Required. The resource name of the CryptoKeyVersion to use for signing. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # Request message for KeyManagementService.AsymmetricSign.
+  &quot;data&quot;: &quot;A String&quot;, # Optional. The data to sign. It can&#x27;t be supplied if AsymmetricSignRequest.digest is supplied.
+  &quot;dataCrc32c&quot;: &quot;A String&quot;, # Optional. An optional CRC32C checksum of the AsymmetricSignRequest.data. If specified, KeyManagementService will verify the integrity of the received AsymmetricSignRequest.data using this checksum. KeyManagementService will report an error if the checksum verification fails. If you receive a checksum error, your client should verify that CRC32C(AsymmetricSignRequest.data) is equal to AsymmetricSignRequest.data_crc32c, and if so, perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+  &quot;digest&quot;: { # A Digest holds a cryptographic message digest. # Optional. The digest of the data to sign. The digest must be produced with the same digest algorithm as specified by the key version&#x27;s algorithm. This field may not be supplied if AsymmetricSignRequest.data is supplied.
+    &quot;sha256&quot;: &quot;A String&quot;, # A message digest produced with the SHA-256 algorithm.
+    &quot;sha384&quot;: &quot;A String&quot;, # A message digest produced with the SHA-384 algorithm.
+    &quot;sha512&quot;: &quot;A String&quot;, # A message digest produced with the SHA-512 algorithm.
+  },
+  &quot;digestCrc32c&quot;: &quot;A String&quot;, # Optional. An optional CRC32C checksum of the AsymmetricSignRequest.digest. If specified, KeyManagementService will verify the integrity of the received AsymmetricSignRequest.digest using this checksum. KeyManagementService will report an error if the checksum verification fails. If you receive a checksum error, your client should verify that CRC32C(AsymmetricSignRequest.digest) is equal to AsymmetricSignRequest.digest_crc32c, and if so, perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+}
+
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # Response message for KeyManagementService.AsymmetricSign.
+  &quot;name&quot;: &quot;A String&quot;, # The resource name of the CryptoKeyVersion used for signing. Check this field to verify that the intended resource was used for signing.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # The ProtectionLevel of the CryptoKeyVersion used for signing.
+  &quot;signature&quot;: &quot;A String&quot;, # The created signature.
+  &quot;signatureCrc32c&quot;: &quot;A String&quot;, # Integrity verification field. A CRC32C checksum of the returned AsymmetricSignResponse.signature. An integrity check of AsymmetricSignResponse.signature can be performed by computing the CRC32C checksum of AsymmetricSignResponse.signature and comparing your results to this field. Discard the response in case of non-matching checksum values, and perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+  &quot;verifiedDataCrc32c&quot;: True or False, # Integrity verification field. A flag indicating whether AsymmetricSignRequest.data_crc32c was received by KeyManagementService and used for the integrity verification of the data. A false value of this field indicates either that AsymmetricSignRequest.data_crc32c was left unset or that it was not delivered to KeyManagementService. If you&#x27;ve set AsymmetricSignRequest.data_crc32c but this field is still false, discard the response and perform a limited number of retries.
+  &quot;verifiedDigestCrc32c&quot;: True or False, # Integrity verification field. A flag indicating whether AsymmetricSignRequest.digest_crc32c was received by KeyManagementService and used for the integrity verification of the digest. A false value of this field indicates either that AsymmetricSignRequest.digest_crc32c was left unset or that it was not delivered to KeyManagementService. If you&#x27;ve set AsymmetricSignRequest.digest_crc32c but this field is still false, discard the response and perform a limited number of retries.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="close">close()</code>
+  <pre>Close httplib2 connections.</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="create">create(parent, body=None, x__xgafv=None)</code>
+  <pre>Create a new CryptoKeyVersion in a CryptoKey. The server will assign the next sequential id. If unset, state will be set to ENABLED.
+
+Args:
+  parent: string, Required. The name of the CryptoKey associated with the CryptoKeyVersions. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+  &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+    &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+      &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+    &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+  },
+  &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+  &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+  &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+  &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+    &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+  },
+  &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+  &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+  &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+  &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+  &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+  &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+  &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+}
+
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+  &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+    &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+      &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+    &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+  },
+  &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+  &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+  &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+  &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+    &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+  },
+  &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+  &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+  &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+  &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+  &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+  &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+  &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="destroy">destroy(name, body=None, x__xgafv=None)</code>
+  <pre>Schedule a CryptoKeyVersion for destruction. Upon calling this method, CryptoKeyVersion.state will be set to DESTROY_SCHEDULED, and destroy_time will be set to the time destroy_scheduled_duration in the future. At that time, the state will automatically change to DESTROYED, and the key material will be irrevocably destroyed. Before the destroy_time is reached, RestoreCryptoKeyVersion may be called to reverse the process.
+
+Args:
+  name: string, Required. The resource name of the CryptoKeyVersion to destroy. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # Request message for KeyManagementService.DestroyCryptoKeyVersion.
+}
+
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+  &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+    &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+      &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+    &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+  },
+  &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+  &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+  &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+  &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+    &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+  },
+  &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+  &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+  &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+  &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+  &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+  &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+  &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="get">get(name, x__xgafv=None)</code>
+  <pre>Returns metadata for a given CryptoKeyVersion.
+
+Args:
+  name: string, Required. The name of the CryptoKeyVersion to get. (required)
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+  &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+    &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+      &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+    &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+  },
+  &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+  &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+  &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+  &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+    &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+  },
+  &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+  &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+  &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+  &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+  &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+  &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+  &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="getPublicKey">getPublicKey(name, x__xgafv=None)</code>
+  <pre>Returns the public key for the given CryptoKeyVersion. The CryptoKey.purpose must be ASYMMETRIC_SIGN or ASYMMETRIC_DECRYPT.
+
+Args:
+  name: string, Required. The name of the CryptoKeyVersion public key to get. (required)
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # The public key for a given CryptoKeyVersion. Obtained via GetPublicKey.
+  &quot;algorithm&quot;: &quot;A String&quot;, # The Algorithm associated with this key.
+  &quot;name&quot;: &quot;A String&quot;, # The name of the CryptoKeyVersion public key. Provided here for verification. NOTE: This field is in Beta.
+  &quot;pem&quot;: &quot;A String&quot;, # The public key, encoded in PEM format. For more information, see the [RFC 7468](https://tools.ietf.org/html/rfc7468) sections for [General Considerations](https://tools.ietf.org/html/rfc7468#section-2) and [Textual Encoding of Subject Public Key Info] (https://tools.ietf.org/html/rfc7468#section-13).
+  &quot;pemCrc32c&quot;: &quot;A String&quot;, # Integrity verification field. A CRC32C checksum of the returned PublicKey.pem. An integrity check of PublicKey.pem can be performed by computing the CRC32C checksum of PublicKey.pem and comparing your results to this field. Discard the response in case of non-matching checksum values, and perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type. NOTE: This field is in Beta.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # The ProtectionLevel of the CryptoKeyVersion public key.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="import_">import_(parent, body=None, x__xgafv=None)</code>
+  <pre>Import wrapped key material into a CryptoKeyVersion. All requests must specify a CryptoKey. If a CryptoKeyVersion is additionally specified in the request, key material will be reimported into that version. Otherwise, a new version will be created, and will be assigned the next sequential id within the CryptoKey.
+
+Args:
+  parent: string, Required. The name of the CryptoKey to be imported into. The create permission is only required on this key when creating a new CryptoKeyVersion. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # Request message for KeyManagementService.ImportCryptoKeyVersion.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Required. The algorithm of the key being imported. This does not need to match the version_template of the CryptoKey this version imports into.
+  &quot;cryptoKeyVersion&quot;: &quot;A String&quot;, # Optional. The optional name of an existing CryptoKeyVersion to target for an import operation. If this field is not present, a new CryptoKeyVersion containing the supplied key material is created. If this field is present, the supplied key material is imported into the existing CryptoKeyVersion. To import into an existing CryptoKeyVersion, the CryptoKeyVersion must be a child of ImportCryptoKeyVersionRequest.parent, have been previously created via ImportCryptoKeyVersion, and be in DESTROYED or IMPORT_FAILED state. The key material and algorithm must match the previous CryptoKeyVersion exactly if the CryptoKeyVersion has ever contained key material.
+  &quot;importJob&quot;: &quot;A String&quot;, # Required. The name of the ImportJob that was used to wrap this key material.
+  &quot;rsaAesWrappedKey&quot;: &quot;A String&quot;, # Wrapped key material produced with RSA_OAEP_3072_SHA1_AES_256 or RSA_OAEP_4096_SHA1_AES_256. This field contains the concatenation of two wrapped keys: 1. An ephemeral AES-256 wrapping key wrapped with the public_key using RSAES-OAEP with SHA-1, MGF1 with SHA-1, and an empty label. 2. The key to be imported, wrapped with the ephemeral AES-256 key using AES-KWP (RFC 5649). If importing symmetric key material, it is expected that the unwrapped key contains plain bytes. If importing asymmetric key material, it is expected that the unwrapped key is in PKCS#8-encoded DER format (the PrivateKeyInfo structure from RFC 5208). This format is the same as the format produced by PKCS#11 mechanism CKM_RSA_AES_KEY_WRAP.
+}
+
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+  &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+    &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+      &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+    &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+  },
+  &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+  &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+  &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+  &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+    &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+  },
+  &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+  &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+  &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+  &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+  &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+  &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+  &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="list">list(parent, filter=None, orderBy=None, pageSize=None, pageToken=None, view=None, x__xgafv=None)</code>
+  <pre>Lists CryptoKeyVersions.
+
+Args:
+  parent: string, Required. The resource name of the CryptoKey to list, in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*`. (required)
+  filter: string, Optional. Only include resources that match the filter in the response. For more information, see [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+  orderBy: string, Optional. Specify how the results should be sorted. If not specified, the results will be sorted in the default order. For more information, see [Sorting and filtering list results](https://cloud.google.com/kms/docs/sorting-and-filtering).
+  pageSize: integer, Optional. Optional limit on the number of CryptoKeyVersions to include in the response. Further CryptoKeyVersions can subsequently be obtained by including the ListCryptoKeyVersionsResponse.next_page_token in a subsequent request. If unspecified, the server will pick an appropriate default.
+  pageToken: string, Optional. Optional pagination token, returned earlier via ListCryptoKeyVersionsResponse.next_page_token.
+  view: string, The fields to include in the response.
+    Allowed values
+      CRYPTO_KEY_VERSION_VIEW_UNSPECIFIED - Default view for each CryptoKeyVersion. Does not include the attestation field.
+      FULL - Provides all fields in each CryptoKeyVersion, including the attestation.
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # Response message for KeyManagementService.ListCryptoKeyVersions.
+  &quot;cryptoKeyVersions&quot;: [ # The list of CryptoKeyVersions.
+    { # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+      &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+      &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+        &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+          &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+            &quot;A String&quot;,
+          ],
+          &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+            &quot;A String&quot;,
+          ],
+          &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+            &quot;A String&quot;,
+          ],
+        },
+        &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+        &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+      },
+      &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+      &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+      &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+      &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+        &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+      },
+      &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+      &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+      &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+      &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+      &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+      &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+      &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+      &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+    },
+  ],
+  &quot;nextPageToken&quot;: &quot;A String&quot;, # A token to retrieve next page of results. Pass this value in ListCryptoKeyVersionsRequest.page_token to retrieve the next page of results.
+  &quot;totalSize&quot;: 42, # The total number of CryptoKeyVersions that matched the query.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="list_next">list_next(previous_request, previous_response)</code>
+  <pre>Retrieves the next page of results.
+
+Args:
+  previous_request: The request for the previous page. (required)
+  previous_response: The response from the request for the previous page. (required)
+
+Returns:
+  A request object that you can call &#x27;execute()&#x27; on to request the next
+  page. Returns None if there are no more items in the collection.
+    </pre>
+</div>
+
+<div class="method">
+    <code class="details" id="macSign">macSign(name, body=None, x__xgafv=None)</code>
+  <pre>Signs data using a CryptoKeyVersion with CryptoKey.purpose MAC, producing a tag that can be verified by another source with the same key.
+
+Args:
+  name: string, Required. The resource name of the CryptoKeyVersion to use for signing. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # Request message for KeyManagementService.MacSign.
+  &quot;data&quot;: &quot;A String&quot;, # Required. The data to sign. The MAC tag is computed over this data field based on the specific algorithm.
+  &quot;dataCrc32c&quot;: &quot;A String&quot;, # Optional. An optional CRC32C checksum of the MacSignRequest.data. If specified, KeyManagementService will verify the integrity of the received MacSignRequest.data using this checksum. KeyManagementService will report an error if the checksum verification fails. If you receive a checksum error, your client should verify that CRC32C(MacSignRequest.data) is equal to MacSignRequest.data_crc32c, and if so, perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+}
+
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # Response message for KeyManagementService.MacSign.
+  &quot;mac&quot;: &quot;A String&quot;, # The created signature.
+  &quot;macCrc32c&quot;: &quot;A String&quot;, # Integrity verification field. A CRC32C checksum of the returned MacSignResponse.mac. An integrity check of MacSignResponse.mac can be performed by computing the CRC32C checksum of MacSignResponse.mac and comparing your results to this field. Discard the response in case of non-matching checksum values, and perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+  &quot;name&quot;: &quot;A String&quot;, # The resource name of the CryptoKeyVersion used for signing. Check this field to verify that the intended resource was used for signing.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # The ProtectionLevel of the CryptoKeyVersion used for signing.
+  &quot;verifiedDataCrc32c&quot;: True or False, # Integrity verification field. A flag indicating whether MacSignRequest.data_crc32c was received by KeyManagementService and used for the integrity verification of the data. A false value of this field indicates either that MacSignRequest.data_crc32c was left unset or that it was not delivered to KeyManagementService. If you&#x27;ve set MacSignRequest.data_crc32c but this field is still false, discard the response and perform a limited number of retries.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="macVerify">macVerify(name, body=None, x__xgafv=None)</code>
+  <pre>Verifies MAC tag using a CryptoKeyVersion with CryptoKey.purpose MAC, and returns a response that indicates whether or not the verification was successful.
+
+Args:
+  name: string, Required. The resource name of the CryptoKeyVersion to use for verification. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # Request message for KeyManagementService.MacVerify.
+  &quot;data&quot;: &quot;A String&quot;, # Required. The data used previously as a MacSignRequest.data to generate the MAC tag.
+  &quot;dataCrc32c&quot;: &quot;A String&quot;, # Optional. An optional CRC32C checksum of the MacVerifyRequest.data. If specified, KeyManagementService will verify the integrity of the received MacVerifyRequest.data using this checksum. KeyManagementService will report an error if the checksum verification fails. If you receive a checksum error, your client should verify that CRC32C(MacVerifyRequest.data) is equal to MacVerifyRequest.data_crc32c, and if so, perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+  &quot;mac&quot;: &quot;A String&quot;, # Required. The signature to verify.
+  &quot;macCrc32c&quot;: &quot;A String&quot;, # Optional. An optional CRC32C checksum of the MacVerifyRequest.mac. If specified, KeyManagementService will verify the integrity of the received MacVerifyRequest.mac using this checksum. KeyManagementService will report an error if the checksum verification fails. If you receive a checksum error, your client should verify that CRC32C(MacVerifyRequest.tag) is equal to MacVerifyRequest.mac_crc32c, and if so, perform a limited number of retries. A persistent mismatch may indicate an issue in your computation of the CRC32C checksum. Note: This field is defined as int64 for reasons of compatibility across different languages. However, it is a non-negative integer, which will never exceed 2^32-1, and can be safely downconverted to uint32 in languages that support this type.
+}
+
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # Response message for KeyManagementService.MacVerify.
+  &quot;name&quot;: &quot;A String&quot;, # The resource name of the CryptoKeyVersion used for verification. Check this field to verify that the intended resource was used for verification.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # The ProtectionLevel of the CryptoKeyVersion used for verification.
+  &quot;success&quot;: True or False, # This field indicates whether or not the verification operation for MacVerifyRequest.mac over MacVerifyRequest.data was successful.
+  &quot;verifiedDataCrc32c&quot;: True or False, # Integrity verification field. A flag indicating whether MacVerifyRequest.data_crc32c was received by KeyManagementService and used for the integrity verification of the data. A false value of this field indicates either that MacVerifyRequest.data_crc32c was left unset or that it was not delivered to KeyManagementService. If you&#x27;ve set MacVerifyRequest.data_crc32c but this field is still false, discard the response and perform a limited number of retries.
+  &quot;verifiedMacCrc32c&quot;: True or False, # Integrity verification field. A flag indicating whether MacVerifyRequest.mac_crc32c was received by KeyManagementService and used for the integrity verification of the data. A false value of this field indicates either that MacVerifyRequest.mac_crc32c was left unset or that it was not delivered to KeyManagementService. If you&#x27;ve set MacVerifyRequest.mac_crc32c but this field is still false, discard the response and perform a limited number of retries.
+  &quot;verifiedSuccessIntegrity&quot;: True or False, # Integrity verification field. This value is used for the integrity verification of [MacVerifyResponse.success]. If the value of this field contradicts the value of [MacVerifyResponse.success], discard the response and perform a limited number of retries.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="patch">patch(name, body=None, updateMask=None, x__xgafv=None)</code>
+  <pre>Update a CryptoKeyVersion&#x27;s metadata. state may be changed between ENABLED and DISABLED using this method. See DestroyCryptoKeyVersion and RestoreCryptoKeyVersion to move between other states.
+
+Args:
+  name: string, Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+  &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+    &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+      &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+    &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+  },
+  &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+  &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+  &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+  &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+    &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+  },
+  &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+  &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+  &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+  &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+  &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+  &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+  &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+}
+
+  updateMask: string, Required. List of fields to be updated in this request.
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+  &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+    &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+      &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+    &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+  },
+  &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+  &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+  &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+  &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+    &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+  },
+  &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+  &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+  &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+  &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+  &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+  &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+  &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+}</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="restore">restore(name, body=None, x__xgafv=None)</code>
+  <pre>Restore a CryptoKeyVersion in the DESTROY_SCHEDULED state. Upon restoration of the CryptoKeyVersion, state will be set to DISABLED, and destroy_time will be cleared.
+
+Args:
+  name: string, Required. The resource name of the CryptoKeyVersion to restore. (required)
+  body: object, The request body.
+    The object takes the form of:
+
+{ # Request message for KeyManagementService.RestoreCryptoKeyVersion.
+}
+
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    { # A CryptoKeyVersion represents an individual cryptographic key, and the associated key material. An ENABLED version can be used for cryptographic operations. For security reasons, the raw cryptographic key material represented by a CryptoKeyVersion can never be viewed or exported. It can only be used to encrypt, decrypt, or sign data when an authorized user or application invokes Cloud KMS.
+  &quot;algorithm&quot;: &quot;A String&quot;, # Output only. The CryptoKeyVersionAlgorithm that this CryptoKeyVersion supports.
+  &quot;attestation&quot;: { # Contains an HSM-generated attestation about a key operation. For more information, see [Verifying attestations] (https://cloud.google.com/kms/docs/attest-key). # Output only. Statement that was generated and signed by the HSM at key creation time. Use this statement to verify attributes of the key as stored on the HSM, independently of Google. Only provided for key versions with protection_level HSM.
+    &quot;certChains&quot;: { # Certificate chains needed to verify the attestation. Certificates in chains are PEM-encoded and are ordered based on https://tools.ietf.org/html/rfc5246#section-7.4.2. # Output only. The certificate chains needed to validate the attestation
+      &quot;caviumCerts&quot;: [ # Cavium certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googleCardCerts&quot;: [ # Google card certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+      &quot;googlePartitionCerts&quot;: [ # Google partition certificate chain corresponding to the attestation.
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;content&quot;: &quot;A String&quot;, # Output only. The attestation data provided by the HSM when the key operation was performed.
+    &quot;format&quot;: &quot;A String&quot;, # Output only. The format of the attestation data.
+  },
+  &quot;createTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion was created.
+  &quot;destroyEventTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was destroyed. Only present if state is DESTROYED.
+  &quot;destroyTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material is scheduled for destruction. Only present if state is DESTROY_SCHEDULED.
+  &quot;externalProtectionLevelOptions&quot;: { # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level. # ExternalProtectionLevelOptions stores a group of additional fields for configuring a CryptoKeyVersion that are specific to the EXTERNAL protection level.
+    &quot;externalKeyUri&quot;: &quot;A String&quot;, # The URI for an external resource that this CryptoKeyVersion represents.
+  },
+  &quot;generateTime&quot;: &quot;A String&quot;, # Output only. The time this CryptoKeyVersion&#x27;s key material was generated.
+  &quot;importFailureReason&quot;: &quot;A String&quot;, # Output only. The root cause of the most recent import failure. Only present if state is IMPORT_FAILED.
+  &quot;importJob&quot;: &quot;A String&quot;, # Output only. The name of the ImportJob used in the most recent import of this CryptoKeyVersion. Only present if the underlying key material was imported.
+  &quot;importTime&quot;: &quot;A String&quot;, # Output only. The time at which this CryptoKeyVersion&#x27;s key material was most recently imported.
+  &quot;name&quot;: &quot;A String&quot;, # Output only. The resource name for this CryptoKeyVersion in the format `projects/*/locations/*/keyRings/*/cryptoKeys/*/cryptoKeyVersions/*`.
+  &quot;protectionLevel&quot;: &quot;A String&quot;, # Output only. The ProtectionLevel describing how crypto operations are performed with this CryptoKeyVersion.
+  &quot;reimportEligible&quot;: True or False, # Output only. Whether or not this key version is eligible for reimport, by being specified as a target in ImportCryptoKeyVersionRequest.crypto_key_version.
+  &quot;state&quot;: &quot;A String&quot;, # The current state of the CryptoKeyVersion.
+}</pre>
+</div>
+
+</body></html>

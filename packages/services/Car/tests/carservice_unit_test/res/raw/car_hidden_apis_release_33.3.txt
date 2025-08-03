@@ -1,0 +1,867 @@
+android.car AoapService int MSG_NEW_DEVICE_ATTACHED
+android.car AoapService int MSG_NEW_DEVICE_ATTACHED_RESPONSE
+android.car AoapService int MSG_CAN_SWITCH_TO_AOAP
+android.car AoapService int MSG_CAN_SWITCH_TO_AOAP_RESPONSE
+android.car AoapService String KEY_DEVICE
+android.car AoapService String KEY_RESULT
+android.car ApiVersion boolean equals(Object obj)
+android.car ApiVersion int hashCode()
+android.car ApiVersion String toString()
+android.car ApiVersion void writeToParcel(Parcel dest)
+android.car ApiVersion T readFromParcel(Parcel source, ApiVersionFactory<T> factory)
+android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR
+android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR
+android.car Car String CAR_SERVICE_BINDER_SERVICE_NAME
+android.car Car String EXPERIMENTAL_CAR_USER_SERVICE
+android.car Car String CAR_INSTRUMENT_CLUSTER_SERVICE
+android.car Car String CLUSTER_HOME_SERVICE
+android.car Car String PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE
+android.car Car String PERMISSION_CAR_DISPLAY_IN_CLUSTER
+android.car Car String PERMISSION_BIND_VMS_CLIENT
+android.car Car String PERMISSION_COLLECT_CAR_CPU_INFO
+android.car Car String CAR_TEMPLATE_HOST_RENDERER_SERVICE
+android.car Car String CAR_SERVICE_INTERFACE_NAME
+android.car Car String CAR_CATEGORY_NAVIGATION
+android.car Car Car Car(Context context, ICar service, Handler handler)
+android.car Car ServiceConnection getServiceConnectionListener()
+android.car Car Context getContext()
+android.car Car Handler getEventHandler()
+android.car Car T handleRemoteExceptionFromCarService(RemoteException e, T returnValue)
+android.car Car void handleRemoteExceptionFromCarService(RemoteException e)
+android.car Car T handleRemoteExceptionFromCarService(Service service, RemoteException e, T returnValue)
+android.car Car void handleRemoteExceptionFromCarService(Service service, RemoteException e)
+android.car CarAppFocusManager int APP_FOCUS_MAX
+android.car CarAppFocusManager CarAppFocusManager CarAppFocusManager(Car car, IBinder service)
+android.car CarAppFocusManager int[] getActiveAppTypes()
+android.car CarAppFocusManager List<String> getAppTypeOwner(int appType)
+android.car CarAppFocusManager void onCarDisconnected()
+android.car CarBugreportManager CarBugreportManager CarBugreportManager(Car car, IBinder service)
+android.car CarBugreportManager void requestBugreportForTesting(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput, CarBugreportManagerCallback callback)
+android.car CarBugreportManager void onCarDisconnected()
+android.car CarFeatures String FEATURE_CAR_USER_NOTICE_SERVICE
+android.car CarInfoManager int BASIC_INFO_KEY_MANUFACTURER
+android.car CarInfoManager int BASIC_INFO_KEY_MODEL
+android.car CarInfoManager int BASIC_INFO_KEY_MODEL_YEAR
+android.car CarInfoManager String BASIC_INFO_KEY_VEHICLE_ID
+android.car CarInfoManager String INFO_KEY_PRODUCT_CONFIGURATION
+android.car CarInfoManager int BASIC_INFO_DRIVER_SEAT
+android.car CarInfoManager int BASIC_INFO_EV_PORT_LOCATION
+android.car CarInfoManager int BASIC_INFO_FUEL_DOOR_LOCATION
+android.car CarInfoManager int BASIC_INFO_FUEL_CAPACITY
+android.car CarInfoManager int BASIC_INFO_FUEL_TYPES
+android.car CarInfoManager int BASIC_INFO_EV_BATTERY_CAPACITY
+android.car CarInfoManager int BASIC_INFO_EV_CONNECTOR_TYPES
+android.car CarInfoManager CarInfoManager CarInfoManager(Car car, IBinder service)
+android.car CarInfoManager void onCarDisconnected()
+android.car CarLibLog String TAG_CAR
+android.car CarLibLog String TAG_CLUSTER
+android.car CarLibLog String TAG_INPUT
+android.car CarLibLog String TAG_NAV
+android.car CarLibLog String TAG_SENSOR
+android.car CarLibLog String TAG_DIAGNOSTIC
+android.car CarManagerBase Car mCar
+android.car CarManagerBase CarManagerBase CarManagerBase(Car car)
+android.car CarManagerBase Context getContext()
+android.car CarManagerBase Handler getEventHandler()
+android.car CarManagerBase T handleRemoteExceptionFromCarService(RemoteException e, T returnValue)
+android.car CarManagerBase void handleRemoteExceptionFromCarService(RemoteException e)
+android.car CarManagerBase T handleExceptionFromCarService(Exception e, T returnValue)
+android.car CarManagerBase void onCarDisconnected()
+android.car CarManagerBase T addDumpable(Object container, Supplier<T> dumpableSupplier)
+android.car CarOccupantZoneManager int OCCUPANT_TYPE_INVALID
+android.car CarOccupantZoneManager CarOccupantZoneManager CarOccupantZoneManager(Car car, IBinder service)
+android.car CarOccupantZoneManager boolean assignProfileUserToOccupantZone(OccupantZoneInfo occupantZone, int userId)
+android.car CarOccupantZoneManager void onCarDisconnected()
+android.car CarOccupantZoneManager.OccupantZoneInfo int INVALID_ZONE_ID
+android.car CarOccupantZoneManager.OccupantZoneInfo OccupantZoneInfo OccupantZoneInfo(int zoneId, int occupantType, int seat)
+android.car CarOccupantZoneManager.OccupantZoneInfo OccupantZoneInfo OccupantZoneInfo(Parcel in)
+android.car CarProjectionManager int NUM_KEY_EVENTS
+android.car CarProjectionManager int PROJECTION_AP_STARTED
+android.car CarProjectionManager int PROJECTION_AP_STOPPED
+android.car CarProjectionManager int PROJECTION_AP_FAILED
+android.car CarProjectionManager CarProjectionManager CarProjectionManager(Car car, IBinder service)
+android.car CarProjectionManager void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter)
+android.car CarProjectionManager void unregsiterProjectionListener()
+android.car CarProjectionManager void onCarDisconnected()
+android.car VehicleAreaSeat int SIDE_LEFT
+android.car VehicleAreaSeat int SIDE_CENTER
+android.car VehicleAreaSeat int SIDE_RIGHT
+android.car VehicleAreaSeat int fromRowAndSide(int rowNumber, int side)
+android.car VehicleHvacFanDirection int FACE
+android.car VehicleHvacFanDirection int FLOOR
+android.car VehicleHvacFanDirection int DEFROST
+android.car VehicleLightState int OFF
+android.car VehicleLightState int ON
+android.car VehicleLightState int DAYTIME_RUNNING
+android.car VehicleLightSwitch int OFF
+android.car VehicleLightSwitch int ON
+android.car VehicleLightSwitch int DAYTIME_RUNNING
+android.car VehicleLightSwitch int AUTOMATIC
+android.car VehicleOilLevel int CRITICALLY_LOW
+android.car VehicleOilLevel int LOW
+android.car VehicleOilLevel int NORMAL
+android.car VehicleOilLevel int HIGH
+android.car VehicleOilLevel int ERROR
+android.car VehiclePropertyIds int INITIAL_USER_INFO
+android.car VehiclePropertyIds int SWITCH_USER
+android.car VehiclePropertyIds int CREATE_USER
+android.car VehiclePropertyIds int REMOVE_USER
+android.car VehiclePropertyIds int USER_IDENTIFICATION_ASSOCIATION
+android.car VehiclePropertyIds int POWER_POLICY_REQ
+android.car VehiclePropertyIds int POWER_POLICY_GROUP_REQ
+android.car VehiclePropertyIds int CURRENT_POWER_POLICY
+android.car VehiclePropertyIds int WATCHDOG_ALIVE
+android.car VehiclePropertyIds int WATCHDOG_TERMINATED_PROCESS
+android.car VehiclePropertyIds int VHAL_HEARTBEAT
+android.car VehiclePropertyIds int CLUSTER_SWITCH_UI
+android.car VehiclePropertyIds int CLUSTER_DISPLAY_STATE
+android.car VehiclePropertyIds int CLUSTER_REPORT_STATE
+android.car VehiclePropertyIds int CLUSTER_REQUEST_DISPLAY
+android.car VehiclePropertyIds int CLUSTER_NAVIGATION_STATE
+android.car VehiclePropertyType int STRING
+android.car VehiclePropertyType int BOOLEAN
+android.car VehiclePropertyType int INT32
+android.car VehiclePropertyType int INT32_VEC
+android.car VehiclePropertyType int INT64
+android.car VehiclePropertyType int INT64_VEC
+android.car VehiclePropertyType int FLOAT
+android.car VehiclePropertyType int FLOAT_VEC
+android.car VehiclePropertyType int BYTES
+android.car VehiclePropertyType int MIXED
+android.car VehiclePropertyType int MASK
+android.car VehicleSeatOccupancyState int UNKNOWN
+android.car VehicleSeatOccupancyState int VACANT
+android.car VehicleSeatOccupancyState int OCCUPIED
+android.car.admin CarDevicePolicyManager String TAG
+android.car.admin CarDevicePolicyManager int FIRST_USER_TYPE
+android.car.admin CarDevicePolicyManager int LAST_USER_TYPE
+android.car.admin CarDevicePolicyManager CarDevicePolicyManager CarDevicePolicyManager(Car car, IBinder service)
+android.car.admin CarDevicePolicyManager CarDevicePolicyManager CarDevicePolicyManager(Car car, ICarDevicePolicyService service)
+android.car.admin CarDevicePolicyManager StartUserInBackgroundResult startUserInBackground(UserHandle user)
+android.car.admin CarDevicePolicyManager StopUserResult stopUser(UserHandle user)
+android.car.admin CarDevicePolicyManager void setUserDisclaimerShown(UserHandle user)
+android.car.admin CarDevicePolicyManager void setUserDisclaimerAcknowledged(UserHandle user)
+android.car.admin CarDevicePolicyManager void onCarDisconnected()
+android.car.admin CreateUserResult CreateUserResult CreateUserResult(UserCreationResult result)
+android.car.admin CreateUserResult CreateUserResult forGenericError()
+android.car.admin RemoveUserResult RemoveUserResult RemoveUserResult(int status)
+android.car.admin RemoveUserResult String statusToString(int status)
+android.car.admin StartUserInBackgroundResult int STATUS_SUCCESS
+android.car.admin StartUserInBackgroundResult int STATUS_SUCCESS_CURRENT_USER
+android.car.admin StartUserInBackgroundResult int STATUS_FAILURE_USER_DOES_NOT_EXIST
+android.car.admin StartUserInBackgroundResult int STATUS_FAILURE_GENERIC
+android.car.admin StartUserInBackgroundResult StartUserInBackgroundResult StartUserInBackgroundResult(int status)
+android.car.admin StartUserInBackgroundResult int getStatus()
+android.car.admin StartUserInBackgroundResult boolean isSuccess()
+android.car.admin StartUserInBackgroundResult String toString()
+android.car.admin StopUserResult int STATUS_SUCCESS
+android.car.admin StopUserResult int STATUS_FAILURE_CURRENT_USER
+android.car.admin StopUserResult int STATUS_FAILURE_SYSTEM_USER
+android.car.admin StopUserResult int STATUS_FAILURE_USER_DOES_NOT_EXIST
+android.car.admin StopUserResult int STATUS_FAILURE_GENERIC
+android.car.admin StopUserResult StopUserResult StopUserResult(int status)
+android.car.admin StopUserResult int getStatus()
+android.car.admin StopUserResult boolean isSuccess()
+android.car.admin StopUserResult String toString()
+android.car.app CarActivityManager int ERROR_CODE_ACTIVITY_NOT_FOUND
+android.car.app CarActivityManager CarActivityManager CarActivityManager(Car car, IBinder service)
+android.car.app CarActivityManager CarActivityManager CarActivityManager(Car car, ICarActivityService service)
+android.car.app CarActivityManager void onCarDisconnected()
+android.car.app CarActivityManager boolean registerTaskMonitor()
+android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo)
+android.car.app CarActivityManager void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo)
+android.car.app CarActivityManager void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo)
+android.car.app CarActivityManager void unregisterTaskMonitor()
+android.car.app CarActivityManager List<ActivityManager.RunningTaskInfo> getVisibleTasks()
+android.car.cluster CarInstrumentClusterManager CarInstrumentClusterManager CarInstrumentClusterManager(Car car, IBinder service)
+android.car.cluster CarInstrumentClusterManager void onCarDisconnected()
+android.car.cluster ClusterHomeManager int UI_TYPE_CLUSTER_NONE
+android.car.cluster ClusterHomeManager int UI_TYPE_CLUSTER_HOME
+android.car.cluster ClusterHomeManager int CONFIG_DISPLAY_ON_OFF
+android.car.cluster ClusterHomeManager int CONFIG_DISPLAY_BOUNDS
+android.car.cluster ClusterHomeManager int CONFIG_DISPLAY_INSETS
+android.car.cluster ClusterHomeManager int CONFIG_UI_TYPE
+android.car.cluster ClusterHomeManager int CONFIG_DISPLAY_ID
+android.car.cluster ClusterHomeManager ClusterHomeManager ClusterHomeManager(Car car, IBinder service)
+android.car.cluster ClusterHomeManager void registerClusterStateListener(Executor executor, ClusterStateListener callback)
+android.car.cluster ClusterHomeManager void registerClusterNavigationStateListener(Executor executor, ClusterNavigationStateListener callback)
+android.car.cluster ClusterHomeManager void unregisterClusterStateListener(ClusterStateListener callback)
+android.car.cluster ClusterHomeManager void unregisterClusterNavigationStateListener(ClusterNavigationStateListener callback)
+android.car.cluster ClusterHomeManager void reportState(int uiTypeMain, int uiTypeSub, byte[] uiAvailability)
+android.car.cluster ClusterHomeManager void requestDisplay(int uiType)
+android.car.cluster ClusterHomeManager ClusterState getClusterState()
+android.car.cluster ClusterHomeManager boolean startFixedActivityModeAsUser(Intent intent, Bundle options, int userId)
+android.car.cluster ClusterHomeManager void stopFixedActivityMode()
+android.car.cluster ClusterHomeManager void onCarDisconnected()
+android.car.cluster.renderer InstrumentClusterRenderingService String EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER
+android.car.cluster.renderer InstrumentClusterRenderingService ComponentName getComponentFromPackage(String packageName)
+android.car.cluster.renderer InstrumentClusterRenderingService void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions)
+android.car.cluster.renderer InstrumentClusterRenderingService void setClusterActivityState(String category, Bundle state)
+android.car.content.pm AppBlockingPackageInfo void verify()
+android.car.content.pm AppBlockingPackageInfo boolean isActivityCovered(String className)
+android.car.content.pm CarPackageManager String BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME
+android.car.content.pm CarPackageManager String BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID
+android.car.content.pm CarPackageManager String BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME
+android.car.content.pm CarPackageManager String BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO
+android.car.content.pm CarPackageManager String BLOCKING_INTENT_EXTRA_DISPLAY_ID
+android.car.content.pm CarPackageManager String DRIVING_SAFETY_REGION_ALL
+android.car.content.pm CarPackageManager String DRIVING_SAFETY_ACTIVITY_METADATA_REGIONS
+android.car.content.pm CarPackageManager int ERROR_CODE_NO_PACKAGE
+android.car.content.pm CarPackageManager CarPackageManager CarPackageManager(Car car, IBinder service)
+android.car.content.pm CarPackageManager CarPackageManager CarPackageManager(Car car, ICarPackageManager service)
+android.car.content.pm CarPackageManager void onCarDisconnected()
+android.car.content.pm CarPackageManager void restartTask(int taskId)
+android.car.content.pm CarPackageManager void setEnableActivityBlocking(boolean enable)
+android.car.content.pm CarPackageManager String getCurrentDrivingSafetyRegion()
+android.car.content.pm CarPackageManager void controlTemporaryActivityBlockingBypassingAsUser(String packageName, String activityClassName, boolean bypass, int userId)
+android.car.content.pm CarPackageManager List<String> getSupportedDrivingSafetyRegionsForActivityAsUser(String packageName, String activityClassName, int userId)
+android.car.diagnostic CarDiagnosticEvent CarDiagnosticEvent withVendorSensorsRemoved()
+android.car.diagnostic CarDiagnosticEvent boolean isEmptyFrame()
+android.car.diagnostic CarDiagnosticEvent CarDiagnosticEvent checkLiveFrame()
+android.car.diagnostic CarDiagnosticEvent CarDiagnosticEvent checkFreezeFrame()
+android.car.diagnostic CarDiagnosticEvent boolean isEarlierThan(CarDiagnosticEvent otherEvent)
+android.car.diagnostic CarDiagnosticEvent.IgnitionMonitor.Decoder IgnitionMonitor fromValue(int value)
+android.car.diagnostic CarDiagnosticEvent.CommonIgnitionMonitors int COMPONENTS_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CommonIgnitionMonitors int COMPONENTS_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.CommonIgnitionMonitors int FUEL_SYSTEM_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CommonIgnitionMonitors int FUEL_SYSTEM_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.CommonIgnitionMonitors int MISFIRE_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CommonIgnitionMonitors int MISFIRE_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int EGR_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int EGR_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int OXYGEN_SENSOR_HEATER_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int OXYGEN_SENSOR_HEATER_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int OXYGEN_SENSOR_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int OXYGEN_SENSOR_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int AC_REFRIGERANT_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int AC_REFRIGERANT_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int SECONDARY_AIR_SYSTEM_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int SECONDARY_AIR_SYSTEM_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int EVAPORATIVE_SYSTEM_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int EVAPORATIVE_SYSTEM_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int HEATED_CATALYST_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int HEATED_CATALYST_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int CATALYST_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.SparkIgnitionMonitors int CATALYST_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int EGR_OR_VVT_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int EGR_OR_VVT_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int PM_FILTER_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int PM_FILTER_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int EXHAUST_GAS_SENSOR_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int EXHAUST_GAS_SENSOR_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int BOOST_PRESSURE_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int BOOST_PRESSURE_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int NOx_SCR_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int NOx_SCR_INCOMPLETE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int NMHC_CATALYST_AVAILABLE
+android.car.diagnostic CarDiagnosticEvent.CompressionIgnitionMonitors int NMHC_CATALYST_INCOMPLETE
+android.car.diagnostic CarDiagnosticManager int[] FRAME_TYPES
+android.car.diagnostic CarDiagnosticManager CarDiagnosticManager CarDiagnosticManager(Car car, IBinder service)
+android.car.drivingstate CarDrivingStateManager CarDrivingStateManager CarDrivingStateManager(Car car, IBinder service)
+android.car.drivingstate CarDrivingStateManager void onCarDisconnected()
+android.car.drivingstate CarDrivingStateManager void injectDrivingState(int drivingState)
+android.car.drivingstate CarUxRestrictions long getTimeStamp()
+android.car.drivingstate CarUxRestrictionsConfiguration void writeJson(JsonWriter writer)
+android.car.drivingstate CarUxRestrictionsConfiguration CarUxRestrictionsConfiguration readJson(JsonReader reader, int schemaVersion)
+android.car.drivingstate CarUxRestrictionsConfiguration boolean hasSameParameters(CarUxRestrictionsConfiguration other)
+android.car.drivingstate CarUxRestrictionsConfiguration void dump(PrintWriter writer)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Map<String,RestrictionModeContainer> mRestrictionModes
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder Builder()
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder int validatePort(int port)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setPhysicalPort(int port)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setUxRestrictions(int drivingState, boolean requiresOptimization, int restrictions)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setUxRestrictions(int drivingState, SpeedRange speedRange, boolean requiresOptimization, int restrictions)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setUxRestrictions(int drivingState, DrivingStateRestrictions drivingStateRestrictions)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setMaxStringLength(int maxStringLength)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setMaxCumulativeContentItems(int maxCumulativeContentItems)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder Builder setMaxContentDepth(int maxContentDepth)
+android.car.drivingstate CarUxRestrictionsConfiguration.Builder CarUxRestrictionsConfiguration build()
+android.car.drivingstate CarUxRestrictionsConfiguration.DrivingStateRestrictions DrivingStateRestrictions setDistractionOptimizationRequired(boolean distractionOptimizationRequired)
+android.car.drivingstate CarUxRestrictionsConfiguration.DrivingStateRestrictions DrivingStateRestrictions setRestrictions(int restrictions)
+android.car.drivingstate CarUxRestrictionsConfiguration.DrivingStateRestrictions DrivingStateRestrictions setMode(String mode)
+android.car.drivingstate CarUxRestrictionsConfiguration.DrivingStateRestrictions DrivingStateRestrictions setSpeedRange(Builder.SpeedRange speedRange)
+android.car.drivingstate CarUxRestrictionsConfiguration.DrivingStateRestrictions String toString()
+android.car.drivingstate CarUxRestrictionsManager CarUxRestrictionsManager CarUxRestrictionsManager(Car car, IBinder service)
+android.car.drivingstate CarUxRestrictionsManager void registerListener(OnUxRestrictionsChangedListener listener, int displayId)
+android.car.evs CarEvsManager CarEvsManager CarEvsManager(Car car, IBinder service)
+android.car.evs CarEvsManager void onCarDisconnected()
+android.car.hardware CarPropertyConfig String getConfigString()
+android.car.hardware CarPropertyConfig int getAreaCount()
+android.car.hardware CarPropertyConfig int getFirstAndOnlyAreaId()
+android.car.hardware CarPropertyConfig boolean hasArea(int areaId)
+android.car.hardware CarPropertyConfig String toString()
+android.car.hardware CarPropertyConfig Builder<T> newBuilder(Class<T> type, int propertyId, int areaType)
+android.car.hardware CarPropertyConfig.AreaConfig Parcelable.Creator<AreaConfig<Object>> CREATOR
+android.car.hardware CarPropertyConfig.AreaConfig T getMinValue()
+android.car.hardware CarPropertyConfig.AreaConfig T getMaxValue()
+android.car.hardware CarPropertyConfig.AreaConfig int describeContents()
+android.car.hardware CarPropertyConfig.AreaConfig void writeToParcel(Parcel dest, int flags)
+android.car.hardware CarPropertyConfig.AreaConfig String toString()
+android.car.hardware CarPropertyValue CarPropertyValue CarPropertyValue(int propertyId, int areaId, T value)
+android.car.hardware CarPropertyValue CarPropertyValue CarPropertyValue(int propertyId, int areaId, int status, long timestamp, T value)
+android.car.hardware CarPropertyValue CarPropertyValue CarPropertyValue(Parcel in)
+android.car.hardware CarPropertyValue String toString()
+android.car.hardware CarSensorConfig String WHEEL_TICK_DISTANCE_SUPPORTED_WHEELS
+android.car.hardware CarSensorConfig String WHEEL_TICK_DISTANCE_FRONT_LEFT_UM_PER_TICK
+android.car.hardware CarSensorConfig String WHEEL_TICK_DISTANCE_FRONT_RIGHT_UM_PER_TICK
+android.car.hardware CarSensorConfig String WHEEL_TICK_DISTANCE_REAR_RIGHT_UM_PER_TICK
+android.car.hardware CarSensorConfig String WHEEL_TICK_DISTANCE_REAR_LEFT_UM_PER_TICK
+android.car.hardware CarSensorConfig Parcelable.Creator<CarSensorConfig> CREATOR
+android.car.hardware CarSensorConfig CarSensorConfig CarSensorConfig(Parcel in)
+android.car.hardware CarSensorConfig CarSensorConfig CarSensorConfig(int type, Bundle b)
+android.car.hardware CarSensorConfig int describeContents()
+android.car.hardware CarSensorConfig void writeToParcel(Parcel dest, int flags)
+android.car.hardware CarSensorConfig Bundle getBundle()
+android.car.hardware CarSensorConfig int getInt(String key)
+android.car.hardware CarSensorConfig int getType()
+android.car.hardware CarSensorConfig String toString()
+android.car.hardware CarSensorEvent CarSensorEvent CarSensorEvent(Parcel in)
+android.car.hardware CarSensorEvent CarSensorEvent CarSensorEvent(int sensorType, long timestamp, int floatValueSize, int intValueSize, int longValueSize)
+android.car.hardware CarSensorEvent EnvironmentData getEnvironmentData(EnvironmentData data)
+android.car.hardware CarSensorEvent IgnitionStateData getIgnitionStateData(IgnitionStateData data)
+android.car.hardware CarSensorEvent NightData getNightData(NightData data)
+android.car.hardware CarSensorEvent GearData getGearData(GearData data)
+android.car.hardware CarSensorEvent ParkingBrakeData getParkingBrakeData(ParkingBrakeData data)
+android.car.hardware CarSensorEvent FuelLevelData getFuelLevelData(FuelLevelData data)
+android.car.hardware CarSensorEvent OdometerData getOdometerData(OdometerData data)
+android.car.hardware CarSensorEvent RpmData getRpmData(RpmData data)
+android.car.hardware CarSensorEvent CarSpeedData getCarSpeedData(CarSpeedData data)
+android.car.hardware CarSensorEvent CarWheelTickDistanceData getCarWheelTickDistanceData(CarWheelTickDistanceData data)
+android.car.hardware CarSensorEvent CarAbsActiveData getCarAbsActiveData(CarAbsActiveData data)
+android.car.hardware CarSensorEvent CarTractionControlActiveData getCarTractionControlActiveData(CarTractionControlActiveData data)
+android.car.hardware CarSensorEvent CarFuelDoorOpenData getCarFuelDoorOpenData(CarFuelDoorOpenData data)
+android.car.hardware CarSensorEvent CarEvBatteryLevelData getCarEvBatteryLevelData(CarEvBatteryLevelData data)
+android.car.hardware CarSensorEvent CarEvChargePortOpenData getCarEvChargePortOpenData(CarEvChargePortOpenData data)
+android.car.hardware CarSensorEvent CarEvChargePortConnectedData getCarEvChargePortConnectedData(CarEvChargePortConnectedData data)
+android.car.hardware CarSensorEvent CarEvBatteryChargeRateData getCarEvBatteryChargeRateData(CarEvBatteryChargeRateData data)
+android.car.hardware CarSensorEvent CarEngineOilLevelData getCarEngineOilLevelData(CarEngineOilLevelData data)
+android.car.hardware CarSensorEvent String toString()
+android.car.hardware CarSensorEvent.IgnitionStateData long timestamp
+android.car.hardware CarSensorEvent.IgnitionStateData int ignitionState
+android.car.hardware CarSensorEvent.NightData long timestamp
+android.car.hardware CarSensorEvent.NightData boolean isNightMode
+android.car.hardware CarSensorEvent.GearData long timestamp
+android.car.hardware CarSensorEvent.GearData int gear
+android.car.hardware CarSensorEvent.ParkingBrakeData long timestamp
+android.car.hardware CarSensorEvent.ParkingBrakeData boolean isEngaged
+android.car.hardware CarSensorEvent.FuelLevelData long timestamp
+android.car.hardware CarSensorEvent.FuelLevelData float level
+android.car.hardware CarSensorEvent.OdometerData long timestamp
+android.car.hardware CarSensorEvent.OdometerData float kms
+android.car.hardware CarSensorEvent.RpmData long timestamp
+android.car.hardware CarSensorEvent.RpmData float rpm
+android.car.hardware CarSensorEvent.CarSpeedData long timestamp
+android.car.hardware CarSensorEvent.CarSpeedData float carSpeed
+android.car.hardware CarSensorEvent.CarWheelTickDistanceData long timestamp
+android.car.hardware CarSensorEvent.CarWheelTickDistanceData long sensorResetCount
+android.car.hardware CarSensorEvent.CarWheelTickDistanceData long frontLeftWheelDistanceMm
+android.car.hardware CarSensorEvent.CarWheelTickDistanceData long frontRightWheelDistanceMm
+android.car.hardware CarSensorEvent.CarWheelTickDistanceData long rearRightWheelDistanceMm
+android.car.hardware CarSensorEvent.CarWheelTickDistanceData long rearLeftWheelDistanceMm
+android.car.hardware CarSensorEvent.CarAbsActiveData long timestamp
+android.car.hardware CarSensorEvent.CarAbsActiveData boolean absIsActive
+android.car.hardware CarSensorEvent.CarTractionControlActiveData long timestamp
+android.car.hardware CarSensorEvent.CarTractionControlActiveData boolean tractionControlIsActive
+android.car.hardware CarSensorEvent.CarFuelDoorOpenData long timestamp
+android.car.hardware CarSensorEvent.CarFuelDoorOpenData boolean fuelDoorIsOpen
+android.car.hardware CarSensorEvent.CarEvBatteryLevelData long timestamp
+android.car.hardware CarSensorEvent.CarEvBatteryLevelData float evBatteryLevel
+android.car.hardware CarSensorEvent.CarEvChargePortOpenData long timestamp
+android.car.hardware CarSensorEvent.CarEvChargePortOpenData boolean evChargePortIsOpen
+android.car.hardware CarSensorEvent.CarEvChargePortConnectedData long timestamp
+android.car.hardware CarSensorEvent.CarEvChargePortConnectedData boolean evChargePortIsConnected
+android.car.hardware CarSensorEvent.CarEvBatteryChargeRateData long timestamp
+android.car.hardware CarSensorEvent.CarEvBatteryChargeRateData float evChargeRate
+android.car.hardware CarSensorEvent.CarEngineOilLevelData long timestamp
+android.car.hardware CarSensorEvent.CarEngineOilLevelData int engineOilLevel
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED1
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED8
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED10
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED11
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED12
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED13
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED14
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED15
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED16
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED17
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED18
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED19
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED20
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED21
+android.car.hardware CarSensorManager int SENSOR_TYPE_RESERVED26
+android.car.hardware CarSensorManager CarSensorManager CarSensorManager(Car car, IBinder service)
+android.car.hardware CarSensorManager void onCarDisconnected()
+android.car.hardware CarSensorManager boolean isSensorSupported(int[] sensorList, int sensorType)
+android.car.hardware CarSensorManager CarSensorConfig getSensorConfig(int type)
+android.car.hardware CarVendorExtensionManager CarVendorExtensionManager CarVendorExtensionManager(Car car, IBinder service)
+android.car.hardware CarVendorExtensionManager void onCarDisconnected()
+android.car.hardware.cabin CarCabinManager CarCabinManager CarCabinManager(Car car, IBinder service)
+android.car.hardware.cabin CarCabinManager void onCarDisconnected()
+android.car.hardware.hvac CarHvacManager CarHvacManager CarHvacManager(Car car, IBinder service)
+android.car.hardware.hvac CarHvacManager void onCarDisconnected()
+android.car.hardware.power CarPowerManager String TAG
+android.car.hardware.power CarPowerManager CarPowerManager CarPowerManager(Car car, IBinder service)
+android.car.hardware.power CarPowerManager void requestShutdownOnNextSuspend()
+android.car.hardware.power CarPowerManager void scheduleNextWakeupTime(int seconds)
+android.car.hardware.power CarPowerManager boolean isCompletionAllowed(int state)
+android.car.hardware.power CarPowerManager void onCarDisconnected()
+android.car.hardware.power CarPowerPolicy CarPowerPolicy CarPowerPolicy(String policyId, int[] enabledComponents, int[] disabledComponents)
+android.car.hardware.power PowerComponentUtil int COMPONENT_STATE_ENABLED
+android.car.hardware.power PowerComponentUtil int COMPONENT_STATE_DISABLED
+android.car.hardware.power PowerComponentUtil int COMPONENT_STATE_UNTOUCHED
+android.car.hardware.power PowerComponentUtil int INVALID_POWER_COMPONENT
+android.car.hardware.power PowerComponentUtil int FIRST_POWER_COMPONENT
+android.car.hardware.power PowerComponentUtil int LAST_POWER_COMPONENT
+android.car.hardware.power PowerComponentUtil boolean isValidPowerComponent(int component)
+android.car.hardware.power PowerComponentUtil boolean hasComponents(CarPowerPolicy policy, CarPowerPolicyFilter filter)
+android.car.hardware.power PowerComponentUtil int toPowerComponent(String component, boolean prefix)
+android.car.hardware.power PowerComponentUtil String powerComponentToString(int component)
+android.car.hardware.property CarPropertyEvent int PROPERTY_EVENT_PROPERTY_CHANGE
+android.car.hardware.property CarPropertyEvent int PROPERTY_EVENT_ERROR
+android.car.hardware.property CarPropertyEvent Parcelable.Creator<CarPropertyEvent> CREATOR
+android.car.hardware.property CarPropertyEvent CarPropertyEvent CarPropertyEvent(int eventType, CarPropertyValue<?> carPropertyValue)
+android.car.hardware.property CarPropertyEvent CarPropertyEvent CarPropertyEvent(int eventType, CarPropertyValue<?> carPropertyValue, int errorCode)
+android.car.hardware.property CarPropertyEvent int getEventType()
+android.car.hardware.property CarPropertyEvent CarPropertyValue<?> getCarPropertyValue()
+android.car.hardware.property CarPropertyEvent int describeContents()
+android.car.hardware.property CarPropertyEvent void writeToParcel(Parcel dest, int flags)
+android.car.hardware.property CarPropertyEvent CarPropertyEvent createErrorEventWithErrorCode(int propertyId, int areaId, int errorCode)
+android.car.hardware.property CarPropertyEvent int getErrorCode()
+android.car.hardware.property CarPropertyEvent String toString()
+android.car.hardware.property CarPropertyManager CarPropertyManager CarPropertyManager(Car car, ICarProperty service)
+android.car.hardware.property CarPropertyManager String getReadPermission(int propId)
+android.car.hardware.property CarPropertyManager String getWritePermission(int propId)
+android.car.hardware.property CarPropertyManager void onCarDisconnected()
+android.car.hardware.property VehicleHalStatusCode int STATUS_OK
+android.car.hardware.property VehicleHalStatusCode int STATUS_TRY_AGAIN
+android.car.hardware.property VehicleHalStatusCode int STATUS_INVALID_ARG
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE
+android.car.hardware.property VehicleHalStatusCode int STATUS_ACCESS_DENIED
+android.car.hardware.property VehicleHalStatusCode int STATUS_INTERNAL_ERROR
+android.car.input CarInputManager CarInputManager CarInputManager(Car car, IBinder service)
+android.car.input CarInputManager void onCarDisconnected()
+android.car.media CarAudioManager int INVALID_VOLUME_GROUP_ID
+android.car.media CarAudioManager String AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID
+android.car.media CarAudioManager CarAudioManager CarAudioManager(Car car, IBinder service)
+android.car.media CarAudioManager boolean isDynamicRoutingEnabled()
+android.car.media CarAudioManager int getZoneIdForUid(int uid)
+android.car.media CarAudioManager boolean setZoneIdForUid(int zoneId, int uid)
+android.car.media CarAudioManager boolean clearZoneIdForUid(int uid)
+android.car.media CarAudioManager void onCarDisconnected()
+android.car.media CarAudioPatchHandle CarAudioPatchHandle CarAudioPatchHandle(int patchId, String sourceAddress, String sinkAddress)
+android.car.media CarAudioPatchHandle String getSourceAddress()
+android.car.media CarAudioPatchHandle String getSinkAddress()
+android.car.media CarAudioPatchHandle int getHandleId()
+android.car.media CarMediaManager CarMediaManager CarMediaManager(Car car, IBinder service)
+android.car.media CarMediaManager void onCarDisconnected()
+android.car.media CarMediaManager boolean isIndependentPlaybackConfig()
+android.car.media CarMediaManager void setIndependentPlaybackConfig(boolean independent)
+android.car.media CarVolumeGroupInfo CarVolumeGroupInfo CarVolumeGroupInfo(Parcel in)
+android.car.navigation CarNavigationInstrumentCluster Bundle getExtra()
+android.car.navigation CarNavigationStatusManager CarNavigationStatusManager CarNavigationStatusManager(Car car, IBinder service)
+android.car.navigation CarNavigationStatusManager void onCarDisconnected()
+android.car.occupantawareness DriverMonitoringDetection int confidenceLevel
+android.car.occupantawareness DriverMonitoringDetection boolean isLookingOnRoad
+android.car.occupantawareness DriverMonitoringDetection long gazeDurationMillis
+android.car.occupantawareness DriverMonitoringDetection Parcelable.Creator<DriverMonitoringDetection> CREATOR
+android.car.occupantawareness DriverMonitoringDetection DriverMonitoringDetection DriverMonitoringDetection()
+android.car.occupantawareness DriverMonitoringDetection DriverMonitoringDetection DriverMonitoringDetection(int confidenceLevel, boolean isLookingOnRoad, long gazeDurationMillis)
+android.car.occupantawareness DriverMonitoringDetection int describeContents()
+android.car.occupantawareness DriverMonitoringDetection String toString()
+android.car.occupantawareness DriverMonitoringDetection void writeToParcel(Parcel dest, int flags)
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_UNKNOWN
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_CENTER_INSTRUMENT_CLUSTER
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_REAR_VIEW_MIRROR
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_LEFT_SIDE_MIRROR
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_RIGHT_SIDE_MIRROR
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_FORWARD_ROADWAY
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_LEFT_ROADWAY
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_RIGHT_ROADWAY
+android.car.occupantawareness GazeDetection int VEHICLE_REGION_HEAD_UNIT_DISPLAY
+android.car.occupantawareness GazeDetection int confidenceLevel
+android.car.occupantawareness GazeDetection Point3D leftEyePosition
+android.car.occupantawareness GazeDetection Point3D rightEyePosition
+android.car.occupantawareness GazeDetection Point3D headAngleUnitVector
+android.car.occupantawareness GazeDetection Point3D gazeAngleUnitVector
+android.car.occupantawareness GazeDetection int gazeTarget
+android.car.occupantawareness GazeDetection long durationOnTargetMillis
+android.car.occupantawareness GazeDetection Parcelable.Creator<GazeDetection> CREATOR
+android.car.occupantawareness GazeDetection GazeDetection GazeDetection(int confidenceLevel, Point3D leftEyePosition, Point3D rightEyePosition, Point3D headAngleUnitVector, Point3D gazeAngleUnitVector, int gazeTarget, long durationOnTargetMillis)
+android.car.occupantawareness GazeDetection int describeContents()
+android.car.occupantawareness GazeDetection void writeToParcel(Parcel dest, int flags)
+android.car.occupantawareness GazeDetection String toString()
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_NONE
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_DRIVER
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_FRONT_PASSENGER
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ROW_2_PASSENGER_LEFT
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ROW_2_PASSENGER_CENTER
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ROW_2_PASSENGER_RIGHT
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ROW_3_PASSENGER_LEFT
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ROW_3_PASSENGER_CENTER
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ROW_3_PASSENGER_RIGHT
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ALL_FRONT_OCCUPANTS
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ALL_ROW_2_OCCUPANTS
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ALL_ROW_3_OCCUPANTS
+android.car.occupantawareness OccupantAwarenessDetection int VEHICLE_OCCUPANT_ALL_OCCUPANTS
+android.car.occupantawareness OccupantAwarenessDetection int CONFIDENCE_LEVEL_NONE
+android.car.occupantawareness OccupantAwarenessDetection int CONFIDENCE_LEVEL_LOW
+android.car.occupantawareness OccupantAwarenessDetection int CONFIDENCE_LEVEL_HIGH
+android.car.occupantawareness OccupantAwarenessDetection int CONFIDENCE_LEVEL_MAX
+android.car.occupantawareness OccupantAwarenessDetection int role
+android.car.occupantawareness OccupantAwarenessDetection long timestampMillis
+android.car.occupantawareness OccupantAwarenessDetection boolean isPresent
+android.car.occupantawareness OccupantAwarenessDetection GazeDetection gazeDetection
+android.car.occupantawareness OccupantAwarenessDetection DriverMonitoringDetection driverMonitoringDetection
+android.car.occupantawareness OccupantAwarenessDetection Parcelable.Creator<OccupantAwarenessDetection> CREATOR
+android.car.occupantawareness OccupantAwarenessDetection OccupantAwarenessDetection OccupantAwarenessDetection(int role, long timestampMillis, boolean isPresent, GazeDetection gazeDetection, DriverMonitoringDetection driverMonitoringDetection)
+android.car.occupantawareness OccupantAwarenessDetection int describeContents()
+android.car.occupantawareness OccupantAwarenessDetection void writeToParcel(Parcel dest, int flags)
+android.car.occupantawareness OccupantAwarenessDetection String toString()
+android.car.occupantawareness OccupantAwarenessManager OccupantAwarenessManager OccupantAwarenessManager(Car car, IBinder service)
+android.car.occupantawareness OccupantAwarenessManager void onCarDisconnected()
+android.car.occupantawareness OccupantAwarenessManager int getCapabilityForRole(int role)
+android.car.occupantawareness OccupantAwarenessManager void registerChangeCallback(ChangeCallback callback)
+android.car.occupantawareness OccupantAwarenessManager void unregisterChangeCallback()
+android.car.occupantawareness Point3D double x
+android.car.occupantawareness Point3D double y
+android.car.occupantawareness Point3D double z
+android.car.occupantawareness Point3D Parcelable.Creator<Point3D> CREATOR
+android.car.occupantawareness Point3D Point3D Point3D(double valueX, double valueY, double valueZ)
+android.car.occupantawareness Point3D int describeContents()
+android.car.occupantawareness Point3D void writeToParcel(Parcel dest, int flags)
+android.car.occupantawareness Point3D String toString()
+android.car.occupantawareness SystemStatusEvent int SYSTEM_STATUS_READY
+android.car.occupantawareness SystemStatusEvent int SYSTEM_STATUS_NOT_SUPPORTED
+android.car.occupantawareness SystemStatusEvent int SYSTEM_STATUS_NOT_READY
+android.car.occupantawareness SystemStatusEvent int SYSTEM_STATUS_SYSTEM_FAILURE
+android.car.occupantawareness SystemStatusEvent int DETECTION_TYPE_NONE
+android.car.occupantawareness SystemStatusEvent int DETECTION_TYPE_PRESENCE
+android.car.occupantawareness SystemStatusEvent int DETECTION_TYPE_GAZE
+android.car.occupantawareness SystemStatusEvent int DETECTION_TYPE_DRIVER_MONITORING
+android.car.occupantawareness SystemStatusEvent int systemStatus
+android.car.occupantawareness SystemStatusEvent int detectionType
+android.car.occupantawareness SystemStatusEvent Parcelable.Creator<SystemStatusEvent> CREATOR
+android.car.occupantawareness SystemStatusEvent SystemStatusEvent SystemStatusEvent(int status, int type)
+android.car.occupantawareness SystemStatusEvent SystemStatusEvent SystemStatusEvent()
+android.car.occupantawareness SystemStatusEvent int describeContents()
+android.car.occupantawareness SystemStatusEvent void writeToParcel(Parcel dest, int flags)
+android.car.occupantawareness SystemStatusEvent String toString()
+android.car.oem AudioFocusEntry AudioFocusEntry AudioFocusEntry(android.os.Parcel in)
+android.car.oem OemCarAudioFocusEvaluationRequest OemCarAudioFocusEvaluationRequest OemCarAudioFocusEvaluationRequest(Parcel in)
+android.car.oem OemCarAudioFocusEvaluationRequest OemCarAudioFocusEvaluationRequest OemCarAudioFocusEvaluationRequest(AudioFocusEntry audioFocusEntry, List<CarVolumeGroupInfo> mutedVolumeGroups, List<AudioFocusEntry> focusHolders, List<AudioFocusEntry> focusLosers, int audioZoneId)
+android.car.oem OemCarAudioFocusResult OemCarAudioFocusResult OemCarAudioFocusResult(Parcel in)
+android.car.oem OemCarAudioVolumeRequest OemCarAudioVolumeRequest OemCarAudioVolumeRequest(int audioZoneId, int callState, List<AudioAttributes> activePlaybackAttributes, List<AudioAttributes> duckedAudioAttributes, List<CarVolumeGroupInfo> carVolumeGroupInfos)
+android.car.oem OemCarAudioVolumeRequest.Builder Builder Builder(int audioZoneId)
+android.car.oem OemCarAudioVolumeRequest.Builder Builder Builder(OemCarAudioVolumeRequest volumeRequest)
+android.car.oem OemCarVolumeChangeInfo OemCarVolumeChangeInfo OemCarVolumeChangeInfo(boolean volumeChanged, CarVolumeGroupInfo changedVolumeGroup)
+android.car.os CarPerformanceManager CarPerformanceManager CarPerformanceManager(Car car, IBinder service)
+android.car.os CarPerformanceManager void onCarDisconnected()
+android.car.os CarPerformanceManager void addCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityMonitoringConfig config, CpuAvailabilityChangeListener listener)
+android.car.os CarPerformanceManager void removeCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityChangeListener listener)
+android.car.os CarPerformanceManager.CpuAvailabilityChangeListener void onCpuAvailabilityChange(CpuAvailabilityInfo info)
+android.car.os CpuAvailabilityInfo Parcelable.Creator<CpuAvailabilityInfo> CREATOR
+android.car.os CpuAvailabilityInfo int getCpuset()
+android.car.os CpuAvailabilityInfo int getAverageAvailabilityPercent()
+android.car.os CpuAvailabilityInfo boolean isTimeout()
+android.car.os CpuAvailabilityInfo String toString()
+android.car.os CpuAvailabilityInfo void writeToParcel(android.os.Parcel dest, int flags)
+android.car.os CpuAvailabilityInfo int describeContents()
+android.car.os CpuAvailabilityInfo.Builder Builder Builder(int cpuset, int averageAvailabilityPercent)
+android.car.os CpuAvailabilityInfo.Builder Builder setCpuset(int value)
+android.car.os CpuAvailabilityInfo.Builder Builder setAverageAvailabilityPercent(int value)
+android.car.os CpuAvailabilityInfo.Builder Builder setTimeout(boolean value)
+android.car.os CpuAvailabilityInfo.Builder CpuAvailabilityInfo build()
+android.car.os CpuAvailabilityMonitoringConfig int CPUSET_ALL
+android.car.os CpuAvailabilityMonitoringConfig int CPUSET_BACKGROUND
+android.car.os CpuAvailabilityMonitoringConfig int IGNORE_PERCENT_LOWER_BOUND
+android.car.os CpuAvailabilityMonitoringConfig int IGNORE_PERCENT_UPPER_BOUND
+android.car.os CpuAvailabilityMonitoringConfig int MONITORING_TIMEOUT_NEVER
+android.car.os CpuAvailabilityMonitoringConfig int TIMEOUT_ACTION_NOTIFICATION
+android.car.os CpuAvailabilityMonitoringConfig int TIMEOUT_ACTION_REMOVE
+android.car.os CpuAvailabilityMonitoringConfig Parcelable.Creator<CpuAvailabilityMonitoringConfig> CREATOR
+android.car.os CpuAvailabilityMonitoringConfig String cpusetToString(int value)
+android.car.os CpuAvailabilityMonitoringConfig String ignorePercentToString(int value)
+android.car.os CpuAvailabilityMonitoringConfig String timeoutActionToString(int value)
+android.car.os CpuAvailabilityMonitoringConfig int getCpuset()
+android.car.os CpuAvailabilityMonitoringConfig int getLowerBoundPercent()
+android.car.os CpuAvailabilityMonitoringConfig int getUpperBoundPercent()
+android.car.os CpuAvailabilityMonitoringConfig long getTimeoutInSeconds()
+android.car.os CpuAvailabilityMonitoringConfig int getTimeoutAction()
+android.car.os CpuAvailabilityMonitoringConfig String toString()
+android.car.os CpuAvailabilityMonitoringConfig void writeToParcel(android.os.Parcel dest, int flags)
+android.car.os CpuAvailabilityMonitoringConfig int describeContents()
+android.car.os ThreadPolicyWithPriority String priorityToString(int value)
+android.car.os ThreadPolicyWithPriority String schedToString(int value)
+android.car.projection ProjectionOptions Builder builder()
+android.car.projection ProjectionOptions String toString()
+android.car.projection ProjectionOptions.Builder Builder setProjectionActivityOptions(ActivityOptions activityOptions)
+android.car.projection ProjectionOptions.Builder Builder setUiMode(int uiMode)
+android.car.projection ProjectionOptions.Builder Builder setConsentActivity(ComponentName consentActivity)
+android.car.projection ProjectionOptions.Builder Builder setAccessPointMode(int accessPointMode)
+android.car.projection ProjectionOptions.Builder ProjectionOptions build()
+android.car.settings CarSettings int[] DEFAULT_GARAGE_MODE_WAKE_UP_TIME
+android.car.settings CarSettings int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW
+android.car.settings CarSettings.Global String DEFAULT_USER_RESTRICTIONS_SET
+android.car.settings CarSettings.Global String DISABLE_INSTRUMENTATION_SERVICE
+android.car.settings CarSettings.Global String ENABLE_USER_SWITCH_DEVELOPER_MESSAGE
+android.car.settings CarSettings.Global String LAST_ACTIVE_USER_ID
+android.car.settings CarSettings.Global String LAST_ACTIVE_PERSISTENT_USER_ID
+android.car.settings CarSettings.Global String SYSTEM_BAR_VISIBILITY_OVERRIDE
+android.car.settings CarSettings.Secure String KEY_BLUETOOTH_DEVICES
+android.car.settings CarSettings.Secure String KEY_BLUETOOTH_PROFILES_INHIBITED
+android.car.storagemonitoring CarStorageMonitoringManager CarStorageMonitoringManager CarStorageMonitoringManager(Car car, IBinder service)
+android.car.storagemonitoring CarStorageMonitoringManager void onCarDisconnected()
+android.car.storagemonitoring IoStats IoStats IoStats(JSONObject in)
+android.car.storagemonitoring IoStats void writeToJson(JsonWriter jsonWriter)
+android.car.storagemonitoring IoStatsEntry IoStatsEntry IoStatsEntry(JSONObject in)
+android.car.storagemonitoring IoStatsEntry void writeToJson(JsonWriter jsonWriter)
+android.car.storagemonitoring IoStatsEntry IoStatsEntry delta(IoStatsEntry other)
+android.car.storagemonitoring IoStatsEntry boolean representsSameMetrics(UidIoRecord record)
+android.car.storagemonitoring IoStatsEntry.Metrics Metrics Metrics(JSONObject in)
+android.car.storagemonitoring IoStatsEntry.Metrics void writeToJson(JsonWriter jsonWriter)
+android.car.storagemonitoring IoStatsEntry.Metrics Metrics delta(Metrics other)
+android.car.storagemonitoring LifetimeWriteInfo LifetimeWriteInfo LifetimeWriteInfo(JSONObject in)
+android.car.storagemonitoring LifetimeWriteInfo void writeToJson(JsonWriter jsonWriter)
+android.car.storagemonitoring UidIoRecord UidIoRecord delta(IoStatsEntry other)
+android.car.storagemonitoring UidIoRecord UidIoRecord delta(UidIoRecord other)
+android.car.storagemonitoring WearEstimate WearEstimate UNKNOWN_ESTIMATE
+android.car.storagemonitoring WearEstimate WearEstimate WearEstimate(JsonReader in)
+android.car.storagemonitoring WearEstimate WearEstimate WearEstimate(JSONObject in)
+android.car.storagemonitoring WearEstimate void writeToJson(JsonWriter jsonWriter)
+android.car.telemetry CarTelemetryManager CarTelemetryManager CarTelemetryManager(Car car, IBinder service)
+android.car.telemetry CarTelemetryManager void onCarDisconnected()
+android.car.test CarLocationTestHelper boolean injectLocation(Location location, Context context)
+android.car.test CarTestManager CarTestManager CarTestManager(Car car, IBinder carServiceBinder)
+android.car.test CarTestManager void onCarDisconnected()
+android.car.test CarTestManager void stopCarService(IBinder token)
+android.car.test CarTestManager void startCarService(IBinder token)
+android.car.test CarTestManager String getOemServiceName()
+android.car.user CarUserManager String TAG
+android.car.user CarUserManager int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED
+android.car.user CarUserManager String BUNDLE_PARAM_ACTION
+android.car.user CarUserManager String BUNDLE_PARAM_PREVIOUS_USER_ID
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_TYPE_KEY_FOB
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_1
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_2
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_3
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_4
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_ASSOCIATE_CURRENT_USER
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_CURRENT_USER
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_ALL_USERS
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_UNKNOWN
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATE_CURRENT_USER
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATED_ANOTHER_USER
+android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_NOT_ASSOCIATED_ANY_USER
+android.car.user CarUserManager CarUserManager CarUserManager(Car car, IBinder service)
+android.car.user CarUserManager CarUserManager CarUserManager(Car car, ICarUserService service, UserManager userManager)
+android.car.user CarUserManager AsyncFuture<UserSwitchResult> switchUser(int targetUserId)
+android.car.user CarUserManager AsyncFuture<UserSwitchResult> logoutUser()
+android.car.user CarUserManager AsyncFuture<UserCreationResult> createGuest(String name)
+android.car.user CarUserManager AsyncFuture<UserCreationResult> createUser(String name, int flags)
+android.car.user CarUserManager void updatePreCreatedUsers()
+android.car.user CarUserManager UserRemovalResult removeUser(int userId)
+android.car.user CarUserManager boolean isUserHalUserAssociationSupported()
+android.car.user CarUserManager UserIdentificationAssociationResponse getUserIdentificationAssociation(int types)
+android.car.user CarUserManager AsyncFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(int[] types, int[] values)
+android.car.user CarUserManager void setUserSwitchUiCallback(UserSwitchUiCallback callback)
+android.car.user CarUserManager void onCarDisconnected()
+android.car.user CarUserManager String lifecycleEventTypeToString(int type)
+android.car.user CarUserManager boolean isValidUser(int userId)
+android.car.user CarUserManager.UserLifecycleEvent UserLifecycleEvent UserLifecycleEvent(int eventType, int from, int to)
+android.car.user CarUserManager.UserLifecycleEvent UserLifecycleEvent UserLifecycleEvent(int eventType, int to)
+android.car.user CarUserManager.UserLifecycleEvent int getUserId()
+android.car.user CarUserManager.UserLifecycleEvent int getPreviousUserId()
+android.car.user CarUserManager.UserSwitchUiCallback void showUserSwitchDialog(int userId)
+android.car.user ExperimentalCarUserManager String TAG
+android.car.user ExperimentalCarUserManager ExperimentalCarUserManager ExperimentalCarUserManager(Car car, IBinder service)
+android.car.user ExperimentalCarUserManager ExperimentalCarUserManager ExperimentalCarUserManager(Car car, IExperimentalCarUserService service)
+android.car.user ExperimentalCarUserManager AndroidFuture<UserCreationResult> createDriver(String name, boolean admin)
+android.car.user ExperimentalCarUserManager int createPassenger(String name, int driverId)
+android.car.user ExperimentalCarUserManager AndroidFuture<UserSwitchResult> switchDriver(int driverId)
+android.car.user ExperimentalCarUserManager List<Integer> getAllDrivers()
+android.car.user ExperimentalCarUserManager List<Integer> getPassengers(int driverId)
+android.car.user ExperimentalCarUserManager boolean startPassenger(int passengerId, int zoneId)
+android.car.user ExperimentalCarUserManager boolean stopPassenger(int passengerId)
+android.car.user ExperimentalCarUserManager void onCarDisconnected()
+android.car.user OperationResult boolean isSuccess()
+android.car.user UserCreationResult int STATUS_SUCCESSFUL
+android.car.user UserCreationResult int STATUS_ANDROID_FAILURE
+android.car.user UserCreationResult int STATUS_HAL_FAILURE
+android.car.user UserCreationResult int STATUS_HAL_INTERNAL_FAILURE
+android.car.user UserCreationResult int STATUS_INVALID_REQUEST
+android.car.user UserCreationResult Parcelable.Creator<UserCreationResult> CREATOR
+android.car.user UserCreationResult UserCreationResult UserCreationResult(int status)
+android.car.user UserCreationResult UserCreationResult UserCreationResult(int status, UserHandle user)
+android.car.user UserCreationResult UserCreationResult UserCreationResult(int status, Integer androidFailureStatus, UserHandle user, String errorMessage, String internalErrorMessage)
+android.car.user UserCreationResult boolean isSuccess()
+android.car.user UserCreationResult int describeContents()
+android.car.user UserCreationResult String statusToString(int value)
+android.car.user UserCreationResult int getStatus()
+android.car.user UserCreationResult Integer getAndroidFailureStatus()
+android.car.user UserCreationResult UserHandle getUser()
+android.car.user UserCreationResult String getErrorMessage()
+android.car.user UserCreationResult String getInternalErrorMessage()
+android.car.user UserCreationResult String toString()
+android.car.user UserCreationResult void writeToParcel(android.os.Parcel dest, int flags)
+android.car.user UserIdentificationAssociationResponse Parcelable.Creator<UserIdentificationAssociationResponse> CREATOR
+android.car.user UserIdentificationAssociationResponse UserIdentificationAssociationResponse forFailure()
+android.car.user UserIdentificationAssociationResponse UserIdentificationAssociationResponse forFailure(String errorMessage)
+android.car.user UserIdentificationAssociationResponse UserIdentificationAssociationResponse forSuccess(int[] values)
+android.car.user UserIdentificationAssociationResponse UserIdentificationAssociationResponse forSuccess(int[] values, String errorMessage)
+android.car.user UserIdentificationAssociationResponse boolean isSuccess()
+android.car.user UserIdentificationAssociationResponse String getErrorMessage()
+android.car.user UserIdentificationAssociationResponse int[] getValues()
+android.car.user UserIdentificationAssociationResponse String toString()
+android.car.user UserIdentificationAssociationResponse void writeToParcel(android.os.Parcel dest, int flags)
+android.car.user UserIdentificationAssociationResponse int describeContents()
+android.car.user UserLifecycleEventFilter int[] getEventTypes()
+android.car.user UserLifecycleEventFilter int[] getUserIds()
+android.car.user UserLifecycleEventFilter.Builder Builder addEventType(int eventType)
+android.car.user UserLifecycleEventFilter.Builder Builder addUser(UserHandle userHandle)
+android.car.user UserLifecycleEventFilter.Builder UserLifecycleEventFilter build()
+android.car.user UserRemovalResult int STATUS_SUCCESSFUL
+android.car.user UserRemovalResult int STATUS_ANDROID_FAILURE
+android.car.user UserRemovalResult int STATUS_INVALID_REQUEST
+android.car.user UserRemovalResult int STATUS_USER_DOES_NOT_EXIST
+android.car.user UserRemovalResult int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
+android.car.user UserRemovalResult int STATUS_SUCCESSFUL_SET_EPHEMERAL
+android.car.user UserRemovalResult int STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL
+android.car.user UserRemovalResult Parcelable.Creator<UserRemovalResult> CREATOR
+android.car.user UserRemovalResult UserRemovalResult UserRemovalResult(int status)
+android.car.user UserRemovalResult boolean isSuccess()
+android.car.user UserRemovalResult String statusToString(int value)
+android.car.user UserRemovalResult int getStatus()
+android.car.user UserRemovalResult String toString()
+android.car.user UserRemovalResult void writeToParcel(android.os.Parcel dest, int flags)
+android.car.user UserRemovalResult int describeContents()
+android.car.user UserStartResult int STATUS_SUCCESSFUL
+android.car.user UserStartResult int STATUS_ANDROID_FAILURE
+android.car.user UserStartResult int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER
+android.car.user UserStartResult int STATUS_USER_DOES_NOT_EXIST
+android.car.user UserStartResult Parcelable.Creator<UserStartResult> CREATOR
+android.car.user UserStartResult UserStartResult UserStartResult(int status)
+android.car.user UserStartResult boolean isSuccess()
+android.car.user UserStartResult String statusToString(int value)
+android.car.user UserStartResult int getStatus()
+android.car.user UserStartResult String toString()
+android.car.user UserStartResult void writeToParcel(android.os.Parcel dest, int flags)
+android.car.user UserStartResult int describeContents()
+android.car.user UserStopResult int STATUS_SUCCESSFUL
+android.car.user UserStopResult int STATUS_ANDROID_FAILURE
+android.car.user UserStopResult int STATUS_USER_DOES_NOT_EXIST
+android.car.user UserStopResult int STATUS_FAILURE_SYSTEM_USER
+android.car.user UserStopResult int STATUS_FAILURE_CURRENT_USER
+android.car.user UserStopResult Parcelable.Creator<UserStopResult> CREATOR
+android.car.user UserStopResult UserStopResult UserStopResult(int status)
+android.car.user UserStopResult boolean isSuccess(int status)
+android.car.user UserStopResult boolean isSuccess()
+android.car.user UserStopResult String statusToString(int value)
+android.car.user UserStopResult int getStatus()
+android.car.user UserStopResult String toString()
+android.car.user UserStopResult void writeToParcel(android.os.Parcel dest, int flags)
+android.car.user UserStopResult int describeContents()
+android.car.user UserSwitchResult int STATUS_SUCCESSFUL
+android.car.user UserSwitchResult int STATUS_ANDROID_FAILURE
+android.car.user UserSwitchResult int STATUS_HAL_FAILURE
+android.car.user UserSwitchResult int STATUS_HAL_INTERNAL_FAILURE
+android.car.user UserSwitchResult int STATUS_INVALID_REQUEST
+android.car.user UserSwitchResult int STATUS_UX_RESTRICTION_FAILURE
+android.car.user UserSwitchResult int STATUS_OK_USER_ALREADY_IN_FOREGROUND
+android.car.user UserSwitchResult int STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO
+android.car.user UserSwitchResult int STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST
+android.car.user UserSwitchResult int STATUS_NOT_SWITCHABLE
+android.car.user UserSwitchResult int STATUS_NOT_LOGGED_IN
+android.car.user UserSwitchResult Parcelable.Creator<UserSwitchResult> CREATOR
+android.car.user UserSwitchResult UserSwitchResult UserSwitchResult(int status, String errorMessage)
+android.car.user UserSwitchResult UserSwitchResult UserSwitchResult(int status, Integer androidFailureStatus, String errorMessage)
+android.car.user UserSwitchResult boolean isSuccess()
+android.car.user UserSwitchResult int describeContents()
+android.car.user UserSwitchResult String statusToString(int value)
+android.car.user UserSwitchResult int getStatus()
+android.car.user UserSwitchResult Integer getAndroidFailureStatus()
+android.car.user UserSwitchResult String getErrorMessage()
+android.car.user UserSwitchResult String toString()
+android.car.user UserSwitchResult void writeToParcel(android.os.Parcel dest, int flags)
+android.car.util.concurrent AndroidAsyncFuture AndroidAsyncFuture AndroidAsyncFuture(AndroidFuture<T> future)
+android.car.util.concurrent AndroidAsyncFuture T get()
+android.car.util.concurrent AndroidAsyncFuture T get(long timeout, TimeUnit unit)
+android.car.util.concurrent AndroidAsyncFuture AsyncFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor)
+android.car.util.concurrent AndroidFuture Parcelable.Creator<AndroidFuture> CREATOR
+android.car.util.concurrent AndroidFuture AndroidFuture AndroidFuture()
+android.car.util.concurrent AndroidFuture AndroidFuture<U> completedFuture(U value)
+android.car.util.concurrent AndroidFuture boolean complete(T value)
+android.car.util.concurrent AndroidFuture boolean completeExceptionally(Throwable ex)
+android.car.util.concurrent AndroidFuture boolean cancel(boolean mayInterruptIfRunning)
+android.car.util.concurrent AndroidFuture void onCompleted(T res, Throwable err)
+android.car.util.concurrent AndroidFuture AndroidFuture<T> whenComplete(BiConsumer<? super T,? super Throwable> action)
+android.car.util.concurrent AndroidFuture AndroidFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor)
+android.car.util.concurrent AndroidFuture AndroidFuture<T> orTimeout(long timeout, TimeUnit unit)
+android.car.util.concurrent AndroidFuture AndroidFuture<T> cancelTimeout()
+android.car.util.concurrent AndroidFuture AndroidFuture<T> setTimeoutHandler(Handler h)
+android.car.util.concurrent AndroidFuture AndroidFuture<U> thenCompose(Function<? super T,? extends CompletionStage<U>> fn)
+android.car.util.concurrent AndroidFuture AndroidFuture<U> thenComposeAsync(Function<? super T,? extends CompletionStage<U>> fn, Executor executor)
+android.car.util.concurrent AndroidFuture AndroidFuture<U> thenApply(Function<? super T,? extends U> fn)
+android.car.util.concurrent AndroidFuture AndroidFuture<U> thenApplyAsync(Function<? super T,? extends U> fn, Executor executor)
+android.car.util.concurrent AndroidFuture AndroidFuture<V> thenCombine(CompletionStage<? extends U> other, BiFunction<? super T,? super U,? extends V> combineResults)
+android.car.util.concurrent AndroidFuture AndroidFuture<T> thenCombine(CompletionStage<Void> other)
+android.car.util.concurrent AndroidFuture AndroidFuture<T> supply(Supplier<T> supplier)
+android.car.util.concurrent AndroidFuture AndroidFuture<T> supplyAsync(Supplier<T> supplier, Executor executor)
+android.car.util.concurrent AndroidFuture void writeToParcel(Parcel dest, int flags)
+android.car.util.concurrent AndroidFuture int describeContents()
+android.car.util.concurrent AsyncFuture T get()
+android.car.util.concurrent AsyncFuture T get(long timeout, TimeUnit unit)
+android.car.util.concurrent AsyncFuture AsyncFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor)
+android.car.vms VmsClient VmsClient VmsClient(IVmsBrokerService service, Executor executor, VmsClientCallback callback, boolean legacyClient, boolean autoCloseMemory, Consumer<RemoteException> exceptionHandler)
+android.car.vms VmsClient void register()
+android.car.vms VmsClient void unregister()
+android.car.vms VmsClientManager VmsClientManager VmsClientManager(Car car, IBinder service)
+android.car.vms VmsClientManager void onCarDisconnected()
+android.car.vms VmsOperationRecorder VmsOperationRecorder VmsOperationRecorder(Writer writer)
+android.car.vms VmsOperationRecorder.Writer boolean isEnabled()
+android.car.vms VmsOperationRecorder.Writer void write(String msg)
+android.car.vms VmsProviderInfo Parcelable.Creator<VmsProviderInfo> CREATOR
+android.car.vms VmsProviderInfo VmsProviderInfo VmsProviderInfo(byte[] description)
+android.car.vms VmsProviderInfo VmsProviderInfo VmsProviderInfo(Parcel in)
+android.car.vms VmsProviderInfo byte[] getDescription()
+android.car.vms VmsProviderInfo boolean equals(Object o)
+android.car.vms VmsProviderInfo int hashCode()
+android.car.vms VmsProviderInfo void writeToParcel(Parcel dest, int flags)
+android.car.vms VmsProviderInfo int describeContents()
+android.car.vms VmsPublisherClientService void onCarLifecycleChanged(Car car, boolean ready)
+android.car.vms VmsRegistrationInfo Parcelable.Creator<VmsRegistrationInfo> CREATOR
+android.car.vms VmsRegistrationInfo VmsRegistrationInfo VmsRegistrationInfo(VmsAvailableLayers availableLayers, VmsSubscriptionState subscriptionState)
+android.car.vms VmsRegistrationInfo VmsRegistrationInfo VmsRegistrationInfo(Parcel in)
+android.car.vms VmsRegistrationInfo VmsAvailableLayers getAvailableLayers()
+android.car.vms VmsRegistrationInfo VmsSubscriptionState getSubscriptionState()
+android.car.vms VmsRegistrationInfo boolean equals(Object o)
+android.car.vms VmsRegistrationInfo int hashCode()
+android.car.vms VmsRegistrationInfo void writeToParcel(Parcel dest, int flags)
+android.car.vms VmsRegistrationInfo int describeContents()
+android.car.vms VmsSubscriberManager VmsSubscriberManager wrap(Car car, VmsClientManager clientManager)
+android.car.vms VmsSubscriberManager void onCarDisconnected()
+android.car.vms VmsSubscriptionHelper VmsSubscriptionHelper VmsSubscriptionHelper(Consumer<Set<VmsAssociatedLayer>> updateHandler)
+android.car.vms VmsSubscriptionHelper void subscribe(VmsLayer layer)
+android.car.vms VmsSubscriptionHelper void subscribe(VmsLayer layer, int providerId)
+android.car.vms VmsSubscriptionHelper void unsubscribe(VmsLayer layer)
+android.car.vms VmsSubscriptionHelper void unsubscribe(VmsLayer layer, int providerId)
+android.car.vms VmsSubscriptionHelper Set<VmsAssociatedLayer> getSubscriptions()
+android.car.watchdog CarWatchdogManager CarWatchdogManager CarWatchdogManager(Car car, IBinder service)
+android.car.watchdog CarWatchdogManager void onCarDisconnected()
+android.car.watchdog IoOveruseAlertThreshold IoOveruseAlertThreshold IoOveruseAlertThreshold(long durationInSeconds, long writtenBytesPerSecond)
+android.car.watchdog IoOveruseStats.Builder Builder Builder(long startTime, long durationInSeconds)
+android.car.watchdog IoOveruseStats.Builder Builder setStartTime(long value)
+android.car.watchdog IoOveruseStats.Builder Builder setDurationInSeconds(long value)
+android.car.watchdog IoOveruseStats.Builder Builder setTotalOveruses(long value)
+android.car.watchdog IoOveruseStats.Builder Builder setTotalTimesKilled(long value)
+android.car.watchdog IoOveruseStats.Builder Builder setTotalBytesWritten(long value)
+android.car.watchdog IoOveruseStats.Builder Builder setKillableOnOveruse(boolean value)
+android.car.watchdog IoOveruseStats.Builder Builder setRemainingWriteBytes(PerStateBytes value)
+android.car.watchdog IoOveruseStats.Builder IoOveruseStats build()
+android.car.watchdog PackageKillableState PackageKillableState PackageKillableState(String packageName, int userId, int killableState)
+android.car.watchdog PackageKillableState String killableStateToString(int value)
+android.car.watchdog ResourceOveruseConfiguration String componentTypeToString(int value)
+android.car.watchdog ResourceOveruseStats.Builder Builder Builder(String packageName, UserHandle userHandle)
+android.car.watchdog ResourceOveruseStats.Builder Builder setPackageName(String value)
+android.car.watchdog ResourceOveruseStats.Builder Builder setUserHandle(UserHandle value)
+android.car.watchdog ResourceOveruseStats.Builder Builder setIoOveruseStats(IoOveruseStats value)
+android.car.watchdog ResourceOveruseStats.Builder ResourceOveruseStats build()

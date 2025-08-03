@@ -1,0 +1,1478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="                    mUiAutomation.adoptShellPermissionIdentity(mPermissions);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AdoptShellPermissionsRule.java"
+            line="63"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="                    mUiAutomation.adoptShellPermissionIdentity();"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AdoptShellPermissionsRule.java"
+            line="65"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="                    mUiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AdoptShellPermissionsRule.java"
+            line="70"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.util.ArraySet`"
+        errorLine1="    private final ArraySet&lt;String&gt; mNotExpected = new ArraySet&lt;&gt;();"
+        errorLine2="                                                  ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AmMonitor.java"
+            line="74"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 21): `android.app.UiAutomation#executeShellCommandRw`"
+        errorLine1='                .executeShellCommandRw("am monitor");'
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AmMonitor.java"
+            line="83"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.util.ArraySet#addAll`"
+        errorLine1="            mNotExpected.addAll(Arrays.asList(notExpected));"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AmMonitor.java"
+            line="91"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.util.ArraySet#contains`"
+        errorLine1="                    if (mNotExpected.contains(line)) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AmMonitor.java"
+            line="168"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 21): `android.app.UiAutomation#executeShellCommandRw`"
+        errorLine1='                    .executeShellCommandRw("am monitor -s -k -p " + mTargetProcess);'
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AnrMonitor.java"
+            line="158"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        final AppOpsManager aom = InstrumentationRegistry.getTargetContext().getSystemService("
+        errorLine2="                                                                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AppOpsUtils.java"
+            line="85"
+            column="78"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="            .getTargetContext().getSystemService(UsageStatsManager.class);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/AppStandbyUtils.java"
+            line="29"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.util.ArraySet`"
+        errorLine1="            violations.get(packageName).put(message, new ArraySet&lt;&gt;());"
+        errorLine2="                                                     ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="271"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.util.ArraySet#add`"
+        errorLine1="        violations.get(packageName).get(message).add(permission);"
+        errorLine2="                                                 ~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="274"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="            PermissionManager permissionManager = context.getSystemService(PermissionManager.class);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="422"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.util.ArraySet`"
+        errorLine1="        Set&lt;String&gt; platformSignedPackages = new ArraySet&lt;&gt;();"
+        errorLine2="                                             ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="469"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Cast from `ArraySet` to `Set` requires API level 23 (current min is 21)"
+        errorLine1="        Set&lt;String&gt; platformSignedPackages = new ArraySet&lt;&gt;();"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="469"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.content.pm.PermissionInfo#getProtection`"
+        errorLine1="                if ((permInfo.getProtection() &amp; PROTECTION_DANGEROUS) != 0) {"
+        errorLine2="                              ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="503"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="The type of the for loop iterated value is android.util.ArraySet&lt;java.lang.String&gt;, which requires API level 23 (current min is 21)"
+        errorLine1="                for (String permission : violations.get(packageName).get(message)) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="705"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="The type of the for loop iterated value is android.util.ArraySet&lt;com.android.compatibility.common.util.BaseDefaultPermissionGrantPolicyTest.UidState.GrantReason&gt;, which requires API level 23 (current min is 21)"
+        errorLine1="                    for (GrantReason reason : permissionsToReasons.get(permission)) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="787"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `new android.util.ArraySet`"
+        errorLine1="                mGrantReasons.get(packageName).put(permission, new ArraySet&lt;&gt;());"
+        errorLine2="                                                               ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="847"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.util.ArraySet#add`"
+        errorLine1="            mGrantReasons.get(packageName).get(permission).add(new GrantReason(reason, override,"
+        errorLine2="                                                           ~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BaseDefaultPermissionGrantPolicyTest.java"
+            line="850"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        return InstrumentationRegistry.getContext().getSystemService(BatteryManager.class);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BatteryUtils.java"
+            line="43"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        return InstrumentationRegistry.getContext().getSystemService(PowerManager.class);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BatteryUtils.java"
+            line="47"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.content.pm.PackageManager#isInstantApp`"
+        errorLine1="        if (InstrumentationRegistry.getContext().getPackageManager().isInstantApp()) {"
+        errorLine2="                                                                     ~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BatteryUtils.java"
+            line="87"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 21): `android.provider.BlockedNumberContract.BlockedNumbers#CONTENT_URI`"
+        errorLine1="        Uri uri = mContentResolver.insert(CONTENT_URI, cv);"
+        errorLine2="                                          ~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BlockedNumberService.java"
+            line="91"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 24 (current min is 21): `android.provider.BlockedNumberContract.BlockedNumbers#CONTENT_URI`"
+        errorLine1="                CONTENT_URI, true,"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BlockedNumberService.java"
+            line="111"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.content.Context#registerReceiver`"
+        errorLine1="            mContext.registerReceiver(this, intentFilter,"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BlockingBroadcastReceiver.java"
+            line="155"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.content.Context#registerReceiver`"
+        errorLine1="            context.registerReceiver(mReceiver, fi, /* permission=*/ null,"
+        errorLine2="                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/BroadcastMessenger.java"
+            line="152"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.content.Context#registerReceiver`"
+        errorLine1="            InstrumentationRegistry.getContext().registerReceiver(mReceiver, filter,"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/CallbackAsserter.java"
+            line="104"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.graphics.Color#getColorSpace`"
+        errorLine1="        if (!expected.getColorSpace().equals(observed.getColorSpace())) {"
+        errorLine2="                      ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ColorUtils.java"
+            line="92"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.graphics.Color#getColorSpace`"
+        errorLine1="        if (!expected.getColorSpace().equals(observed.getColorSpace())) {"
+        errorLine2="                                                      ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ColorUtils.java"
+            line="92"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.graphics.Color#red`"
+        errorLine1='        String red = verifyChannel("red", expected, observed, tolerance, (c) -&gt; c.red());'
+        errorLine2="                                                                                  ~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ColorUtils.java"
+            line="98"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.graphics.Color#green`"
+        errorLine1='        String green = verifyChannel("green", expected, observed, tolerance, (c) -&gt; c.green());'
+        errorLine2="                                                                                      ~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ColorUtils.java"
+            line="99"
+            column="87"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.graphics.Color#blue`"
+        errorLine1='        String blue = verifyChannel("blue", expected, observed, tolerance, (c) -&gt; c.blue());'
+        errorLine2="                                                                                    ~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ColorUtils.java"
+            line="100"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.graphics.Color#alpha`"
+        errorLine1='        String alpha = verifyChannel("alpha", expected, observed, tolerance, (c) -&gt; c.alpha());'
+        errorLine2="                                                                                      ~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ColorUtils.java"
+            line="101"
+            column="87"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        final NetworkInfo networkInfo = context.getSystemService(ConnectivityManager.class)"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ConnectivityUtils.java"
+            line="30"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        DevicePolicyManager dpm = context.getSystemService(DevicePolicyManager.class);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/enterprise/DeviceAdminReceiverUtils.java"
+            line="61"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.app.admin.DevicePolicyManager#clearProfileOwner`"
+        errorLine1="            dpm.clearProfileOwner(admin);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/enterprise/DeviceAdminReceiverUtils.java"
+            line="71"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.content.Context#getMainExecutor`"
+        errorLine1="        DeviceConfig.addOnPropertiesChangedListener(mNamespace, mContext.getMainExecutor(),"
+        errorLine2="                                                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DeviceConfigStateManager.java"
+            line="69"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.util.Base64#getEncoder`"
+        errorLine1="        mJsonWriter.value(Base64.getEncoder().encodeToString(bytes));"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DeviceInfoStore.java"
+            line="268"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.util.Base64.Encoder#encodeToString`"
+        errorLine1="        mJsonWriter.value(Base64.getEncoder().encodeToString(bytes));"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DeviceInfoStore.java"
+            line="268"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        HdmiControlManager cecManager = context.getSystemService(HdmiControlManager.class);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="39"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getModeId`"
+        errorLine1="        if (from.getModeId() == to.getModeId()) {"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="64"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getModeId`"
+        errorLine1="        if (from.getModeId() == to.getModeId()) {"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="64"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getPhysicalHeight`"
+        errorLine1="        if (from.getPhysicalHeight() != to.getPhysicalHeight()"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="68"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getPhysicalHeight`"
+        errorLine1="        if (from.getPhysicalHeight() != to.getPhysicalHeight()"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="68"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getPhysicalWidth`"
+        errorLine1="                || from.getPhysicalWidth() != to.getPhysicalWidth()) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="69"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getPhysicalWidth`"
+        errorLine1="                || from.getPhysicalWidth() != to.getPhysicalWidth()) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="69"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 21): `android.view.Display.Mode#getAlternativeRefreshRates`"
+        errorLine1="        for (float alternativeRefreshRate : from.getAlternativeRefreshRates()) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="73"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.Display.Mode#getRefreshRate`"
+        errorLine1="            if (Math.abs(alternativeRefreshRate - to.getRefreshRate()) &lt;  REFRESH_RATE_TOLERANCE) {"
+        errorLine2="                                                     ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="74"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 21): `android.hardware.display.DisplayManager#getMatchContentFrameRateUserPreference`"
+        errorLine1="        return toSwitchingType(displayManager.getMatchContentFrameRateUserPreference());"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/DisplayUtil.java"
+            line="83"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.util.concurrent.CompletableFuture#complete`"
+        errorLine1="        requests[requestCode]!!.complete(resultCode)"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/FutureResultActivity.kt"
+            line="48"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.util.concurrent.CompletableFuture()`"
+        errorLine1="        val future = CompletableFuture&lt;Int&gt;()"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/FutureResultActivity.kt"
+            line="53"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        mWindowManager = context.getSystemService(WindowManager.class);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="61"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.Insets#bottom`"
+        errorLine1="        outRect.set(insets.left, insets.top, insets.right, insets.bottom);"
+        errorLine2="                                                           ~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="80"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.Insets#left`"
+        errorLine1="        outRect.set(insets.left, insets.top, insets.right, insets.bottom);"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="80"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.Insets#right`"
+        errorLine1="        outRect.set(insets.left, insets.top, insets.right, insets.bottom);"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="80"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 29 (current min is 21): `android.graphics.Insets#top`"
+        errorLine1="        outRect.set(insets.left, insets.top, insets.right, insets.bottom);"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="80"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.view.WindowManager#getCurrentWindowMetrics`"
+        errorLine1="            WindowInsets insets = mWindowManager.getCurrentWindowMetrics().getWindowInsets();"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="127"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.view.WindowMetrics#getWindowInsets`"
+        errorLine1="            WindowInsets insets = mWindowManager.getCurrentWindowMetrics().getWindowInsets();"
+        errorLine2="                                                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="127"
+            column="76"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.view.WindowInsets#getInsetsIgnoringVisibility`"
+        errorLine1="            Insets navInsets = insets.getInsetsIgnoringVisibility("
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="128"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 21): `android.view.WindowInsets.Type#navigationBars`"
+        errorLine1="                    WindowInsets.Type.navigationBars());"
+        errorLine2="                                      ~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/GestureNavSwitchHelper.java"
+            line="129"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.media.MediaCodecInfo.VideoCapabilities#getAchievableFrameRatesFor`"
+        errorLine1="                    .getAchievableFrameRatesFor(width, height);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaPerfUtils.java"
+            line="80"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.media.MediaCodecInfo.VideoCapabilities#getAchievableFrameRatesFor`"
+        errorLine1="            MediaUtils.getVideoCapabilities(name, mime).getAchievableFrameRatesFor(w, h);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaPerfUtils.java"
+            line="163"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.media.MediaCodecInfo.VideoCapabilities#getAchievableFrameRatesFor`"
+        errorLine1="            MediaUtils.getVideoCapabilities(name, mime).getAchievableFrameRatesFor(w, h);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaPerfUtils.java"
+            line="216"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.media.MediaCodecInfo#isAlias`"
+        errorLine1="            if (info.isAlias()) {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaUtils.java"
+            line="228"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.media.MediaCodecInfo#isHardwareAccelerated`"
+        errorLine1="                &amp;&amp; mci.isHardwareAccelerated()) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaUtils.java"
+            line="374"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.media.MediaCodecInfo.VideoCapabilities#getSupportedPerformancePoints`"
+        errorLine1="                            caps.getSupportedPerformancePoints();"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaUtils.java"
+            line="378"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `new android.media.MediaCodecInfo.VideoCapabilities.PerformancePoint`"
+        errorLine1="                            new VideoCapabilities.PerformancePoint(width, height, (int) rate);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaUtils.java"
+            line="380"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.media.MediaCodecInfo.VideoCapabilities.PerformancePoint#covers`"
+        errorLine1="                if (point.covers(target)) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaUtils.java"
+            line="382"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.media.MediaCodecInfo#isHardwareAccelerated`"
+        errorLine1="            if (info.isEncoder() == encode &amp;&amp; info.isHardwareAccelerated()) {"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaUtils.java"
+            line="889"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.drm.DrmManagerClient#close`"
+        errorLine1="            drmClient.close();"
+        errorLine2="                      ~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/MediaUtils.java"
+            line="1245"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.content.pm.SigningInfo#getApkContentsSigners`"
+        errorLine1="        messageDigest.update(packageInfo.signingInfo.getApkContentsSigners()[0].toByteArray());"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/mainline/ModuleDetector.java"
+            line="88"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 21): `android.content.pm.PackageInfo#signingInfo`"
+        errorLine1="        messageDigest.update(packageInfo.signingInfo.getApkContentsSigners()[0].toByteArray());"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/mainline/ModuleDetector.java"
+            line="88"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 21): `android.animation.ValueAnimator#getDurationScale`"
+        errorLine1="                    Math.abs(ValueAnimator.getDurationScale() - mAnimationScale) &lt; 0.001);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/OverrideAnimationScaleRule.java"
+            line="60"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.content.pm.PackageInfo#getLongVersionCode`"
+        errorLine1="                    info.getLongVersionCode() : (long) info.versionCode;"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/PackageUtil.java"
+            line="117"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="111"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="114"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="130"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="133"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="160"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="163"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="182"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="185"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="204"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="207"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="225"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="228"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="245"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="248"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="265"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="268"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="286"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="289"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="306"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="309"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="337"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="340"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="        uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="352"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="366"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="369"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="            uiAutomation.adoptShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="383"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            uiAutomation.dropShellPermissionIdentity();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/ShellIdentityUtils.java"
+            line="386"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.content.Context#registerReceiver`"
+        errorLine1="            mContext.registerReceiver(this, new IntentFilter(mAction),"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/devicepolicy/provisioning/SilentProvisioningTestManager.java"
+            line="166"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 21): `android.app.UiAutomation#executeShellCommandRwe`"
+        errorLine1="            ParcelFileDescriptor[] fds = automation.executeShellCommandRwe(cmd);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/SystemUtil.java"
+            line="144"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        automan.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/SystemUtil.java"
+            line="284"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            automan.dropShellPermissionIdentity();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/SystemUtil.java"
+            line="290"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        automan.adoptShellPermissionIdentity();"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/SystemUtil.java"
+            line="300"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            automan.dropShellPermissionIdentity();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/SystemUtil.java"
+            line="304"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#adoptShellPermissionIdentity`"
+        errorLine1="        automan.adoptShellPermissionIdentity(permissions);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/SystemUtil.java"
+            line="317"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.app.UiAutomation#dropShellPermissionIdentity`"
+        errorLine1="            automan.dropShellPermissionIdentity();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/SystemUtil.java"
+            line="321"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 23 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction#ACTION_SCROLL_LEFT`"
+        errorLine1='        sNodeActions.put(AccessibilityAction.ACTION_SCROLL_LEFT, "←");'
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="126"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 23 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction#ACTION_SCROLL_RIGHT`"
+        errorLine1='        sNodeActions.put(AccessibilityAction.ACTION_SCROLL_RIGHT, "→");'
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="128"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 23 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction#ACTION_SCROLL_DOWN`"
+        errorLine1='        sNodeActions.put(AccessibilityAction.ACTION_SCROLL_DOWN, "↓");'
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="129"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 23 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction#ACTION_SCROLL_UP`"
+        errorLine1='        sNodeActions.put(AccessibilityAction.ACTION_SCROLL_UP, "↑");'
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="130"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="                .getSystemService(WindowManager.class)"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="140"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.view.accessibility.AccessibilityWindowInfo#getTitle`"
+        errorLine1="            if (!isEmpty(window.getTitle())) {"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="207"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.view.accessibility.AccessibilityWindowInfo#getTitle`"
+        errorLine1="                out.append(window.getTitle());"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="208"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.view.accessibility.AccessibilityWindowInfo#isInPictureInPictureMode`"
+        errorLine1='            if (window.isInPictureInPictureMode()) out.append("#PIP ");'
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="220"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo#isImportantForAccessibility`"
+        errorLine1="            } else if (!node.isImportantForAccessibility()) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="266"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="                symbols.forEach(out::append);"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="300"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo#getPaneTitle`"
+        errorLine1="            if (!isEmpty(node.getPaneTitle())) {"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="347"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo#getPaneTitle`"
+        errorLine1="                out.append(escape(node.getPaneTitle()));"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="348"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo#getPaneTitle`"
+        errorLine1='        ifNotEmpty(node.getPaneTitle(), s -&gt; out.append("## ").append(s).append(" "));'
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="378"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 23 (current min is 21): `android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction#ACTION_SHOW_ON_SCREEN`"
+        errorLine1="                .filter(a -&gt; !AccessibilityAction.ACTION_SHOW_ON_SCREEN.equals(a)"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiDumpUtils.java"
+            line="465"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="                        .getSystemService(TelephonyManager.class);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UiccUtil.java"
+            line="128"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        UserManager userManager = context.getSystemService(UserManager.class);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UserHelper.java"
+            line="72"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 31 (current min is 21): `android.os.UserManager#isUserForeground`"
+        errorLine1="        boolean isForeground = userManager.isUserForeground();"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UserHelper.java"
+            line="93"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 33 (current min is 21): `android.os.UserManager#isProfile`"
+        errorLine1="        boolean isProfile = userManager.isProfile();"
+        errorLine2="                                        ~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UserHelper.java"
+            line="94"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.app.ActivityOptions#makeBasic`"
+        errorLine1="        ActivityOptions augmentedOptions = options != null ? options : ActivityOptions.makeBasic();"
+        errorLine2="                                                                                       ~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UserHelper.java"
+            line="205"
+            column="88"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.app.ActivityOptions#setLaunchDisplayId`"
+        errorLine1="            augmentedOptions.setLaunchDisplayId(mDisplayId);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/UserHelper.java"
+            line="207"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        this(context, context.getApplicationContext().getSystemService(WifiManager.class));"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/WifiConfigCreator.java"
+            line="68"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.content.Context#getSystemService`"
+        errorLine1="        mCurrentUserWifiManager = mContext.getSystemService(WifiManager.class);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/WifiConfigCreator.java"
+            line="74"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Method reference requires API level 26 (current min is 21): `WifiConfiguration::getHttpProxy`"
+        errorLine1="                .map(WifiConfiguration::getHttpProxy)"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/WifiConfigCreator.java"
+            line="136"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.net.wifi.WifiConfiguration#setHttpProxy`"
+        errorLine1="            conf.setHttpProxy(ProxyInfo.buildPacProxy(Uri.parse(pacProxyUrl)));"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="cts/common/device-side/util-axt/src/com/android/compatibility/common/util/WifiConfigCreator.java"
+            line="146"
+            column="18"/>
+    </issue>
+
+</issues>
