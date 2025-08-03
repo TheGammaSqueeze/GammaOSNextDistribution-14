@@ -1,0 +1,2046 @@
+%def header():
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * This is a #include, not a %include, because we want the C pre-processor
+ * to expand the macros into assembler assignment statements.
+ */
+#include "asm_support.h"
+#include "arch/arm/asm_support_arm.S"
+
+/**
+ * ARM EABI general notes:
+ *
+ * r0-r3 hold first 4 args to a method; they are not preserved across method calls
+ * r4-r8 are available for general use
+ * r9 is given special treatment in some situations, but not for us
+ * r10 (sl) seems to be generally available
+ * r11 (fp) is used by gcc (unless -fomit-frame-pointer is set)
+ * r12 (ip) is scratch -- not preserved across method calls
+ * r13 (sp) should be managed carefully in case a signal arrives
+ * r14 (lr) must be preserved
+ * r15 (pc) can be tinkered with directly
+ *
+ * r0 holds returns of <= 4 bytes
+ * r0-r1 hold returns of 8 bytes, low word in r0
+ *
+ * Callee must save/restore r4+ (except r12) if it modifies them.  If VFP
+ * is present, registers s16-s31 (a/k/a d8-d15, a/k/a q4-q7) must be preserved,
+ * s0-s15 (d0-d7, q0-a3) do not need to be.
+ *
+ * Stack is "full descending".  Only the arguments that don't fit in the first 4
+ * registers are placed on the stack.  "sp" points at the first stacked argument
+ * (i.e. the 5th arg).
+ *
+ * Native ABI uses soft-float, single-precision results are in r0,
+ * double-precision results in r0-r1.
+ *
+ * In the EABI, "sp" must be 64-bit aligned on entry to a function, and any
+ * 64-bit quantities (long long, double) must be 64-bit aligned.
+ *
+ * Nterp notes:
+ *
+ * The following registers have fixed assignments:
+ *
+ *   reg nick      purpose
+ *   r5  rFP       interpreted frame pointer, used for accessing locals and args
+ *   r6  rREFS     base of object references of dex registers
+ *   r7  rINST     first 16-bit code unit of current instruction
+ *   r8  rMR       marking register
+ *   r9  rSELF     self (Thread) pointer
+ *   r10 rIBASE    interpreted instruction base pointer, used for computed goto
+ *   r11 rPC       interpreted program counter, used for fetching instructions
+ *
+ *   r4, ip, and lr can be used as temporary
+ *
+ * Note that r4 is a callee-save register in ARM EABI, but not in managed code.
+ *
+ */
+
+/* single-purpose registers, given names for clarity */
+#define CFI_DEX  11 // DWARF register number of the register holding dex-pc (rPC).
+#define CFI_TMP  0  // DWARF register number of the first argument register (r0).
+#define CFI_REFS 6
+#define rFP      r5
+#define rREFS    r6
+#define rINST    r7
+#define rSELF    r9
+#define rIBASE   r10
+#define rPC      r11
+
+// To avoid putting ifdefs arond the use of rMR, make sure it's defined.
+// IsNterpSupported returns false for configurations that don't have rMR (typically CMS).
+#ifndef rMR
+#define rMR r8
+#endif
+
+// Temporary registers while setting up a frame.
+#define rNEW_FP   r8
+#define rNEW_REFS r10
+#define CFI_NEW_REFS 10
+
+#define CALLEE_SAVES_SIZE (9 * 4 + 16 * 4)
+
+// +4 for the ArtMethod of the caller.
+#define OFFSET_TO_FIRST_ARGUMENT_IN_STACK (CALLEE_SAVES_SIZE + 4)
+
+/*
+ * Fetch the next instruction from rPC into rINST.  Does not advance rPC.
+ */
+.macro FETCH_INST
+    ldrh    rINST, [rPC]
+.endm
+
+/*
+ * Fetch the next instruction from the specified offset.  Advances rPC
+ * to point to the next instruction.  "count" is in 16-bit code units.
+ *
+ * Because of the limited size of immediate constants on ARM, this is only
+ * suitable for small forward movements (i.e. don't try to implement "goto"
+ * with this).
+ *
+ * This must come AFTER anything that can throw an exception, or the
+ * exception catch may miss.  (This also implies that it must come after
+ * EXPORT_PC.)
+ */
+.macro FETCH_ADVANCE_INST count
+    ldrh    rINST, [rPC, #((\count)*2)]!
+.endm
+
+/*
+ * Similar to FETCH_ADVANCE_INST, but does not update xPC.  Used to load
+ * rINST ahead of possible exception point.  Be sure to manually advance xPC
+ * later.
+ */
+.macro PREFETCH_INST count
+    ldrh    rINST, [rPC, #((\count)*2)]
+.endm
+
+/* Advance xPC by some number of code units. */
+.macro ADVANCE count
+  add  rPC, #((\count)*2)
+.endm
+
+/*
+ * Fetch the next instruction from an offset specified by "reg" and advance xPC.
+ * xPC to point to the next instruction.  "reg" must specify the distance
+ * in bytes, *not* 16-bit code units, and may be a signed value.
+ */
+.macro FETCH_ADVANCE_INST_RB reg
+    ldrh    rINST, [rPC, \reg]!
+.endm
+
+/*
+ * Fetch a half-word code unit from an offset past the current PC.  The
+ * "count" value is in 16-bit code units.  Does not advance xPC.
+ *
+ * The "_S" variant works the same but treats the value as signed.
+ */
+.macro FETCH reg, count
+    ldrh    \reg, [rPC, #((\count)*2)]
+.endm
+
+.macro FETCH_S reg, count
+    ldrsh   \reg, [rPC, #((\count)*2)]
+.endm
+
+/*
+ * Fetch one byte from an offset past the current PC.  Pass in the same
+ * "count" as you would for FETCH, and an additional 0/1 indicating which
+ * byte of the halfword you want (lo/hi).
+ */
+.macro FETCH_B reg, count, byte
+    ldrb     \reg, [rPC, #((\count)*2+(\byte))]
+.endm
+
+/*
+ * Put the instruction's opcode field into the specified register.
+ */
+.macro GET_INST_OPCODE reg
+    and     \reg, rINST, #255
+.endm
+
+/*
+ * Begin executing the opcode in _reg.  Clobbers reg
+ */
+
+.macro GOTO_OPCODE reg
+    add     pc, rIBASE, \reg, lsl #${handler_size_bits}
+.endm
+
+/*
+ * Get/set value from a Dalvik register.
+ */
+.macro GET_VREG reg, vreg
+    ldr     \reg, [rFP, \vreg, lsl #2]
+.endm
+.macro GET_VREG_OBJECT reg, vreg
+    ldr     \reg, [rREFS, \vreg, lsl #2]
+.endm
+.macro SET_VREG reg, vreg
+    str     \reg, [rFP, \vreg, lsl #2]
+    mov     \reg, #0
+    str     \reg, [rREFS, \vreg, lsl #2]
+.endm
+.macro SET_VREG_OBJECT reg, vreg
+    str     \reg, [rFP, \vreg, lsl #2]
+    str     \reg, [rREFS, \vreg, lsl #2]
+.endm
+.macro SET_VREG_FLOAT reg, vreg, tmpreg
+    add     \tmpreg, rFP, \vreg, lsl #2
+    vstr    \reg, [\tmpreg]
+    mov     \tmpreg, #0
+    str     \tmpreg, [rREFS, \vreg, lsl #2]
+.endm
+.macro GET_VREG_WIDE_BY_ADDR reg0, reg1, addr
+    ldmia \addr, {\reg0, \reg1}
+.endm
+.macro SET_VREG_WIDE_BY_ADDR reg0, reg1, addr
+    stmia \addr, {\reg0, \reg1}
+.endm
+.macro GET_VREG_FLOAT sreg, vreg
+    ldr  \vreg, [rFP, \vreg, lsl #2]
+    vmov \sreg, \vreg
+.endm
+.macro GET_VREG_FLOAT_BY_ADDR reg, addr
+    vldr \reg, [\addr]
+.endm
+.macro SET_VREG_FLOAT_BY_ADDR reg, addr
+    vstr \reg, [\addr]
+.endm
+.macro GET_VREG_DOUBLE_BY_ADDR reg, addr
+    vldr \reg, [\addr]
+.endm
+.macro SET_VREG_DOUBLE_BY_ADDR reg, addr
+    vstr \reg, [\addr]
+.endm
+.macro SET_VREG_SHADOW reg, vreg
+    str     \reg, [rREFS, \vreg, lsl #2]
+.endm
+.macro CLEAR_SHADOW_PAIR vreg, tmp1, tmp2
+    mov     \tmp1, #0
+    add     \tmp2, \vreg, #1
+    SET_VREG_SHADOW \tmp1, \vreg
+    SET_VREG_SHADOW \tmp1, \tmp2
+.endm
+.macro VREG_INDEX_TO_ADDR reg, vreg
+    add     \reg, rFP, \vreg, lsl #2
+.endm
+
+// An assembly entry for nterp.
+.macro OAT_ENTRY name
+    .arm
+    .type \name, #function
+    .hidden \name
+    .global \name
+    .balign 16
+\name:
+.endm
+
+.macro SIZE name
+    .size \name, .-\name
+.endm
+
+.macro NAME_START name
+    .arm
+    .type \name, #function
+    .hidden \name  // Hide this as a global symbol, so we do not incur plt calls.
+    .global \name
+    /* Cache alignment for function entry */
+    .balign 16
+\name:
+.endm
+
+.macro NAME_END name
+  SIZE \name
+.endm
+
+// Macro for defining entrypoints into runtime. We don't need to save registers
+// (we're not holding references there), but there is no
+// kDontSave runtime method. So just use the kSaveRefsOnly runtime method.
+.macro NTERP_TRAMPOLINE name, helper
+ENTRY \name
+  SETUP_SAVE_REFS_ONLY_FRAME ip
+  bl \helper
+  RESTORE_SAVE_REFS_ONLY_FRAME
+  REFRESH_MARKING_REGISTER
+  ldr ip, [rSELF, #THREAD_EXCEPTION_OFFSET]  @ Get exception field.
+  cmp ip, #0
+  bne nterp_deliver_pending_exception
+  bx lr
+END \name
+.endm
+
+.macro CLEAR_STATIC_VOLATILE_MARKER reg
+  and \reg, \reg, #-2
+.endm
+
+.macro CLEAR_INSTANCE_VOLATILE_MARKER reg
+  rsb \reg, \reg, #0
+.endm
+
+.macro EXPORT_PC
+    str    rPC, [rREFS, #-8]
+.endm
+
+.macro BRANCH
+    add rPC, rPC, rINST, lsl #1
+    // Update method counter and do a suspend check if the branch is negative or zero.
+    cmp rINST, #0
+    ble 2f
+1:
+    FETCH_INST                          // load rINST
+    GET_INST_OPCODE ip                  // extract opcode from rINST
+    GOTO_OPCODE ip                      // jump to next instruction
+2:
+    ldr r0, [sp]
+    ldrh r2, [r0, #ART_METHOD_HOTNESS_COUNT_OFFSET]
+    cmp r2, #NTERP_HOTNESS_VALUE
+    beq NterpHandleHotnessOverflow
+    add r2, r2, #-1
+    strh r2, [r0, #ART_METHOD_HOTNESS_COUNT_OFFSET]
+    DO_SUSPEND_CHECK continue_label=1b
+    b 1b
+.endm
+
+.macro TEST_IF_MARKING label
+    cmp rMR, #0
+    bne \label
+.endm
+
+// Expects:
+// - ip and lr to be available.
+// Outputs:
+// - \registers contains the dex registers size
+// - \outs contains the outs size
+// - if load_ins is 1, \ins contains the ins
+// - \code_item is replaced with a pointer to the instructions
+.macro FETCH_CODE_ITEM_INFO code_item, registers, outs, ins, load_ins
+    tst \code_item, #1
+    beq 5f
+    bic \code_item, \code_item, #1 // Remove the extra bit that marks it's a compact dex file
+    ldrh lr, [\code_item, #COMPACT_CODE_ITEM_FIELDS_OFFSET]
+    ubfx \registers, lr, #COMPACT_CODE_ITEM_REGISTERS_SIZE_SHIFT, #4
+    ubfx \outs, lr, #COMPACT_CODE_ITEM_OUTS_SIZE_SHIFT, #4
+    .if \load_ins
+    ubfx \ins, lr, #COMPACT_CODE_ITEM_INS_SIZE_SHIFT, #4
+    .else
+    ubfx ip, lr, #COMPACT_CODE_ITEM_INS_SIZE_SHIFT, #4
+    add \registers, \registers, ip
+    .endif
+
+    ldrh lr, [\code_item, #COMPACT_CODE_ITEM_FLAGS_OFFSET]
+    tst lr, #COMPACT_CODE_ITEM_REGISTERS_INS_OUTS_FLAGS
+    beq 4f
+    mov ip, \code_item
+    tst lr, #COMPACT_CODE_ITEM_INSNS_FLAG
+    beq 1f
+    sub ip, ip, #4
+1:
+    tst lr, #COMPACT_CODE_ITEM_REGISTERS_FLAG
+    beq 2f
+    ldrh lr, [ip, #-2]!
+    add \registers, \registers, lr
+    ldrh lr, [\code_item, #COMPACT_CODE_ITEM_FLAGS_OFFSET]
+2:
+    tst lr, #COMPACT_CODE_ITEM_INS_FLAG
+    beq 3f
+    ldrh lr, [ip, #-2]!
+    .if \load_ins
+    add \ins, \ins, lr
+    .else
+    add \registers, \registers, lr
+    .endif
+    ldrh lr, [\code_item, #COMPACT_CODE_ITEM_FLAGS_OFFSET]
+3:
+    tst lr, #COMPACT_CODE_ITEM_OUTS_FLAG
+    beq 4f
+    ldrh lr, [ip, #-2]!
+    add \outs, \outs, lr
+4:
+    .if \load_ins
+    add \registers, \registers, \ins
+    .endif
+    add \code_item, \code_item, #COMPACT_CODE_ITEM_INSNS_OFFSET
+    b 6f
+5:
+    // Fetch dex register size.
+    ldrh \registers, [\code_item, #CODE_ITEM_REGISTERS_SIZE_OFFSET]
+    // Fetch outs size.
+    ldrh \outs, [\code_item, #CODE_ITEM_OUTS_SIZE_OFFSET]
+    .if \load_ins
+    ldrh \ins, [\code_item, #CODE_ITEM_INS_SIZE_OFFSET]
+    .endif
+    add \code_item, \code_item, #CODE_ITEM_INSNS_OFFSET
+6:
+.endm
+
+// Setup the stack to start executing the method. Expects:
+// - r0 to contain the ArtMethod
+// - \code_item to already contain the code item
+// - rINST, ip, lr to be available
+//
+// Outputs
+// - rINST contains the dex registers size
+// - ip contains the old stack pointer.
+// - \code_item is replaced with a pointer to the instructions
+// - if load_ins is 1, r4 contains the ins
+//
+.macro SETUP_STACK_FRAME code_item, refs, fp, cfi_refs, load_ins
+    FETCH_CODE_ITEM_INFO \code_item, rINST, \refs, r4, \load_ins
+
+    // Compute required frame size: ((2 * rINST) + \refs) * 4 + 12
+    // 12 is for saving the previous frame, pc, and method being executed.
+    add ip, \refs, rINST, lsl #1
+
+    // Compute new stack pointer in lr
+    sub lr, sp, #12
+    sub lr, lr, ip, lsl #2
+    // Alignment
+    and lr, lr, #-16
+
+    // Set reference and dex registers.
+    add \refs, lr, \refs, lsl #2
+    add \refs, \refs, #12
+    add \fp, \refs, rINST, lsl #2
+
+    // Now setup the stack pointer.
+    mov ip, sp
+    .cfi_def_cfa_register ip
+    mov sp, lr
+    str ip, [\refs, #-4]
+    CFI_DEF_CFA_BREG_PLUS_UCONST \cfi_refs, -4, CALLEE_SAVES_SIZE
+
+    // Save the ArtMethod, and use r0 as a temporary.
+    str r0, [sp]
+
+    // Put nulls in reference frame.
+    cmp rINST, #0
+    beq 2f
+    mov lr, \refs
+    mov r0, #0
+1:
+    str r0, [lr], #4
+    str r0, [lr], #4  // May clear vreg[0].
+    cmp lr, \fp
+    blo 1b
+2:
+    ldr r0, [sp]  // Reload the ArtMethod, expected by the callers.
+.endm
+
+// Increase method hotness and do suspend check before starting executing the method.
+.macro START_EXECUTING_INSTRUCTIONS
+    ldr r0, [sp]
+    ldrh r2, [r0, #ART_METHOD_HOTNESS_COUNT_OFFSET]
+    cmp r2, #NTERP_HOTNESS_VALUE
+    beq 3f
+    add r2, r2, #-1
+    strh r2, [r0, #ART_METHOD_HOTNESS_COUNT_OFFSET]
+1:
+    DO_SUSPEND_CHECK continue_label=2f
+2:
+    FETCH_INST
+    GET_INST_OPCODE ip
+    GOTO_OPCODE ip
+3:
+    CHECK_AND_UPDATE_SHARED_MEMORY_METHOD if_hot=4f, if_not_hot=1b
+4:
+    mov r1, #0
+    mov r2, rFP
+    bl nterp_hot_method
+    b 2b
+.endm
+
+.macro SPILL_ALL_CALLEE_SAVES
+    SPILL_ALL_CALLEE_SAVE_GPRS                    @ 9 words (36 bytes) of callee saves.
+    vpush {s16-s31}                               @ 16 words (64 bytes) of floats.
+    .cfi_adjust_cfa_offset 64
+.endm
+
+.macro RESTORE_ALL_CALLEE_SAVES lr_to_pc=0
+    vpop {s16-s31}
+    .cfi_adjust_cfa_offset -64
+    pop {r4-r7}
+    .cfi_adjust_cfa_offset -16
+    .cfi_restore r4
+    .cfi_restore r5
+    .cfi_restore r6
+    .cfi_restore r7
+    // Don't restore r8, the marking register gets updated when coming back from runtime.
+    add sp, sp, #4
+    .cfi_adjust_cfa_offset -4
+    .if \lr_to_pc
+    pop {r9-r11, pc}  @ 9 words of callee saves and args.
+    .cfi_adjust_cfa_offset -16
+    .else
+    pop {r9-r11, lr}  @ 9 words of callee saves and args.
+    .cfi_adjust_cfa_offset -16
+    .cfi_restore r9
+    .cfi_restore r10
+    .cfi_restore r11
+    .cfi_restore lr
+    .endif
+.endm
+
+// Helper to setup the stack after doing a nterp to nterp call. This will setup:
+// - rNEW_FP: the new pointer to dex registers
+// - rNEW_REFS: the new pointer to references
+// - rPC: the new PC pointer to execute
+// - r2: value in instruction to decode the number of arguments.
+// - r3: first dex register for range invokes, up to 4 arguments for non-range invokes.
+// - r4: top of dex register array
+//
+// The method expects:
+// - r0 to contain the ArtMethod
+// - r4 to contain the code item
+.macro SETUP_STACK_FOR_INVOKE
+   // We do the same stack overflow check as the compiler. See CanMethodUseNterp
+   // in how we limit the maximum nterp frame size.
+   sub ip, sp, #STACK_OVERFLOW_RESERVED_BYTES
+   ldr ip, [ip]
+
+   // Spill all callee saves to have a consistent stack frame whether we
+   // are called by compiled code or nterp.
+   SPILL_ALL_CALLEE_SAVES
+
+   // Setup the frame.
+   SETUP_STACK_FRAME r4, rNEW_REFS, rNEW_FP, CFI_NEW_REFS, load_ins=0
+
+   // Fetch instruction information before replacing rPC.
+   FETCH_B r2, 0, 1
+   FETCH r3, 2
+
+   // Set the dex pc pointer.
+   mov rPC, r4
+
+   // Make r4 point to the top of the dex register array.
+   add r4, rNEW_FP, rINST, lsl #2
+
+   CFI_DEFINE_DEX_PC_WITH_OFFSET(CFI_TMP, CFI_DEX, 0)
+.endm
+
+// Setup arguments based on a non-range nterp to nterp call, and start executing
+// the method. We expect:
+// - rNEW_FP: the new pointer to dex registers
+// - rPC: the new PC pointer to execute
+// - r2: number of arguments (bits 4-7), 5th argument if any (bits 0-3)
+// - r3: up to four dex register arguments
+// - r4: top of dex register array
+// - r1: receiver if non-static.
+//
+// Uses r0 and rINST as temporaries.
+.macro SETUP_NON_RANGE_ARGUMENTS_AND_EXECUTE is_static=0, is_string_init=0
+   // /* op vA, vB, {vC...vG} */
+   .if \is_static
+   asrs   r0, r2, #4
+   beq    6f
+   .else
+   asr    r0, r2, #4
+   .endif
+   mov rINST, #-4
+   cmp r0, #2
+   blt 1f
+   beq 2f
+   cmp r0, #4
+   blt 3f
+   beq 4f
+
+  // We use a decrementing rINST to store references relative
+  // to rNEW_FP and dex registers relative to r4
+  //
+  // TODO: We could set up rINST as the number of registers (this can be an additional output from
+  // SETUP_STACK_FOR_INVOKE) and then just decrement it by one before copying each arg.
+  // Maybe even introduce macros NEW_VREG_ADDRESS/NEW_VREG_REF_ADDRESS.
+5:
+   and         r2, r2, #15
+   GET_VREG_OBJECT r0, r2
+   str         r0, [rNEW_FP, rINST]
+   GET_VREG    r0, r2
+   str         r0, [r4, rINST]
+   sub         rINST, rINST, #4
+4:
+   asr         r2, r3, #12
+   GET_VREG_OBJECT r0, r2
+   str         r0, [rNEW_FP, rINST]
+   GET_VREG    r0, r2
+   str         r0, [r4, rINST]
+   sub         rINST, rINST, #4
+3:
+   ubfx        r2, r3, #8, #4
+   GET_VREG_OBJECT r0, r2
+   str         r0, [rNEW_FP, rINST]
+   GET_VREG    r0, r2
+   str         r0, [r4, rINST]
+   sub         rINST, rINST, #4
+2:
+   ubfx        r2, r3, #4, #4
+   GET_VREG_OBJECT r0, r2
+   str         r0, [rNEW_FP, rINST]
+   GET_VREG    r0, r2
+   str         r0, [r4, rINST]
+   .if !\is_string_init
+   sub         rINST, rINST, #4
+   .endif
+1:
+   .if \is_string_init
+   // Ignore the first argument
+   .elseif \is_static
+   and         r2, r3, #0xf
+   GET_VREG_OBJECT r0, r2
+   str         r0, [rNEW_FP, rINST]
+   GET_VREG    r0, r2
+   str         r0, [r4, rINST]
+   .else
+   str         r1, [rNEW_FP, rINST]
+   str         r1, [r4, rINST]
+   .endif
+
+6:
+   // Start executing the method.
+   mov rFP, rNEW_FP
+   mov rREFS, rNEW_REFS
+   CFI_DEF_CFA_BREG_PLUS_UCONST CFI_REFS, -4, CALLEE_SAVES_SIZE
+   // r8 was used for setting up the frame, restore it now.
+   REFRESH_MARKING_REGISTER
+   // Branch to the main handler, which will reload rIBASE,
+   // that was used for setting up the frame.
+   b .Lexecute_instructions
+.endm
+
+// Setup arguments based on a range nterp to nterp call, and start executing
+// the method.
+// - rNEW_FP: the new pointer to dex registers
+// - rNEW_REFS: the new pointer to references
+// - rPC: the new PC pointer to execute
+// - r2: number of arguments
+// - r3: first dex register
+// - r4: top of dex register array
+// - r1: receiver if non-static.
+//
+// Expects r0 to be available.
+.macro SETUP_RANGE_ARGUMENTS_AND_EXECUTE is_static=0, is_string_init=0
+   mov r0, #-4
+   .if \is_string_init
+   // Ignore the first argument
+   sub r2, r2, #1
+   add r3, r3, #1
+   .elseif !\is_static
+   sub r2, r2, #1
+   add r3, r3, #1
+   .endif
+
+   cmp r2, #0
+   beq 2f
+   add rREFS, rREFS, r3, lsl #2  // pointer to first argument in reference array
+   add rREFS, rREFS, r2, lsl #2    // pointer to last argument in reference array
+   add rFP, rFP, r3, lsl #2     // pointer to first argument in register array
+   add rFP, rFP, r2, lsl #2      // pointer to last argument in register array
+1:
+   ldr  r3, [rREFS, #-4]!
+   str  r3, [rNEW_FP, r0]
+   subs r2, r2, 1
+   ldr  r3, [rFP, #-4]!
+   str  r3, [r4, r0]
+   sub r0, r0, 4
+   bne 1b
+2:
+   .if \is_string_init
+   // Ignore first argument
+   .elseif !\is_static
+   str r1, [rNEW_FP, r0]
+   str r1, [r4, r0]
+   .endif
+   mov rFP, rNEW_FP
+   mov rREFS, rNEW_REFS
+   CFI_DEF_CFA_BREG_PLUS_UCONST CFI_REFS, -4, CALLEE_SAVES_SIZE
+   // r8 was used for setting up the frame, restore it now.
+   REFRESH_MARKING_REGISTER
+   // Branch to the main handler, which will reload rIBASE,
+   // that was used for setting up the frame.
+   b .Lexecute_instructions
+.endm
+
+.macro GET_SHORTY dest, is_interface, is_polymorphic, is_custom
+   push {r0-r3}
+   .if \is_polymorphic
+   ldr r0, [sp, #16]
+   mov r1, rPC
+   bl NterpGetShortyFromInvokePolymorphic
+   .elseif \is_custom
+   ldr r0, [sp, #16]
+   mov r1, rPC
+   bl NterpGetShortyFromInvokeCustom
+   .elseif \is_interface
+   ldr r0, [sp, #16]
+   FETCH r1, 1
+   bl NterpGetShortyFromMethodId
+   .else
+   bl NterpGetShorty
+   .endif
+   mov \dest, r0
+   pop {r0-r3}
+.endm
+
+// Input:  r0 contains the ArtMethod
+// Output: r4 contains the code item
+.macro GET_CODE_ITEM
+   ldr r4, [r0, #ART_METHOD_DATA_OFFSET_32]
+.endm
+
+.macro DO_ENTRY_POINT_CHECK call_compiled_code, name
+   // On entry, the method is r0, the instance is r1
+   ldr r2, .Lfetch_nterp_\name
+.Lfetch_location_\name:
+   // Note that this won't work for thumb.
+   sub r2, pc, r2
+   ldr r3, [r0, #ART_METHOD_QUICK_CODE_OFFSET_32]
+   cmp r2, r3
+   bne  \call_compiled_code
+.endm
+
+// Expects ip and lr to be available.
+.macro UPDATE_REGISTERS_FOR_STRING_INIT old_value, new_value
+   mov ip, #0
+1:
+   GET_VREG_OBJECT lr, ip
+   cmp lr, \old_value
+   bne 2f
+   SET_VREG_OBJECT \new_value, ip
+2:
+   add ip, ip, #1
+   add lr, rREFS, ip, lsl #2
+   cmp lr, rFP
+   bne 1b
+.endm
+
+// Puts the next floating point argument into the expected register,
+// fetching values based on a non-range invoke.
+// Uses ip and lr.
+.macro LOOP_OVER_SHORTY_LOADING_FPS dreg, sreg, inst, shorty, arg_index, finished, if_double
+1: // LOOP
+    ldrb ip, [\shorty], #1          // Load next character in shorty, and increment.
+    cmp ip, #0
+    beq \finished                   // if (ip == '\0') goto finished
+    cmp ip, #68                    // if (ip == 'D') goto FOUND_DOUBLE
+    beq 2f
+    cmp ip, #70                    // if (ip == 'F') goto FOUND_FLOAT
+    beq 3f
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    //  Handle extra argument in arg array taken by a long.
+    cmp ip, #74                   // if (ip != 'J') goto LOOP
+    bne 1b
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    b 1b                        // goto LOOP
+2:  // FOUND_DOUBLE
+    and ip, \inst, #0xf
+    GET_VREG ip, ip
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    cmp \arg_index, #4
+    beq 5f
+    and lr, \inst, #0xf
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    b 6f
+5:
+    FETCH_B lr, 0, 1
+    and lr, lr, #0xf
+6:
+    GET_VREG lr, lr
+    vmov \dreg, ip, lr
+    b \if_double
+3:  // FOUND_FLOAT
+    cmp \arg_index, #4
+    beq 7f
+    and ip, \inst, #0xf
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    b 8f
+7:
+    FETCH_B ip, 0, 1
+    and ip, ip, #0xf
+8:
+    GET_VREG_FLOAT \sreg, ip
+.endm
+
+// Puts the next int/long/object argument in the expected register,
+// fetching values based on a non-range invoke.
+// Uses ip.
+.macro LOOP_OVER_SHORTY_LOADING_GPRS gpr_reg, inst, shorty, arg_index, finished, if_long, is_r3
+1: // LOOP
+    ldrb ip, [\shorty], #1         // Load next character in shorty, and increment.
+    cmp ip, #0
+    beq \finished                   // if (ip == '\0') goto finished
+    cmp ip, #74                    // if (ip == 'J') goto FOUND_LONG
+    beq 2f
+    cmp ip, #70                    // if (ip == 'F') goto SKIP_FLOAT
+    beq 3f
+    cmp ip, #68                    // if (ip == 'D') goto SKIP_DOUBLE
+    beq 4f
+    cmp \arg_index, #4
+    beq 7f
+    and ip, \inst, #0xf
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    b 8f
+7:
+    FETCH_B ip, 0, 1
+    and ip, ip, #0xf
+8:
+    GET_VREG \gpr_reg, ip
+    b 5f
+2:  // FOUND_LONG
+    .if \is_r3
+    // Put back shorty and exit
+    sub \shorty, \shorty, #1
+    b 5f
+    .endif
+    and ip, \inst, #0xf
+    GET_VREG ip, ip
+    // The only one possible for non-range long is r2-r3
+    mov r2, ip
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    cmp \arg_index, #4
+    beq 9f
+    and ip, \inst, #0xf
+    lsr \inst, \inst, #4
+    b 10f
+9:
+    FETCH_B ip, 0, 1
+    and ip, ip, #0xf
+10:
+    GET_VREG ip, ip
+    // The only one possible for non-range long is r2-r3
+    mov r3, ip
+    add \arg_index, \arg_index, #1
+    b \if_long
+3:  // SKIP_FLOAT
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    b 1b
+4:  // SKIP_DOUBLE
+    lsr \inst, \inst, #8
+    add \arg_index, \arg_index, #2
+    b 1b
+5:
+.endm
+
+// Puts the next int/long/object argument in the expected stack slot,
+// fetching values based on a non-range invoke.
+// Uses ip as temporary.
+.macro LOOP_OVER_SHORTY_LOADING_INTs shorty, inst, arg_index, finished, is_string_init
+1: // LOOP
+    ldrb ip, [\shorty], #1         // Load next character in shorty, and increment.
+    cmp ip, #0
+    beq \finished                  // if (ip == '\0') goto finished
+    cmp ip, #74                    // if (ip == 'J') goto FOUND_LONG
+    beq 2f
+    cmp ip, #70                    // if (ip == 'F') goto SKIP_FLOAT
+    beq 3f
+    cmp ip, #68                    // if (ip == 'D') goto SKIP_DOUBLE
+    beq 4f
+    .if \is_string_init
+    cmp \arg_index, #4
+    .else
+    cmp \arg_index, #(4+1)         // +1 for ArtMethod
+    .endif
+    beq 7f
+    and ip, \inst, #0xf
+    lsr \inst, \inst, #4
+    b 8f
+7:
+    FETCH_B ip, 0, 1
+    and ip, ip, #0xf
+8:
+    GET_VREG ip, ip
+    str ip, [sp, \arg_index, lsl #2]
+    add \arg_index, \arg_index, #1
+    b 1b
+2:  // FOUND_LONG
+    and ip, \inst, #0xf
+    GET_VREG ip, ip
+    str ip, [sp, \arg_index, lsl #2]
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    .if \is_string_init
+    cmp \arg_index, #4
+    .else
+    cmp \arg_index, #(4+1)         // +1 for ArtMethod
+    .endif
+    beq 9f
+    and ip, \inst, #0xf
+    lsr \inst, \inst, #4
+    b 10f
+9:
+    FETCH_B ip, 0, 1
+    and ip, ip, #0xf
+10:
+    GET_VREG ip, ip
+    str ip, [sp, \arg_index, lsl #2]
+    add \arg_index, \arg_index, #1
+    b 1b
+3:  // SKIP_FLOAT
+    lsr \inst, \inst, #4
+    add \arg_index, \arg_index, #1
+    b 1b
+4:  // SKIP_DOUBLE
+    lsr \inst, \inst, #8
+    add \arg_index, \arg_index, #2
+    b 1b
+.endm
+
+.macro SETUP_RETURN_VALUE shorty
+   ldrb ip, [\shorty]
+   cmp ip, #68       // Test if result type char == 'D'.
+   beq 1f
+   cmp ip, #70       // Test if result type char == 'F'.
+   bne 2f
+   vmov r0, s0
+   b 2f
+1:
+   vmov r0, r1, d0
+2:
+.endm
+
+.macro GET_SHORTY_SLOW_PATH dest, is_interface
+   // Save all registers that can hold arguments in the fast path.
+   vpush {s0}
+   push {r0-r2}
+   .if \is_interface
+   ldr r0, [sp, #16]
+   FETCH r1, 1
+   bl NterpGetShortyFromMethodId
+   .else
+   bl NterpGetShorty
+   .endif
+   mov \dest, r0
+   pop {r0-r2}
+   vpop {s0}
+.endm
+
+.macro COMMON_INVOKE_NON_RANGE is_static=0, is_interface=0, suffix="", is_string_init=0, is_polymorphic=0, is_custom=0
+   .if \is_polymorphic
+   // We always go to compiled code for polymorphic calls.
+   .elseif \is_custom
+   // We always go to compiled code for custom calls.
+   .else
+     DO_ENTRY_POINT_CHECK .Lcall_compiled_code_\suffix, \suffix
+     GET_CODE_ITEM
+     .if \is_string_init
+     bl nterp_to_nterp_string_init_non_range
+     .elseif \is_static
+     bl nterp_to_nterp_static_non_range
+     .else
+     bl nterp_to_nterp_instance_non_range
+     .endif
+     b .Ldone_return_\suffix
+.Lfetch_nterp_\suffix:
+    .word   (.Lfetch_location_\suffix+8) - ExecuteNterpImpl
+   .endif
+
+.Lcall_compiled_code_\suffix:
+   .if \is_polymorphic
+   // No fast path for polymorphic calls.
+   .elseif \is_custom
+   // No fast path for custom calls.
+   .elseif \is_string_init
+   // No fast path for string.init.
+   .else
+     ldr ip, [r0, #ART_METHOD_ACCESS_FLAGS_OFFSET]
+     tst ip, #ART_METHOD_NTERP_INVOKE_FAST_PATH_FLAG
+     beq .Lfast_path_with_few_args_\suffix
+     FETCH_B rINST, 0, 1
+     .if \is_static
+     asrs lr, rINST, #4
+     beq .Linvoke_fast_path_\suffix
+     .else
+     asr lr, rINST, #4
+     cmp lr, #1
+     beq .Linvoke_fast_path_\suffix
+     .endif
+     FETCH ip, 2
+     cmp lr, #2
+     .if \is_static
+     blt .Lone_arg_fast_path_\suffix
+     .endif
+     beq .Ltwo_args_fast_path_\suffix
+     cmp lr, #4
+     blt .Lthree_args_fast_path_\suffix
+     beq .Lfour_args_fast_path_\suffix
+     and         rINST, rINST, #15
+     GET_VREG    rINST, rINST
+     str         rINST, [sp, #(4 + 4 * 4)]
+.Lfour_args_fast_path_\suffix:
+     asr         rINST, ip, #12
+     GET_VREG    rINST, rINST
+     str         rINST, [sp, #(4 + 3 * 4)]
+.Lthree_args_fast_path_\suffix:
+     ubfx        rINST, ip, #8, #4
+     GET_VREG    r3, rINST
+.Ltwo_args_fast_path_\suffix:
+     ubfx        rINST, ip, #4, #4
+     GET_VREG    r2, rINST
+.Lone_arg_fast_path_\suffix:
+     .if \is_static
+     and         rINST, ip, #0xf
+     GET_VREG    r1, rINST
+     .else
+     // First argument already in r1.
+     .endif
+.Linvoke_fast_path_\suffix:
+     .if \is_interface
+     // Setup hidden argument.
+     mov ip, r4
+     .endif
+     ldr lr, [r0, #ART_METHOD_QUICK_CODE_OFFSET_32]
+     blx lr
+     FETCH_ADVANCE_INST 3
+     GET_INST_OPCODE ip
+     GOTO_OPCODE ip
+
+.Lfast_path_with_few_args_\suffix:
+     // Fast path when we have zero or one argument (modulo 'this'). If there
+     // is one argument, we can put it in both floating point and core register.
+     FETCH_B r2, 0, 1
+     asr r2, r2, #4  // number of arguments
+     .if \is_static
+     cmp r2, #1
+     blt .Linvoke_with_few_args_\suffix
+     bne .Lget_shorty_\suffix
+     FETCH r2, 2
+     and r2, r2, #0xf  // dex register of first argument
+     GET_VREG r1, r2
+     vmov s0, r1
+     .else
+     cmp r2, #2
+     blt .Linvoke_with_few_args_\suffix
+     bne .Lget_shorty_\suffix
+     FETCH r2, 2
+     ubfx r2, r2, #4, #4  // dex register of second argument
+     GET_VREG r2, r2
+     vmov s0, r2
+     .endif
+.Linvoke_with_few_args_\suffix:
+     // Check if the next instruction is move-result or move-result-wide.
+     // If it is, we fetch the shorty and jump to the regular invocation.
+     FETCH r3, 3
+     and r3, r3, #0xfe
+     cmp r3, #0x0a
+     beq .Lget_shorty_and_invoke_\suffix
+     .if \is_interface
+     // Setup hidden argument.
+     mov ip, r4
+     .endif
+     ldr lr, [r0, #ART_METHOD_QUICK_CODE_OFFSET_32]
+     blx lr
+     FETCH_ADVANCE_INST 3
+     GET_INST_OPCODE ip
+     GOTO_OPCODE ip
+.Lget_shorty_and_invoke_\suffix:
+     .if \is_interface
+     // Save hidden argument.
+     vmov s16, r4
+     .endif
+     GET_SHORTY_SLOW_PATH rINST, \is_interface
+     b .Lgpr_setup_finished_\suffix
+   .endif
+
+.Lget_shorty_\suffix:
+   .if \is_interface
+   // Save hidden argument.
+   vmov s16, r4
+   .endif
+   GET_SHORTY rINST, \is_interface, \is_polymorphic, \is_custom
+   // From this point:
+   // - rINST contains shorty (in callee-save to switch over return value after call).
+   // - r0 contains method
+   // - r1 contains 'this' pointer for instance method.
+   // We need three registers.
+   add r3, rINST, #1  // shorty + 1  ; ie skip return arg character
+   FETCH r2, 2 // arguments
+   .if \is_string_init
+   lsr r2, r2, #4
+   mov r4, #1       // ignore first argument
+   .elseif \is_static
+   mov r4, #0      // arg_index
+   .else
+   lsr r2, r2, #4
+   mov r4, #1       // ignore first argument
+   .endif
+   LOOP_OVER_SHORTY_LOADING_FPS d0, s0, r2, r3, r4, .Lxmm_setup_finished_\suffix, .Ld1_s2_\suffix
+.Ld1_s1_\suffix:
+   LOOP_OVER_SHORTY_LOADING_FPS d1, s1, r2, r3, r4, .Lxmm_setup_finished_\suffix, .Ld2_s1_\suffix
+.Ld1_s2_\suffix:
+   LOOP_OVER_SHORTY_LOADING_FPS d1, s2, r2, r3, r4, .Lxmm_setup_finished_\suffix, .Ls4_\suffix
+.Ld2_s3_\suffix:
+   LOOP_OVER_SHORTY_LOADING_FPS d2, s3, r2, r3, r4, .Lxmm_setup_finished_\suffix, .Lxmm_setup_finished_\suffix
+   b .Ls4_\suffix
+.Ld2_s1_\suffix:
+   LOOP_OVER_SHORTY_LOADING_FPS d2, s1, r2, r3, r4, .Lxmm_setup_finished_\suffix, .Lxmm_setup_finished_\suffix
+.Ls4_\suffix:
+   // If we arrive here, we can only have a float.
+   LOOP_OVER_SHORTY_LOADING_FPS d2, s4, r2, r3, r4, .Lxmm_setup_finished_\suffix, .Lxmm_setup_finished_\suffix
+.Lxmm_setup_finished_\suffix:
+   add r4, rINST, #1  // shorty + 1  ; ie skip return arg character
+   FETCH r8, 2 // arguments
+   .if \is_string_init
+   lsr r8, r8, #4
+   mov lr, #1       // ignore first argument
+   LOOP_OVER_SHORTY_LOADING_GPRS r1, r8, r4, lr, .Lgpr_setup_finished_\suffix, .Lif_long_\suffix, is_r3=0
+   .elseif \is_static
+   mov lr, #0      // arg_index
+   LOOP_OVER_SHORTY_LOADING_GPRS r1, r8, r4, lr, .Lgpr_setup_finished_\suffix, .Lif_long_\suffix, is_r3=0
+   .else
+   lsr r8, r8, #4
+   mov lr, #1       // ignore first argument
+   .endif
+   LOOP_OVER_SHORTY_LOADING_GPRS r2, r8, r4, lr, .Lgpr_setup_finished_\suffix, .Lif_long_\suffix, is_r3=0
+   LOOP_OVER_SHORTY_LOADING_GPRS r3, r8, r4, lr, .Lgpr_setup_finished_\suffix, .Lif_long_\suffix, is_r3=1
+.Lif_long_\suffix:
+   // Store in the outs array (stored above the ArtMethod in the stack). We only do this for non-string-init
+   // calls as the index is already adjusted above.
+   .if !\is_string_init
+   add lr, lr, #1
+   .endif
+   LOOP_OVER_SHORTY_LOADING_INTs r4, r8, lr, .Lgpr_setup_finished_\suffix, \is_string_init
+.Lgpr_setup_finished_\suffix:
+   REFRESH_MARKING_REGISTER // r8 was used when setting parameters, restore it.
+   .if \is_polymorphic
+   bl art_quick_invoke_polymorphic
+   .elseif \is_custom
+   bl art_quick_invoke_custom
+   .else
+      .if \is_interface
+      // Setup hidden argument.
+      vmov ip, s16
+      .endif
+      ldr lr, [r0, #ART_METHOD_QUICK_CODE_OFFSET_32]
+      blx lr
+   .endif
+   SETUP_RETURN_VALUE rINST
+.Ldone_return_\suffix:
+   /* resume execution of caller */
+   .if \is_string_init
+   FETCH ip, 2 // arguments
+   and ip, ip, #0xf
+   GET_VREG r1, ip
+   UPDATE_REGISTERS_FOR_STRING_INIT r1, r0
+   .endif
+
+   .if \is_polymorphic
+   FETCH_ADVANCE_INST 4
+   .else
+   FETCH_ADVANCE_INST 3
+   .endif
+   GET_INST_OPCODE ip
+   GOTO_OPCODE ip
+.endm
+
+// Puts the next int/long/object argument in the expected register,
+// fetching values based on a range invoke.
+// Uses ip as temporary.
+.macro LOOP_RANGE_OVER_SHORTY_LOADING_GPRS reg32, shorty, arg_index, stack_index, finished, if_long, is_r3
+1: // LOOP
+    ldrb ip, [\shorty], #1         // Load next character in shorty, and increment.
+    cmp ip, #0
+    beq \finished                  // if (ip == '\0') goto finished
+    cmp ip, #74                    // if (ip == 'J') goto FOUND_LONG
+    beq 2f
+    cmp ip, #70                    // if (ip == 'F') goto SKIP_FLOAT
+    beq 3f
+    cmp ip, #68                    // if (ip == 'D') goto SKIP_DOUBLE
+    beq 4f
+    GET_VREG \reg32, \arg_index
+    add \arg_index, \arg_index, #1
+    add \stack_index, \stack_index, #1
+    b 5f
+2:  // FOUND_LONG
+    .if \is_r3
+    // Put back shorty and jump to \if_long
+    sub \shorty, \shorty, #1
+    .else
+    GET_VREG r2, \arg_index
+    add \arg_index, \arg_index, #1
+    add \stack_index, \stack_index, #1
+    GET_VREG r3, \arg_index
+    add \arg_index, \arg_index, #1
+    add \stack_index, \stack_index, #1
+    .endif
+    b \if_long
+3:  // SKIP_FLOAT
+    add \arg_index, \arg_index, #1
+    add \stack_index, \stack_index, #1
+    b 1b
+4:  // SKIP_DOUBLE
+    add \arg_index, \arg_index, #2
+    add \stack_index, \stack_index, #2
+    b 1b
+5:
+.endm
+
+// Puts the next int/long/object argument in the expected stack slot,
+// fetching values based on a range invoke.
+// Uses ip as temporary.
+.macro LOOP_RANGE_OVER_INTs shorty, arg_index, stack_index, finished
+1: // LOOP
+    ldrb ip, [\shorty], #1         // Load next character in shorty, and increment.
+    cmp ip, #0
+    beq \finished                     // if (ip == '\0') goto finished
+    cmp ip, #74                    // if (ip == 'J') goto FOUND_LONG
+    beq 2f
+    cmp ip, #70                    // if (ip == 'F') goto SKIP_FLOAT
+    beq 3f
+    cmp ip, #68                    // if (ip == 'D') goto SKIP_DOUBLE
+    beq 4f
+    GET_VREG ip, \arg_index
+    str ip, [sp, \stack_index, lsl #2]
+    add \arg_index, \arg_index, #1
+    add \stack_index, \stack_index, #1
+    b 1b
+2:  // FOUND_LONG
+    GET_VREG ip, \arg_index
+    str ip, [sp, \stack_index, lsl #2]
+    add \arg_index, \arg_index, #1
+    add \stack_index, \stack_index, #1
+    GET_VREG ip, \arg_index
+    str ip, [sp, \stack_index, lsl #2]
+    add \arg_index, \arg_index, #1
+    add \stack_index, \stack_index, #1
+    b 1b
+3:  // SKIP_FLOAT
+    add \arg_index, \arg_index, #1
+    add \stack_index, \stack_index, #1
+    b 1b
+4:  // SKIP_DOUBLE
+    add \arg_index, \arg_index, #2
+    add \stack_index, \stack_index, #2
+    b 1b
+.endm
+
+.macro COMMON_INVOKE_RANGE is_static=0, is_interface=0, suffix="", is_string_init=0, is_polymorphic=0, is_custom=0
+   .if \is_polymorphic
+   // We always go to compiled code for polymorphic calls.
+   .elseif \is_custom
+   // We always go to compiled code for custom calls.
+   .else
+     DO_ENTRY_POINT_CHECK .Lcall_compiled_code_range_\suffix, range_\suffix
+     GET_CODE_ITEM
+     .if \is_string_init
+     bl nterp_to_nterp_string_init_range
+     .elseif \is_static
+     bl nterp_to_nterp_static_range
+     .else
+     bl nterp_to_nterp_instance_range
+     .endif
+     b .Ldone_return_range_\suffix
+.Lfetch_nterp_range_\suffix:
+    .word   (.Lfetch_location_range_\suffix+8) - ExecuteNterpImpl
+   .endif
+
+.Lcall_compiled_code_range_\suffix:
+   .if \is_polymorphic
+   // No fast path for polymorphic calls.
+   .elseif \is_custom
+   // No fast path for custom calls.
+   .elseif \is_string_init
+   // No fast path for string.init.
+   .else
+     ldr ip, [r0, #ART_METHOD_ACCESS_FLAGS_OFFSET]
+     tst ip, #ART_METHOD_NTERP_INVOKE_FAST_PATH_FLAG
+     beq .Lfast_path_with_few_args_range_\suffix
+     FETCH_B ip, 0, 1  // Number of arguments
+     .if \is_static
+     cmp ip, #0
+     .else
+     cmp ip, #1
+     .endif
+     beq .Linvoke_fast_path_range_\suffix
+     FETCH lr, 2  // dex register of first argument
+     add lr, rFP, lr, lsl #2  // location of first dex register value.
+     .if \is_static
+     cmp ip, #2
+     blt .Lone_arg_fast_path_range_\suffix
+     beq .Ltwo_args_fast_path_range_\suffix
+     cmp ip, #3
+     .else
+     cmp ip, #3
+     blt .Ltwo_args_fast_path_range_\suffix
+     .endif
+     beq .Lthree_args_fast_path_range_\suffix
+     add rINST, sp, #4  // Add space for the ArtMethod
+
+.Lloop_over_fast_path_range_\suffix:
+     sub ip, ip, #1
+     ldr r3, [lr, ip, lsl #2]
+     str r3, [rINST, ip, lsl #2]
+     cmp ip, #3
+     bne .Lloop_over_fast_path_range_\suffix
+
+.Lthree_args_fast_path_range_\suffix:
+     ldr r3, [lr, #8]
+.Ltwo_args_fast_path_range_\suffix:
+     ldr r2, [lr, #4]
+.Lone_arg_fast_path_range_\suffix:
+     .if \is_static
+     ldr r1, [lr, #0]
+     .else
+     // First argument already in r1.
+     .endif
+.Linvoke_fast_path_range_\suffix:
+     .if \is_interface
+     // Setup hidden argument.
+     mov ip, r4
+     .endif
+     ldr lr, [r0, #ART_METHOD_QUICK_CODE_OFFSET_32]
+     blx lr
+     FETCH_ADVANCE_INST 3
+     GET_INST_OPCODE ip
+     GOTO_OPCODE ip
+
+.Lfast_path_with_few_args_range_\suffix:
+     // Fast path when we have zero or one argument (modulo 'this'). If there
+     // is one argument, we can put it in both floating point and core register.
+     FETCH_B r2, 0, 1 // number of arguments
+     .if \is_static
+     cmp r2, #1
+     blt .Linvoke_with_few_args_range_\suffix
+     bne .Lget_shorty_range_\suffix
+     FETCH r3, 2  // dex register of first argument
+     GET_VREG r1, r3
+     vmov s0, r1
+     .else
+     cmp r2, #2
+     blt .Linvoke_with_few_args_range_\suffix
+     bne .Lget_shorty_range_\suffix
+     FETCH r3, 2  // dex register of first argument
+     add r3, r3, #1  // Add 1 for next argument
+     GET_VREG r2, r3
+     vmov s0, r2
+     .endif
+.Linvoke_with_few_args_range_\suffix:
+     // Check if the next instruction is move-result or move-result-wide.
+     // If it is, we fetch the shorty and jump to the regular invocation.
+     FETCH r3, 3
+     and r3, r3, #0xfe
+     cmp r3, #0x0a
+     beq .Lget_shorty_and_invoke_range_\suffix
+     .if \is_interface
+     // Setup hidden argument.
+     mov ip, r4
+     .endif
+     ldr lr, [r0, #ART_METHOD_QUICK_CODE_OFFSET_32]
+     blx lr
+     FETCH_ADVANCE_INST 3
+     GET_INST_OPCODE ip
+     GOTO_OPCODE ip
+.Lget_shorty_and_invoke_range_\suffix:
+     .if \is_interface
+     // Save hidden argument.
+     vmov s16, r4
+     .endif
+     GET_SHORTY_SLOW_PATH rINST, \is_interface
+     b .Lgpr_setup_finished_range_\suffix
+   .endif
+
+.Lget_shorty_range_\suffix:
+   .if \is_interface
+   // Save hidden argument.
+   vmov s16, r4
+   .endif
+   GET_SHORTY rINST, \is_interface, \is_polymorphic, \is_custom
+   // From this point:
+   // - rINST contains shorty (in callee-save to switch over return value after call).
+   // - r0 contains method
+   // - r1 contains 'this' pointer for instance method.
+   //
+   // Save r0 and r1 before calling NterpSetupArm32Fprs.
+   push {r0, r1}
+   add r0, rINST, #1  // shorty + 1  ; ie skip return arg character
+   FETCH r1, 2 // arguments
+   .if \is_string_init
+   add r1, r1, #1  // arg start index
+   mov r2, #1       // index in stack
+   .elseif \is_static
+   mov r2, #0       // index in stack
+   .else
+   add r1, r1, #1  // arg start index
+   mov r2, #1       // index in stack
+   .endif
+   vpush {s0-s15}
+   mov r3, sp
+   // Pass the stack address for arguments, +16 for fprs, +2 for saved registers,
+   // +1 for ArtMethod.
+   add lr, sp, #((16 + 2 + 1) * 4)
+   push {rFP, lr}
+   bl NterpSetupArm32Fprs
+   add sp, sp, #8
+   vpop {s0-s15}
+   pop {r0, r1}
+.Lxmm_setup_finished_range_\suffix:
+   add r8, rINST, #1  // shorty + 1  ; ie skip return arg character
+   FETCH lr, 2 // arguments
+   .if \is_string_init
+   add lr, lr, #1  // arg start index
+   mov r4, #0      // index in stack
+   LOOP_RANGE_OVER_SHORTY_LOADING_GPRS r1, r8, lr, r4, .Lgpr_setup_finished_range_\suffix, .Lif_long_range_\suffix, is_r3=0
+   .elseif \is_static
+   mov r4, #0      // index in stack
+   LOOP_RANGE_OVER_SHORTY_LOADING_GPRS r1, r8, lr, r4, .Lgpr_setup_finished_range_\suffix, .Lif_long_range_\suffix, is_r3=0
+   .else
+   add lr, lr, #1  // arg start index
+   mov r4, #1       // index in stack
+   .endif
+   LOOP_RANGE_OVER_SHORTY_LOADING_GPRS r2, r8, lr, r4, .Lgpr_setup_finished_range_\suffix, .Lif_long_range_\suffix, is_r3=0
+   LOOP_RANGE_OVER_SHORTY_LOADING_GPRS r3, r8, lr, r4, .Lgpr_setup_finished_range_\suffix, .Lif_long_range_\suffix, is_r3=1
+.Lif_long_range_\suffix:
+   // Add 1 word for the ArtMethod stored before the outs.
+   add r4, r4, #1
+   LOOP_RANGE_OVER_INTs r8, lr, r4, .Lgpr_setup_finished_range_\suffix
+.Lgpr_setup_finished_range_\suffix:
+   REFRESH_MARKING_REGISTER // r8 was used when setting parameters, restore it.
+   .if \is_polymorphic
+   bl art_quick_invoke_polymorphic
+   .elseif \is_custom
+   bl art_quick_invoke_custom
+   .else
+      .if \is_interface
+      // Setup hidden argument.
+      vmov ip, s16
+      .endif
+      ldr lr, [r0, #ART_METHOD_QUICK_CODE_OFFSET_32]
+      blx lr
+   .endif
+   SETUP_RETURN_VALUE rINST
+.Ldone_return_range_\suffix:
+   /* resume execution of caller */
+   .if \is_string_init
+   FETCH ip, 2 // arguments
+   GET_VREG r1, ip
+   UPDATE_REGISTERS_FOR_STRING_INIT r1, r0
+   .endif
+
+   .if \is_polymorphic
+    FETCH_ADVANCE_INST 4
+   .else
+   FETCH_ADVANCE_INST 3
+   .endif
+   GET_INST_OPCODE ip
+   GOTO_OPCODE ip
+.endm
+
+.macro POISON_HEAP_REF_IF_OBJECT is_object, rRef
+   .if \is_object
+   POISON_HEAP_REF \rRef
+   .endif
+.endm
+
+.macro WRITE_BARRIER_IF_OBJECT is_object, value, holder, label, tmp
+   .if \is_object
+   // In T32, we would use `SMART_CBZ \value, \label`
+   cmp     \value, #0
+   beq     \label
+   ldr     ip, [rSELF, #THREAD_CARD_TABLE_OFFSET]
+   lsr     \tmp, \holder, #CARD_TABLE_CARD_SHIFT
+   strb    ip, [ip, \tmp]
+\label:
+   .endif
+.endm
+
+.macro LDREXD_STREXD_LOOP addr, load1, load2, store1, store2, tmp, label
+\label:
+   ldrexd  \load1, \load2, [\addr]
+   strexd  \tmp, \store1, \store2, [\addr]
+   cmp     \tmp, #0
+   bne     \label
+.endm
+
+.macro ATOMIC_LOAD64 addr, load1, load2, tmp, label
+   LDREXD_STREXD_LOOP \addr, \load1, \load2, \load1, \load2, \tmp, \label
+.endm
+
+.macro ATOMIC_STORE64 addr, store1, store2, tmp1, tmp2, label
+   LDREXD_STREXD_LOOP \addr, \tmp1, \tmp2, \store1, \store2, \tmp1, \label
+.endm
+
+// Puts the next int/long/object parameter passed in physical register
+// in the expected dex register array entry, and in case of object in the
+// expected reference array entry.
+// Uses ip as temporary.
+.macro LOOP_OVER_SHORTY_STORING_GPRS gpr_32, shorty, arg_offset, regs, refs, finished, if_long, is_r3
+1: // LOOP
+    ldrb ip, [\shorty], #1       // Load next character in shorty, and increment.
+    cmp ip, #0
+    beq \finished            // if (ip == '\0') goto finished
+    cmp ip, #74                  // if (ip == 'J') goto FOUND_LONG
+    beq 2f
+    cmp ip, #70                  // if (ip == 'F') goto SKIP_FLOAT
+    beq 3f
+    cmp ip, #68                  // if (ip == 'D') goto SKIP_DOUBLE
+    beq 4f
+    str \gpr_32, [\regs, \arg_offset]
+    cmp ip, #76                  // if (ip != 'L') goto NOT_REFERENCE
+    bne 6f
+    str \gpr_32, [\refs, \arg_offset]
+6:  // NOT_REFERENCE
+    add \arg_offset, \arg_offset, #4
+    b 5f
+2:  // FOUND_LONG
+    .if \is_r3
+    // Put back shorty and jump to \if_long
+    sub \shorty, \shorty, #1
+    .else
+    // A long can only be in r2, r3
+    str r2, [\regs, \arg_offset]
+    add \arg_offset, \arg_offset, #4
+    str r3, [\regs, \arg_offset]
+    add \arg_offset, \arg_offset, #4
+    .endif
+    b \if_long
+3:  // SKIP_FLOAT
+    add \arg_offset, \arg_offset, #4
+    b 1b
+4:  // SKIP_DOUBLE
+    add \arg_offset, \arg_offset, #8
+    b 1b
+5:
+.endm
+
+// Puts the next int/long/object parameter passed in stack
+// in the expected dex register array entry, and in case of object in the
+// expected reference array entry.
+.macro LOOP_OVER_INTs shorty, arg_offset, regs, refs, stack_ptr, tmp1, tmp2, finished
+1: // LOOP
+    ldrb \tmp1, [\shorty], #1       // Load next character in shorty, and increment.
+    cmp \tmp1, #0
+    beq \finished                   // if (\tmp1 == '\0') goto finished
+    cmp \tmp1, #74                  // if (\tmp1 == 'J') goto FOUND_LONG
+    beq 2f
+    cmp \tmp1, #70                  // if (\tmp1 == 'F') goto SKIP_FLOAT
+    beq 3f
+    cmp \tmp1, #68                  // if (\tmp1 == 'D') goto SKIP_DOUBLE
+    beq 4f
+    add \tmp2, \stack_ptr, \arg_offset
+    ldr \tmp2, [\tmp2,  #OFFSET_TO_FIRST_ARGUMENT_IN_STACK]
+    str \tmp2, [\regs, \arg_offset]
+    cmp \tmp1, #76                  // if (\tmp1 != 'L') goto loop
+    bne 3f
+    str \tmp2, [\refs, \arg_offset]
+    add \arg_offset, \arg_offset, #4
+    b 1b
+2:  // FOUND_LONG
+    add \tmp1, \stack_ptr, \arg_offset
+    ldr \tmp1, [\tmp1,  #OFFSET_TO_FIRST_ARGUMENT_IN_STACK]
+    str \tmp1, [\regs, \arg_offset]
+    add \arg_offset, \arg_offset, #4
+    add \tmp1, \stack_ptr, \arg_offset
+    ldr \tmp1, [\tmp1,  #OFFSET_TO_FIRST_ARGUMENT_IN_STACK]
+    str \tmp1, [\regs, \arg_offset]
+    add \arg_offset, \arg_offset, #4
+    b 1b
+3:  // SKIP_FLOAT
+    add \arg_offset, \arg_offset, #4
+    b 1b
+4:  // SKIP_DOUBLE
+    add \arg_offset, \arg_offset, #8
+    b 1b
+.endm
+
+.macro SETUP_REFERENCE_PARAMETER_IN_GPR gpr32, regs, refs, ins, arg_offset, finished
+    str \gpr32, [\regs, \arg_offset]
+    subs \ins, \ins, #1
+    str \gpr32, [\refs, \arg_offset]
+    add \arg_offset, \arg_offset, #4
+    beq \finished
+.endm
+
+.macro SETUP_REFERENCE_PARAMETERS_IN_STACK regs, refs, ins, stack_ptr, arg_offset
+1:
+    ldr ip, [\stack_ptr, \arg_offset]
+    subs \ins, \ins, #1
+    str ip, [\regs, \arg_offset]
+    str ip, [\refs, \arg_offset]
+    add \arg_offset, \arg_offset, #4
+    bne 1b
+.endm
+
+.macro DO_SUSPEND_CHECK continue_label
+    // Otherwise, do a suspend check.
+    ldr ip, [rSELF, #THREAD_FLAGS_OFFSET]
+    tst ip, #THREAD_SUSPEND_OR_CHECKPOINT_REQUEST
+    beq \continue_label
+    EXPORT_PC
+    bl    art_quick_test_suspend
+.endm
+
+.macro CHECK_AND_UPDATE_SHARED_MEMORY_METHOD if_hot, if_not_hot
+    ldr ip, [r0, #ART_METHOD_ACCESS_FLAGS_OFFSET]
+    tst ip, #ART_METHOD_IS_MEMORY_SHARED_FLAG
+    beq \if_hot
+    ldr ip, [rSELF, #THREAD_SHARED_METHOD_HOTNESS_OFFSET]
+    cmp ip, #0
+    beq \if_hot
+    add ip, ip, #-1
+    str ip, [rSELF, #THREAD_SHARED_METHOD_HOTNESS_OFFSET]
+    b \if_not_hot
+.endm
+
+
+%def entry():
+/*
+ * ArtMethod entry point.
+ *
+ * On entry:
+ *  r0   ArtMethod* callee
+ *  rest  method parameters
+ */
+
+OAT_ENTRY ExecuteNterpWithClinitImpl
+    .cfi_startproc
+    // For simplicity, we don't do a read barrier here, but instead rely
+    // on art_quick_resolution_trampoline to always have a suspend point before
+    // calling back here.
+    ldr r4, [r0, ART_METHOD_DECLARING_CLASS_OFFSET]
+    ldr ip, [r4, MIRROR_CLASS_STATUS_OFFSET]
+    cmp ip, #MIRROR_CLASS_STATUS_VISIBLY_INITIALIZED_SHIFTED
+    bcs ExecuteNterpImpl
+    cmp ip, #MIRROR_CLASS_STATUS_INITIALIZED_SHIFTED
+    blo .Linitializing_check
+    dmb ish
+    b ExecuteNterpImpl
+.Linitializing_check:
+    cmp ip, #MIRROR_CLASS_STATUS_INITIALIZING_SHIFTED
+    blo art_quick_resolution_trampoline
+    ldr r4, [r4, #MIRROR_CLASS_CLINIT_THREAD_ID_OFFSET]
+    ldr ip, [rSELF, #THREAD_TID_OFFSET]
+    cmp r4, ip
+    beq ExecuteNterpImpl
+    b art_quick_resolution_trampoline
+    .cfi_endproc
+    .type EndExecuteNterpWithClinitImpl, #function
+    .hidden EndExecuteNterpWithClinitImpl
+    .global EndExecuteNterpWithClinitImpl
+EndExecuteNterpWithClinitImpl:
+
+OAT_ENTRY ExecuteNterpImpl
+    .cfi_startproc
+    sub ip, sp, #STACK_OVERFLOW_RESERVED_BYTES
+    ldr ip, [ip]
+    /* Spill callee save regs */
+    SPILL_ALL_CALLEE_SAVES
+
+    ldr rPC, [r0, #ART_METHOD_DATA_OFFSET_32]
+
+    // Setup the stack for executing the method.
+    SETUP_STACK_FRAME rPC, rREFS, rFP, CFI_REFS, load_ins=1
+
+    // Setup the parameters
+    cmp r4, #0
+    beq .Lxmm_setup_finished
+
+    sub rINST, rINST, r4
+    ldr r8, [r0, #ART_METHOD_ACCESS_FLAGS_OFFSET]
+    lsl rINST, rINST, #2 // rINST is now the offset for inputs into the registers array.
+    mov rIBASE, ip // rIBASE contains the old stack pointer
+
+    tst r8, #ART_METHOD_NTERP_ENTRY_POINT_FAST_PATH_FLAG
+    beq .Lsetup_slow_path
+    // Setup pointer to inputs in FP and pointer to inputs in REFS
+    add lr, rFP, rINST
+    add r8, rREFS, rINST
+    mov r0, #0
+    SETUP_REFERENCE_PARAMETER_IN_GPR r1, lr, r8, r4, r0, .Lxmm_setup_finished
+    SETUP_REFERENCE_PARAMETER_IN_GPR r2, lr, r8, r4, r0, .Lxmm_setup_finished
+    SETUP_REFERENCE_PARAMETER_IN_GPR r3, lr, r8, r4, r0, .Lxmm_setup_finished
+    add rIBASE, rIBASE, #OFFSET_TO_FIRST_ARGUMENT_IN_STACK
+    SETUP_REFERENCE_PARAMETERS_IN_STACK lr, r8, r4, rIBASE, r0
+    b .Lxmm_setup_finished
+
+.Lsetup_slow_path:
+    // If the method is not static and there is one argument ('this'), we don't need to fetch the
+    // shorty.
+    tst r8, #ART_METHOD_IS_STATIC_FLAG
+    bne .Lsetup_with_shorty
+    str r1, [rFP, rINST]
+    str r1, [rREFS, rINST]
+    cmp r4, #1
+    beq .Lxmm_setup_finished
+
+.Lsetup_with_shorty:
+    // Save arguments that were passed before calling into the runtime.
+    // No need to save r0 (ArtMethod) as we're not using it later in this code.
+    // Save r4 for stack aligment.
+    // TODO: Get shorty in a better way and remove below
+    push {r1-r4}
+    vpush {s0-s15}
+    bl NterpGetShorty
+    vpop {s0-s15}
+    pop {r1-r4}
+
+    mov ip, r8
+    add r8, rREFS, rINST
+    add r7, rFP, rINST
+    mov r4, #0
+    // Setup shorty, pointer to inputs in FP and pointer to inputs in REFS
+    add lr, r0, #1  // shorty + 1  ; ie skip return arg character
+    tst ip, #ART_METHOD_IS_STATIC_FLAG
+    bne .Lhandle_static_method
+    add r7, r7, #4
+    add r8, r8, #4
+    add rIBASE, rIBASE, #4
+    b .Lcontinue_setup_gprs
+.Lhandle_static_method:
+    LOOP_OVER_SHORTY_STORING_GPRS r1, lr, r4, r7, r8, .Lgpr_setup_finished, .Lif_long, is_r3=0
+.Lcontinue_setup_gprs:
+    LOOP_OVER_SHORTY_STORING_GPRS r2, lr, r4, r7, r8, .Lgpr_setup_finished, .Lif_long, is_r3=0
+    LOOP_OVER_SHORTY_STORING_GPRS r3, lr, r4, r7, r8, .Lgpr_setup_finished, .Lif_long, is_r3=1
+.Lif_long:
+    LOOP_OVER_INTs lr, r4, r7, r8, rIBASE, ip, r1, .Lgpr_setup_finished
+.Lgpr_setup_finished:
+    add r0, r0, #1  // shorty + 1  ; ie skip return arg character
+    mov r1, r7
+    add r2, rIBASE, #OFFSET_TO_FIRST_ARGUMENT_IN_STACK
+    vpush {s0-s15}
+    mov r3, sp
+    bl NterpStoreArm32Fprs
+    add sp, sp, #(16 * 4)
+.Lxmm_setup_finished:
+    CFI_DEFINE_DEX_PC_WITH_OFFSET(CFI_TMP, CFI_DEX, 0)
+    // r8 was used for setting up the frame, restore it now.
+    REFRESH_MARKING_REGISTER
+.Lexecute_instructions:
+    // Set rIBASE
+    adr rIBASE, artNterpAsmInstructionStart
+    /* start executing the instruction at rPC */
+    START_EXECUTING_INSTRUCTIONS
+    /* NOTE: no fallthrough */
+    // cfi info continues, and covers the whole nterp implementation.
+    SIZE ExecuteNterpImpl
+
+%def opcode_pre():
+
+%def fetch_from_thread_cache(dest_reg, miss_label):
+   // Fetch some information from the thread cache.
+   // Uses ip and lr as temporaries.
+   add      ip, rSELF, #THREAD_INTERPRETER_CACHE_OFFSET       // cache address
+   ubfx     lr, rPC, #2, #THREAD_INTERPRETER_CACHE_SIZE_LOG2  // entry index
+   add      ip, ip, lr, lsl #3             // entry address within the cache
+   // In T32, we would use `ldrd ip, \dest_reg, [ip]`
+   ldr      ${dest_reg}, [ip, #4]          // value (offset)
+   ldr      ip, [ip]                       // entry key (pc)
+   cmp      ip, rPC
+   bne      ${miss_label}
+
+%def footer():
+/*
+ * ===========================================================================
+ *  Common subroutines and data
+ * ===========================================================================
+ */
+
+    .text
+    .align  2
+
+// Enclose all code below in a symbol (which gets printed in backtraces).
+NAME_START nterp_helper
+
+// Note: mterp also uses the common_* names below for helpers, but that's OK
+// as the assembler compiled each interpreter separately.
+common_errDivideByZero:
+    EXPORT_PC
+    bl art_quick_throw_div_zero
+
+// Expect index in r1, length in r3
+common_errArrayIndex:
+    EXPORT_PC
+    mov r0, r1
+    mov r1, r3
+    bl art_quick_throw_array_bounds
+
+common_errNullObject:
+    EXPORT_PC
+    bl art_quick_throw_null_pointer_exception
+
+NterpCommonInvokeStatic:
+    COMMON_INVOKE_NON_RANGE is_static=1, suffix="invokeStatic"
+
+NterpCommonInvokeStaticRange:
+    COMMON_INVOKE_RANGE is_static=1, suffix="invokeStatic"
+
+NterpCommonInvokeInstance:
+    COMMON_INVOKE_NON_RANGE suffix="invokeInstance"
+
+NterpCommonInvokeInstanceRange:
+    COMMON_INVOKE_RANGE suffix="invokeInstance"
+
+NterpCommonInvokeInterface:
+    COMMON_INVOKE_NON_RANGE is_interface=1, suffix="invokeInterface"
+
+NterpCommonInvokeInterfaceRange:
+    COMMON_INVOKE_RANGE is_interface=1, suffix="invokeInterface"
+
+NterpCommonInvokePolymorphic:
+    COMMON_INVOKE_NON_RANGE is_polymorphic=1, suffix="invokePolymorphic"
+
+NterpCommonInvokePolymorphicRange:
+    COMMON_INVOKE_RANGE is_polymorphic=1, suffix="invokePolymorphic"
+
+NterpCommonInvokeCustom:
+    COMMON_INVOKE_NON_RANGE is_static=1, is_custom=1, suffix="invokeCustom"
+
+NterpCommonInvokeCustomRange:
+    COMMON_INVOKE_RANGE is_static=1, is_custom=1, suffix="invokeCustom"
+
+NterpHandleStringInit:
+   COMMON_INVOKE_NON_RANGE is_string_init=1, suffix="stringInit"
+
+NterpHandleStringInitRange:
+   COMMON_INVOKE_RANGE is_string_init=1, suffix="stringInit"
+
+
+NterpHandleHotnessOverflow:
+    CHECK_AND_UPDATE_SHARED_MEMORY_METHOD if_hot=1f, if_not_hot=5f
+1:
+    mov r1, rPC
+    mov r2, rFP
+    bl nterp_hot_method
+    cmp r0, #0
+    bne 3f
+2:
+    FETCH_INST                          // load rINST
+    GET_INST_OPCODE ip                  // extract opcode from rINST
+    GOTO_OPCODE ip                      // jump to next instruction
+3:
+    // Drop the current frame.
+    ldr ip, [rREFS, #-4]
+    mov sp, ip
+    .cfi_def_cfa sp, CALLEE_SAVES_SIZE
+
+    // The transition frame of type SaveAllCalleeSaves saves r4, r8, and r9,
+    // but not managed ABI. So we need to restore callee-saves of the nterp frame,
+    // and save managed ABI callee saves, which will be restored by the callee upon
+    // return.
+
+    RESTORE_ALL_CALLEE_SAVES
+    push {r5-r7, r10-r11, lr}
+   .cfi_adjust_cfa_offset 24
+   .cfi_rel_offset r5, 0
+   .cfi_rel_offset r6, 4
+   .cfi_rel_offset r7, 8
+   .cfi_rel_offset r10, 12
+   .cfi_rel_offset r11, 16
+   .cfi_rel_offset lr, 20
+    vpush {s16-s31}
+    .cfi_adjust_cfa_offset 64
+
+    // Setup the new frame
+    ldr r1, [r0, #OSR_DATA_FRAME_SIZE]
+    // Given stack size contains all callee saved registers, remove them.
+    sub r1, r1, #(CALLEE_SAVES_SIZE - 12)
+
+    // We know r1 cannot be 0, as it at least contains the ArtMethod.
+
+    // Remember CFA in a callee-save register.
+    mov rINST, sp
+    .cfi_def_cfa_register rINST
+
+    sub sp, sp, r1
+
+    add r2, r0, #OSR_DATA_MEMORY
+4:
+    sub r1, r1, #4
+    ldr ip, [r2, r1]
+    str ip, [sp, r1]
+    cmp r1, #0
+    bne 4b
+
+    // Fetch the native PC to jump to and save it in a callee-save register.
+    ldr rFP, [r0, #OSR_DATA_NATIVE_PC]
+
+    // Free the memory holding OSR Data.
+    bl free
+
+    // Jump to the compiled code.
+    bx rFP
+5:
+    DO_SUSPEND_CHECK continue_label=2b
+    b 2b
+
+// This is the logical end of ExecuteNterpImpl, where the frame info applies.
+// EndExecuteNterpImpl includes the methods below as we want the runtime to
+// see them as part of the Nterp PCs.
+.cfi_endproc
+
+nterp_to_nterp_static_non_range:
+    .cfi_startproc
+    SETUP_STACK_FOR_INVOKE
+    SETUP_NON_RANGE_ARGUMENTS_AND_EXECUTE is_static=1, is_string_init=0
+    .cfi_endproc
+
+nterp_to_nterp_string_init_non_range:
+    .cfi_startproc
+    SETUP_STACK_FOR_INVOKE
+    SETUP_NON_RANGE_ARGUMENTS_AND_EXECUTE is_static=0, is_string_init=1
+    .cfi_endproc
+
+nterp_to_nterp_instance_non_range:
+    .cfi_startproc
+    SETUP_STACK_FOR_INVOKE
+    SETUP_NON_RANGE_ARGUMENTS_AND_EXECUTE is_static=0, is_string_init=0
+    .cfi_endproc
+
+nterp_to_nterp_static_range:
+    .cfi_startproc
+    SETUP_STACK_FOR_INVOKE
+    SETUP_RANGE_ARGUMENTS_AND_EXECUTE is_static=1, is_string_init=0
+    .cfi_endproc
+
+nterp_to_nterp_string_init_range:
+    .cfi_startproc
+    SETUP_STACK_FOR_INVOKE
+    SETUP_RANGE_ARGUMENTS_AND_EXECUTE is_static=0, is_string_init=1
+    .cfi_endproc
+
+nterp_to_nterp_instance_range:
+    .cfi_startproc
+    SETUP_STACK_FOR_INVOKE
+    SETUP_RANGE_ARGUMENTS_AND_EXECUTE is_static=0, is_string_init=0
+    .cfi_endproc
+
+NAME_END nterp_helper
+
+// This is the end of PCs contained by the OatQuickMethodHeader created for the interpreter
+// entry point.
+    .type EndExecuteNterpImpl, #function
+    .hidden EndExecuteNterpImpl
+    .global EndExecuteNterpImpl
+EndExecuteNterpImpl:
+
+/*
+ * Convert the double in r0/r1 to a long in r0/r1.
+ *
+ * We have to clip values to long min/max per the specification.  The
+ * expected common case is a "reasonable" value that converts directly
+ * to modest integer.  The EABI convert function isn't doing this for us.
+ */
+ENTRY nterp_d2l_doconv
+    ubfx    r2, r1, #20, #11            @ grab the exponent
+    movw    r3, #0x43e
+    cmp     r2, r3                      @ MINLONG < x > MAXLONG?
+    bhs     d2l_special_cases
+    b       __aeabi_d2lz                @ tail call to convert double to long
+d2l_special_cases:
+    movw    r3, #0x7ff
+    cmp     r2, r3
+    beq     d2l_maybeNaN                @ NaN?
+d2l_notNaN:
+    adds    r1, r1, r1                  @ sign bit to carry
+    mov     r0, #0xffffffff             @ assume maxlong for lsw
+    mov     r1, #0x7fffffff             @ assume maxlong for msw
+    adc     r0, r0, #0
+    adc     r1, r1, #0                  @ convert maxlong to minlong if exp negative
+    bx      lr                          @ return
+d2l_maybeNaN:
+    orrs    r3, r0, r1, lsl #12
+    beq     d2l_notNaN                  @ if fraction is non-zero, it's a NaN
+    mov     r0, #0
+    mov     r1, #0
+    bx      lr                          @ return 0 for NaN
+END nterp_d2l_doconv
+
+/*
+ * Convert the float in r0 to a long in r0/r1.
+ *
+ * We have to clip values to long min/max per the specification.  The
+ * expected common case is a "reasonable" value that converts directly
+ * to modest integer.  The EABI convert function isn't doing this for us.
+ */
+ENTRY nterp_f2l_doconv
+    ubfx    r2, r0, #23, #8             @ grab the exponent
+    cmp     r2, #0xbe                   @ MININT < x > MAXINT?
+    bhs     f2l_special_cases
+    b       __aeabi_f2lz                @ tail call to convert float to long
+f2l_special_cases:
+    cmp     r2, #0xff                   @ NaN or infinity?
+    beq     f2l_maybeNaN
+f2l_notNaN:
+    adds    r0, r0, r0                  @ sign bit to carry
+    mov     r0, #0xffffffff             @ assume maxlong for lsw
+    mov     r1, #0x7fffffff             @ assume maxlong for msw
+    adc     r0, r0, #0
+    adc     r1, r1, #0                  @ convert maxlong to minlong if exp negative
+    bx      lr                          @ return
+f2l_maybeNaN:
+    lsls    r3, r0, #9
+    beq     f2l_notNaN                  @ if fraction is non-zero, it's a NaN
+    mov     r0, #0
+    mov     r1, #0
+    bx      lr                          @ return 0 for NaN
+END nterp_f2l_doconv
+
+// Entrypoints into runtime.
+NTERP_TRAMPOLINE nterp_get_static_field, NterpGetStaticField
+NTERP_TRAMPOLINE nterp_get_instance_field_offset, NterpGetInstanceFieldOffset
+NTERP_TRAMPOLINE nterp_filled_new_array, NterpFilledNewArray
+NTERP_TRAMPOLINE nterp_filled_new_array_range, NterpFilledNewArrayRange
+NTERP_TRAMPOLINE nterp_get_class, NterpGetClass
+NTERP_TRAMPOLINE nterp_allocate_object, NterpAllocateObject
+NTERP_TRAMPOLINE nterp_get_method, NterpGetMethod
+NTERP_TRAMPOLINE nterp_hot_method, NterpHotMethod
+NTERP_TRAMPOLINE nterp_load_object, NterpLoadObject
+
+ENTRY nterp_deliver_pending_exception
+    DELIVER_PENDING_EXCEPTION
+END nterp_deliver_pending_exception
+
+// gen_mterp.py will inline the following definitions
+// within [ExecuteNterpImpl, EndExecuteNterpImpl).
+%def instruction_end():
+
+    .type artNterpAsmInstructionEnd, #function
+    .hidden artNterpAsmInstructionEnd
+    .global artNterpAsmInstructionEnd
+artNterpAsmInstructionEnd:
+    // artNterpAsmInstructionEnd is used as landing pad for exception handling.
+    FETCH_INST
+    GET_INST_OPCODE ip
+    GOTO_OPCODE ip
+
+%def instruction_start():
+
+    .type artNterpAsmInstructionStart, #function
+    .hidden artNterpAsmInstructionStart
+    .global artNterpAsmInstructionStart
+artNterpAsmInstructionStart = .L_op_nop
+    .text
+
+%def opcode_name_prefix():
+%   return "nterp_"
+%def opcode_start():
+    NAME_START nterp_${opcode}
+    # Explicitly restore CFA, just in case the previous opcode clobbered it (by .cfi_def_*).
+    CFI_DEF_CFA_BREG_PLUS_UCONST CFI_REFS, -4, CALLEE_SAVES_SIZE
+%def opcode_end():
+    NAME_END nterp_${opcode}
+    // Advance to the end of this handler. Causes error if we are past that point.
+    .org nterp_${opcode} + NTERP_HANDLER_SIZE  // ${opcode} handler is too big!
+%def opcode_slow_path_start(name):
+    NAME_START ${name}
+%def opcode_slow_path_end(name):
+    NAME_END ${name}

@@ -1,0 +1,1830 @@
+//
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// ART gtests.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "art_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["art_license"],
+}
+
+soong_config_module_type_import {
+    from: "art/build/SoongConfig.bp",
+    module_types: [
+        "art_module_cc_defaults",
+    ],
+}
+
+// Properties common to `art_test_defaults` and `art_standalone_test_defaults`.
+art_module_cc_defaults {
+    name: "art_test_common_defaults",
+    defaults: ["art_defaults"],
+
+    // Override flags from art_defaults:
+    cflags: [
+        // gmock.h has incorrect unused markers.
+        "-Wno-used-but-marked-unused",
+        // gtest.h compares signed and unsigned.
+        "-Wno-sign-compare",
+        // gtest.h includes cxxabi.h which fails on this check.
+        "-Wno-deprecated-dynamic-exception-spec",
+    ],
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        // This has to be duplicated for android and host to make sure it
+        // comes after the -Wframe-larger-than warnings inserted by art.go
+        // target-specific properties
+        android: {
+            cflags: ["-Wno-frame-larger-than="],
+        },
+        host: {
+            cflags: [
+                "-Wno-frame-larger-than=",
+                "-fsanitize-address-use-after-return=never",
+                "-Wno-unused-command-line-argument",
+            ],
+        },
+    },
+}
+
+art_module_cc_defaults {
+    name: "art_test_defaults",
+    defaults: [
+        "art_test_common_defaults",
+    ],
+    host_supported: true,
+    soong_config_variables: {
+        source_build: {
+            target: {
+                android: {
+                    test_for: [
+                        "com.android.art",
+                        "com.android.art.debug",
+                    ],
+                },
+            },
+        },
+    },
+    target: {
+        // The following set of relative_install_paths installs the library in a
+        // location that will be available as java.library.path in run tests.
+        android_arm: {
+            relative_install_path: "art/arm",
+        },
+        android_arm64: {
+            relative_install_path: "art/arm64",
+        },
+        android_riscv64: {
+            relative_install_path: "art/riscv64",
+        },
+        android_x86: {
+            relative_install_path: "art/x86",
+        },
+        android_x86_64: {
+            relative_install_path: "art/x86_64",
+        },
+    },
+    // Tests aren't generally included in any APEX, but this is necessary to
+    // avoid duplicate install rules for them by making them unavailable to platform.
+    apex_available: [
+        "com.android.art.debug",
+    ],
+}
+
+// Variant of art_test_defaults for test libraries that installs them in a
+// location which will be added to the default namespace, and hence also the
+// com_android_art namespace. That allows them to have shared_libs
+// dependencies on all ART internal libraries.
+//
+// Currently this only works for run tests where run-test-jar sets
+// LD_LIBRARY_PATH and NATIVELOADER_DEFAULT_NAMESPACE_LIBS.
+art_cc_defaults {
+    name: "art_test_internal_library_defaults",
+    defaults: ["art_test_defaults"],
+    target: {
+        android_arm: {
+            relative_install_path: "com.android.art/lib",
+        },
+        android_arm64: {
+            relative_install_path: "com.android.art/lib64",
+        },
+        android_riscv64: {
+            relative_install_path: "com.android.art/lib64",
+        },
+        android_x86: {
+            relative_install_path: "com.android.art/lib",
+        },
+        android_x86_64: {
+            relative_install_path: "com.android.art/lib64",
+        },
+    },
+}
+
+// Test configuration template for standalone ART gtests on target (not bundled with the ART APEX).
+filegroup {
+    name: "art-gtests-target-standalone-template",
+    srcs: ["art-gtests-target-standalone-template.xml"],
+}
+
+// Test configuration template for standalone ART gtests on target (not bundled with the ART APEX)
+// which are part of CTS.
+filegroup {
+    name: "art-gtests-target-standalone-cts-template",
+    srcs: ["art-gtests-target-standalone-cts-template.xml"],
+}
+
+// Test configuration template for standalone ART gtests run with a boot image on target (not
+// bundled with the ART APEX).
+filegroup {
+    name: "art-gtests-target-standalone-with-boot-image-template",
+    srcs: ["art-gtests-target-standalone-with-boot-image-template.xml"],
+}
+
+// When soong builds the tests in a sandbox, the targets of symlinks
+// must be declared as inputs to soong modules that use them, or else
+// it will be a dangling symlink in the sandbox.
+filegroup {
+    name: "test_build_symlink_targets",
+    srcs: [
+        "jvmti-common/*.java",
+        "1953-pop-frame/src/art/SuspendEvents.java",
+        "1953-pop-frame/src/art/Test1953.java",
+        "993-breakpoints/src/art/Test993.java",
+        "988-method-trace/src/art/Test988.java",
+        "988-method-trace/src/art/Test988Intrinsics.java",
+    ],
+    visibility: [
+        "//art/test:__subpackages__",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_standalone_test_defaults",
+    defaults: [
+        "art_test_common_defaults",
+    ],
+    // Standalone ART gtests are only supported on device for now.
+    // TODO: Add support for host standalone ART gtests. Note that they should not differ much
+    // from the original ("non-standalone") host gtests, as the latter are not really bundled with
+    // the host ART APEX / artifacts (unlike their device counterparts); but as we plan to remove
+    // the ART gtests bundled with the ART APEX, we'll have to support the host case here
+    // eventually.
+    host_supported: false,
+    test_config_template: ":art-gtests-target-standalone-template",
+
+    // Support multilib variants (using different suffix per sub-architecture),
+    // which is needed on build targets with secondary architectures, as the
+    // CTS/MTS/etc test suite packaging logic flattens all test artifacts into a
+    // single `testcases` directory. Also, there is CI testing that expects
+    // 64-bit multilib test suites to work for 32-bit devices (b/233550842).
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+}
+
+// Properties common to `art_gtest_defaults` and `art_standalone_gtest_defaults`.
+art_cc_defaults {
+    name: "art_gtest_common_defaults",
+    // These really are gtests, but the gtest library comes from `libart(d)-gtest.so`.
+    gtest: false,
+
+    shared_libs: [
+        // `libnativeloader` must be shared, otherwise host gtests can't load libraries from
+        // "art_common/out/host", which is present in `libnativeloader` RUNPATH.
+        // TODO(b/247108425): modify gtests RUNPATH so that `libnativeloader` can be static linked.
+        "libnativeloader",
+
+        // `libart(d)` (`art/runtime/jni/java_vm_ext.cc`) and `libnativehelper`
+        // (`libnativehelper/JniInvocation.c`) define symbols with the same name
+        // (e.g. `JNI_GetDefaultJavaVMInitArgs`).
+        // `JavaVmExtTest#*` tests require `libart(d)` implementation of these symbols.
+        // At the moment `libart(d)` is linked statically (through `libart(d)-gtest`)
+        // and these symbols are correctly resolved to `libart(d)`.
+        // If `libnativehelper` and `libart(d)` are both linked dynamically,
+        // `libart(d)` must be specified in shared_libs list before `libnativehelper`,
+        // so that its symbols have precedence over `libnativehelper`.
+        "libnativehelper",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                // Dependencies of `libart(d)`, that are not included in *static_defaults.
+                "libdl_android",
+                "libstatspull",
+                "libstatssocket",
+                "heapprofd_client_api",
+            ],
+        },
+        linux: {
+            ldflags: [
+                // Allow jni_compiler_test to find Java_MyClassNatives_bar
+                // within itself using dlopen(NULL, ...).
+                // Mac OS linker doesn't understand --export-dynamic.
+                "-Wl,--export-dynamic",
+                "-Wl,-u,Java_MyClassNatives_bar",
+                "-Wl,-u,Java_MyClassNatives_sbar",
+            ],
+            cflags: [
+                // gtest issue
+                "-Wno-used-but-marked-unused",
+                "-Wno-deprecated",
+                "-Wno-missing-noreturn",
+            ],
+        },
+        host: {
+            cflags: [
+                "-fsanitize-address-use-after-return=never",
+                "-Wno-unused-command-line-argument",
+            ],
+        },
+    },
+    static_libs: [
+        "libartbase-testing",
+        // `libsigchain` must be static linked into gtests, otherwise some tests fail under
+        // ASAN. ASAN init uses sigaction, which makes `libsigchain.so` initialize earlier than
+        // required and breaks `environ` variable in gtest.
+        // `libsigchain` is not whole-static-linked into `libart(d)-gtest`, because hiding its
+        // symbols with `--exclude-libs` breaks art_standalone_sigchain_tests.
+        "libsigchain",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_gtest_defaults",
+    defaults: [
+        "art_test_defaults",
+        "art_gtest_common_defaults",
+        "art_debug_defaults",
+    ],
+    test_suites: ["art-host-tests"],
+    test_options: {
+        test_suite_tag: ["art-host-gtest"],
+    },
+    static_libs: [
+        "libartd-gtest",
+    ],
+    // Reduce test executable size by disabling automatic export of static lib symbols.
+    // Don't use --exclude-libs=ALL, because it breaks tests under ASAN by hiding __asan* symbols.
+    ldflags: [
+        "-Wl,--exclude-libs=libartd-gtest.a",
+    ],
+}
+
+art_cc_defaults {
+    name: "art_standalone_gtest_defaults",
+    defaults: [
+        // Note: We don't include "art_debug_defaults" here, as standalone ART
+        // gtests link with the "non-d" versions of the libraries contained in
+        // the ART APEX, so that they can be used with all ART APEX flavors
+        // (including the Release ART APEX).
+        "art_standalone_test_defaults",
+        "art_gtest_common_defaults",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-art",
+    ],
+    // Support multilib variants (using different suffix per sub-architecture), which is needed on
+    // build targets with secondary architectures, as the MTS test suite packaging logic flattens
+    // all test artifacts into a single `testcases` directory.
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    static_libs: [
+        "libart-gtest",
+    ],
+    // Reduce test executable size by disabling automatic export of static lib symbols.
+    // Don't use --exclude-libs=ALL, because it breaks tests under ASAN by hiding __asan* symbols.
+    ldflags: [
+        "-Wl,--exclude-libs=libart-gtest.a",
+    ],
+    test_for: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+art_cc_defaults {
+    name: "libart-gtest-defaults",
+    defaults: [
+        "art_defaults",
+    ],
+    host_supported: true,
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libgtest_isolated",
+    ],
+    target: {
+        host: {
+            cflags: [
+                "-fsanitize-address-use-after-return=never",
+                "-Wno-unused-command-line-argument",
+            ],
+        },
+        android32: {
+            cflags: ["-DART_TARGET_NATIVETEST_DIR=/data/nativetest/art"],
+        },
+        android64: {
+            cflags: ["-DART_TARGET_NATIVETEST_DIR=/data/nativetest64/art"],
+        },
+        linux: {
+            cflags: [
+                // gtest issue
+                "-Wno-used-but-marked-unused",
+                "-Wno-deprecated",
+                "-Wno-missing-noreturn",
+            ],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+// Properties common to `libart-gtest` and `libartd-gtest`.
+art_cc_defaults {
+    name: "libart-gtest-common",
+    defaults: [
+        "art_defaults",
+    ],
+    host_supported: true,
+    srcs: [
+        "common/gtest_main.cc",
+    ],
+    whole_static_libs: [
+        "libgtest_isolated",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    target: {
+        host: {
+            cflags: [
+                "-fsanitize-address-use-after-return=never",
+                "-Wno-unused-command-line-argument",
+            ],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+art_cc_library_static {
+    name: "libart-gtest",
+    defaults: [
+        "libart-gtest-common",
+    ],
+    whole_static_libs: [
+        "libart-compiler-gtest",
+        "libart-runtime-gtest",
+        "libartbase-art-gtest",
+    ],
+}
+
+art_cc_library_static {
+    name: "libartd-gtest",
+    defaults: [
+        "art_debug_defaults",
+        "libart-gtest-common",
+    ],
+    whole_static_libs: [
+        "libartd-compiler-gtest",
+        "libartd-runtime-gtest",
+        "libartbased-art-gtest",
+    ],
+}
+
+// ART run-tests.
+
+// Test configuration template for ART run-tests on target expected to run
+// successfully, and as such tagged as part of TradeFed's `art-target-run-test`
+// test suite via the `test-suite-tag`.
+filegroup {
+    name: "art-run-test-target-template",
+    srcs: [
+        "art-run-test-target-template.xml",
+    ],
+}
+
+// Same as `art-run-test-target-template`, but with a longer timeout.
+filegroup {
+    name: "art-run-test-target-slow-template",
+    srcs: [
+        "art-run-test-target-slow-template.xml",
+    ],
+}
+
+// Same as `art-run-test-target-template`, but contains additional
+// options to also make the test part of ART CTS.
+filegroup {
+    name: "art-run-test-target-cts-template",
+    srcs: [
+        "art-run-test-target-cts-template.xml",
+    ],
+}
+
+// Test configuration template for ART run-tests on target expected to run
+// successfully, and as such *not* tagged as part of TradeFed's
+// `art-target-run-test` test suite via the `test-suite-tag`. This is as
+// temporary measure, while we add proper support for all ART (target) run-tests
+// to TradeFed (b/147818031).
+filegroup {
+    name: "art-run-test-target-no-test-suite-tag-template",
+    srcs: [
+        "art-run-test-target-no-test-suite-tag-template.xml",
+    ],
+}
+
+java_defaults {
+    name: "art-run-test-defaults",
+
+    // Compile against the "core" bootclasspath, not the "default" one (current
+    // platform) -- use the same settings as Libcore tests (see e.g. the
+    // definition of module `core-tests` in libcore/JavaLibrary.bp).
+    //
+    // Note: The legacy way to build ART run-tests uses the
+    // `javac_with_bootclasspath` function defined in `test/etc/default-build`.
+    // See also `tools/javac-helper.sh`.
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+
+    // Some ART run-tests contain constructs which break ErrorProne checks;
+    // disable `errorprone` builds.
+    errorprone: {
+        enabled: false,
+    },
+    test_suites: [
+        "general-tests",
+        "mts-art",
+    ],
+    host_required: [
+        "art-run-test-checker",
+    ],
+    min_sdk_version: "31",
+
+    compile_data: [
+        ":test_build_symlink_targets",
+    ],
+}
+
+art_cc_test_library {
+    name: "libarttest",
+    defaults: ["libarttest-defaults"],
+    shared_libs: [
+        "libart",
+        "libdexfile",
+        "libprofile",
+        "libartbase",
+    ],
+}
+
+art_cc_test_library {
+    name: "libarttestd",
+    defaults: [
+        "art_debug_defaults",
+        "libarttest-defaults",
+    ],
+    shared_libs: [
+        "libartd",
+        "libdexfiled",
+        "libprofiled",
+        "libartbased",
+    ],
+}
+
+art_cc_defaults {
+    name: "libnativebridgetest-defaults",
+    defaults: ["art_test_defaults"],
+    header_libs: ["libnativebridge-headers"],
+    srcs: ["115-native-bridge/nativebridge.cc"],
+}
+
+art_cc_test_library {
+    name: "libnativebridgetest",
+    shared_libs: ["libart"],
+    defaults: [
+        "libnativebridgetest-defaults",
+    ],
+}
+
+art_cc_test_library {
+    name: "libnativebridgetestd",
+    shared_libs: ["libartd"],
+    defaults: [
+        "libnativebridgetest-defaults",
+        "art_debug_defaults",
+    ],
+}
+
+// ART JVMTI run-tests.
+
+cc_defaults {
+    name: "libartagent-defaults",
+    defaults: ["art_test_internal_library_defaults"],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libnativehelper",
+    ],
+}
+
+art_cc_test_library {
+    name: "libartagent",
+    srcs: ["900-hello-plugin/load_unload.cc"],
+    defaults: ["libartagent-defaults"],
+    shared_libs: [
+        "libart",
+        "libdexfile",
+        "libprofile",
+        "libartbase",
+    ],
+}
+
+art_cc_test_library {
+    name: "libartagentd",
+    srcs: ["900-hello-plugin/load_unload.cc"],
+    defaults: [
+        "art_debug_defaults",
+        "libartagent-defaults",
+    ],
+    shared_libs: [
+        "libartd",
+        "libdexfiled",
+        "libprofiled",
+        "libartbased",
+    ],
+}
+
+art_cc_defaults {
+    name: "libtiagent-base-defaults",
+    defaults: ["art_test_internal_library_defaults"],
+    srcs: [
+        // These are the ART-independent parts.
+        "ti-agent/agent_common.cc",
+        "ti-agent/agent_startup.cc",
+        "ti-agent/jni_binder.cc",
+        "ti-agent/jvmti_helper.cc",
+        "ti-agent/test_env.cc",
+        "ti-agent/breakpoint_helper.cc",
+        "ti-agent/common_helper.cc",
+        "ti-agent/early_return_helper.cc",
+        "ti-agent/frame_pop_helper.cc",
+        "ti-agent/locals_helper.cc",
+        "ti-agent/monitors_helper.cc",
+        "ti-agent/redefinition_helper.cc",
+        "ti-agent/suspension_helper.cc",
+        "ti-agent/suspend_event_helper.cc",
+        "ti-agent/stack_trace_helper.cc",
+        "ti-agent/threads_helper.cc",
+        "ti-agent/trace_helper.cc",
+        "ti-agent/exceptions_helper.cc",
+        // This is the list of non-special OnLoad things and excludes BCI and anything that depends
+        // on ART internals.
+        "903-hello-tagging/tagging.cc",
+        "904-object-allocation/tracking.cc",
+        "905-object-free/tracking_free.cc",
+        "906-iterate-heap/iterate_heap.cc",
+        "907-get-loaded-classes/get_loaded_classes.cc",
+        "908-gc-start-finish/gc_callbacks.cc",
+        "910-methods/methods.cc",
+        "911-get-stack-trace/stack_trace.cc",
+        "912-classes/classes.cc",
+        "913-heaps/heaps.cc",
+        "918-fields/fields.cc",
+        "920-objects/objects.cc",
+        "922-properties/properties.cc",
+        "923-monitors/monitors.cc",
+        "924-threads/threads.cc",
+        "925-threadgroups/threadgroups.cc",
+        "927-timers/timers.cc",
+        "928-jni-table/jni_table.cc",
+        "929-search/search.cc",
+        "931-agent-thread/agent_thread.cc",
+        "933-misc-events/misc_events.cc",
+        "945-obsolete-native/obsolete_native.cc",
+        "983-source-transform-verify/source_transform.cc",
+        "984-obsolete-invoke/obsolete_invoke.cc",
+        "986-native-method-bind/native_bind.cc",
+        "987-agent-bind/agent_bind.cc",
+        "988-method-trace/trace_fib.cc",
+        "989-method-trace-throw/method_trace.cc",
+        "991-field-trace-2/field_trace.cc",
+        "992-source-data/source_file.cc",
+        "993-breakpoints/breakpoints.cc",
+        "993-breakpoints-non-debuggable/onload.cc",
+        "996-breakpoint-obsolete/obsolete_breakpoints.cc",
+        "1900-track-alloc/alloc.cc",
+        "1901-get-bytecodes/bytecodes.cc",
+        "1905-suspend-native/native_suspend.cc",
+        "1908-suspend-native-resume-self/native_suspend_resume.cc",
+        "1909-per-agent-tls/agent_tls.cc",
+        "1914-get-local-instance/local_instance.cc",
+        "1919-vminit-thread-start-timing/vminit.cc",
+        "1920-suspend-native-monitor/native_suspend_monitor.cc",
+        "1921-suspend-native-recursive-monitor/native_suspend_recursive_monitor.cc",
+        "1922-owned-monitors-info/owned_monitors.cc",
+        "1924-frame-pop-toggle/frame_pop_toggle.cc",
+        "1926-missed-frame-pop/frame_pop_missed.cc",
+        "1927-exception-event/exception_event.cc",
+        "1930-monitor-info/monitor.cc",
+        "1932-monitor-events-misc/monitor_misc.cc",
+        "1934-jvmti-signal-thread/signal_threads.cc",
+        "1939-proxy-frames/local_instance.cc",
+        "1940-ddms-ext/ddm_ext.cc",
+        "1941-dispose-stress/dispose_stress.cc",
+        "1942-suspend-raw-monitor-exit/native_suspend_monitor.cc",
+        "1943-suspend-raw-monitor-wait/native_suspend_monitor.cc",
+        "1946-list-descriptors/descriptors.cc",
+        "1950-unprepared-transform/unprepared_transform.cc",
+        "1951-monitor-enter-no-suspend/raw_monitor.cc",
+        "1953-pop-frame/pop_frame.cc",
+        "1957-error-ext/lasterror.cc",
+        // TODO Renumber
+        "1962-multi-thread-events/multi_thread_events.cc",
+        "1963-add-to-dex-classloader-in-memory/add_to_loader.cc",
+        "1968-force-early-return/force_early_return.cc",
+        "1969-force-early-return-void/force_early_return_void.cc",
+        "1970-force-early-return-long/force_early_return_long.cc",
+        "1974-resize-array/resize_array.cc",
+        "1975-hello-structural-transformation/structural_transform.cc",
+        "1976-hello-structural-static-methods/structural_transform_methods.cc",
+        "2005-pause-all-redefine-multithreaded/pause-all.cc",
+        "2009-structural-local-ref/local-ref.cc",
+        "2035-structural-native-method/structural-native.cc",
+        "2243-single-step-default/single_step_helper.cc",
+    ],
+    // Use NDK-compatible headers for ctstiagent.
+    header_libs: [
+        "libopenjdkjvmti_headers",
+    ],
+    local_include_dirs: ["ti-agent"],
+}
+
+art_cc_defaults {
+    name: "libtiagent-defaults",
+    defaults: [
+        "libtiagent-base-defaults",
+        "libartagent-defaults",
+    ],
+    srcs: [
+        // This is to get the IsInterpreted native method.
+        "common/stack_inspect.cc",
+        "common/runtime_state.cc",
+        "ti-agent/common_load.cc",
+        // This includes the remaining test functions. We should try to refactor things to
+        // make this list smaller.
+        "901-hello-ti-agent/basics.cc",
+        "909-attach-agent/attach.cc",
+        "912-classes/classes_art.cc",
+        "936-search-onload/search_onload.cc",
+        "980-redefine-object/redef_object.cc",
+        "983-source-transform-verify/source_transform_art.cc",
+        "993-breakpoints-non-debuggable/native_attach_agent.cc",
+        // "1952-pop-frame-jit/pop_frame.cc",
+        "1959-redefine-object-instrument/fake_redef_object.cc",
+        "1960-obsolete-jit-multithread-native/native_say_hi.cc",
+        "1964-add-to-dex-classloader-file/add_to_loader.cc",
+        "1963-add-to-dex-classloader-in-memory/check_memfd_create.cc",
+        "2012-structural-redefinition-failures-jni-id/set-jni-id-used.cc",
+        "2031-zygote-compiled-frame-deopt/native-wait.cc",
+        "2038-hiddenapi-jvmti-ext/hiddenapi_ext.cc",
+    ],
+    static_libs: [
+        "libz",
+        "slicer_no_rtti",
+    ],
+}
+
+art_cc_test_library {
+    name: "libtiagent",
+    defaults: ["libtiagent-defaults"],
+    shared_libs: [
+        "libart",
+        "libdexfile",
+        "libprofile",
+        "libartbase",
+    ],
+}
+
+art_cc_test_library {
+    name: "libtiagentd",
+    defaults: [
+        "art_debug_defaults",
+        "libtiagent-defaults",
+    ],
+    shared_libs: [
+        "libartd",
+        "libdexfiled",
+        "libprofiled",
+        "libartbased",
+    ],
+}
+
+cc_library_static {
+    name: "libctstiagent",
+    defaults: ["libtiagent-base-defaults"],
+
+    // TODO(b/187288515): Providing this as a prebuilt introduces an issue with
+    // sdk_version propagation. Temporarily use the source library instead,
+    // which means we need to override the logic inherited from art_defaults and
+    // art_test_internal_library_defaults that disables sources when not
+    // building ART from sources.
+    enabled: true,
+
+    visibility: [
+        "//cts/hostsidetests/jvmti:__subpackages__",
+    ],
+    host_supported: false,
+    srcs: [
+        "983-source-transform-verify/source_transform_slicer.cc",
+    ],
+    whole_static_libs: [
+        "slicer_ndk_no_rtti",
+    ],
+    static_libs: [
+        "libbase_ndk",
+    ],
+    shared_libs: [
+        "libz", // for slicer (using adler32).
+    ],
+    sdk_version: "current",
+    stl: "c++_static",
+    header_libs: ["jni_headers"],
+    export_include_dirs: ["ti-agent"],
+}
+
+art_cc_defaults {
+    name: "libtistress-srcs",
+    defaults: ["libartagent-defaults"],
+    srcs: [
+        "ti-stress/stress.cc",
+    ],
+    header_libs: ["libopenjdkjvmti_headers"],
+}
+
+art_cc_defaults {
+    name: "libtistress-defaults",
+    defaults: ["libtistress-srcs"],
+    shared_libs: [
+        "slicer_no_rtti",
+        "libz", // for slicer (using adler32).
+    ],
+}
+
+art_cc_test_library {
+    name: "libtistress",
+    defaults: ["libtistress-defaults"],
+    shared_libs: [
+        "libartbase",
+        "libz",
+    ],
+}
+
+art_cc_test_library {
+    name: "libtistressd",
+    defaults: [
+        "art_debug_defaults",
+        "libtistress-defaults",
+    ],
+    shared_libs: [
+        "libartbased",
+        "libz",
+    ],
+}
+
+art_cc_defaults {
+    name: "libtistress-shared-defaults",
+    defaults: [
+        "libtistress-srcs",
+    ],
+    static_libs: ["slicer_no_rtti"],
+}
+
+art_cc_test_library {
+    name: "libtistresss",
+    defaults: ["libtistress-shared-defaults"],
+    shared_libs: [
+        "libartbase",
+        "libz",
+    ],
+}
+
+art_cc_test_library {
+    name: "libtistressds",
+    defaults: [
+        "libtistress-shared-defaults",
+    ],
+    shared_libs: [
+        "libartbased",
+        "libz",
+    ],
+}
+
+cc_defaults {
+    name: "libarttest-defaults",
+    defaults: ["art_test_internal_library_defaults"],
+    srcs: [
+        "004-JniTest/jni_test.cc",
+        "004-ReferenceMap/stack_walk_refmap_jni.cc",
+        "004-SignalTest/signaltest.cc",
+        "004-StackWalk/stack_walk_jni.cc",
+        "004-ThreadStress/thread_stress.cc",
+        "004-UnsafeTest/unsafe_test.cc",
+        "044-proxy/native_proxy.cc",
+        "051-thread/thread_test.cc",
+        "1337-gc-coverage/gc_coverage.cc",
+        "136-daemon-jni-shutdown/daemon_jni_shutdown.cc",
+        "137-cfi/cfi.cc",
+        "139-register-natives/regnative.cc",
+        "141-class-unload/jni_unload.cc",
+        "148-multithread-gc-annotations/gc_coverage.cc",
+        "149-suspend-all-stress/suspend_all.cc",
+        "154-gc-loop/heap_interface.cc",
+        "167-visit-locks/visit_locks.cc",
+        "169-threadgroup-jni/jni_daemon_thread.cc",
+        "172-app-image-twice/debug_print_class.cc",
+        "177-visibly-initialized-deadlock/visibly_initialized.cc",
+        "178-app-image-native-method/native_methods.cc",
+        "179-nonvirtual-jni/nonvirtual-call.cc",
+        "1945-proxy-method-arguments/get_args.cc",
+        "203-multi-checkpoint/multi_checkpoint.cc",
+        "305-other-fault-handler/fault_handler.cc",
+        "454-get-vreg/get_vreg_jni.cc",
+        "457-regs/regs_jni.cc",
+        "461-get-reference-vreg/get_reference_vreg_jni.cc",
+        "466-get-live-vreg/get_live_vreg_jni.cc",
+        "497-inlining-and-class-loader/clear_dex_cache.cc",
+        "543-env-long-ref/env_long_ref.cc",
+        "566-polymorphic-inlining/polymorphic_inline.cc",
+        "570-checker-osr/osr.cc",
+        "595-profile-saving/profile-saving.cc",
+        "596-app-images/app_images.cc",
+        "596-monitor-inflation/monitor_inflation.cc",
+        "597-deopt-new-string/deopt.cc",
+        "616-cha-unloading/cha_unload.cc",
+        "626-const-class-linking/clear_dex_cache_types.cc",
+        "642-fp-callees/fp_callees.cc",
+        "647-jni-get-field-id/get_field_id.cc",
+        "656-annotation-lookup-generic-jni/test.cc",
+        "661-oat-writer-layout/oat_writer_layout.cc",
+        "664-aget-verifier/aget-verifier.cc",
+        "667-jit-jni-stub/jit_jni_stub_test.cc",
+        "674-hiddenapi/hiddenapi.cc",
+        "692-vdex-inmem-loader/vdex_inmem_loader.cc",
+        "720-thread-priority/thread_priority.cc",
+        "800-smali/jni.cc",
+        "817-hiddenapi/test_native.cc",
+        "909-attach-agent/disallow_debugging.cc",
+        "993-breakpoints-non-debuggable/native_attach_agent.cc",
+        "1001-app-image-regions/app_image_regions.cc",
+        "1002-notify-startup/startup_interface.cc",
+        "1947-breakpoint-redefine-deopt/check_deopt.cc",
+        "1972-jni-id-swap-indices/jni_id.cc",
+        "1985-structural-redefine-stack-scope/stack_scope.cc",
+        "2011-stack-walk-concurrent-instrument/stack_walk_concurrent.cc",
+        "2031-zygote-compiled-frame-deopt/native-wait.cc",
+        "2033-shutdown-mechanics/native_shutdown.cc",
+        "2036-jni-filechannel/jni_filechannel.cc",
+        "2037-thread-name-inherit/thread_name_inherit.cc",
+        "2040-huge-native-alloc/huge_native_buf.cc",
+        "2048-bad-native-registry/native_finalizer.cc",
+        "2235-JdkUnsafeTest/unsafe_test.cc",
+        "2246-trace-v2/dump_trace.cc",
+        "2262-miranda-methods/jni_invoke.cc",
+        "2270-mh-internal-hiddenapi-use/mh-internal-hidden-api.cc",
+        "common/runtime_state.cc",
+        "common/stack_inspect.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libnativehelper",
+        "libunwindstack",
+    ],
+}
+
+java_library {
+    name: "art_cts_jvmti_test_library",
+    visibility: [
+        "//art:__subpackages__",
+        "//cts/hostsidetests/jvmti:__subpackages__",
+    ],
+    javacflags: ["-g"],
+    srcs: [
+        // shim classes. We use one that exposes the common functionality.
+        "jvmti-common/Redefinition.java",
+        "jvmti-common/Main.java",
+        "jvmti-common/Trace.java",
+        "jvmti-common/Breakpoint.java",
+        "jvmti-common/Suspension.java",
+        "jvmti-common/Locals.java",
+        "jvmti-common/StackTrace.java",
+        "jvmti-common/FramePop.java",
+        "jvmti-common/Exceptions.java",
+        "jvmti-common/Monitors.java",
+        "jvmti-common/NonStandardExit.java",
+        "jvmti-common/Threads.java",
+        "jvmti-common/SuspendEvents.java",
+
+        // Actual test classes.
+        "901-hello-ti-agent/src/art/Test901.java",
+        "902-hello-transformation/src/art/Test902.java",
+        "903-hello-tagging/src/art/Test903.java",
+        "904-object-allocation/src/art/Test904.java",
+        "905-object-free/src/art/Test905.java",
+        "906-iterate-heap/src/art/Test906.java",
+        "907-get-loaded-classes/src/art/Test907.java",
+        "907-get-loaded-classes/src/art/Cerr.java",
+        "908-gc-start-finish/src/art/Test908.java",
+        "910-methods/src/art/Test910.java",
+        "911-get-stack-trace/src/art/Test911.java",
+        "911-get-stack-trace/src/art/AllTraces.java",
+        "911-get-stack-trace/src/art/ControlData.java",
+        "911-get-stack-trace/src/art/Frames.java",
+        "911-get-stack-trace/src/art/OtherThread.java",
+        "911-get-stack-trace/src/art/PrintThread.java",
+        "911-get-stack-trace/src/art/Recurse.java",
+        "911-get-stack-trace/src/art/SameThread.java",
+        "911-get-stack-trace/src/art/ThreadListTraces.java",
+        "912-classes/src-art/art/Test912.java",
+        "912-classes/src-art/art/DexData.java",
+        "913-heaps/src/art/Test913.java",
+        "914-hello-obsolescence/src/art/Test914.java",
+        "915-obsolete-2/src/art/Test915.java",
+        "917-fields-transformation/src/art/Test917.java",
+        "918-fields/src/art/Test918.java",
+        "919-obsolete-fields/src/art/Test919.java",
+        "920-objects/src/art/Test920.java",
+        "922-properties/src/art/Test922.java",
+        "923-monitors/src/art/Test923.java",
+        "924-threads/src/art/Test924.java",
+        "925-threadgroups/src/art/Test925.java",
+        "926-multi-obsolescence/src/art/Test926.java",
+        "927-timers/src/art/Test927.java",
+        "928-jni-table/src/art/Test928.java",
+        "930-hello-retransform/src/art/Test930.java",
+        "931-agent-thread/src/art/Test931.java",
+        "932-transform-saves/src/art/Test932.java",
+        "933-misc-events/src/art/Test933.java",
+        "940-recursive-obsolete/src/art/Test940.java",
+        "942-private-recursive/src/art/Test942.java",
+        "944-transform-classloaders/src/art/Test944.java",
+        "945-obsolete-native/src/art/Test945.java",
+        "947-reflect-method/src/art/Test947.java",
+        "951-threaded-obsolete/src/art/Test951.java",
+        "982-ok-no-retransform/src/art/Test982.java",
+        "983-source-transform-verify/src/art/Test983.java",
+        "984-obsolete-invoke/src/art/Test984.java",
+        "985-re-obsolete/src/art/Test985.java",
+        "986-native-method-bind/src/art/Test986.java",
+        "988-method-trace/src/art/Test988.java",
+        "988-method-trace/src/art/Test988Intrinsics.java",
+        "989-method-trace-throw/src/art/Test989.java",
+        "990-field-trace/src/art/Test990.java",
+        "991-field-trace-2/src/art/Test991.java",
+        "992-source-data/src/art/Test992.java",
+        "992-source-data/src/art/Target2.java",
+        "993-breakpoints/src/art/Test993.java",
+        "993-breakpoints-non-debuggable/src/art/Test993AttachAgent.java",
+        "994-breakpoint-line/src/art/Test994.java",
+        "995-breakpoints-throw/src/art/Test995.java",
+        "996-breakpoint-obsolete/src/art/Test996.java",
+        "997-single-step/src/art/Test997.java",
+        "1900-track-alloc/src/art/Test1900.java",
+        "1901-get-bytecodes/src/art/Test1901.java",
+        "1902-suspend/src/art/Test1902.java",
+        "1903-suspend-self/src/art/Test1903.java",
+        "1904-double-suspend/src/art/Test1904.java",
+        "1906-suspend-list-me-first/src/art/Test1906.java",
+        "1907-suspend-list-self-twice/src/art/Test1907.java",
+        "1908-suspend-native-resume-self/src/art/Test1908.java",
+        "1909-per-agent-tls/src/art/Test1909.java",
+        "1910-transform-with-default/src/art/Test1910.java",
+        "1911-get-local-var-table/src/art/Test1911.java",
+        "1912-get-set-local-primitive/src/art/Test1912.java",
+        "1913-get-set-local-objects/src/art/Test1913.java",
+        "1914-get-local-instance/src/art/Test1914.java",
+        "1915-get-set-local-current-thread/src/art/Test1915.java",
+        "1916-get-set-current-frame/src/art/Test1916.java",
+        "1917-get-stack-frame/src/art/Test1917.java",
+        "1920-suspend-native-monitor/src/art/Test1920.java",
+        "1921-suspend-native-recursive-monitor/src/art/Test1921.java",
+        "1922-owned-monitors-info/src/art/Test1922.java",
+        "1923-frame-pop/src/art/Test1923.java",
+        "1924-frame-pop-toggle/src/art/Test1924.java",
+        "1925-self-frame-pop/src/art/Test1925.java",
+        "1926-missed-frame-pop/src/art/Test1926.java",
+        "1927-exception-event/src/art/Test1927.java",
+        "1928-exception-event-exception/src/art/Test1928.java",
+        "1930-monitor-info/src/art/Test1930.java",
+        "1931-monitor-events/src/art/Test1931.java",
+        "1932-monitor-events-misc/src/art/Test1932.java",
+        "1933-monitor-current-contended/src/art/Test1933.java",
+        "1934-jvmti-signal-thread/src/art/Test1934.java",
+        "1936-thread-end-events/src/art/Test1936.java",
+        "1937-transform-soft-fail/src/art/Test1937.java",
+        "1939-proxy-frames/src/art/Test1939.java",
+        "1940-ddms-ext/src-art/art/Test1940.java",
+        "1941-dispose-stress/src/art/Test1941.java",
+        "1942-suspend-raw-monitor-exit/src/art/Test1942.java",
+        "1943-suspend-raw-monitor-wait/src/art/Test1943.java",
+        "1953-pop-frame/src/art/Test1953.java",
+        "1958-transform-try-jit/src/art/Test1958.java",
+        "1962-multi-thread-events/src/art/Test1962.java",
+        "1963-add-to-dex-classloader-in-memory/src/art/Test1963.java",
+        "1967-get-set-local-bad-slot/src/art/Test1967.java",
+        "1968-force-early-return/src/art/Test1968.java",
+        "1969-force-early-return-void/src/art/Test1969.java",
+        "1970-force-early-return-long/src/art/Test1970.java",
+        "1971-multi-force-early-return/src/art/Test1971.java",
+        "1974-resize-array/src/art/Test1974.java",
+        "1975-hello-structural-transformation/src/art/Test1975.java",
+        "1975-hello-structural-transformation/src/art/Transform1975.java",
+        "1976-hello-structural-static-methods/src/art/Test1976.java",
+        "1976-hello-structural-static-methods/src/art/Transform1976.java",
+        "1977-hello-structural-obsolescence/src/art/Test1977.java",
+        "1978-regular-obsolete-then-structural-obsolescence/src/art/Test1978.java",
+        "1979-threaded-structural-transformation/src/art/Test1979.java",
+        "1981-structural-redef-private-method-handles/src/art/Test1981.java",
+        // TODO Requires VarHandles to be un-@hide. See b/64382372
+        // "1981-structural-redef-private-method-handles/src/art/Test1981_Varhandles.java",
+        "1982-no-virtuals-structural-redefinition/src/art/Test1982.java",
+        "1983-structural-redefinition-failures/src/art/Test1983.java",
+        "1984-structural-redefine-field-trace/src/art/Test1984.java",
+        "1988-multi-structural-redefine/src/art/Test1988.java",
+        "1989-transform-bad-monitor/src/art/Test1989.java",
+        "1990-structural-bad-verify/src/art/Test1990.java",
+        "1991-hello-structural-retransform/src/art/Test1991.java",
+        "1992-retransform-no-such-field/src/art/Test1992.java",
+        "1994-final-virtual-structural/src/art/Test1994.java",
+        "1995-final-virtual-structural-multithread/src/art/Test1995.java",
+        "1996-final-override-virtual-structural/src/art/Test1996.java",
+        "1997-structural-shadow-method/src/art/Test1997.java",
+        "1998-structural-shadow-field/src/art/Test1998.java",
+        "1999-virtual-structural/src/art/Test1999.java",
+        "2001-virtual-structural-multithread/src-art/art/Test2001.java",
+        "2002-virtual-structural-initializing/src-art/art/Test2002.java",
+        "2003-double-virtual-structural/src/art/Test2003.java",
+        "2004-double-virtual-structural-abstract/src/art/Test2004.java",
+        "2005-pause-all-redefine-multithreaded/src/art/Test2005.java",
+        "2006-virtual-structural-finalizing/src-art/art/Test2006.java",
+        "2007-virtual-structural-finalizable/src-art/art/Test2007.java",
+    ],
+    sdk_version: "core_platform",
+    // Make sure that this will be added to the sdk snapshot for S.
+    min_sdk_version: "S",
+    // Some ART run-tests contain constructs which break ErrorProne checks;
+    // disable `errorprone` builds.
+    errorprone: {
+        enabled: false,
+    },
+}
+
+// CTS test runner in cts/hostsidetests/jvmti looks for an expected test
+// result for the test NN in the file results.NN.expected.txt while in the
+// source tree each expected test result is in the NN-xxxx/expected-stdout.txt.
+// Copy+rename them them to a temporary directory and them zip them.
+java_genrule {
+    name: "expected_cts_outputs_gen",
+    srcs: [
+        "901-hello-ti-agent/expected-stdout.txt",
+        "902-hello-transformation/expected-stdout.txt",
+        "903-hello-tagging/expected-stdout.txt",
+        "904-object-allocation/expected-stdout.txt",
+        "905-object-free/expected-stdout.txt",
+        "906-iterate-heap/expected-stdout.txt",
+        "907-get-loaded-classes/expected-stdout.txt",
+        "908-gc-start-finish/expected-stdout.txt",
+        "910-methods/expected-stdout.txt",
+        "911-get-stack-trace/expected-cts-version.txt",
+        "912-classes/expected-stdout.txt",
+        "913-heaps/expected-stdout.txt",
+        "914-hello-obsolescence/expected-stdout.txt",
+        "915-obsolete-2/expected-stdout.txt",
+        "917-fields-transformation/expected-stdout.txt",
+        "918-fields/expected-stdout.txt",
+        "919-obsolete-fields/expected-stdout.txt",
+        "920-objects/expected-stdout.txt",
+        "922-properties/expected-stdout.txt",
+        "923-monitors/expected-stdout.txt",
+        "924-threads/expected-stdout.txt",
+        "925-threadgroups/expected-stdout.txt",
+        "926-multi-obsolescence/expected-stdout.txt",
+        "927-timers/expected-stdout.txt",
+        "928-jni-table/expected-stdout.txt",
+        "930-hello-retransform/expected-stdout.txt",
+        "931-agent-thread/expected-stdout.txt",
+        "932-transform-saves/expected-stdout.txt",
+        "933-misc-events/expected-stdout.txt",
+        "940-recursive-obsolete/expected-stdout.txt",
+        "942-private-recursive/expected-stdout.txt",
+        "944-transform-classloaders/expected-stdout.txt",
+        "945-obsolete-native/expected-stdout.txt",
+        "947-reflect-method/expected-stdout.txt",
+        "951-threaded-obsolete/expected-stdout.txt",
+        "982-ok-no-retransform/expected-stdout.txt",
+        "983-source-transform-verify/expected-stdout.txt",
+        "984-obsolete-invoke/expected-stdout.txt",
+        "985-re-obsolete/expected-stdout.txt",
+        "986-native-method-bind/expected-stdout.txt",
+        "988-method-trace/expected-stdout.txt",
+        "989-method-trace-throw/expected-stdout.txt",
+        "990-field-trace/expected-stdout.txt",
+        "991-field-trace-2/expected-stdout.txt",
+        "992-source-data/expected-stdout.txt",
+        // Need to avoid using hidden-apis
+        "993-breakpoints/expected_cts.txt",
+        "993-breakpoints-non-debuggable/expected_cts.txt",
+        "994-breakpoint-line/expected-stdout.txt",
+        "995-breakpoints-throw/expected-stdout.txt",
+        "996-breakpoint-obsolete/expected-stdout.txt",
+        "997-single-step/expected-stdout.txt",
+        "1900-track-alloc/expected-stdout.txt",
+        "1901-get-bytecodes/expected-stdout.txt",
+        "1902-suspend/expected-stdout.txt",
+        "1903-suspend-self/expected-stdout.txt",
+        "1904-double-suspend/expected-stdout.txt",
+        "1906-suspend-list-me-first/expected-stdout.txt",
+        "1907-suspend-list-self-twice/expected-stdout.txt",
+        "1908-suspend-native-resume-self/expected-stdout.txt",
+        "1909-per-agent-tls/expected-stdout.txt",
+        "1910-transform-with-default/expected-stdout.txt",
+        "1911-get-local-var-table/expected-stdout.txt",
+        "1912-get-set-local-primitive/expected-stdout.txt",
+        "1913-get-set-local-objects/expected-stdout.txt",
+        "1914-get-local-instance/expected-stdout.txt",
+        "1915-get-set-local-current-thread/expected-stdout.txt",
+        "1916-get-set-current-frame/expected-stdout.txt",
+        "1917-get-stack-frame/expected-stdout.txt",
+        "1920-suspend-native-monitor/expected-stdout.txt",
+        "1921-suspend-native-recursive-monitor/expected-stdout.txt",
+        "1922-owned-monitors-info/expected-stdout.txt",
+        "1923-frame-pop/expected-stdout.txt",
+        "1924-frame-pop-toggle/expected-stdout.txt",
+        "1925-self-frame-pop/expected-stdout.txt",
+        "1926-missed-frame-pop/expected-stdout.txt",
+        "1927-exception-event/expected-stdout.txt",
+        "1928-exception-event-exception/expected-stdout.txt",
+        "1930-monitor-info/expected-stdout.txt",
+        "1931-monitor-events/expected-stdout.txt",
+        "1932-monitor-events-misc/expected-stdout.txt",
+        "1933-monitor-current-contended/expected-stdout.txt",
+        "1934-jvmti-signal-thread/expected-stdout.txt",
+        "1936-thread-end-events/expected-stdout.txt",
+        "1937-transform-soft-fail/expected-stdout.txt",
+        "1939-proxy-frames/expected-stdout.txt",
+        "1940-ddms-ext/expected-stdout.txt",
+        "1941-dispose-stress/expected-stdout.txt",
+        "1942-suspend-raw-monitor-exit/expected-stdout.txt",
+        "1943-suspend-raw-monitor-wait/expected-stdout.txt",
+        "1953-pop-frame/expected-stdout.txt",
+        "1958-transform-try-jit/expected-stdout.txt",
+        "1962-multi-thread-events/expected-stdout.txt",
+        "1963-add-to-dex-classloader-in-memory/expected-stdout.txt",
+        "1967-get-set-local-bad-slot/expected-stdout.txt",
+        "1968-force-early-return/expected-stdout.txt",
+        "1969-force-early-return-void/expected-stdout.txt",
+        "1970-force-early-return-long/expected-stdout.txt",
+        "1971-multi-force-early-return/expected-stdout.txt",
+        "1974-resize-array/expected-stdout.txt",
+        "1975-hello-structural-transformation/expected-stdout.txt",
+        "1976-hello-structural-static-methods/expected-stdout.txt",
+        "1977-hello-structural-obsolescence/expected-stdout.txt",
+        "1978-regular-obsolete-then-structural-obsolescence/expected-stdout.txt",
+        "1979-threaded-structural-transformation/expected-stdout.txt",
+        // TODO Requires VarHandles to be un-@hide. See b/64382372
+        // "test/1981-structural-redef-private-method-handles/expected-stdout.txt",
+        "1981-structural-redef-private-method-handles/expected_no_mh.txt",
+        "1982-no-virtuals-structural-redefinition/expected-stdout.txt",
+        // JNI-id use can change the outcome of this test on device.
+        "1983-structural-redefinition-failures/expected-cts.txt",
+        "1984-structural-redefine-field-trace/expected-stdout.txt",
+        "1988-multi-structural-redefine/expected-stdout.txt",
+        "1989-transform-bad-monitor/expected-stdout.txt",
+        "1990-structural-bad-verify/expected-stdout.txt",
+        "1991-hello-structural-retransform/expected-stdout.txt",
+        "1992-retransform-no-such-field/expected-stdout.txt",
+        "1994-final-virtual-structural/expected-stdout.txt",
+        "1995-final-virtual-structural-multithread/expected-stdout.txt",
+        "1996-final-override-virtual-structural/expected-stdout.txt",
+        "1997-structural-shadow-method/expected-stdout.txt",
+        "1998-structural-shadow-field/expected-stdout.txt",
+        "1999-virtual-structural/expected-stdout.txt",
+        "2001-virtual-structural-multithread/expected-stdout.txt",
+        "2002-virtual-structural-initializing/expected-stdout.txt",
+        "2003-double-virtual-structural/expected-stdout.txt",
+        "2004-double-virtual-structural-abstract/expected-stdout.txt",
+        "2005-pause-all-redefine-multithreaded/expected-stdout.txt",
+        "2006-virtual-structural-finalizing/expected-stdout.txt",
+        "2007-virtual-structural-finalizable/expected-stdout.txt",
+    ],
+    out: ["expected_cts_outputs.jar"],
+    tools: ["soong_zip"],
+    cmd: "rm -rf $(genDir)/res && mkdir -p $(genDir)/res && " +
+        "for f in $(in); do x=$${f#art/test/}; " +
+        "cp $$f $(genDir)/res/results.$${x%%-*}.expected.txt; done && " +
+        "$(location soong_zip) -o $(out) -C $(genDir)/res -D $(genDir)/res",
+}
+
+// Wrap the expected_cts_outputs_gen inside a java library to make it easy
+// to export as a member of a module_exports.
+java_library {
+    name: "expected_cts_outputs",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/hostsidetests/jvmti:__subpackages__",
+    ],
+    static_libs: [
+        "expected_cts_outputs_gen",
+    ],
+    sdk_version: "core_current",
+    // Make sure that this will be added to the sdk snapshot for S.
+    min_sdk_version: "S",
+}
+
+art_cc_test {
+    name: "ArtGtestsTargetInstallApex",
+    defaults: [
+        // Enable only in source builds, where com.android.art.testing is
+        // available.
+        "art_module_source_build_defaults",
+    ],
+    data: [
+        // We need the ART testing apex, which contains all gtest binaries.
+        // Note that due to build system and linker constraints the gtests must be in the apex.
+        ":com.android.art.testing",
+    ],
+    // It seems that only device-tests build can create a valid apex.
+    test_suites: [
+        "device-tests",
+        "mts-art",
+    ],
+    test_config: "art-gtests-target-install-apex.xml",
+
+    // Support multilib variants (using different suffix per sub-architecture), which is needed on
+    // build targets with secondary architectures, as the MTS test suite packaging logic flattens
+    // all test artifacts into a single `testcases` directory.
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    test_for: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+art_cc_test {
+    name: "ArtGtestsTargetChroot",
+    defaults: [
+        // Enable only in source builds, where com.android.art.testing is
+        // available.
+        "art_module_source_build_defaults",
+    ],
+    data: [
+        // We need the ART testing apex, which contains all gtest binaries.
+        // Note that due to build system and linker constraints the gtests must be in the apex.
+        ":com.android.art.testing",
+        ":generate-boot-image",
+    ],
+    test_suites: ["general-tests"],
+    test_config: "art-gtests-target-chroot.xml",
+    test_for: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+}
+
+csuite_test {
+    name: "csuite-app-compile-launch",
+    test_config_template: "csuite-app-compile-launch.xml",
+}
+
+filegroup {
+    name: "art-gtest-jars",
+    srcs: [
+        ":art-gtest-jars-AbstractMethod",
+        ":art-gtest-jars-AllFields",
+        ":art-gtest-jars-ArrayClassWithUnresolvedComponent",
+        ":art-gtest-jars-DefaultMethods",
+        ":art-gtest-jars-ErroneousA",
+        ":art-gtest-jars-ErroneousB",
+        ":art-gtest-jars-ErroneousInit",
+        ":art-gtest-jars-Extension1",
+        ":art-gtest-jars-Extension2",
+        ":art-gtest-jars-ForClassLoaderA",
+        ":art-gtest-jars-ForClassLoaderB",
+        ":art-gtest-jars-ForClassLoaderC",
+        ":art-gtest-jars-ForClassLoaderD",
+        ":art-gtest-jars-ExceptionHandle",
+        ":art-gtest-jars-GetMethodSignature",
+        ":art-gtest-jars-HiddenApi",
+        ":art-gtest-jars-HiddenApiSignatures",
+        ":art-gtest-jars-HiddenApiStubs",
+        ":art-gtest-jars-ImageLayoutA",
+        ":art-gtest-jars-ImageLayoutB",
+        ":art-gtest-jars-IMTA",
+        ":art-gtest-jars-IMTB",
+        ":art-gtest-jars-Instrumentation",
+        ":art-gtest-jars-Interfaces",
+        ":art-gtest-jars-Lookup",
+        ":art-gtest-jars-Main",
+        ":art-gtest-jars-ManyMethods",
+        ":art-gtest-jars-MethodTypes",
+        ":art-gtest-jars-MultiDex",
+        ":art-gtest-jars-MultiDexModifiedSecondary",
+        ":art-gtest-jars-MyClass",
+        ":art-gtest-jars-MyClassNatives",
+        ":art-gtest-jars-Nested",
+        ":art-gtest-jars-NonStaticLeafMethods",
+        ":art-gtest-jars-Packages",
+        ":art-gtest-jars-ProtoCompare",
+        ":art-gtest-jars-ProtoCompare2",
+        ":art-gtest-jars-ProfileTestMultiDex",
+        ":art-gtest-jars-StaticLeafMethods",
+        ":art-gtest-jars-Statics",
+        ":art-gtest-jars-StaticsFromCode",
+        ":art-gtest-jars-StringLiterals",
+        ":art-gtest-jars-Transaction",
+        ":art-gtest-jars-XandY",
+        ":art-gtest-jars-MainEmptyUncompressed",
+        ":art-gtest-jars-MainEmptyUncompressedAligned",
+        ":art-gtest-jars-MainStripped",
+        ":art-gtest-jars-MainUncompressedAligned",
+        ":art-gtest-jars-MultiDexUncompressedAligned",
+        ":art-gtest-jars-SuperWithAccessChecks",
+        ":art-gtest-jars-VerifierDeps",
+        ":art-gtest-jars-VerifierDepsMulti",
+        ":art-gtest-jars-VerifySoftFailDuringClinit",
+    ],
+}
+
+java_defaults {
+    name: "art-gtest-jars-defaults",
+    installable: true,
+    dex_preopt: {
+        enabled: false,
+    },
+    sdk_version: "core_platform",
+    uncompress_dex: false,
+}
+
+// The following modules are just trivial compilations (non-trivial cases are the end).
+
+java_library {
+    name: "art-gtest-jars-AbstractMethod",
+    srcs: ["AbstractMethod/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-AllFields",
+    srcs: ["AllFields/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-DefaultMethods",
+    srcs: ["DefaultMethods/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ErroneousA",
+    srcs: ["ErroneousA/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ErroneousB",
+    srcs: ["ErroneousB/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ErroneousInit",
+    srcs: ["ErroneousInit/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Extension1",
+    srcs: ["Extension1/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Extension2",
+    srcs: ["Extension2/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ForClassLoaderA",
+    srcs: ["ForClassLoaderA/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ForClassLoaderB",
+    srcs: ["ForClassLoaderB/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ForClassLoaderC",
+    srcs: ["ForClassLoaderC/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ForClassLoaderD",
+    srcs: ["ForClassLoaderD/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ExceptionHandle",
+    srcs: ["ExceptionHandle/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-GetMethodSignature",
+    srcs: ["GetMethodSignature/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-HiddenApi",
+    srcs: ["HiddenApi/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-HiddenApiSignatures",
+    srcs: ["HiddenApiSignatures/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-HiddenApiStubs",
+    srcs: ["HiddenApiStubs/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ImageLayoutA",
+    srcs: ["ImageLayoutA/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ImageLayoutB",
+    srcs: ["ImageLayoutB/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-IMTA",
+    srcs: ["IMTA/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-IMTB",
+    srcs: ["IMTB/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Instrumentation",
+    srcs: ["Instrumentation/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Interfaces",
+    srcs: ["Interfaces/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Lookup",
+    srcs: ["Lookup/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Main",
+    srcs: ["Main/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ManyMethods",
+    srcs: ["ManyMethods/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-MethodTypes",
+    srcs: ["MethodTypes/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-MyClass",
+    srcs: ["MyClass/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-MyClassNatives",
+    srcs: ["MyClassNatives/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Nested",
+    srcs: ["Nested/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-NonStaticLeafMethods",
+    srcs: ["NonStaticLeafMethods/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Packages",
+    srcs: ["Packages/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ProtoCompare",
+    srcs: ["ProtoCompare/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-ProtoCompare2",
+    srcs: ["ProtoCompare2/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-StaticLeafMethods",
+    srcs: ["StaticLeafMethods/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Statics",
+    srcs: ["Statics/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-StaticsFromCode",
+    srcs: ["StaticsFromCode/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-StringLiterals",
+    srcs: ["StringLiterals/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Transaction",
+    srcs: ["Transaction/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-XandY",
+    srcs: ["XandY/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+java_library {
+    name: "art-gtest-jars-Dex2oatVdexTestDex",
+    srcs: ["Dex2oatVdexTestDex/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+}
+
+// The following cases are non-trivial.
+
+// Uncompress classes.dex files in the jar file.
+genrule_defaults {
+    name: "art-gtest-jars-uncompress-defaults",
+    cmd: "$(location zip2zip) -i $(in) -o $(out) -0 'classes*.dex'",
+    tools: ["zip2zip"],
+}
+
+// Ensure the files are at least 4 byte aligned.
+genrule_defaults {
+    name: "art-gtest-jars-align-defaults",
+    cmd: "$(location zipalign) 4 $(in) $(out)",
+    tools: ["zipalign"],
+}
+
+// Assemble jar file from smali source.
+genrule_defaults {
+    name: "art-gtest-jars-smali-defaults",
+    cmd: "$(location android-smali) assemble --output $(out) $(in)",
+    tools: ["android-smali"],
+}
+
+// A copy of Main with the classes.dex stripped for the oat file assistant tests.
+genrule {
+    name: "art-gtest-jars-MainStripped",
+    srcs: [":art-gtest-jars-Main"],
+    cmd: "$(location zip2zip) -i $(in) -o $(out) -x 'classes*.dex'",
+    out: ["art-gtest-jars-MainStripped.jar"],
+    tools: ["zip2zip"],
+}
+
+// An empty.dex that is empty and uncompressed for the dex2oat tests.
+genrule {
+    name: "art-gtest-jars-MainEmptyUncompressed",
+    srcs: ["Main/empty.dex"],
+    cmd: "$(location soong_zip) -j -L 0 -o $(out) -f $(in)",
+    out: ["art-gtest-jars-MainEmptyUncompressed.jar"],
+    tools: ["soong_zip"],
+}
+
+// An empty.dex that is empty and uncompressed and aligned for the dex2oat tests.
+genrule {
+    name: "art-gtest-jars-MainEmptyUncompressedAligned",
+    defaults: ["art-gtest-jars-align-defaults"],
+    srcs: [":art-gtest-jars-MainEmptyUncompressed"],
+    out: ["art-gtest-jars-MainEmptyUncompressedAligned.jar"],
+}
+
+// A copy of Main with the classes.dex uncompressed for the dex2oat tests.
+genrule {
+    name: "art-gtest-jars-MainUncompressed",
+    defaults: ["art-gtest-jars-uncompress-defaults"],
+    srcs: [":art-gtest-jars-Main"],
+    out: ["art-gtest-jars-MainUncompressed.jar"],
+}
+
+// A copy of Main with the classes.dex uncompressed and aligned for the dex2oat tests.
+genrule {
+    name: "art-gtest-jars-MainUncompressedAligned",
+    defaults: ["art-gtest-jars-align-defaults"],
+    srcs: [":art-gtest-jars-MainUncompressed"],
+    out: ["art-gtest-jars-MainUncompressedAligned.jar"],
+}
+
+java_library {
+    name: "art-gtest-jars-MultiDex",
+    srcs: ["MultiDex/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+    min_sdk_version: "19",
+    dxflags: [
+        "--main-dex-list",
+        "art/test/MultiDex/main.list",
+    ],
+}
+
+// A copy of MultiDex with the classes.dex uncompressed for the OatFile tests.
+genrule {
+    name: "art-gtest-jars-MultiDexUncompressed",
+    defaults: ["art-gtest-jars-uncompress-defaults"],
+    srcs: [":art-gtest-jars-MultiDex"],
+    out: ["art-gtest-jars-MultiDexUncompressed.jar"],
+}
+
+// A copy of MultiDex with the classes.dex uncompressed and aligned for the OatFile tests.
+genrule {
+    name: "art-gtest-jars-MultiDexUncompressedAligned",
+    defaults: ["art-gtest-jars-align-defaults"],
+    srcs: [":art-gtest-jars-MultiDexUncompressed"],
+    out: ["art-gtest-jars-MultiDexUncompressedAligned.jar"],
+}
+
+java_library {
+    name: "art-gtest-jars-MultiDexModifiedSecondary",
+    srcs: ["MultiDexModifiedSecondary/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+    min_sdk_version: "19",
+    dxflags: [
+        "--main-dex-list",
+        "art/test/MultiDexModifiedSecondary/main.list",
+    ],
+}
+
+java_library {
+    name: "art-gtest-jars-ProfileTestMultiDex",
+    srcs: ["ProfileTestMultiDex/**/*.java"],
+    defaults: ["art-gtest-jars-defaults"],
+    min_sdk_version: "19",
+    dxflags: [
+        "--main-dex-list",
+        "art/test/ProfileTestMultiDex/main.list",
+    ],
+}
+
+// Smali compiled files.
+// Since they are not compiled by javac, we use different extension for them.
+// The .jar extension for them would cause subtle failures in the test infra,
+// which finds and opens all jar files and expects them to be valid zip files.
+
+genrule {
+    name: "art-gtest-jars-VerifierDeps",
+    defaults: ["art-gtest-jars-smali-defaults"],
+    srcs: ["VerifierDeps/**/*.smali"],
+    out: ["art-gtest-jars-VerifierDeps.dex"],
+}
+
+genrule {
+    name: "art-gtest-jars-VerifierDepsMulti",
+    defaults: ["art-gtest-jars-smali-defaults"],
+    srcs: ["VerifierDepsMulti/**/*.smali"],
+    out: ["art-gtest-jars-VerifierDepsMulti.dex"],
+}
+
+genrule {
+    name: "art-gtest-jars-VerifySoftFailDuringClinit",
+    defaults: ["art-gtest-jars-smali-defaults"],
+    srcs: ["VerifySoftFailDuringClinit/**/*.smali"],
+    out: ["art-gtest-jars-VerifySoftFailDuringClinit.dex"],
+}
+
+genrule {
+    name: "art-gtest-jars-ArrayClassWithUnresolvedComponent",
+    defaults: ["art-gtest-jars-smali-defaults"],
+    srcs: ["ArrayClassWithUnresolvedComponent/*.smali"],
+    out: ["art-gtest-jars-ArrayClassWithUnresolvedComponent.dex"],
+}
+
+genrule {
+    name: "art-gtest-jars-SuperWithAccessChecks",
+    defaults: ["art-gtest-jars-smali-defaults"],
+    srcs: ["SuperWithAccessChecks/*.smali"],
+    out: ["art-gtest-jars-SuperWithAccessChecks.dex"],
+}
+
+genrule {
+    name: "art-gtest-jars-LinkageTest",
+    defaults: ["art-gtest-jars-smali-defaults"],
+    srcs: ["LinkageTest/*.smali"],
+    out: ["art-gtest-jars-LinkageTest.dex"],
+}
+
+genrule {
+    name: "art-gtest-jars-Dex2oatVdexPublicSdkDex",
+    defaults: ["art-gtest-jars-smali-defaults"],
+    srcs: ["Dex2oatVdexPublicSdkDex/*.smali"],
+    out: ["art-gtest-jars-Dex2oatVdexPublicSdkDex.dex"],
+}
+
+build = [
+    "Android.run-test.bp",
+]

@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<configuration description="Excluded tests from cts-validation">
+
+    <!-- Exclude selected test modules -->
+    <option name="compatibility:exclude-filter" value="CtsDevicePolicyManagerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSensorTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAutoFillServiceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsTelecomTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimeHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimePreferredActivitiesHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimeSingleAppRebootHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimeRemoveRebootHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimeSingleAppGroupRebootHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimeIndependentGroupRebootHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimeComplexFilterRebootHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimeComplexFilterClearGroupRebootHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDynamicMimeChangedGroupAppUpdateHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsViewTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceActivity" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceAm" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceBackNavigation" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceDisplay" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceKeyguard" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceInsets" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceTaskFragment" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceScvh" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceWindow" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerDeviceOther" />
+    <option name="compatibility:exclude-filter" value="CtsProviderTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsContentTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLocationGnssTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsIcuTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsBackupHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsTextTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsJobSchedulerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSensorRatePermissionTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsIcu4cTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSystemUiTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsExtractNativeLibsHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsContactsProviderTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsBlobStoreHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsInputMethodTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppWidgetTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsCallLogTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsFragmentTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPermissionUiTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsTransitionTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsRoleTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPermissionPolicyTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAnimationTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsBackupTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsInputMethodServiceHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsResourcesLoaderTests "/>
+    <option name="compatibility:exclude-filter" value="CtsAccountManagerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerThrottlingTest" />
+    <option name="compatibility:exclude-filter" value="CtsThemeHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHardwareTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDeviceConfigTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDevicePolicyTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPdfTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSyncContentHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHiddenApiBlocklistApi28TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHiddenApiBlocklistCurrentApiTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHiddenApiBlocklistDebugClassTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsBlobStoreTestHelperDiffSig" />
+    <option name="compatibility:exclude-filter" value="CtsBlobStoreTestHelper" />
+    <option name="compatibility:exclude-filter" value="CtsBlobStoreTestHelperDiffSig2" />
+    <option name="compatibility:exclude-filter" value="CtsPackageManagerPreferredActivityHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerPackage2" />
+    <option name="compatibility:exclude-filter" value="CtsAttributionSourceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHiddenApiBlocklistApi27TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsActivityManagerBackgroundActivityTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsToastLegacyTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHiddenApiKillswitchSdkListTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHiddenApiKillswitchDebugClassTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHiddenApiKillswitchWildcardTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerPackage1" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerLauncher3" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerLauncher1" />
+    <option name="compatibility:exclude-filter" value="CtsLegacyNotification29TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerPackage3" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerPackage4" />
+    <option name="compatibility:exclude-filter" value="CtsVoiceRecognitionTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLocationPrivilegedTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSignedConfigHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsUsesNativeLibraryTest" />
+    <option name="compatibility:exclude-filter" value="CtsSuspendAppsTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLocationFineTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWidgetTestCases29" />
+    <option name="compatibility:exclude-filter" value="CtsExtendedMockingTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerLauncher4" />
+    <option name="compatibility:exclude-filter" value="CtsHiddenApiBlocklistTestApiTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsShortcutManagerLauncher2" />
+    <option name="compatibility:exclude-filter" value="CtsInlineMockingTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDeviceIdleHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLegacyNotification27TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppEnumerationTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPackageSettingHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAccessibilityTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsTvTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSettingsHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHostsideWebViewTests" />
+    <option name="compatibility:exclude-filter" value="CtsAdminPackageInstallerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppSearchTestHelperA" />
+    <option name="compatibility:exclude-filter" value="CtsMockingDebuggableTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsThemeDeviceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsUiAutomationTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsTextClassifierTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsProviderUiTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsVrTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLegacyNotification30TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerJetpackTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsMockingTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHostTzDataTests" />
+    <option name="compatibility:exclude-filter" value="CtsDeviceStateManagerTestCases" />
+    <option name="compatibility:exclude-filter" value="DevicePolicySecondaryUserTest" />
+    <option name="compatibility:exclude-filter" value="CtsContactsProviderWipe" />
+    <option name="compatibility:exclude-filter" value="CtsDropBoxManagerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsToastTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsCalendarProviderTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsQuickAccessWalletTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAssistTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerSdk29TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAtomicInstallTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLocationCoarseTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsJobSchedulerSharedUidTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsNativeHardwareTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsGwpAsanTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHostsideNumberBlockingTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSampleHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppSearchTestHelperB" />
+    <option name="compatibility:exclude-filter" value="CtsNoPermissionTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDownloadManagerApi28" />
+    <option name="compatibility:exclude-filter" value="CtsAppSearchTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsContentCaptureServiceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDomainVerificationHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSliceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsTranslationTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsNdefTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsInstantAppTests" />
+    <option name="compatibility:exclude-filter" value="CtsGameManagerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAccountsHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPackageManagerMultiUserHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLocationNoneTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsMimeMapTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsStrictJavaPackagesTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsExternalServiceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSearchUiServiceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPermissionTestCasesTelephony" />
+    <option name="compatibility:exclude-filter" value="CtsProtoTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSpeechTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsControlsDeviceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsGestureTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPrintTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSilentUpdateHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppOpsTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSystemUiHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSampleDeviceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPackageManagerStatsHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsViewInspectorAnnotationProcessorTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsMultiUserTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSuspendAppsPermissionTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppIntegrityDeviceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDpiTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPackageInstallAppOpDeniedTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSdkExtensionsTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppExitTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAccessibilityServiceSdk29TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsVoiceInteractionTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsNativeMediaMetricsTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPackageInstallerTapjackingTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsMatchFlagTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSettingsTestCases" />
+    <option name="compatibility:exclude-filter" value="DevicePolicyWorkProfileTest" />
+    <option name="compatibility:exclude-filter" value="CtsDpiTestCases2" />
+    <option name="compatibility:exclude-filter" value="CtsUidIsolationTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPackageInstallAppOpDefaultTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSmartspaceServiceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsEffectTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsNoPermissionTestCases25" />
+    <option name="compatibility:exclude-filter" value="CtsSystemApiSignatureTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSyncManagerTestsCases" />
+    <option name="compatibility:exclude-filter" value="CtsVoiceSettingsTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSystemApiAnnotationTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsIntentSignatureTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLegacyNotification20TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSystemIntentTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHostsideHiddenapiTests" />
+    <option name="compatibility:exclude-filter" value="CtsColorModeTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsResolverServiceTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSettingsSuggestionsTest" />
+    <option name="compatibility:exclude-filter" value="CtsAppOps2TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWindowManagerSdk25TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsHarmfulAppWarningHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsTrustedVoiceHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSensorPrivacyTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAndroidAppTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWrapWrapDebugTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWrapWrapNoDebugTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsWrapNoWrapTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsFragmentTestCasesSdk26" />
+    <option name="compatibility:exclude-filter" value="CtsUsesLibraryHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAbiOverrideHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAppUsageHostTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsDownloadManagerInstaller" />
+    <option name="compatibility:exclude-filter" value="CtsDreamsTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsLegacyNotification28TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsTvProviderTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsCurrentApiSignatureTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsBackgroundRestrictionsTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSaxTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSharedLibsApiSignatureTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAndroidTestMockCurrentApiSignatureTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAndroidTestBaseCurrentApiSignatureTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsCameraApi25TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsCalendarcommon2TestCases" />
+    <option name="compatibility:exclude-filter" value="CtsSoundTriggerTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsAndroidTestRunnerCurrentApiSignatureTestCases" />
+    <option name="compatibility:exclude-filter" value="CtsPermissionTestCasesSdk28" />
+    <option name="compatibility:exclude-filter" value="CtsLocationTimeZoneManagerHostTest" />
+    <option name="compatibility:exclude-filter" value="CtsPackageWatchdogTestCases" />
+
+
+
+
+    <!-- exclude tests from CtsMediaStressTestCases module -->
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR720pAacLongPlayerTest.testPlay01" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R720pAacLongPlayerTest.testPlay01" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacLongPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480pAacLongPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R720pAacLongPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR720pAacLongPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.NativeMediaTest.test720pPlay" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.NativeMediaTest.testDefaultPlay" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.NativeMediaTest.test480pPlay" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480pAacShortPlayerTest.testPlay04" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480pAacShortPlayerTest.testPlay02" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR720pAacShortPlayerTest.testPlay01" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480x360AacShortPlayerTest.testPlay01" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480x360AacShortPlayerTest.testPlay05" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480x360AacShortPlayerTest.testPlay03" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR720pAacShortPlayerTest.testPlay07" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay03" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480pAacShortPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay05" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay02" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay04" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay06" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay01" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay11" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay08" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay03" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay07" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay10" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay05" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480x360AacShortPlayerTest.testPlay02" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.Vp8R480x360ShortPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480x360AacShortPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay14" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480pAacShortPlayerTest.testPlay03" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay09" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480pAacShortPlayerTest.testPlay05" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.Vp8R480x360ShortPlayerTest.testPlay04" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480pAacShortPlayerTest.testPlay01" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.HEVCR480x360AacShortPlayerTest.testPlay04" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.Vp8R480x360ShortPlayerTest.testPlay08" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay10" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay15" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.Vp8R480x360ShortPlayerTest.testPlay03" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay02" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.Vp8R480x360ShortPlayerTest.testPlay05" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay04" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay01" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay03" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay02" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay07" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.Vp8R480x360ShortPlayerTest.testPlay01" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay06" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay00" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay10" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay05" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay08" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480x360AacShortPlayerTest.testPlay11" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay23" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H264R480pAacShortPlayerTest.testPlay09" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay13" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay22" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay19" />
+    <option name="compatibility:exclude-filter" value="android.mediastress.cts.H263QcifShortPlayerTest.testPlay06" />
+
+
+
+    <!-- exclude tests from CtsCameraTestCases module -->
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testPreviewPictureSizesCombination" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraGLTest.testCameraToSurfaceTextureMetadata" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testStillPreviewCombination[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testVideoSnapshot[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testAeModeAndLock[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testVideoSnapshot" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testSharedSurfaceSwitch[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.PerformanceTest.testSingleCapture" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testSupportedVideoSizes[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testLongProcessingRepeatingFlexibleYuv[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testBasicTriggerSequence[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ReprocessCaptureTest.testMixedBurstReprocessing[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testAeAndAfCausality[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ReprocessCaptureTest.testBurstReprocessing[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ConcurrentCameraTest.testMandatoryConcurrentStreamCombination[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testMandatoryOutputCombinations[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ReprocessCaptureTest.testReprocessingSizeFormatWithPreview[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testAfThenAeTrigger[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testSimultaneousTriggers[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.LegacyCameraPerformanceTest.testLegacyApiPerformance" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testAeThenAfTrigger[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.PerformanceTest.testMultipleCapture" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testIntermediateSurfaceRecording[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testBurstVideoSnapshot[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testRecordingFromPersistentSurface[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testPreviewCallback" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraDeviceTest.testCameraDeviceAbort[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testBasicVideoStabilizationRecording[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testImmediateZoom" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.LogicalCameraDeviceTest.testBasicPhysicalStreaming[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.PerformanceTest.testCameraLaunch" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.SurfaceViewPreviewTest.testCameraPreview[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraExtensionSessionTest.testMultiFrameCapture[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testNoiseReductionModeControl[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testSceneModes[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testEdgeModeControl[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testSharedSurfaceYUVImageReaderSwitch[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.AllocationTest.testAllocationFromCameraFlexibleYuv[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ReprocessCaptureTest.testReprocessAbort[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ReprocessCaptureTest.testReprocessingSizeFormat[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testRepeatingJpeg[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraExtensionSessionTest.testRepeatingAndCaptureCombined[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testAllOutputYUVResolutions[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testYuvAndJpeg[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testPreviewFpsRange" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testExtendedSceneModes[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testFlexibleYuv[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testAeRegions[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testYuvAndJpegWithUsageFlag[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testSharedSurfaceImageReaderSwitch[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraDeviceTest.testCameraDeviceRepeatingBurst[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testJpeg[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testSharedSurfaceLimit[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.SurfaceViewPreviewTest.testBasicTestPatternPreview[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.SurfaceViewPreviewTest.testSurfaceSet[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testRecordingFramerateLowToHigh[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testRecordingHint" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testPreviewCallbackWithBuffer" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceCaptureFailure[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testMandatoryReprocessConfigurations[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceCaptureFailure[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testAwbModeAndLock[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testSharedSurfaces[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testAntiBandingModes[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraExtensionSessionTest.testGetDevice[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FlashlightTest.testTorchCallback[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testAeCompensation[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testFaceDetection[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testConstrainedHighSpeedRecording[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceSharedOutputUpdate[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraDeviceTest.testCameraDeviceRepeatingRequest[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.AllocationTest.testBlackWhite[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testFaceDetection" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceSharedOutputUpdate[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testFocusDistances" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testRecordingWithDifferentPreviewSizes[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testSetOneShotPreviewCallback" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.PerformanceTest.testReprocessingCaptureStall" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiResolutionReprocessCaptureTest.testMultiResolutionMandatoryStreamCombinationTest[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testMultiCameraRelease" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testDigitalZoom[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testNoiseReductionModeControlFastFps[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RecordingTest.testVideoPreviewSurfaceSharing[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.BurstCaptureRawTest.testManualAutoSwitch[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.DngCreatorTest.testDngRenderingByBitmapFactor[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiResolutionImageReaderTest.testMultiResolutionMandatoryStreamCombinationTest[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.multiprocess.camera.cts.CameraEvictionTest.testCamera1ActivityEviction" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testLockUnlock" />
+    <option name="compatibility:exclude-filter" value="android.hardware.multiprocess.camera.cts.CameraEvictionTest.testBasicCamera2ActivityEviction" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testEdgeModeControlFastFps[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testPreviewCallbackWithPicture" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testLongProcessingRepeatingRaw[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testAfRegions[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.multiprocess.camera.cts.CameraEvictionTest.testMediaRecorderCameraActivityEviction" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FlashlightTest.testTorchCallback[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testDigitalZoomPreviewCombinations[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeStillCaptureTest.testStillCapture[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.DngCreatorTest.testRaw16JpegConsistency[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.BurstCaptureTest.testYuvBurst[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testAutoWhiteBalanceLock" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testAutoExposureLock" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.PerformanceTest.testReprocessingLatency" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FlashlightTest.testSetTorchModeOnOff[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ReprocessCaptureTest.testRecreateReprocessingSessions[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.PerformanceTest.testHighQualityReprocessingLatency" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testAfModes[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testJpegExif" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testToneMapControl[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.BurstCaptureTest.testJpegBurst[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDevicePreviewWithSessionParameters[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testZoomRatio[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.BurstCaptureTest.testYuvBurstWithStillBokeh[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.SurfaceViewPreviewTest.testPreparePerformance[1]" />
+    <option name="compatibility:exclude-filter" value="android.camera.cts.HeifWriterTest.testHeif[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testFocusAreas" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeStillCaptureTest.testStillCapture[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testTextureImageWriterReaderOperation[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testPreviewPersistence[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceSimplePreview[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testLensShadingMap[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testCameraStabilizations[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testGetParameterDuringFocus" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceSimplePreview[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testAbandonRepeatingRequestSurface[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDevicePreviewWithSessionParameters[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.multiprocess.camera.cts.CameraEvictionTest.testCamera2NativeAccessCallback" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.PerformanceTest.testHighQualityReprocessingThroughput" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testFocusDistanceControl[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FlashlightTest.testCameraDeviceOpenAfterTorchOn[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FlashlightTest.testSetTorchModeOnOff[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testBlackLevelLock[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureResultTest.testCameraCaptureResultAllKeys[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testJpegThumbnailSize" />
+    <option name="compatibility:exclude-filter" value="android.hardware.multiprocess.camera.cts.CameraEvictionTest.testCamera2AccessCallback" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.PerformanceTest.testReprocessingThroughput" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testFlashTurnOff[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testAePrecaptureTriggerCancelJpegCapture[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.SurfaceViewPreviewTest.testPreviewFpsRange[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testAllocateBitmap[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testTakePictureZsl[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testTouchForFocus[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testTextureViewPreview[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testFullRawCapture[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraGLTest.testSetPreviewTextureTextureCallback" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraDeviceTest.testCameraDeviceCaptureBurst[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.BurstCaptureRawTest.testMetadataRoundDown[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testFullRawZSLCapture[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraExtensionSessionTest.testRepeatingCapture[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testJpegCallbackStartPreview" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testTakePicture" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.SurfaceViewPreviewTest.testDeferredSurfaces[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.DngCreatorTest.testSingleImageBasic[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testDualTextureViewPreview[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testTextureViewPreviewWithImageReader[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraDeviceTest.testCameraDeviceCapture[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testDualTextureViewAndImageReaderPreview[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testCancelAutofocus" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testSetPreviewDisplay" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceSessionOpenAndClose[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.DngCreatorTest.testSingleImageThumbnail[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceSessionOpenAndClose[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraGLTest.testSetPreviewTexturePreviewCallback" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testFlashControl[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraManagerTest.testCameraManagerOpenCamerasSerially[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FlashlightTest.testCameraDeviceOpenAfterTorchOn[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraGLTest.testSetPreviewTextureBothCallbacks" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraExtensionSessionTest.testCloseCaptureSession[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraDeviceTest.testSessionParametersStateLeak[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraExtensionSessionTest.testIllegalArguments[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraExtensionSessionTest.testCloseExtensionSession[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraDeviceTest.testCameraDeviceSetErrorListener[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FlashlightTest.testTorchModeExceptions[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraExtensionSessionTest.testBasicExtensionLifecycle[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.SurfaceViewPreviewTest.testSurfaceEquality[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeImageReaderTest.testImageReaderCloseAcquiredImages[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ReprocessCaptureTest.testReprocessRequestKeys[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeImageReaderTest.testJpeg[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.RobustnessTest.testMandatoryMaximumResolutionOutputCombinations[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeImageReaderTest.testJpeg[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeImageReaderTest.testImageReaderCloseAcquiredImages[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceLogicalPhysicalStreaming[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.AllocationTest.testParamSensitivity[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testEffectModes[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ReprocessCaptureTest.testReprocessTimestamps[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.LogicalCameraDeviceTest.testActivePhysicalId[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CameraDeviceTest.testAudioRestrictionMultipleDevices[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.MultiViewTest.testDualCameraPreview[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FlashlightTest.testTorchModeExceptions[0]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.FastBasicsTest.testCamera2[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureResultTest.testResultTimestamps[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.NativeCameraDeviceTest.testCameraDeviceLogicalPhysicalStreaming[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageWriterTest.testYuvImageWriterReaderOperation[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testTakePicture[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.cts.CameraTest.testPreviewFormats" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.CaptureRequestTest.testDynamicBlackWhiteLevel[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.StillCaptureTest.testFocalLengths[1]" />
+    <option name="compatibility:exclude-filter" value="android.hardware.camera2.cts.ImageReaderTest.testRepeatingRaw[1]" />
+
+    <!-- b/204720226 -->
+    <option name="compatibility:exclude-filter" value="CtsPhotoPickerTest android.photopicker.cts.PhotoPickerCrossProfileTest#testPersonalApp_cannotAccessWorkProfile_default" />
+    <option name="compatibility:exclude-filter" value="CtsMediaHostTestCases android.media.session.cts.MediaSessionManagerHostTest#testGetActiveSessionsFull_managedProfiles" />
+
+    <!-- b/292213604 -->
+    <option name="compatibility:exclude-filter" value="CtsDomainVerificationDeviceMultiUserTestCases" />
+
+    <!-- b/292536082 -->
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_policyNotAllowedToBeSet_throwsSecurityException[DelegateWithoutValidScope]" />
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_policyNotAllowedToBeSet_throwsSecurityException[IncludeRunOnFinancedDeviceOwnerUser]" />
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_nullPolicy_allowsAllProviders[IncludeRunOnDeviceOwnerUser]" />
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_allowlistAndSystemPolicy_allowsAllowlistedAndSystemProviders[IncludeRunOnDeviceOwnerUser]" />
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_null_setsPolicy[IncludeRunOnDeviceOwnerUser]" />
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_blocklistPolicy_allowsNotBlocklistedProviders[IncludeRunOnDeviceOwnerUser]" />
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_allowlistPolicy_allowsAllowlistedProviders[IncludeRunOnDeviceOwnerUser]" />
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_policyIsSet[IncludeRunOnDeviceOwnerUser]" />
+    <option name="compatibility:exclude-filter" value="CtsCredentialManagerTestCases android.credentials.cts.CtsDevicePolicyTest#setCredentialManagerPolicy_allowlistAndSystemPolicy_allowsAllowlistedAndSystemProviders_SDK[IncludeRunOnDeviceOwnerUser]" />
+
+    <!-- b/302404278 -->
+    <option name="compatibility:exclude-filter" value="CtsDomainVerificationDeviceMultiUserTestCases com.android.cts.packagemanager.verify.domain.device.multiuser.DomainVerificationWorkProfileCrossProfileIntentTests#inPersonal_unverified" />
+    <option name="compatibility:exclude-filter" value="CtsDomainVerificationDeviceMultiUserTestCases com.android.cts.packagemanager.verify.domain.device.multiuser.DomainVerificationWorkProfileCrossProfileIntentTests#inPersonal_verifiedInOtherProfile" />
+    <option name="compatibility:exclude-filter" value="CtsDomainVerificationDeviceMultiUserTestCases CtsDomainVerificationDeviceMultiUserTestCases com.android.cts.packagemanager.verify.domain.device.multiuser.DomainVerificationWorkProfileCrossProfileIntentTests#inPersonal_verifiedInBothProfiles" />
+    <option name="compatibility:exclude-filter" value="CtsDomainVerificationDeviceMultiUserTestCases com.android.cts.packagemanager.verify.domain.device.multiuser.DomainVerificationWorkProfileAllowParentLinkingTests#inPersonal_verifiedInOtherProfile" />
+    <option name="compatibility:exclude-filter" value="CtsDomainVerificationDeviceMultiUserTestCases com.android.cts.packagemanager.verify.domain.device.multiuser.DomainVerificationWorkProfileAllowParentLinkingTests#inPersonal_verifiedInBothProfiles" />
+    <option name="compatibility:exclude-filter" value="CtsDomainVerificationDeviceMultiUserTestCases com.android.cts.packagemanager.verify.domain.device.multiuser.DomainVerificationWorkProfileAllowParentLinkingTests#inPersonal_verifiedInCurrentProfile" />
+
+    <!-- b/323332123 -->
+    <option name="compatibility:exclude-filter" value="CtsAppCloningHostTest com.android.cts.appcloning.contacts.ManagedProfileContactsAccessTest#testClonedAppsAccessManagedProfileContacts_contactReadsBlocked" />
+    <option name="compatibility:exclude-filter" value="CtsAppCloningHostTest com.android.cts.appcloning.contacts.ManagedProfileContactsAccessTest#testClonedAppsAccessManagedProfileContacts_contactReadSuccessfully" />
+
+</configuration>
