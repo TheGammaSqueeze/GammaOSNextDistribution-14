@@ -1,0 +1,15 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_compile_mclinker_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-NCSA
+    default_applicable_licenses: ["frameworks_compile_mclinker_license"],
+}
+
+cc_library_static {
+    name: "libmcldAArch64Info",
+    defaults: ["mcld-defaults"],
+    host_supported: true,
+    srcs: ["AArch64TargetInfo.cpp"],
+}

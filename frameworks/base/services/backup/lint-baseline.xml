@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NonUserGetterCalled"
+        message="`android.provider.Settings.Secure#getInt()` called from system process. Please call `android.provider.Settings.Secure#getIntForUser()` instead. "
+        errorLine1="        return Settings.Secure.getInt(mContext.getContentResolver(), SKIP_USER_FACING_PACKAGES,"
+        errorLine2="               ~~~~~~">
+        <location
+            file="frameworks/base/services/backup/java/com/android/server/backup/UserBackupManagerService.java"
+            line="3702"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="SimpleManualPermissionEnforcement"
+        message="IRestoreSession permission check should be converted to @EnforcePermission annotation">
+        <location
+            file="frameworks/base/services/backup/java/com/android/server/backup/restore/ActiveRestoreSession.java"
+            line="88"/>
+    </issue>
+
+    <issue
+        id="SimpleManualPermissionEnforcement"
+        message="IRestoreSession permission check should be converted to @EnforcePermission annotation">
+        <location
+            file="frameworks/base/services/backup/java/com/android/server/backup/restore/ActiveRestoreSession.java"
+            line="144"/>
+    </issue>
+
+    <issue
+        id="SimpleManualPermissionEnforcement"
+        message="IRestoreSession permission check should be converted to @EnforcePermission annotation">
+        <location
+            file="frameworks/base/services/backup/java/com/android/server/backup/restore/ActiveRestoreSession.java"
+            line="207"/>
+    </issue>
+
+</issues>

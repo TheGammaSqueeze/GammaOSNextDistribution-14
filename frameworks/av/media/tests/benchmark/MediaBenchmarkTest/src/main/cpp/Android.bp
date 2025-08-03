@@ -1,0 +1,41 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_test_library {
+    name: "libmediabenchmark_jni",
+
+    defaults: [
+        "libmediabenchmark_common-defaults",
+        "libmediabenchmark_soft_sanitize_all-defaults",
+    ],
+
+    srcs: [
+        "NativeExtractor.cpp",
+        "NativeMuxer.cpp",
+        "NativeEncoder.cpp",
+        "NativeDecoder.cpp",
+    ],
+
+    shared_libs: [
+        "liblog",
+    ],
+
+    static_libs: [
+        "libmediabenchmark_common",
+        "libmediabenchmark_extractor",
+        "libmediabenchmark_muxer",
+        "libmediabenchmark_decoder",
+        "libmediabenchmark_encoder",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}

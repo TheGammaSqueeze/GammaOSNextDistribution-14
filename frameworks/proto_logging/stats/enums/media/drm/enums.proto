@@ -1,0 +1,212 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.media.drm;
+
+// Please see MediaDrm.ErrorCodes for definitions.
+//
+// Extended from
+//   frameworks/base/media/java/android/media/MediaDrm.java
+enum Status {
+    ERROR_UNKNOWN = 0;
+    ERROR_NO_KEY = 1;
+    ERROR_KEY_EXPIRED = 2;
+    ERROR_RESOURCE_BUSY = 3;
+    ERROR_INSUFFICIENT_OUTPUT_PROTECTION = 4;
+    ERROR_SESSION_NOT_OPENED = 5;
+    ERROR_UNSUPPORTED_OPERATION = 6;
+    ERROR_INSUFFICIENT_SECURITY = 7;
+    ERROR_FRAME_TOO_LARGE = 8;
+    ERROR_LOST_STATE = 9;
+    ERROR_CERTIFICATE_MALFORMED = 10;
+    ERROR_CERTIFICATE_MISSING = 11;
+    ERROR_CRYPTO_LIBRARY = 12;
+    ERROR_GENERIC_OEM = 13;
+    ERROR_GENERIC_PLUGIN = 14;
+    ERROR_INIT_DATA = 15;
+    ERROR_KEY_NOT_LOADED = 16;
+    ERROR_LICENSE_PARSE = 17;
+    ERROR_LICENSE_POLICY = 18;
+    ERROR_LICENSE_RELEASE = 19;
+    ERROR_LICENSE_REQUEST_REJECTED = 20;
+    ERROR_LICENSE_RESTORE = 21;
+    ERROR_LICENSE_STATE = 22;
+    ERROR_MEDIA_FRAMEWORK = 23;
+    ERROR_PROVISIONING_CERTIFICATE = 24;
+    ERROR_PROVISIONING_CONFIG = 25;
+    ERROR_PROVISIONING_PARSE = 26;
+    ERROR_PROVISIONING_REQUEST_REJECTED = 27;
+    ERROR_PROVISIONING_RETRY = 28;
+    ERROR_RESOURCE_CONTENTION = 29;
+    ERROR_SECURE_STOP_RELEASE = 30;
+    ERROR_STORAGE_READ = 31;
+    ERROR_STORAGE_WRITE = 32;
+    ERROR_ZERO_SUBSAMPLES = 33;
+    ERROR_INVALID_STATE = 34;
+    ERROR_BAD_VALUE = 35;
+    ERROR_NOT_PROVISIONED = 36;
+    ERROR_DEVICE_REVOKED = 37;
+    ERROR_DECRYPT = 38;
+    ERROR_DEAD_OBJECT = 39;
+}
+
+// Security level represents the robustness of the DRM implementation.
+//
+// From
+//   frameworks/base/media/java/android/media/MediaDrm.java
+enum SecurityLevel {
+    /**
+     * The DRM plugin did not report a security level, or an error occurred
+     * accessing it
+     */
+    SECURITY_LEVEL_UNKNOWN = 0;
+
+    /**
+     * DRM key management uses software-based whitebox crypto.
+     */
+    SECURITY_LEVEL_SW_SECURE_CRYPTO = 1;
+
+    /**
+     * DRM key management and decoding use software-based whitebox crypto.
+     */
+    SECURITY_LEVEL_SW_SECURE_DECODE = 2;
+
+    /**
+     * DRM key management and crypto operations are performed within a hardware
+     * backed trusted execution environment.
+     */
+    SECURITY_LEVEL_HW_SECURE_CRYPTO = 3;
+
+    /**
+     * DRM key management, crypto operations and decoding of content are
+     * performed within a hardware backed trusted execution environment.
+     */
+    SECURITY_LEVEL_HW_SECURE_DECODE = 4;
+
+    /**
+     * DRM key management, crypto operations, decoding of content and all
+     * handling of the media (compressed and uncompressed) is handled within a
+     * hardware backed trusted execution environment.
+     */
+    SECURITY_LEVEL_HW_SECURE_ALL = 5;
+
+    /**
+     * Indicates that the maximum security level supported by the device should
+     * be used when opening a session. This is the default security level
+     * selected when a session is opened.
+     */
+    SECURITY_LEVEL_MAX = 6;
+}
+
+// DrmApi represents methods of the IDrm interface.
+//
+// From
+//   frameworks/av/drm/libmediadrm/include/mediadrm/IDrm.h
+enum DrmApi {
+    DRM_API_UNKNOWN = 0;
+    DRM_API_INIT_CHECK = 1;
+    DRM_API_IS_CRYPTO_SCHEME_SUPPORTED = 2;
+    DRM_API_CREATE_PLUGIN = 3;
+    DRM_API_DESTROY_PLUGIN = 4;
+    DRM_API_OPEN_SESSION = 5;
+    DRM_API_CLOSE_SESSION = 6;
+    DRM_API_GET_KEY_REQUEST = 7;
+    DRM_API_PROVIDE_KEY_RESPONSE = 8;
+    DRM_API_REMOVE_KEYS = 9;
+    DRM_API_RESTORE_KEYS = 10;
+    DRM_API_QUERY_KEY_STATUS = 11;
+    DRM_API_GET_PROVISION_REQUEST = 12;
+    DRM_API_PROVIDE_PROVISION_RESPONSE = 13;
+    DRM_API_GET_SECURE_STOPS = 14;
+    DRM_API_GET_SECURE_STOP_IDS = 15;
+    DRM_API_GET_SECURE_STOP = 16;
+    DRM_API_RELEASE_SECURE_STOPS = 17;
+    DRM_API_REMOVE_SECURE_STOP = 18;
+    DRM_API_REMOVE_ALL_SECURE_STOPS = 19;
+    DRM_API_GET_HDCP_LEVELS = 20;
+    DRM_API_GET_NUMBER_OF_SESSIONS = 21;
+    DRM_API_GET_SECURITY_LEVEL = 22;
+    DRM_API_GET_OFFLINE_LICENSE_KEY_SET_IDS = 23;
+    DRM_API_REMOVE_OFFLINE_LICENSE = 24;
+    DRM_API_GET_OFFLINE_LICENSE_STATE = 25;
+    DRM_API_GET_PROPERTY_STRING = 26;
+    DRM_API_GET_PROPERTY_BYTE_ARRAY = 27;
+    DRM_API_SET_PROPERTY_STRING = 28;
+    DRM_API_SET_PROPERTY_BYTE_ARRAY = 29;
+    DRM_API_GET_METRICS = 30;
+    DRM_API_SET_CIPHER_ALGORITHM = 31;
+    DRM_API_SET_MAC_ALGORITHM = 32;
+    DRM_API_GENERIC_ENCRYPT = 33;
+    DRM_API_GENERIC_DECRYPT = 34;
+    DRM_API_GENERIC_SIGN = 35;
+    DRM_API_GENERIC_VERIFY = 36;
+    DRM_API_SIGN_RSA = 37;
+    DRM_API_SET_LISTENER = 38;
+    DRM_API_REQUIRES_SECURE_DECODER = 39;
+    DRM_API_REQUIRES_SECURE_DECODER_LEVEL = 40;
+    DRM_API_SET_PLAYBACK_ID = 41;
+    DRM_API_GET_LOG_MESSAGES = 42;
+    DRM_API_GET_SUPPORTED_SCHEMES = 43;
+}
+
+// Which library was used to access DRM features.
+//
+// From
+//   frameworks/av/drm/libmediadrm/include/mediadrm/IDrm.h
+enum IDrmFrontend {
+    IDRM_UNKNOWN = 0;
+    IDRM_JNI = 1;      // MediaDrm
+    IDRM_NDK = 2;      // NdkMediaDrm
+    IDRM_NUPLAYER = 3; // MediaPlayer
+}
+
+// Content protection scheme.
+//
+// From https://dashif.org/identifiers/content_protection/
+enum DrmScheme {
+    DRM_SCHEME_OTHER = -1;
+    DRM_SCHEME_UNKNOWN = 0;
+    ABV_MODRM = 1;
+    ADOBE_PRIMETIME = 2;
+    ALTICAST = 3;
+    APPLE_FAIRPLAY = 4;
+    ARRIS_TITANIUM = 5;
+    CHINADRM = 6;
+    CLEAR_KEY_AES_128 = 7;
+    CLEAR_KEY_SAMPLE_AES = 8;
+    CLEAR_KEY_DASH_IF = 9;
+    CMLA_OMA = 10;
+    COMMSCOPE_TITANIUM = 11;
+    CORECRYPT = 12;
+    DIGICAP_SMARTXESS = 13;
+    DIVX = 14;
+    IRDETO = 15;
+    MARLIN = 16;
+    MICROSOFT_PLAYREADY = 17;
+    MOBITV = 18;
+    NAGRA_MEDIAACCESS = 19;
+    SECUREMEDIA = 20;
+    SECUREMEDIA_STEELKNOT = 21;
+    SYNAMEDIA_VIDEOGUARD = 22;
+    UNITEND_UDRM = 23;
+    VERIMATRIX_VCAS = 24;
+    VIACCESS_ORCA = 25;
+    VISIONCRYPT = 26;
+    W3C_COMMON = 27;
+    WIDEVINE = 28;
+}

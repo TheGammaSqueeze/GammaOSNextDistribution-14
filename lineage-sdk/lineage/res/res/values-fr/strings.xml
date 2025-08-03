@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015 The CyanogenMod Project
+                   2017-2023 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lineageos_system_label">Système LineageOS</string>
+    <string name="permlab_modifyProfiles">modifier les profils système</string>
+    <string name="permdesc_modifyProfiles">Permet à une application de modifier les profils système.</string>
+    <string name="permlab_useHardwareFramework">utiliser le framework matériel</string>
+    <string name="permdesc_useHardwareFramework">Autorise une application à accéder au framework matériel de Lineage.</string>
+    <string name="permlab_writeSettings">modifier les paramètres système de Lineage</string>
+    <string name="permdesc_writeSettings">Autorise une application à modifier les paramètres système de Lineage.</string>
+    <string name="permlab_writeSecureSettings">modifier les paramètres de sécurité système de Lineage</string>
+    <string name="permdesc_writeSecureSettings">Autorise une application à modifier les paramètres de sécurité du système. Les applications standards ne doivent pas utiliser cette fonctionnalité.</string>
+    <string name="profileNameDefault">Par défaut</string>
+    <string name="profileNameWork">Bureau</string>
+    <string name="profileNameHome">Domicile</string>
+    <string name="profileNameSilent">Silencieux</string>
+    <string name="profileNameNight">Nuit</string>
+    <string name="profileNameAutomobile">Automobile</string>
+    <string name="profileGroupPhone">Téléphone</string>
+    <string name="profileGroupCalendar">Agenda</string>
+    <string name="profileGroupGmail">Gmail</string>
+    <string name="profileGroupEmail">E-mail</string>
+    <string name="profileGroupSMS">SMS</string>
+    <string name="wildcardProfile">Autre</string>
+    <string name="live_display_auto">Automatique</string>
+    <string name="live_display_auto_summary">Ajuster automatiquement la température des couleurs de l\'écran après le coucher et le lever du soleil</string>
+    <string name="live_display_off">Désactivé</string>
+    <string name="live_display_off_summary">Désactiver tous les réglages</string>
+    <string name="live_display_day">Jour</string>
+    <string name="live_display_day_summary">Utiliser uniquement les paramètres de jour</string>
+    <string name="live_display_night">Nuit</string>
+    <string name="live_display_night_summary">Utiliser uniquement les paramètres de nuit</string>
+    <string name="live_display_outdoor">Extérieur (plein soleil)</string>
+    <string name="live_display_outdoor_summary">Utiliser seulement les paramètres du mode extérieur</string>
+    <string name="live_display_hint">LiveDisplay peut contribuer à réduire la fatigue oculaire et vous aider à dormir la nuit. Appuyez ici pour l\'essayer !</string>
+    <string name="accessibility_quick_settings_live_display_off">LiveDisplay désactivé.</string>
+    <string name="accessibility_quick_settings_live_display_auto">LiveDisplay : mode automatique.</string>
+    <string name="accessibility_quick_settings_live_display_day">LiveDisplay : mode jour.</string>
+    <string name="accessibility_quick_settings_live_display_night">LiveDisplay : mode nuit.</string>
+    <string name="accessibility_quick_settings_live_display_outdoor">LiveDisplay : mode extérieur.</string>
+    <string name="accessibility_quick_settings_live_display_changed_off">LiveDisplay désactivé.</string>
+    <string name="accessibility_quick_settings_live_display_changed_auto">LiveDisplay changé en mode automatique.</string>
+    <string name="accessibility_quick_settings_live_display_changed_day">LiveDisplay changé en mode jour.</string>
+    <string name="accessibility_quick_settings_live_display_changed_night">LiveDisplay changé en mode nuit.</string>
+    <string name="accessibility_quick_settings_live_display_changed_outdoor">LiveDisplay changé en mode extérieur.</string>
+    <string name="permlab_manageLiveDisplay">gérer les paramètres de LiveDisplay</string>
+    <string name="permdesc_manageLiveDisplay">Permet à une application de configurer les paramètres avancés de l\'affichage.</string>
+    <string name="permlab_manageRemotePrefs">gérer les paramètres distants</string>
+    <string name="permdesc_manageRemotePrefs">Autoriser une application à gérer les paramètres distants</string>
+    <string name="build_date">Date de compilation</string>
+    <string name="lineage_api_level">Niveau de l\'API LineageOS</string>
+    <string name="lineage_updates">Mises à jour LineageOS</string>
+    <string name="lineage_version">Version LineageOS</string>
+    <string name="lineage_vendor_security_patch">Niveau du correctif de sécurité du fournisseur</string>
+    <string name="unknown">Inconnu</string>
+    <string name="app_killed_message">Application arrêtée</string>
+    <string name="kilobitspersecond_short">kb/s</string>
+    <string name="megabitspersecond_short">Mb/s</string>
+    <string name="kilobytespersecond_short">ko/s</string>
+    <string name="megabytespersecond_short">Mo/s</string>
+    <string name="kilobytespersecond_compact">k</string>
+    <string name="megabytespersecond_compact">M</string>
+    <string name="trust_feature_name">Trust</string>
+    <string name="permlab_trustInterface">accéder à l\'interface Trust</string>
+    <string name="permdesc_trustInterface">Autorise une application à afficher des avertissements et suggestions Trust</string>
+    <string name="trust_notification_channel">Alertes Trust</string>
+    <string name="trust_notification_title_security">Trust \u2022 Sécurité du système</string>
+    <string name="trust_notification_content_selinux">SELinux n\'est pas appliqué : votre appareil est moins protégé</string>
+    <string name="trust_notification_content_keys">Cette version a été signée avec des clés publiques</string>
+    <string name="trust_notification_title_onboarding">Découvrez Trust</string>
+    <string name="trust_notification_content_onboarding">Découvrez comment garantir la sécurité de votre appareil</string>
+    <string name="trust_notification_action_manage">Gérer les alertes</string>
+    <string name="charging_control_notification_channel">Contrôle de la charge</string>
+    <string name="charging_control_notification_title">Contrôle de la charge</string>
+    <string name="charging_control_notification_cancel_once">Annuler</string>
+    <string name="charging_control_notification_content_limit">La batterie sera chargée à %1$d%%</string>
+    <string name="charging_control_notification_content_limit_reached">La batterie est chargée à %1$d%%</string>
+    <string name="charging_control_notification_content_target">La batterie sera complètement chargée à %1$s</string>
+    <string name="charging_control_notification_content_target_reached">La batterie est chargée</string>
+</resources>

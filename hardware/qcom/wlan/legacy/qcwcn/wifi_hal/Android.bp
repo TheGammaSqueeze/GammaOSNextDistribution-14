@@ -1,0 +1,135 @@
+// Copyright (C) 2011 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// See: http://go/android-license-faq
+package {
+    default_applicable_licenses: ["wlan_legacy_qcwcn_license"],
+}
+
+license {
+    name: "wlan_legacy_qcwcn_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+    ],
+}
+
+cc_library_shared {
+    name: "libwifi-hal-ctrl",
+    vendor: true,
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wall",
+        "-Werror",
+    ],
+    local_include_dirs: ["wifi_hal_ctrl"],
+    srcs: ["wifi_hal_ctrl/wifi_hal_ctrl.c"],
+    header_libs: ["libcutils_headers"],
+}
+
+cc_library_headers {
+    name: "libwifi-hal-ctrl_headers",
+    vendor: true,
+    export_include_dirs: ["wifi_hal_ctrl"],
+    header_libs: ["libcutils_headers"],
+}
+
+soong_config_module_type {
+    name: "wifi_hal_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "wifi",
+    value_variables: [
+        "driver_state_ctrl_param", // WIFI_DRIVER_STATE_CTRL_PARAM
+        "driver_state_on", // WIFI_DRIVER_STATE_ON
+    ],
+    properties: [
+        "cflags",
+        "cppflags",
+    ],
+}
+
+wifi_hal_cc_defaults {
+    name: "libwifi-hal-qcom-defaults",
+    soong_config_variables: {
+        driver_state_ctrl_param: {
+            cflags: ["-DWIFI_DRIVER_STATE_CTRL_PARAM=%s"],
+        },
+        driver_state_on: {
+            cflags: ["-DWIFI_DRIVER_STATE_ON=%s"],
+        },
+    },
+}
+
+// Make the HAL library
+// ============================================================
+cc_library {
+    name: "libwifi-hal-qcom",
+    vendor: true,
+    defaults: [
+        "libwifi-hal-qcom-defaults",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wall",
+        "-Werror",
+        // gscan.cpp: address of array 'cached_results[i].results' will always evaluate to 'true'
+        "-Wno-pointer-bool-conversion",
+        // Allow implicit fallthrough in nan_ind.cpp:834 until it is fixed
+        "-Wno-implicit-fallthrough",
+    ],
+    product_variables: {
+        debuggable: {
+            cflags: ["-DLOG_NDEBUG=0"],
+        },
+    },
+    header_libs: [
+        "libcutils_headers",
+        "libhardware_legacy_headers",
+        "libnetlink_iface_headers",
+        "libutils_headers",
+        "libwifi-hal-ctrl_headers",
+    ],
+    local_include_dirs: ["."],
+    srcs: [
+        "common.cpp",
+        "cpp_bindings.cpp",
+        "gscan_event_handler.cpp",
+        "gscan.cpp",
+        "ifaceeventhandler.cpp",
+        "list.cpp",
+        "llstats.cpp",
+        "nan_ind.cpp",
+        "nan_req.cpp",
+        "nan_rsp.cpp",
+        "nan.cpp",
+        "radio_mode.cpp",
+        "rb_wrapper.cpp",
+        "ring_buffer.cpp",
+        "roam.cpp",
+        "rssi_monitor.cpp",
+        "rtt.cpp",
+        "tdls.cpp",
+        "wifi_hal.cpp",
+        "wificonfig.cpp",
+        "wifilogger_diag.cpp",
+        "wifilogger.cpp",
+    ],
+    shared_libs: [
+        "libcld80211",
+        "libnetutils",
+        "liblog",
+        "libnl",
+    ],
+}

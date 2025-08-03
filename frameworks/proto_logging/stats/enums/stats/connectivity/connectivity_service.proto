@@ -1,0 +1,79 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.stats.connectivity;
+option java_multiple_files = true;
+option java_outer_classname = "ConnectivityServiceProto";
+
+// Enumeration of network request types
+enum RequestType {
+    RT_UNKNOWN = 0;
+    RT_SYSTEM = 1;
+    RT_APP = 2;
+    RT_SYSTEM_ON_BEHALF_OF_APP = 3;
+}
+
+// Enumeration of metered states.
+enum MeteredState {
+    METERED_UNKNOWN = 0;
+    METERED_NO = 1;
+    METERED_YES = 2;
+    METERED_TEMPORARILY_UNMETERED = 3;
+}
+
+// Enumeration of network internet+validated states
+enum ValidatedState {
+    VS_UNKNOWN = 0;
+    VS_VALID = 1;
+    VS_INVALID = 2;
+    VS_PARTIAL = 3;
+    VS_PORTAL = 4;
+}
+
+// Enumeration of network rematch reasons
+enum RematchReason {
+    RMR_UNKNOWN = 0;
+    RMR_NETWORK_CONNECTED = 1;
+    RMR_NETWORK_DISCONNECTED = 2;
+    RMR_NETWORK_UPDATED_CAPS = 3;
+    RMR_NETWORK_UPDATED_SCORE = 4;
+}
+
+enum NsdEventType {
+    NET_UNKNOWN = 0;
+    NET_REGISTER = 1;
+    NET_DISCOVER = 2;
+    NET_RESOLVE = 3;
+    NET_SERVICE_INFO_CALLBACK = 4;
+}
+
+enum MdnsQueryResult {
+    MQR_UNKNOWN = 0;
+    MQR_SERVICE_REGISTERED = 1;
+    MQR_SERVICE_UNREGISTERED = 2;
+    MQR_SERVICE_REGISTRATION_FAILED = 3;
+    MQR_SERVICE_DISCOVERY_STARTED = 4;
+    MQR_SERVICE_DISCOVERY_FAILED = 5;
+    MQR_SERVICE_DISCOVERY_STOP = 6;
+    MQR_SERVICE_RESOLVED = 7;
+    MQR_SERVICE_RESOLUTION_FAILED = 8;
+    MQR_SERVICE_RESOLUTION_STOP = 9;
+    MQR_SERVICE_INFO_CALLBACK_REGISTERED = 10;
+    MQR_SERVICE_INFO_CALLBACK_REGISTRATION_FAILED = 11;
+    MQR_SERVICE_INFO_CALLBACK_UNREGISTERED = 12;
+}

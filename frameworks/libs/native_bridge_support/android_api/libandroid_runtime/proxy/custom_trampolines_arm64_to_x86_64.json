@@ -1,0 +1,19 @@
+{
+  "config": {
+    "force_incompatible": true,
+    "ignore_variables": true
+  },
+  "symbols": {
+    "_ZN7android10readLocaleEv": {
+      "call_method": "ignore",
+      "reason": [
+        "This method has 'incomplete' type as one of the parameters",
+        "(see http://b/109794097) for details"
+      ]
+    },
+    "_ZN7android14AndroidRuntime21registerNativeMethodsEP7_JNIEnvPKcPK15JNINativeMethodi": {
+      "call_method": "custom_trampoline"
+    }
+  },
+  "types": {}
+}

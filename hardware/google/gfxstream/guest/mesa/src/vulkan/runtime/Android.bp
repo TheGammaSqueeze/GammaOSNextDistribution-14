@@ -1,0 +1,287 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+python_binary_host {
+    name: "vk_format_info_gen_gfxstream",
+    main: "vk_format_info_gen.py",
+    srcs: ["vk_format_info_gen.py"],
+    libs: [
+        "mako",
+    ],
+}
+
+genrule {
+    name: "vk_cmd_queue_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_cmd_queue.h"],
+    tools: ["vk_cmd_queue_gen_gfxstream"],
+    cmd: "python3 $(location vk_cmd_queue_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(location vk_cmd_queue.h) --out-c " +
+        "$(genDir)/placeholder.c --beta false",
+}
+
+genrule {
+    name: "vk_cmd_queue_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_cmd_queue.c"],
+    tools: ["vk_cmd_queue_gen_gfxstream"],
+    cmd: "python3 $(location vk_cmd_queue_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-c " +
+        "$(location vk_cmd_queue.c) --out-h " +
+        "$(genDir)/vk_cmd_queue.h --beta false",
+}
+
+genrule {
+    name: "vk_common_entrypoints_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_common_entrypoints.h"],
+    tools: ["vk_entrypoints_gen_gfxstream"],
+    cmd: "python3 $(location vk_entrypoints_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --proto --weak --out-h " +
+        "$(location vk_common_entrypoints.h) --out-c " +
+        "$(genDir)/placeholder.c --prefix vk_common --beta false",
+}
+
+genrule {
+    name: "vk_common_entrypoints_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_common_entrypoints.c"],
+    tools: ["vk_entrypoints_gen_gfxstream"],
+    cmd: "python3 $(location vk_entrypoints_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --proto --weak --out-h " +
+        "$(genDir)/vk_common_entrypoints.h --out-c " +
+        "$(location vk_common_entrypoints.c) --prefix vk_common " +
+        "--beta false",
+}
+
+genrule {
+    name: "vk_cmd_enqueue_entrypoints_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_cmd_enqueue_entrypoints.h"],
+    tools: ["vk_entrypoints_gen_gfxstream"],
+    cmd: "python3 $(location vk_entrypoints_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --proto --weak --out-h " +
+        "$(location vk_cmd_enqueue_entrypoints.h) --out-c " +
+        "$(genDir)/placeholder.c --prefix vk_cmd_enqueue " +
+        " --prefix vk_cmd_enqueue_unless_primary --beta false",
+}
+
+genrule {
+    name: "vk_cmd_enqueue_entrypoints_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_cmd_enqueue_entrypoints.c"],
+    tools: ["vk_entrypoints_gen_gfxstream"],
+    cmd: "python3 $(location vk_entrypoints_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --proto --weak --out-h " +
+        "$(genDir)/vk_cmd_enqueue_entrypoints.h --out-c " +
+        "$(location vk_cmd_enqueue_entrypoints.c) --prefix vk_cmd_enqueue " +
+        "--prefix vk_cmd_enqueue_unless_primary --beta false",
+}
+
+genrule {
+    name: "vk_dispatch_trampolines_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_dispatch_trampolines.h"],
+    tools: ["vk_dispatch_trampolines_gen_gfxstream"],
+    cmd: "python3 $(location vk_dispatch_trampolines_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(location vk_dispatch_trampolines.h) --out-c " +
+        "$(genDir)/placeholder.c --beta false",
+}
+
+genrule {
+    name: "vk_dispatch_trampolines_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_dispatch_trampolines.c"],
+    tools: ["vk_dispatch_trampolines_gen_gfxstream"],
+    cmd: "python3 $(location vk_dispatch_trampolines_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream)  --out-h " +
+        "$(genDir)/vk_dispatch_trampolines.h --out-c " +
+        "$(location vk_dispatch_trampolines.c) --beta false",
+}
+
+genrule {
+    name: "vk_physical_device_features_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_physical_device_features.h"],
+    tools: ["vk_physical_device_features_gen_gfxstream"],
+    cmd: "python3 $(location vk_physical_device_features_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(location vk_physical_device_features.h) --out-c " +
+        "$(genDir)/placeholder.c --beta false",
+}
+
+genrule {
+    name: "vk_physical_device_features_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_physical_device_features.c"],
+    tools: ["vk_physical_device_features_gen_gfxstream"],
+    cmd: "python3 $(location vk_physical_device_features_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(genDir)/vk_physical_device_features.h --out-c " +
+        "$(location vk_physical_device_features.c) --beta false",
+}
+
+genrule {
+    name: "vk_physical_device_properties_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_physical_device_properties.h"],
+    tools: ["vk_physical_device_properties_gen_gfxstream"],
+    cmd: "python3 $(location vk_physical_device_properties_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(location vk_physical_device_properties.h) --out-c " +
+        "$(genDir)/placeholder.c --beta false",
+}
+
+genrule {
+    name: "vk_physical_device_properties_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_physical_device_properties.c"],
+    tools: ["vk_physical_device_properties_gen_gfxstream"],
+    cmd: "python3 $(location vk_physical_device_properties_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(genDir)/vk_physical_device_properties.h --out-c " +
+        "$(location vk_physical_device_properties.c) --beta false",
+}
+
+genrule {
+    name: "vk_format_info_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_format_info.h"],
+    tools: ["vk_format_info_gen_gfxstream"],
+    cmd: "python3 $(location vk_format_info_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(location vk_format_info.h) --out-c " +
+        "$(genDir)/placeholder.c",
+}
+
+genrule {
+    name: "vk_format_info_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_format_info.c"],
+    tools: ["vk_format_info_gen_gfxstream"],
+    cmd: "python3 $(location vk_format_info_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(genDir)/vk_format_info.h --out-c " +
+        "$(location vk_format_info.c)",
+}
+
+cc_library_static {
+    name: "libmesa_vulkan_runtime_gfxstream",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "mesa_common_defaults_gfxstream",
+    ],
+    header_libs: [
+        "mesa_common_headers_gfxstream",
+    ],
+    static_libs: [
+        "libarect",
+        "libmesa_util_gfxstream",
+        "libmesa_vulkan_util_gfxstream",
+        "libmesa_util_c11_gfxstream",
+        "libmesa_util_format_gfxstream",
+    ],
+    cflags: [
+        "-DVK_NO_NIR",
+    ],
+    generated_headers: [
+        "vk_cmd_queue_header_gfxstream",
+        "vk_common_entrypoints_header_gfxstream",
+        "vk_cmd_enqueue_entrypoints_header_gfxstream",
+        "vk_dispatch_trampolines_header_gfxstream",
+        "vk_physical_device_features_header_gfxstream",
+        "vk_physical_device_properties_header_gfxstream",
+        "vk_format_info_header_gfxstream",
+    ],
+    generated_sources: [
+        "vk_cmd_queue_impl_gfxstream",
+        "vk_common_entrypoints_impl_gfxstream",
+        "vk_cmd_enqueue_entrypoints_impl_gfxstream",
+        "vk_dispatch_trampolines_impl_gfxstream",
+        "vk_physical_device_features_impl_gfxstream",
+        "vk_physical_device_properties_impl_gfxstream",
+        "vk_format_info_impl_gfxstream",
+    ],
+    srcs: [
+        "rmv/vk_rmv_common.c",
+        "rmv/vk_rmv_exporter.c",
+        "vk_acceleration_structure.c",
+        "vk_blend.c",
+        "vk_buffer.c",
+        "vk_buffer_view.c",
+        "vk_cmd_copy.c",
+        "vk_cmd_enqueue.c",
+        "vk_command_buffer.c",
+        "vk_command_pool.c",
+        "vk_debug_report.c",
+        "vk_debug_utils.c",
+        "vk_deferred_operation.c",
+        "vk_descriptor_set_layout.c",
+        "vk_descriptors.c",
+        "vk_descriptor_update_template.c",
+        "vk_device.c",
+        "vk_device_memory.c",
+        "vk_fence.c",
+        "vk_framebuffer.c",
+        "vk_graphics_state.c",
+        "vk_image.c",
+        "vk_instance.c",
+        "vk_log.c",
+        "vk_object.c",
+        "vk_physical_device.c",
+        "vk_pipeline_layout.c",
+        "vk_query_pool.c",
+        "vk_queue.c",
+        "vk_render_pass.c",
+        "vk_sampler.c",
+        "vk_semaphore.c",
+        "vk_standard_sample_locations.c",
+        "vk_sync.c",
+        "vk_sync_binary.c",
+        "vk_sync_dummy.c",
+        "vk_sync_timeline.c",
+        "vk_synchronization2.c",
+        "vk_video.c",
+        "vk_ycbcr_conversion.c",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libnativewindow",
+                "libsync",
+                "libcutils",
+            ],
+            header_libs: [
+                "hwvulkan_headers",
+                "libnativewindow_headers",
+            ],
+            srcs: [
+                "vk_android.c",
+            ],
+        },
+    },
+}

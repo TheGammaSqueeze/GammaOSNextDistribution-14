@@ -1,0 +1,19 @@
+name: build
+
+runs:
+    using: composite
+
+    steps:
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt -y install libxml2-utils
+        sudo snap install yq
+
+    - name: Validate config/*.xml
+      shell: bash
+      run: xmllint --noout ./config/*.xml
+
+    - name: Validate config/*.yaml
+      shell: bash
+      run: yq eval ./config/*.yaml > /dev/null

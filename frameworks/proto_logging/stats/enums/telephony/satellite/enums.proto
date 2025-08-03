@@ -1,0 +1,79 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.telephony;
+
+option java_outer_classname = "SatelliteProtoEnums";
+option java_multiple_files = true;
+
+// Feature types of satellite datagram
+enum DatagramType {
+  // Datagram type is unknown. This generic datagram type should be used only when the datagram
+  // type cannot be mapped to other specific datagram types
+  DATAGRAM_TYPE_UNKNOWN = 0;
+  // Datagram type indicating that the datagram to be sent or received is of type SOS message.
+  DATAGRAM_TYPE_SOS_MESSAGE = 1;
+  // Datagram type indicating that the datagram to be sent or received is of type  location sharing.
+  DATAGRAM_TYPE_LOCATION_SHARING = 2;
+}
+
+// Result code of Incoming / Outgoing satellite datagram
+// SatelliteServiceResultEnum is not completed yet, it'll be updated once design is fixed
+enum SatelliteError {
+  SATELLITE_ERROR_NONE = 0;
+  SATELLITE_ERROR = 1;
+  SATELLITE_SERVER_ERROR = 2;
+  SATELLITE_SERVICE_ERROR = 3;
+  SATELLITE_MODEM_ERROR = 4;
+  SATELLITE_NETWORK_ERROR = 5;
+  SATELLITE_INVALID_TELEPHONY_STATE = 6;
+  SATELLITE_INVALID_MODEM_STATE = 7;
+  SATELLITE_INVALID_ARGUMENTS = 8;
+  SATELLITE_REQUEST_FAILED = 9;
+  SATELLITE_RADIO_NOT_AVAILABLE = 10;
+  SATELLITE_REQUEST_NOT_SUPPORTED = 11;
+  SATELLITE_NO_RESOURCES = 12;
+  SATELLITE_SERVICE_NOT_PROVISIONED = 13;
+  SATELLITE_SERVICE_PROVISION_IN_PROGRESS = 14;
+  SATELLITE_REQUEST_ABORTED = 15;
+  SATELLITE_ACCESS_BARRED = 16;
+  SATELLITE_NETWORK_TIMEOUT = 17;
+  SATELLITE_NOT_REACHABLE = 18;
+  SATELLITE_NOT_AUTHORIZED = 19;
+  SATELLITE_NOT_SUPPORTED = 20;
+}
+
+// Technology of Satellite Communication
+enum NTRadioTechnology {
+  /* Satellite technology unknown */
+  NT_RADIO_TECHNOLOGY_UNKNOWN = 0;
+  /* 3GPP NB-IoT (Narrowband Internet of Things) over Non-Terrestrial-Networks technology */
+  NT_RADIO_TECHNOLOGY_NB_IOT_NTN = 1;
+  /* 3GPP 5G NR over Non-Terrestrial-Networks technology */
+  NT_RADIO_TECHNOLOGY_NR_NTN = 2;
+  /* 3GPP eMTC (enhanced Machine-Type Communication) over Non-Terrestrial-Networks technology */
+  NT_RADIO_TECHNOLOGY_EMTC_NTN = 3;
+  /* Proprietary technology like Iridium or Bullitt */
+  NT_RADIO_TECHNOLOGY_PROPRIETARY = 4;
+}
+
+// Handover type from emergency call to satellite messaging
+enum RecommendingHandoverType {
+  RECOMMENDING_HANDOVER_TYPE_UNKNOWN = 0;
+  RECOMMENDING_HANDOVER_TYPE_SOS = 1;
+  RECOMMENDING_HANDOVER_TYPE_T911 = 2;
+}

@@ -1,0 +1,179 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_module_type {
+    name: "haptics_feature_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "haptics",
+    variables: [
+        "actuator_model",
+        "adaptive_haptics_feature",
+    ],
+    properties: ["cflags"],
+}
+
+soong_config_string_variable {
+    name: "actuator_model",
+    values: [
+        "luxshare_ict_081545",
+        "luxshare_ict_lt_xlra1906d",
+    ],
+}
+
+soong_config_string_variable {
+    name: "adaptive_haptics_feature",
+    values: [
+        "adaptive_haptics_v1",
+    ],
+}
+
+haptics_feature_cc_defaults {
+    name: "haptics_feature_defaults",
+    soong_config_variables: {
+        actuator_model: {
+            luxshare_ict_081545: {
+                cflags: [
+                    "-DLUXSHARE_ICT_081545",
+                ],
+            },
+            luxshare_ict_lt_xlra1906d: {
+                cflags: [
+                    "-DLUXSHARE_ICT_LT_XLRA1906D",
+                ],
+            },
+            conditions_default: {
+                cflags: [
+                    "-DUNSPECIFIED_ACTUATOR",
+                ],
+            },
+        },
+        adaptive_haptics_feature: {
+            adaptive_haptics_v1: {
+                cflags: [
+                    "-DADAPTIVE_HAPTICS_V1",
+                ],
+            },
+            conditions_default: {
+                cflags: [
+                    "-DDISABLE_ADAPTIVE_HAPTICS_FEATURE",
+                ],
+            },
+        },
+    },
+}
+
+cc_library {
+    name: "libvibecapo_proto",
+    vendor_available: true,
+    owner: "google",
+    defaults: [
+        "VibratorHalCs40l26BinaryDefaults",
+    ],
+    srcs: [
+        "proto/capo.proto",
+    ],
+    export_include_dirs: [
+        "proto",
+    ],
+    proto: {
+        type: "lite",
+        export_proto_headers: true,
+    },
+}
+
+cc_library {
+    name: "VibratorCapo",
+    defaults: [
+        "PixelVibratorBinaryDefaults",
+        "haptics_feature_defaults",
+    ],
+    srcs: [
+        "CapoDetector.cpp",
+    ],
+    shared_libs: [
+        "libcutils",
+        "libprotobuf-cpp-lite",
+    ],
+    static_libs: [
+        "chre_client",
+        "libvibecapo_proto",
+    ],
+    export_include_dirs: [
+        "proto",
+        ".",
+    ],
+    export_static_lib_headers: [
+        "libvibecapo_proto",
+    ],
+    vendor_available: true,
+}
+
+cc_defaults {
+    name: "VibratorCapoDefaults",
+    static_libs: [
+        "chre_client",
+        "libvibecapo_proto",
+        "VibratorCapo",
+    ],
+    shared_libs: [
+        "libprotobuf-cpp-lite",
+    ],
+}
+
+cc_library {
+    name: "PixelVibratorCommon",
+    srcs: [
+        "HardwareBase.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "liblog",
+        "libutils",
+    ],
+    cflags: [
+        "-DATRACE_TAG=(ATRACE_TAG_VIBRATOR | ATRACE_TAG_HAL)",
+        "-DLOG_TAG=\"VibratorCommon\"",
+    ],
+    export_include_dirs: ["."],
+    vendor_available: true,
+}
+
+cc_library {
+    name: "PixelVibratorStats",
+    vendor: true,
+    srcs: ["StatsBase.cpp"],
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wextra",
+        "-DATRACE_TAG=(ATRACE_TAG_VIBRATOR | ATRACE_TAG_HAL)",
+        "-DLOG_TAG=\"VibratorStats\"",
+    ],
+    shared_libs: [
+        "android.frameworks.stats-V2-ndk",
+        "libbase",
+        "libcutils",
+        "libbinder_ndk",
+        "liblog",
+        "libprotobuf-cpp-lite",
+        "libutils",
+        "pixelatoms-cpp",
+    ],
+}

@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<ttFont sfntVersion="\x00\x01\x00\x00" ttLibVersion="3.0">
+
+  <GlyphOrder>
+    <GlyphID id="0" name=".notdef"/>
+    <GlyphID id="1" name="1em"/>
+  </GlyphOrder>
+
+  <head>
+    <tableVersion value="1.0"/>
+    <fontRevision value="1.0"/>
+    <checkSumAdjustment value="0x640cdb2f"/>
+    <magicNumber value="0x5f0f3cf5"/>
+    <flags value="00000000 00000011"/>
+    <unitsPerEm value="100"/>
+    <created value="Fri Mar 17 07:26:00 2017"/>
+    <macStyle value="00000000 00000000"/>
+    <lowestRecPPEM value="7"/>
+    <fontDirectionHint value="2"/>
+    <glyphDataFormat value="0"/>
+  </head>
+
+  <hhea>
+    <tableVersion value="0x00010000"/>
+    <ascent value="0"/>
+    <descent value="0"/>
+    <lineGap value="0"/>
+    <caretSlopeRise value="1"/>
+    <caretSlopeRun value="0"/>
+    <caretOffset value="0"/>
+    <reserved0 value="0"/>
+    <reserved1 value="0"/>
+    <reserved2 value="0"/>
+    <reserved3 value="0"/>
+    <metricDataFormat value="0"/>
+  </hhea>
+
+  <maxp>
+    <tableVersion value="0x10000"/>
+    <maxZones value="0"/>
+    <maxTwilightPoints value="0"/>
+    <maxStorage value="0"/>
+    <maxFunctionDefs value="0"/>
+    <maxInstructionDefs value="0"/>
+    <maxStackElements value="0"/>
+    <maxSizeOfInstructions value="0"/>
+    <maxComponentElements value="0"/>
+  </maxp>
+
+  <OS_2>
+    <!-- The fields 'usFirstCharIndex' and 'usLastCharIndex'
+         will be recalculated by the compiler -->
+    <version value="3"/>
+    <xAvgCharWidth value="594"/>
+    <usWeightClass value="400"/>
+    <usWidthClass value="5"/>
+    <fsType value="00000000 00001000"/>
+    <ySubscriptXSize value="650"/>
+    <ySubscriptYSize value="600"/>
+    <ySubscriptXOffset value="0"/>
+    <ySubscriptYOffset value="75"/>
+    <ySuperscriptXSize value="650"/>
+    <ySuperscriptYSize value="600"/>
+    <ySuperscriptXOffset value="0"/>
+    <ySuperscriptYOffset value="350"/>
+    <yStrikeoutSize value="50"/>
+    <yStrikeoutPosition value="300"/>
+    <sFamilyClass value="0"/>
+    <panose>
+      <bFamilyType value="0"/>
+      <bSerifStyle value="0"/>
+      <bWeight value="5"/>
+      <bProportion value="0"/>
+      <bContrast value="0"/>
+      <bStrokeVariation value="0"/>
+      <bArmStyle value="0"/>
+      <bLetterForm value="0"/>
+      <bMidline value="0"/>
+      <bXHeight value="0"/>
+    </panose>
+    <ulUnicodeRange1 value="00000000 00000000 00000000 00000001"/>
+    <ulUnicodeRange2 value="00000000 00000000 00000000 00000000"/>
+    <ulUnicodeRange3 value="00000000 00000000 00000000 00000000"/>
+    <ulUnicodeRange4 value="00000000 00000000 00000000 00000000"/>
+    <achVendID value="UKWN"/>
+    <fsSelection value="00000000 01000000"/>
+    <usFirstCharIndex value="32"/>
+    <usLastCharIndex value="122"/>
+    <sTypoAscender value="800"/>
+    <sTypoDescender value="-200"/>
+    <sTypoLineGap value="200"/>
+    <usWinAscent value="1000"/>
+    <usWinDescent value="200"/>
+    <ulCodePageRange1 value="00000000 00000000 00000000 00000001"/>
+    <ulCodePageRange2 value="00000000 00000000 00000000 00000000"/>
+    <sxHeight value="500"/>
+    <sCapHeight value="700"/>
+    <usDefaultChar value="0"/>
+    <usBreakChar value="32"/>
+    <usMaxContext value="0"/>
+  </OS_2>
+
+  <hmtx>
+    <mtx name=".notdef" width="50" lsb="0"/>
+    <mtx name="1em" width="100" lsb="0"/>
+  </hmtx>
+
+  <cmap>
+    <tableVersion version="0"/>
+    <cmap_format_12 format="12" reserved="0" length="6" nGroups="1" platformID="3" platEncID="10" language="0">
+      <!-- CJK Symbols -->
+      <map code="0x3000" name="1em" /> <!--  IDEOGRAPHIC SPACE -->
+      <map code="0x3001" name="1em" /> <!--  IDEOGRAPHIC COMMA -->
+      <map code="0x3002" name="1em" /> <!--  IDEOGRAPHIC FULL STOP -->
+
+      <!-- All Hiragana Ltters -->
+      <map code="0x3041" name="1em" /> <!--  HIRAGANA LETTER SMALL A -->
+      <map code="0x3042" name="1em" /> <!--  HIRAGANA LETTER A -->
+      <map code="0x3043" name="1em" /> <!--  HIRAGANA LETTER SMALL I -->
+      <map code="0x3044" name="1em" /> <!--  HIRAGANA LETTER I -->
+      <map code="0x3045" name="1em" /> <!--  HIRAGANA LETTER SMALL U -->
+      <map code="0x3046" name="1em" /> <!--  HIRAGANA LETTER U -->
+      <map code="0x3047" name="1em" /> <!--  HIRAGANA LETTER SMALL E -->
+      <map code="0x3048" name="1em" /> <!--  HIRAGANA LETTER E -->
+      <map code="0x3049" name="1em" /> <!--  HIRAGANA LETTER SMALL O -->
+      <map code="0x304A" name="1em" /> <!--  HIRAGANA LETTER O -->
+      <map code="0x304B" name="1em" /> <!--  HIRAGANA LETTER KA -->
+      <map code="0x304C" name="1em" /> <!--  HIRAGANA LETTER GA -->
+      <map code="0x304D" name="1em" /> <!--  HIRAGANA LETTER KI -->
+      <map code="0x304E" name="1em" /> <!--  HIRAGANA LETTER GI -->
+      <map code="0x304F" name="1em" /> <!--  HIRAGANA LETTER KU -->
+      <map code="0x3050" name="1em" /> <!--  HIRAGANA LETTER GU -->
+      <map code="0x3051" name="1em" /> <!--  HIRAGANA LETTER KE -->
+      <map code="0x3052" name="1em" /> <!--  HIRAGANA LETTER GE -->
+      <map code="0x3053" name="1em" /> <!--  HIRAGANA LETTER KO -->
+      <map code="0x3054" name="1em" /> <!--  HIRAGANA LETTER GO -->
+      <map code="0x3055" name="1em" /> <!--  HIRAGANA LETTER SA -->
+      <map code="0x3056" name="1em" /> <!--  HIRAGANA LETTER ZA -->
+      <map code="0x3057" name="1em" /> <!--  HIRAGANA LETTER SI -->
+      <map code="0x3058" name="1em" /> <!--  HIRAGANA LETTER ZI -->
+      <map code="0x3059" name="1em" /> <!--  HIRAGANA LETTER SU -->
+      <map code="0x305A" name="1em" /> <!--  HIRAGANA LETTER ZU -->
+      <map code="0x305B" name="1em" /> <!--  HIRAGANA LETTER SE -->
+      <map code="0x305C" name="1em" /> <!--  HIRAGANA LETTER ZE -->
+      <map code="0x305D" name="1em" /> <!--  HIRAGANA LETTER SO -->
+      <map code="0x305E" name="1em" /> <!--  HIRAGANA LETTER ZO -->
+      <map code="0x305F" name="1em" /> <!--  HIRAGANA LETTER TA -->
+      <map code="0x3060" name="1em" /> <!--  HIRAGANA LETTER DA -->
+      <map code="0x3061" name="1em" /> <!--  HIRAGANA LETTER TI -->
+      <map code="0x3062" name="1em" /> <!--  HIRAGANA LETTER DI -->
+      <map code="0x3063" name="1em" /> <!--  HIRAGANA LETTER SMALL TU -->
+      <map code="0x3064" name="1em" /> <!--  HIRAGANA LETTER TU -->
+      <map code="0x3065" name="1em" /> <!--  HIRAGANA LETTER DU -->
+      <map code="0x3066" name="1em" /> <!--  HIRAGANA LETTER TE -->
+      <map code="0x3067" name="1em" /> <!--  HIRAGANA LETTER DE -->
+      <map code="0x3068" name="1em" /> <!--  HIRAGANA LETTER TO -->
+      <map code="0x3069" name="1em" /> <!--  HIRAGANA LETTER DO -->
+      <map code="0x306A" name="1em" /> <!--  HIRAGANA LETTER NA -->
+      <map code="0x306B" name="1em" /> <!--  HIRAGANA LETTER NI -->
+      <map code="0x306C" name="1em" /> <!--  HIRAGANA LETTER NU -->
+      <map code="0x306D" name="1em" /> <!--  HIRAGANA LETTER NE -->
+      <map code="0x306E" name="1em" /> <!--  HIRAGANA LETTER NO -->
+      <map code="0x306F" name="1em" /> <!--  HIRAGANA LETTER HA -->
+      <map code="0x3070" name="1em" /> <!--  HIRAGANA LETTER BA -->
+      <map code="0x3071" name="1em" /> <!--  HIRAGANA LETTER PA -->
+      <map code="0x3072" name="1em" /> <!--  HIRAGANA LETTER HI -->
+      <map code="0x3073" name="1em" /> <!--  HIRAGANA LETTER BI -->
+      <map code="0x3074" name="1em" /> <!--  HIRAGANA LETTER PI -->
+      <map code="0x3075" name="1em" /> <!--  HIRAGANA LETTER HU -->
+      <map code="0x3076" name="1em" /> <!--  HIRAGANA LETTER BU -->
+      <map code="0x3077" name="1em" /> <!--  HIRAGANA LETTER PU -->
+      <map code="0x3078" name="1em" /> <!--  HIRAGANA LETTER HE -->
+      <map code="0x3079" name="1em" /> <!--  HIRAGANA LETTER BE -->
+      <map code="0x307A" name="1em" /> <!--  HIRAGANA LETTER PE -->
+      <map code="0x307B" name="1em" /> <!--  HIRAGANA LETTER HO -->
+      <map code="0x307C" name="1em" /> <!--  HIRAGANA LETTER BO -->
+      <map code="0x307D" name="1em" /> <!--  HIRAGANA LETTER PO -->
+      <map code="0x307E" name="1em" /> <!--  HIRAGANA LETTER MA -->
+      <map code="0x307F" name="1em" /> <!--  HIRAGANA LETTER MI -->
+      <map code="0x3080" name="1em" /> <!--  HIRAGANA LETTER MU -->
+      <map code="0x3081" name="1em" /> <!--  HIRAGANA LETTER ME -->
+      <map code="0x3082" name="1em" /> <!--  HIRAGANA LETTER MO -->
+      <map code="0x3083" name="1em" /> <!--  HIRAGANA LETTER SMALL YA -->
+      <map code="0x3084" name="1em" /> <!--  HIRAGANA LETTER YA -->
+      <map code="0x3085" name="1em" /> <!--  HIRAGANA LETTER SMALL YU -->
+      <map code="0x3086" name="1em" /> <!--  HIRAGANA LETTER YU -->
+      <map code="0x3087" name="1em" /> <!--  HIRAGANA LETTER SMALL YO -->
+      <map code="0x3088" name="1em" /> <!--  HIRAGANA LETTER YO -->
+      <map code="0x3089" name="1em" /> <!--  HIRAGANA LETTER RA -->
+      <map code="0x308A" name="1em" /> <!--  HIRAGANA LETTER RI -->
+      <map code="0x308B" name="1em" /> <!--  HIRAGANA LETTER RU -->
+      <map code="0x308C" name="1em" /> <!--  HIRAGANA LETTER RE -->
+      <map code="0x308D" name="1em" /> <!--  HIRAGANA LETTER RO -->
+      <map code="0x308E" name="1em" /> <!--  HIRAGANA LETTER SMALL WA -->
+      <map code="0x308F" name="1em" /> <!--  HIRAGANA LETTER WA -->
+      <map code="0x3090" name="1em" /> <!--  HIRAGANA LETTER WI -->
+      <map code="0x3091" name="1em" /> <!--  HIRAGANA LETTER WE -->
+      <map code="0x3092" name="1em" /> <!--  HIRAGANA LETTER WO -->
+      <map code="0x3093" name="1em" /> <!--  HIRAGANA LETTER N -->
+      <map code="0x3094" name="1em" /> <!--  HIRAGANA LETTER VU -->
+      <map code="0x3095" name="1em" /> <!--  HIRAGANA LETTER SMALL KA -->
+      <map code="0x3096" name="1em" /> <!--  HIRAGANA LETTER SMALL KE -->
+      <map code="0x3099" name="1em" /> <!--  COMBINING KATAKANA-HIRAGANA VOICED SOUND MARK -->
+      <map code="0x309A" name="1em" /> <!--  COMBINING KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK -->
+      <map code="0x309B" name="1em" /> <!--  KATAKANA-HIRAGANA VOICED SOUND MARK -->
+      <map code="0x309C" name="1em" /> <!--  KATAKANA-HIRAGANA SEMI-VOICED SOUND MARK -->
+      <map code="0x309D" name="1em" /> <!--  HIRAGANA ITERATION MARK -->
+      <map code="0x309E" name="1em" /> <!--  HIRAGANA VOICED ITERATION MARK -->
+      <map code="0x309F" name="1em" /> <!--  HIRAGANA DIGRAPH YORI -->
+
+      <!-- All Hiragana Ltters -->
+      <map code="0x30A0" name="1em" /> <!--  KATAKANA-HIRAGANA DOUBLE HYPHEN -->
+      <map code="0x30A1" name="1em" /> <!--  KATAKANA LETTER SMALL A -->
+      <map code="0x30A2" name="1em" /> <!--  KATAKANA LETTER A -->
+      <map code="0x30A3" name="1em" /> <!--  KATAKANA LETTER SMALL I -->
+      <map code="0x30A4" name="1em" /> <!--  KATAKANA LETTER I -->
+      <map code="0x30A5" name="1em" /> <!--  KATAKANA LETTER SMALL U -->
+      <map code="0x30A6" name="1em" /> <!--  KATAKANA LETTER U -->
+      <map code="0x30A7" name="1em" /> <!--  KATAKANA LETTER SMALL E -->
+      <map code="0x30A8" name="1em" /> <!--  KATAKANA LETTER E -->
+      <map code="0x30A9" name="1em" /> <!--  KATAKANA LETTER SMALL O -->
+      <map code="0x30AA" name="1em" /> <!--  KATAKANA LETTER O -->
+      <map code="0x30AB" name="1em" /> <!--  KATAKANA LETTER KA -->
+      <map code="0x30AC" name="1em" /> <!--  KATAKANA LETTER GA -->
+      <map code="0x30AD" name="1em" /> <!--  KATAKANA LETTER KI -->
+      <map code="0x30AE" name="1em" /> <!--  KATAKANA LETTER GI -->
+      <map code="0x30AF" name="1em" /> <!--  KATAKANA LETTER KU -->
+      <map code="0x30B0" name="1em" /> <!--  KATAKANA LETTER GU -->
+      <map code="0x30B1" name="1em" /> <!--  KATAKANA LETTER KE -->
+      <map code="0x30B2" name="1em" /> <!--  KATAKANA LETTER GE -->
+      <map code="0x30B3" name="1em" /> <!--  KATAKANA LETTER KO -->
+      <map code="0x30B4" name="1em" /> <!--  KATAKANA LETTER GO -->
+      <map code="0x30B5" name="1em" /> <!--  KATAKANA LETTER SA -->
+      <map code="0x30B6" name="1em" /> <!--  KATAKANA LETTER ZA -->
+      <map code="0x30B7" name="1em" /> <!--  KATAKANA LETTER SI -->
+      <map code="0x30B8" name="1em" /> <!--  KATAKANA LETTER ZI -->
+      <map code="0x30B9" name="1em" /> <!--  KATAKANA LETTER SU -->
+      <map code="0x30BA" name="1em" /> <!--  KATAKANA LETTER ZU -->
+      <map code="0x30BB" name="1em" /> <!--  KATAKANA LETTER SE -->
+      <map code="0x30BC" name="1em" /> <!--  KATAKANA LETTER ZE -->
+      <map code="0x30BD" name="1em" /> <!--  KATAKANA LETTER SO -->
+      <map code="0x30BE" name="1em" /> <!--  KATAKANA LETTER ZO -->
+      <map code="0x30BF" name="1em" /> <!--  KATAKANA LETTER TA -->
+      <map code="0x30C0" name="1em" /> <!--  KATAKANA LETTER DA -->
+      <map code="0x30C1" name="1em" /> <!--  KATAKANA LETTER TI -->
+      <map code="0x30C2" name="1em" /> <!--  KATAKANA LETTER DI -->
+      <map code="0x30C3" name="1em" /> <!--  KATAKANA LETTER SMALL TU -->
+      <map code="0x30C4" name="1em" /> <!--  KATAKANA LETTER TU -->
+      <map code="0x30C5" name="1em" /> <!--  KATAKANA LETTER DU -->
+      <map code="0x30C6" name="1em" /> <!--  KATAKANA LETTER TE -->
+      <map code="0x30C7" name="1em" /> <!--  KATAKANA LETTER DE -->
+      <map code="0x30C8" name="1em" /> <!--  KATAKANA LETTER TO -->
+      <map code="0x30C9" name="1em" /> <!--  KATAKANA LETTER DO -->
+      <map code="0x30CA" name="1em" /> <!--  KATAKANA LETTER NA -->
+      <map code="0x30CB" name="1em" /> <!--  KATAKANA LETTER NI -->
+      <map code="0x30CC" name="1em" /> <!--  KATAKANA LETTER NU -->
+      <map code="0x30CD" name="1em" /> <!--  KATAKANA LETTER NE -->
+      <map code="0x30CE" name="1em" /> <!--  KATAKANA LETTER NO -->
+      <map code="0x30CF" name="1em" /> <!--  KATAKANA LETTER HA -->
+      <map code="0x30D0" name="1em" /> <!--  KATAKANA LETTER BA -->
+      <map code="0x30D1" name="1em" /> <!--  KATAKANA LETTER PA -->
+      <map code="0x30D2" name="1em" /> <!--  KATAKANA LETTER HI -->
+      <map code="0x30D3" name="1em" /> <!--  KATAKANA LETTER BI -->
+      <map code="0x30D4" name="1em" /> <!--  KATAKANA LETTER PI -->
+      <map code="0x30D5" name="1em" /> <!--  KATAKANA LETTER HU -->
+      <map code="0x30D6" name="1em" /> <!--  KATAKANA LETTER BU -->
+      <map code="0x30D7" name="1em" /> <!--  KATAKANA LETTER PU -->
+      <map code="0x30D8" name="1em" /> <!--  KATAKANA LETTER HE -->
+      <map code="0x30D9" name="1em" /> <!--  KATAKANA LETTER BE -->
+      <map code="0x30DA" name="1em" /> <!--  KATAKANA LETTER PE -->
+      <map code="0x30DB" name="1em" /> <!--  KATAKANA LETTER HO -->
+      <map code="0x30DC" name="1em" /> <!--  KATAKANA LETTER BO -->
+      <map code="0x30DD" name="1em" /> <!--  KATAKANA LETTER PO -->
+      <map code="0x30DE" name="1em" /> <!--  KATAKANA LETTER MA -->
+      <map code="0x30DF" name="1em" /> <!--  KATAKANA LETTER MI -->
+      <map code="0x30E0" name="1em" /> <!--  KATAKANA LETTER MU -->
+      <map code="0x30E1" name="1em" /> <!--  KATAKANA LETTER ME -->
+      <map code="0x30E2" name="1em" /> <!--  KATAKANA LETTER MO -->
+      <map code="0x30E3" name="1em" /> <!--  KATAKANA LETTER SMALL YA -->
+      <map code="0x30E4" name="1em" /> <!--  KATAKANA LETTER YA -->
+      <map code="0x30E5" name="1em" /> <!--  KATAKANA LETTER SMALL YU -->
+      <map code="0x30E6" name="1em" /> <!--  KATAKANA LETTER YU -->
+      <map code="0x30E7" name="1em" /> <!--  KATAKANA LETTER SMALL YO -->
+      <map code="0x30E8" name="1em" /> <!--  KATAKANA LETTER YO -->
+      <map code="0x30E9" name="1em" /> <!--  KATAKANA LETTER RA -->
+      <map code="0x30EA" name="1em" /> <!--  KATAKANA LETTER RI -->
+      <map code="0x30EB" name="1em" /> <!--  KATAKANA LETTER RU -->
+      <map code="0x30EC" name="1em" /> <!--  KATAKANA LETTER RE -->
+      <map code="0x30ED" name="1em" /> <!--  KATAKANA LETTER RO -->
+      <map code="0x30EE" name="1em" /> <!--  KATAKANA LETTER SMALL WA -->
+      <map code="0x30EF" name="1em" /> <!--  KATAKANA LETTER WA -->
+      <map code="0x30F0" name="1em" /> <!--  KATAKANA LETTER WI -->
+      <map code="0x30F1" name="1em" /> <!--  KATAKANA LETTER WE -->
+      <map code="0x30F2" name="1em" /> <!--  KATAKANA LETTER WO -->
+      <map code="0x30F3" name="1em" /> <!--  KATAKANA LETTER N -->
+      <map code="0x30F4" name="1em" /> <!--  KATAKANA LETTER VU -->
+      <map code="0x30F5" name="1em" /> <!--  KATAKANA LETTER SMALL KA -->
+      <map code="0x30F6" name="1em" /> <!--  KATAKANA LETTER SMALL KE -->
+      <map code="0x30F7" name="1em" /> <!--  KATAKANA LETTER VA -->
+      <map code="0x30F8" name="1em" /> <!--  KATAKANA LETTER VI -->
+      <map code="0x30F9" name="1em" /> <!--  KATAKANA LETTER VE -->
+      <map code="0x30FA" name="1em" /> <!--  KATAKANA LETTER VO -->
+      <map code="0x30FB" name="1em" /> <!--  KATAKANA MIDDLE DOT -->
+      <map code="0x30FC" name="1em" /> <!--  KATAKANA-HIRAGANA PROLONGED SOUND MARK -->
+      <map code="0x30FD" name="1em" /> <!--  KATAKANA ITERATION MARK -->
+      <map code="0x30FE" name="1em" /> <!--  KATAKANA VOICED ITERATION MARK -->
+      <map code="0x30FF" name="1em" /> <!--  KATAKANA DIGRAPH KOTO -->
+
+      <!-- Random Han characters used for testing -->
+      <map code="0x5929" name="1em" /> <!--  天 -->
+      <map code="0x65E5" name="1em" /> <!--  日 -->
+      <map code="0x6674" name="1em" /> <!--  晴 -->
+      <map code="0x672C" name="1em" /> <!--  本 -->
+
+    </cmap_format_12>
+  </cmap>
+
+  <loca>
+    <!-- The 'loca' table will be calculated by the compiler -->
+  </loca>
+
+  <glyf>
+    <TTGlyph name=".notdef" xMin="0" yMin="0" xMax="0" yMax="0" />
+    <TTGlyph name="1em" xMin="0" yMin="0" xMax="100" yMax="100">
+        <contour>
+            <pt x="0" y="0" on="1" />
+            <pt x="100" y="0" on="1" />
+            <pt x="100" y="100" on="1" />
+            <pt x="0" y="100" on="1" />
+        </contour>
+        <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+  </glyf>
+
+  <name>
+    <namerecord nameID="1" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Font for Hiragana
+    </namerecord>
+    <namerecord nameID="2" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Regular
+    </namerecord>
+    <namerecord nameID="4" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      Font for Hiragana
+    </namerecord>
+    <namerecord nameID="6" platformID="1" platEncID="0" langID="0x0" unicode="True">
+      SampleFont-Regular
+    </namerecord>
+    <namerecord nameID="1" platformID="3" platEncID="1" langID="0x409">
+      Sample Font
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x409">
+      Regular
+    </namerecord>
+    <namerecord nameID="4" platformID="3" platEncID="1" langID="0x409">
+      Sample Font
+    </namerecord>
+    <namerecord nameID="6" platformID="3" platEncID="1" langID="0x409">
+      SampleFont-Regular
+    </namerecord>
+  </name>
+
+  <post>
+    <formatType value="3.0"/>
+    <italicAngle value="0.0"/>
+    <underlinePosition value="-75"/>
+    <underlineThickness value="50"/>
+    <isFixedPitch value="0"/>
+    <minMemType42 value="0"/>
+    <maxMemType42 value="0"/>
+    <minMemType1 value="0"/>
+    <maxMemType1 value="0"/>
+  </post>
+
+</ttFont>

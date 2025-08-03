@@ -1,0 +1,108 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+aidl_interface {
+    name: "android.hardware.health",
+    vendor_available: true,
+    recovery_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/health/*.aidl"],
+    stability: "vintf",
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            enabled: true,
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+        {
+            version: "2",
+            imports: [],
+        },
+        {
+            version: "3",
+            imports: [],
+        },
+
+    ],
+    frozen: true,
+
+}
+
+cc_defaults {
+    name: "android.hardware.health-translate-ndk_defaults",
+    vendor_available: true,
+    recovery_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/health/translate-ndk.cpp"],
+    shared_libs: [
+        "libbinder_ndk",
+        "libhidlbase",
+        "android.hardware.health@2.0",
+        "android.hardware.health@2.1",
+    ],
+    export_include_dirs: ["include"],
+    export_shared_lib_headers: [
+        "android.hardware.health@2.0",
+        "android.hardware.health@2.1",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_library {
+    name: "android.hardware.health-translate-ndk",
+    defaults: ["android.hardware.health-translate-ndk_defaults"],
+    shared_libs: [
+        "android.hardware.health-V3-ndk",
+    ],
+}
+
+// TODO(b/251425963): remove when android.hardware.health is upgraded to V2.
+cc_library {
+    name: "android.hardware.health-translate-V1-ndk",
+    defaults: ["android.hardware.health-translate-ndk_defaults"],
+    shared_libs: [
+        "android.hardware.health-V1-ndk",
+    ],
+}
+
+java_library {
+    name: "android.hardware.health-translate-java",
+    srcs: ["android/hardware/health/Translate.java"],
+    libs: [
+        "android.hardware.health-V3-java",
+        "android.hardware.health-V2.0-java",
+        "android.hardware.health-V2.1-java",
+    ],
+}

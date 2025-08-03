@@ -1,0 +1,278 @@
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_defaults {
+    name: "libaaudio_tests_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    sanitize: {
+        integer_overflow: true,
+        misc_undefined: ["bounds"],
+    },
+}
+
+cc_test {
+    name: "test_aaudio_marshalling",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_marshalling.cpp"],
+    shared_libs: [
+        "aaudio-aidl-cpp",
+        "libaaudio_internal",
+        "libbinder",
+        "libcutils",
+        "libutils",
+        "shared-file-region-aidl-cpp",
+    ],
+}
+
+cc_test {
+    name: "test_clock_model",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_clock_model.cpp"],
+    shared_libs: [
+        "libaaudio_internal",
+        "libaudioutils",
+        "libcutils",
+        "libutils",
+    ],
+}
+
+cc_test {
+    name: "test_block_adapter",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_block_adapter.cpp"],
+    shared_libs: ["libaaudio_internal"],
+}
+
+cc_binary {
+    name: "test_timestamps",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_timestamps.cpp"],
+    header_libs: ["libaaudio_example_utils"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_open_params",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_open_params.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_binary {
+    name: "test_no_close",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_no_close.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_binary {
+    name: "test_aaudio_recovery",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_recovery.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_binary {
+    name: "test_n_streams",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_n_streams.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_binary {
+    name: "test_bad_disconnect",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_bad_disconnect.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_various",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_various.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_session_id",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_session_id.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_binary {
+    name: "test_aaudio_monkey",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_aaudio_monkey.cpp"],
+    header_libs: ["libaaudio_example_utils"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_attributes",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_attributes.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_interference",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_interference.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_atomic_fifo",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_atomic_fifo.cpp"],
+    shared_libs: ["libaaudio_internal"],
+}
+
+cc_test {
+    name: "test_flowgraph",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_flowgraph.cpp"],
+    shared_libs: [
+        "libaaudio_internal",
+        "libaudioutils",
+        "libbinder",
+        "libcutils",
+        "libutils",
+    ],
+}
+
+cc_test {
+    name: "test_monotonic_counter",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_monotonic_counter.cpp"],
+    shared_libs: [
+        "libaaudio_internal",
+        "libbinder",
+        "libcutils",
+        "libutils",
+    ],
+}
+
+cc_binary {
+    name: "test_return_stop",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_return_stop.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_callback_race",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_callback_race.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_full_queue",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_full_queue.cpp"],
+    shared_libs: [
+        "libaaudio",
+        "liblog",
+    ],
+}
+
+cc_test {
+    name: "test_histogram",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_histogram.cpp"],
+    shared_libs: [
+        "libaudioutils",
+        "libcutils",
+        "libutils",
+    ],
+}
+
+cc_binary {
+    name: "test_steal_exclusive",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_steal_exclusive.cpp"],
+    shared_libs: [
+        "libaaudio",
+        "liblog",
+        "libbinder",
+        "libcutils",
+        "libutils",
+    ],
+}
+
+cc_binary {
+    name: "test_disconnect_race",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_disconnect_race.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "aaudio_test_mmap_path",
+    defaults: [
+        "libaaudio_tests_defaults",
+    ],
+    srcs: ["test_mmap_path.cpp"],
+    shared_libs: [
+        "libaaudio",
+        "libaaudio_internal",
+        "libaudioclient",
+        "liblog",
+    ],
+}
+
+cc_test {
+    name: "test_resampler",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_resampler.cpp"],
+    shared_libs: [
+        "libaaudio_internal",
+    ],
+}
+
+cc_binary {
+    name: "test_idle_disconnected_shared_stream",
+    defaults: ["libaaudio_tests_defaults"],
+    srcs: ["test_idle_disconnected_shared_stream.cpp"],
+    shared_libs: ["libaaudio"],
+}
+
+cc_test {
+    name: "test_multiple_close_simultaneously",
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_shared",
+        "libaaudio_tests_defaults",
+    ],
+    srcs: ["test_multiple_close_simultaneously.cpp"],
+    shared_libs: [
+        "aaudio-aidl-cpp",
+        "framework-permission-aidl-cpp",
+        "libaaudio",
+        "libbinder",
+        "liblog",
+        "libutils",
+    ],
+    // This test will run 1 minute to ensure there is no crash happen.
+    // In that case, set the timeout as 2 minutes to allow the test to complete.
+    test_options: {
+        test_runner_options: [
+            {
+                name: "native-test-timeout",
+                value: "2m",
+            },
+        ],
+    },
+}

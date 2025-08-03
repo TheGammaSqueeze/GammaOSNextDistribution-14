@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Device repositories that can be translated -->
+  <project path="device/oneplus/sm8150-common" name="LineageOS/android_device_oneplus_sm8150-common" revision="lineage-20" />
+
+  <project path="hardware/lge" name="LineageOS/android_hardware_lge" revision="lineage-20" />
+  <project path="hardware/mediatek" name="LineageOS/android_hardware_mediatek" revision="lineage-20" />
+  <project path="hardware/nothing" name="LineageOS/android_hardware_nothing" revision="lineage-20" />
+  <project path="hardware/oneplus" name="LineageOS/android_hardware_oneplus" revision="lineage-20" />
+  <project path="hardware/oplus" name="LineageOS/android_hardware_oplus" revision="lineage-20" />
+  <project path="hardware/samsung" name="LineageOS/android_hardware_samsung" revision="lineage-20" />
+  <project path="hardware/sony/SonyOpenTelephony" name="LineageOS/android_hardware_sony_SonyOpenTelephony" revision="lineage-20" />
+
+  <project path="packages/apps/ElmyraService" name="LineageOS/android_packages_apps_ElmyraService" />
+</manifest>

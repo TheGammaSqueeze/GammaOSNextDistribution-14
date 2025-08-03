@@ -1,0 +1,113 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.ike;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/stats/ike/ike.proto";
+
+option java_package = "com.android.os.ike";
+option java_multiple_files = true;
+
+extend Atom {
+    optional IkeSessionTerminated ike_session_terminated = 678 [(module) = "ike"];
+    optional IkeLivenessCheckSessionValidated ike_liveness_check_session_validated =
+            760 [(module) = "ike"];
+    optional NegotiatedSecurityAssociation negotiated_security_association =
+            821 [(module) = "ike"];
+}
+
+/**
+ * Log that the session is terminated
+ */
+message IkeSessionTerminated {
+    // Indicates the client of the IKE library
+    optional android.stats.ike.IkeCaller ike_caller = 1;
+
+    // Indicates whether the termination is on an IKE Session or a Child Session.
+    // If the Child Session is terminated due to IKE Session closure, no atom
+    // will be generated
+    optional android.stats.ike.SessionType session_type = 2;
+
+    // Represents the state when the session is terminated
+    optional android.stats.ike.IkeState ike_state = 3;
+
+    // Indicates the error that causes the session termination or ERROR_NONE if
+    // no error has occurred
+    optional android.stats.ike.IkeError ike_error = 4;
+}
+
+message IkeLivenessCheckSessionValidated {
+
+    // Identity of system callers.
+    optional android.stats.ike.IkeCaller ike_caller = 1;
+
+    // To determine task at which liveness check was initiated.
+    // Deprecated: use IkeState instead to use more precise IKE state
+    optional android.stats.ike.IkeTask ike_task = 2 [deprecated = true];
+
+    // Underlying network type that checked the Liveness.
+    optional android.stats.ike.IkeUnderlyingNetworkType ike_underlying_network_type = 3;
+
+    // Elapsed time in milliseconds from Started to end of liveness check
+    // (From Started to Success or Failure)
+    optional int32 elapsed_time_in_millis = 4;
+
+    // Number of times client invoked liveness check api during ongoing task.
+    optional int32 number_of_on_going_status = 5;
+
+    // True if the Liveness check is successful. False if the Liveness check is failed.
+    optional bool result_success = 6;
+
+    // To determine the state at which liveness check was initiated.
+    optional android.stats.ike.IkeState ike_state = 7;
+}
+
+/**
+ * Log that the IKE or Child session SA negotiated or failed
+ */
+message NegotiatedSecurityAssociation {
+    /** Calling module IWLAN or VPN or VCN */
+    optional android.stats.ike.IkeCaller ike_caller = 1;
+
+    /** IKE session or Child session */
+    optional android.stats.ike.SessionType session_type = 2;
+
+    /** Initial session setup or Rekey session */
+    optional android.stats.ike.SessionState session_state = 3;
+
+    /** negotiated DH-Groups */
+    optional android.stats.ike.DhGroups dh_group = 4;
+
+    /** negotiated encryption algorithms */
+    optional android.stats.ike.EncryptionAlgorithms encryption_algorithm = 5;
+
+    /** negotiated encryption algorithms key length */
+    optional android.stats.ike.KeyLengths key_length = 6;
+
+    /** negotiated integrity algorithms */
+    optional android.stats.ike.IntegrityAlgorithms integrity_algorithm = 7;
+
+    /** negotiated Prf algorithms */
+    optional android.stats.ike.PrfAlgorithms prf_algorithms = 8;
+
+    /** negotiation failures */
+    optional android.stats.ike.IkeError ike_error = 9;
+}
+

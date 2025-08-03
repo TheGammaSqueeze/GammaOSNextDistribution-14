@@ -1,0 +1,13 @@
+{
+    "presubmit": [
+        {
+            "file_patterns": ["(/|^)platform.xml"],
+            "name": "CtsPermissionPolicyTestCases",
+            "options": [
+                {
+                    "include-filter": "android.permissionpolicy.cts.RuntimePermissionProperties"
+                }
+            ]
+        }
+    ]
+}

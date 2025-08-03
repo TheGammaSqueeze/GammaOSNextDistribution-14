@@ -1,0 +1,37 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_google_gfxstream_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-ISC
+    //   SPDX-license-identifier-MIT
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_notice
+    //   legacy_unencumbered
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_static {
+    name: "libgfxstream_host_apigen_codec_common",
+    defaults: ["gfxstream_defaults"],
+    static_libs: [
+        "gfxstream_base",
+        "gfxstream_host_common",
+    ],
+    cflags: ["-fvisibility=hidden"],
+    export_include_dirs: ["."],
+    srcs: [
+        "ChecksumCalculator.cpp",
+        "ChecksumCalculatorThreadInfo.cpp",
+        "glUtils.cpp",
+    ],
+    target: {
+        host: {
+            srcs: ["X11Support.cpp"],
+        },
+    },
+}

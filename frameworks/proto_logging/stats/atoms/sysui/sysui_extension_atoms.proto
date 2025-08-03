@@ -1,0 +1,177 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.sysui;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/telephony/enums.proto";
+import "frameworks/proto_logging/stats/enums/os/enums.proto";
+
+extend Atom {
+  optional LockscreenShortcutSelected lockscreen_shortcut_selected = 611 [(module) = "sysui"];
+  optional LockscreenShortcutTriggered lockscreen_shortcut_triggered = 612 [(module) = "sysui"];
+  optional LauncherImpressionEventV2 launcher_impression_event_v2 = 716 [(module) = "sysui"];
+  optional DisplaySwitchLatencyTracked display_switch_latency_tracked = 753 [(module) = "sysui"];
+}
+
+/**
+ * Pushes when a lockscreen shortcut is selected
+ *
+ * Logged From:
+ *    frameworks/base/packages/SystemUI/src/com/android/systemui/keyguard/shared/quickaffordance/KeyguardQuickAffordancesMetricsLogger.kt
+ */
+message LockscreenShortcutSelected {
+  // Id of the shortcut slot
+  optional string slot_id = 1;
+
+  // Id of the lockscreen shortcut
+  optional string affordance_id = 2;
+}
+
+/**
+ * Pushes when a lockscreen shortcut is triggered
+ *
+ * Logged From:
+ *    frameworks/base/packages/SystemUI/src/com/android/systemui/keyguard/shared/quickaffordance/KeyguardQuickAffordancesMetricsLogger.kt
+ */
+message LockscreenShortcutTriggered {
+  // Id of the shortcut slot
+  optional string slot_id = 1;
+
+  // Id of the lockscreen shortcut
+  optional string affordance_id = 2;
+}
+
+/**
+ * Logs for Launcher Impression logging version2.
+ *
+ * Logged from:
+ *      vendor/unbundled_google/packages/NexusLauncher/src/com/google/android/apps/nexuslauncher/logging/SearchImpressionLogManager.java
+ *
+ * Next Tag: 9
+ */
+message LauncherImpressionEventV2 {
+    // The event id generated from go/uievents
+    optional int32 event_id = 1;
+    // The instance id to track multiple partial impression event.
+    optional int32 instance_id = 2;
+
+    // The state defines the surface where the impression is being logged.
+    optional int32 state = 3;
+    optional int32 query_length = 4 [default = -1];
+
+    // ResultType of the search result as defined in vendor/unbundled_google/libraries/searchuilib/src/com/android/app/search/ResultType.java
+    optional int32 result_type = 5;
+
+    // True if at least 50% of the item is not hidden (ex: hidden behind the keyboard).
+    optional bool is_visible = 6;
+
+    // https://developer.android.com/reference/android/os/Process#INVALID_UID
+    // The default value of uid entry will be -1 to indicate package name
+    // doesn't match any of the installed apps. So assign the default value of UID to -1.
+    optional int32 uid = 7 [(is_uid) = true];
+
+    // The result source of the search result as defined in vendor/unbundled_google/libraries/searchuilib/src/com/android/app/search/SearchTargetExtras.java
+    optional int32 result_source = 8;
+}
+
+/**
+ * Logs for Display Switch Latency Tracking.
+ *
+ * Next Tag: 22
+*/
+message DisplaySwitchLatencyTracked {
+
+    // Latency tracked between device state change is received in SysUI and the switched display
+    // being unblocked and turned on (onScreenTurnedOn received in sysui from power manager)
+    optional int32 latency_ms = 1;
+
+    // The state of device before the Display Switch event.
+    // This field defines the fold-state of the device.
+    optional android.telephony.FoldState from_foldable_device_state = 2;
+    // This field provides additional information about device state
+    optional StateEnum from_state = 3;
+    // This field will store the uid of the top running task(app only).
+    optional int32 from_focused_app_uid = 4 [(is_uid) = true];
+    // This field will have the uid of the app being used in picture-in-picture mode. The value
+    // will be -1 if no picture-in-picture is ongoing*/
+    optional int32 from_pip_app_uid = 5 [(is_uid) = true];
+    // At the moment of Display Switch if screen_state is equal to
+    // SPLIT_SCREEN_APPS/ OVERVIEW/ FREEFORM_APPS or pip_app_uid is not -1, then this field will
+    // store the uids of apps present in split-screen mode.
+    repeated int32 from_visible_apps_uid = 6 [(is_uid) = true];
+    // Density of the display for the device being tracked in dpi.
+    optional int32 from_density_dpi = 7;
+
+    // The state of the device after the Display Switch event.
+    optional StateEnum to_state = 8;
+    optional android.telephony.FoldState to_foldable_device_state = 9;
+    optional int32 to_focused_app_uid = 10 [(is_uid) = true];
+    optional int32 to_pip_app_uid = 11 [(is_uid) = true];
+    repeated int32 to_visible_apps_uid = 12 [(is_uid) = true];
+    optional int32 to_density_dpi = 13;
+
+    // Additional data useful for analyzing latency issues
+    // Total number of notifications present in Notification panel during Display Switch event.
+    optional int32 notification_count = 14;
+    // Number of TYPE_EXTERNAL displays at the moment of Display Switch.
+    optional int32 external_display_count = 15;
+    // Throttling level at the moment of Display Switch provided by thermal api.
+    optional android.os.ThrottlingSeverityEnum throttling_level = 16;
+    // Virtual-skin temperature in Celsius of the device at the moment of Display Switch.
+    optional int32 vskin_temperature_c = 17;
+
+    // Fields tracking time elapsed between relevant events in milliseconds. Default values of
+    // below fields will be -1 in case they are not tracked.
+    // The time elapsed between the hall sensor unfold event and the first hinge angle event.
+    optional int32 hall_sensor_to_first_hinge_angle_change_ms = 18;
+    // The time elapsed between the hall sensor unfold/fold event and the device state change
+    // event.
+    optional int32 hall_sensor_to_device_state_change_ms = 19;
+    // The time elapsed between the onScreenTurningOn call and the onDrawn callback in SystemUI.
+    optional int32 onscreenturningon_to_ondrawn_ms = 20;
+    // The time elapsed between the onDrawn callback and the onScreenTurnedOn call in SystemUI.
+    optional int32 ondrawn_to_onscreenturnedon_ms = 21;
+
+    enum StateEnum {
+      // The device is in none of the above mentioned states.
+      UNKNOWN = 0;
+      // When the device is sleeping with AOD enabled (Always on display).
+      AOD = 1;
+      // Device folded/unfolded when on lockscreen.
+      LOCKSCREEN = 2;
+      // Notification shade is open currently.
+      NOTIFICATION_SHADE = 3;
+      // When an app is being used in full-screen mode.
+      FULL_SCREEN_APP = 4;
+      // When 2 apps are being used in split-screen mode.
+      SPLIT_SCREEN_APPS = 5;
+      // Launcher app is being displayed currently.
+      LAUNCHER = 6;
+      // Overview/Recent apps screen is being displayed on the screen
+      // currently
+      OVERVIEW = 7;
+      // Freeform apps are currently being used, i.e. single or multiple apps are being
+      // displayed on screen in which the window size of each app is resizable.
+      FREEFORM_APPS = 8;
+      // Screen is off currently.
+      SCREEN_OFF = 9;
+    }
+
+}

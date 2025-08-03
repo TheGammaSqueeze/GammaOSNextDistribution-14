@@ -1,0 +1,37 @@
+architecture: arm64
+battery: {capacity: 4000, removable: False, tech: 'Li-Po'}
+bluetooth: {profiles: [A2DP], spec: '4.2'}
+cameras:
+  - {flash: 'LED', info: '12 MP'}
+  - {flash: 'LED', info: '2 MP'}
+  - {flash: None, info: '32 MP'}
+codename: onclite
+cpu: Kryo 250
+cpu_cores: '8'
+cpu_freq: 1.8 GHz
+current_branch: 21
+dimensions: {depth: 8.47, height: 158.73, width: 75.58}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the word "FASTBOOT" appears on the screen, then release.
+gpu: Qualcomm Adreno 506
+image: onclite_variant2.png
+install_method: fastboot_xiaomi
+kernel: {repo: android_kernel_xiaomi_onclite, version: '4.9'}
+maintainers: [Dhina17]
+name: Redmi Y3
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, Dual SIM, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, Gyroscope, IR blaster, Proximity sensor, USB OTG]
+ram: 3/4 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the "Redmi" logo appears on the screen, then release.
+recovery_partition_name: recovery
+release: 2019-04
+screen: {resolution: '1520x720', size: 6.26, technology: 'IPS LCD'}
+sdcard: {size_max: '512 GB'}
+soc: Qualcomm SDM632 Snapdragon 632
+storage: 32/64 GB
+tree: android_device_xiaomi_onclite
+type: phone
+variant: 2
+vendor: Xiaomi
+vendor_short: xiaomi
+versions: [17.1, 18.1, 19.1, 20, 21]
+wifi: 802.11 b/g/n

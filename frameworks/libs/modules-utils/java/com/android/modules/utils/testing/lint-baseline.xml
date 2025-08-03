@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 29): `new android.provider.DeviceConfig.Properties.Builder`"
+        errorLine1="        Properties.Builder builder = new Properties.Builder(namespace);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="frameworks/libs/modules-utils/java/com/android/modules/utils/testing/TestableDeviceConfig.java"
+            line="193"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 29): `android.provider.DeviceConfig.Properties.Builder#setString`"
+        errorLine1="            builder.setString(k, v);"
+        errorLine2="                    ~~~~~~~~~">
+        <location
+            file="frameworks/libs/modules-utils/java/com/android/modules/utils/testing/TestableDeviceConfig.java"
+            line="195"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 29): `android.provider.DeviceConfig.Properties.Builder#build`"
+        errorLine1="        Properties properties = spy(builder.build());"
+        errorLine2="                                            ~~~~~">
+        <location
+            file="frameworks/libs/modules-utils/java/com/android/modules/utils/testing/TestableDeviceConfig.java"
+            line="197"
+            column="45"/>
+    </issue>
+
+</issues>

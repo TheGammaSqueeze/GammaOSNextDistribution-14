@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.providers.mediaprovider;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.providers.mediaprovider";
+option java_multiple_files = true;
+
+extend Atom {
+
+    optional MediaProviderDatabaseRollbackReported media_provider_database_rollback_reported = 784 [(module) = "mediaprovider"];
+    optional BackupSetupStatusReported backup_setup_status_reported = 785 [(module) = "mediaprovider"];
+}
+
+/**
+ * Logs when MediaProvider goes through a DB rollback.
+ * Logged from:
+ *   packages/providers/MediaProvider/src/com/android/providers/media/DatabaseHelper.java
+ */
+message MediaProviderDatabaseRollbackReported {
+    enum Database {
+        UNKNOWN = 0;
+        INTERNAL = 1;
+        EXTERNAL = 2;
+    }
+
+    // DB name
+    optional Database database_name = 1;
+}
+
+message BackupSetupStatusReported {
+  enum Status {
+    UNKNOWN = 0;
+    ATTEMPTED = 1;
+    SUCCESS = 2;
+    FAILURE = 3;
+  }
+
+  // Backup status
+  optional Status status = 1;
+
+  enum Volume {
+    UNKNOWN_VOLUME = 0;
+    INTERNAL = 1;
+    EXTERNAL_PRIMARY = 2;
+    PUBLIC = 3;
+  }
+
+  // Volume for which status is captured
+  optional Volume volume = 2;
+}
+

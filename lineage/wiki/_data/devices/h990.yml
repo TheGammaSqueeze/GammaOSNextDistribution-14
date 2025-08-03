@@ -1,0 +1,40 @@
+architecture: arm64
+battery: {capacity: 3200, removable: True, tech: 'Li-Ion'}
+before_install: {instructions: 'needs_specific_android_fw', lineage_version: 18.1, version: '7.0'}
+bluetooth: {profiles: [A2DP + aptX HD], spec: '4.2'}
+cameras:
+  - {flash: 'LED', info: '16 MP'}
+  - {flash: 'LED', info: '8 MP'}
+  - {flash: None, info: '8 MP'}
+codename: h990
+cpu: Kryo
+cpu_cores: '4'
+cpu_freq: 2 x 2.15 GHz + 2 x 1.6 GHz
+current_branch: 21
+dimensions: {depth: 7.6, height: 159.7, width: 78.1}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+format_on_upgrade: fde
+gpu: Qualcomm Adreno 530
+image: v20.png
+install_method: fastboot_custom
+kernel: {repo: android_kernel_lge_msm8996, version: '4.4'}
+maintainers: []
+name: V20 (Global)
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Barometer, Color spectrum sensor, Compass, Dual SIM, FM radio, Fingerprint reader, GPS, Gyroscope, IR blaster, Light sensor, Mobility DisplayPort (MyDP), NFC, Proximity sensor, USB OTG]
+quirks: [fde, ims]
+ram: 4 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd> until the LG logo appears, then release <kbd>Power</kbd> for a second and hold it again until the recovery comes up.
+recovery_partition_name: recovery
+release: 2016-10
+screen: {resolution: '2560x1440', size: 5.7, technology: 'IPS LCD'}
+sdcard: {size_max: '2 TB'}
+soc: Qualcomm MSM8996 Snapdragon 820
+storage: 64 GB
+tree: android_device_lge_h990
+type: phone
+unlock_bootloader_guide: https://forum.xda-developers.com/v20/development/dirtysanta-h990-t3624296
+vendor: LG
+vendor_short: lge
+versions: [14.1, 17.1, 18.1, 19.1, 20, 21]
+wifi: 802.11 a/b/g/n/ac

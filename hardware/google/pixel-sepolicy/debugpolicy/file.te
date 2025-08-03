@@ -1,0 +1,2 @@
+# sysfs
+type sysfs_dpm, sysfs_type, fs_type; # dpm

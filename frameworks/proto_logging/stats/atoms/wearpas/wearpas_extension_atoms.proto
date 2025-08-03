@@ -1,0 +1,219 @@
+syntax = "proto2";
+
+package android.os.statsd.wearpas;
+
+option java_package = "com.android.os.wearpas";
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+extend Atom {
+  optional WearAdaptiveSuspendStatsReported wear_adaptive_suspend_stats_reported = 619 [(module) = "wearpas"];
+
+  optional WearPowerAnomalyServiceOperationalStatsReported wear_power_anomaly_service_operational_stats_reported = 620 [(module) = "wearpas"];
+
+  optional WearPowerAnomalyServiceEventStatsReported wear_power_anomaly_service_event_stats_reported = 621 [(module) = "wearpas"];
+}
+
+/**
+ * Logs cumulative stats about the Adaptive Suspend algorithm
+ */
+message WearAdaptiveSuspendStatsReported {
+  /* Elapsed time covered by the data in this interval */
+  optional int32 data_interval_millis = 1;
+
+  /* Number of suspend attempts during this interval */
+  optional int32 total_suspend_attempts = 2;
+
+  /**
+   * Number of suspend attempts that failed during this interval, a subset of
+   * total_suspend_attempts
+   */
+  optional int32 total_failed_suspends = 3;
+
+  /**
+   * Number of successful suspends with duration < configured break-even during
+   * this interval.
+   */
+  optional int32 total_short_suspends = 4;
+
+  /**
+   * Time spent in suspend with duration >= configured break-even,
+   * during this interval.
+   */
+  optional int32 time_suspended_long_millis = 5;
+
+  /**
+   * Time spent in suspend with duration < configured break-even,
+   * during this interval
+   */
+  optional int32 time_suspended_short_millis = 6;
+
+  /**
+   * The break-even time configured from the server based on local offline power
+   * testing.
+   */
+  optional int32 break_even_millis = 7;
+
+  /**
+   * Time spent doing suspend/resume work for all successful suspends during
+   * this interval, regardless of short vs long suspend duration.
+   */
+  optional int32 time_suspending_success_millis = 8;
+
+  /**
+   * Time spent doing suspend/resume work for all failed suspend attempts during
+   * this interval.
+   */
+  optional int32 time_suspending_fail_millis = 9;
+
+  /**
+   * Number of times suspend backoff started during this interval.
+   */
+  optional int32 new_backoffs = 10;
+
+  /**
+   * Number of times suspend backoff continued, either multiplying the backoff
+   * or remaining at the max backoff, during this interval.
+   */
+  optional int32 backoff_continuations = 11;
+
+  /**
+   * Time spent in backoff during this interval. i.e. Total of individual
+   * backoff durations, each of which is measured from the moment a "new
+   * backoff" is initiated to the time beginning of the successful suspend that
+   * causes backoff to end, which will be some time before the backoff is
+   * actually ended.
+   */
+  optional int32 time_backed_off_millis = 12;
+
+  /**
+   * A randomly selected suspend duration, to establish aggregate distributions
+   */
+  optional int32 sampled_suspend_duration_millis = 13;
+}
+
+/**
+ * Logs cumulative stats about the Power Anomaly Service
+ */
+message WearPowerAnomalyServiceOperationalStatsReported {
+  /* Duration of the monitoring operation */
+  optional int32 monitoring_duration_millis = 1;
+
+  /* Elapsed time between the start of the previous operation and this one */
+  optional int32 interval_duration_millis = 2;
+
+  /* Current flash storage size used by PAS */
+  optional int32 persist_size = 3;
+
+  /**
+   * 1 if PAS had to start from cold (i.e. perform initialization), 0 if it was
+   * still resident in memory from a previous operation. This is an int32 for
+   * cumulative metrics.
+   */
+  optional int32 cold_start = 4;
+
+  /* Number of data provider errors encountered */
+  optional int32 data_provider_error_count = 5;
+
+  /* Number of rule evaluation errors encountered */
+  optional int32 rule_evaluation_error_count = 6;
+
+  /* Number of reaction handling errors encountered */
+  optional int32 reaction_error_count = 7;
+
+  /**
+   * Number of infrastructure errors encountered (e.g. storage, cross-app comms,
+   * config access, etc)
+   */
+  optional int32 infrastructure_error_count = 8;
+
+  /**
+   * Total number of new anomalies detected during the just-completed operation
+   */
+  optional int32 new_anomaly_count = 9;
+
+  /**
+   * Total anomalies active at the end of the just-completed operation
+   * (including previously detected anomalies)
+   */
+  optional int32 active_anomaly_count = 10;
+}
+
+/**
+ * Logs event stats about the Power Anomaly Service
+ */
+message WearPowerAnomalyServiceEventStatsReported {
+  enum EntityType {
+    UNDEFINED = 0;
+    POWER_RAIL = 1;
+    SUBSYSTEM_RESIDENCY = 2;
+    KERNEL_SUSPEND = 3;
+    KERNEL_WAKE_REASON = 4;
+    CPU_TIME = 5;
+    KERNEL_WAKESOURCE = 6;
+    NATIVE_WAKELOCK = 7;
+    FRAMEWORK_WAKELOCK = 8;
+    COULOMB_COUNTER = 9;
+    NOTIFICATIONS = 10;
+    USAGE_SCALAR = 11;
+    USAGE_RESIDENCY = 12;
+    BLUETOOTH = 13;
+  }
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+
+    /**
+     * If the triggered anomaly rule does not have additional reactions beyond
+     * "WW stats" and "bugreport", this will be sent once upon detection.
+     */
+    NEW_NO_REACTIONS = 1;
+
+    /**
+     * If the triggered anomaly rule does have additional reactions, this will
+     * be sent once upon detection and be followed by one of
+     * {RESOLVED_POST_REACTIONS, UNRESOLVED_POST_REACTIONS}
+     */
+    NEW_REACTIONS_PENDING = 2;
+
+    /**
+     * Following an anomaly with additional reactions, this will be sent if the
+     * reactions have resolved the anomaly.
+     */
+    RESOLVED_POST_REACTIONS = 3;
+
+    /**
+     * Following an anomaly with additional reactions, this will be sent if the
+     * reactions have not resolved the anomaly.
+     */
+    UNRESOLVED_POST_REACTIONS = 4;
+
+    /**
+     * Following an anomaly with bugreport triggering enabled, this will be sent
+     * if a bugreport is actually triggered (e.g. if rate limiting allows).
+     */
+    BUGREPORT_TRIGGERED = 5;
+  }
+
+  /* Power entity type for which an anomaly was detected */
+  optional EntityType entity_type = 1;
+
+  /* Name of the power entity showing anomalous behavior */
+  optional string entity_name = 2;
+
+  /**
+   * Anomaly rule ID (from the PAS configuration rules distributed via
+   * Phenotype)
+   */
+  optional int32 rule_id = 3;
+
+  /**
+   * Resource ID (cross-device) for standard Google stock apps/resources
+   * (ONLY FACTORY GOOGLE FLASHED APPS). Mapping is stored server-side.
+   */
+  optional int32 resource_holder_id = 4;
+
+  /* The current status of the anomaly */
+  optional Status status = 5;
+}

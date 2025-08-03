@@ -1,0 +1,78 @@
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_binary {
+    name: "audioserver",
+
+    srcs: [
+        "main_audioserver.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    header_libs: [
+        "libaudiohal_headers",
+        "libmedia_headers",
+        "libmediametrics_headers",
+    ],
+
+    defaults: [
+        "libaaudioservice_dependencies",
+        "libaudioflinger_dependencies",
+        "libaudiopolicyservice_dependencies",
+        "latest_android_media_audio_common_types_cpp_shared",
+        "latest_android_hardware_audio_core_sounddose_ndk_shared",
+    ],
+
+    static_libs: [
+        "libaaudioservice",
+        "libaudioflinger",
+        "libaudiopolicyservice",
+        "libmedialogservice",
+        "libnbaio",
+    ],
+
+    shared_libs: [
+        "libaudioclient",
+        "libaudioprocessing",
+        "libbinder",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libmedia",
+        "libmediautils",
+        "libnblog",
+        "libpowermanager",
+        "libutils",
+        "libvibrator",
+    ],
+
+    // TODO check if we still need all of these include directories
+    include_dirs: [
+        "external/sonic",
+        "frameworks/av/media/libaaudio/include",
+        "frameworks/av/media/libaaudio/src",
+        "frameworks/av/media/libaaudio/src/binding",
+        "frameworks/av/services/audioflinger",
+        "frameworks/av/services/audiopolicy",
+        "frameworks/av/services/audiopolicy/common/include",
+        "frameworks/av/services/audiopolicy/common/managerdefinitions/include",
+        "frameworks/av/services/audiopolicy/engine/interface",
+        "frameworks/av/services/audiopolicy/service",
+        "frameworks/av/services/medialog",
+        "frameworks/av/services/oboeservice", // TODO oboeservice is the old folder name for aaudioservice. It will be changed.
+
+    ],
+
+    init_rc: ["audioserver.rc"],
+}

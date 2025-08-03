@@ -1,0 +1,489 @@
+// Copyright (C) 2019 The Android Open Source Project
+// Copyright (C) 2019 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <memory>
+#include <fcntl.h>
+#include <lib/zx/channel.h>
+#include <lib/zx/vmo.h>
+#include <log/log.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <zircon/process.h>
+#include <zircon/syscalls.h>
+#include <zircon/syscalls/object.h>
+
+#include "goldfish_address_space.h"
+#include "aemu/base/synchronization/AndroidLock.h"
+#include "services/service_connector.h"
+
+#include <unordered_map>
+
+#define GET_STATUS_SAFE(result, member) \
+    ((result).ok() ? ((result)->member) : ZX_OK)
+
+using gfxstream::guest::AutoLock;
+using gfxstream::guest::Lock;
+
+using fuchsia_hardware_goldfish::AddressSpaceChildDriver;
+using fuchsia_hardware_goldfish::AddressSpaceDevice;
+using fuchsia_hardware_goldfish::wire::AddressSpaceChildDriverType;
+using fuchsia_hardware_goldfish::wire::AddressSpaceChildDriverPingMessage;
+
+GoldfishAddressSpaceBlockProvider::GoldfishAddressSpaceBlockProvider(GoldfishAddressSpaceSubdeviceType subdevice) {
+
+    if (subdevice != GoldfishAddressSpaceSubdeviceType::NoSubdevice) {
+        ALOGE("%s: Tried to use a nontrivial subdevice when support has not been added\n", __func__);
+        abort();
+    }
+
+    fidl::ClientEnd<AddressSpaceDevice> channel{
+        zx::channel(GetConnectToServiceFunction()(GOLDFISH_ADDRESS_SPACE_DEVICE_NAME))};
+    if (!channel) {
+        ALOGE("%s: failed to get service handle for " GOLDFISH_ADDRESS_SPACE_DEVICE_NAME,
+              __FUNCTION__);
+        return;
+    }
+    m_device = fidl::WireSyncClient<AddressSpaceDevice>(std::move(channel));
+
+    auto child_driver_ends =
+        fidl::CreateEndpoints<::fuchsia_hardware_goldfish::AddressSpaceChildDriver>();
+    if (!child_driver_ends.is_ok()) {
+        ALOGE("%s: zx_channel_create failed: %d", __FUNCTION__, child_driver_ends.status_value());
+        return;
+    }
+
+    auto result = m_device->OpenChildDriver(
+        static_cast<AddressSpaceChildDriverType>(0 /* graphics */),
+        std::move(child_driver_ends->server));
+    if (!result.ok()) {
+        ALOGE("%s: failed to open child driver: %d",
+              __FUNCTION__, result.status());
+        return;
+    }
+    m_child_driver = fidl::WireSyncClient<AddressSpaceChildDriver>(
+        std::move(child_driver_ends->client));
+}
+
+GoldfishAddressSpaceBlockProvider::~GoldfishAddressSpaceBlockProvider()
+{
+}
+
+bool GoldfishAddressSpaceBlockProvider::is_opened() const
+{
+    return !!m_device;
+}
+
+// void GoldfishAddressSpaceBlockProvider::close() - not implemented
+// address_space_handle_t GoldfishAddressSpaceBlockProvider::release() - not imeplemented
+
+GoldfishAddressSpaceBlock::GoldfishAddressSpaceBlock()
+    : m_driver(NULL)
+    , m_vmo(ZX_HANDLE_INVALID)
+    , m_mmaped_ptr(NULL)
+    , m_phys_addr(0)
+    , m_host_addr(0)
+    , m_offset(0)
+    , m_size(0) {}
+
+GoldfishAddressSpaceBlock::~GoldfishAddressSpaceBlock()
+{
+    destroy();
+}
+
+GoldfishAddressSpaceBlock &GoldfishAddressSpaceBlock::operator=(const GoldfishAddressSpaceBlock &rhs)
+{
+    m_vmo = rhs.m_vmo;
+    m_mmaped_ptr = rhs.m_mmaped_ptr;
+    m_phys_addr = rhs.m_phys_addr;
+    m_host_addr = rhs.m_host_addr;
+    m_offset = rhs.m_offset;
+    m_size = rhs.m_size;
+    m_driver = rhs.m_driver;
+
+    return *this;
+}
+
+bool GoldfishAddressSpaceBlock::allocate(GoldfishAddressSpaceBlockProvider *provider, size_t size)
+{
+    destroy();
+
+    if (!provider->is_opened()) {
+        return false;
+    }
+
+    const fidl::WireSyncClient<AddressSpaceChildDriver>& driver = provider->m_child_driver;
+
+    auto result = driver->AllocateBlock(size);
+    if (!result.ok() || result->res != ZX_OK) {
+        ALOGE("%s: allocate block failed: %d:%d", __func__, result.status(), GET_STATUS_SAFE(result, res));
+        return false;
+    }
+    m_phys_addr = result->paddr;
+    // TODO(fxbug.dev/42075554): Instead of storing raw handles we should
+    // consider using RAII zx::object instead.
+    m_vmo = result->vmo.release();
+
+    m_size = size;
+    m_offset = 0;
+    m_is_shared_mapping = false;
+    m_driver = &provider->m_child_driver;
+
+    return true;
+}
+
+bool GoldfishAddressSpaceBlock::claimShared(GoldfishAddressSpaceBlockProvider *provider, uint64_t offset, uint64_t size)
+{
+    ALOGE("%s: FATAL: not supported\n", __func__);
+    abort();
+}
+
+uint64_t GoldfishAddressSpaceBlock::physAddr() const
+{
+    return m_phys_addr;
+}
+
+uint64_t GoldfishAddressSpaceBlock::hostAddr() const
+{
+    return m_host_addr;
+}
+
+void *GoldfishAddressSpaceBlock::mmap(uint64_t host_addr)
+{
+    if (m_size == 0) {
+        ALOGE("%s: called with zero size\n", __func__);
+        return NULL;
+    }
+    if (m_mmaped_ptr) {
+        ALOGE("'mmap' called for an already mmaped address block");
+        ::abort();
+    }
+
+    bool nonzeroOffsetInPage = host_addr & (PAGE_SIZE - 1);
+    uint64_t extraBytes = nonzeroOffsetInPage ? PAGE_SIZE : 0;
+    m_size += extraBytes;
+
+    zx_vaddr_t ptr = 0;
+    zx_status_t status = zx_vmar_map(zx_vmar_root_self(),
+                                     ZX_VM_PERM_READ | ZX_VM_PERM_WRITE,
+                                     0, m_vmo,
+                                     m_offset,
+                                     m_size,
+                                     &ptr);
+    if (status != ZX_OK) {
+        ALOGE("%s: host memory map failed with size 0x%llx "
+              "off 0x%llx status %d\n",
+              __func__,
+              (unsigned long long)m_size,
+              (unsigned long long)m_offset, status);
+        return NULL;
+    }
+
+    m_mmaped_ptr = (void*)ptr;
+    m_host_addr = host_addr;
+    return guestPtr();
+}
+
+void *GoldfishAddressSpaceBlock::guestPtr() const
+{
+    return reinterpret_cast<char *>(m_mmaped_ptr) + (m_host_addr & (PAGE_SIZE - 1));
+}
+
+void GoldfishAddressSpaceBlock::destroy()
+{
+    if (m_mmaped_ptr && m_size) {
+        zx_vmar_unmap(zx_vmar_root_self(),
+                      (zx_vaddr_t)m_mmaped_ptr,
+                      m_size);
+        m_mmaped_ptr = NULL;
+    }
+
+    if (m_size) {
+        zx_handle_close(m_vmo);
+        m_vmo = ZX_HANDLE_INVALID;
+        if (m_is_shared_mapping) {
+            // TODO
+            ALOGE("%s: unsupported: GoldfishAddressSpaceBlock destroy() for shared regions\n", __func__);
+            abort();
+            // int32_t res = ZX_OK;
+            // auto result = m_driver->UnclaimShared(m_offset);
+            // if (!result.ok() || result->res != ZX_OK) {
+            //     ALOGE("%s: unclaim shared block failed: %d:%d", __func__,
+            //           result.status(), GET_STATUS_SAFE(result, res));
+            // }
+        } else {
+            auto result = (*m_driver)->DeallocateBlock(m_phys_addr);
+            if (!result.ok() || result->res != ZX_OK) {
+                ALOGE("%s: deallocate block failed: %d:%d", __func__,
+                      result.status(), GET_STATUS_SAFE(result, res));
+            }
+        }
+        m_driver = NULL;
+        m_phys_addr = 0;
+        m_host_addr = 0;
+        m_offset = 0;
+        m_size = 0;
+    }
+}
+
+GoldfishAddressSpaceHostMemoryAllocator::GoldfishAddressSpaceHostMemoryAllocator(bool useSharedSlots)
+  : m_provider(GoldfishAddressSpaceSubdeviceType::HostMemoryAllocator) { }
+
+long GoldfishAddressSpaceHostMemoryAllocator::hostMalloc(GoldfishAddressSpaceBlock *block, size_t size)
+{
+    return 0;
+}
+
+void GoldfishAddressSpaceHostMemoryAllocator::hostFree(GoldfishAddressSpaceBlock *block)
+{
+}
+
+class VmoStore {
+public:
+    struct Info {
+        zx_handle_t vmo = ZX_HANDLE_INVALID;
+        uint64_t phys_addr = 0;
+    };
+
+    void add(uint64_t offset, const Info& info) {
+        AutoLock lock(mLock);
+        mInfo[offset] = info;
+    }
+
+    void remove(uint64_t offset) {
+        AutoLock lock(mLock);
+        mInfo.erase(offset);
+    }
+
+    Info get(uint64_t offset) {
+        Info res;
+        AutoLock lock(mLock);
+        auto it = mInfo.find(offset);
+        if (it == mInfo.end()) {
+            ALOGE("VmoStore::%s cannot find info on offset 0x%llx\n", __func__,
+                  (unsigned long long)offset);
+            return res;
+        }
+        res = it->second;
+        return res;
+    }
+
+private:
+    Lock mLock;
+    std::unordered_map<uint64_t, Info> mInfo;
+};
+
+static Lock sVmoStoreInitLock;
+static VmoStore* sVmoStore = nullptr;
+
+static VmoStore* getVmoStore() {
+    AutoLock lock(sVmoStoreInitLock);
+    if (!sVmoStore) sVmoStore = new VmoStore;
+    return sVmoStore;
+}
+
+address_space_handle_t goldfish_address_space_open() {
+    fidl::ClientEnd<AddressSpaceDevice> channel{
+        zx::channel(GetConnectToServiceFunction()(GOLDFISH_ADDRESS_SPACE_DEVICE_NAME))};
+    if (!channel) {
+        ALOGE("%s: failed to get service handle for " GOLDFISH_ADDRESS_SPACE_DEVICE_NAME,
+              __FUNCTION__);
+        return 0;
+    }
+    fidl::WireSyncClient<AddressSpaceDevice>*
+        deviceSync = new fidl::WireSyncClient<AddressSpaceDevice>(std::move(channel));
+    return (address_space_handle_t)deviceSync;
+}
+
+void goldfish_address_space_close(address_space_handle_t handle) {
+    fidl::WireSyncClient<AddressSpaceDevice>* deviceSync =
+        reinterpret_cast<
+            fidl::WireSyncClient<AddressSpaceDevice>*>(handle);
+    delete deviceSync;
+}
+
+bool goldfish_address_space_set_subdevice_type(
+    address_space_handle_t handle, GoldfishAddressSpaceSubdeviceType type,
+    address_space_handle_t* handle_out) {
+
+    auto* deviceSync =
+        reinterpret_cast<fidl::WireSyncClient<AddressSpaceDevice>*>(handle);
+
+    auto child_driver_ends =
+        fidl::CreateEndpoints<::fuchsia_hardware_goldfish::AddressSpaceChildDriver>();
+    if (!child_driver_ends.is_ok()) {
+        ALOGE("%s: zx_channel_create failed: %d", __FUNCTION__, child_driver_ends.status_value());
+        return false;
+    }
+
+    (*deviceSync)->OpenChildDriver(
+        static_cast<AddressSpaceChildDriverType>(type),
+        std::move(child_driver_ends->server));
+
+    fidl::WireSyncClient<AddressSpaceChildDriver>*
+        childSync = new fidl::WireSyncClient<AddressSpaceChildDriver>(std::move(child_driver_ends->client));
+
+    // On creating a subdevice, in our use cases we wont be needing the
+    // original device sync anymore, so get rid of it.
+    delete deviceSync;
+
+    *handle_out = (void*)childSync;
+
+    return true;
+}
+
+bool goldfish_address_space_allocate(
+    address_space_handle_t handle,
+    size_t size, uint64_t* phys_addr, uint64_t* offset) {
+    const auto& deviceSync =
+        *reinterpret_cast<
+            fidl::WireSyncClient<AddressSpaceChildDriver>*>(handle);
+
+    zx::vmo vmo;
+    auto result = deviceSync->AllocateBlock(size);
+    if (!result.ok() || result->res != ZX_OK) {
+        ALOGE("%s: allocate block failed: %d:%d", __func__, result.status(), GET_STATUS_SAFE(result, res));
+        return false;
+    }
+    *phys_addr = result->paddr;
+    vmo = std::move(result->vmo);
+
+    *offset = 0;
+
+    // TODO(fxbug.dev/42075554): Instead of storing raw handles we should
+    // consider using RAII zx::object instead.
+    VmoStore::Info info = {
+        vmo.release(),
+        *phys_addr,
+    };
+
+    getVmoStore()->add(*offset, info);
+    return true;
+}
+
+bool goldfish_address_space_free(
+    address_space_handle_t handle, uint64_t offset) {
+    auto info = getVmoStore()->get(offset);
+    if (info.vmo == ZX_HANDLE_INVALID) return false;
+    zx_handle_close(info.vmo);
+
+    const auto& deviceSync =
+        *reinterpret_cast<
+            fidl::WireSyncClient<AddressSpaceChildDriver>*>(handle);
+
+    auto result = deviceSync->DeallocateBlock(info.phys_addr);
+    if (!result.ok() || result->res != ZX_OK) {
+        ALOGE("%s: deallocate block failed: %d:%d", __func__, result.status(), GET_STATUS_SAFE(result, res));
+        return false;
+    }
+
+    return true;
+}
+
+bool goldfish_address_space_claim_shared(
+    address_space_handle_t handle, uint64_t offset, uint64_t size) {
+
+    const auto& deviceSync =
+        *reinterpret_cast<
+            fidl::WireSyncClient<AddressSpaceChildDriver>*>(handle);
+
+    zx::vmo vmo;
+    auto result = deviceSync->ClaimSharedBlock(offset, size);
+    if (!result.ok() || result->res != ZX_OK) {
+        ALOGE("%s: claim shared failed: %d:%d", __func__, result.status(), GET_STATUS_SAFE(result, res));
+        return false;
+    }
+    vmo = std::move(result->vmo);
+
+    // TODO(fxbug.dev/42075554): Instead of storing raw handles we should
+    // consider using RAII zx::object instead.
+    VmoStore::Info info = {
+        vmo.release(),
+    };
+
+    getVmoStore()->add(offset, info);
+
+    return true;
+}
+
+bool goldfish_address_space_unclaim_shared(
+    address_space_handle_t handle, uint64_t offset) {
+    auto info = getVmoStore()->get(offset);
+    if (info.vmo == ZX_HANDLE_INVALID) {
+        return false;
+    }
+    zx_handle_close(info.vmo);
+
+    const auto& deviceSync =
+        *reinterpret_cast<
+            fidl::WireSyncClient<AddressSpaceChildDriver>*>(handle);
+
+    auto result = deviceSync->UnclaimSharedBlock(offset);
+    if (!result.ok() || result->res != ZX_OK) {
+        ALOGE("%s: unclaim shared failed: %d:%d", __func__, result.status(), GET_STATUS_SAFE(result, res));
+        return false;
+    }
+
+    getVmoStore()->remove(offset);
+    return true;
+}
+
+// pgoff is the offset into the page to return in the result
+void* goldfish_address_space_map(
+    address_space_handle_t handle,
+    uint64_t offset, uint64_t size,
+    uint64_t pgoff) {
+
+    auto info = getVmoStore()->get(offset);
+    if (info.vmo == ZX_HANDLE_INVALID) return nullptr;
+
+    zx_vaddr_t ptr = 0;
+    zx_status_t status =
+        zx_vmar_map(zx_vmar_root_self(),
+                    ZX_VM_PERM_READ | ZX_VM_PERM_WRITE,
+                    0, info.vmo,
+                    0, size,
+                    &ptr);
+    return (void*)(((char*)ptr) + (uintptr_t)(pgoff & (PAGE_SIZE - 1)));
+}
+
+void goldfish_address_space_unmap(void* ptr, uint64_t size) {
+    zx_vmar_unmap(zx_vmar_root_self(),
+                  (zx_vaddr_t)(((uintptr_t)ptr) & (uintptr_t)(~(PAGE_SIZE - 1))),
+                  size);
+}
+
+bool goldfish_address_space_ping(
+    address_space_handle_t handle,
+    struct address_space_ping* ping) {
+
+    AddressSpaceChildDriverPingMessage fuchsiaPing =
+        *(AddressSpaceChildDriverPingMessage*)ping;
+
+    const auto& deviceSync =
+        *reinterpret_cast<
+            fidl::WireSyncClient<AddressSpaceChildDriver>*>(handle);
+
+    AddressSpaceChildDriverPingMessage res;
+    auto result = deviceSync->Ping(fuchsiaPing);
+    if (!result.ok() || result->res != ZX_OK) {
+        return false;
+    }
+    res = std::move(result->ping);
+
+    *ping = *(struct address_space_ping*)(&res);
+    return true;
+}

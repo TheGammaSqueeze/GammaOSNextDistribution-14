@@ -1,0 +1,18 @@
+type sscoredump, domain;
+type sscoredump_exec, vendor_file_type, exec_type, file_type;
+
+init_daemon_domain(sscoredump)
+
+set_prop(sscoredump, vendor_ssrdump_prop)
+
+allow sscoredump device:dir r_dir_perms;
+allow sscoredump sscoredump_device:chr_file rw_file_perms;
+allow sscoredump sscoredump_vendor_data_crashinfo_file:dir create_dir_perms;
+allow sscoredump sscoredump_vendor_data_crashinfo_file:file create_file_perms;
+allow sscoredump sysfs_sscoredump_subsystem_report_count:file r_file_perms;
+
+userdebug_or_eng(`
+  allow sscoredump sysfs_sscoredump_level:file rw_file_perms;
+  allow sscoredump sscoredump_vendor_data_coredump_file:dir create_dir_perms;
+  allow sscoredump sscoredump_vendor_data_coredump_file:file create_file_perms;
+')

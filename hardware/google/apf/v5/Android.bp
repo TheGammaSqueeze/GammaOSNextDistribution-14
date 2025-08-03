@@ -1,0 +1,73 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["hardware_google_apf_license"],
+}
+
+cc_defaults {
+    name: "apfv5_defaults",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Werror=implicit-fallthrough",
+        "-Werror=missing-prototypes",
+        "-Werror=strict-prototypes",
+        "-Wnullable-to-nonnull-conversion",
+        "-Wsign-compare",
+        "-Wsign-conversion",
+        "-Wthread-safety",
+        "-Wunused-parameter",
+        "-Wuninitialized",
+    ],
+}
+
+cc_library_static {
+    name: "libapf_v5",
+    defaults: ["apfv5_defaults"],
+    srcs: [
+        "apf_interpreter.c",
+        "test_buf_allocator.c",
+    ],
+    sdk_version: "24",
+}
+
+sh_test_host {
+    name: "apf_assemble_test",
+    src: "apf_interpreter_assemble.sh",
+    filename: "apf_assemble_test.sh",
+    test_config: "apf_assemble_test.xml",
+    data: [
+        // the sources:
+        "apf_*.h",
+        "apf.h",
+        "apf_interpreter_source.c",
+        // the assembled output:
+        "apf_interpreter.c",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        windows: {
+            enabled: false,
+        },
+    },
+    test_options: {
+        unit_test: true,
+    },
+}

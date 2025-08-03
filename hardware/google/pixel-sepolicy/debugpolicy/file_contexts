@@ -1,0 +1,2 @@
+/dev/block/by-name/dpm_[ab]  u:object_r:dpm_block_device:s0
+/vendor/bin/hw/init_dpm\.sh  u:object_r:init_dpm_exec:s0

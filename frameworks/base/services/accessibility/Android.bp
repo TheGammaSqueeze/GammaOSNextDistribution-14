@@ -1,0 +1,67 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+filegroup {
+    name: "services.accessibility-sources",
+    srcs: ["java/**/*.java"],
+    path: "java",
+    visibility: ["//frameworks/base/services"],
+}
+
+java_library_static {
+    name: "services.accessibility",
+    defaults: [
+        "platform_service_defaults",
+    ],
+    lint: {
+        error_checks: ["MissingPermissionAnnotation"],
+        baseline_filename: "lint-baseline.xml",
+
+    },
+    srcs: [
+        ":services.accessibility-sources",
+        "//frameworks/base/packages/SettingsLib/RestrictedLockUtils:SettingsLibRestrictedLockUtilsSrc",
+    ],
+    libs: [
+        "services.core",
+        "androidx.annotation_annotation",
+    ],
+    static_libs: [
+        "com_android_server_accessibility_flags_lib",
+    ],
+}
+
+java_library_static {
+    name: "AccessibilityGestureUtils",
+    srcs: [
+        "java/**/gestures/GestureMatcher.java",
+        "java/**/gestures/GestureManifold.java",
+        "java/**/gestures/MultiFingerMultiTap.java",
+        "java/**/gestures/TouchState.java",
+    ],
+    static_libs: [
+        "services.accessibility",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+    ],
+}
+
+aconfig_declarations {
+    name: "com_android_server_accessibility_flags",
+    package: "com.android.server.accessibility",
+    srcs: [
+        "accessibility.aconfig",
+    ],
+}
+
+java_aconfig_library {
+    name: "com_android_server_accessibility_flags_lib",
+    aconfig_declarations: "com_android_server_accessibility_flags",
+}

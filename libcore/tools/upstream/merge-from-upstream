@@ -1,0 +1,411 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2021 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+"""
+Merges upstream files to ojluni. This is done by using git to perform a 3-way
+merge between the current (base) upstream version, ojluni and the new (target)
+upstream version. The 3-way merge is needed because ojluni sometimes contains
+some Android-specific changes from the upstream version.
+
+This tool is for libcore maintenance; if you're not maintaining libcore,
+you won't need it (and might not have access to some of the instructions
+below).
+
+The naming of the repositories (expected, ojluni, 7u40, 8u121-b13,
+9b113+, 9+181) is based on the directory name where corresponding
+snapshots are stored when following the instructions at
+http://go/libcore-o-verify
+
+This script tries to preserve Android changes to upstream code when moving to a
+newer version.
+
+All the work is made in a new directory which is initialized as a git
+repository. An example of the repository structure, where an update is made
+from version 9b113+ to 11+28, would be:
+
+    *   5593705 (HEAD -> main) Merge branch 'ojluni'
+    |\
+    | * 2effe03 (ojluni) Ojluni commit
+    * | 1bef5f3 Target commit (11+28)
+    |/
+    * 9ae2fbf Base commit (9b113+)
+
+The conflicts during the merge get resolved by git whenever possible. However,
+sometimes there are conflicts that need to be resolved manually. If that is the
+case, the script will terminate to allow for the resolving. Once the user has
+resolved the conflicts, they should rerun the script with the --continue
+option.
+
+Once the merge is complete, the script will copy the merged version back to
+ojluni within the $ANDROID_BUILD_TOP location.
+
+For the script to run correctly, it needs the following environment variables
+defined:
+    - OJLUNI_UPSTREAMS
+    - ANDROID_BUILD_TOP
+
+Possible uses:
+
+To merge in changes from a newer version of the upstream using a default
+working dir created in /tmp:
+    merge-from-upstream -f expected -t 11+28 java/util/concurrent
+
+To merge in changes from a newer version of the upstream using a custom
+working dir:
+    merge-from-upstream -f expected -t 11+28 \
+            -d $HOME/tmp/ojluni-merge java/util/concurrent
+
+To merge in changes for a single file:
+    merge-from-upstream -f 9b113+ -t 11+28 \
+        java/util/concurrent/atomic/AtomicInteger.java
+
+To merge in changes, using a custom folder, that require conflict resolution:
+    merge-from-upstream -f expected -t 11+28 \
+        -d $HOME/tmp/ojluni-merge \
+        java/util/concurrent
+    <manually resolve conflicts and add them to git staging>
+    merge-from-upstream --continue \
+        -d $HOME/tmp/ojluni-merge java/util/concurrent
+"""
+
+import argparse
+import os
+import os.path
+import subprocess
+import sys
+import shutil
+
+
+def printerr(msg):
+    sys.stderr.write(msg + "\r\n")
+
+
+def user_check(msg):
+    choice = str(input(msg + " [y/N] ")).strip().lower()
+    if choice[:1] == 'y':
+        return True
+    return False
+
+
+def check_env_vars():
+    keys = [
+        'OJLUNI_UPSTREAMS',
+        'ANDROID_BUILD_TOP',
+    ]
+    result = True
+    for key in keys:
+        if key not in os.environ:
+            printerr("Unable to run, you must have {} defined".format(key))
+            result = False
+    return result
+
+
+def get_upstream_path(version, rel_path):
+    upstreams = os.environ['OJLUNI_UPSTREAMS']
+    return '{}/{}/{}'.format(upstreams, version, rel_path)
+
+
+def get_ojluni_path(rel_path):
+    android_build_top = os.environ['ANDROID_BUILD_TOP']
+    return '{}/libcore/ojluni/src/main/java/{}'.format(
+        android_build_top, rel_path)
+
+
+def make_copy(src, dst):
+    print("Copy " + src + " -> " + dst)
+    if os.path.isfile(src):
+        if os.path.exists(dst) and os.path.isfile(dst):
+            os.remove(dst)
+        shutil.copy(src, dst)
+    else:
+        shutil.copytree(src, dst, dirs_exist_ok=True)
+
+
+class Repo:
+    def __init__(self, dir):
+        self.dir = dir
+
+    def init(self):
+        if 0 != subprocess.call(['git', 'init', '-b', 'main', self.dir]):
+            raise RuntimeError(
+                "Unable to initialize working git repository.")
+        subprocess.call(['git', '-C', self.dir,
+                         'config', 'rerere.enabled', 'true'])
+
+    def commit_all(self, id, msg):
+        if 0 != subprocess.call(['git', '-C', self.dir, 'add', '*']):
+            raise RuntimeError("Unable to add the {} files.".format(id))
+        if 0 != subprocess.call(['git', '-C', self.dir, 'commit',
+                                '-m', msg]):
+            raise RuntimeError("Unable to commit the {} files.".format(id))
+
+    def checkout_branch(self, branch, is_new=False):
+        cmd = ['git', '-C', self.dir, 'checkout']
+        if is_new:
+            cmd.append('-b')
+        cmd.append(branch)
+        if 0 != subprocess.call(cmd):
+            raise RuntimeError("Unable to checkout the {} branch."
+                               .format(branch))
+
+    def merge(self, branch):
+        """
+        Tries to merge in a branch and returns True if the merge commit has
+        been created. If there are conflicts to be resolved, this returns
+        False.
+        """
+        if 0 == subprocess.call(['git', '-C', self.dir,
+                                'merge', branch, '--no-edit']):
+            return True
+        if not self.is_merging():
+            raise RuntimeError("Unable to run merge for the {} branch."
+                               .format(branch))
+        subprocess.call(['git', '-C', self.dir, 'rerere'])
+        return False
+
+    def check_resolved_from_cache(self):
+        """
+        Checks if some conflicts have been resolved by the git rerere tool. The
+        tool only applies the previous resolution, but does not mark the file
+        as resolved afterwards. Therefore this function will go through the
+        unresolved files and see if there are outstanding conflicts. If all
+        conflicts have been resolved, the file gets stages.
+
+        Returns True if all conflicts are resolved, False otherwise.
+        """
+        # git diff --check will exit with error if there are conflicts to be
+        # resolved, therefore we need to use check=False option to avoid an
+        # exception to be raised
+        conflict_markers = subprocess.run(['git', '-C', self.dir,
+                                           'diff', '--check'],
+                                          stdout=subprocess.PIPE,
+                                          check=False).stdout
+        conflicts = subprocess.check_output(['git', '-C', self.dir, 'diff',
+                                             '--name-only', '--diff-filter=U'])
+
+        for filename in conflicts.splitlines():
+            if conflict_markers.find(filename) != -1:
+                print("{} still has conflicts, please resolve manually".
+                      format(filename))
+            else:
+                print("{} has been resolved, staging it".format(filename))
+                subprocess.call(['git', '-C', self.dir, 'add', filename])
+
+        return not self.has_conflicts()
+
+    def has_changes(self):
+        result = subprocess.check_output(['git', '-C', self.dir, 'status',
+                                          '--porcelain'])
+        return len(result) != 0
+
+    def has_conflicts(self):
+        conflicts = subprocess.check_output(['git', '-C', self.dir, 'diff',
+                                             '--name-only', '--diff-filter=U'])
+        return len(conflicts) != 0
+
+    def is_merging(self):
+        return 0 == subprocess.call(['git', '-C', self.dir, 'rev-parse',
+                                     '-q', '--verify', 'MERGE_HEAD'],
+                                    stdout=subprocess.DEVNULL)
+
+    def complete_merge(self):
+        print("Completing merge in {}".format(self.dir))
+        subprocess.call(['git', '-C', self.dir, 'rerere'])
+        if 0 != subprocess.call(['git', '-C', self.dir,
+                                 'commit', '--no-edit']):
+            raise RuntimeError("Unable to complete the merge in {}."
+                               .format(self.dir))
+        if self.is_merging():
+            raise RuntimeError(
+                "Merging in {} is not complete".format(self.dir))
+
+    def load_resolve_files(self, resolve_dir):
+        print("Loading resolve files from {}".format(resolve_dir))
+        if not os.path.lexists(resolve_dir):
+            print("Resolve dir {} not found, no resolutions will be used"
+                  .format(resolve_dir))
+            return
+        make_copy(resolve_dir, self.dir + "/.git/rr-cache")
+
+    def save_resolve_files(self, resolve_dir):
+        print("Saving resolve files to {}".format(resolve_dir))
+        if not os.path.lexists(resolve_dir):
+            os.makedirs(resolve_dir)
+        make_copy(self.dir + "/.git/rr-cache", resolve_dir)
+
+
+class Merger:
+    def __init__(self, repo_dir, rel_path, resolve_dir):
+        self.repo = Repo(repo_dir)
+        # Have all the source files copied inside a src dir, so we don't have
+        # any issue with copying back the .git dir
+        self.working_dir = repo_dir + "/src"
+        self.rel_path = rel_path
+        self.resolve_dir = resolve_dir
+
+    def create_working_dir(self):
+        if os.path.lexists(self.repo.dir):
+            if not user_check(
+                    '{} already exists. Can it be removed?'
+                    .format(self.repo.dir)):
+                raise RuntimeError(
+                    'Will not remove {}. Consider using another '
+                    'working dir'.format(self.repo.dir))
+            try:
+                shutil.rmtree(self.repo.dir)
+            except OSError:
+                printerr("Unable to delete {}.".format(self.repo.dir))
+                raise
+        os.makedirs(self.working_dir)
+        self.repo.init()
+        if self.resolve_dir is not None:
+            self.repo.load_resolve_files(self.resolve_dir)
+
+    def copy_upstream_files(self, version, msg):
+        full_path = get_upstream_path(version, self.rel_path)
+        make_copy(full_path, self.working_dir)
+        self.repo.commit_all(version, msg)
+
+    def copy_base_files(self, base_version):
+        self.copy_upstream_files(base_version,
+                                 'Base commit ({})'.format(base_version))
+
+    def copy_target_files(self, target_version):
+        self.copy_upstream_files(target_version,
+                                 'Target commit ({})'.format(target_version))
+
+    def copy_ojluni_files(self):
+        full_path = get_ojluni_path(self.rel_path)
+        make_copy(full_path, self.working_dir)
+        if self.repo.has_changes():
+            self.repo.commit_all('ojluni', 'Ojluni commit')
+            return True
+        else:
+            return False
+
+    def run_ojluni_merge(self):
+        if self.repo.merge('ojluni'):
+            return
+        if self.repo.check_resolved_from_cache():
+            self.repo.complete_merge()
+            return
+        raise RuntimeError('\r\nThere are conflicts to be resolved.'
+                           '\r\nManually merge the changes and rerun '
+                           'this script with --continue')
+
+    def copy_back_to_ojluni(self):
+        # Save any resolutions that were made for future reuse
+        if self.resolve_dir is not None:
+            self.repo.save_resolve_files(self.resolve_dir)
+
+        src_path = self.working_dir
+        dst_path = get_ojluni_path(self.rel_path)
+        if os.path.isfile(dst_path):
+            src_path += '/' + os.path.basename(self.rel_path)
+        make_copy(src_path, dst_path)
+
+    def run(self, base_version, target_version):
+        print("Merging {} from {} into ojluni (based on {}). "
+              "Using {} as working dir."
+              .format(self.rel_path, target_version,
+                      base_version, self.repo.dir))
+        self.create_working_dir()
+        self.copy_base_files(base_version)
+        # The ojluni code should be added in its own branch. This is to make
+        # Git perform the 3-way merge once a commit is added with the latest
+        # upstream code.
+        self.repo.checkout_branch('ojluni', is_new=True)
+        merge_needed = self.copy_ojluni_files()
+        self.repo.checkout_branch('main')
+        self.copy_target_files(target_version)
+        if merge_needed:
+            # Runs the merge in the working directory, if some conflicts need
+            # to be resolved manually, then an exception is raised which will
+            # terminate the script, informing the user that manual intervention
+            # is needed.
+            self.run_ojluni_merge()
+        else:
+            print("No merging needed as there were no "
+                  "Android-specific changes, forwarding to new version ({})"
+                  .format(target_version))
+        self.copy_back_to_ojluni()
+
+    def complete_existing_run(self):
+        if self.repo.is_merging():
+            self.repo.complete_merge()
+        self.copy_back_to_ojluni()
+
+
+def main():
+    if not check_env_vars():
+        return
+
+    upstreams = os.environ['OJLUNI_UPSTREAMS']
+    repositories = sorted(
+        [d for d in os.listdir(upstreams)
+         if os.path.isdir(os.path.join(upstreams, d))]
+    )
+
+    parser = argparse.ArgumentParser(
+        description='''
+        Merge upstream files from ${OJLUNI_UPSTREAMS} to libcore/ojluni.
+        Needs the base (from) repository as well as the target (to) repository.
+        Repositories can be chosen from:
+        ''' + ' '.join(repositories) + '.',
+        # include default values in help
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument('-f', '--from', default='expected',
+                        choices=repositories,
+                        dest='base',
+                        help='Repository on which the requested ojluni '
+                        'files are based.')
+    parser.add_argument('-t', '--to',
+                        choices=repositories,
+                        dest='target',
+                        help='Repository to which the requested ojluni '
+                        'files will be updated.')
+    parser.add_argument('-d', '--work-dir', default='/tmp/ojluni-merge',
+                        help='Path where the merge will be performed. '
+                        'Any existing files in the path will be removed')
+    parser.add_argument('-r', '--resolve-dir', default=None,
+                        dest='resolve_dir',
+                        help='Path where the git resolutions are cached. '
+                        'By default, no cache is used.')
+    parser.add_argument('--continue', action='store_true', dest='proceed',
+                        help='Flag to specify after merge conflicts '
+                        'are resolved')
+    parser.add_argument('rel_path', nargs=1, metavar='<relative_path>',
+                        help='File to merge: a relative path below '
+                        'libcore/ojluni/ which could point to '
+                        'a file or folder.')
+    args = parser.parse_args()
+    try:
+        merger = Merger(args.work_dir, args.rel_path[0], args.resolve_dir)
+        if args.proceed:
+            merger.complete_existing_run()
+        else:
+            if args.target is None:
+                raise RuntimeError('Please specify the target upstream '
+                                   'version using the -t/--to argument')
+            merger.run(args.base, args.target)
+    except Exception as e:
+        printerr(str(e))
+
+
+if __name__ == "__main__":
+    main()

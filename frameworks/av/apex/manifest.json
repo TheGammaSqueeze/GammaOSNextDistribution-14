@@ -1,0 +1,14 @@
+{
+  "name": "com.android.media",
+
+  // Placeholder module version to be replaced during build.
+  // Do not change!
+  "version": 0,
+
+  "requireNativeLibs": [
+    "libandroid.so",
+    "libbinder_ndk.so",
+    "libmediandk.so",
+    ":sphal"
+  ]
+}

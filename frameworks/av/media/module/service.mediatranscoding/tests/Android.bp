@@ -1,0 +1,68 @@
+// Build the unit tests for MediaTranscodingService
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_services_mediatranscoding_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: [
+        "frameworks_av_services_mediatranscoding_license",
+    ],
+}
+
+cc_defaults {
+    name: "mediatranscodingservice_test_defaults",
+
+    cpp_std: "gnu++17",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+
+    shared_libs: [
+        "libactivitymanager_aidl",
+        "libbinder",
+        "libbinder_ndk",
+        "liblog",
+        "libutils",
+        "libcutils",
+    ],
+
+    static_libs: [
+        "mediatranscoding_aidl_interface-ndk",
+        "resourcemanager_aidl_interface-ndk",
+        "libmediatranscodingservice",
+    ],
+
+    required: [
+        "TranscodingUidPolicy_TestAppA",
+        "TranscodingUidPolicy_TestAppB",
+        "TranscodingUidPolicy_TestAppC",
+    ],
+}
+
+// MediaTranscodingService unit test using simulated transcoder
+cc_test {
+    name: "mediatranscodingservice_simulated_tests",
+    defaults: ["mediatranscodingservice_test_defaults"],
+
+    srcs: ["mediatranscodingservice_simulated_tests.cpp"],
+}
+
+// MediaTranscodingService unit test using real transcoder
+cc_test {
+    name: "mediatranscodingservice_real_tests",
+    defaults: ["mediatranscodingservice_test_defaults"],
+
+    srcs: ["mediatranscodingservice_real_tests.cpp"],
+}
+
+// MediaTranscodingService unit test related to resource management
+cc_test {
+    name: "mediatranscodingservice_resource_tests",
+    defaults: ["mediatranscodingservice_test_defaults"],
+
+    srcs: ["mediatranscodingservice_resource_tests.cpp"],
+}

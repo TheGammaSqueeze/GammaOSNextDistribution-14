@@ -1,0 +1,72 @@
+{
+  "symbols": {
+    "AImageReader_setBufferRemovedListener": {
+      "call_method": "custom_trampoline",
+      "header": "media/NdkImageReader.h"
+    },
+    "AImageReader_setImageListener": {
+      "call_method": "custom_trampoline",
+      "header": "media/NdkImageReader.h"
+    },
+    "AMediaCodec_dequeueOutputBuffer": {
+      "call_method": "default",
+      "is_custom_compatible": true,
+      "reason_for_compatible": [
+        "struct AMediaCodecBufferInfo differs in align ",
+        "and size between ARM and x86_32. ",
+        "TODO(levarum): Require custom thunk"
+      ]
+    },
+    "AMediaCodec_setAsyncNotifyCallback": {
+      "call_method": "custom_trampoline",
+      "header": "media/NdkMediaCodec.h"
+    },
+    "AMediaDataSource_setClose": {
+      "call_method": "custom_trampoline",
+      "header": "media/NdkMediaDataSource.h"
+    },
+    "AMediaDataSource_setGetSize": {
+      "call_method": "custom_trampoline",
+      "header": "media/NdkMediaDataSource.h"
+    },
+    "AMediaDataSource_setReadAt": {
+      "call_method": "custom_trampoline",
+      "header": "media/NdkMediaDataSource.h"
+    },
+    "AMediaMuxer_writeSampleData": {
+      "call_method": "default",
+      "is_custom_compatible": true,
+      "reason_for_compatible": [
+        "struct AMediaCodecBufferInfo differs in align ",
+        "and size between ARM and x86_32. ",
+        "TODO(levarum): Require custom thunk"
+      ]
+    }
+  },
+  "types": {
+    "struct AImageReader": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct AMediaCodec": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct AMediaDataSource": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct AMediaDrm": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    }
+  }
+}

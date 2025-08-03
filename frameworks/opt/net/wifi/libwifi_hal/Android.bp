@@ -1,0 +1,238 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_module_type {
+    name: "wifi_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "wifi",
+    bool_variables: [
+        "multiple_vendor_hals", // WIFI_MULTIPLE_VENDOR_HALS
+        "google_wifi_config_lib", // $(wildcard vendor/google/libraries/GoogleWifiConfigLib)
+    ],
+    value_variables: [
+        "driver_module_path", // WIFI_DRIVER_MODULE_PATH
+        "driver_module_arg", // WIFI_DRIVER_MODULE_ARG
+        "driver_module_name", // WIFI_DRIVER_MODULE_NAME
+        "driver_fw_path_sta", // WIFI_DRIVER_FW_PATH_STA
+        "driver_fw_path_ap", // WIFI_DRIVER_FW_PATH_AP
+        "driver_fw_path_p2p", // WIFI_DRIVER_FW_PATH_P2P
+        "driver_fw_path_param", // WIFI_DRIVER_FW_PATH_PARAM
+        "driver_state_ctrl_param", // WIFI_DRIVER_STATE_CTRL_PARAM
+        "driver_state_on", // WIFI_DRIVER_STATE_ON
+        "driver_state_off", // WIFI_DRIVER_STATE_OFF
+    ],
+    variables: [
+        "board_wlan_device", // BOARD_WLAN_DEVICE
+    ],
+    properties: [
+        "cflags",
+        "defaults",
+        "shared_libs",
+        "static_libs",
+        "whole_static_libs",
+    ],
+}
+
+soong_config_string_variable {
+    name: "board_wlan_device",
+    values: [
+        "bcmdhd",
+        "synadhd",
+        "qcwcn",
+        "mrvl",
+        "nxp",
+        "MediaTek",
+        "realtek",
+        "emulator",
+        "rtl",
+        "slsi",
+        "wlan0",
+    ],
+}
+
+wifi_cc_defaults {
+    name: "libwifi_hal_cflags_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Winit-self",
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+        "-Wshadow",
+        "-Wunused-variable",
+        "-Wwrite-strings",
+    ],
+    soong_config_variables: {
+        driver_module_path: {
+            cflags: ["-DWIFI_DRIVER_MODULE_PATH=%s"],
+        },
+        driver_module_arg: {
+            cflags: ["-DWIFI_DRIVER_MODULE_ARG=%s"],
+        },
+        driver_module_name: {
+            cflags: ["-DWIFI_DRIVER_MODULE_NAME=%s"],
+        },
+        driver_fw_path_sta: {
+            cflags: ["-DWIFI_DRIVER_FW_PATH_STA=%s"],
+        },
+        driver_fw_path_ap: {
+            cflags: ["-DWIFI_DRIVER_FW_PATH_AP=%s"],
+        },
+        driver_fw_path_p2p: {
+            cflags: ["-DWIFI_DRIVER_FW_PATH_P2P=%s"],
+        },
+        // Some devices use a different path (e.g. devices with broadcom WiFi parts).
+        driver_fw_path_param: {
+            cflags: ["-DWIFI_DRIVER_FW_PATH_PARAM=%s"],
+            conditions_default: {
+                cflags: ["-DWIFI_DRIVER_FW_PATH_PARAM=\"/sys/module/wlan/parameters/fwpath\""],
+            },
+        },
+        driver_state_ctrl_param: {
+            cflags: ["-DWIFI_DRIVER_STATE_CTRL_PARAM=%s"],
+        },
+        driver_state_on: {
+            cflags: ["-DWIFI_DRIVER_STATE_ON=%s"],
+        },
+        driver_state_off: {
+            cflags: ["-DWIFI_DRIVER_STATE_OFF=%s"],
+        },
+        multiple_vendor_hals: {
+            cflags: ["-DWIFI_MULTIPLE_VENDOR_HALS"],
+        }
+    },
+}
+
+// Common code shared between the HALs.
+cc_library_static {
+    name: "libwifi-hal-common",
+    vendor: true,
+    defaults: ["libwifi_hal_cflags_defaults"],
+    srcs: ["wifi_hal_common.cpp"],
+    shared_libs: ["libbase"],
+    header_libs: ["libcutils_headers"],
+    local_include_dirs: ["include"],
+}
+
+// A fallback "vendor" HAL library.
+// Don't link this, link libwifi-hal.
+cc_library_static {
+    name: "libwifi-hal-fallback",
+    vendor: true,
+    defaults: ["libwifi_hal_cflags_defaults"],
+    srcs: ["wifi_hal_fallback.cpp"],
+    header_libs: ["libhardware_legacy_headers"]
+}
+
+wifi_cc_defaults {
+    name: "google_wifi_config_lib_defaults",
+    soong_config_variables: {
+        google_wifi_config_lib: {
+            shared_libs: ["google_wifi_firmware_config_version_c_wrapper"],
+        },
+    },
+}
+
+wifi_cc_defaults {
+    name: "libwifi_hal_vendor_impl_defaults",
+    soong_config_variables: {
+        board_wlan_device: {
+            bcmdhd: {
+                whole_static_libs: ["libwifi-hal-bcm"],
+            },
+            synadhd: {
+                whole_static_libs: ["libwifi-hal-syna"],
+            },
+            qcwcn: {
+                defaults: ["libwifi-hal-qcom"],
+            },
+            mrvl: {
+                // this is commented because none of the nexus devices
+                // that sport Marvell's wifi have support for HAL
+                // whole_static_libs: ["libwifi-hal-mrvl"],
+            },
+            mediaTek: {
+                defaults: ["libwifi-hal-mediatek"],
+            },
+            nxp: {
+                whole_static_libs: ["//vendor/nxp/boreal/wifi:libwifi-hal-nxp"],
+            },
+            realtek: {
+                whole_static_libs: ["libwifi-hal-rtk"],
+            },
+            emulator: {
+                whole_static_libs: ["//device/generic/goldfish:libwifi-hal-emu"],
+            },
+            slsi: {
+                whole_static_libs: ["libwifi-hal-slsi"],
+            },
+            conditions_default: {
+                whole_static_libs: ["libwifi-hal-fallback"],
+            },
+        },
+    },
+}
+
+wifi_cc_defaults {
+    name: "libwifi_hal_vendor_deps_defaults",
+    soong_config_variables: {
+        board_wlan_device: {
+            bcmdhd: {
+                shared_libs: ["libcrypto"],
+                defaults: ["google_wifi_config_lib_defaults"],
+            },
+            synadhd: {
+                shared_libs: ["libcrypto"],
+                defaults: ["google_wifi_config_lib_defaults"],
+            },
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libwifi-hal",
+    proprietary: true,
+    compile_multilib: "first",
+    defaults: [
+        "libwifi_hal_cflags_defaults",
+        "libwifi_hal_vendor_deps_defaults", // shared_libs used by libwifi-hal-<vendor>
+        "libwifi_hal_vendor_impl_defaults",
+    ],
+    local_include_dirs: ["include"],
+    export_include_dirs: ["include"],
+    header_libs: ["libhardware_legacy_headers"],
+    export_header_lib_headers: ["libhardware_legacy_headers"],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "liblog",
+        "libnl",
+        "libutils",
+    ],
+    srcs: [
+        "driver_tool.cpp",
+        "hal_tool.cpp",
+    ],
+    whole_static_libs: ["libwifi-hal-common"],
+    // b/242259479 remove this
+    sanitize: {
+        cfi: true,
+        integer_overflow: true,
+    },
+}

@@ -1,0 +1,55 @@
+package {
+    default_team: "trendy_team_aaos_framework",
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+    ],
+}
+
+android_test {
+    name: "FrameworkOptCarServicesTest",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    platform_apis: true,
+
+    certificate: "platform",
+
+    optimize: {
+        enabled: false,
+    },
+
+    libs: [
+        "android.car",
+        "android.car.builtin",
+        "android.test.runner",
+        "android.test.base",
+        "android.hardware.automotive.vehicle-V2.0-java",
+    ],
+
+    static_libs: [
+        "android.car.test.utils",
+        "android.car.watchdoglib",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "androidx.test.uiautomator_uiautomator",
+        "mockito-target-extended-minus-junit4",
+        "services.core",
+        "testng",
+        "truth",
+        "car-frameworks-service.impl",
+    ],
+
+    // mockito-target-extended dependencies
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        "libcarservicehelperjni",
+    ],
+
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+    ],
+}

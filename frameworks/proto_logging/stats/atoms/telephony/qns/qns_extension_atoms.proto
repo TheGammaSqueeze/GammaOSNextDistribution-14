@@ -1,0 +1,225 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.telephony.qns;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/enums/telephony/qns/enums.proto";
+
+option java_package = "com.android.os.telephony.qns";
+option java_multiple_files = true;
+
+extend Atom {
+  optional QualifiedRatListChanged qualified_rat_list_changed = 634
+          [(module) = "qns"];
+  optional QnsImsCallDropStats qns_ims_call_drop_stats = 635
+          [(module) = "qns"];
+  optional QnsFallbackRestrictionChanged qns_fallback_restriction_changed = 636
+          [(module) = "qns"];
+  optional QnsRatPreferenceMismatchInfo qns_rat_preference_mismatch_info = 10177
+          [(module) = "qns"];
+  optional QnsHandoverTimeMillis qns_handover_time_millis = 10178
+          [(module) = "qns"];
+  optional QnsHandoverPingpong qns_handover_pingpong = 10179
+          [(module) = "qns"];
+}
+
+
+/*
+ * Logs when a QNS update qualified RAT list.(CELLULAR or Wi-Fi). pushed
+ *
+ * Logged from:
+ *      packages/modules/Telephony/services/QualifiedNetworksService
+ */
+message QualifiedRatListChanged {
+
+  // NetCapability of this Qualified RAT update
+  optional android.telephony.qns.NetCapability net_capability = 1;
+
+  // The most preferred qualified RAT
+  optional android.telephony.qns.AccessNetworkType first_qualified_rat = 2;
+
+  // Second preferred qualified RAT
+  optional android.telephony.qns.AccessNetworkType second_qualified_rat = 3;
+
+  // Current actual transport type of Data session for this NetCapability
+  optional android.telephony.qns.TransportType current_transport_type = 4;
+
+  // Indicates whether WFC is enabled
+  optional bool wfc_enabled = 5;
+
+  // Indicates the user's WFC mode
+  optional android.telephony.qns.WfcMode wfc_mode = 6;
+
+  // Current Cellular AccessNetwork Type
+  optional android.telephony.qns.AccessNetworkType cellular_network_type = 7;
+
+  // Available IWLAN AccessNetwork
+  optional android.telephony.qns.IwlanNetworkType iwlan_network_type = 8;
+
+  // Bit mask of restrictions on WWAN
+  optional int32 restrictions_on_wwan = 9;
+
+  // Bit mask of restrictions on WLAN
+  optional int32 restrictions_on_wlan = 10;
+
+  // Cellular network signal strength {e.g. SSRSRP in NR, RSRP in LTE, RSCP in UMTS} */
+  optional int32 signal_strength = 11;
+
+  // Cellular network signal quality {e.g. SSRSRQ in NR, RSRQ in LTE}
+  optional int32 signal_quality = 12;
+
+  // Cellular network signal noise ratio {e.g. SSSINR in NR, RSSNR in LTE}
+  optional int32 signal_noise = 13;
+
+  // Iwlan network signal strength (Wi-Fi RSSI)
+  optional int32 iwlan_signal_strength = 14;
+
+  // Reason for preferred RAT update
+  optional int32 update_reason = 15;
+
+  // IMS Call Type
+  optional int32 ims_call_type = 16;
+
+  // IMS Call Quality
+  optional int32 ims_call_quality = 17;
+
+  // Index of sim slot
+  optional int32 sim_slot_index = 18;
+}
+
+/**
+ * Logs when IMS call drop occurred in when both transport type available. pushed
+ *
+ * Logged from:
+ *      packages/modules/Telephony/services/QualifiedNetworksService
+ */
+message QnsImsCallDropStats {
+
+  // Transport type in where IMS call drop occurred.
+  optional android.telephony.qns.TransportType transport_type_call_dropped = 1;
+
+  // RTP threshold breached event occurred.
+  optional bool rtp_threshold_breached = 2;
+
+  // Bit mask of restrictions on another transport type
+  optional int32 restrictions_on_other_transport_type = 3;
+
+  // Cellular network signal strength {e.g. SSRSRP in NR, RSRP in LTE, RSCP in UMTS}
+  optional int32 signal_strength = 4;
+
+  // Cellular network signal quality {e.g. SSRSRQ in NR, RSRQ in LTE}
+  optional int32 signal_quality = 5;
+
+  // Cellular network signal noise ratio {e.g. SSSINR in NR, RSSNR in LTE}
+  optional int32 signal_noise = 6;
+
+  // Iwlan network signal strength (Wi-Fi RSSI)
+  optional int32 iwlan_signal_strength = 7;
+
+  // SIM slot index
+  optional int32 sim_slot_index = 8;
+
+  // Current Cellular AccessNetwork Type
+  optional android.telephony.qns.AccessNetworkType cellular_network_type = 9;
+}
+
+/**
+ * Logs when QNS fallback restriction changed. pushed
+ *
+ * Logged from:
+ *      packages/modules/Telephony/services/QualifiedNetworksService
+ */
+message QnsFallbackRestrictionChanged {
+
+  // Restriction on wlan caused by RTP threshold breached
+  optional bool restriction_wlan_rtp_threshold_breached = 1;
+
+  // Restriction on wwan caused by RTP threshold breached
+  optional bool restriction_wwan_rtp_threshold_breached = 2;
+
+  // Restriction on wlan caused by IMS registration fail
+  optional bool restriction_wlan_ims_regi_fail = 3;
+
+  // Restriction on wlan caused by Wifi backhaul problem.
+  optional bool restriction_wlan_wifi_backhaul_problem = 4;
+
+  // Carrier id
+  optional int32 carrier_id = 5;
+
+  // Index of sim slot
+  optional int32 sim_slot_index = 6;
+}
+
+/*
+ * Logs time taken from update of RAT preference until successful handover completion. pulled
+ *
+ * Logged from:
+ *      packages/modules/Telephony/services/QualifiedNetworksService
+ */
+message QnsHandoverTimeMillis {
+
+  // Time in milliseconds from QNS RAT update to successful HO completion
+  optional int32 time_millis_for_ho_success = 1;
+
+  // Index of sim slot
+  optional int32 sim_slot_index = 2;
+}
+
+/**
+ * Logs the history for mismatch between QNS RAT preference & actual one. pulled
+ *
+ * Logged from:
+ *      packages/modules/Telephony/services/QualifiedNetworksService
+ */
+message QnsRatPreferenceMismatchInfo {
+
+  // Net capability of this information.
+  optional android.telephony.qns.NetCapability net_capability = 1;
+
+  // Count of handover failed.
+  optional int32 handover_fail_count = 2;
+
+  // Duration in milliseconds of this mismatch.
+  optional int32 duration_millis_of_mismatch = 3;
+
+  // Carrier id
+  optional int32 carrier_id = 4;
+
+  // Index of sim slot
+  optional int32 sim_slot_index = 5;
+}
+
+/**
+ * Logs count of handover ping-pong in short time (5 sec). pulled
+ *
+ * Logged from:
+ *      packages/modules/Telephony/services/QualifiedNetworksService
+ */
+message QnsHandoverPingpong {
+
+  // Count of handover pingpong
+  optional int32 count_handover_pingpong = 1;
+
+  // Carrier id
+  optional int32 carrier_id = 2;
+
+  // Index of sim slot
+  optional int32 sim_slot_id = 3;
+}

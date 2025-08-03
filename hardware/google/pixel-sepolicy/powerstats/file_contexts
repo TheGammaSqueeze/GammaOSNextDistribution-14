@@ -1,0 +1,1 @@
+/(vendor|system/vendor)/bin/hw/android\.hardware\.power.stats-service\.pixel u:object_r:hal_power_stats_default_exec:s0

@@ -1,0 +1,287 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+toolSources = [
+    "cmd/ApkInfo.cpp",
+    "cmd/Command.cpp",
+    "cmd/Compile.cpp",
+    "cmd/Convert.cpp",
+    "cmd/Diff.cpp",
+    "cmd/Dump.cpp",
+    "cmd/Link.cpp",
+    "cmd/Optimize.cpp",
+    "cmd/Util.cpp",
+]
+
+cc_defaults {
+    name: "aapt2_defaults",
+    cpp_std: "gnu++2b",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    cppflags: [
+        "-Wno-missing-field-initializers",
+        "-fno-exceptions",
+        "-fno-rtti",
+        "-Wno-deprecated-declarations",
+    ],
+    target: {
+        windows: {
+            compile_multilib: "64",
+            enabled: true,
+            cflags: ["-Wno-maybe-uninitialized"],
+            ldflags: ["-static"],
+        },
+        darwin: {
+            cflags: ["-D_DARWIN_UNLIMITED_STREAMS"],
+        },
+    },
+    header_libs: ["jni_headers"],
+    static_libs: [
+        "libandroidfw",
+        "libutils",
+        "liblog",
+        "libcutils",
+        "libexpat",
+        "libziparchive",
+        "libpng",
+        "libbase",
+        "libprotobuf-cpp-full",
+        "libz",
+        "libbuildversion",
+        "libidmap2_policies",
+    ],
+    stl: "libc++_static",
+}
+
+// ==========================================================
+// NOTE: Do not add any shared libraries.
+// AAPT2 is built to run on many environments
+// that may not have the required dependencies.
+// ==========================================================
+
+// ==========================================================
+// Build the host static library: aapt2
+// ==========================================================
+cc_library_host_static {
+    name: "libaapt2",
+    srcs: [
+        "compile/IdAssigner.cpp",
+        "compile/InlineXmlFormatParser.cpp",
+        "compile/PseudolocaleGenerator.cpp",
+        "compile/Pseudolocalizer.cpp",
+        "compile/XmlIdCollector.cpp",
+        "configuration/ConfigurationParser.cpp",
+        "dump/DumpManifest.cpp",
+        "filter/AbiFilter.cpp",
+        "filter/ConfigFilter.cpp",
+        "format/Archive.cpp",
+        "format/Container.cpp",
+        "format/binary/BinaryResourceParser.cpp",
+        "format/binary/ResChunkPullParser.cpp",
+        "format/binary/ResEntryWriter.cpp",
+        "format/binary/TableFlattener.cpp",
+        "format/binary/XmlFlattener.cpp",
+        "format/proto/ProtoDeserialize.cpp",
+        "format/proto/ProtoSerialize.cpp",
+        "io/File.cpp",
+        "io/FileSystem.cpp",
+        "io/StringStream.cpp",
+        "io/Util.cpp",
+        "io/ZipArchive.cpp",
+        "link/AutoVersioner.cpp",
+        "link/FeatureFlagsFilter.cpp",
+        "link/ManifestFixer.cpp",
+        "link/NoDefaultResourceRemover.cpp",
+        "link/PrivateAttributeMover.cpp",
+        "link/ReferenceLinker.cpp",
+        "link/ResourceExcluder.cpp",
+        "link/TableMerger.cpp",
+        "link/XmlCompatVersioner.cpp",
+        "link/XmlNamespaceRemover.cpp",
+        "link/XmlReferenceLinker.cpp",
+        "optimize/MultiApkGenerator.cpp",
+        "optimize/ResourceDeduper.cpp",
+        "optimize/ResourceFilter.cpp",
+        "optimize/Obfuscator.cpp",
+        "optimize/VersionCollapser.cpp",
+        "process/ProductFilter.cpp",
+        "process/SymbolTable.cpp",
+        "split/TableSplitter.cpp",
+        "text/Printer.cpp",
+        "text/Unicode.cpp",
+        "text/Utf8Iterator.cpp",
+        "util/Files.cpp",
+        "util/Util.cpp",
+        "Debug.cpp",
+        "DominatorTree.cpp",
+        "java/AnnotationProcessor.cpp",
+        "java/ClassDefinition.cpp",
+        "java/JavaClassGenerator.cpp",
+        "java/ManifestClassGenerator.cpp",
+        "java/ProguardRules.cpp",
+        "LoadedApk.cpp",
+        "Resource.cpp",
+        "ResourceParser.cpp",
+        "ResourceTable.cpp",
+        "ResourceUtils.cpp",
+        "ResourceValues.cpp",
+        "SdkConstants.cpp",
+        "trace/TraceBuffer.cpp",
+        "xml/XmlActionExecutor.cpp",
+        "xml/XmlDom.cpp",
+        "xml/XmlPullParser.cpp",
+        "xml/XmlUtil.cpp",
+        "ApkInfo.proto",
+        "Configuration.proto",
+        "Resources.proto",
+        "ResourceMetadata.proto",
+        "ResourcesInternal.proto",
+        "ValueTransformer.cpp",
+    ],
+    proto: {
+        export_proto_headers: true,
+        type: "full",
+    },
+    defaults: ["aapt2_defaults"],
+}
+
+// ==========================================================
+// Build the host tests: aapt2_tests
+// ==========================================================
+cc_test_host {
+    name: "aapt2_tests",
+    srcs: [
+        "test/Builders.cpp",
+        "test/Common.cpp",
+        "test/Fixture.cpp",
+        "**/*_test.cpp",
+    ] + toolSources,
+    static_libs: [
+        "libaapt2",
+        "libgmock",
+    ],
+    defaults: ["aapt2_defaults"],
+    data: [
+        "integration-tests/CompileTest/**/*",
+        "integration-tests/CommandTests/**/*",
+        "integration-tests/ConvertTest/**/*",
+        "integration-tests/DumpTest/**/*",
+    ],
+}
+
+// ==========================================================
+// Build the host executable: aapt2
+// ==========================================================
+cc_binary_host {
+    name: "aapt2",
+    srcs: ["Main.cpp"] + toolSources,
+    use_version_lib: true,
+    static_libs: ["libaapt2"],
+    defaults: ["aapt2_defaults"],
+    dist: {
+        targets: ["aapt2_artifacts"],
+    },
+}
+
+// ==========================================================
+// Dist the protos
+// ==========================================================
+genrule {
+    name: "aapt2-protos",
+    tools: [":soong_zip"],
+    srcs: [
+        "ApkInfo.proto",
+        "Configuration.proto",
+        "ResourcesInternal.proto",
+        "ResourceMetadata.proto",
+        "Resources.proto",
+    ],
+    out: ["aapt2-protos.zip"],
+    cmd: "mkdir $(genDir)/protos && " +
+        "cp $(in) $(genDir)/protos && " +
+        "$(location :soong_zip) -o $(out) -C $(genDir)/protos -D $(genDir)/protos",
+    dist: {
+        targets: [
+            "sdk_repo",
+            "aapt2_artifacts",
+        ],
+    },
+}
+
+cc_genrule {
+    name: "aapt2_results",
+    srcs: [
+        ":aapt2_tests",
+        "integration-tests/CompileTest/**/*",
+        "integration-tests/CommandTests/**/*",
+        "integration-tests/ConvertTest/**/*",
+        "integration-tests/DumpTest/**/*",
+    ],
+    host_supported: true,
+    device_supported: false,
+    target: {
+        windows: {
+            compile_multilib: "64",
+        },
+    },
+    out: ["result.xml"],
+    cmd: "mkdir -p $(genDir)/integration-tests/CompileTest/ && " +
+        "cp $(locations integration-tests/CompileTest/**/*) $(genDir)/integration-tests/CompileTest/ && " +
+        "mkdir -p $(genDir)/integration-tests/CommandTests/ && " +
+        "cp $(locations integration-tests/CommandTests/**/*) $(genDir)/integration-tests/CompileTest/ && " +
+        "mkdir -p $(genDir)/integration-tests/ConvertTest/ && " +
+        "cp $(locations integration-tests/ConvertTest/**/*) $(genDir)/integration-tests/ConvertTest/ && " +
+        "mkdir -p $(genDir)/integration-tests/DumpTest/ && " +
+        "cp $(locations integration-tests/DumpTest/**/*) $(genDir)/integration-tests/DumpTest/ && " +
+        "cp $(locations :aapt2_tests) $(genDir)/ && " +
+        "$(genDir)/aapt2_tests " +
+        "--gtest_output=xml:$(out) " +
+        ">/dev/null 2>&1 ; true",
+    dist: {
+        targets: ["aapt2_run_host_unit_tests"],
+        dir: "gtest",
+        dest: "aapt2_host_unit_tests_result.xml",
+    },
+    arch: {
+        x86: {
+            dist: {
+                suffix: "_x86",
+            },
+        },
+        x86_64: {
+            dist: {
+                suffix: "_x86_64",
+            },
+        },
+    },
+}
+
+phony_rule {
+    name: "aapt2_run_host_unit_tests",
+    phony_deps: ["aapt2_results"],
+}

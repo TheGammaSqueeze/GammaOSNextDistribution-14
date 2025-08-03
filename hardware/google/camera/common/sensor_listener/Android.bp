@@ -1,0 +1,72 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library {
+    name: "lib_sensor_listener",
+    vendor: true,
+    owner: "google",
+    host_supported: true,
+
+    srcs: [
+        "goog_gyro_direct.cc",
+        "goog_gralloc_wrapper.cc",
+        "goog_sensor_environment.cc",
+        "goog_sensor_motion.cc",
+        "goog_sensor_sync.cc",
+        "goog_sensor_wrapper.cc",
+    ],
+
+    include_dirs: ["."],
+    export_include_dirs: ["."],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wthread-safety",
+        "-Wno-unused-parameter",
+        "-Wno-unused-function",
+        "-Wno-unused-variable",
+    ],
+    header_libs: [
+        "libhardware_headers",
+    ],
+    shared_libs: [
+        "android.frameworks.sensorservice@1.0",
+        "android.hardware.graphics.allocator@3.0",
+        "android.hardware.graphics.mapper@3.0",
+        "android.hardware.sensors@1.0",
+        "android.hidl.allocator@1.0",
+        "libbase",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    export_shared_lib_headers: [
+        "android.frameworks.sensorservice@1.0",
+        "android.hardware.graphics.allocator@3.0",
+    ],
+}
+
+cc_test {
+    name: "lib_sensor_listener_test",
+    gtest: true,
+    vendor: true,
+    owner: "google",
+
+    local_include_dirs: ["."],
+
+    srcs: [
+        "tests/goog_gyro_test.cc",
+        "tests/goog_sensor_environment_test.cc",
+        "tests/goog_sensor_motion_test.cc",
+        "tests/goog_sensor_sync_test.cc",
+    ],
+    shared_libs: [
+        "libbinder",
+        "liblog",
+        "libutils",
+        "lib_sensor_listener",
+    ],
+}

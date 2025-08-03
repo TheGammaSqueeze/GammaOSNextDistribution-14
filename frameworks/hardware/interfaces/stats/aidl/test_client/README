@@ -1,0 +1,8 @@
+This client can be installed on the device to test accesses of the AIDL service as
+it would be called from other clients.
+
+To install copy binary to /data/local/tmp
+
+Supported command line arguments:
+    -h or --help - shows help information
+    -v or --VendorAtom - tests report reportVendorAtom API

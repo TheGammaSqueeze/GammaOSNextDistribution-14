@@ -1,0 +1,1813 @@
+{
+	"symbols" : 
+	{
+		"ANeuralNetworksBurst_create" : 
+		{
+			"type" : "func ANeuralNetworksBurst_create"
+		},
+		"ANeuralNetworksBurst_free" : 
+		{
+			"type" : "func ANeuralNetworksBurst_free"
+		},
+		"ANeuralNetworksCompilation_addExtensionAttribute" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_addExtensionAttribute"
+		},
+		"ANeuralNetworksCompilation_create" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_create"
+		},
+		"ANeuralNetworksCompilation_createForDevices" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_createForDevices"
+		},
+		"ANeuralNetworksCompilation_finish" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_finish"
+		},
+		"ANeuralNetworksCompilation_free" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_free"
+		},
+		"ANeuralNetworksCompilation_getPreferredMemoryAlignmentForInput" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_getPreferredMemoryAlignmentForInput"
+		},
+		"ANeuralNetworksCompilation_getPreferredMemoryAlignmentForOutput" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_getPreferredMemoryAlignmentForOutput"
+		},
+		"ANeuralNetworksCompilation_getPreferredMemoryPaddingForInput" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_getPreferredMemoryPaddingForInput"
+		},
+		"ANeuralNetworksCompilation_getPreferredMemoryPaddingForOutput" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_getPreferredMemoryPaddingForOutput"
+		},
+		"ANeuralNetworksCompilation_setCaching" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_setCaching"
+		},
+		"ANeuralNetworksCompilation_setPreference" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_setPreference"
+		},
+		"ANeuralNetworksCompilation_setPriority" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_setPriority"
+		},
+		"ANeuralNetworksCompilation_setTimeout" : 
+		{
+			"type" : "func ANeuralNetworksCompilation_setTimeout"
+		},
+		"ANeuralNetworksDevice_getExtensionSupport" : 
+		{
+			"type" : "func ANeuralNetworksDevice_getExtensionSupport"
+		},
+		"ANeuralNetworksDevice_getFeatureLevel" : 
+		{
+			"type" : "func ANeuralNetworksDevice_getFeatureLevel"
+		},
+		"ANeuralNetworksDevice_getName" : 
+		{
+			"type" : "func ANeuralNetworksDevice_getName"
+		},
+		"ANeuralNetworksDevice_getType" : 
+		{
+			"type" : "func ANeuralNetworksDevice_getType"
+		},
+		"ANeuralNetworksDevice_getVersion" : 
+		{
+			"type" : "func ANeuralNetworksDevice_getVersion"
+		},
+		"ANeuralNetworksDevice_wait" : 
+		{
+			"type" : "func ANeuralNetworksDevice_wait"
+		},
+		"ANeuralNetworksEvent_createFromSyncFenceFd" : 
+		{
+			"type" : "func ANeuralNetworksEvent_createFromSyncFenceFd"
+		},
+		"ANeuralNetworksEvent_free" : 
+		{
+			"type" : "func ANeuralNetworksEvent_free"
+		},
+		"ANeuralNetworksEvent_getSyncFenceFd" : 
+		{
+			"type" : "func ANeuralNetworksEvent_getSyncFenceFd"
+		},
+		"ANeuralNetworksEvent_wait" : 
+		{
+			"type" : "func ANeuralNetworksEvent_wait"
+		},
+		"ANeuralNetworksExecution_addExtensionAttribute" : 
+		{
+			"type" : "func ANeuralNetworksExecution_addExtensionAttribute"
+		},
+		"ANeuralNetworksExecution_burstCompute" : 
+		{
+			"type" : "func ANeuralNetworksExecution_burstCompute"
+		},
+		"ANeuralNetworksExecution_compute" : 
+		{
+			"type" : "func ANeuralNetworksExecution_compute"
+		},
+		"ANeuralNetworksExecution_create" : 
+		{
+			"type" : "func ANeuralNetworksExecution_create"
+		},
+		"ANeuralNetworksExecution_enableInputAndOutputPadding" : 
+		{
+			"type" : "func ANeuralNetworksExecution_enableInputAndOutputPadding"
+		},
+		"ANeuralNetworksExecution_free" : 
+		{
+			"type" : "func ANeuralNetworksExecution_free"
+		},
+		"ANeuralNetworksExecution_getDuration" : 
+		{
+			"type" : "func ANeuralNetworksExecution_getDuration"
+		},
+		"ANeuralNetworksExecution_getOutputOperandDimensions" : 
+		{
+			"type" : "func ANeuralNetworksExecution_getOutputOperandDimensions"
+		},
+		"ANeuralNetworksExecution_getOutputOperandRank" : 
+		{
+			"type" : "func ANeuralNetworksExecution_getOutputOperandRank"
+		},
+		"ANeuralNetworksExecution_setInput" : 
+		{
+			"type" : "func ANeuralNetworksExecution_setInput"
+		},
+		"ANeuralNetworksExecution_setInputFromMemory" : 
+		{
+			"type" : "func ANeuralNetworksExecution_setInputFromMemory"
+		},
+		"ANeuralNetworksExecution_setLoopTimeout" : 
+		{
+			"type" : "func ANeuralNetworksExecution_setLoopTimeout"
+		},
+		"ANeuralNetworksExecution_setMeasureTiming" : 
+		{
+			"type" : "func ANeuralNetworksExecution_setMeasureTiming"
+		},
+		"ANeuralNetworksExecution_setOutput" : 
+		{
+			"type" : "func ANeuralNetworksExecution_setOutput"
+		},
+		"ANeuralNetworksExecution_setOutputFromMemory" : 
+		{
+			"type" : "func ANeuralNetworksExecution_setOutputFromMemory"
+		},
+		"ANeuralNetworksExecution_setReusable" : 
+		{
+			"type" : "func ANeuralNetworksExecution_setReusable"
+		},
+		"ANeuralNetworksExecution_setTimeout" : 
+		{
+			"type" : "func ANeuralNetworksExecution_setTimeout"
+		},
+		"ANeuralNetworksExecution_startCompute" : 
+		{
+			"type" : "func ANeuralNetworksExecution_startCompute"
+		},
+		"ANeuralNetworksExecution_startComputeWithDependencies" : 
+		{
+			"type" : "func ANeuralNetworksExecution_startComputeWithDependencies"
+		},
+		"ANeuralNetworksMemoryDesc_addInputRole" : 
+		{
+			"type" : "func ANeuralNetworksMemoryDesc_addInputRole"
+		},
+		"ANeuralNetworksMemoryDesc_addOutputRole" : 
+		{
+			"type" : "func ANeuralNetworksMemoryDesc_addOutputRole"
+		},
+		"ANeuralNetworksMemoryDesc_create" : 
+		{
+			"type" : "func ANeuralNetworksMemoryDesc_create"
+		},
+		"ANeuralNetworksMemoryDesc_finish" : 
+		{
+			"type" : "func ANeuralNetworksMemoryDesc_finish"
+		},
+		"ANeuralNetworksMemoryDesc_free" : 
+		{
+			"type" : "func ANeuralNetworksMemoryDesc_free"
+		},
+		"ANeuralNetworksMemoryDesc_setDimensions" : 
+		{
+			"type" : "func ANeuralNetworksMemoryDesc_setDimensions"
+		},
+		"ANeuralNetworksMemory_copy" : 
+		{
+			"type" : "func ANeuralNetworksMemory_copy"
+		},
+		"ANeuralNetworksMemory_createFromAHardwareBuffer" : 
+		{
+			"type" : "func ANeuralNetworksMemory_createFromAHardwareBuffer"
+		},
+		"ANeuralNetworksMemory_createFromDesc" : 
+		{
+			"type" : "func ANeuralNetworksMemory_createFromDesc"
+		},
+		"ANeuralNetworksMemory_createFromFd" : 
+		{
+			"type" : "func ANeuralNetworksMemory_createFromFd"
+		},
+		"ANeuralNetworksMemory_free" : 
+		{
+			"type" : "func ANeuralNetworksMemory_free"
+		},
+		"ANeuralNetworksModel_addOperand" : 
+		{
+			"type" : "func ANeuralNetworksModel_addOperand"
+		},
+		"ANeuralNetworksModel_addOperation" : 
+		{
+			"type" : "func ANeuralNetworksModel_addOperation"
+		},
+		"ANeuralNetworksModel_create" : 
+		{
+			"type" : "func ANeuralNetworksModel_create"
+		},
+		"ANeuralNetworksModel_finish" : 
+		{
+			"type" : "func ANeuralNetworksModel_finish"
+		},
+		"ANeuralNetworksModel_free" : 
+		{
+			"type" : "func ANeuralNetworksModel_free"
+		},
+		"ANeuralNetworksModel_getExtensionOperandType" : 
+		{
+			"type" : "func ANeuralNetworksModel_getExtensionOperandType"
+		},
+		"ANeuralNetworksModel_getExtensionOperationType" : 
+		{
+			"type" : "func ANeuralNetworksModel_getExtensionOperationType"
+		},
+		"ANeuralNetworksModel_getSupportedOperationsForDevices" : 
+		{
+			"type" : "func ANeuralNetworksModel_getSupportedOperationsForDevices"
+		},
+		"ANeuralNetworksModel_identifyInputsAndOutputs" : 
+		{
+			"type" : "func ANeuralNetworksModel_identifyInputsAndOutputs"
+		},
+		"ANeuralNetworksModel_relaxComputationFloat32toFloat16" : 
+		{
+			"type" : "func ANeuralNetworksModel_relaxComputationFloat32toFloat16"
+		},
+		"ANeuralNetworksModel_setOperandExtensionData" : 
+		{
+			"type" : "func ANeuralNetworksModel_setOperandExtensionData"
+		},
+		"ANeuralNetworksModel_setOperandSymmPerChannelQuantParams" : 
+		{
+			"type" : "func ANeuralNetworksModel_setOperandSymmPerChannelQuantParams"
+		},
+		"ANeuralNetworksModel_setOperandValue" : 
+		{
+			"type" : "func ANeuralNetworksModel_setOperandValue"
+		},
+		"ANeuralNetworksModel_setOperandValueFromMemory" : 
+		{
+			"type" : "func ANeuralNetworksModel_setOperandValueFromMemory"
+		},
+		"ANeuralNetworksModel_setOperandValueFromModel" : 
+		{
+			"type" : "func ANeuralNetworksModel_setOperandValueFromModel"
+		},
+		"ANeuralNetworks_getDefaultLoopTimeout" : 
+		{
+			"type" : "func ANeuralNetworks_getDefaultLoopTimeout"
+		},
+		"ANeuralNetworks_getDevice" : 
+		{
+			"type" : "func ANeuralNetworks_getDevice"
+		},
+		"ANeuralNetworks_getDeviceCount" : 
+		{
+			"type" : "func ANeuralNetworks_getDeviceCount"
+		},
+		"ANeuralNetworks_getMaximumLoopTimeout" : 
+		{
+			"type" : "func ANeuralNetworks_getMaximumLoopTimeout"
+		},
+		"ANeuralNetworks_getRuntimeFeatureLevel" : 
+		{
+			"type" : "func ANeuralNetworks_getRuntimeFeatureLevel"
+		}
+	},
+	"types" : 
+	{
+		"bool" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 8
+		},
+		"bool*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "bool",
+			"size" : 64
+		},
+		"char8" : 
+		{
+			"kind" : "char",
+			"signed" : true,
+			"size" : 8
+		},
+		"char8 const" : 
+		{
+			"base_type" : "char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8 const",
+			"size" : 64
+		},
+		"char8 const**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8 const*",
+			"size" : 64
+		},
+		"float32" : 
+		{
+			"kind" : "float",
+			"signed" : true,
+			"size" : 32
+		},
+		"float32 const" : 
+		{
+			"base_type" : "float32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"float32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float32 const",
+			"size" : 64
+		},
+		"func ANeuralNetworksBurst_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*",
+				"struct ANeuralNetworksBurst**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksBurst_free" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksBurst*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_addExtensionAttribute" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*",
+				"char8 const*",
+				"unsigned int16",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"struct ANeuralNetworksCompilation**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_createForDevices" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"struct ANeuralNetworksDevice const* const*",
+				"unsigned int32",
+				"struct ANeuralNetworksCompilation**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_finish" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_free" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_getPreferredMemoryAlignmentForInput" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation const*",
+				"unsigned int32",
+				"unsigned int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_getPreferredMemoryAlignmentForOutput" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation const*",
+				"unsigned int32",
+				"unsigned int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_getPreferredMemoryPaddingForInput" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation const*",
+				"unsigned int32",
+				"unsigned int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_getPreferredMemoryPaddingForOutput" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation const*",
+				"unsigned int32",
+				"unsigned int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_setCaching" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*",
+				"char8 const*",
+				"unsigned char8 const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_setPreference" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_setPriority" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksCompilation_setTimeout" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksDevice_getExtensionSupport" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksDevice const*",
+				"char8 const*",
+				"bool*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksDevice_getFeatureLevel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksDevice const*",
+				"int64*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksDevice_getName" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksDevice const*",
+				"char8 const**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksDevice_getType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksDevice const*",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksDevice_getVersion" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksDevice const*",
+				"char8 const**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksDevice_wait" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksDevice const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksEvent_createFromSyncFenceFd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct ANeuralNetworksEvent**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksEvent_free" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksEvent*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANeuralNetworksEvent_getSyncFenceFd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksEvent const*",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksEvent_wait" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksEvent*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_addExtensionAttribute" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"char8 const*",
+				"unsigned int16",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_burstCompute" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"struct ANeuralNetworksBurst*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_compute" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksCompilation*",
+				"struct ANeuralNetworksExecution**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_enableInputAndOutputPadding" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_free" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_getDuration" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution const*",
+				"int32",
+				"unsigned int64*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_getOutputOperandDimensions" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_getOutputOperandRank" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"int32",
+				"unsigned int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_setInput" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"int32",
+				"struct ANeuralNetworksOperandType const*",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_setInputFromMemory" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"int32",
+				"struct ANeuralNetworksOperandType const*",
+				"struct ANeuralNetworksMemory const*",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_setLoopTimeout" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_setMeasureTiming" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_setOutput" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"int32",
+				"struct ANeuralNetworksOperandType const*",
+				"void*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_setOutputFromMemory" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"int32",
+				"struct ANeuralNetworksOperandType const*",
+				"struct ANeuralNetworksMemory const*",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_setReusable" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_setTimeout" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_startCompute" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"struct ANeuralNetworksEvent**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksExecution_startComputeWithDependencies" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksExecution*",
+				"struct ANeuralNetworksEvent const* const*",
+				"unsigned int32",
+				"unsigned int64",
+				"struct ANeuralNetworksEvent**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemoryDesc_addInputRole" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemoryDesc*",
+				"struct ANeuralNetworksCompilation const*",
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemoryDesc_addOutputRole" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemoryDesc*",
+				"struct ANeuralNetworksCompilation const*",
+				"unsigned int32",
+				"float32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemoryDesc_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemoryDesc**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemoryDesc_finish" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemoryDesc*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemoryDesc_free" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemoryDesc*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemoryDesc_setDimensions" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemoryDesc*",
+				"unsigned int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemory_copy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemory const*",
+				"struct ANeuralNetworksMemory const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemory_createFromAHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*",
+				"struct ANeuralNetworksMemory**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemory_createFromDesc" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemoryDesc const*",
+				"struct ANeuralNetworksMemory**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemory_createFromFd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64",
+				"int32",
+				"int32",
+				"unsigned int64",
+				"struct ANeuralNetworksMemory**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksMemory_free" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksMemory*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_addOperand" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"struct ANeuralNetworksOperandType const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_addOperation" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"int32",
+				"unsigned int32",
+				"unsigned int32 const*",
+				"unsigned int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_finish" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_free" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_getExtensionOperandType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"char8 const*",
+				"unsigned int16",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_getExtensionOperationType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"char8 const*",
+				"unsigned int16",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_getSupportedOperationsForDevices" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel const*",
+				"struct ANeuralNetworksDevice const* const*",
+				"unsigned int32",
+				"bool*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_identifyInputsAndOutputs" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"unsigned int32",
+				"unsigned int32 const*",
+				"unsigned int32",
+				"unsigned int32 const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_relaxComputationFloat32toFloat16" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_setOperandExtensionData" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"int32",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_setOperandSymmPerChannelQuantParams" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"int32",
+				"struct ANeuralNetworksSymmPerChannelQuantParams const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_setOperandValue" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"int32",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_setOperandValueFromMemory" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"int32",
+				"struct ANeuralNetworksMemory const*",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworksModel_setOperandValueFromModel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANeuralNetworksModel*",
+				"int32",
+				"struct ANeuralNetworksModel const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworks_getDefaultLoopTimeout" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "unsigned int64",
+			"size" : 0
+		},
+		"func ANeuralNetworks_getDevice" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct ANeuralNetworksDevice**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworks_getDeviceCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANeuralNetworks_getMaximumLoopTimeout" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "unsigned int64",
+			"size" : 0
+		},
+		"func ANeuralNetworks_getRuntimeFeatureLevel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"int32" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 32
+		},
+		"int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32",
+			"size" : 64
+		},
+		"int64" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 64
+		},
+		"int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int64",
+			"size" : 64
+		},
+		"struct AHardwareBuffer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AHardwareBuffer const" : 
+		{
+			"base_type" : "struct AHardwareBuffer",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct AHardwareBuffer const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksBurst" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANeuralNetworksBurst*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksBurst",
+			"size" : 64
+		},
+		"struct ANeuralNetworksBurst**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksBurst*",
+			"size" : 64
+		},
+		"struct ANeuralNetworksCompilation" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANeuralNetworksCompilation const" : 
+		{
+			"base_type" : "struct ANeuralNetworksCompilation",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANeuralNetworksCompilation const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksCompilation const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksCompilation*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksCompilation",
+			"size" : 64
+		},
+		"struct ANeuralNetworksCompilation**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksCompilation*",
+			"size" : 64
+		},
+		"struct ANeuralNetworksDevice" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANeuralNetworksDevice const" : 
+		{
+			"base_type" : "struct ANeuralNetworksDevice",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANeuralNetworksDevice const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksDevice const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksDevice const* const" : 
+		{
+			"base_type" : "struct ANeuralNetworksDevice const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksDevice const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksDevice const* const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksDevice*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksDevice",
+			"size" : 64
+		},
+		"struct ANeuralNetworksDevice**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksDevice*",
+			"size" : 64
+		},
+		"struct ANeuralNetworksEvent" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANeuralNetworksEvent const" : 
+		{
+			"base_type" : "struct ANeuralNetworksEvent",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANeuralNetworksEvent const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksEvent const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksEvent const* const" : 
+		{
+			"base_type" : "struct ANeuralNetworksEvent const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksEvent const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksEvent const* const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksEvent*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksEvent",
+			"size" : 64
+		},
+		"struct ANeuralNetworksEvent**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksEvent*",
+			"size" : 64
+		},
+		"struct ANeuralNetworksExecution" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANeuralNetworksExecution const" : 
+		{
+			"base_type" : "struct ANeuralNetworksExecution",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANeuralNetworksExecution const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksExecution const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksExecution*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksExecution",
+			"size" : 64
+		},
+		"struct ANeuralNetworksExecution**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksExecution*",
+			"size" : 64
+		},
+		"struct ANeuralNetworksMemory" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANeuralNetworksMemory const" : 
+		{
+			"base_type" : "struct ANeuralNetworksMemory",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANeuralNetworksMemory const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksMemory const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksMemory*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksMemory",
+			"size" : 64
+		},
+		"struct ANeuralNetworksMemory**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksMemory*",
+			"size" : 64
+		},
+		"struct ANeuralNetworksMemoryDesc" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANeuralNetworksMemoryDesc const" : 
+		{
+			"base_type" : "struct ANeuralNetworksMemoryDesc",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANeuralNetworksMemoryDesc const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksMemoryDesc const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksMemoryDesc*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksMemoryDesc",
+			"size" : 64
+		},
+		"struct ANeuralNetworksMemoryDesc**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksMemoryDesc*",
+			"size" : 64
+		},
+		"struct ANeuralNetworksModel" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANeuralNetworksModel const" : 
+		{
+			"base_type" : "struct ANeuralNetworksModel",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANeuralNetworksModel const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksModel const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksModel*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksModel",
+			"size" : 64
+		},
+		"struct ANeuralNetworksModel**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksModel*",
+			"size" : 64
+		},
+		"struct ANeuralNetworksOperandType" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "type",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "dimensionCount",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "dimensions",
+					"offset" : 64,
+					"type" : "unsigned int32 const*"
+				},
+				{
+					"name" : "scale",
+					"offset" : 128,
+					"type" : "float32"
+				},
+				{
+					"name" : "zeroPoint",
+					"offset" : 160,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 192
+		},
+		"struct ANeuralNetworksOperandType const" : 
+		{
+			"base_type" : "struct ANeuralNetworksOperandType",
+			"kind" : "const",
+			"size" : 192
+		},
+		"struct ANeuralNetworksOperandType const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksOperandType const",
+			"size" : 64
+		},
+		"struct ANeuralNetworksSymmPerChannelQuantParams" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "channelDim",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "scaleCount",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "scales",
+					"offset" : 64,
+					"type" : "float32 const*"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct ANeuralNetworksSymmPerChannelQuantParams const" : 
+		{
+			"base_type" : "struct ANeuralNetworksSymmPerChannelQuantParams",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct ANeuralNetworksSymmPerChannelQuantParams const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANeuralNetworksSymmPerChannelQuantParams const",
+			"size" : 64
+		},
+		"unsigned char8" : 
+		{
+			"kind" : "char",
+			"signed" : false,
+			"size" : 8
+		},
+		"unsigned char8 const" : 
+		{
+			"base_type" : "unsigned char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"unsigned char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned char8 const",
+			"size" : 64
+		},
+		"unsigned int16" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 16
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int32 const" : 
+		{
+			"base_type" : "unsigned int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"unsigned int32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32 const",
+			"size" : 64
+		},
+		"unsigned int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32",
+			"size" : 64
+		},
+		"unsigned int64" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 64
+		},
+		"unsigned int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int64",
+			"size" : 64
+		},
+		"void" : 
+		{
+			"kind" : "incomplete"
+		},
+		"void const" : 
+		{
+			"base_type" : "void",
+			"kind" : "const",
+			"size" : 0
+		},
+		"void const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void const",
+			"size" : 64
+		},
+		"void*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void",
+			"size" : 64
+		}
+	}
+}

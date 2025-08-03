@@ -1,0 +1,34 @@
+// Build API doc generator ====================
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary_host {
+    name: "rs-api-doc-generator",
+    srcs: [
+        "Generator.cpp",
+        "Specification.cpp",
+        "GenerateDocumentation.cpp",
+        "GenerateHeaderFiles.cpp",
+        "GenerateTestFiles.cpp",
+        "Scanner.cpp",
+        "Utilities.cpp",
+        "GenerateRSFunctionsList.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    sanitize: {
+        never: true,
+    },
+}
+
+filegroup {
+    name: "rs_script_api",
+    srcs: ["include/*.rsh"],
+    path: "include",
+}

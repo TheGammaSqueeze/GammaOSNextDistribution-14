@@ -1,0 +1,6 @@
+persist.vendor.wifi.perf_diag.period              u:object_r:vendor_wifi_perf_diag_prop:s0
+persist.vendor.wifi.perf_diag.file                u:object_r:vendor_wifi_perf_diag_prop:s0
+persist.vendor.wifi.perf_diag.netperf             u:object_r:vendor_wifi_perf_diag_prop:s0
+persist.vendor.wifi.perf_diag.pid                 u:object_r:vendor_wifi_perf_diag_prop:s0
+persist.vendor.wifi.perf_diag.mode                u:object_r:vendor_wifi_perf_diag_prop:s0
+vendor.wifi.perf_diag.start                       u:object_r:vendor_wifi_perf_diag_prop:s0

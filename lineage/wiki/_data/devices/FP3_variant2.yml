@@ -1,0 +1,38 @@
+architecture: arm64
+battery: {capacity: 3000, removable: True, tech: 'Li-Ion'}
+bluetooth: {spec: '5'}
+cameras:
+  - {flash: 'LED', info: '48 MP'}
+  - {flash: None, info: '16 MP'}
+codename: FP3
+cpu: Kryo 250
+cpu_cores: '4'
+cpu_freq: 1.8 GHz
+current_branch: 22.2
+dimensions: {depth: 9.89, height: 158, width: 71.8}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Release when boot logo appears.
+gpu: Qualcomm Adreno 506
+image: FP3.png
+install_method: fastboot_fairphone
+is_ab_device: true
+kernel: {repo: android_kernel_fairphone_sdm632, version: '4.9'}
+maintainers: [teamb58]
+name: '3+'
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, Dual SIM, Fingerprint reader, Galileo, GLONASS, GPS, Gyroscope, Light sensor, NFC, Proximity sensor, RGB ambient light]
+ram: 4 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. Release when boot logo appears.
+recovery_partition_name: boot
+recovery_reboot: fastboot_menu
+release: 2019-09
+screen: {resolution: '2160x1080', size: 5.65, technology: 'IPS LCD'}
+sdcard: {size_max: '400 GB'}
+soc: Qualcomm SDM632 Snapdragon 632
+storage: 64 GB
+tree: android_device_fairphone_FP3
+type: phone
+variant: 2
+vendor: Fairphone
+vendor_short: fairphone
+versions: [16.0, 17.1, 18.1, 19.1, 20, 21, 22.1, 22.2]
+wifi: 802.11 a/b/g/n/ac

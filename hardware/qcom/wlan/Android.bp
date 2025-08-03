@@ -1,0 +1,88 @@
+
+package {
+    default_applicable_licenses: ["hardware_qcom_wlan_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change filtered out the below license kinds as false-positives:
+//   SPDX-license-identifier-GPL-2.0
+// See: http://go/android-license-faq
+license {
+    name: "hardware_qcom_wlan_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "legacy_not_a_contribution",
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+    ],
+    // large-scale-change unable to identify any license_text files
+}
+
+soong_config_module_type {
+    name: "wifihal_qcom_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "qcom_wifi",
+    variables: [
+        "board_wlan_chip", // BOARD_WLAN_CHIP
+    ],
+    properties: [
+        "shared_libs",
+        "whole_static_libs",
+    ],
+}
+
+soong_config_string_variable {
+    name: "board_wlan_chip",
+    values: [
+        "wcn6740",
+        "wcn3990",
+    ],
+}
+
+wifihal_qcom_defaults {
+    name: "libwifi-hal-qcom",
+    soong_config_variables: {
+        board_wlan_chip: {
+            wcn6740: {
+                whole_static_libs: [
+                    "//hardware/qcom/wlan/wcn6740:libwifi-hal-qcom",
+                ],
+                shared_libs: [
+                    "//hardware/qcom/wlan/wcn6740:libcld80211",
+                    "libcrypto",
+                ],
+            },
+            wcn3990: {
+                whole_static_libs: [
+                    "//hardware/qcom/sw5100/wlan/qcwcn/wifi_hal:libwifi-hal-qcom",
+                ],
+                shared_libs: [
+                    "//hardware/qcom/sw5100/wlan/cld80211-lib:libcld80211",
+                    "libcrypto",
+                ],
+            },
+            conditions_default: {
+                whole_static_libs: [
+                    "//hardware/qcom/wlan/legacy:libwifi-hal-qcom",
+                ],
+                shared_libs: [
+                    "//hardware/qcom/wlan/legacy:libcld80211",
+                    "libcrypto",
+                ],
+            },
+        },
+    },
+}

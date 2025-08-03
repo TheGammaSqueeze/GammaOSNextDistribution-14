@@ -1,0 +1,353 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.hotword;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/hotword/enums.proto";
+
+option java_package = "com.android.os.hotword";
+option java_multiple_files = true;
+
+/**
+ * Logs information related to creating hotword detector.
+ */
+message HotwordDetectorCreateRequested {
+    // The type of detector.
+    optional android.hotword.HotwordDetectorType detector_type = 1;
+
+    // True if the detector is created successfully.
+    optional bool is_created_done = 2;
+
+    // The UID for which assistant application is active.
+    optional int32 uid = 3 [(is_uid) = true];
+}
+
+/**
+ * Logs information related to hotword detection service init result.
+ */
+message HotwordDetectionServiceInitResultReported {
+    // The type of detector.
+    optional android.hotword.HotwordDetectorType detector_type = 1;
+
+    // The result of initialization.
+    enum Result {
+        // Indicates that the service was initialized successfully.
+        CALLBACK_INIT_STATE_SUCCESS = 0;
+
+        // Indicates that the service was not initialized successfully.
+        CALLBACK_INIT_STATE_ERROR = 1;
+
+        // Indicates that the callback was invoked without init state.
+        CALLBACK_INIT_STATE_UNKNOWN_NO_VALUE = 2;
+
+        // Indicates that the callback was invoked, but the init state value exceeded
+        // the defined maximum.
+        CALLBACK_INIT_STATE_UNKNOWN_OVER_MAX_CUSTOM_VALUE = 3;
+
+        // Indicates that the callback was not invoked within timeout.
+        CALLBACK_INIT_STATE_UNKNOWN_TIMEOUT = 4;
+    }
+    optional Result result = 2;
+
+    // The UID for which the assistant application is active.
+    optional int32 uid = 3 [(is_uid) = true];
+}
+
+/**
+ * Logs information related to restarting hotword detection service.
+ */
+message HotwordDetectionServiceRestarted {
+    // The type of detector.
+    optional android.hotword.HotwordDetectorType detector_type = 1;
+
+    // The reason for restarting service.
+    enum Reason {
+        // UNKNOWN value.
+        UNKNOWN = 0;
+
+        // Indicates that the service was restarted due to audio service died.
+        AUDIO_SERVICE_DIED = 1;
+
+        // Indicates that the service was restarted regularly.
+        SCHEDULE = 2;
+
+        // Deprecated. Indicates that the service was restarted due to service crashed.
+        CRASH = 3 [deprecated = true];
+    }
+    optional Reason reason = 2;
+
+    // The UID for which the assistant application is active.
+    optional int32 uid = 3 [(is_uid) = true];
+}
+
+/**
+ * Logs information related to keyphrase trigger.
+ */
+message HotwordDetectorKeyphraseTriggered {
+    // The type of detector.
+    optional android.hotword.HotwordDetectorType detector_type = 1;
+
+    // The result of detection.
+    enum Result {
+        // Indicates that the system got the keyphrase from DSP.
+        KEYPHRASE_TRIGGER = 0;
+
+        // Deprecated. Indicates that the system can not inform the service to verify the keyphrase.
+        FAILED_TO_INFORM_SERVICE = 1 [deprecated = true];
+
+        // Indicates that the callback was not invoked within timeout after informing
+        // the service.
+        DETECT_TIMEOUT = 2;
+
+        // Indicates that the system got the exception after informing the service.
+        DETECT_EXCEPTION = 3;
+
+        // Indicates that the service crashed.
+        SERVICE_CRASH = 4;
+
+        // Indicates that the keyphrase was detected.
+        DETECTED = 5;
+
+        // Indicates that the keyphrase was not detected.
+        REJECTED = 6;
+
+        // Indicates that the system got the unexpected detected callback.
+        DETECT_UNEXPECTED_CALLBACK = 7;
+
+        // Indicates that the system got the security exception when handling detected callback.
+        DETECT_SECURITY_EXCEPTION = 8;
+
+        // Indicates that the system got the unexpected rejected callback.
+        REJECT_UNEXPECTED_CALLBACK = 9;
+
+        // Indicates that the system called rejected callback when the trusted process was
+        // restarted.
+        REJECTED_FROM_RESTART = 10;
+
+        // Indicates keyphrase was classified as training data.
+        TRAINING_DATA = 11;
+
+        // Indicates training data egress limit was reached.
+        TRAINING_DATA_EGRESS_LIMIT_REACHED = 12;
+
+        // Indicates that system got security exception when handling training data callback.
+        TRAINING_DATA_SECURITY_EXCEPTION = 13;
+
+        // Indicates that system got remote exception when handling training data callback.
+        TRAINING_DATA_REMOTE_EXCEPTION = 14;
+    }
+    // What result after detecting.
+    optional Result result = 2;
+
+    // The UID for which the assistant application is active.
+    optional int32 uid = 3 [(is_uid) = true];
+}
+
+/**
+ * Logs information related to hotword detector events.
+ */
+message HotwordDetectorEvents {
+    // The type of detector.
+    optional android.hotword.HotwordDetectorType detector_type = 1;
+
+    // The type of event.
+    enum Event {
+        // UNKNOWN value.
+        UNKNOWN = 0;
+
+        // Indicates that the system requested to bind the service.
+        REQUEST_BIND_SERVICE = 1;
+
+        // Indicates that the system connected the service successfully.
+        ON_CONNECTED = 2;
+
+        // Indicates that the system failed to bind the service.
+        REQUEST_BIND_SERVICE_FAIL = 3;
+
+        // Indicates that the system called the updateState function of service.
+        REQUEST_UPDATE_STATE = 4;
+
+        // Indicates that the callback was not invoked within timeout after calling
+        // the updateState function of service.
+        CALLBACK_UPDATE_STATE_AFTER_TIMEOUT = 5;
+
+        // Indicates that no starting recognition after creating the detector.
+        DID_NOT_CALL_START_RECOGNITION = 6;
+
+        // Indicates that the system disconnected the service.
+        ON_DISCONNECTED = 7;
+
+        // Indicates that the application called the updateState function.
+        APP_REQUEST_UPDATE_STATE = 8;
+
+        // Indicates that starting to listen software detection.
+        START_SOFTWARE_DETECTION = 9;
+
+        // Indicates that starting to listen external source detection.
+        START_EXTERNAL_SOURCE_DETECTION = 10;
+
+        // Indicates that the external source detection was detected.
+        EXTERNAL_SOURCE_DETECTED = 11;
+
+        // Indicates that the external source detection was not detected.
+        EXTERNAL_SOURCE_REJECTED = 12;
+
+        // Indicates that the system got the security exception when handling external
+        // source detected callback.
+        EXTERNAL_SOURCE_DETECT_SECURITY_EXCEPTION = 13;
+
+        // Indicates that the callback onStatusReported was not invoked successfully.
+        CALLBACK_ON_STATUS_REPORTED_EXCEPTION = 14;
+
+        // Indicates that the callback onError was not invoked successfully.
+        CALLBACK_ON_ERROR_EXCEPTION = 15;
+
+        // Indicates that the callback onRejected was not invoked successfully.
+        CALLBACK_ON_REJECTED_EXCEPTION = 16;
+
+        // Indicates that the callback onDetected was not invoked successfully.
+        CALLBACK_ON_DETECTED_EXCEPTION = 17;
+
+        // Indicates that the callback onProcessRestarted was not invoked successfully.
+        CALLBACK_ON_PROCESS_RESTARTED_EXCEPTION = 18;
+
+        // Indicates that the updateState was not invoked successfully.
+        CALL_UPDATE_STATE_EXCEPTION = 19;
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the audio egress starts.
+        AUDIO_EGRESS_START = 20 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the audio egress ends.
+        AUDIO_EGRESS_END = 21 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the audio egress got interrupted exception.
+        AUDIO_EGRESS_INTERRUPTED_EXCEPTION = 22 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the client is not granted permission to access audio egress.
+        AUDIO_EGRESS_NO_PERMISSION = 23 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the client is inactive over a period of time.
+        AUDIO_EGRESS_INACTIVE_CLIENT = 24 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the HotwordDetectionService is inactive over a period
+        // of time.
+        AUDIO_EGRESS_INACTIVE_HOTWORD_DETECTION_SERVICE = 25 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the list of audio stream is empty.
+        AUDIO_EGRESS_EMPTY_AUDIO_STREAM_LIST = 26 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that there is no data from the system audio stream.
+        AUDIO_EGRESS_SOURCE_IS_EMPTY = 27 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the copy buffer size the client sets is illegal.
+        AUDIO_EGRESS_ILLEGAL_COPY_BUFFER_SIZE = 28 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the audio egress is closed with error from the system.
+        AUDIO_EGRESS_CLOSE_ERROR_FROM_SYSTEM = 29 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the audio egress is closed with error from the client
+        // side.
+        AUDIO_EGRESS_CLOSE_ERROR_FROM_CLIENT = 30 [deprecated = true];
+
+        // Deprecated. Use HotwordAudioEgressEventReported instead.
+        // Indicates that the audio egress is closed with error from the
+        // HotwordDetectionService.
+        AUDIO_EGRESS_CLOSE_ERROR_FROM_HOTWORD_DETECTION_SERVICE = 31 [deprecated = true];
+    }
+    optional Event event = 2;
+
+    // The UID for which assistant application is active.
+    optional int32 uid = 3 [(is_uid) = true];
+}
+
+/**
+ * Logs information related to audio egress in hotword.
+ */
+message HotwordAudioEgressEventReported {
+    // The type of detector.
+    optional android.hotword.HotwordDetectorType detector_type = 1;
+
+    // The type of event.
+    enum Event {
+        // UNKNOWN value.
+        UNKNOWN = 0;
+
+        // Indicates that the audio egress started.
+        STARTED = 1;
+
+        // Indicates that the audio egress ended.
+        ENDED = 2;
+
+        // Indicates that the audio egress got interrupted exception.
+        INTERRUPTED_EXCEPTION = 3;
+
+        // Indicates that the client is not granted permission to access audio egress.
+        NO_PERMISSION = 4;
+
+        // Indicates that the client is inactive over a period of time.
+        INACTIVE_CLIENT = 5;
+
+        // Indicates that the HotwordDetectionService is inactive over a period
+        // of time.
+        INACTIVE_HOTWORD_DETECTION_SERVICE = 6;
+
+        // Indicates that the list of audio stream is empty.
+        EMPTY_AUDIO_STREAM_LIST = 7;
+
+        // Indicates that there is no data from the system audio stream.
+        SOURCE_IS_EMPTY = 8;
+
+        // Indicates that the copy buffer size the client sets is illegal.
+        ILLEGAL_COPY_BUFFER_SIZE = 9;
+
+        // Indicates that the audio egress is closed with error from the system.
+        CLOSE_ERROR_FROM_SYSTEM = 10;
+
+        // Indicates that the audio egress is closed with error from the client side.
+        CLOSE_ERROR_FROM_CLIENT = 11;
+
+        // Indicates that the audio egress is closed with error from the
+        // HotwordDetectionService.
+        CLOSE_ERROR_FROM_HOTWORD_DETECTION_SERVICE = 12;
+   }
+    optional Event event = 2;
+
+    // The UID for which the assistant application is active.
+    optional int32 uid = 3 [(is_uid) = true];
+
+    // The number of bytes egressed in audio stream
+    optional int32 egressed_stream_size_bytes = 4;
+
+    // The number of bytes egressed in metadata bundle
+    optional int32 egressed_metadata_bundle_size_bytes = 5;
+
+    // The count of audio streams
+    optional int32 stream_count = 6;
+}

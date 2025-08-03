@@ -1,0 +1,42 @@
+package {
+    default_applicable_licenses: [
+        "frameworks_base_packages_DynamicSystemInstallationService_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_base_packages_DynamicSystemInstallationService_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+android_app {
+    name: "DynamicSystemInstallationService",
+    defaults: ["platform_app_defaults"],
+
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "DynamicSystemInstallationService-logtags",
+    ],
+    resource_dirs: ["res"],
+
+    certificate: "platform",
+    privileged: true,
+    platform_apis: true,
+
+    optimize: {
+        enabled: false,
+    },
+}
+
+java_library {
+    name: "DynamicSystemInstallationService-logtags",
+    srcs: ["src/**/*.logtags"],
+}

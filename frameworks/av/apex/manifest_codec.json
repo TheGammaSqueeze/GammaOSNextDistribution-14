@@ -1,0 +1,11 @@
+{
+  "name": "com.android.media.swcodec",
+
+  // Placeholder module version to be replaced during build.
+  // Do not change!
+  "version": 0,
+
+  "requireNativeLibs": [
+    ":sphal"
+  ]
+}

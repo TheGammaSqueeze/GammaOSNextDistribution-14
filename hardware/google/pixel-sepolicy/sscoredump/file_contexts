@@ -1,0 +1,4 @@
+/vendor/bin/sscoredump                 u:object_r:sscoredump_exec:s0
+/data/vendor/ssrdump(/.*)?             u:object_r:sscoredump_vendor_data_crashinfo_file:s0
+/data/vendor/ssrdump/coredump(/.*)?    u:object_r:sscoredump_vendor_data_coredump_file:s0
+/dev/sscd_.*                           u:object_r:sscoredump_device:s0

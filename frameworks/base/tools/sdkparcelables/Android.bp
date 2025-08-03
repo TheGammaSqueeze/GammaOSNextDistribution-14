@@ -1,0 +1,31 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+java_binary_host {
+    name: "sdkparcelables",
+    manifest: "manifest.txt",
+    srcs: [
+        "src/**/*.kt",
+    ],
+    static_libs: [
+        "ow2-asm",
+    ],
+}
+
+java_library_host {
+    name: "sdkparcelables_test",
+    manifest: "manifest.txt",
+    srcs: [
+        "tests/**/*.kt",
+    ],
+    static_libs: [
+        "sdkparcelables",
+        "junit",
+    ],
+}

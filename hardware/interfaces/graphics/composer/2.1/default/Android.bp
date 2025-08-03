@@ -1,0 +1,36 @@
+package {
+    default_team: "trendy_team_android_core_graphics_stack",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_binary {
+    name: "android.hardware.graphics.composer@2.1-service",
+    defaults: ["hidl_defaults"],
+    vendor: true,
+    relative_install_path: "hw",
+    srcs: ["service.cpp"],
+    init_rc: ["android.hardware.graphics.composer@2.1-service.rc"],
+    header_libs: [
+        "android.hardware.graphics.composer@2.1-passthrough",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.composer@2.1",
+        "android.hardware.graphics.composer@2.1-resources",
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "libfmq",
+        "libhardware",
+        "libhidlbase",
+        "libhwc2on1adapter",
+        "libhwc2onfbadapter",
+        "liblog",
+        "libsync",
+        "libutils",
+    ],
+}

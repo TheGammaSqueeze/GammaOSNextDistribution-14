@@ -1,0 +1,150 @@
+//
+// Copyright (C) 2010 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["frameworks_av_drm_drmserver_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_drm_drmserver_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+prebuilt_etc {
+    name: "drmserver.zygote64_32.rc",
+    src: "drmserver.zygote64_32.rc",
+    sub_dir: "init/hw",
+}
+
+prebuilt_etc {
+    name: "drmserver.zygote64.rc",
+    src: "drmserver.zygote64.rc",
+    sub_dir: "init/hw",
+}
+
+soong_config_module_type {
+    name: "drmserver_cc_binary",
+    module_type: "cc_binary",
+    config_namespace: "ANDROID",
+    bool_variables: ["TARGET_DYNAMIC_64_32_DRMSERVER"],
+    properties: [
+        "compile_multilib",
+        "init_rc",
+        "multilib.lib32.suffix",
+        "multilib.lib64.suffix",
+        "required",
+    ],
+}
+
+drmserver_cc_binary {
+    name: "drmserver",
+
+    srcs: [
+        "main_drmserver.cpp",
+        "DrmManager.cpp",
+        "DrmManagerService.cpp",
+    ],
+
+    shared_libs: [
+        "libmediametrics",
+        "libmediautils",
+        "libcutils",
+        "libutils",
+        "liblog",
+        "libbinder",
+        "libdl",
+        "libdrmframeworkcommon",
+        "libselinux",
+        "libstagefright_foundation",
+    ],
+    whole_static_libs: [
+        "libc++fs",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+
+    compile_multilib: "prefer32",
+
+    soong_config_variables: {
+        TARGET_DYNAMIC_64_32_DRMSERVER: {
+            compile_multilib: "both",
+            multilib: {
+                lib32: {
+                    suffix: "32",
+                },
+                lib64: {
+                    suffix: "64",
+                },
+            },
+            required: [
+                "drmserver.zygote64_32.rc",
+                "drmserver.zygote64.rc",
+            ],
+            init_rc: ["drmserver_dynamic.rc"],
+            conditions_default: {
+                init_rc: ["drmserver.rc"],
+            },
+        },
+    },
+}
+
+cc_fuzz {
+    name: "drmserver_fuzzer",
+
+    defaults: [
+        "service_fuzzer_defaults",
+    ],
+
+    srcs: [
+        "fuzzer/DrmFuzzer.cpp",
+        "DrmManagerService.cpp",
+        "DrmManager.cpp",
+    ],
+
+    static_libs: [
+        "libc++fs",
+        "libmediautils",
+        "liblog",
+        "libdrmframeworkcommon",
+        "libselinux",
+        "libstagefright_foundation",
+    ],
+
+     shared_libs: [
+         "libmediametrics",
+     ],
+
+     fuzz_config: {
+         libfuzzer_options: [
+             "max_len=50000",
+         ],
+         cc: [
+             "android-drm-team@google.com",
+         ],
+     },
+}

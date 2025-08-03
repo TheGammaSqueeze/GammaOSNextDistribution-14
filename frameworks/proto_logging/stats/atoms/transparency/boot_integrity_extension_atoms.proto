@@ -1,0 +1,30 @@
+syntax = "proto2";
+
+package android.os.statsd.transparency;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.transparency";
+option java_multiple_files = true;
+
+extend Atom {
+    optional BootIntegrityInfoReported boot_integrity_info_reported = 775 [(module) = "framework"];
+}
+
+/**
+ * Boot integrity related information.
+ *
+ * * Sepolicy hash is calculated from /sys/fs/selinux/policy.
+ *
+ * Logs when boot is complete.
+ * Pushed from:
+ *    frameworks/base/services/core/java/com/android/server/BinaryTransparencyService.java
+ */
+message BootIntegrityInfoReported {
+    // the hex encoded string of sepolicy (from sysfs) hash
+    optional string sepolicy_hash = 1;
+    // the hex encoded string of VBMeta Digest value
+    optional string vbmeta_digest = 2;
+}
+

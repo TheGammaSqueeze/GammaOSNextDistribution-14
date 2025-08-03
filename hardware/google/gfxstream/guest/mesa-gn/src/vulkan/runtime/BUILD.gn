@@ -1,0 +1,397 @@
+# Copyright 2024 Google, LLC
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice (including the next
+# paragraph) shall be included in all copies or substantial portions of the
+# Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+import("//build/python/python_action.gni")
+import("//build/python/python_binary.gni")
+import("../../../mesa.gni")
+
+runtime = "$mesa_source_root/src/vulkan/runtime"
+
+config("config") {
+  include_dirs = [
+    "$target_gen_dir",
+    "$runtime",
+  ]
+
+  defines = [ "VK_NO_NIR=1" ]
+}
+
+mesa_source_set("runtime") {
+  public_configs = [ ":config" ]
+
+  public_deps = [
+    "$mesa_build_root/include:c_compat",
+    "$mesa_build_root/include:vulkan",
+  ]
+
+  deps = [
+    ":vk_cmd_enqueue_entrypoints",
+    ":vk_cmd_queue",
+    ":vk_common_entrypoints",
+    ":vk_dispatch_trampolines",
+    ":vk_format_info",
+    ":vk_physical_device_features",
+    ":vk_physical_device_properties",
+    "$mesa_build_root/src/util",
+    "$mesa_build_root/src/vulkan/util",
+  ]
+
+  sources = [
+    "$runtime/rmv/vk_rmv_common.c",
+    "$runtime/rmv/vk_rmv_common.h",
+    "$runtime/vk_buffer.c",
+    "$runtime/vk_buffer.h",
+    "$runtime/vk_buffer_view.c",
+    "$runtime/vk_buffer_view.h",
+    "$runtime/vk_cmd_copy.c",
+    "$runtime/vk_cmd_enqueue.c",
+    "$runtime/vk_command_buffer.c",
+    "$runtime/vk_command_buffer.h",
+    "$runtime/vk_command_pool.c",
+    "$runtime/vk_command_pool.h",
+    "$runtime/vk_debug_report.c",
+    "$runtime/vk_debug_report.h",
+    "$runtime/vk_debug_utils.c",
+    "$runtime/vk_debug_utils.h",
+    "$runtime/vk_deferred_operation.c",
+    "$runtime/vk_deferred_operation.h",
+    "$runtime/vk_descriptor_set_layout.c",
+    "$runtime/vk_descriptor_set_layout.h",
+    "$runtime/vk_descriptor_update_template.c",
+    "$runtime/vk_descriptor_update_template.h",
+    "$runtime/vk_descriptors.c",
+    "$runtime/vk_descriptors.h",
+    "$runtime/vk_device.c",
+    "$runtime/vk_device.h",
+    "$runtime/vk_device_memory.c",
+    "$runtime/vk_device_memory.h",
+    "$runtime/vk_fence.c",
+    "$runtime/vk_fence.h",
+    "$runtime/vk_framebuffer.c",
+    "$runtime/vk_framebuffer.h",
+    "$runtime/vk_graphics_state.c",
+    "$runtime/vk_graphics_state.h",
+    "$runtime/vk_image.c",
+    "$runtime/vk_image.h",
+    "$runtime/vk_instance.c",
+    "$runtime/vk_instance.h",
+    "$runtime/vk_log.c",
+    "$runtime/vk_log.h",
+    "$runtime/vk_object.c",
+    "$runtime/vk_object.h",
+    "$runtime/vk_physical_device.c",
+    "$runtime/vk_physical_device.h",
+    "$runtime/vk_query_pool.c",
+    "$runtime/vk_query_pool.h",
+    "$runtime/vk_queue.c",
+    "$runtime/vk_queue.h",
+    "$runtime/vk_render_pass.c",
+    "$runtime/vk_sampler.c",
+    "$runtime/vk_sampler.h",
+    "$runtime/vk_semaphore.c",
+    "$runtime/vk_semaphore.h",
+    "$runtime/vk_standard_sample_locations.c",
+    "$runtime/vk_standard_sample_locations.h",
+    "$runtime/vk_sync.c",
+    "$runtime/vk_sync.h",
+    "$runtime/vk_sync_binary.c",
+    "$runtime/vk_sync_binary.h",
+    "$runtime/vk_sync_dummy.c",
+    "$runtime/vk_sync_dummy.h",
+    "$runtime/vk_sync_timeline.c",
+    "$runtime/vk_sync_timeline.h",
+    "$runtime/vk_synchronization2.c",
+    "$target_gen_dir/vk_cmd_enqueue_entrypoints.c",
+    "$target_gen_dir/vk_cmd_enqueue_entrypoints.h",
+    "$target_gen_dir/vk_cmd_queue.c",
+    "$target_gen_dir/vk_cmd_queue.h",
+    "$target_gen_dir/vk_common_entrypoints.c",
+    "$target_gen_dir/vk_common_entrypoints.h",
+    "$target_gen_dir/vk_dispatch_trampolines.c",
+    "$target_gen_dir/vk_dispatch_trampolines.h",
+    "$target_gen_dir/vk_physical_device_features.c",
+  ]
+
+  configs = [ "//build/config:Wno-strict-prototypes" ]
+}
+
+python_binary("vk_cmd_queue_gen_bin") {
+  main_source = "$mesa_source_root/src/vulkan/util/vk_cmd_queue_gen.py"
+
+  sources = [
+    "$mesa_source_root/src/vulkan/util/vk_entrypoints.py",
+    "$mesa_source_root/src/vulkan/util/vk_extensions.py",
+  ]
+
+  deps = [ "//third_party/mako" ]
+}
+
+python_action("vk_cmd_queue") {
+  binary_label = ":vk_cmd_queue_gen_bin"
+
+  h_file = "$target_gen_dir/vk_cmd_queue.h"
+  c_file = "$target_gen_dir/vk_cmd_queue.c"
+
+  outputs = [
+    h_file,
+    c_file,
+  ]
+
+  inputs = [
+    "$mesa_source_root/src/vulkan/util/vk_dispatch_table_gen.py",
+    "$mesa_source_root/src/vulkan/util/vk_extensions.py",
+    "$mesa_source_root/src/vulkan/util/vk_entrypoints.py",
+    mesa_vk_xml,
+  ]
+
+  args = [
+    "--xml",
+    rebase_path(mesa_vk_xml),
+    "--out-h",
+    rebase_path(h_file, root_build_dir),
+    "--out-c",
+    rebase_path(c_file, root_build_dir),
+    "--beta",
+    "false",
+  ]
+}
+
+python_binary("vk_entrypoints_gen_bin") {
+  main_source = "$mesa_source_root/src/vulkan/util/vk_entrypoints_gen.py"
+
+  sources = [
+    "$mesa_source_root/src/vulkan/util/vk_entrypoints.py",
+    "$mesa_source_root/src/vulkan/util/vk_extensions.py",
+  ]
+
+  deps = [ "//third_party/mako" ]
+}
+
+python_action("vk_common_entrypoints") {
+  binary_label = ":vk_entrypoints_gen_bin"
+
+  h_file = "$target_gen_dir/vk_common_entrypoints.h"
+  c_file = "$target_gen_dir/vk_common_entrypoints.c"
+
+  outputs = [
+    h_file,
+    c_file,
+  ]
+
+  inputs = [
+    "$mesa_source_root/src/vulkan/util/vk_dispatch_table_gen.py",
+    "$mesa_source_root/src/vulkan/util/vk_extensions.py",
+    "$mesa_source_root/src/vulkan/util/vk_entrypoints.py",
+    mesa_vk_xml,
+  ]
+
+  args = [
+    "--xml",
+    rebase_path(mesa_vk_xml),
+    "--proto",
+    "--weak",
+    "--out-h",
+    rebase_path(h_file, root_build_dir),
+    "--out-c",
+    rebase_path(c_file, root_build_dir),
+    "--prefix",
+    "vk_common",
+    "--beta",
+    "false",
+  ]
+}
+
+python_action("vk_cmd_enqueue_entrypoints") {
+  binary_label = ":vk_entrypoints_gen_bin"
+
+  h_file = "$target_gen_dir/vk_cmd_enqueue_entrypoints.h"
+  c_file = "$target_gen_dir/vk_cmd_enqueue_entrypoints.c"
+
+  outputs = [
+    h_file,
+    c_file,
+  ]
+
+  inputs = [
+    "$mesa_source_root/src/vulkan/util/vk_dispatch_table_gen.py",
+    "$mesa_source_root/src/vulkan/util/vk_extensions.py",
+    "$mesa_source_root/src/vulkan/util/vk_entrypoints.py",
+    mesa_vk_xml,
+  ]
+
+  args = [
+    "--xml",
+    rebase_path(mesa_vk_xml),
+    "--proto",
+    "--weak",
+    "--out-h",
+    rebase_path(h_file, root_build_dir),
+    "--out-c",
+    rebase_path(c_file, root_build_dir),
+    "--prefix",
+    "vk_cmd_enqueue",
+    "--prefix",
+    "vk_cmd_enqueue_unless_primary",
+    "--beta",
+    "false",
+  ]
+}
+
+python_binary("vk_dispatch_trampolines_gen_bin") {
+  main_source =
+      "$mesa_source_root/src/vulkan/util/vk_dispatch_trampolines_gen.py"
+
+  sources = [
+    "$mesa_source_root/src/vulkan/util/vk_entrypoints.py",
+    "$mesa_source_root/src/vulkan/util/vk_extensions.py",
+  ]
+
+  deps = [ "//third_party/mako" ]
+}
+
+python_action("vk_dispatch_trampolines") {
+  binary_label = ":vk_dispatch_trampolines_gen_bin"
+
+  h_file = "$target_gen_dir/vk_dispatch_trampolines.h"
+  c_file = "$target_gen_dir/vk_dispatch_trampolines.c"
+
+  outputs = [
+    h_file,
+    c_file,
+  ]
+
+  inputs = [
+    "$mesa_source_root/src/vulkan/util/vk_dispatch_table_gen.py",
+    "$mesa_source_root/src/vulkan/util/vk_extensions.py",
+    "$mesa_source_root/src/vulkan/util/vk_entrypoints.py",
+    mesa_vk_xml,
+  ]
+
+  args = [
+    "--xml",
+    rebase_path(mesa_vk_xml),
+    "--out-h",
+    rebase_path(h_file, root_build_dir),
+    "--out-c",
+    rebase_path(c_file, root_build_dir),
+    "--beta",
+    "false",
+  ]
+}
+
+python_binary("vk_physical_device_features_gen_bin") {
+  main_source =
+      "$mesa_source_root/src/vulkan/util/vk_physical_device_features_gen.py"
+
+  sources = [ "$mesa_source_root/src/vulkan/util/vk_extensions.py" ]
+
+  deps = [ "//third_party/mako" ]
+}
+
+python_action("vk_physical_device_features") {
+  binary_label = ":vk_physical_device_features_gen_bin"
+
+  c_file = "$target_gen_dir/vk_physical_device_features.c"
+  h_file = "$target_gen_dir/vk_physical_device_features.h"
+
+  outputs = [
+    c_file,
+    h_file,
+  ]
+
+  inputs = [ mesa_vk_xml ]
+
+  args = [
+    "--xml",
+    rebase_path(mesa_vk_xml),
+    "--out-h",
+    rebase_path(h_file, root_build_dir),
+    "--out-c",
+    rebase_path(c_file, root_build_dir),
+    "--beta",
+    "false",
+  ]
+}
+
+python_binary("vk_physical_device_properties_gen_bin") {
+  main_source =
+      "$mesa_source_root/src/vulkan/util/vk_physical_device_properties_gen.py"
+
+  sources = [ "$mesa_source_root/src/vulkan/util/vk_extensions.py" ]
+
+  deps = [ "//third_party/mako" ]
+}
+
+python_action("vk_physical_device_properties") {
+  binary_label = ":vk_physical_device_properties_gen_bin"
+
+  c_file = "$target_gen_dir/vk_physical_device_properties.c"
+  h_file = "$target_gen_dir/vk_physical_device_properties.h"
+
+  outputs = [
+    c_file,
+    h_file,
+  ]
+
+  inputs = [ mesa_vk_xml ]
+
+  args = [
+    "--xml",
+    rebase_path(mesa_vk_xml),
+    "--out-h",
+    rebase_path(h_file, root_build_dir),
+    "--out-c",
+    rebase_path(c_file, root_build_dir),
+    "--beta",
+    "false",
+  ]
+}
+
+python_binary("vk_format_info_gen_bin") {
+  main_source = "$mesa_source_root/src/vulkan/runtime/vk_format_info_gen.py"
+
+  sources = [ "$mesa_source_root/src/vulkan/util/vk_extensions.py" ]
+
+  deps = [ "//third_party/mako" ]
+}
+
+python_action("vk_format_info") {
+  binary_label = ":vk_format_info_gen_bin"
+
+  c_file = "$target_gen_dir/vk_format_info.c"
+  h_file = "$target_gen_dir/vk_format_info.h"
+
+  outputs = [
+    c_file,
+    h_file,
+  ]
+
+  inputs = [ mesa_vk_xml ]
+
+  args = [
+    "--xml",
+    rebase_path(mesa_vk_xml),
+    "--out-h",
+    rebase_path(h_file, root_build_dir),
+    "--out-c",
+    rebase_path(c_file, root_build_dir),
+  ]
+}

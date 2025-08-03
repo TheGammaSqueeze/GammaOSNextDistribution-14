@@ -1,0 +1,495 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package android.hardware.radio@1.6;
+
+import @1.0::SendSmsResult;
+import @1.4::RadioAccessFamily;
+import @1.5::IRadioResponse;
+import @1.5::RadioAccessSpecifier;
+import @1.6::Call;
+import @1.6::CellInfo;
+import @1.6::RegStateResult;
+import @1.6::RadioResponseInfo;
+import @1.6::SetupDataCallResult;
+import @1.6::SignalStrength;
+import @1.6::SlicingConfig;
+import @1.6::PhonebookCapacity;
+
+/**
+ * Interface declaring response functions to solicited radio requests.
+ */
+interface IRadioResponse extends @1.5::IRadioResponse {
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:RF_HARDWARE_ISSUE
+     *   RadioError:NO_RF_CALIBRATION_INFO
+     */
+    oneway setRadioPowerResponse_1_6(RadioResponseInfo info);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param dcResponse SetupDataCallResult defined in types.hal
+     *
+     * Valid errors returned:
+     *   RadioError:NONE must be returned on both success and failure of setup with the
+     *              DataCallResponse.status containing the actual status
+     *              For all other errors the DataCallResponse is ignored.
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:OP_NOT_ALLOWED_BEFORE_REG_TO_NW
+     *   RadioError:OP_NOT_ALLOWED_DURING_VOICE_CALL
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:NO_RESOURCES if the vendor is unable handle due to resources
+     *              are full.
+     *   RadioError:SIM_ABSENT
+     */
+    oneway setupDataCallResponse_1_6(RadioResponseInfo info, SetupDataCallResult dcResponse);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param dcResponse List of SetupDataCallResult as defined in types.hal
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:SIM_ABSENT
+     */
+    oneway getDataCallListResponse_1_6(RadioResponseInfo info, vec<SetupDataCallResult> dcResponse);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param sms Response to sms sent as defined by SendSmsResult in types.hal
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:SMS_SEND_FAIL_RETRY
+     *   RadioError:NETWORK_REJECT
+     *   RadioError:INVALID_STATE
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:NO_MEMORY
+     *   RadioError:REQUEST_RATE_LIMITED
+     *   RadioError:INVALID_SMS_FORMAT
+     *   RadioError:SYSTEM_ERR
+     *   RadioError:ENCODING_ERR
+     *   RadioError:INVALID_SMSC_ADDRESS
+     *   RadioError:MODEM_ERR
+     *   RadioError:NETWORK_ERR
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_MODEM_STATE
+     *   RadioError:NETWORK_NOT_READY
+     *   RadioError:OPERATION_NOT_ALLOWED
+     *   RadioError:NO_RESOURCES
+     *   RadioError:CANCELLED
+     *   RadioError:SIM_ABSENT
+     *   RadioError:ACCESS_BARRED
+     *   RadioError:BLOCKED_DUE_TO_CALL
+     */
+    oneway sendSmsResponse_1_6(RadioResponseInfo info, SendSmsResult sms);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param sms Response to sms sent as defined by SendSmsResult in types.hal
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:SMS_SEND_FAIL_RETRY
+     *   RadioError:NETWORK_REJECT
+     *   RadioError:INVALID_STATE
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:NO_MEMORY
+     *   RadioError:REQUEST_RATE_LIMITED
+     *   RadioError:INVALID_SMS_FORMAT
+     *   RadioError:SYSTEM_ERR
+     *   RadioError:FDN_CHECK_FAILURE
+     *   RadioError:ENCODING_ERR
+     *   RadioError:INVALID_SMSC_ADDRESS
+     *   RadioError:MODEM_ERR
+     *   RadioError:NETWORK_ERR
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_MODEM_STATE
+     *   RadioError:NETWORK_NOT_READY
+     *   RadioError:OPERATION_NOT_ALLOWED
+     *   RadioError:NO_RESOURCES
+     *   RadioError:CANCELLED
+     *   RadioError:SIM_ABSENT
+     *   RadioError:ACCESS_BARRED
+     *   RadioError:BLOCKED_DUE_TO_CALL
+     */
+    oneway sendSmsExpectMoreResponse_1_6(RadioResponseInfo info, SendSmsResult sms);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param sms Sms result struct as defined by SendSmsResult in types.hal
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:SMS_SEND_FAIL_RETRY
+     *   RadioError:NETWORK_REJECT
+     *   RadioError:INVALID_STATE
+     *   RadioError:NO_MEMORY
+     *   RadioError:REQUEST_RATE_LIMITED
+     *   RadioError:INVALID_SMS_FORMAT
+     *   RadioError:SYSTEM_ERR
+     *   RadioError:FDN_CHECK_FAILURE
+     *   RadioError:MODEM_ERR
+     *   RadioError:NETWORK_ERR
+     *   RadioError:ENCODING_ERR
+     *   RadioError:INVALID_SMSC_ADDRESS
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:SYSTEM_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:OPERATION_NOT_ALLOWED
+     *   RadioError:ENCODING_ERR
+     *   RadioError:NO_RESOURCES
+     *   RadioError:CANCELLED
+     *   RadioError:SIM_ABSENT
+     *   RadioError:SIMULTANEOUS_SMS_AND_CALL_NOT_ALLOWED
+     *   RadioError:ACCESS_BARRED
+     *   RadioError:BLOCKED_DUE_TO_CALL
+     */
+    oneway sendCdmaSmsResponse_1_6(RadioResponseInfo info, SendSmsResult sms);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param sms Response to sms sent as defined by SendSmsResult in types.hal
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:SMS_SEND_FAIL_RETRY
+     *   RadioError:NETWORK_REJECT
+     *   RadioError:INVALID_STATE
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:NO_MEMORY
+     *   RadioError:REQUEST_RATE_LIMITED
+     *   RadioError:INVALID_SMS_FORMAT
+     *   RadioError:SYSTEM_ERR
+     *   RadioError:FDN_CHECK_FAILURE
+     *   RadioError:ENCODING_ERR
+     *   RadioError:INVALID_SMSC_ADDRESS
+     *   RadioError:MODEM_ERR
+     *   RadioError:NETWORK_ERR
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_MODEM_STATE
+     *   RadioError:NETWORK_NOT_READY
+     *   RadioError:OPERATION_NOT_ALLOWED
+     *   RadioError:NO_RESOURCES
+     *   RadioError:CANCELLED
+     *   RadioError:SIM_ABSENT
+     *   RadioError:SIMULTANEOUS_SMS_AND_CALL_NOT_ALLOWED
+     *   RadioError:ACCESS_BARRED
+     *   RadioError:BLOCKED_DUE_TO_CALL
+     */
+    oneway sendCdmaSmsExpectMoreResponse_1_6(RadioResponseInfo info, SendSmsResult sms);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:SIM_ERR (indicates a timeout or other issue making the SIM unresponsive)
+     *
+     * Note that this differs from setSimCardPowerResponse_1_1 in that the response
+     * should only be sent once the request from setSimCardPower_1_6 is complete
+     * (the SIM has finished powering on or off).
+     */
+    oneway setSimCardPowerResponse_1_6(RadioResponseInfo info);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_STATE
+     */
+    oneway setNrDualConnectivityStateResponse(RadioResponseInfo info);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     *
+     * @param isEnabled Indicates whether NR dual connectivity is enabled or not, True if enabled
+     *        else false.
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     */
+    oneway isNrDualConnectivityEnabledResponse(RadioResponseInfo info, bool isEnabled);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param id The allocated id. On an error, this is set to 0.
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:NO_RESOURCES- Indicates that no pdu session ids are available
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     */
+    oneway allocatePduSessionIdResponse(RadioResponseInfo info, int32_t id);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:NO_RESOURCES
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     */
+    oneway releasePduSessionIdResponse(RadioResponseInfo info);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:NO_RESOURCES
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_CALL_ID
+     */
+    oneway startHandoverResponse(RadioResponseInfo info);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param dcResponse Attributes of data call
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:NO_RESOURCES
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_CALL_ID
+     */
+    oneway cancelHandoverResponse(RadioResponseInfo info);
+
+    /**
+     * Callback of IRadio.setAllowedNetworkTypesBitmap(int, bitfield<RadioAccessFamily>)
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:OPERATION_NOT_ALLOWED
+     *   RadioError:MODE_NOT_SUPPORTED
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:MODEM_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:NO_RESOURCES
+     */
+    oneway setAllowedNetworkTypesBitmapResponse(RadioResponseInfo info);
+
+    /**
+     * Callback of IRadio.getAllowedNetworkTypesBitmap(int, bitfield<RadioAccessFamily>)
+     * @param info Response info struct containing response type, serial no. and error
+     * @param networkTypeBitmap a 32-bit bitmap of RadioAccessFamily.
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:OPERATION_NOT_ALLOWED
+     *   RadioError:MODE_NOT_SUPPORTED
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:MODEM_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:NO_RESOURCES
+     */
+    oneway getAllowedNetworkTypesBitmapResponse(
+            RadioResponseInfo info, bitfield<RadioAccessFamily> networkTypeBitmap);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     *
+     *  Valid errors returned:
+     *  RadioError:NONE
+     *  RadioError:RADIO_NOT_AVAILABLE
+     *  RadioError:MODEM_ERR
+     *  RadioError:INVALID_ARGUMENTS
+     *  RadioError:REQUEST_NOT_SUPPORTED
+     */
+    oneway setDataThrottlingResponse(RadioResponseInfo info);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param specifiers List of RadioAccessSpecifiers that are scanned.
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:INVALID_ARGUMENTS
+     */
+    oneway getSystemSelectionChannelsResponse(
+            RadioResponseInfo info, vec<RadioAccessSpecifier> specifiers);
+
+    /**
+     * This is identical to getCellInfoListResponse_1_5 but uses an updated version of CellInfo.
+     *
+     * @param info Response info struct containing response type, serial no. and error
+     * @param cellInfo List of current cell information known to radio
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     */
+    oneway getCellInfoListResponse_1_6(RadioResponseInfo info, vec<CellInfo> cellInfo);
+
+    /**
+     * This is identical to getSignalStrengthResponse_1_4 but uses an updated version of
+     * SignalStrength.
+     *
+     * @param signalStrength Current signal strength
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     */
+    oneway getSignalStrengthResponse_1_6(RadioResponseInfo info, SignalStrength signalStrength);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param voiceRegResponse Current Voice registration response as defined by RegStateResult
+     *        in types.hal
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     */
+    oneway getVoiceRegistrationStateResponse_1_6(RadioResponseInfo info,
+            RegStateResult voiceRegResponse);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param dataRegResponse Current Data registration response as defined by RegStateResult in
+     *        types.hal
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:NOT_PROVISIONED
+     */
+    oneway getDataRegistrationStateResponse_1_6(RadioResponseInfo info,
+            RegStateResult dataRegResponse);
+
+    /**
+     * @param calls Current call list
+     *   RadioError:NO_MEMORY
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:SYSTEM_ERR
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:NO_RESOURCES
+     *   RadioError:CANCELLED
+     */
+    oneway getCurrentCallsResponse_1_6(RadioResponseInfo info, vec<Call> calls);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param slicingConfig Current slicing configuration
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:MODEM_ERR
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     */
+    oneway getSlicingConfigResponse(RadioResponseInfo info,
+            SlicingConfig slicingConfig);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:INVALID_SIM_STATE
+     *   RadioError:MODEM_ERR
+     *   RadioError:INTERNAL_ERR
+     * REQUEST_NOT_SUPPORTED may only be returned on devices that don't support this API,
+     * indicated by the HAL capability CAPABILITY_SIM_PHONEBOOK_IN_MODEM.
+     */
+    oneway getSimPhonebookRecordsResponse(RadioResponseInfo info);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param capacity Response capacity enum indicating response processing status
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:INVALID_SIM_STATE
+     *   RadioError:MODEM_ERR
+     *   RadioError:INTERNAL_ERR
+     * REQUEST_NOT_SUPPORTED may only be returned on devices that don't support this API,
+     * indicated by the HAL capability CAPABILITY_SIM_PHONEBOOK_IN_MODEM.
+     */
+    oneway getSimPhonebookCapacityResponse(RadioResponseInfo info, PhonebookCapacity capacity);
+
+    /**
+     * @param info Response info struct containing response type, serial no. and error
+     * @param updatedRecordIndex The index of the updated or inserted record in the phonebook and
+     *                           the minimum value is 1
+     *
+     * Valid errors returned:
+     *   RadioError:NONE
+     *   RadioError:RADIO_NOT_AVAILABLE
+     *   RadioError:REQUEST_NOT_SUPPORTED
+     *   RadioError:INVALID_ARGUMENTS
+     *   RadioError:INVALID_SIM_STATE
+     *   RadioError:MODEM_ERR
+     *   RadioError:INTERNAL_ERR
+     *   RadioError:SIM_ERR
+     *   RadioError:NO_SUCH_ENTRY
+     *   RadioError:NO_RESOURCES
+     * REQUEST_NOT_SUPPORTED may only be returned on devices that don't support this API,
+     * indicated by the HAL capability CAPABILITY_SIM_PHONEBOOK_IN_MODEM.
+     */
+    oneway updateSimPhonebookRecordsResponse(RadioResponseInfo info, int32_t updatedRecordIndex);
+};

@@ -1,0 +1,63 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsPackageManagerStatsHostTestCases",
+      "options": [
+        {
+          "include-filter": "com.android.cts.packagemanager.stats.host.PackageInstallerV2StatsTests"
+        }
+      ]
+    },
+    {
+      "name": "CtsPackageManagerIncrementalStatsHostTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.LargeTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsIncrementalInstallHostTestCases"
+    },
+    {
+      "name": "libincfs-test"
+    },
+    {
+      "name": "service.incremental_test"
+    },
+    {
+      "name": "CtsInstalledLoadingProgressHostTests"
+    }
+   ],
+  "presubmit-large": [
+    {
+      "name": "CtsPackageManagerTestCases",
+      "options": [
+        {
+          "include-filter": "android.content.pm.cts.PackageManagerShellCommandInstallTest"
+        },
+        {
+          "include-filter": "android.content.pm.cts.PackageManagerShellCommandIncrementalTest"
+        },
+        {
+          "include-filter": "android.content.pm.cts.ChecksumsTest"
+        }
+      ]
+    }
+  ],
+  "kernel-presubmit": [
+    {
+      "name": "CtsIncrementalInstallHostTestCases"
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsPackageManagerIncrementalStatsHostTestCases",
+      "options": [
+        {
+          "include-annotation": "androidx.test.filters.LargeTest"
+        }
+      ]
+    }
+  ]
+}

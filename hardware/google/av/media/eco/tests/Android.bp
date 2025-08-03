@@ -1,0 +1,47 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "libmedia_ecoservice_tests_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "libbinder_ndk",
+        "libcutils",
+        "libutils",
+        "liblog",
+        "libmedia_ecoservice",
+    ],
+}
+
+cc_test {
+    name: "EcoDataTest",
+    defaults: ["libmedia_ecoservice_tests_defaults"],
+    srcs: ["EcoDataTest.cpp"],
+}
+
+cc_test {
+    name: "EcoSessionTest",
+    defaults: ["libmedia_ecoservice_tests_defaults"],
+    srcs: [
+        "EcoSessionTest.cpp",
+        "FakeECOServiceStatsProvider.cpp",
+        "FakeECOServiceInfoListener.cpp",
+    ],
+}
+
+cc_test {
+    name: "EcoServiceTest",
+    vendor: true,
+    defaults: ["libmedia_ecoservice_tests_defaults"],
+    srcs: [
+        "EcoServiceTest.cpp",
+        "FakeECOServiceStatsProvider.cpp",
+        "FakeECOServiceInfoListener.cpp",
+    ],
+}

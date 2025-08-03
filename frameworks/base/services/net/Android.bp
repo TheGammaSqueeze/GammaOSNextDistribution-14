@@ -1,0 +1,48 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+filegroup {
+    name: "services.net-sources",
+    srcs: ["java/**/*.java"],
+    path: "java",
+    visibility: ["//frameworks/base/services"],
+}
+
+java_library_static {
+    name: "services.net",
+    defaults: ["platform_service_defaults"],
+    srcs: [
+        ":services.net-sources",
+    ],
+    static_libs: [
+        "netd-client",
+        "networkstack-client",
+        "net-utils-services-common",
+    ],
+}
+
+filegroup {
+    name: "services-tethering-shared-srcs",
+    srcs: [
+        ":framework-annotations",
+        "java/android/net/util/NetworkConstants.java",
+    ],
+    visibility: [
+        "//frameworks/base/packages/Tethering",
+        "//packages/modules/Connectivity/Tethering",
+    ],
+}
+
+filegroup {
+    name: "services-connectivity-shared-srcs",
+    srcs: [
+        // TODO: move to libs/net
+        "java/android/net/util/NetworkConstants.java",
+    ],
+}

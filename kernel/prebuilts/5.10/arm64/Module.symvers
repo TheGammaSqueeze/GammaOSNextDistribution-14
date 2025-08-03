@@ -1,0 +1,110 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Artifacts</title>
+  <link rel="icon" href="/public_builds/static/favicon.ico">
+  <script src="/public_builds/js/webcomponents/webcomponentsjs/webcomponents-lite.min.js"></script>
+  
+
+  
+    
+      
+        <script rel="import" href="/public_builds/elements/artifact_page/artifact_page_bin_out/artifact_page_bin.js?c=447126880411785162"></script>
+      
+
+    
+  
+
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+<body class="fullbleed">
+  <dom-bind id="app">
+    <template>
+      
+<artifact-page-state id="state" store="{{ store }}"></artifact-page-state>
+<artifact-page-app state="[[state]]" store="[[store]]" id="artifact_page"></artifact-page-app>
+
+    </template>
+  </dom-bind>
+  <script>
+    (function() {
+      'use strict';
+      function onChange() {
+        window.removeEventListener('load', onChange);
+        window.removeEventListener('dom-change', onChange);
+        window.removeEventListener('HTMLImportsLoaded', onChange);
+        var data = {"CacheBust":"447126880411785162","Debug":false,"JsImport":true,"PageElement":"artifact-page","PageID":"artifact_page","Public":true,"RootDir":"artifact_page"};
+
+		var elementsScript = document.createElement('script');
+		var baseUrl = data['Public'] ? "/public_builds" : "/builds";
+    if (data['Debug']) {
+        elementsScript.src = baseUrl + "/dev/" + data['PageID'] + ".js";
+    } else {
+        elementsScript.src = baseUrl + "/elements/" + data['RootDir'] + "/" + data['PageID'] + "_bin_mashed.js?c=" + data['CacheBust'];
+    }
+		document.body.appendChild(elementsScript);
+  
+
+        
+  var JSVariables = {"artifacts":[],"authed":true,"branchName":"aosp_kernel-common-android13-5.10-2022-10","buildId":"9177961","forceLogin":false,"idToken":null,"releaseCandidateName":"","targetName":"kernel_aarch64"};
+
+  new Promise(function(res) { window.addEventListener('state-ready', function(){ return res()})}).then(function() {
+    const stateProvider = document.querySelector('#state');
+    app.state = stateProvider;
+    var releaseName = JSVariables['releaseCandidateName'];
+    releaseName = releaseName === 'None' ? '' : releaseName;
+    const store = {};
+    store.artifacts = JSVariables['artifacts'] || [];
+    store.targetName = JSVariables['targetName'];
+    store.buildId = JSVariables['buildId'];
+    store.branchName = JSVariables['branchName'];
+    store.releaseCandidateName = releaseName;
+    store.archived = JSVariables['archived'];
+    store.idToken = JSVariables['idToken'];
+    store.authed = JSVariables['authed'];
+    store.forceLogin = JSVariables['forceLogin'];
+    app.store = store;
+    }
+  );
+
+      }
+      window.addEventListener('load', onChange);
+      window.addEventListener('dom-change', onChange);
+      window.addEventListener('HTMLImportsLoaded', onChange);
+    })();
+  </script>
+  <script type="text/javascript" src="//www.gstatic.com/feedback/api.js" async></script>
+  <script>
+    (function() {
+      var data = {"ProductId":"5093044","ProductVersion":"447126880411785162"};
+
+    function showFeedback() {
+      userfeedback.api.startFeedback({
+        'productId': data['ProductId'],
+        'productVersion': data['ProductVersion']
+      });
+    };
+    window.__showFeedback = showFeedback;
+	
+    })();
+  </script>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54095413-10"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54095413-10');
+    </script>
+  
+</body>
+</html>

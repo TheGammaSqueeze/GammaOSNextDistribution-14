@@ -1,0 +1,26 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_compile_mclinker_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-NCSA
+    default_applicable_licenses: ["frameworks_compile_mclinker_license"],
+}
+
+cc_library_static {
+    name: "libmcldX86Target",
+    defaults: ["mcld-defaults"],
+    host_supported: true,
+    srcs: [
+        "X86Diagnostic.cpp",
+        "X86ELFDynamic.cpp",
+        "X86Emulation.cpp",
+        "X86GOT.cpp",
+        "X86GOTPLT.cpp",
+        "X86LDBackend.cpp",
+        "X86PLT.cpp",
+        "X86Relocator.cpp",
+    ],
+}
+
+subdirs = ["TargetInfo"]

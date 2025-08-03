@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="libprotobuf-java-lite">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../out/soong/.intermediates/external/protobuf/libprotobuf-java-lite/linux_glibc_common/javac/libprotobuf-java-lite.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../../external/protobuf/java/core/src/main/java" />
+    </SOURCES>
+  </library>
+</component>

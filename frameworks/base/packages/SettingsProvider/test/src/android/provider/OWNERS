@@ -1,0 +1,3 @@
+# Bug component: 656484
+
+include platform/frameworks/base:/services/backup/BACKUP_OWNERS

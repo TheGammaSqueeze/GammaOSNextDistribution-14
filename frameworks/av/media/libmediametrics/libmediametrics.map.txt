@@ -1,0 +1,29 @@
+LIBMEDIAMETRICS_1 {
+  global:
+    mediametrics_addDouble; # systemapi
+    mediametrics_addInt32; # systemapi
+    mediametrics_addInt64; # systemapi
+    mediametrics_addRate; # systemapi
+    mediametrics_count; # systemapi
+    mediametrics_create; # systemapi
+    mediametrics_delete; # systemapi
+    mediametrics_freeCString; # systemapi
+    mediametrics_getAttributes; # systemapi
+    mediametrics_getCString; # systemapi
+    mediametrics_getDouble; # systemapi
+    mediametrics_getInt32; # systemapi
+    mediametrics_getInt64; # systemapi
+    mediametrics_getKey; # systemapi
+    mediametrics_getRate; # systemapi
+    mediametrics_isEnabled; # systemapi
+    mediametrics_readable; # systemapi
+    mediametrics_selfRecord; # systemapi
+    mediametrics_setCString; # systemapi
+    mediametrics_setDouble; # systemapi
+    mediametrics_setInt32; # systemapi
+    mediametrics_setInt64; # systemapi
+    mediametrics_setRate; # systemapi
+    mediametrics_setUid; # systemapi
+  local:
+    *;
+};

@@ -1,0 +1,48 @@
+type ramdump_exec, exec_type, vendor_file_type, file_type;
+type ramdump, domain;
+
+userdebug_or_eng(`
+  init_daemon_domain(ramdump)
+
+  set_prop(ramdump, vendor_ramdump_prop)
+
+  # f2fs set pin file requires sys_admin
+  allow ramdump self:capability { sys_admin sys_rawio };
+
+  allow ramdump ramdump_vendor_data_file:dir create_dir_perms;
+  allow ramdump ramdump_vendor_data_file:file create_file_perms;
+  allow ramdump proc_cmdline:file r_file_perms;
+
+  allow ramdump block_device:dir search;
+  allow ramdump misc_block_device:blk_file rw_file_perms;
+  allow ramdump userdata_block_device:blk_file rw_file_perms;
+
+  # Allow ReadDefaultFstab().
+  read_fstab(ramdump)
+
+  # read /fstab.${ro.hardware}
+  allow ramdump rootfs:file r_file_perms;
+
+  r_dir_file(ramdump, sysfs_type)
+
+  # To access statsd.
+  hwbinder_use(ramdump)
+  get_prop(ramdump, hwservicemanager_prop)
+  get_prop(ramdump, boot_status_prop)
+  allow ramdump fwk_stats_hwservice:hwservice_manager find;
+  binder_call(ramdump, stats_service_server)
+  allow ramdump fwk_stats_service:service_manager find;
+  binder_use(ramdump)
+
+  # To implement fusefs (ramdumpfs) under /mnt/vendor/ramdump.
+  allow ramdump fuse:filesystem relabelfrom;
+  allow ramdump fuse_device:chr_file rw_file_perms;
+  allow ramdump mnt_vendor_file:dir r_dir_perms;
+  allow ramdump ramdump_vendor_mnt_file:dir { getattr mounton };
+  allow ramdump ramdump_vendor_fs:filesystem { mount unmount relabelfrom relabelto };
+  allow ramdump_vendor_mnt_file ramdump_vendor_fs:filesystem associate;
+
+  # Access new Stats AIDL APIs (ag/13714907).
+  allow ramdump fwk_stats_service:service_manager find;
+  binder_call(ramdump, servicemanager)
+')

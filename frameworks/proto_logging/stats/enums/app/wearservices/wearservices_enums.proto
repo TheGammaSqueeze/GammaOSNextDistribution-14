@@ -1,0 +1,605 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.app.wearservices;
+
+option java_multiple_files = true;
+option java_outer_classname = "WearServicesEnums";
+
+// This enum depicts the state of the session.
+// Next ID: 5
+enum SessionStateEnum {
+  // Depicts unknown session state.
+  STATE_UNKNOWN = 0;
+
+  // Depicts start state of the session.
+  STATE_START = 1;
+
+  // Depicts end state of the session.
+  STATE_END = 2;
+
+  // Depicts aborted state of the session.
+  STATE_ABORTED = 3;
+
+  // Depicts failed state of the session.
+  STATE_FAILED = 4;
+}
+
+// This enum depicts the action taken.
+// Next ID: 4
+enum ActionEnum {
+  // Depicts unknown action.
+  ACTION_UNKNOWN = 0;
+
+  // Depicts an ADD action.
+  ACTION_ADD = 1;
+
+  // Depicts a REMOVE action.
+  ACTION_REMOVE = 2;
+
+  reserved 3;
+}
+
+// This enum depicts the possible result of watchface set
+// action.
+// Next ID: 4
+enum SetResultEnum {
+  // Depicts unknown result.
+  SET_UNKNOWN = 0;
+
+  // Depicts if the same WF is set.
+  SET_SAME = 1;
+
+  // Depicts if a fallback WF is set.
+  SET_FALLBACK = 2;
+
+  // Depicst if the favorite WF is set.
+  SET_FAVORITE = 3;
+}
+
+// This enum depicts the source of request.
+// Next ID: 3
+enum RequestSource {
+  // Depicts the source as unknown.
+  SOURCE_UNKNOWN = 0;
+
+  // Depicts source as Android phone.
+  SOURCE_PHONE_ANDROID = 1;
+
+  // Depicts source as iOS phone.
+  SOURCE_PHONE_IOS = 2;
+
+  // Depicts the source as watch.
+  SOURCE_WATCH = 3;
+}
+
+// This enum depicts an action taken during a backup attempt
+// Next ID: 4
+enum BackupAction {
+  // Depicts an unknown backup action
+  BACKUP_UNKNOWN_ACTION = 0;
+
+  // Depicts that a backup attempt has begun
+  BACKUP_STARTED = 1;
+
+  // Depicts that a backup attempt succeeded
+  BACKUP_SUCCEEDED = 2;
+
+  // Depicts that a backup attempt did not succeed
+  BACKUP_FAILED = 3;
+}
+
+// This enum depicts an action taken during a restore attempt
+// Next ID: 4
+enum RestoreAction {
+  // Depicts an unknown restore action
+  RESTORE_UNKNOWN_ACTION = 0;
+
+  // Depicts that a restore attempt has begun
+  RESTORE_STARTED = 1;
+
+  // Depicts that a restore attempt succeeded
+  RESTORE_SUCCEEDED = 2;
+
+  // Depicts that a restore attempt did not succeed
+  RESTORE_FAILED = 3;
+}
+
+// Describes an action triggered by a notification update.
+// Next ID: 4
+enum NotificationUpdateAction {
+  // Unknown notification action
+  NOTIFICATION_ACTION_UNKNOWN = 0;
+
+  // Notification posted
+  NOTIFICATION_ACTION_POST = 1;
+
+  // Notification dismissed by the user
+  NOTIFICATION_ACTION_DISMISS = 2;
+
+  // Notification removed by the source
+  NOTIFICATION_ACTION_REMOVE = 3;
+}
+
+// Describes which transport channel is this notification coming from.
+// Next ID: 3
+enum NotificationTransportChannel {
+  // Unknown notification transport channel
+  NOTIFICATION_TRANSPORT_UNKNOWN = 0;
+
+  // Notification comes from wearable API
+  NOTIFICATION_TRANSPORT_WEARABLE = 1;
+
+  // Notification comes from MCU (only exists on device supported offloading)
+  NOTIFICATION_TRANSPORT_MCU = 2;
+}
+
+// Importance of the notification after this update.
+// Next ID: 8
+enum NotificationImportance {
+  // Importance not known
+  NOTIFICATION_IMPORTANCE_UNKNOWN = 0;
+
+  // Importance set as NotificationManager#IMPORTANCE_UNSPECIFIED
+  NOTIFICATION_IMPORTANCE_UNSPECIFIED = 1;
+
+  // Importance set as NotificationManager#IMPORTANCE_NONE
+  NOTIFICATION_IMPORTANCE_NONE = 2;
+
+  // Importance set as NotificationManager#IMPORTANCE_MIN
+  NOTIFICATION_IMPORTANCE_MIN = 3;
+
+  // Importance set as NotificationManager#IMPORTANCE_LOW
+  NOTIFICATION_IMPORTANCE_LOW = 4;
+
+  // Importance set as NotificationManager#IMPORTANCE_DEFAULT
+  NOTIFICATION_IMPORTANCE_DEFAULT = 5;
+
+  // Importance set as NotificationManager#IMPORTANCE_HIGH
+  NOTIFICATION_IMPORTANCE_HIGH = 6;
+
+  // Importance set as NotificationManager#IMPORTANCE_MAX
+  NOTIFICATION_IMPORTANCE_MAX = 7;
+}
+
+// The alerting effect of the notification.
+// Next ID: 5
+enum NotificationAlertingEffect {
+  // Unknown value.
+  NOTIFICATION_ALERTING_EFFECT_UNKNOWN = 0;
+
+  // No alerting effect.
+  NOTIFICATION_ALERTING_EFFECT_NONE = 1;
+
+  // Alerting effect is HAPTICS.
+  NOTIFICATION_ALERTING_EFFECT_HAPTICS = 2;
+
+  // Alerting effect is SOUND.
+  NOTIFICATION_ALERTING_EFFECT_SOUND = 3;
+
+  // Alerting effect is HAPTICS together with SOUND.
+  NOTIFICATION_ALERTING_EFFECT_HAPTICS_AND_SOUND = 4;
+}
+
+// The group alert behavior of the notification.
+//
+// Note: In the Wear SysUI. Alerts will always happen on the child, for example,
+// 1). If summary is set to alert, but the first child is muted, the alert will
+// happen on the child item.
+// 2). If summary and first child both set to alert, there will be only 1 alerts
+// happening on the first child.
+// Therefore, we will overcount if we count alerting summary items, and we will
+// undercount if we skip alerting summary items. And unfortunately we can not
+// avoid this inaccuracy in the metrics.
+// Next ID: 4
+enum NotificationGroupAlertBehavior {
+  // Unknown value.
+  NOTIFICATION_GROUP_ALERT_BEHAVIOR_UNKNOWN = 0;
+
+  // The alert behavior set to ALL, or notification is not grouped, or the group
+  // type matches the alert behavior (e.g. group child, while the alert behavior
+  // is also set to child.)
+  // We collapsed these non-critical cases to reduce cardinality.
+  NOTIFICATION_GROUP_ALERT_BEHAVIOR_ALERT_ALLOWED = 1;
+
+  // The alert behavior is set to ALERT_SUMMARY, but the current notification is
+  // a child.
+  NOTIFICATION_GROUP_ALERT_BEHAVIOR_DELEGATED_TO_SUMMARY = 2;
+
+  // The alert behavior is set to ALERT_CHILD, but the current notification is a
+  // summary.
+  NOTIFICATION_GROUP_ALERT_BEHAVIOR_DELEGATED_TO_CHILD = 3;
+}
+
+// The alert behavior controlled by the ALERT_ONLY_ONCE flag.
+// Next ID: 4
+enum NotificationAlertOnlyOnce {
+  // Unknown value.
+  NOTIFICATION_ALERT_ONLY_ONCE_UNKNOWN = 0;
+
+  // The flag not set.
+  NOTIFICATION_ALERT_ONLY_ONCE_NOT_SET = 1;
+
+  // The flag set, and current item is the first update.
+  NOTIFICATION_ALERT_ONLY_ONCE_ALERT_ON_FIRST = 2;
+
+  // The flag set, and current item is not the first update.
+  NOTIFICATION_ALERT_ONLY_ONCE_MUTE_ON_UPDATES = 3;
+}
+
+// The group type of the notification.
+// Next ID: 4
+enum NotificationGroupType {
+  // Unknown value.
+  NOTIFICATION_GROUP_TYPE_UNKNOWN = 0;
+
+  // No group assigneed
+  NOTIFICATION_GROUP_TYPE_NO_GROUP = 1;
+
+  // This notification is a group summary
+  NOTIFICATION_GROUP_TYPE_GROUP_SUMMARY = 2;
+
+  // This notification is a group child
+  NOTIFICATION_GROUP_TYPE_GROUP_CHILD = 3;
+}
+
+// The style of the notification.
+// Next ID: 7
+enum NotificationStyle {
+  // Unknown value.
+  NOTIFICATION_STYLE_UNKNOWN = 0;
+
+  // The notification has not specific any style.
+  NOTIFICATION_STYLE_UNSPECIFIED = 1;
+
+  // The notification is InboxStyle.
+  NOTIFICATION_STYLE_INBOX = 2;
+
+  // The notification is BigTextStyle.
+  NOTIFICATION_STYLE_BIG_TEXT = 3;
+
+  // The notification is BigPictureStyle.
+  NOTIFICATION_STYLE_BIG_PICTURE = 4;
+
+  // The notification is MessagingStyle.
+  NOTIFICATION_STYLE_MESSAGING = 5;
+
+  // The notification is MediaStyle.
+  NOTIFICATION_STYLE_MEDIA = 6;
+}
+
+// The categories for the notification.
+// Next ID: 7
+enum NotificationCategory {
+  // Unknown value.
+  NOTIFICATION_CATEGORY_UNKNOWN = 0;
+
+  // No category set for the notificatioin.
+  NOTIFICATION_CATEGORY_NONE = 1;
+
+  // Notification set with other categories
+  NOTIFICATION_CATEGORY_OTHERS = 2;
+
+  // Notification set with CATEGORY_CALL.
+  NOTIFICATION_CATEGORY_CALL = 3;
+
+  // Notification set with CATEGORY_ALARM.
+  NOTIFICATION_CATEGORY_ALARM = 4;
+
+  // Notification set with CATEGORY_REMINDER.
+  NOTIFICATION_CATEGORY_REMINDER = 5;
+
+  // Notification set with CATEGORY_EVENT.
+  NOTIFICATION_CATEGORY_EVENT = 6;
+}
+
+// The ongoing type for the notification.
+// Next ID: 7
+enum NotificationHiddenReason {
+  // Unknown value.
+  NOTIFICATION_HIDDEN_REASON_UNKNOWN = 0;
+
+  // The notification is not hidden.
+  NOTIFICATION_HIDDEN_REASON_NONE = 1;
+
+  // The notification hidden with other reasons.
+  NOTIFICATION_HIDDEN_REASON_OTHERS = 2;
+
+  // The notification has set with ongoing activity. Which means it is hidden.
+  NOTIFICATION_HIDDEN_REASON_ONGOING_ACTIVITY = 3;
+
+  // The notification is media style.
+  NOTIFICATION_HIDDEN_REASON_MEDIA_STYLE = 4;
+
+  // The notification is bound with foreground service.
+  NOTIFICATION_HIDDEN_REASON_FOREGROUND_SERVICE = 5;
+
+  // The notification is hidden by dismissal id flow.
+  NOTIFICATION_HIDDEN_REASON_MANAGED_DISMISSAL = 6;
+}
+
+// The content intent button settings for the notification.
+// Next ID: 5
+enum NotificationContentIntent {
+  // Unknown value.
+  NOTIFICATION_CONTENT_INTENT_UNKNOWN = 0;
+
+  // No content intent set.
+  NOTIFICATION_CONTENT_INTENT_NONE = 1;
+
+  // Content intent set with OPEN_ON_WATCH.
+  NOTIFICATION_CONTENT_INTENT_OPEN_ON_WATCH = 2;
+
+  // Content intent set with OPEN_ON_PHONE.
+  NOTIFICATION_CONTENT_INTENT_OPEN_ON_PHONE = 3;
+
+  // Content intent set with BOTH actions.
+  NOTIFICATION_CONTENT_INTENT_BOTH = 4;
+}
+
+// Defines on which device the notification blocked state is changed for an application.
+// Next ID: 4
+enum DeviceLocation {
+  // Unknown value.
+  DEVICE_LOCATION_UNKNOWN = 0;
+
+  // The notification is blocked on the watch.
+  DEVICE_LOCATION_WATCH = 1;
+
+  // The notification is blocked on the phone.
+  DEVICE_LOCATION_PHONE = 2;
+
+  // The notification is blocked both on the watch and the phone.
+  DEVICE_LOCATION_WATCH_AND_PHONE = 3;
+}
+
+// Defines in which profile the application is installed.
+// Next ID: 3
+enum Profile {
+  // Unknown value.
+  PROFILE_UNKNOWN = 0;
+
+  // The application is installed in the personal profile.
+  PROFILE_PERSONAL = 1;
+
+  // The application is installed in the work profile.
+  PROFILE_WORK = 2;
+}
+
+// Defines the blocking status of the application for notifications.
+// Next ID: 3
+enum NotificationBlockingStatus {
+  // Unknown value.
+  NOTIFICATION_BLOCKING_STATUS_UNKNOWN = 0;
+
+  // The notifications for the applications are blocked on the device.
+  NOTIFICATION_BLOCKING_STATUS_BLOCKED = 1;
+
+  // The notifications for the applications are unblocked on the device.
+  NOTIFICATION_BLOCKING_STATUS_UNBLOCKED = 2;
+}
+
+// This enum depicts an action taken on a call
+// Next ID: 4
+enum CallAction {
+  // Depicts an unknown call action
+  CALL_ACTION_UNKNOWN = 0;
+
+  // Depicts an accept call action
+  CALL_ACTION_ACCEPTED = 1;
+
+  // Depicts a reject call action
+  CALL_ACTION_REJECTED = 2;
+
+  // Depicts a silence call action
+  CALL_ACTION_SILENCED = 3;
+}
+
+// This enum depicts the different type of calls
+// Next ID: 3
+enum CallType {
+  // Depicts an unknown call type
+  CALL_TYPE_UNKNOWN = 0;
+
+  // Depicts an incoming call
+  CALL_TYPE_INCOMING = 1;
+
+  // Depicts an outgoing call
+  CALL_TYPE_OUTGOING = 2;
+}
+
+// This enum depicts the original source of the call
+// Next ID: 4
+enum CallSource {
+  // Depicts an unknown call source
+  CALL_SOURCE_UNKNOWN = 0;
+
+  // Depicts a call originating on the watch
+  CALL_SOURCE_WATCH = 1;
+
+  // Depicts a call originating on the phone and bridged using HFP
+  CALL_SOURCE_PHONE_HFP = 2;
+
+  // Depicts a call originating on the phone and bridged using the companion
+  CALL_SOURCE_PHONE_COMPANION = 3;
+}
+
+// This enum depicts the initial user interaction with the call
+// Next ID: 4
+enum CallResult {
+  // Depicts an unknown interaction
+  CALL_RESULT_UNKNOWN = 0;
+
+  // Depicts no interaction with the watch
+  CALL_RESULT_NO_INTERACTION_ON_WATCH = 1;
+
+  // Depicts that the call was accepted using the watch
+  CALL_RESULT_ACCEPTED_ON_WATCH = 2;
+
+  // Depicts that the call was rejected using the watch
+  CALL_RESULT_REJECTED_ON_WATCH = 3;
+}
+
+// This enum depicts a user interaction during the call
+// Next ID: 4
+enum CallInteraction {
+  // Depicts an unknown interaction
+  CALL_INTERACTION_UNKNOWN = 0;
+
+  // Depicts an increase in volume
+  CALL_INTERACTION_VOLUME_INCREASE = 1;
+
+  // Depicts a decrease in volume
+  CALL_INTERACTION_VOLUME_DECREASE = 2;
+
+  // Depicts a mute action
+  CALL_INTERACTION_MUTE = 3;
+}
+
+// This enum depicts the different stages of call where latency should be
+// measured.
+// Next ID: 5
+enum LatencyAction {
+  // Depicts an unknown latency measurement
+  LATENCY_ACTION_UNKNOWN = 0;
+
+  // Depicts the latency for creating a call
+  LATENCY_ACTION_CALL_CREATION = 1;
+
+  // Depicts the latency to ring for the call
+  LATENCY_ACTION_RING = 2;
+
+  // Depicts the latency for answering the call
+  LATENCY_ACTION_PICKED_CALL = 3;
+
+  // Depicts the latency for changing the audio output for the call
+  LATENCY_ACTION_AUDIO_OUTPUT_SWITCH = 4;
+}
+
+// This enum depicts all the reasons that can cause a call to be disconnected.
+// Please see
+// https://developer.android.com/reference/android/telecom/DisconnectCause.
+// Next ID: 13
+enum DisconnectionReason {
+  // Disconnected because of an unknown or unspecified reason.
+  DISCONNECT_REASON_UNKNOWN = 0;
+
+  // Disconnected because there was an error, such as a problem with the
+  // network.
+  DISCONNECT_REASON_ERROR = 1;
+
+  // Disconnected because of a local user-initiated action, such as hanging up.
+  DISCONNECT_REASON_LOCAL = 2;
+
+  // Disconnected because of a remote user-initiated action, such as the other
+  // party hanging up up.
+  DISCONNECT_REASON_REMOTE = 3;
+
+  // Disconnected because it has been canceled.
+  DISCONNECT_REASON_CANCELLED = 4;
+
+  // Disconnected because there was no response to an incoming call.
+  DISCONNECT_REASON_MISSED = 5;
+
+  // Disconnected because the user rejected an incoming call.
+  DISCONNECT_REASON_REJECTED = 6;
+
+  // Disconnected because the other party was busy.
+  DISCONNECT_REASON_BUSY = 7;
+
+  // Disconnected because of a restriction on placing the call, such as dialing
+  // in airplane mode.
+  DISCONNECT_REASON_RESTRICTED = 8;
+
+  // Disconnected for reason not described by other disconnect codes.
+  DISCONNECT_REASON_OTHER = 9;
+
+  // Disconnected because the connection manager did not support the call.
+  DISCONNECT_REASON_CONNECTION_MANAGER_NOT_SUPPORTED = 10;
+
+  // Disconnected because the user did not locally answer the incoming call, but
+  // it was answered on another device where the call was ringing.
+  DISCONNECT_REASON_ANSWERED_ELSEWHERE = 11;
+
+  // Disconnected because the call was pulled from the current device to another
+  // device.
+  DISCONNECT_REASON_CALL_PULLED = 12;
+}
+
+// This enum depicts the error code where a disconnection happened due to an
+// error.
+// Next ID: 6
+enum DisconnectionErrorCode {
+  // Depicts an unknown error code
+  DISCONNECTION_ERROR_CODE_UNKNOWN = 0;
+
+  // Depicts no error
+  DISCONNECTION_ERROR_CODE_NONE = 1;
+
+  // Depicts an error from the phone
+  DISCONNECTION_ERROR_CODE_PHONE = 2;
+
+  // Depicts an error from dialer
+  DISCONNECTION_ERROR_CODE_DIALER = 3;
+
+  // Depicts an error from a disconnect where this was a bridged call
+  DISCONNECTION_ERROR_CODE_PHONE_DISCONNECTED = 4;
+
+  // Depicts an error where creating an outgoing call failed
+  DISCONNECTION_ERROR_CODE_OUTGOING_CALL_FAILURE = 5;
+}
+
+// This enum depicts the tether mode of certain watches, they are corresponding
+// to vendor/google_clockwork/sdk/lib/src/com/google/wear/tether/TetherConfigurationClient.java
+// Next ID: 4
+enum TetherConfigurationStatus {
+  // Depicts an unknown tether status
+  TETHER_CONFIGURATION_UNKNOWN = 0;
+
+  // Depicts the watch is in standalone mode
+  TETHER_CONFIGURATION_STANDALONE = 1;
+
+  // Depicts the watch is in tethered mode
+  TETHER_CONFIGURATION_TETHERED = 2;
+
+  // Depicts the watch is in restricted connection mode
+  TETHER_CONFIGURATION_RESTRICTED = 3;
+}
+
+// This enum represents if watch is worn: is it on body, off body or state is unknown
+enum OnBodyState {
+  ON_BODY_STATE_UNKNOWN = 0;
+  ON_BODY_STATE_ON = 1;
+  ON_BODY_STATE_OFF = 2;
+}
+
+// Describes the watch face type.
+// Next ID: 4
+enum WatchFaceType {
+  // Unknown type.
+  WATCH_FACE_TYPE_UNKNOWN = 0;
+
+  // Wear support library compiled watch face type.
+  WATCH_FACE_TYPE_WSL = 1;
+
+  // Androidx compiled watch face type.
+  WATCH_FACE_TYPE_ANDROIDX = 2;
+
+  // Declarative watch face type.
+  WATCH_FACE_TYPE_DWF = 3;
+}

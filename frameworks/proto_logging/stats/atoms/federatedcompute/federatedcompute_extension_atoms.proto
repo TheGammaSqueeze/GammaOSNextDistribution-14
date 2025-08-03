@@ -1,0 +1,100 @@
+
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.os.statsd.federatedcompute;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/federatedcompute/enums.proto";
+
+option java_package = "com.android.os.federatedcompute";
+option java_multiple_files = true;
+
+extend Atom {
+  optional FederatedComputeApiCalled federated_compute_api_called =
+            712 [(module) = "ondevicepersonalization", (truncate_timestamp) = true];
+  optional FederatedComputeTrainingEventReported federated_compute_training_event_reported =
+            771 [(module) = "ondevicepersonalization", (truncate_timestamp) = true];
+}
+
+/**
+ * Logs when an FederatedCompute api is called.
+ */
+message FederatedComputeApiCalled {
+    enum FederatedComputeApiClassType {
+        API_CLASS_UNKNOWN = 0;
+    }
+
+    enum FederatedComputeApiName {
+        API_NAME_UNKNOWN = 0;
+        SCHEDULE = 1;
+        CANCEL = 2;
+    }
+
+    optional FederatedComputeApiClassType api_class = 1;
+
+    optional FederatedComputeApiName api_name = 2;
+
+    optional int32 latency_millis = 3;
+
+    // response_code is the error/failure code for the given api.
+    optional int32 response_code = 4;
+}
+
+/**
+ * Logs when an federated computation training event occurs.
+ */
+message FederatedComputeTrainingEventReported {
+  optional int64 client_version = 1;
+
+  // The kind of train event.
+  optional android.federatedcompute.TrainingEventKind
+      kind = 2;
+
+  // The task id of this run.
+  optional int64 task_id = 3;
+
+  // For TRAIN_INTERRUPTED and TRAIN_COMPLETED:
+  // the wall time of the duration, in milliseconds, since the matching
+  // STARTED event.  (Note: This is a time duration, not a timestamp, so
+  // annotating it with ST_TIMESTAMP is not necessary and would be inaccurate.)
+  optional int64 duration_millis = 4;
+
+  // For TRAIN_INTERRUPTED and TRAIN_COMPLETED:
+  // the number of bytes (of serialized example protos) which had been fed
+  // since the matching started event.
+  optional int64 example_size = 5;
+
+  /////////////////////////////////////////////////////////
+  // Information about data transfer for TRAIN_DOWNLOADED/TRAIN_UPLOADED events
+
+  // How long it took client to transfer the data
+  optional int64 data_transfer_duration_millis = 6;
+
+  // Number of bytes sent from the client to the server.
+  optional int64 bytes_uploaded = 7;
+
+  // Number of bytes sent from the server to the client.
+  optional int64 bytes_downloaded = 8;
+
+  /////////////////////////////////////////////////////////
+  // Information about Authentication events.
+
+  // The wall time of generating keys and attestation record in milliseconds.
+  optional int64 key_attestation_latency_millis = 9;
+}

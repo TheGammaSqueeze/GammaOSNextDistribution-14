@@ -1,0 +1,719 @@
+{
+  "License": [
+    "Copyright (C) 2023 The Android Open Source Project",
+    "",
+    "Licensed under the Apache License, Version 2.0 (the “License”);",
+    "you may not use this file except in compliance with the License.",
+    "You may obtain a copy of the License at",
+    "",
+    "     http://www.apache.org/licenses/LICENSE-2.0",
+    "",
+    "Unless required by applicable law or agreed to in writing, software",
+    "distributed under the License is distributed on an “AS IS” BASIS,",
+    "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.",
+    "See the License for the specific language governing permissions and",
+    "limitations under the License."
+  ],
+  "Adduw": {
+    "comment": "Add unsigned word",
+    "class": "scalar",
+    "in": [ "uint32_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "AmoAdd": {
+    "comment": "Atomic add, like __atomic_fetch_add. Three template arguments: type, aq, rl.",
+    "class": "template",
+    "variants": [
+      "int32_t, false, false",
+      "int32_t, false, true",
+      "int32_t, true, false",
+      "int32_t, true, true",
+      "int64_t, false, false",
+      "int64_t, false, true",
+      "int64_t, true, false",
+      "int64_t, true, true"
+    ],
+    "in": [ "int64_t", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Atomic instruction. Should be volatile.",
+    "has_side_effects": true
+  },
+  "AmoAnd": {
+    "comment": "Atomic and, like __atomic_fetch_and. Three template arguments: type, aq, rl.",
+    "class": "template",
+    "variants": [
+      "int32_t, false, false",
+      "int32_t, false, true",
+      "int32_t, true, false",
+      "int32_t, true, true",
+      "int64_t, false, false",
+      "int64_t, false, true",
+      "int64_t, true, false",
+      "int64_t, true, true"
+    ],
+    "in": [ "int64_t", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Atomic instruction. Should be volatile.",
+    "has_side_effects": true
+  },
+  "AmoMax": {
+    "comment": "Atomic maximum, like __atomic_fetch_max. Three template arguments: type, aq, rl.",
+    "class": "template",
+    "variants": [
+      "int32_t, false, false",
+      "int32_t, false, true",
+      "int32_t, true, false",
+      "int32_t, true, true",
+      "int64_t, false, false",
+      "int64_t, false, true",
+      "int64_t, true, false",
+      "int64_t, true, true",
+      "uint32_t, false, false",
+      "uint32_t, false, true",
+      "uint32_t, true, false",
+      "uint32_t, true, true",
+      "uint64_t, false, false",
+      "uint64_t, false, true",
+      "uint64_t, true, false",
+      "uint64_t, true, true"
+    ],
+    "in": [ "int64_t", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Atomic instruction. Should be volatile.",
+    "has_side_effects": true
+  },
+  "AmoMin": {
+    "comment": "Atomic minimum, like __atomic_fetch_min. Three template arguments: type, aq, rl.",
+    "class": "template",
+    "variants": [
+      "int32_t, false, false",
+      "int32_t, false, true",
+      "int32_t, true, false",
+      "int32_t, true, true",
+      "int64_t, false, false",
+      "int64_t, false, true",
+      "int64_t, true, false",
+      "int64_t, true, true",
+      "uint32_t, false, false",
+      "uint32_t, false, true",
+      "uint32_t, true, false",
+      "uint32_t, true, true",
+      "uint64_t, false, false",
+      "uint64_t, false, true",
+      "uint64_t, true, false",
+      "uint64_t, true, true"
+    ],
+    "in": [ "int64_t", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Atomic instruction. Should be volatile.",
+    "has_side_effects": true
+  },
+  "AmoOr": {
+    "comment": "Atomic or, like __atomic_fetch_or. Three template arguments: type, aq, rl.",
+    "class": "template",
+    "variants": [
+      "int32_t, false, false",
+      "int32_t, false, true",
+      "int32_t, true, false",
+      "int32_t, true, true",
+      "int64_t, false, false",
+      "int64_t, false, true",
+      "int64_t, true, false",
+      "int64_t, true, true"
+    ],
+    "in": [ "int64_t", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Atomic instruction. Should be volatile.",
+    "has_side_effects": true
+  },
+  "AmoSwap": {
+    "comment": "Atomic exchange, like __atomic_exchange_n. Three template arguments: type, aq, rl.",
+    "class": "template",
+    "variants": [
+      "int32_t, false, false",
+      "int32_t, false, true",
+      "int32_t, true, false",
+      "int32_t, true, true",
+      "int64_t, false, false",
+      "int64_t, false, true",
+      "int64_t, true, false",
+      "int64_t, true, true"
+    ],
+    "in": [ "int64_t", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Atomic instruction. Should be volatile.",
+    "has_side_effects": true
+  },
+  "AmoXor": {
+    "comment": "Atomic exclusive or, like __atomic_fetch_xor. Three template arguments: type, aq, rl.",
+    "class": "template",
+    "variants": [
+      "int32_t, false, false",
+      "int32_t, false, true",
+      "int32_t, true, false",
+      "int32_t, true, true",
+      "int64_t, false, false",
+      "int64_t, false, true",
+      "int64_t, true, false",
+      "int64_t, true, true"
+    ],
+    "in": [ "int64_t", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Atomic instruction. Should be volatile.",
+    "has_side_effects": true
+  },
+  "Bclr": {
+    "comment": "Single bit clear register",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Bclri": {
+    "comment": "Single bit clear immediate",
+    "class": "scalar",
+    "in": [ "uint64_t", "uimm8" ],
+    "out": [ "uint64_t" ]
+  },
+  "Bext": {
+    "comment": "Single bit extract register",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Bexti": {
+    "comment": "Single bit extract immediate",
+    "class": "scalar",
+    "in": [ "uint64_t", "uimm8" ],
+    "out": [ "uint64_t" ]
+  },
+  "Binv": {
+    "comment": "Single bit invert register",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Binvi": {
+    "comment": "Single bit invert immediate",
+    "class": "scalar",
+    "in": [ "uint64_t", "uimm8" ],
+    "out": [ "uint64_t" ]
+  },
+  "Bset": {
+    "comment": "Single bit set register",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Bseti": {
+    "comment": "Single bit set immediate",
+    "class": "scalar",
+    "in": [ "uint64_t", "uimm8" ],
+    "out": [ "uint64_t" ]
+  },
+  "CanonicalizeNan": {
+    "comment": "Unbox small floating-point value from NaN",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "Clz": {
+    "comment": "Count leading zeros. Note: works like lzcnt, supports zero input!",
+    "class": "template",
+    "variants": [ "int32_t", "int64_t" ],
+    "in": [ "Type0" ],
+    "out": [ "int64_t" ]
+  },
+  "Cpop": {
+    "comment": "Count set bits",
+    "class": "template",
+    "variants": [ "int32_t", "int64_t" ],
+    "in": [ "Type0" ],
+    "out": [ "int64_t" ]
+  },
+  "Ctz": {
+    "comment": "Count trailing zeros. Note: works like tzcnt, supports zero input!",
+    "class": "template",
+    "variants": [ "int32_t", "int64_t" ],
+    "in": [ "Type0" ],
+    "out": [ "int64_t" ]
+  },
+  "FAdd": {
+    "comment": "Floating point addition",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FAddHostRounding": {
+    "comment": "Fused multiply-addition (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FClass": {
+    "comment": "Classify float number in 10 classes as defined by RISC-V",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0" ],
+    "out": [ "uint64_t" ],
+    "side_effects_comment": "Classification of value, doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FCvtFloatToFloat": {
+    "comment": "Convert float to float",
+    "class": "template",
+    "variants": [ "Float32, Float64", "Float64, Float32" ],
+    "in": [ "imm8", "int8_t", "Type1" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Conversion of value, doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FCvtFloatToInteger": {
+    "comment": "Convert float to integer",
+    "class": "template",
+    "variants": [
+      "int32_t, Float32",
+      "int32_t, Float64",
+      "int64_t, Float32",
+      "int64_t, Float64",
+      "uint32_t, Float32",
+      "uint32_t, Float64",
+      "uint64_t, Float32",
+      "uint64_t, Float64"
+    ],
+    "in": [ "imm8", "int8_t", "Type1" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Conversion of value, doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FCvtFloatToIntegerHostRounding": {
+    "comment": "Convert float to integer",
+    "class": "template",
+    "variants": [ "int32_t, Float32", "int32_t, Float64", "int64_t, Float32", "int64_t, Float64" ],
+    "in": [ "Type1" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Conversion of value, doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FCvtIntegerToFloat": {
+    "comment": "Convert integer to float",
+    "class": "template",
+    "variants": [
+      "Float32, int32_t",
+      "Float32, int64_t",
+      "Float32, uint32_t",
+      "Float32, uint64_t",
+      "Float64, int32_t",
+      "Float64, int64_t",
+      "Float64, uint32_t",
+      "Float64, uint64_t"
+    ],
+    "in": [ "imm8", "int8_t", "Type1" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Conversion of value, doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FDiv": {
+    "comment": "Floating point division",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FDivHostRounding": {
+    "comment": "Floating point division (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FeGetExceptions": {
+    "comment": "Read exceptions state from x87 status word and MXCSR.",
+    "class": "scalar",
+    "in": [],
+    "out": [ "uint64_t" ],
+    "side_effects_comment": "Reads state from host CPU. State may be affected to floating point instructions.",
+    "has_side_effects": true
+  },
+  "FeSetExceptions": {
+    "comment": "Store exceptions state into x87 status word and MXCSR. Only low five bits are set on input!",
+    "class": "scalar",
+    "in": [ "uint64_t" ],
+    "out": [],
+    "side_effects_comment": "Stores state to host CPU. State may be affected to floating point instructions.",
+    "has_side_effects": true
+  },
+  "FeSetExceptionsAndRound": {
+    "comment": "Store exceptions state into x87 status word and MXCSR. Only low five bits are set on input!",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint8_t" ],
+    "out": [],
+    "side_effects_comment": "Stores state to host CPU. State may be affected to floating point instructions.",
+    "has_side_effects": true
+  },
+  "FeSetExceptionsImm": {
+    "comment": "Store exceptions state into x87 status word and MXCSR. Only low five bits are set on input!",
+    "class": "scalar",
+    "in": [ "uimm8" ],
+    "out": [],
+    "side_effects_comment": "Stores state to host CPU. State may be affected to floating point instructions.",
+    "has_side_effects": true
+  },
+  "FeSetExceptionsAndRoundImm": {
+    "comment": "Store exceptions state into x87 status word and MXCSR. Only low five bits are set on input!",
+    "class": "scalar",
+    "in": [ "uimm8" ],
+    "out": [],
+    "side_effects_comment": "Stores state to host CPU. State may be affected to floating point instructions.",
+    "has_side_effects": true
+  },
+  "FeSetRound": {
+    "comment": "Store guest rounding mode in the host FPU state. Only low three bits are set on input!",
+    "class": "scalar",
+    "in": [ "uint64_t" ],
+    "out": [],
+    "has_side_effects": true
+  },
+  "FeSetRoundImm": {
+    "comment": "Store guest rounding mode in the host FPU state. Only low three bits are set on input!",
+    "class": "scalar",
+    "in": [ "uimm8" ],
+    "out": [],
+    "has_side_effects": true
+  },
+  "FMAdd": {
+    "comment": "Fused multiply-addition",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FMAddHostRounding": {
+    "comment": "Fused multiply-addition (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FMSub": {
+    "comment": "Fused multiply-subtraction",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FMSubHostRounding": {
+    "comment": "Fused multiply-subtraction (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FMax": {
+    "comment": "Maximum from two floats",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FMin": {
+    "comment": "Minimum from two floats",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FMul": {
+    "comment": "Floating point multiplication",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FMulHostRounding": {
+    "comment": "Floating point multiplication (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FNMAdd": {
+    "comment": "Fused negated multiply-addition",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FNMAddHostRounding": {
+    "comment": "Fused negated multiply-addition (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FNMSub": {
+    "comment": "Fused negated multiply-subtraction",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FNMSubHostRounding": {
+    "comment": "Fused negated multiply-subtraction (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FSgnj": {
+    "comment": "Copy sign of one float to another",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Special conversion. Doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FSgnjn": {
+    "comment": "Copy negated sign of one float to another",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Special conversion. Doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FSgnjx": {
+    "comment": "Xor two sign bits of two floats and return",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Special conversion. Doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FSqrt": {
+    "comment": "Square root",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FSqrtHostRounding": {
+    "comment": "Square root (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32" ],
+    "in": [ "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FSub": {
+    "comment": "Floating point subtraction",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "imm8", "int8_t", "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "FSubHostRounding": {
+    "comment": "Floating point subtraction (uses host dynamic rounding)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "Feq": {
+    "comment": "Floating point comparison for \u201cequal\u201d (quiet comparison)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "int64_t" ]
+  },
+  "Fle": {
+    "comment": "Floating point comparison for \u201cless of equal\u201d (signaling comparison)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "int64_t" ]
+  },
+  "Flt": {
+    "comment": "Floating point comparison for \u201cless\u201d (quiet comparison)",
+    "class": "template",
+    "variants": [ "Float32", "Float64" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "int64_t" ]
+  },
+  "FmvFloatToInteger": {
+    "comment": "Move floating point register to integer register",
+    "class": "template",
+    "variants": [ "int32_t, Float32", "int64_t, Float64" ],
+    "in": [ "Type1" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Conversion of value, doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "FmvIntegerToFloat": {
+    "comment": "Move floating point register to integer register",
+    "class": "template",
+    "variants": [ "Float32, int32_t", "Float64, int64_t" ],
+    "in": [ "Type1" ],
+    "out": [ "Type0" ],
+    "side_effects_comment": "Conversion of value, doesn't set exceptions bits.",
+    "has_side_effects": false
+  },
+  "Max": {
+    "comment": "Returns the larger of two integers.",
+    "class": "template",
+    "variants": [ "int64_t", "uint64_t" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "Min": {
+    "comment": "Returns the smaller of two integers.",
+    "class": "template",
+    "variants": [ "int64_t", "uint64_t" ],
+    "in": [ "Type0", "Type0" ],
+    "out": [ "Type0" ]
+  },
+  "NanBox": {
+    "comment": [
+      "NaN-box small floating-point value into NaN.",
+      "Note: we pass input value as Float64 but top half may contain garbage.",
+      "This is needed because otherwise FPRegToFloat would be used to check it."
+    ],
+    "class": "template",
+    "variants": [ "Float32" ],
+    "in": [ "Float64" ],
+    "out": [ "Float64" ]
+  },
+  "Orcb": {
+    "comment": "OR-Combine, byte granule.",
+    "class": "scalar",
+    "in": [ "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Rev8": {
+    "comment": "Byte reverse.",
+    "class": "scalar",
+    "in": [ "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Rol": {
+    "comment": "Rotate left.",
+    "class": "template",
+    "variants": [ "int64_t", "int32_t" ],
+    "in": [ "Type0", "int8_t" ],
+    "out": [ "Type0" ]
+  },
+  "Ror": {
+    "comment": "Rotate right.",
+    "class": "template",
+    "variants": [ "int64_t", "int32_t" ],
+    "in": [ "Type0", "int8_t" ],
+    "out": [ "Type0" ]
+  },
+  "Sext": {
+    "comment": "Sign-extends to 64bit",
+    "class": "template",
+    "variants": [ "int8_t", "int16_t" ],
+    "in": [ "Type0" ],
+    "out": [ "int64_t" ]
+  },
+  "Sh1add": {
+    "comment": "Shift left and add",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Sh1adduw": {
+    "comment": "Shift unsigned word left and add",
+    "class": "scalar",
+    "in": [ "uint32_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Sh2add": {
+    "comment": "Shift left by 2 and add",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Sh2adduw": {
+    "comment": "Shift unsigned word left by 2 and add",
+    "class": "scalar",
+    "in": [ "uint32_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Sh3add": {
+    "comment": "Shift left by 3 and add",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Sh3adduw": {
+    "comment": "Shift unsigned word left by 3 and add",
+    "class": "scalar",
+    "in": [ "uint32_t", "uint64_t" ],
+    "out": [ "uint64_t" ]
+  },
+  "Slliuw": {
+    "comment": "Shift left unsigned word immediate",
+    "class": "scalar",
+    "in": [ "uint32_t", "uimm8" ],
+    "out": [ "uint64_t" ]
+  },
+  "UnboxNan": {
+    "comment": "Unbox small floating-point value from NaN",
+    "class": "template",
+    "variants": [ "Float32" ],
+    "in": [ "Float64" ],
+    "out": [ "Type0" ]
+  },
+  "Vsetivli": {
+    "comment": "Test vtype and set vl accordingly.",
+    "class": "scalar",
+    "in": [ "uimm8", "uimm16" ],
+    "out": [ "uint64_t", "uint64_t" ]
+  },
+  "Vsetvl": {
+    "comment": "Test vtype and set vl accordingly.",
+    "class": "scalar",
+    "in": [ "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t", "uint64_t" ]
+  },
+  "Vsetvli": {
+    "comment": "Test vtype and set vl accordingly.",
+    "class": "scalar",
+    "in": [ "uint64_t", "uimm16" ],
+    "out": [ "uint64_t", "uint64_t" ]
+  },
+  "Vsetvlmax": {
+    "comment": "Test vtype and set vl accordingly.",
+    "class": "scalar",
+    "in": [ "uint64_t" ],
+    "out": [ "uint64_t", "uint64_t" ]
+  },
+  "Vsetvlimax": {
+    "comment": "Test vtype and set vl accordingly.",
+    "class": "scalar",
+    "in": [ "uimm16" ],
+    "out": [ "uint64_t", "uint64_t" ]
+  },
+  "Vtestvl": {
+    "comment": "Test vl and keep it or reset it and vtype.",
+    "class": "scalar",
+    "in": [ "uint8_t", "uint64_t", "uint64_t" ],
+    "out": [ "uint64_t", "uint64_t" ]
+  },
+  "Vtestvli": {
+    "comment": "Test vl and keep it or reset it and vtype.",
+    "class": "scalar",
+    "in": [ "uint8_t", "uint64_t", "uimm16" ],
+    "out": [ "uint64_t", "uint64_t" ]
+  },
+  "Zexth": {
+    "comment": "Zero-extend half word",
+    "class": "scalar",
+    "in": [ "int16_t" ],
+    "out": [ "int64_t" ]
+  }
+}

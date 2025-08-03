@@ -1,0 +1,44 @@
+
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "hardware_qcom_sm8150_gps_license":
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["hardware_qcom_sm8150_gps_license"],
+}
+
+cc_library_shared {
+
+    name: "liblocation_api",
+    vendor: true,
+
+
+
+    shared_libs: [
+        "libutils",
+        "libcutils",
+        "libgps.utils",
+        "libdl",
+        "liblog",
+    ],
+
+    srcs: [
+        "LocationAPI.cpp",
+        "LocationAPIClientBase.cpp",
+    ],
+
+    cflags: ["-fno-short-enums"] + GNSS_CFLAGS,
+
+    header_libs: [
+        "libloc_pla_headers",
+        "libgps.utils_headers",
+    ],
+
+}
+
+cc_library_headers {
+
+    name: "liblocation_api_headers",
+    export_include_dirs: ["."],
+    vendor: true,
+}

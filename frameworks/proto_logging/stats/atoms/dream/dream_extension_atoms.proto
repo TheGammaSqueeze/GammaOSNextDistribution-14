@@ -1,0 +1,106 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.dream;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+extend Atom {
+    optional DreamSettingChanged dream_setting_changed = 705 [(module) = "framework"];
+
+    optional DreamSettingSnapshot dream_setting_snapshot = 10192 [(module) = "framework"];
+}
+
+// Pushed atom for logging dream setting changes.
+message DreamSettingChanged {
+    // Android user id of the user that updated the setting.
+    optional int32 uid = 1 [(is_uid) = true];
+
+    // Configuration for whether dream is enabled.
+    optional bool enabled = 2;
+
+    // Configuration for what dream component to show.
+    optional string dream_component= 3;
+
+    // Configuration for when dream should begin.
+    optional WhenToDream when_to_dream = 4;
+
+    // Configuration for whether to show additional information.
+    optional bool show_additional_info = 5;
+
+    // Configuration for whether to show home controls.
+    optional bool show_home_controls = 6;
+
+    // Which type of dream setting was changed.
+    optional DreamSettingType dream_setting_type = 7;
+}
+
+// Pulled atom for taking a snapshot of dream settings.
+message DreamSettingSnapshot {
+    // Configuration for whether dream is enabled.
+    optional bool enabled = 1;
+
+    // Configuration for what dream component to show.
+    optional string dream_component = 2;
+
+    // Configuration for when dream should begin.
+    optional WhenToDream when_to_dream = 3;
+
+    // Configuration for whether to show additional information.
+    optional bool show_additional_info = 4;
+
+    // Configuration for whether to show home controls.
+    optional bool show_home_controls = 5;
+}
+
+// Configuration for when dream should begin.
+enum WhenToDream{
+    // Unspecified.
+    WHEN_TO_DREAM_UNSPECIFIED = 0;
+
+    // Dream when device is charging.
+    WHEN_TO_DREAM_WHILE_CHARGING_ONLY = 1;
+
+    // Dream when device is docked.
+    WHEN_TO_DREAM_WHILE_DOCKED_ONLY = 2;
+
+    // Dream when device is charging or docked.
+    WHEN_TO_DREAM_EITHER_CHARGING_OR_DOCKED = 3;
+}
+
+// Type of dream setting.
+enum DreamSettingType {
+  // Unspecified.
+  DREAM_SETTING_TYPE_UNSPECIFIED = 0;
+
+  // Setting for whether dream is enabled.
+  DREAM_SETTING_TYPE_ENABLED = 1;
+
+  // Setting for what dream component to show.
+  DREAM_SETTING_TYPE_DREAM_COMPONENT = 2;
+
+  // Setting for when dream should begin.
+  DREAM_SETTING_TYPE_WHEN_TO_DREAM = 3;
+
+  // Setting for whether to show additional information.
+  DREAM_SETTING_TYPE_SHOW_ADDITIONAL_INFO = 4;
+
+  // Setting for whether to show home controls.
+  DREAM_SETTING_TYPE_SHOW_HOME_CONTROLS = 5;
+}

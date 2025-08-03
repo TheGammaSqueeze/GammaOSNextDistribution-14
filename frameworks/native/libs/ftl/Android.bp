@@ -1,0 +1,44 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+    default_team: "trendy_team_android_core_graphics_stack",
+}
+
+cc_test {
+    name: "ftl_test",
+    test_suites: ["device-tests"],
+    header_libs: [
+        "libbase_headers",
+    ],
+    srcs: [
+        "algorithm_test.cpp",
+        "cast_test.cpp",
+        "concat_test.cpp",
+        "enum_test.cpp",
+        "expected_test.cpp",
+        "fake_guard_test.cpp",
+        "flags_test.cpp",
+        "function_test.cpp",
+        "future_test.cpp",
+        "match_test.cpp",
+        "mixins_test.cpp",
+        "non_null_test.cpp",
+        "optional_test.cpp",
+        "shared_mutex_test.cpp",
+        "small_map_test.cpp",
+        "small_vector_test.cpp",
+        "static_vector_test.cpp",
+        "string_test.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wthread-safety",
+    ],
+}

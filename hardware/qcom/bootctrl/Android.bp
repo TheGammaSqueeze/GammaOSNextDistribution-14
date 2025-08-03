@@ -1,0 +1,51 @@
+soong_namespace {
+}
+
+package {
+    default_applicable_licenses: ["hardware_qcom_bootctrl_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "hardware_qcom_bootctrl_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+filegroup {
+    name: "bootctrl_hal_src",
+    srcs: [
+        "boot_control.cpp",
+    ],
+}
+
+cc_defaults {
+    name: "bootctrl_hal_defaults",
+    proprietary: true,
+    recovery_available: true,
+    header_libs: [
+        "libhardware_headers",
+        "libsystem_headers",
+    ],
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libz",
+    ],
+    owner: "qti",
+    relative_install_path: "hw",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    srcs: [
+        ":bootctrl_hal_src",
+    ],
+
+}

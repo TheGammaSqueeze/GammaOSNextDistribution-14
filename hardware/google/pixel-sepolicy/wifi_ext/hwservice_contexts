@@ -1,0 +1,2 @@
+# Wifi
+vendor.google.wifi_ext::IWifiExt                                u:object_r:hal_wifi_ext_hwservice:s0

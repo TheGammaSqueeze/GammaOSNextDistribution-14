@@ -1,0 +1,12 @@
+# Storage Health HAL
+type sysfs_scsi_devices_0000, sysfs_type, fs_type;
+
+# PixelStats_vendor
+type sysfs_pixelstats, fs_type, sysfs_type;
+
+# Display
+type sysfs_display, sysfs_type, fs_type;
+
+# SoC
+type sysfs_soc, sysfs_type, fs_type;
+type sysfs_chip_id, sysfs_type, fs_type;

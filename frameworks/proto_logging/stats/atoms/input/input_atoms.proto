@@ -1,0 +1,235 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.input;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.input";
+option java_multiple_files = true;
+
+/**
+ * Logs input device information when input device is registered with Android device.
+ * Reported at when a new input device is found by EventHub.
+ *
+ * Logged from:
+ *   frameworks/native/services/inputflinger
+ */
+message InputDeviceRegistered {
+    // The Input Device Name
+    optional string name = 1;
+    // The Input Device Vendor ID
+    optional int32 vendor_id = 2;
+    // The Input Device Product ID
+    optional int32 product_id = 3;
+    // The Input Device Version ID
+    optional int32 version_id = 4;
+    // The Input Device Bus ID
+    optional int32 bus_id = 5;
+    // The Input Device identifier generated from kernel device.
+    // Hash algorithm: HMAC-SHA256
+    optional string obfuscated_id = 6;
+    // The Input Device Classes
+    optional int32 device_classes = 7;
+}
+
+/**
+ * Logs basic timing information about touch events.
+ * Reported at most every 5 minutes while device is being interacted with.
+ *
+ * Logged from:
+ *   frameworks/native/services/inputflinger
+ */
+message TouchEventReported {
+    /**
+     * The fields latency_{min|max|mean|stdev} represent minimum, maximum, mean,
+     * and the standard deviation of the time spent processing touchscreen events
+     * in the kernel and inputflinger. The units are microseconds.
+     *
+     * On supported devices, the starting point is taken during the hard interrupt inside the
+     * kernel touch driver. On all other devices, the starting point is taken inside
+     * the kernel's input event subsystem upon receipt of the input event.
+     * The ending point is taken inside InputDispatcher, just after the input event
+     * is sent to the app.
+     */
+    // Minimum value
+    optional float latency_min_micros = 1;
+    // Maximum value
+    optional float latency_max_micros = 2;
+    // Average value
+    optional float latency_mean_micros = 3;
+    // Standard deviation
+    optional float latency_stdev_micros = 4;
+    // Number of touch events (input_event) in this report
+    optional int32 count = 5;
+}
+
+/**
+ * Logs slow input events.
+ * The reports are rate-limited via a configurable server flag.
+ *
+ * Logged from:
+ *   frameworks/native/services/inputflinger
+ */
+message SlowInputEventReported {
+    /**
+     * This is logged when a slow input event occurs. The threshold for what is considered a slow
+     * event is applied to the 'end_to_end' latency number, and is configurable via a server flag.
+     *
+     * The goal of this data is to identify the bottlenecks in processing of input events.
+     * All of the *_micros fields below are durations. The start and end points for each value
+     * are described in the comments.
+     */
+    // Whether or not this is a DOWN event. If false, this is a MOVE event
+    optional bool is_down = 1;
+    // Start: the input event was created (touch events: the touch interrupt received in the driver)
+    // End: the event was read in userspace (in EventHub)
+    optional int32 event_to_read_micros = 2;
+    // Start: the event was read in EventHub
+    // End: the event was send to the app via the InputChannel (written to the socket)
+    optional int32 read_to_deliver_micros = 3;
+    // Start: the input event was sent to the app
+    // End: the app consumed the input event
+    optional int32 deliver_to_consume_micros = 4;
+    // Start: the app consumed the event
+    // End: the app's 'finishInputEvent' call was received in inputflinger
+    // The end point can also be called "the app finished processing input event"
+    optional int32 consume_to_finish_micros = 5;
+    // Start: the app consumed the input event
+    // End: the app produced a buffer
+    optional int32 consume_to_gpu_complete_micros = 6;
+    // Start: the app produced a buffer
+    // End: the frame was shown on the display
+    optional int32 gpu_complete_to_present_micros = 7;
+    // The end-to-end touch latency
+    // Start: the input event was created (touch events: the touch interrupt received in the driver)
+    // End: the frame was presented on the display
+    optional int32 end_to_end_micros = 8;
+    // Since the last time this atom was reported, how many total events occurred?
+    optional int32 num_events_since_last_report = 9;
+    // Since the last time this atom was reported, how many slow events did not get reported
+    // due to rate limiting?
+    optional int32 num_skipped_slow_events_since_last_report = 10;
+}
+
+/**
+ * Logs gesture classification and timing information for touch events.
+ *
+ * Logged from:
+ *   frameworks/base/core/java/android/view/GestureDetector.java
+ *   frameworks/base/core/java/android/view/View.java
+ */
+message TouchGestureClassified {
+    // The source of the classification (e.g. Java class name).
+    optional string source = 1;
+
+    enum Classification {
+        UNKNOWN_CLASSIFICATION = 0;
+        SINGLE_TAP = 1;
+        DOUBLE_TAP = 2;
+        LONG_PRESS = 3;
+        DEEP_PRESS = 4;
+        SCROLL = 5;
+    }
+    // The classification of the gesture.
+    optional Classification classification = 2;
+
+    // The interval from the start of a touch event stream until the
+    // classification was made.
+    optional int32 latency_millis = 3;
+
+    // The distance from the location of the first touch event to the
+    // location of the touch event when the classification was made.
+    optional float displacement_px = 4;
+}
+
+/**
+ * Logs input event statistics.
+ * Pulls the statistics.
+ *
+ * Logged from:
+ *   frameworks/native/services/inputflinger
+ */
+message InputEventLatencySketch {
+    /**
+     * The 'bytes' field is the serialized KLL sketch. It is to be deserialized into an object of
+     * KLL proto, which would then be converted into a KLL sketch. The KLL sketch is a histogram
+     * of the data.
+     *
+     * The goal of this data is to identify the bottlenecks in processing of input events.
+     * All sketches measure durations in a streaming fashion.
+     * The units are "hundreds of microseconds", or 0.1 ms. They are chosen like this in order
+     * to reduce the occupied space.
+     * The start and end points for each value are described in the comments.
+     *
+     * We distinguish between 'DOWN' event latency (when the pointer first goes down), and 'MOVE'
+     * event latency, which characterizes the scrolling experience.
+     */
+
+    // -------------------------- DOWN event sketches ------ START ---------------------------------
+    // Start: the input event was created (touch events: the touch interrupt received in the driver)
+    // End: the event was read in userspace (in EventHub)
+    optional bytes event_to_read_100micros_down_sketch = 1 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the event was read in EventHub
+    // End: the event was send to the app via the InputChannel (written to the socket)
+    optional bytes read_to_deliver_100micros_down_sketch = 2 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the input event was sent to the app
+    // End: the app consumed the input event
+    optional bytes deliver_to_consume_100micros_down_sketch = 3 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the app consumed the event
+    // End: the app's 'finishInputEvent' call was received in inputflinger
+    // The end point can also be called "the app finished processing input event"
+    optional bytes consume_to_finish_100micros_down_sketch = 4 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the app consumed the input event
+    // End: the app produced a buffer
+    optional bytes consume_to_gpu_complete_100micros_down_sketch = 5 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the app produced a buffer
+    // End: the frame was shown on the display
+    optional bytes gpu_complete_to_present_100micros_down_sketch = 6 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // The end-to-end touch latency
+    // Start: the input event was created (touch events: the touch interrupt received in the driver)
+    // End: the frame was presented on the display
+    optional bytes end_to_end_100micros_down_sketch = 7 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // -------------------------- DOWN event sketches ------ END -----------------------------------
+
+    // -------------------------- MOVE event sketches ------ START ---------------------------------
+    // Start: the input event was created (touch events: the touch interrupt received in the driver)
+    // End: the event was read in userspace (in EventHub)
+    optional bytes event_to_read_100micros_move_sketch = 8 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the event was read in EventHub
+    // End: the event was send to the app via the InputChannel (written to the socket)
+    optional bytes read_to_deliver_100micros_move_sketch = 9 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the input event was sent to the app
+    // End: the app consumed the input event
+    optional bytes deliver_to_consume_100micros_move_sketch = 10 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the app consumed the event
+    // End: the app's 'finishInputEvent' call was received in inputflinger
+    // The end point can also be called "the app finished processing input event"
+    optional bytes consume_to_finish_100micros_move_sketch = 11 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the app consumed the input event
+    // End: the app produced a buffer
+    optional bytes consume_to_gpu_complete_100micros_move_sketch = 12 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // Start: the app produced a buffer
+    // End: the frame was shown on the display
+    optional bytes gpu_complete_to_present_100micros_move_sketch = 13 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // The end-to-end touch latency
+    // Start: the input event was created (touch events: the touch interrupt received in the driver)
+    // End: the frame was presented on the display
+    optional bytes end_to_end_100micros_move_sketch = 14 [(android.os.statsd.log_mode) = MODE_BYTES];
+    // -------------------------- MOVE event sketches ------ END -----------------------------------
+}

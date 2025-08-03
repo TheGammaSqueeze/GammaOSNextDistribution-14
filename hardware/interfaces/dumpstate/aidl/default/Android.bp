@@ -1,0 +1,84 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_binary {
+    name: "android.hardware.dumpstate-service.example",
+    relative_install_path: "hw",
+    init_rc: ["dumpstate-default.rc"],
+    vintf_fragments: ["dumpstate-default.xml"],
+    vendor: true,
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "libdumpstateutil",
+        "liblog",
+        "libutils",
+        "android.hardware.dumpstate-V1-ndk",
+    ],
+    srcs: [
+        "main.cpp",
+        "Dumpstate.cpp",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"android.hardware.dumpstate-service.example\"",
+    ],
+}
+
+prebuilt_etc {
+    name: "dumpstate-default.xml",
+    src: "dumpstate-default.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "dumpstate-default.rc",
+    src: ":gen-dumpstate-default.rc-for-apex",
+    installable: false,
+}
+
+genrule {
+    name: "gen-dumpstate-default.rc-for-apex",
+    srcs: ["dumpstate-default.rc"],
+    out: ["dumpstate-default-apex.rc"],
+    cmd: "sed -E 's/\\/vendor\\/bin\\/hw/\\/apex\\/com.android.hardware.dumpstate\\/bin\\/hw/' $(in) > $(out)",
+}
+
+apex {
+    name: "com.android.hardware.dumpstate",
+    vendor: true,
+    manifest: "apex_manifest.json",
+    file_contexts: "apex_file_contexts",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    updatable: false,
+
+    binaries: [
+        "android.hardware.dumpstate-service.example",
+    ],
+    prebuilts: [
+        "dumpstate-default.rc",
+        "dumpstate-default.xml",
+    ],
+}

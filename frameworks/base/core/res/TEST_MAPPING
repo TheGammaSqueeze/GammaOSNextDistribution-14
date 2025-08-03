@@ -1,0 +1,15 @@
+{
+    "presubmit": [
+        {
+            "name": "CtsPermissionPolicyTestCases",
+            "options": [
+                {
+                    "include-filter": "android.permissionpolicy.cts.PermissionPolicyTest#platformPermissionPolicyIsUnaltered"
+                },
+                {
+                    "include-filter": "android.permissionpolicy.cts.RuntimePermissionProperties"
+                }
+            ]
+        }
+    ]
+}

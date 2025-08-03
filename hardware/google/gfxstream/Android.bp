@@ -1,0 +1,168 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "hardware_google_gfxstream_license",
+    visibility: [
+        "//hardware/google/aemu:__subpackages__",
+        ":__subpackages__",
+    ],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-CC-BY-4.0",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-BSL-1.0",
+        "legacy_unencumbered",
+    ],
+}
+
+cc_library_headers {
+    name: "gfxstream_headers",
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: [
+        ".",
+        "include",
+        "host",
+        "host/gl",
+        "host/gl/glestranslator/include",
+        "host/vulkan",
+        "utils/include",
+    ],
+    header_libs: [
+        "aemu_common_headers",
+        "gfxstream_magma_headers",
+        "libgfxstream_vulkan_headers",
+    ],
+    export_header_lib_headers: [
+        "aemu_common_headers",
+        "gfxstream_magma_headers",
+        "libgfxstream_vulkan_headers",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}
+
+cc_library_headers {
+    name: "gfxstream_x11_headers",
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: [
+        "host/apigen-codec-common",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}
+
+cc_library_headers {
+    name: "gfxstream_magma_headers",
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: [
+        "third-party/fuchsia/magma/include",
+        // TODO(b/274956288): use consistent header paths
+        "third-party/fuchsia/magma/include/lib",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}
+
+cc_defaults {
+    name: "gfxstream_cc_defaults",
+    cflags: [
+        "-DGFXSTREAM",
+    ],
+}
+
+cc_defaults {
+    name: "gfxstream_guest_cc_defaults",
+    defaults: [
+        "gfxstream_cc_defaults",
+    ],
+}
+
+cc_defaults {
+    name: "gfxstream_host_cc_defaults",
+    defaults: [
+        "gfxstream_cc_defaults",
+    ],
+}
+
+cc_defaults {
+    name: "gfxstream_defaults",
+    cflags: [
+        // Android build system has some global cflags that we cannot override (e.g.
+        // -Werror=return-type), so -Wno-return-type and -Wno-return-type-c-linkage will not work.
+        // See build/soong/cc/config/global.go
+        "-DUSING_ANDROID_BP",
+        "-D_FILE_OFFSET_BITS=64",
+        "-DVK_GFXSTREAM_STRUCTURE_TYPE_EXT",
+        "-DGFXSTREAM_ENABLE_HOST_GLES=1",
+        "-DGFXSTREAM_ENABLE_HOST_VK_SNAPSHOT=1",
+        "-Wno-unreachable-code-loop-increment",
+        "-Wno-unused-parameter",
+        "-Wno-unused-function",
+        "-Wno-unused-variable",
+        "-Wno-ignored-qualifiers",
+        "-Wno-reorder-ctor",
+        "-Wno-mismatched-tags",
+        "-Wno-missing-field-initializers",
+        "-Wno-implicit-fallthrough",
+        "-Wno-unused-private-field",
+        "-Wno-macro-redefined",
+    ],
+    header_libs: [
+        "gfxstream_headers",
+        "gfxstream_x11_headers",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+            cflags: [
+                "-U__ANDROID__",
+                "-UANDROID",
+            ],
+        },
+        android: {
+            compile_multilib: "64",
+            shared_libs: ["libnativewindow"],
+        },
+        linux_bionic_arm64: {
+            enabled: true,
+            cflags: ["-Dandroidbionic"],
+        },
+    },
+    host_supported: true,
+    vendor_available: true,
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}

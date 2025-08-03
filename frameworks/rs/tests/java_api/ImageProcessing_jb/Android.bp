@@ -1,0 +1,63 @@
+//
+// Copyright (C) 2009 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "ImageProcessingJB",
+    static_libs: ["androidx.test.rules"],
+    libs: [
+        "android.test.runner.stubs",
+        "android.test.base.stubs",
+    ],
+    test_suites: ["device-tests"],
+    srcs: [
+        "src/**/*.java",
+        ":ImageProcessingJB-rscript{ImageProcessingJB.srcjar}",
+    ],
+    resource_zips: [
+        ":ImageProcessingJB-rscript{ImageProcessingJB.res.zip}",
+    ],
+    sdk_version: "current",
+}
+
+genrule {
+    name: "ImageProcessingJB-rscript",
+    srcs: [
+        "src/**/*.rscript",
+        "src/**/*.rsh",
+        ":rs_script_api",
+        ":rs_clang_headers",
+    ],
+    tools: [
+        "llvm-rs-cc",
+        "soong_zip",
+    ],
+    out: [
+        "ImageProcessingJB.srcjar",
+        "ImageProcessingJB.res.zip",
+    ],
+    cmd: "for f in $(locations src/**/*.rscript); do " +
+        "  $(location llvm-rs-cc) -o $(genDir)/res/raw -p $(genDir)/src " +
+        "  -I $$(dirname $$(echo $(locations :rs_script_api) | awk '{ print $$1 }')) " +
+        "  -I $$(dirname $$(echo $(locations :rs_clang_headers) | awk '{ print $$1 }')) $${f}; " +
+        "done && " +
+        "$(location soong_zip) -srcjar -o $(location ImageProcessingJB.srcjar) -C $(genDir)/src -D $(genDir)/src &&" +
+        "$(location soong_zip) -o $(location ImageProcessingJB.res.zip) -C $(genDir)/res -D $(genDir)/res",
+}

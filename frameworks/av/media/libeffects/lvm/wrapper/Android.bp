@@ -1,0 +1,166 @@
+// music bundle wrapper
+package {
+    default_team: "trendy_team_media_framework_audio",
+    default_applicable_licenses: [
+        "frameworks_av_media_libeffects_lvm_wrapper_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_libeffects_lvm_wrapper_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "libbundlewrapper",
+
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+
+    vendor: true,
+    host_supported: true,
+    srcs: ["Bundle/EffectBundle.cpp"],
+
+    cppflags: [
+        "-fvisibility=hidden",
+
+        "-Wall",
+        "-Werror",
+    ],
+
+    relative_install_path: "soundfx",
+
+    static_libs: ["libmusicbundle"],
+
+    shared_libs: [
+        "libaudioutils",
+        "libcutils",
+        "liblog",
+    ],
+
+    local_include_dirs: ["Bundle"],
+
+    header_libs: [
+        "libhardware_headers",
+        "libaudioeffects",
+    ],
+}
+
+// reverb wrapper
+cc_library {
+    name: "libreverbwrapper",
+
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+
+    vendor: true,
+    host_supported: true,
+    srcs: ["Reverb/EffectReverb.cpp"],
+
+    cppflags: [
+        "-fvisibility=hidden",
+
+        "-Wall",
+        "-Werror",
+    ],
+
+    relative_install_path: "soundfx",
+
+    static_libs: ["libreverb"],
+
+    shared_libs: [
+        "libaudioutils",
+        "libcutils",
+        "liblog",
+    ],
+
+    local_include_dirs: ["Reverb"],
+
+    export_include_dirs: ["Reverb"],
+
+    header_libs: [
+        "libhardware_headers",
+        "libaudioeffects",
+    ],
+
+    sanitize: {
+        integer_overflow: true,
+    },
+}
+
+cc_library_shared {
+    name: "libbundleaidl",
+    srcs: [
+        "Aidl/BundleContext.cpp",
+        "Aidl/EffectBundleAidl.cpp",
+        ":effectCommonFile",
+    ],
+    static_libs: ["libmusicbundle"],
+    defaults: [
+        "aidlaudioeffectservice_defaults",
+    ],
+    local_include_dirs: ["Aidl"],
+    header_libs: [
+        "libaudioeffects",
+        "libhardware_headers",
+    ],
+    shared_libs: [
+        "libaudio_aidl_conversion_common_ndk",
+        "libaudioutils",
+        "liblog",
+        "libstagefright_foundation",
+    ],
+    cflags: [
+        "-Wthread-safety",
+        "-DBACKEND_NDK",
+    ],
+    relative_install_path: "soundfx",
+    visibility: [
+        "//hardware/interfaces/audio/aidl/default:__subpackages__",
+    ],
+}
+
+cc_library_shared {
+    name: "libreverbaidl",
+    srcs: [
+        "Reverb/aidl/ReverbContext.cpp",
+        "Reverb/aidl/EffectReverb.cpp",
+        ":effectCommonFile",
+    ],
+    static_libs: ["libreverb"],
+    defaults: [
+        "aidlaudioeffectservice_defaults",
+    ],
+    local_include_dirs: ["Reverb/aidl"],
+    header_libs: [
+        "libaudioeffects",
+        "libhardware_headers",
+    ],
+    shared_libs: [
+        "libbase",
+        "libaudioutils",
+        "libcutils",
+        "liblog",
+    ],
+    cflags: [
+        "-Wthread-safety",
+    ],
+    relative_install_path: "soundfx",
+    visibility: [
+        "//hardware/interfaces/audio/aidl/default:__subpackages__",
+    ],
+}

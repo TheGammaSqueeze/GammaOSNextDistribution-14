@@ -1,0 +1,232 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.google.android.wearable.connectivity;
+
+option java_multiple_files = true;
+
+enum MediatorType {
+    WEAR_BLUETOOTH_MEDIATOR = 0;
+    WEAR_CELLULAR_DATA_MEDIATOR = 1;
+    WEAR_CELLULAR_MEDIATOR = 2;
+    WEAR_WIFI_MEDIATOR = 3;
+    WEAR_WIFI_SCAN_MEDIATOR = 4;
+}
+
+enum MediatorAction {
+    ACTION_UNKNOWN = 0;
+    DISABLE_PNO_SCAN = 1;
+    ENABLE_PNO_SCAN = 2;
+    MOBILE_DATA_OFF = 3;
+    MOBILE_DATA_ON = 4;
+    PROXY_CONNECTED = 5;
+    PROXY_DISCONNECTED = 6;
+    RADIO_OFF = 7;
+    RADIO_ON = 8;
+    BT_DISCONNECT_UX_FINISHED = 9;
+}
+
+/**
+ * Keep sorted order in each block. Last enum num is 60
+ */
+enum TriggerEvent {
+    TRIGGER_EVENT_UNKNOWN = 0;
+    BEDTIME_MODE_UPDATE = 1;
+    CELL_ONLY_MODE_UPDATE = 2;
+    DISABLE_MEDIATOR_SETTING_UPDATE = 3;
+    MODE_MANAGER_UPDATE = 4;
+    ON_BOOT_COMPLETED = 5;
+
+    // WearWifiMediator & WearCellularMediator
+    ACTIVITY_MODE_UPDATE = 6;
+    CALL_STATE_CHANGED_EMERGENCY_ENDED = 7;
+    COMPANION_CONNECTION_CHANGED = 8;
+    DEVICE_ENABLE_CHANGED = 9;
+    DEVICE_IDLE_MODE_CHANGED = 10;
+    ON_USER_UNLOCKED = 11;
+    POWER_SAVE_MODE_CHANGED = 12;
+    PROXY_CONNECTED_UPDATE = 13;
+    THERMAL_EMERGENCY_MODE_UPDATE = 14;
+
+    // WearWifiMediator Only
+    CHARGING_STATE_CHANGE = 15;
+    ENABLE_WIFI_WHILE_CHARGING_SETTING = 16;
+    HARDWARE_LOW_POWER_MODE_CHANGE = 17;
+    IN_WIFI_SETTING_MENU = 18;
+    NEW_EMERGENCY_OUTGOING_CALL = 19;
+    NUM_CONFIGURED_NETWORK_UPDATE = 20;
+    NUM_UNMETERED_REQ_UPDATE = 21;
+    NUM_WIFI_REQ_UPDATE = 22;
+    WIFI_BACKOFF_CHANGE = 23;
+    WIFI_ON_WHEN_PROXY_DISCONNECTED_SETTING = 24;
+    WIFI_SETTING_CHANGE = 25;
+    WIFI_STATE_DISABLED = 26;
+    WIFI_STATE_ENABLED = 27;
+    WIFI_STATE_ENABLED_UNEXPECTED = 28;
+
+    // WearCellularMediator Only
+    CELL_AUTO_SETTING = 29;
+    CELL_ON_SETTING = 30;
+    CONNECTION_STATE_CHANGED_PDN_DISCONNECTED = 31;
+    EMERGENCY_CALLBACK_MODE_CHANGED = 32;
+    EMERGENCY_RADIO_ON_TIMEOUT = 33;
+    ESIM_PROFILE_ACTIVATION_SETTING = 34;
+    ESIM_TEST_MODE = 35;
+    HFP_CONNECTION_CHANGED = 36;
+    MOBILE_SIGNAL_DETECTOR_SETTING = 37;
+    NUM_CELLULAR_REQ_UPDATE = 38;
+    SIGNAL_STATE_CHANGED = 39;
+    SIM_STATE_CHANGED = 40;
+    SUBSCRIPTIONS_CHANGED = 41;
+    SUBSCRIPTION_PHONE_STATE_CHANGED = 42;
+    VOWIFI_STATE_UPDATE = 43;
+    WIFI_CONNECTED_UPDATE = 44;
+    WIFI_DISCONNECTED_UPDATE = 45;
+    WIFI_SIGNAL_STRENGTH_CHANGE = 46;
+
+    // WearCellularDataMediator Only
+    FORCE_CELLULAR_DATA_UPDATE = 47;
+    ON_CELLULAR_SIGNAL_CHANGED = 48;
+    SUBSCRIPTION_UPDATE = 49;
+    WIFI_CONNECTION_UPDATE = 50;
+
+    BATTERY_SAVER_MODE_UPDATE = 51;
+    NO_DATA_UPDATE = 52;
+    INTERACTIVE_MODE_UPDATE = 53;
+    AIRPLANE_MODE_UPDATE = 54;
+    POOR_SIGNAL_DETECTION_UPDATE = 55;
+    CONNECTIVITY_KEEP_DATA_ON_UPDATE = 56;
+    UI_TIMEOUT_NO_INTERACTION = 57;
+    UI_BT_DISCONNECT_INTENDED = 58;
+    UI_WAIT_FOR_BT_RECONNECT = 59;
+    UI_CANCELLED = 60;
+}
+
+/**
+ * Keep sorted order in each block. Last enum num is 52
+ */
+enum Reason {
+    REASON_UNKNOWN = 0;
+    OFF_ACTIVITY_MODE = 1;
+    OFF_BEDTIME_MODE_ENABLED = 2;
+    OFF_CELL_ONLY_MODE = 3;
+    OFF_MODE_MANAGER = 4;
+    OFF_THERMAL_EMERGENCY = 5;
+    OFF_USER_ABSENT = 6;
+    OFF_WIFI_CONNECTED = 7;
+    ON_CELL_ONLY_MODE = 8;
+    ON_TEST_DEFAULT_STATE = 9;
+
+    // WearWifiMediator & WearCellularMediator
+    OFF_DEVICE_DISABLED = 10;
+    OFF_DIRECTBOOT = 11;
+    OFF_POWER_SAVE = 12;
+    ON_EMERGENCY = 13;
+    ON_NETWORK_REQUEST = 14;
+    ON_PROXY_DISCONNECTED = 15;
+
+    // WearBluetoothMediator Only
+    OFF_TIME_ONLY_MODE = 16;
+    OFF_SETTINGS_PREFERENCE = 17;
+    ON_AUTO = 18;
+    ON_BOOT_AUTO = 19;
+    OFF_HFP_ENABLE = 20;
+    ON_HFP_ENABLE = 21;
+    ON_CONNECTED = 22;
+    ON_CONNECTED_NO_INTERNET = 23;
+    OFF_DISCONNECTED = 24;
+
+    // WearWifiMediator Only
+    OFF_HARDWARE_LOW_POWER = 25;
+    OFF_NO_CONFIGURED_NETWORKS = 26;
+    OFF_NO_REQUESTS = 27;
+    OFF_WAIT_FOR_BT_ON_BOOT = 28;
+    OFF_WIFI_BACKOFF = 29;
+    OFF_WIFI_SETTING_OFF = 30;
+    ON_CHARGING = 31;
+    ON_IN_WIFI_SETTINGS = 32;
+
+    // WearWifiScanMediator Only
+    NO_DISABLE_REASONS = 33;
+    MODE_MANAGER_REQUEST = 34;
+
+    // WearCellularMediator Only
+    OFF_BEDTIME_HFP = 35;
+    OFF_CELL_SETTING = 36;
+    OFF_ESIM_DEACTIVATED = 37;
+    OFF_INITIAL_BOOT = 38;
+    OFF_NO_SIGNAL = 39;
+    OFF_PROXY_CONNECTED = 40;
+    OFF_SIM_ABSENT = 41;
+    OFF_UNSTABLE_SIGNAL = 42;
+    OFF_VOWIFI_AVAILABLE = 43;
+    ON_ESIM_TEST_MODE = 44;
+    ON_NO_CELL_AUTO = 45;
+    ON_PHONE_CALL = 46;
+
+    // WearCellularDataMediator Only
+    OFF_FORCE_CELLULAR_DATA_OFF = 47;
+    ON_NO_DISABLE_REASONS = 48;
+    OFF_CELL_POOR_SIGNAL = 49;
+
+    OFF_NO_DATA_ENABLED = 50;
+    OFF_POOR_SIGNAL = 51;
+    ON_PEEK_SIGNAL = 52;
+}
+
+/**
+ * Keep sorted order in each block. Last enum num is 2
+ */
+enum SysproxyConnectionAction {
+    SYSPROXY_CONNECTION_ACTION_UNKNOWN = 0;
+    SYSPROXY_CONNECTED = 1;
+    SYSPROXY_DISCONNECTED = 2;
+}
+
+/**
+ * Keep sorted order in each block. Last enum num is 13
+ */
+enum SysproxyConnectionChangeReason {
+    SYSPROXY_CONNECTION_CHANGE_REASON_UNKNOWN = 0;
+
+    //startProxyShard
+    PROXY_ON_USER_UNLOCK = 1;
+    PROXY_ON_ACL_CONNECT = 2;
+    PROXY_ON_COMPANION_FOUND = 3;
+    PROXY_ON_DATA_SETTING_ENABLED = 4;
+    PROXY_ON_PSM_UPDATE = 5;
+    PROXY_ON_V2_PARAMS_CHANGED = 6;
+    PROXY_ON_UUID_LIST_CHANGED = 7;
+
+    //stopProxyShard
+    PROXY_OFF_ACL_DISCONNECT = 8;
+    PROXY_OFF_BLUETOOTH_ADAPTER_OFF = 9;
+    PROXY_OFF_NEW_COMPANION = 10;
+    PROXY_OFF_DATA_SETTING_ENABLED = 11 [deprecated=true]; // replaced with 13
+    PROXY_OFF_DEVICE_SETTING_DISABLED = 12;
+    PROXY_OFF_DATA_SETTING_DISABLED = 13;
+}
+
+/**
+ * Keep sorted order in each block. Last enum num is 2
+ */
+enum BluetoothConnectionChange {
+    BLUETOOTH_CONNECTION_CHANGE_UNKNOWN = 0;
+    ACL_CONNECT = 1;
+    ACL_DISCONNECT = 2;
+}

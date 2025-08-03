@@ -1,0 +1,4 @@
+set noparent
+
+file:platform/frameworks/base:/telephony/java/android/service/euicc/OWNERS
+

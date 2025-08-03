@@ -1,0 +1,11 @@
+{
+  "config": {
+    "ignore_variables": true
+  },
+  "symbols": {
+    "eglGetProcAddress": {
+      "call_method": "custom_trampoline_with_thunk"
+    }
+  },
+  "types": {}
+}

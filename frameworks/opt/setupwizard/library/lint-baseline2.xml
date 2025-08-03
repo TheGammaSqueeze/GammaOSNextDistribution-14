@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="`&lt;vector&gt;` requires API level 21 (current min is 14) or building with Android Gradle plugin 1.4.0 or higher"
+        errorLine1='&lt;vector xmlns:android="http://schemas.android.com/apk/res/android"'
+        errorLine2=" ~~~~~~">
+        <location
+            file="frameworks/opt/setupwizard/library/gingerbread/res/drawable/suw_ic_expand_less.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;vector&gt;` requires API level 21 (current min is 14) or building with Android Gradle plugin 1.4.0 or higher"
+        errorLine1='&lt;vector xmlns:android="http://schemas.android.com/apk/res/android"'
+        errorLine2=" ~~~~~~">
+        <location
+            file="frameworks/opt/setupwizard/library/gingerbread/res/drawable/suw_ic_expand_more.xml"
+            line="18"
+            column="2"/>
+    </issue>
+
+</issues>

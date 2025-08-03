@@ -1,0 +1,93 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+aidl_interface {
+    name: "android.hardware.identity",
+    vendor_available: true,
+    srcs: [
+        "android/hardware/identity/*.aidl",
+    ],
+    imports: [
+        "android.hardware.keymaster-V3",
+        "android.hardware.security.rkp-V3",
+    ],
+    stability: "vintf",
+    frozen: true,
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        ndk: {
+            apps_enabled: false,
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [
+                "android.hardware.keymaster-V3",
+                "android.hardware.security.rkp-V1",
+            ],
+        },
+        {
+            version: "2",
+            imports: [
+                "android.hardware.keymaster-V3",
+                "android.hardware.security.rkp-V1",
+            ],
+        },
+        {
+            version: "3",
+            imports: [
+                "android.hardware.keymaster-V3",
+                "android.hardware.security.rkp-V1",
+            ],
+        },
+        {
+            version: "4",
+            imports: [
+                "android.hardware.keymaster-V3",
+                "android.hardware.security.rkp-V3",
+            ],
+        },
+        {
+            version: "5",
+            imports: [
+                "android.hardware.keymaster-V3",
+                "android.hardware.security.rkp-V3",
+            ],
+        },
+
+    ],
+
+}
+
+// cc_defaults that includes the latest Identity AIDL library.
+// Modules that depend on Identity directly can include this cc_defaults to
+// avoid managing dependency versions explicitly.
+cc_defaults {
+    name: "identity_use_latest_hal_aidl_ndk_static",
+    static_libs: [
+        "android.hardware.identity-V5-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "identity_use_latest_hal_aidl_ndk_shared",
+    shared_libs: [
+        "android.hardware.identity-V5-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "identity_use_latest_hal_aidl_cpp_static",
+    static_libs: [
+        "android.hardware.identity-V5-cpp",
+    ],
+}

@@ -1,0 +1,10 @@
+# astd service
+type astd, domain;
+type astd_exec, exec_type, file_type, system_file_type;
+
+typeattribute astd coredomain;
+
+userdebug_or_eng(`
+  init_daemon_domain(astd)
+')
+

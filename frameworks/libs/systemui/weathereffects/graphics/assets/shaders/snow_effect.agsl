@@ -1,0 +1,100 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+uniform shader foreground;
+uniform shader background;
+uniform shader accumulatedSnow;
+uniform shader blurredBackground;
+uniform float2 uvOffsetFgd;
+uniform float2 uvScaleFgd;
+uniform float2 uvOffsetBgd;
+uniform float2 uvScaleBgd;
+uniform float time;
+uniform float screenAspectRatio;
+uniform float2 screenSize;
+
+#include "shaders/constants.agsl"
+#include "shaders/utils.agsl"
+#include "shaders/snow.agsl"
+
+/* Constants that can be modified. */
+// Snow tint.
+const vec4 snowColor = vec4(vec3(0.9), 1.);
+// Glass tint.
+const vec4 glassTint = vec4(vec3(0.8), 1.); // gray
+
+// snow opacity (how visible it is).
+const float snowOpacity = 1.4;
+
+// how frosted the glass is.
+const float frostedGlassIntensity = 0.07;
+
+vec4 main(float2 fragCoord) {
+    float2 uv = fragCoord / screenSize;
+    // Adjusts the UVs to have the expected rect of the image.
+    float2 adjustedUvForeground = fragCoord * uvScaleFgd + uvOffsetFgd;
+    vec4 colorForeground = foreground.eval(adjustedUvForeground);
+    vec4 colorBackground = background.eval(fragCoord * uvScaleBgd + uvOffsetBgd);
+
+    vec4 color = vec4(0., 0., 0., 1.);
+
+    // Add some slight tint to the frosted glass.
+
+    // Get color of the background texture.
+    color.rgb = mix(colorBackground.rgb, glassTint.rgb, frostedGlassIntensity);
+    for (half i = 9.; i > 2.; i--) {
+        // Generate snow behind the subject.
+        // Normalized layer index.
+        half idx = (i - 2.) / (9. - 2.);
+        Snow snow = generateSnow(
+              uv,
+              screenAspectRatio,
+              time * mix(1.25, 5., idx),
+              /* Grid size = */ vec2(mix(3.0, 6.0, idx), mix(1.0, 3.0, idx)),
+              /* layer number = */ i);
+
+        color.rgb = mix(color.rgb, snowColor.rgb, snowOpacity * snow.flakeMask);
+    }
+
+    // Add the foreground. Any effect from here will be in front of the subject.
+    color.rgb = normalBlend(color.rgb, colorForeground.rgb, colorForeground.a);
+
+    // Add accumulated snow.
+    vec2 accSnow = accumulatedSnow.eval(adjustedUvForeground).rg;
+    float snowLayer = smoothstep(0.2, 0.8, accSnow.r);
+    float snowTexture = smoothstep(0.2, 0.7, accSnow.g);
+    color.rgb = mix(color.rgb, vec3(0.95), 0.98 * snowLayer * (0.05 + 0.95 * snowTexture));
+
+    for (half i = 2.; i >= 0.; i--) {
+        // Generate snow behind the subject.
+        Snow snow = generateSnow(
+              uv,
+              screenAspectRatio,
+              time * 1.25,
+              /* Grid size = */ vec2(i + 1., 1.4),
+              /* layer number = */ i);
+
+        color.rgb = mix(color.rgb, snowColor.rgb, snowOpacity * snow.flakeMask);
+    }
+
+    /* Debug snow */
+    // resets color.
+    // color.rgb *= 0.;
+    // color.rgb += snow.flakeMask;
+    // if (snow.cellUv.x > 0.49 || snow.cellUv.y > 0.49) color.r = 1.0;
+
+    return color;
+}

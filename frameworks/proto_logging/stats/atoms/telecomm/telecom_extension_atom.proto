@@ -1,0 +1,46 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+ syntax = "proto2";
+
+package android.os.statsd.telecom;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.telecom";
+option java_multiple_files = true;
+
+extend Atom {
+    optional EmergencyNumberDialed emergency_number_dialed = 637 [(module) = "telecom"];
+}
+
+/**
+ * Pushed atom to capture dialed emergency number details.
+ */
+message EmergencyNumberDialed {
+    // the emergency number that was actually dialed (including any carrier prefix)
+    optional string number = 1;
+
+    // system dialer package for emergency call
+    optional string system_dialer_package = 2;
+
+    // sim mcc mnc
+    optional string sim_mccmnc = 3;
+
+    // mcc mnc of the latched network to make emergency call
+    optional string network_mccmnc = 4;
+}

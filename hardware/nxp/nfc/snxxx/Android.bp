@@ -1,0 +1,171 @@
+//
+// Copyright (C) 2018-2019, 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+//  The original Work has been changed by NXP.
+//  Copyright (C) 2021-2023 NXP
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_nxp_nfc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_nxp_nfc_license"],
+}
+
+cc_library_shared {
+    name: "nfc_nci_nxp_snxxx",
+    defaults: ["hidl_defaults"],
+    proprietary: true,
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-DNXP_HW_SELF_TEST=TRUE",
+        "-DNXP_SRD=TRUE",
+        "-DNXP_NFC_RECOVERY=TRUE",
+        "-DNXP_QTAG=TRUE",
+        "-DNXP_FORCE_FW_DOWNLOAD=1",
+    ],
+    srcs: [
+        "halimpl/dnld/phDnldNfc.cc",
+        "halimpl/dnld/phDnldNfc_Internal.cc",
+        "halimpl/dnld/phDnldNfc_Utils.cc",
+        "halimpl/dnld/phNxpNciHal_Dnld.cc",
+        "halimpl/hal/phNxpNciHal.cc",
+        "halimpl/hal/phNxpNciHal_ext.cc",
+        "halimpl/log/phNxpLog.cc",
+        "halimpl/src/adaptation/EseAdaptation.cc",
+        "halimpl/tml/phDal4Nfc_messageQueueLib.cc",
+        "halimpl/tml/phOsalNfc_Timer.cc",
+        "halimpl/tml/phTmlNfc.cc",
+        "halimpl/tml/NfccTransportFactory.cc",
+        "halimpl/tml/transport/*.cc",
+        "halimpl/utils/NxpNfcCapability.cc",
+        "halimpl/utils/NxpNfcThreadMutex.cc",
+        "halimpl/utils/phNxpConfig.cc",
+        "halimpl/utils/phNxpNciHal_utils.cc",
+        "halimpl/utils/phNxpEventLogger.cc",
+        "halimpl/utils/phNxpTempMgr.cc",
+        "halimpl/utils/sparse_crc32.cc",
+        "halimpl/utils/IntervalTimer.cpp",
+        "halimpl/eseclients_extns/src/*.cc",
+        "halimpl/hal/phNxpNciHal_IoctlOperations.cc",
+        "halimpl/hal/phNxpNciHal_extOperations.cc",
+        "halimpl/hal/phNxpNciHal_ULPDet.cc",
+        "halimpl/mifare/NxpMfcReader.cc",
+        "halimpl/recovery/phNxpNciHal_Recovery.cc",
+        "halimpl/hal/phNxpNciHal_PowerTrackerIface.cc",
+    ],
+
+    local_include_dirs: [
+        "halimpl/common",
+        "halimpl/dnld",
+        "halimpl/hal",
+        "halimpl/inc",
+        "halimpl/log",
+        "halimpl/tml/transport",
+        "halimpl/tml",
+        "halimpl/utils",
+        "halimpl/eseclients_extns/inc",
+        "halimpl/src/include",
+        "halimpl/mifare",
+        "halimpl/recovery",
+    ],
+
+    include_dirs: [
+        "hardware/nxp/secure_element/snxxx/extns/impl",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "libdl",
+        "libhardware",
+        "libhardware_legacy",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "libbinder_ndk",
+        "vendor.nxp.nxpese@1.0",
+    ],
+    header_libs: [
+      "power_tracker_headers",
+    ],
+}
+
+cc_library_headers {
+    name: "nfc_nci_nxp_snxxx_headers",
+    vendor: true,
+    export_include_dirs: [
+        "halimpl/common",
+        "halimpl/dnld",
+        "halimpl/hal",
+        "halimpl/inc",
+        "halimpl/log",
+        "halimpl/tml/transport",
+        "halimpl/tml",
+        "halimpl/utils",
+        "halimpl/eseclients_extns/inc",
+        "halimpl/src/include",
+        "halimpl/mifare",
+        "extns/impl/nxpnfc/2.0",
+        "halimpl/recovery",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.nfc-service.nxp",
+    relative_install_path: "hw",
+    init_rc: ["aidl/nfc-service-nxp.rc"],
+    vintf_fragments: ["aidl/nfc-service-nxp.xml"],
+    vendor: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-DNXP_NFC_RECOVERY=TRUE",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libutils",
+        "libbinder_ndk",
+        "android.hardware.nfc-V1-ndk",
+        "nfc_nci_nxp_snxxx",
+        "libhardware",
+        "vendor.nxp.nxpnfc_aidl-V1-ndk",
+    ],
+    srcs: [
+        "aidl/main.cpp",
+        "aidl/Nfc.cpp",
+        "aidl/NfcExtns.cpp",
+        "extns/impl/nxpnfc/aidl/NxpNfc.cpp",
+    ],
+    local_include_dirs: [
+        "halimpl/common",
+        "halimpl/dnld",
+        "halimpl/hal",
+        "halimpl/inc",
+        "halimpl/log",
+        "halimpl/utils",
+        "halimpl/mifare",
+        "halimpl/recovery",
+        "halimpl/eseclients_extns/inc/",
+        "extns/impl/nxpnfc/aidl",
+    ],
+}

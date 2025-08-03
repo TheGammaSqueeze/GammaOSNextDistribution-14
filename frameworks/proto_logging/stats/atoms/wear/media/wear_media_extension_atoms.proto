@@ -1,0 +1,174 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.wear.media;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/enums/wear/media/enums.proto";
+import "frameworks/proto_logging/stats/enums/media/outputswitcher/enums.proto";
+
+option java_package = "com.android.os.wear.media";
+option java_multiple_files = true;
+
+// This file contains extension atoms related to wear media session.
+
+extend Atom {
+  optional MediaActionReported media_action_reported = 608
+      [(module) = "wearmedia"];
+
+  optional MediaControlsLaunched media_controls_launched = 609
+      [(module) = "wearmedia"];
+
+  optional MediaSessionStateChanged media_session_state_changed = 677
+      [(module) = "wearmedia"];
+
+  optional WearMediaOutputSwitcherDeviceScanApiLatency
+      wear_media_output_switcher_device_scan_api_latency = 757 [(module) = "MediaOutputSwitcher"];
+
+  optional WearMediaOutputSwitcherSassDeviceUnavailable
+      wear_media_output_switcher_sass_device_unavailable = 758 [(module) = "MediaOutputSwitcher"];
+
+  optional WearMediaOutputSwitcherFastPairApiTimeout
+      wear_media_output_switcher_fastpair_api_timeout = 759 [(module) = "MediaOutputSwitcher"];
+}
+
+message MediaActionReported {
+  // Depicts the action performed on the Media. Values : (PLAY, PAUSE,
+  // SKIP_NEXT, SKIP_PREV,RESUME,VOLUME_INCREASE, VOLUME_DECREASE)
+  optional com.google.android.wearable.media.sessions.MediaAction action = 1;
+
+  // Package name of the app that the user used to perform the action (eg: UMO
+  // or a 3p media app)
+  optional int32 media_controls_package_uid = 2;
+
+  // Package name of the app that owns the media session. (This app is on the
+  // paired phone, and not on the watch, hence cannot use uid)
+  optional string media_player_package_name = 3;
+
+  // Depicts is the media session being referred is remote or local.
+  optional bool is_remote_session = 4;
+
+  // Version of the media session apk installed in the device.
+  optional int64 version_code = 5;
+}
+
+message MediaControlsLaunched {
+  // Deprecated circa 6/2023
+  optional int32 media_controls_package_uid = 1 [deprecated=true];
+
+  // Package name of the app that owns the media session. (This app is on the
+  // paired phone, and not on the watch, hence cannot use uid)
+
+  optional string media_player_package_name = 2;
+
+  // Depicts where these controls were launched from. Values
+  // (ONGOING_ACTIVITY/LAUNCHER/AUTO_LAUNCH/RECENT_APPS)
+
+  optional com.google.android.wearable.media.sessions.LaunchSource
+      launch_source = 3;
+
+  // Version of the media session apk installed in the device.
+  optional int64 version_code = 4;
+}
+
+message MediaSessionStateChanged {
+  // States of the media session
+  enum SessionStateEnum {
+    SESSION_UNKNOWN = 0;
+    SESSION_IDLE = 1;
+    SESSION_BUFFERING = 2;
+    SESSION_READY = 3;
+    SESSION_ENDED = 4;
+    SESSION_DESTROYED = 5;
+  }
+
+  enum PlaybackSuppressionReason {
+    PLAYBACK_SUPPRESSION_REASON_UNKNOWN = 0;
+    PLAYBACK_SUPPRESSION_REASON_NONE = 1;
+    PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 2;
+    PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE = 3;
+    PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT = 4;
+  }
+
+  // Package name of the app that owns the media session. (If is_remote_session
+  // = True, then the app is on the phone and we can’t use uid)
+  optional string media_player_package_name = 1;
+
+  // Deprecated circa 5/2023
+  optional int32 session_id = 2 [deprecated=true];
+
+  // Depicts is the media session being referred to as remote or local.
+  optional bool is_remote_session = 3;
+
+  // State of the media session
+  optional SessionStateEnum state = 4;
+
+  // Depicts if the media session should play when ready.
+  optional bool is_play_when_ready = 5;
+
+  optional PlaybackSuppressionReason playback_suppression_reason = 6;
+
+  // Depicts if the playback was suppressed previously due to unsuitable output
+  // and then resolved.
+  optional bool has_playback_suppression_due_to_unsuitable_output_resolved = 7;
+
+  // Version of the media session apk installed in the device.
+  optional int64 version_code = 8;
+
+}
+
+/**
+ * Logs the latency of different device scan APIs used in OutputSwitcher.
+ *
+ * Logged from:
+ * package: vendor/google_clockwork/packages/Media
+ */
+message WearMediaOutputSwitcherDeviceScanApiLatency {
+  // Latency of notifying OutputSwitcher that a SASS device is available to connect to.
+  optional int32 latency_in_millis = 1;
+
+  // Name of the media app package from where Output Switcher got triggered.
+  optional string triggering_package_name = 2;
+
+  optional com.google.android.wearable.media.routing.MediaDeviceType media_device_type = 3;
+
+  optional com.google.android.wearable.media.routing.MediumType medium_type = 4;
+}
+
+/**
+ * Logs data when no SASS device is available.
+ *
+ * Logged from:
+ * package: vendor/google_clockwork/packages/Media
+ */
+message WearMediaOutputSwitcherSassDeviceUnavailable {
+  // Name of the media app package from where Output Switcher got triggered.
+  optional string triggering_package_name = 1;
+}
+
+/**
+ * Logs data when FastPair API times out.
+ *
+ * Logged from:
+ * package: vendor/google_clockwork/packages/Media
+ */
+message WearMediaOutputSwitcherFastPairApiTimeout {
+  // Name of the media app package from where Output Switcher got triggered.
+  optional string triggering_package_name = 1;
+}

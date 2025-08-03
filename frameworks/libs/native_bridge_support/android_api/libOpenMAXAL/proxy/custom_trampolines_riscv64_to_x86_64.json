@@ -1,0 +1,9 @@
+{
+  "symbols": {
+    "xaCreateEngine": {
+      "call_method": "custom_thunk",
+      "header": "OpenMAXAL.h"
+    }
+  },
+  "types": {}
+}

@@ -1,0 +1,617 @@
+From dcfe71c44465e4f2e3e148310837be7178195d28 Mon Sep 17 00:00:00 2001
+From: Andy CrossGate Yan <GeForce8800Ultra@gmail.com>
+Date: Mon, 18 Nov 2024 21:31:29 +0800
+Subject: [PATCH 1/2] Squashed revert of LOS UDFPS changes
+
+Just to keep in line with PHH AOSP
+
+- Revert "SystemUI: Add support for udfps dim layer"
+- Revert "SystemUI: Remove udfps fwk dimming support"
+- Revert "fixup! udfps: Restore illumination dot for global hbm"
+- Revert "fixup! SystemUI: Add UDFPS framework dimming support"
+- Revert "fixup! SystemUI: Add UDFPS framework dimming support"
+- Revert "fixup! udfps: Make pressed udfp view configurable"
+- Revert "SystemUI: Only set dim behind UDFPS if it is actually enabled"
+- Revert "SystemUI: Add UDFPS framework dimming support"
+- Revert "udfps: Make pressed udfp view configurable"
+- Revert "udfps: Restore illumination dot for global hbm"
+---
+ .../res/drawable-nodpi/udfps_icon_pressed.png | Bin 108 -> 0 bytes
+ packages/SystemUI/res/layout/udfps_view.xml   |   6 -
+ .../SystemUI/res/values/lineage_config.xml    |  39 +---
+ .../biometrics/UdfpsControllerOverlay.kt      |  12 -
+ .../systemui/biometrics/UdfpsHelper.kt        | 221 ------------------
+ .../systemui/biometrics/UdfpsSurfaceView.java | 159 -------------
+ .../android/systemui/biometrics/UdfpsView.kt  |  32 +--
+ 7 files changed, 2 insertions(+), 467 deletions(-)
+ delete mode 100644 packages/SystemUI/res/drawable-nodpi/udfps_icon_pressed.png
+ delete mode 100644 packages/SystemUI/src/com/android/systemui/biometrics/UdfpsHelper.kt
+ delete mode 100644 packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
+
+diff --git a/packages/SystemUI/res/drawable-nodpi/udfps_icon_pressed.png b/packages/SystemUI/res/drawable-nodpi/udfps_icon_pressed.png
+deleted file mode 100644
+index 4102e28c1300b49323b50625d8cfaa73b006561f..0000000000000000000000000000000000000000
+GIT binary patch
+literal 0
+HcmV?d00001
+
+literal 108
+zcmeAS@N?(olHy`uVBq!ia0vp^j3CUx1|;Q0k8}bl$r9IylHmNblJdl&R0hYC{G?O`
+z&)mfH)S%SFl*+=BsWw1Ge4Z|jAr-fh5*U~o7?>FtSQ!{^cTT<plwt66^>bP0l+XkK
+D@OB!I
+
+diff --git a/packages/SystemUI/res/layout/udfps_view.xml b/packages/SystemUI/res/layout/udfps_view.xml
+index 0fcbfa161ddf..257d238f5c54 100644
+--- a/packages/SystemUI/res/layout/udfps_view.xml
++++ b/packages/SystemUI/res/layout/udfps_view.xml
+@@ -28,10 +28,4 @@
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"/>
+ 
+-    <com.android.systemui.biometrics.UdfpsSurfaceView
+-        android:id="@+id/hbm_view"
+-        android:layout_width="match_parent"
+-        android:layout_height="match_parent"
+-        android:visibility="invisible"/>
+-
+ </com.android.systemui.biometrics.UdfpsView>
+diff --git a/packages/SystemUI/res/values/lineage_config.xml b/packages/SystemUI/res/values/lineage_config.xml
+index 8c3f635b2cad..64d1dd74f77a 100644
+--- a/packages/SystemUI/res/values/lineage_config.xml
++++ b/packages/SystemUI/res/values/lineage_config.xml
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <!--
+-     Copyright (C) 2018-2024 The LineageOS Project
++     Copyright (C) 2018-2022 The LineageOS Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -15,43 +15,6 @@
+      limitations under the License.
+ -->
+ <resources>
+-    <!-- Color of the UDFPS pressed view -->
+-    <color name="config_udfpsColor">#ffffffff</color>
+-
+-    <!-- Whether to enable framework dimming for UDFPS -->
+-    <bool name="config_udfpsFrameworkDimming">false</bool>
+-
+-    <!-- Array of brightness-alpha LUT for framework dimming -->
+-    <string-array name="config_udfpsDimmingBrightnessAlphaArray" translatable="false">
+-          <item>0,255</item>
+-          <item>1,248</item>
+-          <item>2,242</item>
+-          <item>3,238</item>
+-          <item>4,236</item>
+-          <item>6,236</item>
+-          <item>10,234</item>
+-          <item>20,228</item>
+-          <item>30,222</item>
+-          <item>45,217</item>
+-          <item>70,209</item>
+-          <item>100,200</item>
+-          <item>150,191</item>
+-          <item>227,178</item>
+-          <item>300,167</item>
+-          <item>400,154</item>
+-          <item>500,143</item>
+-          <item>600,133</item>
+-          <item>800,117</item>
+-          <item>1023,109</item>
+-          <item>1130,95</item>
+-          <item>1211,89</item>
+-          <item>1394,79</item>
+-          <item>1598,69</item>
+-          <item>1817,53</item>
+-          <item>2047,46</item>
+-          <item>4095,0</item>
+-    </string-array>
+-
+     <!-- Doze: does the double tap sensor need a proximity check? -->
+     <bool name="doze_double_tap_proximity_check">false</bool>
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
+index 07c8e4e641de..16865ca809d9 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsControllerOverlay.kt
+@@ -158,16 +158,6 @@ class UdfpsControllerOverlay @JvmOverloads constructor(
+ 
+     private var overlayTouchListener: TouchExplorationStateChangeListener? = null
+ 
+-    private val useFrameworkDimming = context.resources.getBoolean(
+-        com.android.systemui.res.R.bool.config_udfpsFrameworkDimming
+-    )
+-
+-    private val udfpsHelper: UdfpsHelper? = if (useFrameworkDimming) {
+-        UdfpsHelper(context, windowManager, shadeInteractor, requestReason)
+-    } else {
+-        null
+-    }
+-
+     private val coreLayoutParams = WindowManager.LayoutParams(
+         WindowManager.LayoutParams.TYPE_NAVIGATION_BAR_PANEL,
+         0 /* flags set in computeLayoutParams() */,
+@@ -293,7 +283,6 @@ class UdfpsControllerOverlay @JvmOverloads constructor(
+     }
+ 
+     private fun addViewNowOrLater(view: View, animation: UdfpsAnimationViewController<*>?) {
+-        udfpsHelper?.addDimLayer()
+         if (udfpsViewPerformance()) {
+             addViewRunnable = kotlinx.coroutines.Runnable {
+                 Trace.setCounter("UdfpsAddView", 1)
+@@ -428,7 +417,6 @@ class UdfpsControllerOverlay @JvmOverloads constructor(
+         if (DeviceEntryUdfpsRefactor.isEnabled) {
+             udfpsDisplayModeProvider.disable(null)
+         }
+-        udfpsHelper?.removeDimLayer()
+         getTouchOverlay()?.apply {
+             if (udfpsViewPerformance()) {
+                 if (this.parent != null) {
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsHelper.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsHelper.kt
+deleted file mode 100644
+index caa3feda2161..000000000000
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsHelper.kt
++++ /dev/null
+@@ -1,221 +0,0 @@
+-/*
+- * Copyright (C) 2024 The LineageOS Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.systemui.biometrics
+-
+-import android.animation.ValueAnimator
+-import android.annotation.UiThread
+-import android.content.Context
+-import android.graphics.Color
+-import android.graphics.PixelFormat
+-import android.hardware.biometrics.BiometricRequestConstants.REASON_AUTH_KEYGUARD
+-import android.hardware.biometrics.BiometricRequestConstants.RequestReason
+-import android.hardware.display.DisplayManager
+-import android.util.Log
+-import android.view.Display
+-import android.view.View
+-import android.view.WindowManager
+-import androidx.core.view.isVisible
+-import androidx.lifecycle.Lifecycle
+-import androidx.lifecycle.repeatOnLifecycle
+-import com.android.systemui.lifecycle.repeatWhenAttached
+-import com.android.systemui.shade.domain.interactor.ShadeInteractor
+-import kotlinx.coroutines.CoroutineScope
+-import kotlinx.coroutines.Job
+-import kotlinx.coroutines.launch
+-
+-private const val TAG = "UdfpsHelper"
+-
+-/**
+- * Facilitates implementations that use GHBM where dim layer
+- * and pressed icon aren't controlled by kernel
+- */
+-@UiThread
+-class UdfpsHelper(
+-    private val context: Context,
+-    private val windowManager: WindowManager,
+-    private val shadeInteractor: ShadeInteractor,
+-    @RequestReason val requestReason: Int,
+-    private var view: View = View(context).apply {
+-        setBackgroundColor(Color.BLACK)
+-        visibility = View.GONE
+-    }
+-) {
+-    private val displayManager = context.getSystemService(DisplayManager::class.java)!!
+-    private val isKeyguard = requestReason == REASON_AUTH_KEYGUARD
+-    private var newIsQsExpanded = false
+-
+-    private val currentBrightness: Float get() =
+-        displayManager.getBrightness(Display.DEFAULT_DISPLAY)
+-    private val minBrightness: Float = context.resources
+-        .getFloat(com.android.internal.R.dimen.config_screenBrightnessSettingMinimumFloat)
+-    private val maxBrightness: Float = context.resources
+-        .getFloat(com.android.internal.R.dimen.config_screenBrightnessSettingMaximumFloat)
+-    private val brightnessAlphaMap: Map<Int, Int> = context.resources
+-        .getStringArray(com.android.systemui.res.R.array.config_udfpsDimmingBrightnessAlphaArray)
+-        .associate {
+-            val (brightness, alpha) = it.split(",").map { value -> value.trim().toInt() }
+-            brightness to alpha
+-        }
+-
+-    private val dimLayoutParams = WindowManager.LayoutParams(
+-        WindowManager.LayoutParams.TYPE_NAVIGATION_BAR_PANEL,
+-        0 /* flags are set in computeLayoutParams() */,
+-        PixelFormat.TRANSPARENT
+-    ).apply {
+-        title = "Dim Layer for UDFPS"
+-        fitInsetsTypes = 0
+-        gravity = android.view.Gravity.TOP or android.view.Gravity.LEFT
+-        layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+-        flags = Utils.FINGERPRINT_OVERLAY_LAYOUT_PARAM_FLAGS or
+-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+-        privateFlags = WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY or
+-                WindowManager.LayoutParams.PRIVATE_FLAG_EXCLUDE_FROM_SCREEN_MAGNIFICATION
+-        // Avoid announcing window title
+-        accessibilityTitle = " "
+-        inputFeatures = WindowManager.LayoutParams.INPUT_FEATURE_SPY
+-    }
+-
+-    private val alphaAnimator = ValueAnimator().apply {
+-        duration = 800L
+-        addUpdateListener { animator ->
+-            view.alpha = animator.animatedValue as Float
+-            dimLayoutParams.alpha = animator.animatedValue as Float
+-            try {
+-                windowManager.updateViewLayout(view, dimLayoutParams)
+-            } catch (e: IllegalArgumentException) {
+-                Log.e(TAG, "View not attached to WindowManager", e)
+-            }
+-        }
+-    }
+-
+-    private val displayListener = object : DisplayManager.DisplayListener {
+-        override fun onDisplayAdded(displayId: Int) {}
+-
+-        override fun onDisplayChanged(displayId: Int) {
+-            if (displayId == Display.DEFAULT_DISPLAY) {
+-                brightnessToAlpha()
+-                windowManager.updateViewLayout(view, dimLayoutParams)
+-            }
+-        }
+-
+-        override fun onDisplayRemoved(displayId: Int) {}
+-    }
+-
+-    private fun interpolate(
+-        value: Float,
+-        fromMin: Int,
+-        fromMax: Int,
+-        toMin: Int,
+-        toMax: Int
+-    ): Float {
+-        return toMin + (value - fromMin) * (toMax - toMin) / (fromMax - fromMin)
+-    }
+-
+-    private fun interpolateAlpha(brightness: Int): Float {
+-        val lowerEntry = brightnessAlphaMap.entries
+-            .lastOrNull { it.key <= brightness } ?: return 0f
+-        val upperEntry = brightnessAlphaMap.entries
+-            .firstOrNull { it.key >= brightness } ?: return 0f
+-        val (lowerBrightness, lowerAlpha) = lowerEntry
+-        val (upperBrightness, upperAlpha) = upperEntry
+-
+-        return interpolate(
+-            brightness.toFloat(),
+-            lowerBrightness,
+-            upperBrightness,
+-            lowerAlpha,
+-            upperAlpha
+-        ).div(255.0f)
+-    }
+-
+-    // The current function does not account for Doze state where the brightness can go lower
+-    // than what is set on config_screenBrightnessSettingMinimumFloat.
+-    // While it's possible to operate with floats, the dimming array was made by referencing
+-    // brightness_alpha_lut array from the kernel. This provides a comparable array.
+-    private fun brightnessToAlpha() {
+-        val adjustedBrightness =
+-            (currentBrightness.coerceIn(minBrightness, maxBrightness) * 4095).toInt()
+-
+-        val targetAlpha = brightnessAlphaMap[adjustedBrightness]?.div(255.0f)
+-            ?: interpolateAlpha(adjustedBrightness)
+-
+-        Log.i(TAG, "Adjusted Brightness: $adjustedBrightness, Alpha: $targetAlpha")
+-
+-        alphaAnimator.setFloatValues(view.alpha, targetAlpha)
+-        // Set the dim for both the view and the layout
+-        view.alpha = targetAlpha
+-        dimLayoutParams.alpha = targetAlpha
+-    }
+-
+-    fun addDimLayer() {
+-        brightnessToAlpha()
+-        windowManager.addView(view, dimLayoutParams)
+-    }
+-
+-    fun removeDimLayer() {
+-        windowManager.removeView(view)
+-    }
+-
+-    init {
+-        view.repeatWhenAttached {
+-            repeatOnLifecycle(Lifecycle.State.CREATED) {
+-                listenForQsExpansion(this)
+-
+-                if (isKeyguard) {
+-                    listenForShadeTouchability(this)
+-                }
+-            }
+-        }
+-
+-        if (!isKeyguard) {
+-            view.isVisible = true
+-        }
+-    }
+-
+-    // We don't have ways to get temporary brightness when operating the brightness slider.
+-    // Therefore, the dim layer is hidden when the slider is expected to be utilized.
+-    private suspend fun listenForQsExpansion(scope: CoroutineScope): Job {
+-        return scope.launch {
+-            shadeInteractor.qsExpansion.collect { qsExpansion ->
+-                if (qsExpansion == 1f && !newIsQsExpanded) {
+-                    newIsQsExpanded = true
+-                    displayManager.registerDisplayListener(
+-                        displayListener, null, DisplayManager.EVENT_FLAG_DISPLAY_BRIGHTNESS
+-                    )
+-                    view.isVisible = false
+-                } else if (qsExpansion == 0f && newIsQsExpanded) {
+-                    newIsQsExpanded = false
+-                    displayManager.unregisterDisplayListener(displayListener)
+-                    view.isVisible = true
+-                }
+-            }
+-        }
+-    }
+-
+-    private suspend fun listenForShadeTouchability(scope: CoroutineScope): Job {
+-        return scope.launch {
+-            shadeInteractor.isShadeTouchable.collect {
+-                view.isVisible = it
+-                if (view.isVisible) {
+-                    brightnessToAlpha()
+-                    alphaAnimator.cancel()
+-                    alphaAnimator.start()
+-                }
+-            }
+-        }
+-    }
+-}
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
+deleted file mode 100644
+index 2e0e9491dd5b..000000000000
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsSurfaceView.java
++++ /dev/null
+@@ -1,159 +0,0 @@
+-/*
+- * Copyright (C) 2021 The Android Open Source Project
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- *      http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.android.systemui.biometrics;
+-
+-import android.annotation.NonNull;
+-import android.annotation.Nullable;
+-import android.content.Context;
+-import android.graphics.drawable.Drawable;
+-import android.graphics.Canvas;
+-import android.graphics.Paint;
+-import android.graphics.PixelFormat;
+-import android.graphics.RectF;
+-import android.util.AttributeSet;
+-import android.util.Log;
+-import android.view.Surface;
+-import android.view.SurfaceHolder;
+-import android.view.SurfaceView;
+-
+-import com.android.systemui.res.R;
+-
+-/**
+- * Surface View for providing the Global High-Brightness Mode (GHBM) illumination for UDFPS.
+- */
+-public class UdfpsSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
+-    private static final String TAG = "UdfpsSurfaceView";
+-
+-    /**
+-     * Notifies {@link UdfpsView} when to enable GHBM illumination.
+-     */
+-    interface GhbmIlluminationListener {
+-        /**
+-         * @param surface the surface for which GHBM should be enabled.
+-         * @param onDisplayConfigured a runnable that should be run after GHBM is enabled.
+-         */
+-        void enableGhbm(@NonNull Surface surface, @Nullable Runnable onDisplayConfigured);
+-    }
+-
+-    @NonNull private final SurfaceHolder mHolder;
+-    @NonNull private final Paint mSensorPaint;
+-
+-    @Nullable private GhbmIlluminationListener mGhbmIlluminationListener;
+-    @Nullable private Runnable mOnDisplayConfigured;
+-    boolean mAwaitingSurfaceToStartIllumination;
+-    boolean mHasValidSurface;
+-
+-    private Drawable mUdfpsIconPressed;
+-
+-    public UdfpsSurfaceView(Context context, AttributeSet attrs) {
+-        super(context, attrs);
+-
+-        // Make this SurfaceView draw on top of everything else in this window. This allows us to
+-        // 1) Always show the HBM circle on top of everything else, and
+-        // 2) Properly composite this view with any other animations in the same window no matter
+-        //    what contents are added in which order to this view hierarchy.
+-        setZOrderOnTop(true);
+-
+-        mHolder = getHolder();
+-        mHolder.addCallback(this);
+-        mHolder.setFormat(PixelFormat.RGBA_8888);
+-
+-        mSensorPaint = new Paint(0 /* flags */);
+-        mSensorPaint.setAntiAlias(true);
+-        mSensorPaint.setColor(context.getColor(R.color.config_udfpsColor));
+-        mSensorPaint.setStyle(Paint.Style.FILL);
+-
+-        mUdfpsIconPressed = context.getDrawable(R.drawable.udfps_icon_pressed);
+-    }
+-
+-    @Override public void surfaceCreated(SurfaceHolder holder) {
+-        mHasValidSurface = true;
+-        if (mAwaitingSurfaceToStartIllumination) {
+-            doIlluminate(mOnDisplayConfigured);
+-            mOnDisplayConfigured = null;
+-            mAwaitingSurfaceToStartIllumination = false;
+-        }
+-    }
+-
+-    @Override
+-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+-        // Unused.
+-    }
+-
+-    @Override public void surfaceDestroyed(SurfaceHolder holder) {
+-        mHasValidSurface = false;
+-    }
+-
+-    void setGhbmIlluminationListener(@Nullable GhbmIlluminationListener listener) {
+-        mGhbmIlluminationListener = listener;
+-    }
+-
+-    /**
+-     * Note: there is no corresponding method to stop GHBM illumination. It is expected that
+-     * {@link UdfpsView} will hide this view, which would destroy the surface and remove the
+-     * illumination dot.
+-     */
+-    void startGhbmIllumination(@Nullable Runnable onDisplayConfigured) {
+-        if (mGhbmIlluminationListener == null) {
+-            Log.e(TAG, "startIllumination | mGhbmIlluminationListener is null");
+-            return;
+-        }
+-
+-        if (mHasValidSurface) {
+-            doIlluminate(onDisplayConfigured);
+-        } else {
+-            mAwaitingSurfaceToStartIllumination = true;
+-            mOnDisplayConfigured = onDisplayConfigured;
+-        }
+-    }
+-
+-    private void doIlluminate(@Nullable Runnable onDisplayConfigured) {
+-        if (mGhbmIlluminationListener == null) {
+-            Log.e(TAG, "doIlluminate | mGhbmIlluminationListener is null");
+-            return;
+-        }
+-
+-        mGhbmIlluminationListener.enableGhbm(mHolder.getSurface(), onDisplayConfigured);
+-    }
+-
+-    /**
+-     * Immediately draws the illumination dot on this SurfaceView's surface.
+-     */
+-    void drawIlluminationDot(@NonNull RectF sensorRect) {
+-        if (!mHasValidSurface) {
+-            Log.e(TAG, "drawIlluminationDot | the surface is destroyed or was never created.");
+-            return;
+-        }
+-        Canvas canvas = null;
+-        try {
+-            canvas = mHolder.lockCanvas();
+-            mUdfpsIconPressed.setBounds(
+-                    Math.round(sensorRect.left),
+-                    Math.round(sensorRect.top),
+-                    Math.round(sensorRect.right),
+-                    Math.round(sensorRect.bottom)
+-            );
+-            mUdfpsIconPressed.draw(canvas);
+-            canvas.drawOval(sensorRect, mSensorPaint);
+-        } finally {
+-            // Make sure the surface is never left in a bad state.
+-            if (canvas != null) {
+-                mHolder.unlockCanvasAndPost(canvas);
+-            }
+-        }
+-    }
+-}
+diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
+index a8e4e95114ca..76bcd6e2863b 100644
+--- a/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
++++ b/packages/SystemUI/src/com/android/systemui/biometrics/UdfpsView.kt
+@@ -24,11 +24,9 @@ import android.graphics.RectF
+ import android.util.AttributeSet
+ import android.util.Log
+ import android.view.MotionEvent
+-import android.view.Surface
+ import android.widget.FrameLayout
+ import com.android.systemui.biometrics.shared.model.UdfpsOverlayParams
+ import com.android.systemui.doze.DozeReceiver
+-import com.android.systemui.res.R
+ 
+ private const val TAG = "UdfpsView"
+ 
+@@ -49,8 +47,6 @@ class UdfpsView(
+         textSize = 32f
+     }
+ 
+-    private var ghbmView: UdfpsSurfaceView? = null
+-
+     /** View controller (can be different for enrollment, BiometricPrompt, Keyguard, etc.). */
+     var animationViewController: UdfpsAnimationViewController<*>? = null
+ 
+@@ -77,10 +73,6 @@ class UdfpsView(
+         return (animationViewController == null || !animationViewController!!.shouldPauseAuth())
+     }
+ 
+-    override fun onFinishInflate() {
+-        ghbmView = findViewById(R.id.hbm_view)
+-    }
+-
+     override fun dozeTimeTick() {
+         animationViewController?.dozeTimeTick()
+     }
+@@ -114,34 +106,12 @@ class UdfpsView(
+     fun configureDisplay(onDisplayConfigured: Runnable) {
+         isDisplayConfigured = true
+         animationViewController?.onDisplayConfiguring()
+-        val gView = ghbmView
+-        if (gView != null) {
+-            gView.setGhbmIlluminationListener(this::doIlluminate)
+-            gView.visibility = VISIBLE
+-            gView.startGhbmIllumination(onDisplayConfigured)
+-        } else {
+-            doIlluminate(null /* surface */, onDisplayConfigured)
+-        }
+-    }
+-
+-    private fun doIlluminate(surface: Surface?, onDisplayConfigured: Runnable?) {
+-        if (ghbmView != null && surface == null) {
+-            Log.e(TAG, "doIlluminate | surface must be non-null for GHBM")
+-        }
+-
+-        mUdfpsDisplayMode?.enable {
+-            onDisplayConfigured?.run()
+-            ghbmView?.drawIlluminationDot(RectF(sensorRect))
+-        }
++        mUdfpsDisplayMode?.enable(onDisplayConfigured)
+     }
+ 
+     fun unconfigureDisplay() {
+         isDisplayConfigured = false
+         animationViewController?.onDisplayUnconfigured()
+-        ghbmView?.let { view ->
+-            view.setGhbmIlluminationListener(null)
+-            view.visibility = INVISIBLE
+-        }
+         mUdfpsDisplayMode?.disable(null /* onDisabled */)
+     }
+ }
+-- 
+2.34.1
+

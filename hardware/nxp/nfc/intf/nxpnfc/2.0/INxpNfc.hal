@@ -1,0 +1,76 @@
+/******************************************************************************
+ *
+ *  Copyright 2020 NXP
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ ******************************************************************************/
+package vendor.nxp.nxpnfc@2.0;
+
+interface INxpNfc {
+    /*
+     * Gets vendor params values whose Key has been provided.
+     *
+     * @param string
+     * @return output data as string
+     */
+    getVendorParam(string key)  generates (string value);
+
+    /*
+     * Saves the vendor params provided as key-value pair
+     *
+     * @param string key string value
+     * @return status as a boolean, true if success, false if failed
+     */
+    setVendorParam(string key, string value)  generates (bool status);
+
+    /*
+     * reset the ese based on resettype
+     *
+     * @param uint64_t to specify resetType
+     * @return status as a boolean, true if success, false if failed
+     */
+    resetEse(uint64_t resetType) generates (bool status);
+
+    /*
+     * updates ese with current state and notifies upper layer
+     *
+     * @param input current ese state to set
+     * @return status as a boolean, true if success, false if failed
+     */
+    setEseUpdateState(NxpNfcHalEseState eSEState)  generates (bool status);
+
+    /*
+     * Sets Transit config value
+     *
+     * @param string transit config value
+     * @return status as a boolean, true if success, false if failed
+     */
+    setNxpTransitConfig(string transitConfValue) generates (bool status);
+
+    /*
+     * api to check jcop update is required or not
+     *
+     * @param none
+     * @return status as a boolean, true if JCOP update required, false if not required.
+     */
+     isJcopUpdateRequired() generates (bool status);
+
+    /*
+     * api to check LS update is required or not
+     *
+     * @param none
+     * @return status as a boolean, true if LS update required, false if not required.
+     */
+     isLsUpdateRequired() generates (bool status);
+};

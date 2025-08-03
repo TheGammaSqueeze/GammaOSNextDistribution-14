@@ -1,0 +1,36 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_st_nfc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_st_nfc_license"],
+}
+
+cc_binary {
+    name: "android.hardware.nfc-service.st",
+    relative_install_path: "hw",
+    init_rc: ["nfc-service-default.rc"],
+    vintf_fragments: ["nfc-service-default.xml"],
+    vendor: true,
+    cflags: [
+        "-Wall",
+        "-Wextra",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libutils",
+        "libbinder_ndk",
+        "android.hardware.nfc-V1-ndk",
+        "nfc_nci.st21nfc.default",
+    ],
+    srcs: [
+        "main.cpp",
+        "Nfc.cpp",
+        "hal_st21nfc.cc",
+    ],
+    arch: {
+        arm: { cflags: ["-DST_LIB_32"] },
+    }
+}

@@ -1,0 +1,65 @@
+soong_namespace {
+}
+
+package {
+    default_applicable_licenses: ["hardware_qcom_sm7250_gps_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "hardware_qcom_sm7250_gps_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "legacy_not_a_contribution",
+    ],
+    // large-scale-change unable to identify any license_text files
+}
+
+GNSS_CFLAGS = [
+    "-Werror",
+    "-Wno-error=unused-parameter",
+    "-Wno-error=macro-redefined",
+    "-Wno-error=reorder",
+    "-Wno-error=missing-braces",
+    "-Wno-error=self-assign",
+    "-Wno-error=enum-conversion",
+    "-Wno-error=logical-op-parentheses",
+    "-Wno-error=null-arithmetic",
+    "-Wno-error=null-conversion",
+    "-Wno-error=parentheses-equality",
+    "-Wno-error=undefined-bool-conversion",
+    "-Wno-error=tautological-compare",
+    "-Wno-error=switch",
+    "-Wno-error=date-time",
+]
+
+/* Activate the following for debug purposes only,
+   comment out for production */
+GNSS_SANITIZE_DIAG = {
+/*
+    diag: {
+        cfi: true,
+        misc_undefined: [
+            "bounds",
+            "null",
+            "unreachable",
+            "integer",
+        ],
+    },
+*/
+}

@@ -1,0 +1,11 @@
+third_party {
+  license_note: "would be NOTICE save for EPL in:\n"
+  "   create/tests/res/mock_data/mock_android/fake/InnerTest.java\n"
+  "   create/tests/res/mock_data/mock_android/util/EmptyArray.java\n"
+  "   create/tests/res/mock_data/mock_android/view/View.java\n"
+  "   create/tests/res/mock_data/mock_android/view/ViewGroup.java\n"
+  "   create/tests/res/mock_data/mock_android/widget/LinearLayout.java\n"
+  "   create/tests/res/mock_data/mock_android/widget/TableLayout.java\n"
+  "   create/tests/res/mock_data/notjava/lang/JavaClass.java"
+  license_type: RECIPROCAL
+}

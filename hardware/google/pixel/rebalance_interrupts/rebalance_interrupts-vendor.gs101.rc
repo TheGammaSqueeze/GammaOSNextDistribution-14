@@ -1,0 +1,12 @@
+service vendor.rebalance_interrupts-vendor /vendor/bin/rebalance_interrupts-vendor
+    disabled
+    oneshot
+    user root
+    group system
+
+on early-boot
+    start vendor.rebalance_interrupts-vendor
+
+on property:sys.boot_completed=1
+    start vendor.rebalance_interrupts-vendor
+

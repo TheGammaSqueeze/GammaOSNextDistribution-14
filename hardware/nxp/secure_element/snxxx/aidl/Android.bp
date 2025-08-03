@@ -1,0 +1,87 @@
+//
+// Copyright 2023 NXP
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_nxp_secure_element_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_nxp_secure_element_license"],
+}
+
+cc_binary {
+    name: "android.hardware.secure_element-service.nxp",
+    relative_install_path: "hw",
+    vendor: true,
+    init_rc: ["secure_element-service-nxp.rc"],
+    vintf_fragments: ["secure_element-service-nxp.xml"],
+    enabled: true,
+
+    srcs: [
+        "NxpEseService.cpp",
+        "SecureElement.cpp",
+        "VirtualISO.cpp",
+        ":OsuHalCommonFile",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "android.hardware.secure_element-V1-ndk",
+        "libhardware",
+        "liblog",
+        "libmemunreachable",
+        "libutils",
+        "ese_spi_nxp_snxxx",
+        "nfc_nci_nxp_snxxx",
+        "android.hardware.nfc@1.2",
+        "android.hardware.nfc-V1-ndk",
+        "vendor.nxp.nxpnfc_aidl-V1-ndk",
+    ],
+
+    include_dirs: [
+        "hardware/nxp/secure_element/snxxx/extns/impl",
+        "hardware/nxp/secure_element/snxxx/libese-spi/common/include",
+        "hardware/nxp/secure_element/snxxx/libese-spi/p73/common",
+        "hardware/nxp/secure_element/snxxx/libese-spi/p73/inc",
+        "hardware/nxp/secure_element/snxxx/libese-spi/p73/lib",
+        "hardware/nxp/secure_element/snxxx/libese-spi/p73/pal",
+        "hardware/nxp/secure_element/snxxx/libese-spi/p73/pal/spi",
+        "hardware/nxp/secure_element/snxxx/libese-spi/p73/utils",
+        "hardware/nxp/secure_element/snxxx/libese-spi/p73/spm",
+        "hardware/nxp/secure_element/snxxx/libese-spi/src/include",
+        "hardware/nxp/secure_element/snxxx/OsuHal/inc",
+        "hardware/nxp/secure_element/snxxx/ese-clients/inc",
+        "hardware/nxp/nfc/snxxx/halimpl/common",
+        "hardware/nxp/nfc/snxxx/halimpl/utils",
+    ],
+
+    cflags: [
+        "-DANDROID",
+        "-DJCOP_VER_3_1=1",
+        "-DJCOP_VER_3_2=2",
+        "-DJCOP_VER_3_3=3",
+        "-DJCOP_VER_4_0=4",
+        "-DJCOP_VER_5_x=5",
+        "-DBUILDCFG=1",
+        "-DNXP_EXTNS=TRUE",
+        "-DNFC_NXP_ESE_VER=JCOP_VER_5_x",
+        "-DNXP_VISO_ENABLE",
+        "-Wall",
+        "-Werror",
+        "-fexceptions",
+    ],
+}

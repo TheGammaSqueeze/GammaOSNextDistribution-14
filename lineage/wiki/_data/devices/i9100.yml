@@ -1,0 +1,38 @@
+architecture: arm
+battery: {capacity: 1650, removable: True, tech: 'Li-Ion'}
+bluetooth: {spec: 3.0 + HS}
+cameras:
+  - {flash: 'LED', info: '8 MP'}
+  - {flash: None, info: '1.9 MP'}
+codename: i9100
+cpu: Cortex-A9
+cpu_cores: '2'
+cpu_freq: 1.2 GHz
+current_branch: 14.1
+dimensions: None
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Home</kbd> + <kbd>Power</kbd>.
+gpu: ARM Mali-400 MP4
+image: i9100.png
+install_method: heimdall
+kernel: {repo: android_kernel_samsung_smdk4412, version: '3.0'}
+maintainers: []
+models: [GT-I9100, GT-I9100T, GT-I9100M, GT-I9100P, SC-02C]
+name: Galaxy S II
+network: [2G GSM, 3G UMTS]
+no_oem_unlock_switch: true
+peripherals: [3.5mm jack]
+ram: 1 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Home</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+release: 2011-02-11
+screen: {resolution: '800x480', size: 4.3, technology: 'Super AMOLED'}
+sdcard: {size_max: '32 GB'}
+soc: Samsung Exynos 4210
+storage: 16/32 GB
+tree: android_device_samsung_i9100
+type: phone
+uses_twrp: true
+vendor: Samsung
+vendor_short: samsung
+versions: [14.1]
+wifi: 802.11 a/b/g/n

@@ -1,0 +1,37 @@
+architecture: arm
+battery: {capacity: 1980, removable: False, tech: 'Li-Po'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: None, info: '5 MP'}
+codename: condor
+cpu: Cortex-A7
+cpu_cores: '2'
+cpu_freq: 1.2 GHz
+current_branch: 14.1
+dimensions: None
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. On the next screen use <kbd>Volume Down</kbd> to scroll and then press <kbd>Volume Up</kbd> to select.
+gpu: Qualcomm Adreno 302
+image: condor.png
+install_method: fastboot_motorola
+kernel: {repo: android_kernel_motorola_msm8610, version: '3.4'}
+maintainers: []
+models: [XT1021, XT1022, XT1023]
+name: moto e
+network: [2G GSM, 3G UMTS]
+peripherals: [3.5mm jack, Accelerometer, Compass, Proximity sensor]
+ram: 1 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. On the next screen use <kbd>Volume Down</kbd> to scroll to recovery and then press <kbd>Volume Up</kbd> to select.
+recovery_partition_name: recovery
+recovery_reboot: fastboot_menu
+release: 2014-05-13
+screen: {resolution: '540x960', size: 4.3, technology: 'IPS LCD'}
+sdcard: {size_max: '32 GB'}
+soc: Qualcomm MSM8212 Snapdragon 200
+storage: 4 GB
+tree: android_device_motorola_condor
+type: phone
+uses_twrp: true
+vendor: Motorola
+vendor_short: motorola
+versions: [14.1]
+wifi: 802.11 b/g/n

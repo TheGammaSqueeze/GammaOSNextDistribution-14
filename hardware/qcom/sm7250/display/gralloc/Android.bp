@@ -1,0 +1,40 @@
+package {
+    default_applicable_licenses: ["hardware_qcom_sm7250_display_license"],
+}
+
+cc_library_shared {
+    name: "libgrallocutils",
+    vendor: true,
+    defaults: ["display_go_defaults"],
+    srcs: [
+        "gr_adreno_info.cpp",
+        "gr_camera_info.cpp",
+        "gr_utils.cpp",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"qdgralloc\"",
+        "-D__QTI_DISPLAY_GRALLOC__",
+        "-Wno-sign-conversion",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.mapper@2.0",
+        "android.hardware.graphics.mapper@2.1",
+        "android.hardware.graphics.mapper@3.0",
+        "android.hardware.graphics.mapper@4.0",
+        "libcutils",
+        "libdl",
+        "liblog",
+        "libqdMetaData",
+    ],
+    header_libs: [
+        "display_headers",
+        "device_kernel_headers",
+    ],
+    export_header_lib_headers: [
+        "device_kernel_headers",
+    ],
+    export_include_dirs: ["."],
+    sanitize: {
+        integer_overflow: true,
+    },
+}

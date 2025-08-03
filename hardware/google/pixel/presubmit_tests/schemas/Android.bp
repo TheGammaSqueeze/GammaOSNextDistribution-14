@@ -1,0 +1,17 @@
+cc_library_static {
+    name: "powerhint_schema",
+    host_supported: true,
+    srcs: [
+        "powerhint-schema.proto",
+    ],
+    proto: {
+        type: "full",
+        export_proto_headers: true,
+        include_dirs: ["external/protobuf/src"],
+    },
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+}

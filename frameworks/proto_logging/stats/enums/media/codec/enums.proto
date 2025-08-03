@@ -1,0 +1,127 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.media.codec;
+
+//
+// MediaResource reclaim status code.
+enum ReclaimStatus {
+    // Unspecified Reclaim error.
+    RECLAIM_STATUS_UNSPECIFIED = 0;
+    // Reclaimed successfully.
+    RECLAIM_SUCCESS = 1;
+    // Reclaim failed as none of the clients have the requested resources.
+    RECLAIM_FAILED_NO_CLIENTS = 2;
+    // Reclaim failed as client(s) failed to reclaim the resources.
+    RECLAIM_FAILED_RECLAIM_RESOURCES = 3;
+}
+
+//
+// MediaCodec type.
+//
+// From
+//  frameworks/av/services/mediaresourcemanager/aidl/android/media/MediaResourceSubType.aidl
+enum CodecType {
+    // Unspecified codec type.
+    CODEC_TYPE_UNSPECIFIED = 0;
+    // Audio codec
+    CODEC_TYPE_AUDIO = 1;
+    // Video codec.
+    CODEC_TYPE_VIDEO = 2;
+    // Image codec.
+    CODEC_TYPE_IMAGE = 3;
+}
+
+// The codec technology.
+enum Codec {
+    CODEC_UNKNOWN = 0;
+    CODEC_AVC = 1;
+    CODEC_HEVC = 2;
+    CODEC_VP8 = 3;
+    CODEC_VP9 = 4;
+    CODEC_AV1 = 5;
+}
+
+// The video resolution, as computed by multiplying the width by the height and finding the enum
+// that is just below the limit.
+enum Resolution {
+   RESOLUTION_UNKNOWN = 0;
+   RESOLUTION_ZERO = -1;
+   RESOLUTION_INVALID = -2;
+
+   RESOLUTION_SMALLEST = 11;
+   RESOLUTION_VERY_LOW = 41;
+   RESOLUTION_352X640 = 228;
+   RESOLUTION_360X640 = 233;
+   RESOLUTION_480X640 = 311;
+   RESOLUTION_480X854 = 414;
+   RESOLUTION_540X960 = 524;
+   RESOLUTION_576X1024 = 621;
+
+   RESOLUTION_720P_HD_ALMOST = 912; // -1%
+   RESOLUTION_720P_HD = 931; // +1%
+
+   RESOLUTION_1080P_FHD_ALMOST = 2053; // -1%
+   RESOLUTION_1080P_FHD = 2095; // +1%
+
+   RESOLUTION_1080X2340 = 2553;
+   RESOLUTION_1080X2400 = 2618;
+   RESOLUTION_1440X2560 = 3724;
+
+   RESOLUTION_4K_UHD_ALMOST = 8211; // -1%
+   RESOLUTION_4K_UHD = 8378; // +1%
+   RESOLUTION_8K_UHD_ALMOST = 32846; // -1%
+   RESOLUTION_8K_UHD = 33510; // +1%
+   RESOLUTION_16K = 134038;
+   RESOLUTION_32K = 536151;
+   RESOLUTION_MAX_SIZE = 2147483647;
+}
+
+// The video framerate as detected by looking at timestamps.
+enum Framerate {
+    FRAMERATE_UNKNOWN = 0;
+    FRAMERATE_UNDETERMINED = 1;
+    FRAMERATE_24_3_2_PULLDOWN = 2;
+    FRAMERATE_24 = 2400;
+    FRAMERATE_25 = 2500;
+    FRAMERATE_30 = 3000;
+    FRAMERATE_50 = 5000;
+    FRAMERATE_60 = 6000;
+    FRAMERATE_120 = 12000;
+    FRAMERATE_240 = 24000;
+    FRAMERATE_480 = 48000;
+    FRAMERATE_960 = 96000;
+}
+
+// Bitrate is relative to the codec, resolution and framerate using a lookup table.
+enum Bitrate {
+    BITRATE_UNKNOWN = 0;
+    BITRATE_LOW = 1;
+    BITRATE_MEDIUM = 2;
+    BITRATE_HIGH = 3;
+}
+
+// The HDR format produced by the decoder.
+enum HdrFormat {
+    HDR_FORMAT_UNKNOWN = 0;
+    HDR_FORMAT_NONE = 1;
+    HDR_FORMAT_HLG = 2;
+    HDR_FORMAT_HDR10 = 3;
+    HDR_FORMAT_HDR10_PLUS = 4;
+    HDR_FORMAT_DOLBY_VISION = 5;
+}

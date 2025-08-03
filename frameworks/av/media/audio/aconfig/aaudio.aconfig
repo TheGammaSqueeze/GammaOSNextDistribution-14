@@ -1,0 +1,13 @@
+# Flags for aaudio
+#
+# Please add flags in alphabetical order.
+
+package: "com.android.media.aaudio"
+container: "system"
+
+flag {
+    name: "sample_rate_conversion"
+    namespace: "media_audio"
+    description: "Enable the AAudio sample rate converter."
+    bug: "219533889"
+}

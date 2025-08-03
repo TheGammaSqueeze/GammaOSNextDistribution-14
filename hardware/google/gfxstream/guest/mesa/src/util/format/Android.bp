@@ -1,0 +1,89 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+filegroup {
+    name: "libmesa_u_format_csv_gfxstream",
+    srcs: ["u_format.csv"],
+}
+
+python_binary_host {
+    name: "u_format_table_gen_gfxstream",
+    main: "u_format_table.py",
+    srcs: [
+        "u_format_table.py",
+        "u_format_pack.py",
+        "u_format_parse.py",
+    ],
+}
+
+genrule {
+    name: "u_format_pack_header_gfxstream",
+    srcs: [":libmesa_u_format_csv_gfxstream"],
+    out: ["u_format_pack.h"],
+    tools: ["u_format_table_gen_gfxstream"],
+    cmd: "python3 $(location u_format_table_gen_gfxstream) " +
+        "$(location :libmesa_u_format_csv_gfxstream) --header" +
+        "&> $(location u_format_pack.h)",
+}
+
+genrule {
+    name: "u_format_table_impl_gfxstream",
+    srcs: [":libmesa_u_format_csv_gfxstream"],
+    out: ["u_format_table.c"],
+    tools: ["u_format_table_gen_gfxstream"],
+    cmd: "python3 $(location u_format_table_gen_gfxstream) " +
+        "$(location :libmesa_u_format_csv_gfxstream) " +
+        "&> $(location u_format_table.c)",
+}
+
+cc_library_static {
+    name: "libmesa_util_format_gfxstream",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "mesa_common_defaults_gfxstream",
+    ],
+    header_libs: [
+        "mesa_common_headers_gfxstream",
+        "libmesa_util_headers_gfxstream",
+    ],
+    generated_headers: [
+        "u_format_pack_header_gfxstream",
+    ],
+    generated_sources: [
+        "u_format_table_impl_gfxstream",
+        "format_srgb_impl_gfxstream",
+    ],
+    srcs: [
+        "u_format.c",
+        "u_format_bptc.c",
+        "u_format_etc.c",
+        "u_format_fxt1.c",
+        "u_format_latc.c",
+        "u_format_other.c",
+        "u_format_rgtc.c",
+        "u_format_s3tc.c",
+        "u_format_tests.c",
+        "u_format_unpack_neon.c",
+        "u_format_yuv.c",
+        "u_format_zs.c",
+    ],
+}

@@ -1,0 +1,12 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+sh_binary {
+  name: "mm_logd",
+  src: "init.mm.logging.sh",
+  vendor: true,
+  init_rc: [
+    "pixel-mm-logd.rc",
+  ],
+}

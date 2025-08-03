@@ -1,0 +1,24 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_test {
+    name: "VtsHalBluetoothAudioV2_1TargetTest",
+    defaults: ["VtsHalTargetTestDefaults"],
+    tidy_timeout_srcs: ["VtsHalBluetoothAudioV2_1TargetTest.cpp"],
+    srcs: ["VtsHalBluetoothAudioV2_1TargetTest.cpp"],
+    static_libs: [
+        "android.hardware.audio.common@5.0",
+        "android.hardware.bluetooth.audio@2.1",
+        "android.hardware.bluetooth.audio@2.0",
+    ],
+    shared_libs: [
+        "libfmq",
+    ],
+    test_suites: ["general-tests", "vts"],
+}

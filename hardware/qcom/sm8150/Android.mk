@@ -1,0 +1,1 @@
+data/ipacfg-mgr/os_pickup.mk

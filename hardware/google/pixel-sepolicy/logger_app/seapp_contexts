@@ -1,0 +1,2 @@
+# Domain for Pixel Logger
+user=_app seinfo=platform name=com.android.pixellogger domain=logger_app type=app_data_file levelFrom=all

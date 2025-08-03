@@ -1,0 +1,21 @@
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_media_libeffects_preprocessing_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: [
+        "frameworks_av_media_libeffects_preprocessing_license",
+    ],
+}
+
+cc_benchmark {
+    name: "preprocessing_benchmark",
+    defaults: ["libaudiopreprocessing-defaults"],
+    srcs: ["preprocessing_benchmark.cpp"],
+    static_libs: [
+        "libaudiopreprocessing",
+        "libaudioutils",
+    ],
+}

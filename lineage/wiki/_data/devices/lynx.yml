@@ -1,0 +1,40 @@
+architecture: arm64
+battery: {capacity: 4385, removable: False, tech: 'Li-Po'}
+before_install: {instructions: 'needs_specific_android_fw', ships_fw: True, version: '15'}
+before_recovery_install: {instructions: 'boot_stack', partitions: [boot, dtbo, vendor_kernel_boot]}
+bluetooth: {profiles: [A2DP + aptX HD], spec: '5.3'}
+cameras:
+  - {flash: 'Dual LED (dual tone)', info: '64 MP (main)'}
+  - {flash: 'Dual LED (dual tone)', info: '13 MP (ultrawide)'}
+  - {flash: None, info: '13 MP (front)'}
+codename: lynx
+cpu: Cortex-X1 & Cortex-A78 & Cortex-A55
+cpu_cores: '8'
+cpu_freq: 2 x 2.85 GHz + 2 x 2.35 GHz + 4 x 1.8 GHz
+current_branch: 22.2
+custom_unlock_cmd: 'fastboot flashing unlock'
+dimensions: {depth: 9, height: 152, width: 72.9}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+gpu: ARM Mali-G710 MP7
+image: lynx.png
+install_method: fastboot_nexus
+is_ab_device: true
+kernel: {version: '6.1'}
+maintainers: [mikeioannina, niclimcy]
+name: Pixel 7a
+network: [2G GSM, 3G UMTS, 4G LTE, 5G NR]
+peripherals: [Accelerometer, Barometer, Compass, eSIM, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, QZSS, Gyroscope, Light sensor, NavIC, NFC, Proximity sensor, Qi wireless charging, USB OTG]
+ram: 8 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Then use the menu to select *Recovery Mode*.
+recovery_partition_name: vendor_boot
+recovery_reboot: fastboot_menu
+release: 2023-05-10
+screen: {refresh_rate: 90, resolution: '1080x2400', size: 6.1, technology: 'OLED'}
+soc: Google Tensor GS201
+storage: 128 GB
+tree: android_device_google_lynx
+type: phone
+vendor: Google
+vendor_short: google
+versions: [20, 21, 22.1, 22.2]
+wifi: 802.11 a/b/g/n/ac/ax

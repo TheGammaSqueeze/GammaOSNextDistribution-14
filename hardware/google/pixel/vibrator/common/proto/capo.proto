@@ -1,0 +1,164 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package capo;
+
+// The message types used in capo nanoapp. Some of them are H2C
+// (Host-To-CHRE) and others are C2H (CHRE-To-Host). One message type must be
+// either H2C or C2H. Each message type can choose to have payload or not.
+enum MessageType {
+  // Explicitly prevents 0 from being used as a valid message type.
+  // Doing so protects from obscure bugs caused by default-initialized values.
+  INVALID = 0;
+
+  // Detector configuration related message start from 100.
+  // Signal for host to acknowledge the notification.
+  // It contains AckNotification payload.
+  ACK_NOTIFICATION = 100;
+
+  // Signal to enable the carried position detector for device. No payload.
+  ENABLE_DETECTOR = 101;
+
+  // Signal to disable the carried position detector for device. No payload.
+  DISABLE_DETECTOR = 102;
+
+  // Signal to request most recent carried position detector state. No payload.
+  REQUEST_UPDATE = 103;
+
+  // Signal to force carried position detector to refresh state. No payload.
+  FORCE_UPDATE = 104;
+
+  // Configure the detector with desired parameters. ConfigureDetector payload.
+  CONFIGURE_DETECTOR = 105;
+
+  // Position Detection related message start from 200.
+  // Signal while carried position of device detected.
+  // It contains PositionDetected payload.
+  POSITION_DETECTED = 200;
+}
+
+// Notification Type.
+enum NotificationType {
+  // Explicitly prevents 0 from being used as a valid notification type.
+  // Doing so protects from obscure bugs caused by default-initialized values.
+  INVALID_NOTIFICATION = 0;
+
+  // Notification of enabling the carried position detector for device.
+  ENABLE_NOTIFICATION = 1;
+
+  // Notification of disabling the carried position detector for device.
+  DISABLE_NOTIFICATION = 2;
+
+  // Notification of request update from the carried position detector.
+  REQUEST_UPDATE_NOTIFICATION = 3;
+
+  // Notification of force update from the carried position detector.
+  FORCE_UPDATE_NOTIFICATION = 4;
+
+  // Notification of configure message.
+  CONFIGURE_NOTIFICATION = 5;
+}
+
+// This message type used for host to acknowledge the notification.
+message AckNotification {
+  // Sent a notification type for host to acknowledge.
+  NotificationType notification_type = 1;
+}
+
+// Position type.
+enum PositionType {
+  // Explicitly prevents 0 from being used as a valid carried position type.
+  // Doing so protects from obscure bugs caused by default-initialized values.
+  UNKNOWN = 0;
+
+  // Carried position while device is in motion.
+  IN_MOTION = 1;
+
+  // Carried position while device is on table and faces up.
+  ON_TABLE_FACE_UP = 2;
+
+  // Carried position while device is on table and faces down.
+  ON_TABLE_FACE_DOWN = 3;
+
+  // Carried position while device is stationary in unknown orientation.
+  STATIONARY_UNKNOWN = 4;
+}
+
+// This message type used to notify host a position was a detected.
+message PositionDetected {
+  // Sent a position type that is defined in PositionTypes.
+  PositionType position_type = 1;
+}
+
+// Predefined configurations for detector.
+enum ConfigPresetType {
+  // Explicitly prevents 0 from being used as a valid type.
+  // Doing so protects from obscure bugs caused by default-initialized values.
+  CONFIG_PRESET_UNSPECIFIED = 0;
+
+  // Default preset.
+  CONFIG_PRESET_DEFAULT = 1;
+
+  // Preset for sticky-stationary behavior.
+  CONFIG_PRESET_STICKY_STATIONARY = 2;
+}
+
+message ConfigureDetector {
+  // Ref: cs/location/lbs/contexthub/nanoapps/motiondetector/motion_detector.h
+  message ConfigData {
+    // These algo parameters are exposed to enable tuning via server flags.
+    // The amount of time that the algorithm's computed stillness confidence
+    // must exceed still_confidence_threshold before entering the stationary
+    // state. Increasing this value will make the algorithm take longer to
+    // transition from the in motion state to the stationary state.
+    uint64 still_time_threshold_nanosecond = 1;
+
+    // The amount of time in which the variance should be averaged. Increasing
+    // this value will effectively smooth the input data, making the algorithm
+    // less likely to transition between states.
+    uint32 window_width_nanosecond = 2;
+
+    // The required confidence that the device is in motion before entering the
+    // motion state. Valid range is [0.0, 1.0], where 1.0 indicates that the
+    // algorithm must be 100% certain that the device is moving before entering
+    // the motion state. If the Instant Motion sensor is triggered, this value
+    // is ignored and the algorithm is immediately transitioned into the in
+    // motion state.
+    float motion_confidence_threshold = 3;
+
+    // The required confidence that the device is stationary before entering the
+    // stationary state. Valid range is [0.0, 1.0], where 1.0 indicates that the
+    // algorithm must be 100% certain that the device is stationary before
+    // entering the stationary state.
+    float still_confidence_threshold = 4;
+
+    // The variance threshold for the StillnessDetector algorithm. Increasing
+    // this value causes the algorithm to be less likely to detect motion.
+    float var_threshold = 5;
+
+    // The variance threshold delta for the StillnessDetector algorithm about
+    // which the stationary confidence is calculated. Valid range is
+    // [0.0, var_threshold].
+    float var_threshold_delta = 6;
+  }
+
+  oneof type {
+    ConfigPresetType preset_type = 1;
+    ConfigData config_data = 2;
+  }
+}

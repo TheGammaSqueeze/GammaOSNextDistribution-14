@@ -1,0 +1,6 @@
+{%- if modelname %}
+<b>{{ modelname }}</b><br/>
+{%- endif %}
+{{ dimension_data.height }} mm ({{ dimension_data.height | mm_to_in }} in) (h)<br/>
+{{ dimension_data.width }} mm ({{ dimension_data.width | mm_to_in }} in) (w)<br/>
+{{ dimension_data.depth }} mm ({{ dimension_data.depth | mm_to_in }} in) (d)

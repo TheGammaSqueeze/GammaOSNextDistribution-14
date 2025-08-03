@@ -1,0 +1,631 @@
+// Signature format: 2.0
+package android.media.tuner.testing.configuration.V1_0 {
+
+  public class AtscFrontendSettings {
+    ctor public AtscFrontendSettings();
+    method @Nullable public java.math.BigInteger getInversion();
+    method @Nullable public java.math.BigInteger getModulation();
+    method public void setInversion(@Nullable java.math.BigInteger);
+    method public void setModulation(@Nullable java.math.BigInteger);
+  }
+
+  public class AvFilterSettings {
+    ctor public AvFilterSettings();
+    method @Nullable public short getAudioStreamType_optional();
+    method @Nullable public boolean getIsPassthrough();
+    method @Nullable public boolean getIsSecureMemory();
+    method @Nullable public short getVideoStreamType_optional();
+    method public void setAudioStreamType_optional(@Nullable short);
+    method public void setIsPassthrough(@Nullable boolean);
+    method public void setIsSecureMemory(@Nullable boolean);
+    method public void setVideoStreamType_optional(@Nullable short);
+  }
+
+  public class DataFlowConfiguration {
+    ctor public DataFlowConfiguration();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.ClearLiveBroadcast getClearLiveBroadcast();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.Descrambling getDescrambling();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.DvrPlayback getDvrPlayback();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.DvrRecord getDvrRecord();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.LnbDescrambling getLnbDescrambling();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.LnbLive getLnbLive();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.LnbRecord getLnbRecord();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.Scan getScan();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.TimeFilter getTimeFilter();
+    method public void setClearLiveBroadcast(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.ClearLiveBroadcast);
+    method public void setDescrambling(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.Descrambling);
+    method public void setDvrPlayback(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.DvrPlayback);
+    method public void setDvrRecord(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.DvrRecord);
+    method public void setLnbDescrambling(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.LnbDescrambling);
+    method public void setLnbLive(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.LnbLive);
+    method public void setLnbRecord(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.LnbRecord);
+    method public void setScan(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.Scan);
+    method public void setTimeFilter(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration.TimeFilter);
+  }
+
+  public static class DataFlowConfiguration.ClearLiveBroadcast {
+    ctor public DataFlowConfiguration.ClearLiveBroadcast();
+    method @Nullable public String getAudioFilterConnection();
+    method @Nullable public String getDvrSoftwareFeConnection();
+    method @Nullable public String getFrontendConnection();
+    method @Nullable public String getIpFilterConnection();
+    method @Nullable public java.util.List<java.lang.String> getOptionalFilters();
+    method @Nullable public String getPcrFilterConnection();
+    method @Nullable public String getSectionFilterConnection();
+    method @Nullable public String getVideoFilterConnection();
+    method public void setAudioFilterConnection(@Nullable String);
+    method public void setDvrSoftwareFeConnection(@Nullable String);
+    method public void setFrontendConnection(@Nullable String);
+    method public void setIpFilterConnection(@Nullable String);
+    method public void setOptionalFilters(@Nullable java.util.List<java.lang.String>);
+    method public void setPcrFilterConnection(@Nullable String);
+    method public void setSectionFilterConnection(@Nullable String);
+    method public void setVideoFilterConnection(@Nullable String);
+  }
+
+  public static class DataFlowConfiguration.Descrambling {
+    ctor public DataFlowConfiguration.Descrambling();
+    method @Nullable public String getAudioFilterConnection();
+    method @Nullable public String getDescramblerConnection();
+    method @Nullable public String getDvrSoftwareFeConnection();
+    method @Nullable public String getDvrSourceConnection();
+    method @Nullable public String getFrontendConnection();
+    method @Nullable public boolean getHasFrontendConnection();
+    method @Nullable public java.util.List<java.lang.String> getOptionalFilters();
+    method @Nullable public String getVideoFilterConnection();
+    method public void setAudioFilterConnection(@Nullable String);
+    method public void setDescramblerConnection(@Nullable String);
+    method public void setDvrSoftwareFeConnection(@Nullable String);
+    method public void setDvrSourceConnection(@Nullable String);
+    method public void setFrontendConnection(@Nullable String);
+    method public void setHasFrontendConnection(@Nullable boolean);
+    method public void setOptionalFilters(@Nullable java.util.List<java.lang.String>);
+    method public void setVideoFilterConnection(@Nullable String);
+  }
+
+  public static class DataFlowConfiguration.DvrPlayback {
+    ctor public DataFlowConfiguration.DvrPlayback();
+    method @Nullable public String getAudioFilterConnection();
+    method @Nullable public String getDvrConnection();
+    method @Nullable public java.util.List<java.lang.String> getOptionalFilters();
+    method @Nullable public String getSectionFilterConnection();
+    method @Nullable public String getVideoFilterConnection();
+    method public void setAudioFilterConnection(@Nullable String);
+    method public void setDvrConnection(@Nullable String);
+    method public void setOptionalFilters(@Nullable java.util.List<java.lang.String>);
+    method public void setSectionFilterConnection(@Nullable String);
+    method public void setVideoFilterConnection(@Nullable String);
+  }
+
+  public static class DataFlowConfiguration.DvrRecord {
+    ctor public DataFlowConfiguration.DvrRecord();
+    method @Nullable public String getDvrRecordConnection();
+    method @Nullable public String getDvrSoftwareFeConnection();
+    method @Nullable public String getDvrSourceConnection();
+    method @Nullable public String getFrontendConnection();
+    method @Nullable public boolean getHasFrontendConnection();
+    method @Nullable public String getRecordFilterConnection();
+    method public void setDvrRecordConnection(@Nullable String);
+    method public void setDvrSoftwareFeConnection(@Nullable String);
+    method public void setDvrSourceConnection(@Nullable String);
+    method public void setFrontendConnection(@Nullable String);
+    method public void setHasFrontendConnection(@Nullable boolean);
+    method public void setRecordFilterConnection(@Nullable String);
+  }
+
+  public static class DataFlowConfiguration.LnbDescrambling {
+    ctor public DataFlowConfiguration.LnbDescrambling();
+    method @Nullable public String getAudioFilterConnection();
+    method @Nullable public String getDescramblerConnection();
+    method @Nullable public java.util.List<java.lang.String> getDiseqcMsgSender();
+    method @Nullable public String getFrontendConnection();
+    method @Nullable public String getLnbConnection();
+    method @Nullable public String getVideoFilterConnection();
+    method public void setAudioFilterConnection(@Nullable String);
+    method public void setDescramblerConnection(@Nullable String);
+    method public void setDiseqcMsgSender(@Nullable java.util.List<java.lang.String>);
+    method public void setFrontendConnection(@Nullable String);
+    method public void setLnbConnection(@Nullable String);
+    method public void setVideoFilterConnection(@Nullable String);
+  }
+
+  public static class DataFlowConfiguration.LnbLive {
+    ctor public DataFlowConfiguration.LnbLive();
+    method @Nullable public String getAudioFilterConnection();
+    method @Nullable public java.util.List<java.lang.String> getDiseqcMsgSender();
+    method @Nullable public String getFrontendConnection();
+    method @Nullable public String getLnbConnection();
+    method @Nullable public java.util.List<java.lang.String> getOptionalFilters();
+    method @Nullable public String getVideoFilterConnection();
+    method public void setAudioFilterConnection(@Nullable String);
+    method public void setDiseqcMsgSender(@Nullable java.util.List<java.lang.String>);
+    method public void setFrontendConnection(@Nullable String);
+    method public void setLnbConnection(@Nullable String);
+    method public void setOptionalFilters(@Nullable java.util.List<java.lang.String>);
+    method public void setVideoFilterConnection(@Nullable String);
+  }
+
+  public static class DataFlowConfiguration.LnbRecord {
+    ctor public DataFlowConfiguration.LnbRecord();
+    method @Nullable public java.util.List<java.lang.String> getDiseqcMsgSender();
+    method @Nullable public String getDvrRecordConnection();
+    method @Nullable public String getFrontendConnection();
+    method @Nullable public String getLnbConnection();
+    method @Nullable public java.util.List<java.lang.String> getOptionalFilters();
+    method @Nullable public String getRecordFilterConnection();
+    method public void setDiseqcMsgSender(@Nullable java.util.List<java.lang.String>);
+    method public void setDvrRecordConnection(@Nullable String);
+    method public void setFrontendConnection(@Nullable String);
+    method public void setLnbConnection(@Nullable String);
+    method public void setOptionalFilters(@Nullable java.util.List<java.lang.String>);
+    method public void setRecordFilterConnection(@Nullable String);
+  }
+
+  public static class DataFlowConfiguration.Scan {
+    ctor public DataFlowConfiguration.Scan();
+    method @Nullable public String getFrontendConnection();
+    method public void setFrontendConnection(@Nullable String);
+  }
+
+  public static class DataFlowConfiguration.TimeFilter {
+    ctor public DataFlowConfiguration.TimeFilter();
+    method @Nullable public String getTimeFilterConnection();
+    method public void setTimeFilterConnection(@Nullable String);
+  }
+
+  public class Descrambler {
+    ctor public Descrambler();
+    method @Nullable public java.math.BigInteger getCasSystemId();
+    method @Nullable public String getId();
+    method @Nullable public String getProvisionStr();
+    method @Nullable public java.util.List<java.lang.Short> getSesstionPrivatData();
+    method public void setCasSystemId(@Nullable java.math.BigInteger);
+    method public void setId(@Nullable String);
+    method public void setProvisionStr(@Nullable String);
+    method public void setSesstionPrivatData(@Nullable java.util.List<java.lang.Short>);
+  }
+
+  public class DiseqcMessage {
+    ctor public DiseqcMessage();
+    method @Nullable public java.util.List<java.lang.Short> getMsgBody();
+    method @Nullable public String getMsgName();
+    method public void setMsgBody(@Nullable java.util.List<java.lang.Short>);
+    method public void setMsgName(@Nullable String);
+  }
+
+  public class DvbsFrontendSettings {
+    ctor public DvbsFrontendSettings();
+    method @Nullable public java.math.BigInteger getInputStreamId();
+    method @Nullable public java.math.BigInteger getInversion();
+    method @Nullable public boolean getIsDiseqcRxMessage();
+    method @Nullable public java.math.BigInteger getModulation();
+    method @Nullable public java.math.BigInteger getPilot();
+    method @Nullable public java.math.BigInteger getRolloff();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DvbsScanType getScanType();
+    method @Nullable public java.math.BigInteger getStandard();
+    method @Nullable public java.math.BigInteger getSymbolRate();
+    method @Nullable public java.math.BigInteger getVcmMode();
+    method public void setInputStreamId(@Nullable java.math.BigInteger);
+    method public void setInversion(@Nullable java.math.BigInteger);
+    method public void setIsDiseqcRxMessage(@Nullable boolean);
+    method public void setModulation(@Nullable java.math.BigInteger);
+    method public void setPilot(@Nullable java.math.BigInteger);
+    method public void setRolloff(@Nullable java.math.BigInteger);
+    method public void setScanType(@Nullable android.media.tuner.testing.configuration.V1_0.DvbsScanType);
+    method public void setStandard(@Nullable java.math.BigInteger);
+    method public void setSymbolRate(@Nullable java.math.BigInteger);
+    method public void setVcmMode(@Nullable java.math.BigInteger);
+  }
+
+  public enum DvbsScanType {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvbsScanType DIRECT;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvbsScanType DISEQC;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvbsScanType JESS;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvbsScanType UNDEFINED;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvbsScanType UNICABLE;
+  }
+
+  public class DvbtFrontendSettings {
+    ctor public DvbtFrontendSettings();
+    method @Nullable public java.math.BigInteger getBandwidth();
+    method @Nullable public java.math.BigInteger getConstellation();
+    method @Nullable public java.math.BigInteger getGuardInterval();
+    method @Nullable public java.math.BigInteger getHierarchy();
+    method @Nullable public java.math.BigInteger getHpCoderate();
+    method @Nullable public java.math.BigInteger getIsHighPriority();
+    method @Nullable public java.math.BigInteger getIsMiso();
+    method @Nullable public java.math.BigInteger getLpCoderate();
+    method @Nullable public java.math.BigInteger getPlpGroupId();
+    method @Nullable public java.math.BigInteger getPlpId();
+    method @Nullable public java.math.BigInteger getPlpMode();
+    method @Nullable public java.math.BigInteger getStandard();
+    method @Nullable public java.math.BigInteger getTransmissionMode();
+    method public void setBandwidth(@Nullable java.math.BigInteger);
+    method public void setConstellation(@Nullable java.math.BigInteger);
+    method public void setGuardInterval(@Nullable java.math.BigInteger);
+    method public void setHierarchy(@Nullable java.math.BigInteger);
+    method public void setHpCoderate(@Nullable java.math.BigInteger);
+    method public void setIsHighPriority(@Nullable java.math.BigInteger);
+    method public void setIsMiso(@Nullable java.math.BigInteger);
+    method public void setLpCoderate(@Nullable java.math.BigInteger);
+    method public void setPlpGroupId(@Nullable java.math.BigInteger);
+    method public void setPlpId(@Nullable java.math.BigInteger);
+    method public void setPlpMode(@Nullable java.math.BigInteger);
+    method public void setStandard(@Nullable java.math.BigInteger);
+    method public void setTransmissionMode(@Nullable java.math.BigInteger);
+  }
+
+  public class Dvr {
+    ctor public Dvr();
+    method @Nullable public java.math.BigInteger getBufferSize();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DvrDataFormatEnum getDataFormat();
+    method @Nullable public java.math.BigInteger getHighThreshold();
+    method @Nullable public String getId();
+    method @Nullable public String getInputFilePath();
+    method @Nullable public java.math.BigInteger getLowThreshold();
+    method @Nullable public java.math.BigInteger getPacketSize();
+    method @Nullable public java.math.BigInteger getStatusMask();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DvrTypeEnum getType();
+    method public void setBufferSize(@Nullable java.math.BigInteger);
+    method public void setDataFormat(@Nullable android.media.tuner.testing.configuration.V1_0.DvrDataFormatEnum);
+    method public void setHighThreshold(@Nullable java.math.BigInteger);
+    method public void setId(@Nullable String);
+    method public void setInputFilePath(@Nullable String);
+    method public void setLowThreshold(@Nullable java.math.BigInteger);
+    method public void setPacketSize(@Nullable java.math.BigInteger);
+    method public void setStatusMask(@Nullable java.math.BigInteger);
+    method public void setType(@Nullable android.media.tuner.testing.configuration.V1_0.DvrTypeEnum);
+  }
+
+  public enum DvrDataFormatEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrDataFormatEnum ES;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrDataFormatEnum PES;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrDataFormatEnum SHV_TLV;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrDataFormatEnum TS;
+  }
+
+  public enum DvrStatusEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrStatusEnum DATA_READY;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrStatusEnum HIGH_WATER;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrStatusEnum LOW_WATER;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrStatusEnum OVERFLOW;
+  }
+
+  public enum DvrTypeEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrTypeEnum PLAYBACK;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.DvrTypeEnum RECORD;
+  }
+
+  public class Filter {
+    ctor public Filter();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.AvFilterSettings getAvFilterSettings_optional();
+    method @Nullable public java.math.BigInteger getBufferSize();
+    method @Nullable public java.math.BigInteger getDataDelayInBytes();
+    method @Nullable public String getId();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.IpFilterConfig getIpFilterConfig_optional();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.FilterMainTypeEnum getMainType();
+    method @Nullable public java.math.BigInteger getMonitorEventTypes();
+    method @Nullable public java.math.BigInteger getPid();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.RecordFilterSettings getRecordFilterSettings_optional();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.SectionFilterSettings getSectionFilterSettings_optional();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum getSubType();
+    method @Nullable public java.math.BigInteger getTimeDelayInMs();
+    method @Nullable public boolean getUseFMQ();
+    method public void setAvFilterSettings_optional(@Nullable android.media.tuner.testing.configuration.V1_0.AvFilterSettings);
+    method public void setBufferSize(@Nullable java.math.BigInteger);
+    method public void setDataDelayInBytes(@Nullable java.math.BigInteger);
+    method public void setId(@Nullable String);
+    method public void setIpFilterConfig_optional(@Nullable android.media.tuner.testing.configuration.V1_0.IpFilterConfig);
+    method public void setMainType(@Nullable android.media.tuner.testing.configuration.V1_0.FilterMainTypeEnum);
+    method public void setMonitorEventTypes(@Nullable java.math.BigInteger);
+    method public void setPid(@Nullable java.math.BigInteger);
+    method public void setRecordFilterSettings_optional(@Nullable android.media.tuner.testing.configuration.V1_0.RecordFilterSettings);
+    method public void setSectionFilterSettings_optional(@Nullable android.media.tuner.testing.configuration.V1_0.SectionFilterSettings);
+    method public void setSubType(@Nullable android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum);
+    method public void setTimeDelayInMs(@Nullable java.math.BigInteger);
+    method public void setUseFMQ(@Nullable boolean);
+  }
+
+  public enum FilterMainTypeEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterMainTypeEnum IP;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterMainTypeEnum MMTP;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterMainTypeEnum TS;
+  }
+
+  public enum FilterSubTypeEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum AUDIO;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum DOWNLOAD;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum IP;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum IP_PAYLOAD;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum MMTP;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum NTP;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum PAYLOAD_THROUGH;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum PCR;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum PES;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum RECORD;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum SECTION;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum TEMI;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum TS;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum UNDEFINED;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FilterSubTypeEnum VIDEO;
+  }
+
+  public class Frontend {
+    ctor public Frontend();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.AtscFrontendSettings getAtscFrontendSettings_optional();
+    method @Nullable public java.math.BigInteger getConnectToCicamId();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DvbsFrontendSettings getDvbsFrontendSettings_optional();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DvbtFrontendSettings getDvbtFrontendSettings_optional();
+    method @Nullable public java.math.BigInteger getEndFrequency();
+    method @Nullable public java.math.BigInteger getFrequency();
+    method @Nullable public String getId();
+    method @Nullable public boolean getIsSoftwareFrontend();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.IsdbsFrontendSettings getIsdbsFrontendSettings_optional();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.IsdbtFrontendSettings getIsdbtFrontendSettings_optional();
+    method @Nullable public java.math.BigInteger getRemoveOutputPid();
+    method @Nullable public boolean getSupportBlindScan();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum getType();
+    method public void setAtscFrontendSettings_optional(@Nullable android.media.tuner.testing.configuration.V1_0.AtscFrontendSettings);
+    method public void setConnectToCicamId(@Nullable java.math.BigInteger);
+    method public void setDvbsFrontendSettings_optional(@Nullable android.media.tuner.testing.configuration.V1_0.DvbsFrontendSettings);
+    method public void setDvbtFrontendSettings_optional(@Nullable android.media.tuner.testing.configuration.V1_0.DvbtFrontendSettings);
+    method public void setEndFrequency(@Nullable java.math.BigInteger);
+    method public void setFrequency(@Nullable java.math.BigInteger);
+    method public void setId(@Nullable String);
+    method public void setIsSoftwareFrontend(@Nullable boolean);
+    method public void setIsdbsFrontendSettings_optional(@Nullable android.media.tuner.testing.configuration.V1_0.IsdbsFrontendSettings);
+    method public void setIsdbtFrontendSettings_optional(@Nullable android.media.tuner.testing.configuration.V1_0.IsdbtFrontendSettings);
+    method public void setRemoveOutputPid(@Nullable java.math.BigInteger);
+    method public void setSupportBlindScan(@Nullable boolean);
+    method public void setType(@Nullable android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum);
+  }
+
+  public class FrontendIsdbtLayerSettings {
+    ctor public FrontendIsdbtLayerSettings();
+    method @Nullable public java.math.BigInteger getCoderate();
+    method @Nullable public java.math.BigInteger getModulation();
+    method @Nullable public java.math.BigInteger getNumOfSegment();
+    method @Nullable public java.math.BigInteger getTimeInterleave();
+    method public void setCoderate(@Nullable java.math.BigInteger);
+    method public void setModulation(@Nullable java.math.BigInteger);
+    method public void setNumOfSegment(@Nullable java.math.BigInteger);
+    method public void setTimeInterleave(@Nullable java.math.BigInteger);
+  }
+
+  public enum FrontendTypeEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum ANALOG;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum ATSC;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum ATSC3;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum DTMB;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum DVBC;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum DVBS;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum DVBT;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum ISDBS;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum ISDBS3;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum ISDBT;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.FrontendTypeEnum UNDEFINED;
+  }
+
+  public class HardwareConfiguration {
+    ctor public HardwareConfiguration();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Descramblers getDescramblers();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.DiseqcMessages getDiseqcMessages();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Dvrs getDvrs();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Filters getFilters();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Frontends getFrontends();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Lnbs getLnbs();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.TimeFilters getTimeFilters();
+    method public void setDescramblers(@Nullable android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Descramblers);
+    method public void setDiseqcMessages(@Nullable android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.DiseqcMessages);
+    method public void setDvrs(@Nullable android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Dvrs);
+    method public void setFilters(@Nullable android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Filters);
+    method public void setFrontends(@Nullable android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Frontends);
+    method public void setLnbs(@Nullable android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.Lnbs);
+    method public void setTimeFilters(@Nullable android.media.tuner.testing.configuration.V1_0.HardwareConfiguration.TimeFilters);
+  }
+
+  public static class HardwareConfiguration.Descramblers {
+    ctor public HardwareConfiguration.Descramblers();
+    method @Nullable public java.util.List<android.media.tuner.testing.configuration.V1_0.Descrambler> getDescrambler();
+  }
+
+  public static class HardwareConfiguration.DiseqcMessages {
+    ctor public HardwareConfiguration.DiseqcMessages();
+    method @Nullable public java.util.List<android.media.tuner.testing.configuration.V1_0.DiseqcMessage> getDiseqcMessage();
+  }
+
+  public static class HardwareConfiguration.Dvrs {
+    ctor public HardwareConfiguration.Dvrs();
+    method @Nullable public java.util.List<android.media.tuner.testing.configuration.V1_0.Dvr> getDvr();
+  }
+
+  public static class HardwareConfiguration.Filters {
+    ctor public HardwareConfiguration.Filters();
+    method @Nullable public java.util.List<android.media.tuner.testing.configuration.V1_0.Filter> getFilter();
+  }
+
+  public static class HardwareConfiguration.Frontends {
+    ctor public HardwareConfiguration.Frontends();
+    method @Nullable public java.util.List<android.media.tuner.testing.configuration.V1_0.Frontend> getFrontend();
+  }
+
+  public static class HardwareConfiguration.Lnbs {
+    ctor public HardwareConfiguration.Lnbs();
+    method @Nullable public java.util.List<android.media.tuner.testing.configuration.V1_0.Lnb> getLnb();
+  }
+
+  public static class HardwareConfiguration.TimeFilters {
+    ctor public HardwareConfiguration.TimeFilters();
+    method @Nullable public java.util.List<android.media.tuner.testing.configuration.V1_0.TimeFilter> getTimeFilter();
+  }
+
+  public class IpAddress {
+    ctor public IpAddress();
+    method @Nullable public java.util.List<java.lang.Short> getIp();
+    method @Nullable public boolean getIsIpV4();
+    method public void setIp(@Nullable java.util.List<java.lang.Short>);
+    method public void setIsIpV4(@Nullable boolean);
+  }
+
+  public class IpFilterConfig {
+    ctor public IpFilterConfig();
+    method @Nullable public boolean getDataPassthrough();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.IpAddress getDestIpAddress();
+    method @Nullable public long getDestPort();
+    method @Nullable public java.math.BigInteger getIpCid();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.IpAddress getSrcIpAddress();
+    method @Nullable public long getSrcPort();
+    method public void setDataPassthrough(@Nullable boolean);
+    method public void setDestIpAddress(@Nullable android.media.tuner.testing.configuration.V1_0.IpAddress);
+    method public void setDestPort(@Nullable long);
+    method public void setIpCid(@Nullable java.math.BigInteger);
+    method public void setSrcIpAddress(@Nullable android.media.tuner.testing.configuration.V1_0.IpAddress);
+    method public void setSrcPort(@Nullable long);
+  }
+
+  public class IsdbsFrontendSettings {
+    ctor public IsdbsFrontendSettings();
+    method @Nullable public java.math.BigInteger getCoderate();
+    method @Nullable public java.math.BigInteger getModulation();
+    method @Nullable public java.math.BigInteger getRolloff();
+    method @Nullable public java.math.BigInteger getStreamId();
+    method @Nullable public java.math.BigInteger getStreamIdType();
+    method @Nullable public java.math.BigInteger getSymbolRate();
+    method public void setCoderate(@Nullable java.math.BigInteger);
+    method public void setModulation(@Nullable java.math.BigInteger);
+    method public void setRolloff(@Nullable java.math.BigInteger);
+    method public void setStreamId(@Nullable java.math.BigInteger);
+    method public void setStreamIdType(@Nullable java.math.BigInteger);
+    method public void setSymbolRate(@Nullable java.math.BigInteger);
+  }
+
+  public class IsdbtFrontendSettings {
+    ctor public IsdbtFrontendSettings();
+    method @Nullable public java.math.BigInteger getBandwidth();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.FrontendIsdbtLayerSettings getFrontendIsdbtLayerSettings();
+    method @Nullable public java.math.BigInteger getGuardInterval();
+    method @Nullable public java.math.BigInteger getInversion();
+    method @Nullable public java.math.BigInteger getMode();
+    method @Nullable public java.math.BigInteger getPartialReceptionFlag();
+    method @Nullable public java.math.BigInteger getServiceAreaId();
+    method public void setBandwidth(@Nullable java.math.BigInteger);
+    method public void setFrontendIsdbtLayerSettings(@Nullable android.media.tuner.testing.configuration.V1_0.FrontendIsdbtLayerSettings);
+    method public void setGuardInterval(@Nullable java.math.BigInteger);
+    method public void setInversion(@Nullable java.math.BigInteger);
+    method public void setMode(@Nullable java.math.BigInteger);
+    method public void setPartialReceptionFlag(@Nullable java.math.BigInteger);
+    method public void setServiceAreaId(@Nullable java.math.BigInteger);
+  }
+
+  public class Lnb {
+    ctor public Lnb();
+    method @Nullable public String getId();
+    method @Nullable public String getName();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.LnbPositionEnum getPosition();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.LnbToneEnum getTone();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum getVoltage();
+    method public void setId(@Nullable String);
+    method public void setName(@Nullable String);
+    method public void setPosition(@Nullable android.media.tuner.testing.configuration.V1_0.LnbPositionEnum);
+    method public void setTone(@Nullable android.media.tuner.testing.configuration.V1_0.LnbToneEnum);
+    method public void setVoltage(@Nullable android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum);
+  }
+
+  public enum LnbPositionEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbPositionEnum POSITION_A;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbPositionEnum POSITION_B;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbPositionEnum UNDEFINED;
+  }
+
+  public enum LnbToneEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbToneEnum CONTINUOUS;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbToneEnum NONE;
+  }
+
+  public enum LnbVoltageEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum NONE;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum VOLTAGE_11V;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum VOLTAGE_12V;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum VOLTAGE_13V;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum VOLTAGE_14V;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum VOLTAGE_15V;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum VOLTAGE_18V;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum VOLTAGE_19V;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.LnbVoltageEnum VOLTAGE_5V;
+  }
+
+  public class OptionalFilter {
+    ctor public OptionalFilter();
+    method @Nullable public String getFilterId();
+    method public void setFilterId(@Nullable String);
+  }
+
+  public class RecordFilterSettings {
+    ctor public RecordFilterSettings();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.ScIndexTypeEnum getScIndexType();
+    method @Nullable public java.math.BigInteger getTsIndexMask();
+    method public void setScIndexType(@Nullable android.media.tuner.testing.configuration.V1_0.ScIndexTypeEnum);
+    method public void setTsIndexMask(@Nullable java.math.BigInteger);
+  }
+
+  public enum ScIndexTypeEnum {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.ScIndexTypeEnum NONE;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.ScIndexTypeEnum SC;
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.ScIndexTypeEnum SC_HEVC;
+  }
+
+  public class SectionFilterSettings {
+    ctor public SectionFilterSettings();
+    method @Nullable public java.math.BigInteger getBitWidthOfLengthField();
+    method @Nullable public boolean getIsCheckCrc();
+    method @Nullable public boolean getIsRaw();
+    method @Nullable public boolean getIsRepeat();
+    method public void setBitWidthOfLengthField(@Nullable java.math.BigInteger);
+    method public void setIsCheckCrc(@Nullable boolean);
+    method public void setIsRaw(@Nullable boolean);
+    method public void setIsRepeat(@Nullable boolean);
+  }
+
+  public class TimeFilter {
+    ctor public TimeFilter();
+    method @Nullable public String getId();
+    method @Nullable public java.math.BigInteger getTimeStamp();
+    method public void setId(@Nullable String);
+    method public void setTimeStamp(@Nullable java.math.BigInteger);
+  }
+
+  public class TunerConfiguration {
+    ctor public TunerConfiguration();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration getDataFlowConfiguration();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.HardwareConfiguration getHardwareConfiguration();
+    method @Nullable public android.media.tuner.testing.configuration.V1_0.Version getVersion();
+    method public void setDataFlowConfiguration(@Nullable android.media.tuner.testing.configuration.V1_0.DataFlowConfiguration);
+    method public void setHardwareConfiguration(@Nullable android.media.tuner.testing.configuration.V1_0.HardwareConfiguration);
+    method public void setVersion(@Nullable android.media.tuner.testing.configuration.V1_0.Version);
+  }
+
+  public enum Version {
+    method @NonNull public String getRawName();
+    enum_constant public static final android.media.tuner.testing.configuration.V1_0.Version _1_0;
+  }
+
+  public class XmlParser {
+    ctor public XmlParser();
+    method @Nullable public static android.media.tuner.testing.configuration.V1_0.TunerConfiguration read(@NonNull java.io.InputStream) throws javax.xml.datatype.DatatypeConfigurationException, java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method @Nullable public static String readText(@NonNull org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static void skip(@NonNull org.xmlpull.v1.XmlPullParser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+  }
+
+}
+

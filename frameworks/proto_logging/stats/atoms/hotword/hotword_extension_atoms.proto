@@ -1,0 +1,62 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.hotword;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/hotword/enums.proto";
+
+option java_package = "com.android.os.hotword";
+option java_multiple_files = true;
+
+extend Atom {
+  optional HotwordEventEgressSize hotword_egress_size_atom_reported = 761 [(module) = "framework"];
+}
+
+/**
+ * Logs data size for events egressed from hotword detection service to default assistant.
+ */
+message HotwordEventEgressSize {
+  // Type of event being egressed.
+  enum HotwordEventType {
+    // Represents an unspecified event.
+    HOTWORD_EVENT_UNSPECIFIED = 0;
+
+    // Represents a hotword detection event.
+    HOTWORD_DETECTION = 1;
+
+    // Represents a hotword rejection event.
+    HOTWORD_REJECTION = 2;
+
+    // Represents a hotword training data event.
+    HOTWORD_TRAINING_DATA = 3;
+  }
+
+  // Event that was egressed.
+  optional HotwordEventType event_type = 1;
+
+  // Size of the event that was egressed in bytes.
+  optional int64 event_size_bytes = 2;
+
+  // The type of detector.
+  optional android.hotword.HotwordDetectorType detector_type = 3;
+
+  // The UID for which the assistant application is active.
+  optional int32 uid = 4 [(is_uid) = true];
+}

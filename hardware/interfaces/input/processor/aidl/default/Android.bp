@@ -1,0 +1,82 @@
+package {
+    default_team: "trendy_team_input_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_library_static {
+    name: "libinputprocessorexampleimpl",
+    vendor: true,
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+        "libutils",
+        "android.hardware.input.common-V1-ndk",
+        "android.hardware.input.processor-V1-ndk",
+    ],
+    export_include_dirs: ["include"],
+    srcs: [
+        "InputProcessor.cpp",
+    ],
+    visibility: [
+        ":__subpackages__",
+        "//hardware/interfaces/tests/extension/input/processor:__subpackages__",
+    ],
+}
+
+prebuilt_etc {
+    name: "android.hardware.input.processor.xml",
+    src: "android.hardware.input.processor.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "inputprocessor-default.rc",
+    src: "inputprocessor-default.rc",
+    installable: false,
+}
+
+cc_binary {
+    name: "android.hardware.input.processor-service.example",
+    relative_install_path: "hw",
+    vendor: true,
+    installable: false, // installed in APEX
+
+    stl: "c++_static",
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+    static_libs: [
+        "android.hardware.input.common-V1-ndk",
+        "android.hardware.input.processor-V1-ndk",
+        "libbase",
+        "libinputprocessorexampleimpl",
+        "libutils",
+    ],
+    srcs: ["main.cpp"],
+}
+
+apex {
+    name: "com.android.hardware.input.processor",
+    file_contexts: "apex_file_contexts",
+    manifest: "apex_manifest.json",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    updatable: false,
+    vendor: true,
+
+    binaries: [
+        "android.hardware.input.processor-service.example",
+    ],
+    prebuilts: [
+        "android.hardware.input.processor.xml",
+        "inputprocessor-default.rc",
+    ],
+}

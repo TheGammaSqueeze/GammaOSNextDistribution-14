@@ -1,0 +1,67 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+cc_library_shared {
+    name: "libpowermanager",
+    defaults: ["android.hardware.power-ndk_export_shared"],
+    srcs: [
+        "BatterySaverPolicyConfig.cpp",
+        "CoolingDevice.cpp",
+        "ParcelDuration.cpp",
+        "PowerHalController.cpp",
+        "PowerHalLoader.cpp",
+        "PowerHalWrapper.cpp",
+        "PowerSaveState.cpp",
+        "Temperature.cpp",
+        "WorkDuration.cpp",
+        "WorkSource.cpp",
+        ":libpowermanager_aidl",
+    ],
+
+    aidl: {
+        local_include_dirs: ["include"],
+        include_dirs: [
+            "frameworks/base/core/java/android/os",
+        ],
+        export_aidl_headers: true,
+    },
+
+    shared_libs: [
+        "libbinder",
+        "libbinder_ndk",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "android.hardware.power@1.0",
+        "android.hardware.power@1.1",
+        "android.hardware.power@1.2",
+        "android.hardware.power@1.3",
+        "vendor.samsung.hardware.miscpower@2.0",
+    ],
+
+    export_shared_lib_headers: [
+        "android.hardware.power@1.0",
+        "android.hardware.power@1.1",
+        "android.hardware.power@1.2",
+        "android.hardware.power@1.3",
+        "vendor.samsung.hardware.miscpower@2.0",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wunused",
+        "-Wunreachable-code",
+    ],
+
+    local_include_dirs: ["include"],
+    export_include_dirs: [
+        "include",
+    ],
+}

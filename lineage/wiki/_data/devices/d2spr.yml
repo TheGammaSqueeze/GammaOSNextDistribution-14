@@ -1,0 +1,40 @@
+architecture: arm
+battery: {capacity: 2100, removable: False, tech: 'Li-Ion'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: 'LED', info: '8 MP'}
+  - {flash: None, info: '1.9 MP'}
+carrier: Sprint
+codename: d2spr
+cpu: Krait
+cpu_cores: '2'
+cpu_freq: 1.5 GHz
+current_branch: 14.1
+dimensions: None
+download_boot: With the device powered off, hold <kbd>Home</kbd> + <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+gpu: Qualcomm Adreno 225
+image: i9300.png
+install_method: heimdall
+kernel: {repo: android_kernel_samsung_d2, version: '3.4'}
+maintainers: []
+models: [SPH-L710]
+name: Galaxy S III (Sprint)
+network: [2G GSM, 3G UMTS, 4G LTE]
+no_oem_unlock_switch: true
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Gyroscope, Light sensor, NFC, Proximity sensor]
+quirks: [ims]
+ram: 2 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Home</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+release: 2012-06-28
+screen: {resolution: '1280x720', size: 4.8, technology: 'Super AMOLED'}
+sdcard: {size_max: '64 GB'}
+soc: Qualcomm MSM8960 Snapdragon S4 Plus
+storage: 16 GB
+tree: android_device_samsung_d2spr
+type: phone
+uses_twrp: true
+vendor: Samsung
+vendor_short: samsung
+versions: [14.1]
+wifi: 802.11 b/g/n

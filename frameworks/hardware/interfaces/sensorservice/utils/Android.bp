@@ -1,0 +1,31 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_static {
+    name: "libsensorndkutils",
+    srcs: [
+        "direct_channel_buffer_reader.cc",
+    ],
+    cflags: ["-Wall", "-Werror"],
+    shared_libs: [
+        "libbase",
+    ],
+    header_libs: [
+        "libhardware_headers",
+    ],
+    host_supported: true,
+}
+
+cc_test {
+    name: "libsensorndkutils_test",
+    srcs: ["direct_channel_buffer_reader_test.cc"],
+    shared_libs: [
+        "libbase",
+    ],
+    static_libs: [
+        "libgtest",
+        "libsensorndkutils",
+    ],
+    host_supported: true,
+}

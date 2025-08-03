@@ -1,0 +1,53 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "android.frameworks.cameraservice.service",
+    vendor_available: true,
+    srcs: ["android/frameworks/cameraservice/service/*.aidl"],
+    stability: "vintf",
+    imports: [
+        "android.frameworks.cameraservice.common-V1",
+        "android.frameworks.cameraservice.device-V2",
+    ],
+    frozen: true,
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        rust: {
+            enabled: false,
+        },
+        java: {
+            enabled: false,
+        },
+        ndk: {
+            additional_shared_libraries: [
+                "libnativewindow",
+            ],
+            vndk: {
+                enabled: true,
+            },
+        },
+    },
+    vndk_use_version: "2",
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [
+                "android.frameworks.cameraservice.common-V1",
+                "android.frameworks.cameraservice.device-V1",
+            ],
+        },
+        {
+            version: "2",
+            imports: [
+                "android.frameworks.cameraservice.common-V1",
+                "android.frameworks.cameraservice.device-V2",
+            ],
+        },
+
+    ],
+
+}

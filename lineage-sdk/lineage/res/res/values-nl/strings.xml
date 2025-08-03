@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015 The CyanogenMod Project
+                   2017-2023 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lineageos_system_label">LineageOS-systeem</string>
+    <string name="permlab_modifyProfiles">systeemprofielen wijzigen</string>
+    <string name="permdesc_modifyProfiles">Hiermee kan de app systeemprofielen wijzigen.</string>
+    <string name="permlab_useHardwareFramework">hardware-framework gebruiken</string>
+    <string name="permdesc_useHardwareFramework">Hiermee kan de app toegang krijgen tot het hardware-framework van Lineage.</string>
+    <string name="permlab_writeSettings">Lineage-systeeminstellingen wijzigen</string>
+    <string name="permdesc_writeSettings">Staat een app toe de systeeminstellingen van Lineage te wijzigen.</string>
+    <string name="permlab_writeSecureSettings">beveiligde Lineage-systeeminstellingen wijzigen</string>
+    <string name="permdesc_writeSecureSettings">Hiermee kan de app de beveiligde systeeminstellingen van Lineage wijzigen. Niet voor gebruik door normale apps.</string>
+    <string name="profileNameDefault">Standaard</string>
+    <string name="profileNameWork">Werk</string>
+    <string name="profileNameHome">Thuis</string>
+    <string name="profileNameSilent">Stil</string>
+    <string name="profileNameNight">Nacht</string>
+    <string name="profileNameAutomobile">Onderweg</string>
+    <string name="profileGroupPhone">Telefoon</string>
+    <string name="profileGroupCalendar">Agenda</string>
+    <string name="profileGroupGmail">Gmail</string>
+    <string name="profileGroupEmail">E-mail</string>
+    <string name="profileGroupSMS">Sms</string>
+    <string name="wildcardProfile">Anders</string>
+    <string name="live_display_auto">Automatisch</string>
+    <string name="live_display_auto_summary">Automatisch kleurtemperatuur van scherm aanpassen na zonsopkomst en -ondergang</string>
+    <string name="live_display_off">Uit</string>
+    <string name="live_display_off_summary">Alle aanpassingen uitschakelen</string>
+    <string name="live_display_day">Overdag</string>
+    <string name="live_display_day_summary">Alleen instellingen voor overdag gebruiken</string>
+    <string name="live_display_night">Nacht</string>
+    <string name="live_display_night_summary">Alleen instellingen voor \'s nachts gebruiken</string>
+    <string name="live_display_outdoor">Buitenshuis (felle zon)</string>
+    <string name="live_display_outdoor_summary">Alleen instellingen voor buitenshuis gebruiken</string>
+    <string name="live_display_hint">LiveDisplay kan oogvermoeidheid verminderen en helpt u om \'s nachts te slapen. Tik hier om het uit te proberen!</string>
+    <string name="accessibility_quick_settings_live_display_off">LiveDisplay uit.</string>
+    <string name="accessibility_quick_settings_live_display_auto">LiveDisplay: automatisch.</string>
+    <string name="accessibility_quick_settings_live_display_day">LiveDisplay: dagstand.</string>
+    <string name="accessibility_quick_settings_live_display_night">LiveDisplay: nachtstand.</string>
+    <string name="accessibility_quick_settings_live_display_outdoor">LiveDisplay: buitenstand.</string>
+    <string name="accessibility_quick_settings_live_display_changed_off">LiveDisplay uitgeschakeld.</string>
+    <string name="accessibility_quick_settings_live_display_changed_auto">LiveDisplay gewijzigd naar automatisch.</string>
+    <string name="accessibility_quick_settings_live_display_changed_day">LiveDisplay gewijzigd naar dagstand.</string>
+    <string name="accessibility_quick_settings_live_display_changed_night">LiveDisplay gewijzigd naar nachtstand.</string>
+    <string name="accessibility_quick_settings_live_display_changed_outdoor">LiveDisplay gewijzigd naar buitenstand.</string>
+    <string name="permlab_manageLiveDisplay">LiveDisplay-instellingen beheren</string>
+    <string name="permdesc_manageLiveDisplay">Hiermee kan de app geavanceerde beeldscherminstellingen wijzigen.</string>
+    <string name="permlab_manageRemotePrefs">instellingen voor beheer op afstand</string>
+    <string name="permdesc_manageRemotePrefs">Hiermee kan de app instellingen voor beheer op afstand beheren</string>
+    <string name="build_date">Build-datum</string>
+    <string name="lineage_api_level">Niveau van LineageOS-API</string>
+    <string name="lineage_updates">LineageOS-updates</string>
+    <string name="lineage_version">LineageOS-versie</string>
+    <string name="lineage_vendor_security_patch">Niveau van leveranciers-beveiligingspatch</string>
+    <string name="unknown">Onbekend</string>
+    <string name="app_killed_message">App afgesloten</string>
+    <string name="kilobitspersecond_short">kb/s</string>
+    <string name="megabitspersecond_short">Mb/s</string>
+    <string name="kilobytespersecond_short">kB/s</string>
+    <string name="megabytespersecond_short">MB/s</string>
+    <string name="kilobytespersecond_compact">k</string>
+    <string name="megabytespersecond_compact">M</string>
+    <string name="trust_feature_name">Trust</string>
+    <string name="permlab_trustInterface">toegang tot Trust-interface</string>
+    <string name="permdesc_trustInterface">Staat een app toe waarschuwingen en suggesties van Trust weer te geven</string>
+    <string name="trust_notification_channel">Trust-waarschuwingen</string>
+    <string name="trust_notification_title_security">Trust \u2022 Systeembeveiliging</string>
+    <string name="trust_notification_content_selinux">SELinux staat niet in \"enforcing\", je beveiliging is verzwakt</string>
+    <string name="trust_notification_content_keys">Deze build is ondertekend met openbare sleutels</string>
+    <string name="trust_notification_title_onboarding">Ontdek Trust</string>
+    <string name="trust_notification_content_onboarding">Leer hoe u de veiligheid van uw apparaat kunt garanderen</string>
+    <string name="trust_notification_action_manage">Beheer waarschuwingen</string>
+    <string name="charging_control_notification_channel">Oplaadcontrole</string>
+    <string name="charging_control_notification_title">Oplaadcontrole</string>
+    <string name="charging_control_notification_cancel_once">Annuleer</string>
+    <string name="charging_control_notification_content_limit">Batterij wordt tot %1$d%% opgeladen</string>
+    <string name="charging_control_notification_content_limit_reached">Batterij is opgeladen tot %1$d%%</string>
+    <string name="charging_control_notification_content_target">Batterij zal volledig opgeladen worden op %1$s</string>
+    <string name="charging_control_notification_content_target_reached">Batterij is opgeladen</string>
+</resources>

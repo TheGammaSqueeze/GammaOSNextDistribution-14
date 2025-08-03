@@ -1,0 +1,143 @@
+package {
+    default_applicable_licenses: [
+        "frameworks_av_media_libstagefright_rtsp_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_libstagefright_rtsp_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "libstagefright_rtsp_defaults",
+
+    srcs: [
+        "AAMRAssembler.cpp",
+        "AAVCAssembler.cpp",
+        "AHEVCAssembler.cpp",
+        "AH263Assembler.cpp",
+        "AMPEG2TSAssembler.cpp",
+        "AMPEG4AudioAssembler.cpp",
+        "AMPEG4ElementaryAssembler.cpp",
+        "APacketSource.cpp",
+        "ARawAudioAssembler.cpp",
+        "ARTPAssembler.cpp",
+        "ARTPConnection.cpp",
+        "ARTPSource.cpp",
+        "ARTPWriter.cpp",
+        "ARTSPConnection.cpp",
+        "ASessionDescription.cpp",
+        "JitterCalculator.cpp",
+        "SDPLoader.cpp",
+    ],
+
+    shared_libs: [
+        "libandroid_net",
+        "libcrypto",
+        "libdatasource",
+        "libmedia",
+    ],
+
+    header_libs: [
+        "libstagefright_headers",
+        "libstagefright_rtsp_headers",
+    ],
+
+    arch: {
+        arm: {
+            cflags: ["-Wno-psabi"],
+        },
+    },
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    sanitize: {
+        misc_undefined: [
+            "signed-integer-overflow",
+            "unsigned-integer-overflow",
+        ],
+        cfi: true,
+    },
+}
+
+cc_library_headers {
+    name: "libstagefright_rtsp_headers",
+    export_include_dirs: ["include"],
+    vendor_available: true,
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_library_static {
+    name: "libstagefright_rtsp",
+
+    srcs: ["NetworkUtils.cpp"],
+    header_libs: ["libnetd_client_headers"],
+    defaults: ["libstagefright_rtsp_defaults"],
+}
+
+cc_library_static {
+    name: "libstagefright_rtsp_player2",
+
+    srcs: ["NetworkUtilsForAppProc.cpp"],
+    defaults: ["libstagefright_rtsp_defaults"],
+}
+
+//###############################################################################
+
+// 2022-01-13: this is stale; it's been disabled for 5 years.
+// test references UDPPusher and ARTPSession, neither of which is built into
+// libstagefright_rtsp
+//
+cc_test {
+    name: "rtp_test",
+    gtest: false,
+    enabled: false,
+
+    srcs: ["rtp_test.cpp"],
+
+    shared_libs: [
+        "libstagefright",
+        "liblog",
+        "libutils",
+        "libbinder",
+        "libstagefright_foundation",
+        "libmedia",
+    ],
+
+    static_libs: ["libstagefright_rtsp"],
+
+    header_libs: [
+        "libstagefright_headers",
+        "libstagefright_rtsp_headers",
+    ],
+
+    cflags: [
+        "-Wno-multichar",
+        "-Werror",
+        "-Wall",
+    ],
+
+    sanitize: {
+        misc_undefined: [
+            "signed-integer-overflow",
+        ],
+        cfi: true,
+    },
+}

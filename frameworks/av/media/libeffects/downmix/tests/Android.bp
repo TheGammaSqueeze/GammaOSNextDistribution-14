@@ -1,0 +1,73 @@
+// Build testbench for downmix module.
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_media_libeffects_downmix_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: [
+        "frameworks_av_media_libeffects_downmix_license",
+    ],
+}
+
+// This is a gtest unit test.
+//
+// Use "atest downmix_tests" to run.
+cc_test {
+    name: "downmix_tests",
+    gtest: true,
+    host_supported: true,
+    vendor: true,
+    header_libs: [
+        "libaudioeffects",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libaudioutils",
+        "libdownmix",
+    ],
+    srcs: [
+        "downmix_tests.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+// This is a test application which generates downmixed files for regression
+// analysis.
+//
+// See build_and_run_all_unit_tests.sh for a test script that uses this
+// test application and outputs then compares files in a local directory
+// on device (/data/local/tmp/downmixtest/).
+cc_test {
+    name: "downmixtest",
+    host_supported: false,
+    proprietary: true,
+
+    header_libs: [
+        "libaudioeffects",
+    ],
+
+    shared_libs: [
+        "libaudioutils",
+        "libdownmix",
+        "liblog",
+    ],
+
+    relative_install_path: "soundfx",
+
+    srcs: [
+        "downmixtest.cpp",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wextra",
+    ],
+}

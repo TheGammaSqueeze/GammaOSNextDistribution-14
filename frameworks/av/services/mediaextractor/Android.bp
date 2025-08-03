@@ -1,0 +1,113 @@
+// service library
+package {
+    default_applicable_licenses: [
+        "frameworks_av_services_mediaextractor_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_services_mediaextractor_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library_shared {
+    name: "libmediaextractorservice",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    srcs: ["MediaExtractorService.cpp"],
+
+    shared_libs: [
+        "libdatasource",
+        "libmedia",
+        "libstagefright",
+        "libstagefright_foundation",
+        "libbinder",
+        "libutils",
+        "liblog",
+    ],
+    header_libs: [
+        "libmediametrics_headers",
+    ],
+}
+
+// service executable
+cc_binary {
+    name: "mediaextractor",
+
+    srcs: ["main_extractorservice.cpp"],
+    shared_libs: [
+        "libmedia",
+        "libmediaextractorservice",
+        "libmediautils",
+        "libbinder",
+        "libutils",
+        "liblog",
+        "libavservices_minijail",
+    ],
+    init_rc: ["mediaextractor.rc"],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    required: ["mediaextractor.policy"],
+}
+
+prebuilt_etc {
+    name: "mediaextractor.policy",
+    sub_dir: "seccomp_policy",
+    arch: {
+        arm: {
+            src: "seccomp_policy/mediaextractor-arm.policy",
+        },
+        arm64: {
+            src: "seccomp_policy/mediaextractor-arm64.policy",
+        },
+        riscv64: {
+            src: "seccomp_policy/mediaextractor-riscv64.policy",
+        },
+        x86: {
+            src: "seccomp_policy/mediaextractor-x86.policy",
+        },
+        x86_64: {
+            src: "seccomp_policy/mediaextractor-x86_64.policy",
+        },
+    },
+    required: [
+        "crash_dump.policy",
+        "code_coverage.policy",
+    ],
+}
+
+cc_fuzz {
+    name: "mediaextractor_service_fuzzer",
+    shared_libs: [
+        "libmedia",
+        "libmediaextractorservice",
+        "libmediautils",
+        "liblog",
+        "libavservices_minijail",
+    ],
+    defaults: [
+        "service_fuzzer_defaults",
+        "fuzzer_disable_leaks",
+    ],
+    srcs: ["fuzzers/MediaExtractorServiceFuzzer.cpp"],
+    fuzz_config: {
+        cc: [
+            "android-media-playback+bugs@google.com",
+        ],
+        triage_assignee: "waghpawan@google.com",
+    },
+}

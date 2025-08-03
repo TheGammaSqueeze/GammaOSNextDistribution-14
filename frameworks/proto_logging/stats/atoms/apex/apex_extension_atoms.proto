@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// This file contains extension atoms for apex and vendor apex installation events.
+
+syntax = "proto2";
+
+package android.os.statsd.apex;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/enums/apex/enums.proto";
+
+option java_package = "com.android.os.apex";
+
+extend Atom {
+    optional ApexInstallationRequested apex_installation_requested = 732 [(module) = "apex"];
+    optional ApexInstallationStaged apex_installation_staged = 733 [(module) = "apex"];
+    optional ApexInstallationEnded apex_installation_ended = 734 [(module) = "apex"];
+}
+
+/**
+ * APEXs can installed by either Google or OEMs. These atoms capture basic
+ * metadata of APEXs being installed on a device.
+ *
+ * Logs when an apex installation is started, staged, and ended.
+ * Pushed from:
+ *    system/apex/apexd/apexd.cpp
+ */
+
+message ApexInstallationRequested {
+    // Module in the APEX
+    optional string module_name = 1;
+    // The version code of the APEX
+    optional int64 version_code = 2;
+    // Byte size of the APEX file
+    optional int64 package_size_bytes = 3;
+    // The hex encoded SHA256 digest of the APEX file
+    optional string file_hash = 4;
+    // Lets us determine if apex is a vendor apex
+    optional android.apex.PreinstallPartition apex_preinstall_partition = 5;
+    // Was a Staged or a Rebootless install requested
+    optional android.apex.InstallationType installation_type = 6;
+    // Is this request a rollback?
+    optional bool request_is_rollback = 7;
+    // Apex's FileInfo's Manifest provides these data points
+    optional bool provides_shared_apex_libs = 8;
+    // HAL's provided by this apex
+    repeated string provided_hals = 9;
+}
+
+message ApexInstallationStaged {
+    optional string file_hash = 1;
+}
+
+message ApexInstallationEnded {
+    optional string file_hash = 1;
+    optional android.apex.InstallResultType installation_result = 2;
+}

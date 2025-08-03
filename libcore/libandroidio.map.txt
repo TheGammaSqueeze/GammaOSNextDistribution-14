@@ -1,0 +1,11 @@
+LIBANDROIDIO_1 {
+  global:
+    async_close_monitor_create; # apex
+    async_close_monitor_destroy; # apex
+    async_close_monitor_signal_blocked_threads; # apex
+    async_close_monitor_static_init; # apex
+    async_close_monitor_was_signalled; # apex
+
+  local:
+    *;
+};

@@ -1,0 +1,2 @@
+/vendor/bin/ramdump                       u:object_r:ramdump_exec:s0
+/vendor/bin/ramdump32                     u:object_r:ramdump_exec:s0

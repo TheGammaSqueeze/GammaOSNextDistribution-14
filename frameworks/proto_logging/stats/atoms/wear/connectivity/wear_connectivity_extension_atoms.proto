@@ -1,0 +1,100 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.wear.connectivity;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/wear/connectivity/enums.proto";
+
+option java_package = "com.android.os.wear.connectivity";
+option java_multiple_files = true;
+
+extend Atom {
+  optional MediatorUpdated mediator_updated = 721 [(module) = "wearconnectivity"];
+  optional SysproxyBluetoothBytesTransfer sysproxy_bluetooth_bytes_transfer = 10196
+      [(module) = "wearconnectivity"];
+  optional SysproxyConnectionUpdated sysproxy_connection_updated = 786
+      [(module) = "wearconnectivity"];
+}
+
+/**
+ * Logged whenever WearXMediator changes status, for example ON -> OFF.
+ *
+ * Logged from package:
+ * frameworks/opt/wear/src/com/android/clockwork/connectivity
+ */
+message MediatorUpdated {
+  // e.g. Bluetooth, Wifi, Wifi Scan, Cellular Radio, Cellular Data
+  optional com.google.android.wearable.connectivity.MediatorType mediatorType = 1;
+
+  // The mediator action taken. e.g. ON/OFF
+  optional com.google.android.wearable.connectivity.MediatorAction action = 2;
+
+  // The reason of mediator state change
+  optional com.google.android.wearable.connectivity.Reason reason = 3;
+
+  // The event that triggers mediator state change
+  optional com.google.android.wearable.connectivity.TriggerEvent triggerEvent = 4;
+
+  // Timestamp of the event log time in ElapsedRealtime
+  optional int64 timestamp_millis = 5;
+}
+
+/**
+ * Pulls bytes transferred via Sysproxy. Each pull produces atoms that record stats of all processes
+ * that used sysproxy since device boot. Sysproxy is a process that runs on Wear OS and that enables
+ * internet access via Bluetooth when the companion phone is connected to the watch.
+ */
+message SysproxyBluetoothBytesTransfer {
+  // UID of a process that had some bytes received or transmitted via sysproxy.
+  // UID is set to -1 if it impossible to identify which process the bytes should be attributed to.
+  optional int32 uid = 1 [(is_uid) = true];
+
+  // Number of bytes received since device boot.
+  optional int64 rx_bytes = 2;
+
+  // Number of bytes transmitted since device boot.
+  optional int64 tx_bytes = 3;
+}
+
+/**
+ * Captures Sysproxy connection updates, such as CONNECT and DISCONNECT. Also captures
+ * additional information to understand why the connection update happened.
+ */
+message SysproxyConnectionUpdated {
+  // The sysproxy connection action taken. e.g. CONNECTED/DISCONNECTED
+  optional com.google.android.wearable.connectivity.SysproxyConnectionAction action = 1;
+
+  // Reason for change. e.g. ACL CONNECT/DISCONNECT, BLUETOOTH_RADIO_OFF, etc.
+  optional com.google.android.wearable.connectivity.SysproxyConnectionChangeReason reason = 2;
+
+  // Timestamp of the event log time in ElapsedRealtime
+  optional int64 timestamp_millis = 3;
+
+  // bluetooth connection states. eg. ACL_CONNECT, ACL_DISCONNECT. Max size is 3.
+  repeated com.google.android.wearable.connectivity.BluetoothConnectionChange bluetooth_connection_change = 4;
+
+  // timestamp of bluetooth connection change in ElapsedRealtime. Order matches order of
+  // bluetooth_connection_change. Max size is 3. This is to keep track of when
+  // WearConnectivityService receives the Bluetooth connection change broadcast.
+  repeated int64 bluetooth_connection_change_timestamp_millis = 5;
+
+  // timestamp when reason was determined
+  optional int64 reason_timestamp_millis = 6;
+}

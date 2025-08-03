@@ -1,0 +1,37 @@
+architecture: arm64
+battery: {capacity: 3300, removable: False, tech: 'Li-Po'}
+before_install: {instructions: 'needs_specific_android_fw', ships_fw: True, version: '10'}
+bluetooth: {profiles: [A2DP + aptX HD], spec: '5'}
+cameras:
+  - {flash: 'LED', info: '20 MP'}
+  - {flash: 'LED', info: '16 MP'}
+  - {flash: None, info: '16 MP'}
+codename: cheeseburger
+cpu: Kryo 280
+cpu_cores: '8'
+cpu_freq: 4 x 2.45 GHz + 4 x 1.9 GHz
+current_branch: 22.2
+dimensions: {depth: 7.25, height: 154.2, width: 74.1}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+gpu: Qualcomm Adreno 540
+image: cheeseburger.png
+install_method: fastboot_nexus
+kernel: {repo: android_kernel_oneplus_msm8998, version: '4.4'}
+maintainers: [qsnc]
+name: '5'
+network: [2G GSM, 2G CDMA, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Dual SIM, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, Gyroscope, Hall effect sensor, Light sensor, NFC, Proximity sensor, USB OTG]
+ram: 6/8 GB LPDDR4X
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+recovery_reboot: fastboot_menu
+release: 2017-06
+screen: {resolution: '1080x1920', size: 5.5, technology: 'Optic AMOLED'}
+soc: Qualcomm MSM8998 Snapdragon 835
+storage: 64/128 GB UFS 2.1 2-LANE
+tree: android_device_oneplus_cheeseburger
+type: phone
+vendor: OnePlus
+vendor_short: oneplus
+versions: [14.1, 15.1, 16.0, 17.1, 18.1, 19.1, 20, 21, 22.1, 22.2]
+wifi: 802.11 a/b/g/n/ac

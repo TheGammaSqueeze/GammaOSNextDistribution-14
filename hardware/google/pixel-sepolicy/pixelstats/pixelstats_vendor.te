@@ -1,0 +1,39 @@
+type pixelstats_vendor, domain;
+
+# IStats
+binder_use(pixelstats_vendor)
+
+type pixelstats_vendor_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(pixelstats_vendor)
+
+# UeventListener
+r_dir_file(pixelstats_vendor, sysfs_batteryinfo)
+allow pixelstats_vendor sysfs_batteryinfo:file w_file_perms;
+allow pixelstats_vendor self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;
+
+allow pixelstats_vendor mnt_vendor_file:dir search;
+allow pixelstats_vendor sysfs_scsi_devices_0000:dir search;
+allow pixelstats_vendor sysfs_scsi_devices_0000:file rw_file_perms;
+allow pixelstats_vendor sysfs_fs_f2fs:dir search;
+allow pixelstats_vendor sysfs_fs_f2fs:file rw_file_perms;
+get_prop(pixelstats_vendor, boottime_public_prop)
+get_prop(pixelstats_vendor, smart_idle_maint_enabled_prop)
+
+allow pixelstats_vendor fwk_stats_service:service_manager find;
+binder_call(pixelstats_vendor, stats_service_server)
+
+allow pixelstats_vendor sysfs_zram:dir search;
+allow pixelstats_vendor sysfs_zram:file r_file_perms;
+allow pixelstats_vendor sysfs_pixel_stat:dir r_dir_perms;
+allow pixelstats_vendor sysfs_pixel_stat:file r_file_perms;
+
+userdebug_or_eng(`
+  allow pixelstats_vendor { proc_pressure_cpu proc_pressure_io proc_pressure_mem }:file r_file_perms;
+  allow pixelstats_vendor proc_vmstat:file r_file_perms;
+  allow pixelstats_vendor sysfs_ion:dir search;
+  allow pixelstats_vendor sysfs_ion:file r_file_perms;
+  allow pixelstats_vendor sysfs_dma_heap:dir search;
+  allow pixelstats_vendor sysfs_dma_heap:file r_file_perms;
+  allow pixelstats_vendor kernel:dir search;
+  allow pixelstats_vendor kernel:file r_file_perms;
+')

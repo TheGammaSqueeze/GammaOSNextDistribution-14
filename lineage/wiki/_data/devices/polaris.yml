@@ -1,0 +1,41 @@
+architecture: arm64
+battery: {capacity: 3400, removable: False, tech: 'Li-Ion'}
+before_install: {instructions: 'needs_specific_android_fw', lineage_version: 19.1}
+before_install_device_variants:
+  - {device: 'Mi MIX 2S China', download_link: 'https://bn.d.miui.com/V12.0.3.0.QDGCNXM/miui_MIMIX2S_V12.0.3.0.QDGCNXM_cd55623678_10.0.zip', firmware: 'V12.0.3.0.QDGCNXM'}
+  - {device: 'Mi MIX 2S Global', download_link: 'https://bn.d.miui.com/V12.0.3.0.QDGMIXM/miui_MIMIX2SGlobal_V12.0.3.0.QDGMIXM_13c81516b3_10.0.zip', firmware: 'V12.0.3.0.QDGMIXM'}
+  - {device: 'Mi MIX 2S Russia', download_link: 'https://bn.d.miui.com/V12.0.2.0.QDGRUXM/miui_MIMIX2SRUGlobal_V12.0.2.0.QDGRUXM_72fc5eefa2_10.0.zip', firmware: 'V12.0.2.0.QDGRUXM'}
+bluetooth: {profiles: [A2DP + aptX HD], spec: '5'}
+cameras:
+  - {flash: 'Dual LED (dual tone)', info: '12 MP'}
+  - {flash: 'Dual LED (dual tone)', info: '12 MP'}
+  - {flash: None, info: '5 MP'}
+codename: polaris
+cpu: Kryo 385
+cpu_cores: '8'
+cpu_freq: 4 x 2.8 GHz + 4 x 1.8 GHz
+current_branch: 22.2
+dimensions: {depth: 8.1, height: 150.9, width: 74.9}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the word "FASTBOOT" appears on the screen, then release.
+firmware_update: firmware_update_xiaomi_sdm845
+gpu: Qualcomm Adreno 630
+image: polaris.png
+install_method: fastboot_xiaomi
+kernel: {repo: android_kernel_xiaomi_sdm845, version: '4.9'}
+maintainers: [bgcngm]
+name: Mi MIX 2S
+network: [2G GSM, 2G CDMA, 3G UMTS, 4G LTE]
+peripherals: [Accelerometer, Compass, Dual SIM, Fingerprint reader, GPS, Gyroscope, Light sensor, NFC, Qi wireless charging, Ultrasound proximity sensor]
+ram: 6/8 GB LPDDR4X
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the "MI" logo appears on the screen, then release.
+recovery_partition_name: recovery
+release: 2018-04
+screen: {resolution: '1080x2160', size: 5.99, technology: 'IPS LCD'}
+soc: Qualcomm SDM845 Snapdragon 845
+storage: 64/128/256 GB UFS2.1
+tree: android_device_xiaomi_polaris
+type: phone
+vendor: Xiaomi
+vendor_short: xiaomi
+versions: [16.0, 17.1, 18.1, 19.1, 20, 21, 22.1, 22.2]
+wifi: 802.11 a/b/g/n/ac

@@ -1,0 +1,2 @@
+# Soft dependencies extracted from modules themselves.
+softdep crc_t10dif pre: crct10dif

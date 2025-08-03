@@ -1,0 +1,46 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.google.android.wearable.modes.telemetry;
+
+// Indicates type of Mode state
+enum ModeState {
+  MODE_STATE_UNKNOWN = 0;
+  MODE_STATE_OFF = 1;
+  MODE_STATE_ON = 2;
+}
+
+// Indicates Mode Id for a specific mode
+enum ModeId {
+  UNKNOWN_MODE = 0;
+  AIRPLANE_MODE = 1;
+  BEDTIME_MODE = 2;
+  BATTERY_SAVER_MODE = 3;
+  DO_NOT_DISTURB_MODE = 4;
+  THEATER_MODE = 5;
+  TOUCH_LOCK_MODE = 6;
+  SCHOOL_MODE = 7;
+  OFF_BODY = 8;
+}
+
+// Indicates Network state as being on or off
+enum NetworkState {
+  UNKNOWN = 0;
+  OFF = 1;
+  ON = 2;
+}

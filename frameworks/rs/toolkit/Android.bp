@@ -1,0 +1,126 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// TODO: In later CLs, this build file will be replaced by a stand alone build that's not part of Android.
+
+cc_binary {
+    name: "renderscripttoolkittest",
+    srcs: [
+        "TestTaskProcessor.cpp"
+    ],
+    shared_libs: [
+         "libbase",
+         "librenderscripttoolkit",
+    ],
+}
+
+cc_library_shared {
+    name: "librenderscripttoolkit",
+    defaults: [],
+    vendor_available: false,
+    native_bridge_supported: false,
+    vndk: {
+        enabled: false,
+        support_system_process: false,
+    },
+
+    srcs: [
+        "Blend.cpp",
+        "Blur.cpp",
+        "ColorMatrix.cpp",
+        "Convolve3x3.cpp",
+        "Convolve5x5.cpp",
+        "Histogram.cpp",
+        "Lut.cpp",
+        "Lut3d.cpp",
+	"RenderScriptToolkit.cpp",
+        "Resize.cpp",
+        "TaskProcessor.cpp",
+        "Utils.cpp",
+        "YuvToRgb.cpp",
+    ],
+
+    static_libs: [ "cpufeatures" ],
+
+    arch: {
+        arm64: {
+            cflags: [
+                "-DARCH_ARM_USE_INTRINSICS",
+                "-DARCH_ARM64_USE_INTRINSICS",
+                "-DARCH_ARM64_HAVE_NEON",
+            ],
+
+            srcs: [
+                "Blend_advsimd.S",
+                "Blur_advsimd.S",
+                "ColorMatrix_advsimd.S",
+                "Convolve_advsimd.S",
+                "Lut3d_advsimd.S",
+                "Resize_advsimd.S",
+                "YuvToRgb_advsimd.S",
+            ],
+        },
+
+        arm: {
+            cflags: [
+                "-DARCH_ARM_HAVE_VFP",
+                "-DARCH_ARM_USE_INTRINSICS",
+            ],
+
+            srcs: [
+                "Blend_neon.S",
+                "Blur_neon.S",
+                "ColorMatrix_neon.S",
+                "Convolve_neon.S",
+                "Lut3d_neon.S",
+                "Resize_neon.S",
+                "YuvToRgb_neon.S",
+            ],
+
+            asflags: ["-mfpu=neon"],
+
+            neon: {
+                cflags: [
+                    "-DARCH_ARM_HAVE_NEON",
+                ],
+            },
+        },
+
+        x86: {
+            cflags: ["-DARCH_X86_HAVE_SSSE3"],
+            srcs: ["x86.cpp"],
+        },
+        x86_64: {
+            cflags: ["-DARCH_X86_HAVE_SSSE3"],
+            srcs: ["x86.cpp"],
+        avx2: {
+                cflags: ["-DARCH_X86_HAVE_AVX2", "-mavx2", "-mfma"],
+            },
+        },
+    },
+
+    shared_libs: [
+        "libbase",
+        "liblog",
+	"libnativehelper",
+	"libjnigraphics",
+    ],
+    header_libs: [
+        // TODO Once we compile in the .cpp files, check if any of these libraries are needed.
+        //"libutils_headers",
+        //"libhardware_headers",
+    ],
+
+    include_dirs: [
+    ],
+
+    cflags: [
+        "-Wthread-safety",
+        "-Werror",
+        "-Wall",
+        "-Wextra",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+    ],
+}

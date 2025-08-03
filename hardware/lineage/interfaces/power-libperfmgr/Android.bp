@@ -1,0 +1,58 @@
+//
+// Copyright (C) 2021 The LineageOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+soong_namespace {
+    imports: [
+        "hardware/google/interfaces",
+        "hardware/google/pixel",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.power-service.lineage-libperfmgr",
+    defaults: [
+        "power_libperfmgr_defaults",
+    ],
+    relative_install_path: "hw",
+    init_rc: ["aidl/android.hardware.power-service.lineage-libperfmgr.rc"],
+    vintf_fragments: ["aidl/android.hardware.power-service.lineage.xml"],
+    vendor: true,
+    cflags: [
+        "-Wno-unused-variable",
+        "-Wno-unused-parameter",
+    ],
+    shared_libs: [
+        "android.hardware.power-V4-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "libdl",
+        "liblog",
+        "libperfmgr",
+        "libprocessgroup",
+        "libutils",
+        "pixel-power-ext-V1-ndk",
+    ],
+    srcs: [
+        "aidl/service.cpp",
+        "aidl/InteractionHandler.cpp",
+        "aidl/Power.cpp",
+        "aidl/PowerExt.cpp",
+        "aidl/PowerHintSession.cpp",
+        "aidl/PowerSessionManager.cpp",
+    ],
+}
+
+cc_library_static {
+    name: "libperfmgr-ext",
+    vendor: true,
+    srcs: [
+        "aidl/PowerModeExtension.cpp",
+    ],
+    shared_libs: [
+        "android.hardware.power-V4-ndk",
+    ],
+}

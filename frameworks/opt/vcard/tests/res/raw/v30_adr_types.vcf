@@ -1,0 +1,8 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Familyname;Givenname;;;
+FN:Givenname Familyname
+ADR;TYPE=WORK:;;1010 Technology Pkwy\, Silicon City\, Somecountry;;;;
+ADR;TYPE=X-Other:;;123 Main St\, Anytown\, Anywhere;;;;
+ADR;TYPE=X-School:;;112358 Academic Lane\, College Town\, Someplace Great;;;;
+END:VCARD

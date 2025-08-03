@@ -1,0 +1,31 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+android_test {
+    name: "UiBench",
+    sdk_version: "current",
+    // As Perfetto trace recording is supported on non-rooted devices
+    // since Android 12. Set min/target sdk version to 31.
+    target_sdk_version: "31",
+    min_sdk_version: "31",
+    // omit gradle 'build' dir
+    srcs: ["src/**/*.java"],
+    // use appcompat/support lib from the tree, so improvements/
+    // regressions are reflected in test data
+    resource_dirs: ["res"],
+    static_libs: [
+        "com.google.android.material_material",
+        "androidx.legacy_legacy-support-v4",
+        "androidx.appcompat_appcompat",
+        "androidx.cardview_cardview",
+        "androidx.recyclerview_recyclerview",
+        "androidx.leanback_leanback",
+    ],
+    test_suites: ["device-tests"],
+}

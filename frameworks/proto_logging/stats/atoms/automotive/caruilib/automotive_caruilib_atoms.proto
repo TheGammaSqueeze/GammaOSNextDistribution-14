@@ -1,0 +1,51 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+package android.os.statsd.automotive.caruilib;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.automotive.caruilib";
+option java_multiple_files = true;
+
+extend Atom {
+  optional PluginInitialized plugin_initialized = 655 [(module) = "caruilib"];
+}
+
+/**
+ * Logs from car-ui-lib on Android Automotive.
+ *
+ * Logged from package: packages/apps/Car/libs/car-ui-lib
+ */
+message PluginInitialized {
+
+  enum Component {
+    UNSPECIFIED = 0;     // go/proto-best-practices-checkers#enum-default-value
+    BASE_LAYOUTS = 1;    // base layouts
+    APP_STYLED_VIEW = 2; // asv
+    RECYCLER_VIEW = 3;   // Car Ui recycler view
+    PREFERENCES = 4;     // preference
+    TEXT_VIEW = 5;       // Car ui text view
+    PLUGIN = 6;          // entire plugin
+  }
+  optional int32 uid = 1 [(is_uid) = true];
+  optional int64 duration_millis = 2; // initial time to load a component
+  optional Component component = 3;
+
+  optional bool is_plugin_enabled = 4;
+}

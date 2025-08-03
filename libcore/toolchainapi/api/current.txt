@@ -1,0 +1,29 @@
+// Signature format: 2.0
+package java.lang.invoke {
+
+  public class LambdaMetafactory {
+    ctor public LambdaMetafactory();
+    method public static java.lang.invoke.CallSite altMetafactory(java.lang.invoke.MethodHandles.Lookup, String, java.lang.invoke.MethodType, java.lang.Object...) throws java.lang.invoke.LambdaConversionException;
+    method public static java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles.Lookup, String, java.lang.invoke.MethodType, java.lang.invoke.MethodType, java.lang.invoke.MethodHandle, java.lang.invoke.MethodType) throws java.lang.invoke.LambdaConversionException;
+    field public static final int FLAG_BRIDGES = 4; // 0x4
+    field public static final int FLAG_MARKERS = 2; // 0x2
+    field public static final int FLAG_SERIALIZABLE = 1; // 0x1
+  }
+
+  public final class SerializedLambda implements java.io.Serializable {
+    ctor public SerializedLambda(Class<?>, String, String, String, int, String, String, String, String, Object[]);
+    method public Object getCapturedArg(int);
+    method public int getCapturedArgCount();
+    method public String getCapturingClass();
+    method public String getFunctionalInterfaceClass();
+    method public String getFunctionalInterfaceMethodName();
+    method public String getFunctionalInterfaceMethodSignature();
+    method public String getImplClass();
+    method public int getImplMethodKind();
+    method public String getImplMethodName();
+    method public String getImplMethodSignature();
+    method public String getInstantiatedMethodType();
+  }
+
+}
+

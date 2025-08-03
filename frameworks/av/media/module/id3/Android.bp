@@ -1,0 +1,84 @@
+package {
+    default_applicable_licenses: [
+        "frameworks_av_media_libstagefright_id3_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_libstagefright_id3_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library_static {
+    name: "libstagefright_id3",
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+    ],
+
+
+    srcs: ["ID3.cpp"],
+
+    header_libs: [
+        "libmedia_datasource_headers",
+        "libstagefright_foundation_headers",
+        "libstagefright_headers",
+        "media_ndk_headers",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+    sanitize: {
+        misc_undefined: [
+            "signed-integer-overflow",
+        ],
+        cfi: true,
+    },
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+//###############################################################################
+
+cc_test {
+    name: "testid3",
+    gtest: false,
+
+    srcs: ["testid3.cpp"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    shared_libs: [
+        "libdatasource",
+        "libstagefright",
+        "libutils",
+        "liblog",
+        "libbinder",
+        "libstagefright_foundation",
+    ],
+
+    static_libs: ["libstagefright_id3"],
+
+    sanitize: {
+        cfi: true,
+    },
+
+}

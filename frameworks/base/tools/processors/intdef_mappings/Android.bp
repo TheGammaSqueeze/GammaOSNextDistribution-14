@@ -1,0 +1,48 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+java_library_host {
+    name: "libintdef-annotation-processor",
+
+    srcs: [
+        ":framework-annotations",
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+
+    use_tools_jar: true,
+}
+
+java_plugin {
+    name: "intdef-annotation-processor",
+
+    processor_class: "android.processor.IntDefProcessor",
+
+    static_libs: ["libintdef-annotation-processor"],
+}
+
+java_test_host {
+    name: "intdef-annotation-processor-test",
+
+    srcs: [
+        "test/**/*.java",
+        "test/**/*.kt",
+    ],
+    java_resource_dirs: ["test/resources"],
+
+    static_libs: [
+        "compile-testing-prebuilt",
+        "truth",
+        "junit",
+        "guava",
+        "libintdef-annotation-processor",
+    ],
+
+    test_suites: ["general-tests"],
+}

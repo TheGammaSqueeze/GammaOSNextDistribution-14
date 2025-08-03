@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+  <domain-config>
+    <domain>android.com
+    </domain>
+    <domain>   developer.android.com    </domain>
+    <pin-set>
+      <pin digest="SHA-256">  zCTnfLwLKbS9S2sbp+uFz4KZOocFvXxkV06Ce9O5M2w=  </pin>
+    </pin-set>
+  </domain-config>
+</network-security-config>

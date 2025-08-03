@@ -1,0 +1,172 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_static {
+    name: "libplatform",
+    host_supported: true,
+    vendor: true,
+    srcs: [
+        "VirtGpu.cpp",
+        "linux/LinuxVirtGpuBlob.cpp",
+        "linux/LinuxVirtGpuBlobMapping.cpp",
+        "linux/LinuxVirtGpuDevice.cpp",
+        "linux/LinuxSync.cpp",
+    ],
+    shared_libs: [
+        "libcutils",
+        "libdrm",
+        "liblog",
+        "libutils",
+    ],
+    export_shared_lib_headers: [
+        "libdrm",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"platform\"",
+        "-Wno-missing-field-initializers",
+        "-fvisibility=default",
+        "-fstrict-aliasing",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libsync",
+            ],
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libgfxstream_platform_rutabaga_server",
+    host_supported: true,
+    vendor_available: true,
+    srcs: [
+        "rutabaga/RutabagaLayer.cpp",
+    ],
+    header_libs: [
+        "rutabaga_gfx_ffi_headers",
+    ],
+    shared_libs: [
+        "libcutils",
+        "librutabaga_gfx_ffi",
+        "libgfxstream_backend",
+        "liblog",
+        "libutils",
+    ],
+    export_include_dirs: [
+        // TODO: restrict to just RutabagaLayer.h
+        "rutabaga/include",
+        "rutabaga",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        },
+        android: {
+            compile_multilib: "64",
+        },
+    },
+}
+
+cc_library_static {
+    name: "libgfxstream_platform_rutabaga",
+    host_supported: true,
+    vendor_available: true,
+    srcs: [
+        "VirtGpu.cpp",
+        "rutabaga/RutabagaVirtGpuBlob.cpp",
+        "rutabaga/RutabagaVirtGpuBlobMapping.cpp",
+        "rutabaga/RutabagaVirtGpuDevice.cpp",
+        "rutabaga/RutabagaVirtGpuSyncHelper.cpp",
+    ],
+    shared_libs: [
+        "libcutils",
+        "libdrm",
+        "libgfxstream_platform_rutabaga_server",
+        "liblog",
+        "libutils",
+    ],
+    export_shared_lib_headers: [
+        "libdrm",
+    ],
+    export_include_dirs: [
+        "include",
+        "rutabaga/include",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"platform\"",
+        "-Wno-missing-field-initializers",
+        "-fvisibility=default",
+        "-fstrict-aliasing",
+    ],
+    local_include_dirs: [
+        "include",
+        "rutabaga/include",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        },
+        android: {
+            compile_multilib: "64",
+        },
+    },
+}
+
+cc_library_static {
+    name: "libgfxstream_platform_stub",
+    host_supported: true,
+    vendor: true,
+    srcs: [
+        "VirtGpu.cpp",
+        "stub/StubVirtGpuBlob.cpp",
+        "stub/StubVirtGpuBlobMapping.cpp",
+        "stub/StubVirtGpuDevice.cpp",
+        "stub/StubSync.cpp",
+    ],
+    shared_libs: [
+        "libcutils",
+        "libdrm",
+        "liblog",
+        "libutils",
+    ],
+    export_shared_lib_headers: [
+        "libdrm",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"platform\"",
+        "-Wno-missing-field-initializers",
+        "-fvisibility=default",
+        "-fstrict-aliasing",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+}

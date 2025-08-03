@@ -1,0 +1,669 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.telephony;
+
+option java_outer_classname = "TelephonyProtoEnums";
+option java_multiple_files = true;
+
+enum CallBearerEnum {
+    /** Call bearer is unknown or invalid */
+    CALL_BEARER_UNKNOWN = 0;
+
+    /** Call bearer is legacy CS */
+    CALL_BEARER_CS = 1;
+
+    /** Call bearer is IMS */
+    CALL_BEARER_IMS = 2;
+}
+
+enum CallDirectionEnum {
+    /** Call direction: unknown or invalid */
+    CALL_DIRECTION_UNKNOWN = 0;
+
+    /** Call direction: mobile originated (outgoing for this device) */
+    CALL_DIRECTION_MO = 1;
+
+    /** Call direction: mobile terminated (incoming for this device) */
+    CALL_DIRECTION_MT = 2;
+}
+
+// Call setup duration buckets.
+// See com.android.internal.telephony.metrics.VoiceCallSessionStats for definition.
+enum CallSetupDurationEnum {
+    option deprecated = true;
+    CALL_SETUP_DURATION_UNKNOWN = 0;
+    CALL_SETUP_DURATION_EXTREMELY_FAST = 1;
+    CALL_SETUP_DURATION_ULTRA_FAST = 2;
+    CALL_SETUP_DURATION_VERY_FAST = 3;
+    CALL_SETUP_DURATION_FAST = 4;
+    CALL_SETUP_DURATION_NORMAL = 5;
+    CALL_SETUP_DURATION_SLOW = 6;
+    CALL_SETUP_DURATION_VERY_SLOW = 7;
+    CALL_SETUP_DURATION_ULTRA_SLOW = 8;
+    CALL_SETUP_DURATION_EXTREMELY_SLOW = 9;
+}
+
+// Data conn. power states, primarily used by android/telephony/DataConnectionRealTimeInfo.java.
+enum DataConnectionPowerStateEnum {
+    DATA_CONNECTION_POWER_STATE_LOW = 1;
+    DATA_CONNECTION_POWER_STATE_MEDIUM = 2;
+    DATA_CONNECTION_POWER_STATE_HIGH = 3;
+    DATA_CONNECTION_POWER_STATE_UNKNOWN = 2147483647; // Java Integer.MAX_VALUE;
+}
+
+// Network type enums, primarily used by android/telephony/TelephonyManager.java.
+// Do not add negative types.
+enum NetworkTypeEnum {
+    NETWORK_TYPE_UNKNOWN = 0;
+    NETWORK_TYPE_GPRS = 1;
+    NETWORK_TYPE_EDGE = 2;
+    NETWORK_TYPE_UMTS = 3;
+    NETWORK_TYPE_CDMA = 4;
+    NETWORK_TYPE_EVDO_0 = 5;
+    NETWORK_TYPE_EVDO_A = 6;
+    NETWORK_TYPE_1XRTT = 7;
+    NETWORK_TYPE_HSDPA = 8;
+    NETWORK_TYPE_HSUPA = 9;
+    NETWORK_TYPE_HSPA = 10;
+    NETWORK_TYPE_IDEN = 11;
+    NETWORK_TYPE_EVDO_B = 12;
+    NETWORK_TYPE_LTE = 13;
+    NETWORK_TYPE_EHRPD = 14;
+    NETWORK_TYPE_HSPAP = 15;
+    NETWORK_TYPE_GSM = 16;
+    NETWORK_TYPE_TD_SCDMA = 17;
+    NETWORK_TYPE_IWLAN = 18;
+    NETWORK_TYPE_LTE_CA = 19;
+    NETWORK_TYPE_NR = 20;
+}
+
+// Cellular radio power state, see android/telephony/TelephonyManager.java for definitions.
+enum CellularRadioPowerStateEnum {
+    RADIO_POWER_STATE_UNKNOWN = 0;
+    RADIO_POWER_STATE_OFF = 1;
+    RADIO_POWER_STATE_ON = 2;
+    RADIO_POWER_STATE_UNAVAILABLE = 3;
+}
+
+// Roaming type enums, see android.telephony.ServiceState.RoamingType for definitions.
+enum RoamingTypeEnum {
+    ROAMING_TYPE_NOT_ROAMING = 0;
+    ROAMING_TYPE_ROAMING = 1;
+    ROAMING_TYPE_ROAMING_DOMESTIC = 2;
+    ROAMING_TYPE_ROAMING_INTERNATIONAL = 3;
+}
+
+// Signal strength levels, as defined in android/telephony/SignalStrength.java.
+enum SignalStrengthEnum {
+    SIGNAL_STRENGTH_NONE_OR_UNKNOWN = 0;
+    SIGNAL_STRENGTH_POOR = 1;
+    SIGNAL_STRENGTH_MODERATE = 2;
+    SIGNAL_STRENGTH_GOOD = 3;
+    SIGNAL_STRENGTH_GREAT = 4;
+}
+
+enum ServiceStateEnum {
+    /**
+     * Normal operation condition, the phone is registered
+     * with an operator either in home network or in roaming.
+     */
+    SERVICE_STATE_IN_SERVICE = 0;
+
+    /**
+     * Phone is not registered with any operator, the phone
+     * can be currently searching a new operator to register to, or not
+     * searching to registration at all, or registration is denied, or radio
+     * signal is not available.
+     */
+    SERVICE_STATE_OUT_OF_SERVICE = 1;
+
+    /**
+     * The phone is registered and locked.  Only emergency numbers are allowed. {@more}
+     */
+    SERVICE_STATE_EMERGENCY_ONLY = 2;
+
+    /**
+     * Radio of telephony is explicitly powered off.
+     */
+    SERVICE_STATE_POWER_OFF = 3;
+}
+
+enum NetworkRegistrationState {
+    /**
+     * Not registered. The device is not currently searching a new operator to register.
+     */
+    REGISTRATION_STATE_NOT_REGISTERED_OR_SEARCHING = 0;
+
+    /**
+     * Registered on home network.
+     */
+    REGISTRATION_STATE_HOME = 1;
+
+    /**
+     * Not registered. The device is currently searching a new operator to register.
+     */
+    REGISTRATION_STATE_NOT_REGISTERED_SEARCHING = 2;
+
+    /**
+     * Registration denied.
+     */
+    REGISTRATION_STATE_DENIED = 3;
+
+    /**
+     * Registration state is unknown.
+     */
+    REGISTRATION_STATE_UNKNOWN = 4;
+
+    /**
+     * Registered on roaming network.
+     */
+    REGISTRATION_STATE_ROAMING = 5;
+}
+
+enum SimStateEnum {
+    SIM_STATE_UNKNOWN = 0;
+    /** SIM card state: no SIM card is available in the device */
+    SIM_STATE_ABSENT = 1;
+    /** SIM card state: Locked: requires the user's SIM PIN to unlock */
+    SIM_STATE_PIN_REQUIRED = 2;
+    /** SIM card state: Locked: requires the user's SIM PUK to unlock */
+    SIM_STATE_PUK_REQUIRED = 3;
+    /** SIM card state: Locked: requires a network PIN to unlock */
+    SIM_STATE_NETWORK_LOCKED = 4;
+    /** SIM card state: Ready */
+    SIM_STATE_READY = 5;
+    /** SIM card state: SIM Card is NOT READY */
+    SIM_STATE_NOT_READY = 6;
+    /** SIM card state: SIM Card Error, permanently disabled */
+    SIM_STATE_PERM_DISABLED = 7;
+    /** SIM card state: SIM Card Error, present but faulty */
+    SIM_STATE_CARD_IO_ERROR = 8;
+    /** SIM card state: SIM Card restricted, present but not usable due to
+     * carrier restrictions.
+     */
+    SIM_STATE_CARD_RESTRICTED = 9;
+    /**
+     * SIM card state: Loaded: SIM card applications have been loaded
+     * @hide
+     */
+    SIM_STATE_LOADED = 10;
+    /**
+     * SIM card state: SIM Card is present
+     * @hide
+     */
+    SIM_STATE_PRESENT = 11;
+}
+
+// Format of SMS message
+enum SmsFormatEnum {
+    /** Unknown format */
+    SMS_FORMAT_UNKNOWN = 0;
+    /** Format compliant with 3GPP TS 23.040 */
+    SMS_FORMAT_3GPP = 1;
+    /** Format compliant with 3GPP2 TS C.S0015-B */
+    SMS_FORMAT_3GPP2 = 2;
+}
+
+// Technology used to carry an SMS message
+enum SmsTechEnum {
+    /**
+     * Unknown SMS technology used to carry the SMS.
+     * This value is also used for injected SMS.
+     */
+    SMS_TECH_UNKNOWN = 0;
+    /** The SMS was carried over CS bearer in 3GPP network */
+    SMS_TECH_CS_3GPP = 1;
+    /** The SMS was carried over CS bearer in 3GPP2 network */
+    SMS_TECH_CS_3GPP2 = 2;
+    /** The SMS was carried over IMS */
+    SMS_TECH_IMS = 3;
+}
+
+// Types of SMS message
+enum SmsTypeEnum {
+    /** Normal type. */
+    SMS_TYPE_NORMAL = 0;
+    /** SMS-PP (point-to-point). */
+    SMS_TYPE_SMS_PP = 1;
+    /** Voicemail indication. */
+    SMS_TYPE_VOICEMAIL_INDICATION = 2;
+    /** Type 0 message (3GPP TS 23.040 9.2.3.9). */
+    SMS_TYPE_ZERO = 3;
+    /** WAP-PUSH message. */
+    SMS_TYPE_WAP_PUSH = 4;
+}
+
+// Incoming SMS errors
+enum SmsIncomingErrorEnum {
+    SMS_SUCCESS = 0;
+    SMS_ERROR_GENERIC = 1;
+    SMS_ERROR_NO_MEMORY = 2;
+    SMS_ERROR_NOT_SUPPORTED = 3;
+}
+
+// Outgoing SMS results
+enum SmsSendResultEnum {
+    // Unknown error
+    SMS_SEND_RESULT_UNKNOWN = 0;
+    // Success
+    SMS_SEND_RESULT_SUCCESS = 1;
+    // Permanent error
+    SMS_SEND_RESULT_ERROR = 2;
+    // Temporary error, retry
+    SMS_SEND_RESULT_ERROR_RETRY = 3;
+    // Error over IMS, retry on CS
+    SMS_SEND_RESULT_ERROR_FALLBACK = 4;
+}
+
+// Data profile of the data call. From
+// frameworks/base/telephony/java/com/android/internal/telephony/RILConstants.java
+enum DataProfileEnum {
+    DATA_PROFILE_DEFAULT = 0;
+    DATA_PROFILE_TETHERED = 1;
+    DATA_PROFILE_IMS = 2;
+    DATA_PROFILE_FOTA = 3;
+    DATA_PROFILE_CBS = 4;
+    DATA_PROFILE_OEM_BASE = 1000;
+    DATA_PROFILE_INVALID = -1;
+}
+
+// Reason of data call deactivation. From
+// frameworks/opt/telephony/src/java/com/android/internal/telephony/data/
+// DataNetwork.java#TearDownReason
+enum DataDeactivateReasonEnum {
+    // pre-U legacy enum
+    DEACTIVATE_REASON_UNKNOWN = 0;
+    DEACTIVATE_REASON_NORMAL = 1;
+    DEACTIVATE_REASON_RADIO_OFF = 2;
+    DEACTIVATE_REASON_HANDOVER = 3;
+    // Starting in U
+    DEACTIVATE_REASON_NONE = 4;
+    DEACTIVATE_REASON_CONNECTIVITY_SERVICE_UNWANTED = 5;
+    DEACTIVATE_REASON_SIM_REMOVAL = 6;
+    DEACTIVATE_REASON_AIRPLANE_MODE_ON = 7;
+    DEACTIVATE_REASON_DATA_DISABLED = 8;
+    DEACTIVATE_REASON_NO_LIVE_REQUEST = 9;
+    DEACTIVATE_REASON_RAT_NOT_ALLOWED = 10;
+    DEACTIVATE_REASON_ROAMING_DISABLED = 11;
+    DEACTIVATE_REASON_CONCURRENT_VOICE_DATA_NOT_ALLOWED = 12;
+    DEACTIVATE_REASON_DATA_SERVICE_OPTION_NOT_SUPPORTED = 13;
+    DEACTIVATE_REASON_DATA_SERVICE_NOT_READY = 14;
+    DEACTIVATE_REASON_POWER_OFF_BY_CARRIER = 15;
+    DEACTIVATE_REASON_DATA_STALL = 16;
+    DEACTIVATE_REASON_HANDOVER_FAILED = 17;
+    DEACTIVATE_REASON_HANDOVER_NOT_ALLOWED = 18;
+    DEACTIVATE_REASON_VCN_REQUESTED = 19;
+    DEACTIVATE_REASON_VOPS_NOT_SUPPORTED = 20;
+    DEACTIVATE_REASON_DEFAULT_DATA_UNSELECTED = 21;
+    DEACTIVATE_REASON_NOT_IN_SERVICE = 22;
+    DEACTIVATE_REASON_DATA_CONFIG_NOT_READY = 23;
+    DEACTIVATE_REASON_PENDING_TEAR_DOWN_ALL = 24;
+    DEACTIVATE_REASON_NO_SUITABLE_DATA_PROFILE = 25;
+    DEACTIVATE_REASON_CDMA_EMERGENCY_CALLBACK_MODE = 26;
+    DEACTIVATE_REASON_RETRY_SCHEDULED = 27;
+    DEACTIVATE_REASON_DATA_THROTTLED = 28;
+    DEACTIVATE_REASON_DATA_PROFILE_INVALID = 29;
+    DEACTIVATE_REASON_DATA_PROFILE_NOT_PREFERRED = 30;
+    DEACTIVATE_REASON_NOT_ALLOWED_BY_POLICY = 31;
+    DEACTIVATE_REASON_ILLEGAL_STATE = 32;
+    DEACTIVATE_REASON_ONLY_ALLOWED_SINGLE_NETWORK = 33;
+    DEACTIVATE_REASON_PREFERRED_DATA_SWITCHED = 34;
+}
+
+// IP type of the data call
+// see frameworks/base/telephony/java/android/telephony/data/ApnSetting.java#ProtocolType
+enum ApnProtocolEnum {
+    APN_PROTOCOL_IPV4 = 0;
+    APN_PROTOCOL_IPV6 = 1;
+    APN_PROTOCOL_IPV4V6 = 2;
+    APN_PROTOCOL_PPP = 3;
+}
+
+// Action taken to recover a data call that is stalled. From
+// frameworks/opt/telephony/src/java/com/android/internal/telephony/data/
+// DataStallRecoveryManager.java#RecoveryAction
+enum DataStallRecoveryActionEnum {
+    /**
+     * DataStallRecoveryManager queries RIL for link properties (IP addresses, DNS server addresses
+     * etc).  This will help in cases where the data stall occurred because of a link property
+     * changed but not notified to connectivity service.
+     */
+    RECOVERY_ACTION_GET_DATA_CALL_LIST = 0;
+    /**
+     * DataStallRecoveryManager will request DataNetworkController to reestablish internet and sets
+     * up the data call back using SETUP_DATA_CALL. It will help to reestablish the channel between
+     * RIL and modem.
+     */
+    RECOVERY_ACTION_CLEANUP = 1;
+    /**
+     * DcTracker triggers RIL to detach for GPRS and re-attach(re-register the network).
+     * RECOVERY_ACTION_REREGISTER is no longer used in Android T and later.
+     */
+    RECOVERY_ACTION_REREGISTER = 2;
+    /**
+     * DataStallRecoveryManager will request ServiceStateTracker to power off and on, equivalent
+     * to airplane mode toggle on and off.
+     */
+    RECOVERY_ACTION_RADIO_RESTART = 3;
+    /**
+     * DataStallRecoveryManager will request to reboot modem. It will recover if there is a problem
+     * in modem side. RECOVERY_ACTION_RESET_MODEM is introduced in Android T.
+     */
+    RECOVERY_ACTION_RESET_MODEM = 4;
+ }
+
+// The data stall recovered reason.
+// frameworks/opt/telephony/src/java/com/android/internal/telephony/data/
+// DataStallRecoveryManager.java#RecoveredReason
+enum DataStallRecoveredReason {
+   /* The data stall symptom not recover yet. */
+   RECOVERED_REASON_NONE = 0;
+   /* The data stall symptom recovered by DataStallRecoveryManager. */
+   RECOVERED_REASON_DSRM = 1;
+   /* The data stall symptom recovered by modem. */
+   RECOVERED_REASON_MODEM = 2;
+   /* The data stall symptom recovered by user. */
+   RECOVERED_REASON_USER = 3;
+}
+
+// Codec quality
+enum CodecQuality {
+    /** Codec quality: unknown */
+    CODEC_QUALITY_UNKNOWN = 0;
+
+    /** Codec quality: narrowband */
+    CODEC_QUALITY_NARROWBAND = 1;
+
+    /** Codec quality: wideband */
+    CODEC_QUALITY_WIDEBAND = 2;
+
+    /** Codec quality: super-wideband */
+    CODEC_QUALITY_SUPER_WIDEBAND = 3;
+
+    /** Codec quality: fullband */
+    CODEC_QUALITY_FULLBAND = 4;
+}
+
+
+// Result from restore of sim-specific settings.
+enum SimSpecfifcSettingsRestoreResult {
+    SIM_RESTORE_RESULT_UNKNOWN = 0;
+    // SIM-specific settings were successfully restored.
+    SIM_RESTORE_RESULT_SUCCESS = 1;
+    // SIM-specific settings didn't restore because no matching SIM was
+    // found in backed up data.
+    SIM_RESTORE_RESULT_NONE_MATCH = 2;
+    // No SIM-specific settings were found in backup file
+    SIM_RESTORE_RESULT_ZERO_SIM_IN_BACKUP = 3;
+}
+
+// Case of sim-specific settings restore.
+enum SimSpecificSettingsRestoreCase {
+    SIM_RESTORE_CASE_UNDEFINED_USE_CASE = 0;
+    // Restore was done during SuW.
+    SIM_RESTORE_CASE_SUW = 1;
+    // Restore was done once sim was inserted.
+    SIM_RESTORE_CASE_SIM_INSERTED = 2;
+}
+
+// Matching criteria for sim-specific settings restore.
+enum SimSpecificSettingsRestoreMatchingCriteria {
+    SIM_RESTORE_MATCHING_CRITERIA_UNSET= 0;
+    // No match was found.
+    SIM_RESTORE_MATCHING_CRITERIA_NONE = 1;
+    // Restore was done by matching two sims by ICCID.
+    SIM_RESTORE_MATCHING_CRITERIA_ICCID = 2;
+    // Restore was done by matching carrierId and phoneNumber.
+    SIM_RESTORE_MATCHING_CRITERIA_CARRIER_ID_AND_PHONE_NUMBER = 3;
+    // Restore was done by matching carrierId only.
+    SIM_RESTORE_MATCHING_CRITERIA_CARRIER_ID_ONLY = 4;
+}
+
+// Describe IMS feature tags
+// See frameworks/opt/net/ims/src/java/com/android/ims/rcs/uce/util/FeatureTags.java
+enum ImsFeatureTag {
+    IMS_FEATURE_TAG_UNSPECIFIED = 0;
+    IMS_FEATURE_TAG_CUSTOM = 1;
+    IMS_FEATURE_TAG_STANDALONE_MSG = 2;
+    IMS_FEATURE_TAG_CHAT_IM = 3;
+    IMS_FEATURE_TAG_CHAT_SESSION = 4;
+    IMS_FEATURE_TAG_FILE_TRANSFER = 5;
+    IMS_FEATURE_TAG_FILE_TRANSFER_VIA_SMS = 6;
+    IMS_FEATURE_TAG_CALL_COMPOSER_ENRICHED_CALLING = 7;
+    IMS_FEATURE_TAG_CALL_COMPOSER_VIA_TELEPHONY = 8;
+    IMS_FEATURE_TAG_POST_CALL = 9;
+    IMS_FEATURE_TAG_SHARED_MAP = 10;
+    IMS_FEATURE_TAG_SHARED_SKETCH = 11;
+    IMS_FEATURE_TAG_GEO_PUSH = 12;
+    IMS_FEATURE_TAG_GEO_PUSH_VIA_SMS = 13;
+    IMS_FEATURE_TAG_CHATBOT_COMMUNICATION_USING_SESSION = 14;
+    IMS_FEATURE_TAG_CHATBOT_COMMUNICATION_USING_STANDALONE_MSG = 15;
+    IMS_FEATURE_TAG_CHATBOT_VERSION_SUPPORTED = 16;
+    IMS_FEATURE_TAG_CHATBOT_ROLE = 17;
+    IMS_FEATURE_TAG_MMTEL = 18;
+    IMS_FEATURE_TAG_VIDEO = 19;
+    IMS_FEATURE_TAG_PRESENCE = 20;
+}
+
+// Define the SIP request method types used in IMS.
+enum SipRequestMethodType {
+    SIP_REQUEST_UNSPECIFIED = 0;
+    // A SIP request that is not defined in the specification has been sent.
+    SIP_REQUEST_CUSTOM = 1;
+    SIP_REQUEST_INVITE = 2;
+    SIP_REQUEST_ACK = 3;
+    SIP_REQUEST_OPTIONS = 4;
+    SIP_REQUEST_BYE = 5;
+    SIP_REQUEST_CANCEL = 6;
+    SIP_REQUEST_REGISTER  = 7;
+    SIP_REQUEST_PRACK = 8;
+    SIP_REQUEST_SUBSCRIBE = 9;
+    SIP_REQUEST_NOTIFY = 10;
+    SIP_REQUEST_PUBLISH = 11;
+    SIP_REQUEST_INFO = 12;
+    SIP_REQUEST_REFER = 13;
+    SIP_REQUEST_MESSAGE = 14;
+    SIP_REQUEST_UPDATE = 15;
+}
+
+// Buckets of call duration in a voice call.
+enum CallDuration {
+  CALL_DURATION_UNKNOWN = 0; // Unknown duration
+  CALL_DURATION_LESS_THAN_ONE_MINUTE = 1; // Call lasted less than 1 minute
+  CALL_DURATION_LESS_THAN_FIVE_MINUTES = 2; // Call lasted between 1 and 5 minutes
+  CALL_DURATION_LESS_THAN_TEN_MINUTES = 3; // Call lasted between 5 and 10 minutes
+  CALL_DURATION_LESS_THAN_THIRTY_MINUTES = 4; // Call lasted between 10 and 30 minutes
+  CALL_DURATION_LESS_THAN_ONE_HOUR = 5; // Call lasted between 30 minutes and 1 hour
+  CALL_DURATION_MORE_THAN_ONE_HOUR = 6; // Call lasted more than 1 hour
+}
+
+// Short code SMS categories
+// See frameworks/base/telephony/java/android/telephony/SmsManager.java
+enum ShortCodeSmsEnum {
+    SMS_CATEGORY_NOT_SHORT_CODE = 0;
+    SMS_CATEGORY_FREE_SHORT_CODE = 1;
+    SMS_CATEGORY_STANDARD_SHORT_CODE = 2;
+    SMS_CATEGORY_POSSIBLE_PREMIUM_SHORT_CODE = 3;
+    SMS_CATEGORY_PREMIUM_SHORT_CODE = 4;
+}
+
+// Outgoing SMS send error codes, which are mapped from SmsManager#Result
+// See frameworks/base/telephony/java/android/telephony/SmsManager.java
+enum SmsSendErrorEnum {
+    SMS_SEND_ERROR_NONE = 0;
+    SMS_SEND_ERROR_GENERIC_FAILURE = 1;
+    SMS_SEND_ERROR_RADIO_OFF = 2;
+    SMS_SEND_ERROR_NULL_PDU = 3;
+    SMS_SEND_ERROR_NO_SERVICE = 4;
+    SMS_SEND_ERROR_LIMIT_EXCEEDED = 5;
+    SMS_SEND_ERROR_FDN_CHECK_FAILURE = 6;
+    SMS_SEND_ERROR_SHORT_CODE_NOT_ALLOWED = 7;
+    SMS_SEND_ERROR_SHORT_CODE_NEVER_ALLOWED = 8;
+    SMS_SEND_ERROR_RADIO_NOT_AVAILABLE = 9;
+    SMS_SEND_ERROR_NETWORK_REJECT = 10;
+    SMS_SEND_ERROR_INVALID_ARGUMENTS = 11;
+    SMS_SEND_ERROR_INVALID_STATE = 12;
+    SMS_SEND_ERROR_NO_MEMORY = 13;
+    SMS_SEND_ERROR_INVALID_SMS_FORMAT = 14;
+    SMS_SEND_ERROR_SYSTEM_ERROR = 15;
+    SMS_SEND_ERROR_MODEM_ERROR = 16;
+    SMS_SEND_ERROR_NETWORK_ERROR = 17;
+    SMS_SEND_ERROR_INVALID_SMSC_ADDRESS = 19;
+    SMS_SEND_ERROR_OPERATION_NOT_ALLOWED = 20;
+    SMS_SEND_ERROR_INTERNAL_ERROR = 21;
+    SMS_SEND_ERROR_NO_RESOURCES = 22;
+    SMS_SEND_ERROR_CANCELLED = 23;
+    SMS_SEND_ERROR_REQUEST_NOT_SUPPORTED = 24;
+    SMS_SEND_ERROR_NO_BLUETOOTH_SERVICE = 25;
+    SMS_SEND_ERROR_INVALID_BLUETOOTH_ADDRESS = 26;
+    SMS_SEND_ERROR_BLUETOOTH_DISCONNECTED = 27;
+    SMS_SEND_ERROR_UNEXPECTED_EVENT_STOP_SENDING = 28;
+    SMS_SEND_ERROR_SMS_BLOCKED_DURING_EMERGENCY = 29;
+    SMS_SEND_ERROR_SMS_SEND_RETRY_FAILED = 30;
+    SMS_SEND_ERROR_REMOTE_EXCEPTION = 31;
+    SMS_SEND_ERROR_NO_DEFAULT_SMS_APP = 32;
+    SMS_SEND_ERROR_USER_NOT_ALLOWED = 33;
+    SMS_SEND_ERROR_RIL_RADIO_NOT_AVAILABLE = 100;
+    SMS_SEND_ERROR_RIL_SMS_SEND_FAIL_RETRY = 101;
+    SMS_SEND_ERROR_RIL_NETWORK_REJECT = 102;
+    SMS_SEND_ERROR_RIL_INVALID_STATE = 103;
+    SMS_SEND_ERROR_RIL_INVALID_ARGUMENTS = 104;
+    SMS_SEND_ERROR_RIL_NO_MEMORY = 105;
+    SMS_SEND_ERROR_RIL_REQUEST_RATE_LIMITED = 106;
+    SMS_SEND_ERROR_RIL_INVALID_SMS_FORMAT = 107;
+    SMS_SEND_ERROR_RIL_SYSTEM_ERR = 108;
+    SMS_SEND_ERROR_RIL_ENCODING_ERR = 109;
+    SMS_SEND_ERROR_RIL_INVALID_SMSC_ADDRESS = 110;
+    SMS_SEND_ERROR_RIL_MODEM_ERR = 111;
+    SMS_SEND_ERROR_RIL_NETWORK_ERR = 112;
+    SMS_SEND_ERROR_RIL_INTERNAL_ERR = 113;
+    SMS_SEND_ERROR_RIL_REQUEST_NOT_SUPPORTED = 114;
+    SMS_SEND_ERROR_RIL_INVALID_MODEM_STATE = 115;
+    SMS_SEND_ERROR_RIL_NETWORK_NOT_READY = 116;
+    SMS_SEND_ERROR_RIL_OPERATION_NOT_ALLOWED = 117;
+    SMS_SEND_ERROR_RIL_NO_RESOURCES = 118;
+    SMS_SEND_ERROR_RIL_CANCELLED = 119;
+    SMS_SEND_ERROR_RIL_SIM_ABSENT = 120;
+    SMS_SEND_ERROR_RIL_SIMULTANEOUS_SMS_AND_CALL_NOT_ALLOWED = 121;
+    SMS_SEND_ERROR_RIL_ACCESS_BARRED = 122;
+    SMS_SEND_ERROR_RIL_BLOCKED_DUE_TO_CALL = 123;
+    SMS_SEND_ERROR_RIL_GENERIC_ERROR = 124;
+    SMS_SEND_ERROR_RIL_INVALID_RESPONSE = 125;
+    SMS_SEND_ERROR_RIL_SIM_PIN2 = 126;
+    SMS_SEND_ERROR_RIL_SIM_PUK2 = 127;
+    SMS_SEND_ERROR_RIL_SUBSCRIPTION_NOT_AVAILABLE = 128;
+    SMS_SEND_ERROR_RIL_SIM_ERR = 129;
+    SMS_SEND_ERROR_RIL_INVALID_SIM_STATE = 130;
+    SMS_SEND_ERROR_RIL_NO_SMS_TO_ACK = 131;
+    SMS_SEND_ERROR_RIL_SIM_BUSY = 132;
+    SMS_SEND_ERROR_RIL_SIM_FULL = 133;
+    SMS_SEND_ERROR_RIL_NO_SUBSCRIPTION = 134;
+    SMS_SEND_ERROR_RIL_NO_NETWORK_FOUND = 135;
+    SMS_SEND_ERROR_RIL_DEVICE_IN_USE = 136;
+    SMS_SEND_ERROR_RIL_ABORTED = 137;
+}
+
+/**
+ * enum for service category of emergency numbers
+ */
+enum ServiceCategory {
+    // Emergency Service Category UNSPECIFIED
+    EMERGENCY_SERVICE_CATEGORY_UNSPECIFIED = 0;
+
+    // Emergency Service Category for Police
+    EMERGENCY_SERVICE_CATEGORY_POLICE = 1;
+
+    // Emergency Service Category for Ambulance
+    EMERGENCY_SERVICE_CATEGORY_AMBULANCE = 2;
+
+    // Emergency Service Category for Fire Brigade
+    EMERGENCY_SERVICE_CATEGORY_FIRE_BRIGADE = 3;
+
+    // Emergency Service Category for Marine Guard
+    EMERGENCY_SERVICE_CATEGORY_MARINE_GUARD = 4;
+
+    // Emergency Service Category for Mountain Rescue
+    EMERGENCY_SERVICE_CATEGORY_MOUNTAIN_RESCUE = 5;
+
+    // Emergency Service Category for Manually Initiated eCall
+    EMERGENCY_SERVICE_CATEGORY_MIEC = 6;
+
+    // Emergency Service Category for Automatically Initiated eCall
+    EMERGENCY_SERVICE_CATEGORY_AIEC = 7;
+}
+
+/**
+ * enum for source of emergency numbers
+ */
+enum Source {
+    // emergency number is from the network signalling.
+    EMERGENCY_NUMBER_SOURCE_NETWORK_SIGNALING = 0;
+
+    // emergency number is from the SIM
+    EMERGENCY_NUMBER_SOURCE_SIM = 1;
+
+    // emergency number is from the platform-maintained database
+    EMERGENCY_NUMBER_SOURCE_DATABASE = 2;
+
+    // emergency number is from the modem config
+    EMERGENCY_NUMBER_SOURCE_MODEM_CONFIG = 3;
+
+    // emergency number is available as default
+    EMERGENCY_NUMBER_SOURCE_DEFAULT = 4;
+}
+
+/**
+ * enum for call route of emergency numbers
+ */
+enum CallRoute {
+
+    /**
+     * Indicated the framework does not know whether an emergency call should be placed using
+     * emergency or normal call routing. This means the underlying radio or IMS implementation is
+     * free to determine for itself how to route the call.
+     */
+    EMERGENCY_CALL_ROUTE_UNKNOWN = 0;
+
+    // Emergency call to handle through emergency routing.
+    EMERGENCY_CALL_ROUTE_EMERGENCY = 1;
+
+    // Emergency call to handle through normal routing
+    EMERGENCY_CALL_ROUTE_NORMAL = 2;
+}
+
+/**
+ * enum for device fold state
+ */
+enum FoldState {
+    STATE_UNKNOWN = 0;
+    STATE_CLOSED = 1;
+    STATE_HALF_OPENED = 2;
+    STATE_OPENED = 3;
+    STATE_FLIPPED = 4;
+}
+
+/**
+ * enum for result of data network validation.
+ */
+enum NetworkValidationResult {
+    UNSPECIFIED = 0;
+    NOT_SUPPORTED = 1;
+    ALREADY_IN_PROGRESS = 2;
+    SUCCESS = 3;
+    FAILURE = 4;
+}

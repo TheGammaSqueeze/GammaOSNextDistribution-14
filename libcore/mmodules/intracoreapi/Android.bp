@@ -1,0 +1,122 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Referenced implicitly from art.module.intra.core.api.
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "libcore_license":
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-GPL
+    //   SPDX-license-identifier-GPL-2.0
+    //   SPDX-license-identifier-LGPL
+    //   SPDX-license-identifier-MIT
+    //   SPDX-license-identifier-W3C
+    default_applicable_licenses: ["libcore_license"],
+}
+
+filegroup {
+    name: "art.module.intra.core.api.api.public.latest",
+    srcs: [
+        "api/intra/last-api.txt",
+    ],
+}
+
+// Referenced implicitly from art.module.intra.core.api.
+filegroup {
+    name: "art.module.intra.core.api-removed.api.public.latest",
+    srcs: [
+        "api/intra/last-removed.txt",
+    ],
+}
+
+// Referenced implicitly from art.module.intra.core.api.
+filegroup {
+    name: "art.module.intra.core.api-incompatibilities.api.public.latest",
+    srcs: [
+        "api/intra/last-incompatibilities.txt",
+    ],
+}
+
+// A library containing the intra-core API stubs of the ART module.
+//
+// Intra-core APIs are only intended for the use of other core library modules.
+//
+// The API specification .txt files managed by this only contain the additional
+// classes/members that are in the intra-core API but which are not the public API.
+java_sdk_library {
+    name: "art.module.intra.core.api",
+    visibility: [
+        "//build/soong/java/core-libraries",
+        "//libcore/mmodules/core_platform_api",
+    ],
+    srcs: [
+        ":art_module_api_files",
+    ],
+    api_dir: "api/intra",
+    api_only: true,
+    droiddoc_options: [
+        "--hide-annotation libcore.api.Hide",
+        "--show-single-annotation libcore.api.IntraCoreApi",
+    ],
+    merge_inclusion_annotations_dirs: ["ojluni-annotated-mmodule-stubs"],
+
+    sdk_version: "none",
+    system_modules: "none",
+    patch_module: "java.base",
+
+    // This jar is packaged as part of the SDK, use -target 8 so that it works
+    // with old JDKs.
+    java_version: "1.8",
+
+    // Don't copy any output files to the dist.
+    no_dist: true,
+}
+
+// Bootstrap the art-module-intra-core-api-stubs-system-modules.
+//
+// This is needed to build art-module-intra-core-api-stubs-system-modules-lib
+// which is in turn needed to build art-module-intra-core-api-stubs-system-modules
+java_system_modules {
+    name: "art-module-intra-core-api-stubs-bootstrap-system-modules",
+    visibility: [
+        "//libcore/toolchainapi",
+        "//build/soong/java/core-libraries",
+    ],
+    libs: [
+        // The intra core API stubs library.
+        "art.module.intra.core.api.stubs",
+    ],
+}
+
+// A library containing additional classes that are needed in the system modules.
+java_library {
+    name: "art-module-intra-core-api-stubs-system-modules-lib",
+    visibility: [
+        "//build/soong/java/core-libraries",
+    ],
+    srcs: [
+        ":openjdk_lambda_stub_files",
+    ],
+    libs: [
+        "art.module.intra.core.api",
+    ],
+    system_modules: "art-module-intra-core-api-stubs-bootstrap-system-modules",
+    sdk_version: "none",
+    patch_module: "java.base",
+
+    // This jar is packaged as part of the SDK, use -target 8 so that it works
+    // with old JDKs.
+    java_version: "1.8",
+}

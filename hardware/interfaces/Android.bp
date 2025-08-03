@@ -1,0 +1,88 @@
+package {
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "hardware_interfaces_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-NCSA",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+hidl_package_root {
+    name: "android.hardware",
+    use_current: true,
+}
+
+cc_defaults {
+    name: "hidl_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+// VTS tests must link to HAL definition libraries statically.
+cc_defaults {
+    name: "VtsHalTargetTestDefaults",
+    defaults: [
+        "hidl_defaults",
+    ],
+
+    // Lists all dependencies that can *not* be expected on the device.
+    static_libs: [
+        "VtsHalHidlTestUtils",
+        "libhidl-gen-utils",
+    ],
+
+    header_libs: [
+        "libhidl_gtest_helper",
+    ],
+
+    // Lists all system dependencies that can be expected on the device.
+    shared_libs: [
+        "libbase",
+        // All the following are dependencies of any HAL definition library.
+        "libcutils",
+        "liblog",
+        "libhidlbase",
+        "libutils",
+    ],
+    cflags: [
+        "-O0",
+        "-g",
+    ],
+
+    require_root: true,
+}
+
+// TODO: Remove this after all vts tests under vendor/qcom are converted to
+// parameterized gtest.
+cc_defaults {
+    name: "Vts10HalTargetTestDefaults",
+    defaults: [
+        "VtsHalTargetTestDefaults",
+    ],
+    static_libs: [
+        "VtsHalHidlTargetTestBase",
+    ],
+}

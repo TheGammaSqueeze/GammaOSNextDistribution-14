@@ -1,0 +1,71 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_library_headers {
+    name: "libmedia_helper_headers",
+    vendor_available: true,
+    min_sdk_version: "29",
+    export_include_dirs: ["include"],
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+}
+
+cc_library {
+    name: "libmedia_helper",
+    vendor_available: true,
+    min_sdk_version: "29",
+    vndk: {
+        enabled: true,
+    },
+    double_loadable: true,
+    srcs: [
+        "AudioParameter.cpp",
+        "AudioValidator.cpp",
+        "TypeConverter.cpp",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wextra",
+        "-Wall",
+    ],
+    shared_libs: [
+        "libutils",
+        "liblog",
+    ],
+    header_libs: [
+        "libaudio_system_headers",
+        "libhardware_headers",
+        "libmedia_helper_headers",
+    ],
+    export_header_lib_headers: [
+        "libmedia_helper_headers",
+    ],
+
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "test_com.android.media",
+    ],
+}

@@ -1,0 +1,379 @@
+package {
+    default_team: "trendy_team_fwk_telephony",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+aidl_interface {
+    name: "android.hardware.radio",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/*.aidl"],
+    stability: "vintf",
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+        {
+            version: "2",
+            imports: [],
+        },
+        {
+            version: "3",
+            imports: [],
+        },
+
+    ],
+    frozen: true,
+
+}
+
+aidl_interface {
+    name: "android.hardware.radio.config",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/config/*.aidl"],
+    stability: "vintf",
+    imports: ["android.hardware.radio-V3"],
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.radio-V1"],
+        },
+        {
+            version: "2",
+            imports: ["android.hardware.radio-V2"],
+        },
+        {
+            version: "3",
+            imports: ["android.hardware.radio-V3"],
+        },
+
+    ],
+    frozen: true,
+
+}
+
+aidl_interface {
+    name: "android.hardware.radio.data",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/data/*.aidl"],
+    stability: "vintf",
+    imports: ["android.hardware.radio-V3"],
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.radio-V1"],
+        },
+        {
+            version: "2",
+            imports: ["android.hardware.radio-V2"],
+        },
+        {
+            version: "3",
+            imports: ["android.hardware.radio-V3"],
+        },
+
+    ],
+    frozen: true,
+}
+
+aidl_interface {
+    name: "android.hardware.radio.messaging",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/messaging/*.aidl"],
+    stability: "vintf",
+    imports: ["android.hardware.radio-V3"],
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.radio-V1"],
+        },
+        {
+            version: "2",
+            imports: ["android.hardware.radio-V2"],
+        },
+        {
+            version: "3",
+            imports: ["android.hardware.radio-V3"],
+        },
+
+    ],
+    frozen: true,
+}
+
+aidl_interface {
+    name: "android.hardware.radio.modem",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/modem/*.aidl"],
+    stability: "vintf",
+    imports: ["android.hardware.radio-V3"],
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.radio-V1"],
+        },
+        {
+            version: "2",
+            imports: ["android.hardware.radio-V2"],
+        },
+        {
+            version: "3",
+            imports: ["android.hardware.radio-V3"],
+        },
+
+    ],
+    frozen: true,
+}
+
+aidl_interface {
+    name: "android.hardware.radio.network",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/network/*.aidl"],
+    stability: "vintf",
+    imports: ["android.hardware.radio-V3"],
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.radio-V1"],
+        },
+        {
+            version: "2",
+            imports: ["android.hardware.radio-V2"],
+        },
+        {
+            version: "3",
+            imports: ["android.hardware.radio-V3"],
+        },
+
+    ],
+    frozen: true,
+}
+
+aidl_interface {
+    name: "android.hardware.radio.sap",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/sap/*.aidl"],
+    stability: "vintf",
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.btservices",
+            ],
+            sdk_version: "module_current",
+            min_sdk_version: "Tiramisu",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+    frozen: true,
+}
+
+aidl_interface {
+    name: "android.hardware.radio.sim",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/sim/*.aidl"],
+    stability: "vintf",
+    imports: [
+        "android.hardware.radio-V3",
+        "android.hardware.radio.config-V3",
+    ],
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [
+                "android.hardware.radio-V1",
+                "android.hardware.radio.config-V1",
+            ],
+        },
+        {
+            version: "2",
+            imports: [
+                "android.hardware.radio-V2",
+                "android.hardware.radio.config-V2",
+            ],
+        },
+        {
+            version: "3",
+            imports: [
+                "android.hardware.radio-V3",
+                "android.hardware.radio.config-V3",
+            ],
+        },
+
+    ],
+    frozen: true,
+}
+
+aidl_interface {
+    name: "android.hardware.radio.voice",
+    vendor_available: true,
+    host_supported: true,
+    srcs: ["android/hardware/radio/voice/*.aidl"],
+    stability: "vintf",
+    imports: ["android.hardware.radio-V3"],
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.radio-V1"],
+        },
+        {
+            version: "2",
+            imports: ["android.hardware.radio-V2"],
+        },
+        {
+            version: "3",
+            imports: ["android.hardware.radio-V3"],
+        },
+
+    ],
+    frozen: true,
+}
+
+aidl_interface {
+    name: "android.hardware.radio.ims.media",
+    vendor_available: true,
+    srcs: ["android/hardware/radio/ims/media/*.aidl"],
+    stability: "vintf",
+    imports: [
+        "android.hardware.radio-V3",
+        "android.hardware.radio.data-V3",
+    ],
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [
+                "android.hardware.radio-V2",
+                "android.hardware.radio.data-V2",
+            ],
+        },
+        {
+            version: "2",
+            imports: [
+                "android.hardware.radio-V3",
+                "android.hardware.radio.data-V3",
+            ],
+        },
+
+    ],
+    frozen: true,
+}
+
+aidl_interface {
+    name: "android.hardware.radio.ims",
+    vendor_available: true,
+    srcs: ["android/hardware/radio/ims/*.aidl"],
+    stability: "vintf",
+    imports: ["android.hardware.radio-V3"],
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.radio-V2"],
+        },
+        {
+            version: "2",
+            imports: ["android.hardware.radio-V3"],
+        },
+
+    ],
+    frozen: true,
+}

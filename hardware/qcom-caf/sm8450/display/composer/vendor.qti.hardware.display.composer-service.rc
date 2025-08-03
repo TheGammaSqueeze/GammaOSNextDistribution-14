@@ -1,0 +1,9 @@
+service vendor.qti.hardware.display.composer /vendor/bin/hw/vendor.qti.hardware.display.composer-service
+    class hal animation
+    user system
+    group graphics drmrpc
+    capabilities SYS_NICE
+    onrestart restart surfaceflinger
+    onrestart restart feature_enabler_client
+    socket pps stream 0660 system system
+    task_profiles ServiceCapacityLow

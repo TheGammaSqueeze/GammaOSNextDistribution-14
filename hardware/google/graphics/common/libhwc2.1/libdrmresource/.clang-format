@@ -1,0 +1,10 @@
+BasedOnStyle: Google
+
+AlignOperands: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AlwaysBreakBeforeMultilineStrings: false
+ColumnLimit: 100
+CommentPragmas: NOLINT:.*
+PenaltyBreakBeforeFirstCallParameter: 100000
+SpacesBeforeTrailingComments: 1

@@ -1,0 +1,290 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.media;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/media/codec/enums.proto";
+
+extend Atom {
+  optional MediaCodecReclaimRequestCompleted
+      media_codec_reclaim_request_completed = 600
+        [(module) = "framework", (module) = "media_metrics"];
+
+  optional MediaCodecStarted media_codec_started = 641
+        [(module) = "framework", (module) = "media_metrics"];
+
+  optional MediaCodecStopped media_codec_stopped = 642
+        [(module) = "framework", (module) = "media_metrics"];
+
+  optional MediaCodecRendered media_codec_rendered = 684
+        [(module) = "framework", (module) = "media_metrics"];
+}
+
+/**
+ * MediaResourceManagerService (media.resource_manager) logs this event
+ * when a client requests to reclaim codec(s) from other process(es).
+ *
+ * To decide from which process to reclaim the resources, the
+ * MediaResourceManagerService uses "out of memory" score to prioritize
+ * the requesting processes. Lower the oom score, higher the priority.
+ *
+ * If multiple codecs are reclaimed to satisfy the current (codec) reclaim
+ * request, then there will be one MediaCodecReclaimRequestCompleted atom logged
+ * for each codec reclaimed.
+ * The target_index will index through the reclaimed codecs.
+ *
+ * Logged from:
+ *   frameworks/av/services/mediaresourcemanager/ResourceManagerService.cpp
+ *
+ * @since U
+ */
+message MediaCodecReclaimRequestCompleted {
+    // Requester Information: Process that triggered codec reclaim event.
+    // The uid of the Requester.
+    optional int32 requester_uid = 1 [(is_uid) = true];
+
+    // The oom score of the Requester.
+    optional int32 requester_oom_score = 2;
+
+    // Codec Information: Codec that the Requester wants to initialize.
+    // The name of the codec that requester needs.
+    // eg. `OMX.google.aac.decoder`
+    optional string codec = 3;
+
+    // The number of concurrent instances of this codec, when the
+    // reclaim request was made.
+    optional int32 no_of_concurrent_codecs = 4;
+
+    // Reclaim Information:
+    // Status of reclaim request.
+    optional android.media.codec.ReclaimStatus reclaim_status = 5;
+
+    // If it was a successful reclaim, the number of codecs that have been reclaimed.
+    optional int32 no_of_codecs_reclaimed = 6;
+
+    // Information of the (target) process that it belonged to.
+    // If no_of_codecs_reclaimed is more than 1, this will be target index.
+    optional int32 target_index = 7;
+    // The uid of the Target.
+    optional int32 target_uid = 8 [(is_uid) = true];
+    // The oom score of the Target.
+    optional int32 target_oom_score = 9;
+}
+
+/**
+ * MediaResourceManagerService (media.resource_manager) logs this event
+ * when a client starts a codec.
+ *
+ * Logged from:
+ *   frameworks/av/services/mediaresourcemanager/ResourceManagerService.cpp
+ *
+ * @since U
+ */
+message MediaCodecStarted {
+    // Reporter Information: Application/Process that started the codec.
+    // The uid of the Requester.
+    optional int32 requester_uid = 1 [(is_uid) = true];
+
+    // Randomly generated Codec ID for:
+    // - finding the corresponding MediaCodecStopped atom.
+    // - correlating MediaCodecReported for more codec configuration parameters.
+    optional int64 codec_id = 2;
+
+    // The name of the codec that the requester starts.
+    // eg. `OMX.google.aac.decoder`
+    optional string codec_name = 3;
+
+    // Type of codec (Audio/Video/Image).
+    optional android.media.codec.CodecType codec_type = 4;
+
+    // true if this is an encoder, false if this is a decoder.
+    optional bool is_encoder = 5;
+
+    // true if this is hardware codec, false otherwise (software or neither)
+    optional bool is_hardware = 6;
+
+    // Resolution as width x height.
+    optional int32 width = 7;
+    optional int32 height = 8;
+
+    // Total number of concurrent codecs in the system.
+    optional int32 system_concurrent_codec_count = 9;
+
+    // Total number of concurrent codecs owned by this application.
+    optional int32 app_concurrent_codec_count = 10;
+
+    // Current total pixel count for this application.
+    optional int64 total_pixel_count = 11;
+
+    // Total number of concurrent HW Video codecs owned by this application.
+    optional int32 app_concurrent_hw_video_codec_count = 12;
+
+    // Total number of concurrent SW Video codecs owned by this application.
+    optional int32 app_concurrent_sw_video_codec_count = 13;
+
+    // Total number of concurrent Video codecs owned by this application.
+    optional int32 app_concurrent_video_codec_count = 14;
+
+    // Total number of concurrent Audio codecs owned by this application.
+    optional int32 app_concurrent_audio_codec_count = 15;
+
+    // Total number of concurrent Image codecs owned by this application.
+    optional int32 app_concurrent_image_codec_count = 16;
+}
+
+/**
+ * MediaResourceManagerService (media.resource_manager) logs this event
+ * when a client stops a codec.
+ *
+ * Logged from:
+ *   frameworks/av/services/mediaresourcemanager/ResourceManagerService.cpp
+ *
+ * @since U
+ */
+message MediaCodecStopped {
+    // Reporter Information: Application/Process that stopped the codec.
+    // The uid of the Requester.
+    optional int32 requester_uid = 1 [(is_uid) = true];
+
+    // Randomly generated Codec ID for:
+    // - finding the corresponding MediaCodecStarted atom.
+    // - correlating MediaCodecReported for more codec configuration parameters.
+    optional int64 codec_id = 2;
+
+    // The name of the codec that the requester starts.
+    // eg. `OMX.google.aac.decoder`
+    optional string codec_name = 3;
+
+    // Type of codec (Audio/Video/Image).
+    optional android.media.codec.CodecType codec_type = 4;
+
+    // true if this is an encoder, false if this is a decoder.
+    optional bool is_encoder = 5;
+
+    // true if this is hardware codec, false otherwise (software or neither)
+    optional bool is_hardware = 6;
+
+    // Resolution as width x height.
+    optional int32 width = 7;
+    optional int32 height = 8;
+
+    // Total number of concurrent codecs in the system.
+    optional int32 system_concurrent_codec_count = 9;
+
+    // Total number of concurrent codecs owned by this application.
+    optional int32 app_concurrent_codec_count = 10;
+
+    // Current total pixel count for this application.
+    optional int64 total_pixel_count = 11;
+
+    // Time elapsed between codec start to stop, in microseconds
+    optional int64 codec_operation_duration_ms = 12;
+}
+
+/**
+ * MediaCodec logs this event when a codec that has rendered video to the display has been closed.
+ *
+ * Logged from:
+ *   frameworks/av/media/libstagefright/MediaCodec.cpp
+ */
+message MediaCodecRendered {
+    // Application/Process that owns the media codec.
+    optional int32 uid = 1 [(is_uid) = true];
+
+    // Randomly generated Codec ID for:
+    // - finding the corresponding MediaCodecReported for more codec configuration parameters
+    optional int64 codec_id = 2;
+
+    // Framework generated random temporary id for joining related atoms from media playback.
+    optional string log_session_id = 3;
+
+    //
+    // DIMENSIONS
+    //
+    // Whether or not the codec was a hardware codec.
+    optional int32 is_hardware = 4;
+    // Whether or not a secure codec was used.
+    optional int32 is_secure = 5;
+    // Whether or not the codec is tunneled.
+    optional int32 is_tunneled = 6;
+    // The type of codec that was used.
+    optional android.media.codec.Codec codec = 7;
+    // The maximum resolution during playback.
+    optional android.media.codec.Resolution resolution = 8;
+    // The bitrate.
+    optional android.media.codec.Bitrate bitrate = 9;
+    // The framerate as computed by the presentation timestamps in the content stream.
+    optional android.media.codec.Framerate content_framerate = 10;
+    // The framerate as computed by the presentation timestamps.
+    optional android.media.codec.Framerate actual_framerate = 11;
+    // Any HDR format used during playback.
+    optional android.media.codec.HdrFormat hdr_format = 12;
+
+    //
+    // SINGULARS
+    //
+    optional int64 first_render_timestamp_ns = 13;
+    // The playback duration in seconds.
+    optional int64 playback_duration_seconds = 14;
+    // The number of total frames output by the decoder.
+    optional int64 frames_total = 15;
+    // The number of frames sent to SurfaceFlinger for rendering.
+    optional int64 frames_released = 16;
+    // The number of frames rendered sent to Composer HAL for rendering.
+    optional int64 frames_rendered = 17;
+    // The number of frames dropped.
+    optional int64 frames_dropped = 18;
+    // The number of frames skipped by the app.
+    optional int64 frames_skipped = 19;
+    // The frame drop rate.
+    optional float frame_drop_rate = 20;
+    // The frame skip rate.
+    optional float frame_skip_rate = 21;
+    // The frame skip+drop rate.
+    optional float frame_skip_drop_rate = 22;
+
+    //
+    // FREEZE
+    //
+    // The overall freeze score.
+    optional int64 freeze_score = 23;
+    // The duration of freezes divided by the total duration of playback.
+    optional float freeze_rate = 24;
+    // The histogram of freeze durations.
+    repeated int32 freeze_duration_ms_histogram = 25;
+    // The histogram bucket limits for freeze durations.
+    repeated int32 freeze_duration_ms_histogram_buckets = 26;
+    // The histogram of durations between freezes.
+    repeated int32 freeze_distance_ms_histogram = 27;
+    // The histogram bucket limits for durations between freezes.
+    repeated int32 freeze_distance_ms_histogram_buckets = 28;
+
+    //
+    // JUDDER
+    //
+    // The overall judder score.
+    optional int64 judder_score = 29;
+    // The number of frames that have judder divided by the total number of frames.
+    optional float judder_rate = 30;
+    // The histogram of judder scores for each frame.
+    repeated int32 judder_score_histogram = 31;
+    // The histogram bucket limits for judder scores.
+    repeated int32 judder_score_histogram_buckets = 32;
+}

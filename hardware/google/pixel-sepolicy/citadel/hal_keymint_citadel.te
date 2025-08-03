@@ -1,0 +1,11 @@
+type hal_keymint_citadel, domain;
+hal_server_domain(hal_keymint_citadel, hal_keymint)
+
+type hal_keymint_citadel_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hal_keymint_citadel)
+
+vndbinder_use(hal_keymint_citadel)
+binder_call(hal_keymint_citadel, citadeld)
+allow hal_keymint_citadel citadeld_service:service_manager find;
+
+get_prop(hal_keymint_citadel, vendor_security_patch_level_prop)

@@ -1,0 +1,27 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_library {
+    name: "libfootest",
+    defaults: ["hidl_defaults"],
+    srcs: [
+        "FooHelper.cpp"
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+    ],
+    static_libs: ["android.hardware.tests.foo@1.0"],
+
+    local_include_dirs: ["include/hidl-test"],
+    export_include_dirs: ["include"],
+
+}

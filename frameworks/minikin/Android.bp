@@ -1,0 +1,36 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "libminikin_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wthread-safety",
+    ],
+}
+
+cc_library_headers {
+    name: "libminikin_headers",
+    host_supported: true,
+    export_include_dirs: ["include"],
+    header_libs: [
+        "libgtest_prod_headers",
+    ],
+    export_header_lib_headers: [
+        "libgtest_prod_headers",
+    ],
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+subdirs = [
+    "app",
+    "libs/minikin",
+    "tests",
+]

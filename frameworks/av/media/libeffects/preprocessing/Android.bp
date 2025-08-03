@@ -1,0 +1,95 @@
+// audio preprocessing wrapper
+package {
+    default_team: "trendy_team_media_framework_audio",
+    default_applicable_licenses: [
+        "frameworks_av_media_libeffects_preprocessing_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_libeffects_preprocessing_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "libaudiopreprocessing-defaults",
+    vendor: true,
+    host_supported: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-unused-parameter",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libutils",
+    ],
+
+    static_libs: [
+        "webrtc_audio_processing",
+    ],
+
+    header_libs: [
+        "libaudioeffects",
+        "libhardware_headers",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_library {
+    name: "libaudiopreprocessing",
+    defaults: ["libaudiopreprocessing-defaults"],
+    relative_install_path: "soundfx",
+    srcs: ["PreProcessing.cpp"],
+    header_libs: [
+        "libwebrtc_absl_headers",
+    ],
+}
+
+cc_library_shared {
+    name: "libpreprocessingaidl",
+    srcs: [
+        "aidl/PreProcessingContext.cpp",
+        "aidl/EffectPreProcessing.cpp",
+        ":effectCommonFile",
+    ],
+    defaults: [
+        "aidlaudioeffectservice_defaults",
+    ],
+    local_include_dirs: ["aidl"],
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libaudioutils",
+    ],
+    static_libs: [
+        "webrtc_audio_processing",
+    ],
+    header_libs: [
+        "libwebrtc_absl_headers",
+        "libaudioeffects",
+        "libhardware_headers",
+    ],
+    cflags: [
+        "-Wthread-safety",
+        "-Wno-unused-parameter",
+    ],
+    relative_install_path: "soundfx",
+    visibility: [
+        "//hardware/interfaces/audio/aidl/default:__subpackages__",
+    ],
+}

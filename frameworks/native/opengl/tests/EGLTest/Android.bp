@@ -1,0 +1,49 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+cc_test {
+
+    name: "EGL_test",
+    test_suites: ["general-tests"],
+
+    srcs: [
+        "egl_cache_test.cpp",
+        "EGL_test.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "android.hardware.configstore@1.0",
+        "android.hardware.configstore-utils",
+        "libEGL",
+        "libbase",
+        "libcutils",
+        "libbinder",
+        "libgui",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "libnativewindow",
+        "libSurfaceFlingerProp",
+    ],
+
+    include_dirs: [
+        "frameworks/native/opengl/libs",
+        "frameworks/native/opengl/libs/EGL",
+    ],
+
+    header_libs: [
+        "bionic_libc_platform_headers",
+        "libsurfaceflinger_headers",
+    ],
+}

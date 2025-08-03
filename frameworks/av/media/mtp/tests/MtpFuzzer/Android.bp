@@ -1,0 +1,159 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_media_mtp_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_media_mtp_license"],
+}
+cc_defaults {
+    name: "mtp_fuzzer_defaults",
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libutils",
+    ],
+    static_libs: ["libc++fs",],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    fuzz_config: {
+
+        cc: ["android-usb@google.com"],
+        componentid: 1407286,
+        acknowledgement: [
+            "Grant Hernandez of Google",
+        ],
+        hotlists: [
+            "4593311",
+        ],
+        description: "The fuzzer targets the APIs of libmtp library",
+        vector: "local_no_privileges_required",
+        service_privilege: "privileged",
+        users: "multi_user",
+        fuzzed_code_usage: "shipped",
+    },
+}
+cc_fuzz {
+    name: "mtp_fuzzer",
+    srcs: [
+        "mtp_fuzzer.cpp",
+        "MtpMockDatabase.cpp",
+    ],
+    cflags: ["-DMTP_DEVICE",],
+    shared_libs: ["libmtp",],
+    defaults: ["mtp_fuzzer_defaults"],
+    dictionary: "mtp_fuzzer.dict",
+    corpus: ["corpus/*"],
+}
+
+cc_defaults {
+    name: "mtp_property_fuzzer_defaults",
+    srcs: ["mtp_property_fuzzer.cpp"],
+    shared_libs: [
+        "libmtp",
+        "libasyncio",
+        "libusbhost",
+    ],
+    defaults: ["mtp_fuzzer_defaults"],
+}
+
+cc_fuzz {
+     name: "mtp_device_property_fuzzer",
+     defaults: ["mtp_property_fuzzer_defaults"],
+     cflags: [
+         "-DMTP_DEVICE",
+     ],
+}
+
+cc_fuzz {
+     name: "mtp_host_property_fuzzer",
+     defaults: ["mtp_property_fuzzer_defaults"],
+     cflags: [
+         "-DMTP_HOST",
+     ],
+}
+
+cc_fuzz {
+    name: "mtp_handle_fuzzer",
+    srcs: ["mtp_handle_fuzzer.cpp"],
+    shared_libs: ["libmtp_fuzz"],
+    defaults: ["mtp_fuzzer_defaults"],
+    cflags: ["-DMTP_FUZZER"],
+}
+
+cc_defaults  {
+     name: "mtp_packet_defaults",
+     shared_libs: [
+        "libmtp",
+        "libasyncio",
+        "libusbhost",
+     ],
+     defaults: ["mtp_fuzzer_defaults"],
+     cflags: [
+         "-DMTP_HOST",
+         "-DMTP_DEVICE",
+     ],
+}
+
+cc_fuzz {
+     name: "mtp_packet_fuzzer",
+     srcs: ["mtp_packet_fuzzer.cpp"],
+     defaults: ["mtp_packet_defaults"],
+}
+
+cc_fuzz {
+     name: "mtp_device_fuzzer",
+     srcs: ["mtp_device_fuzzer.cpp"],
+     shared_libs: [
+        "libmtp",
+        "libusbhost",
+     ],
+     defaults: ["mtp_fuzzer_defaults"],
+     cflags: [
+         "-DMTP_DEVICE",
+     ],
+}
+
+cc_fuzz {
+     name: "mtp_request_packet_fuzzer",
+     srcs: ["mtp_request_packet_fuzzer.cpp"],
+     defaults: ["mtp_packet_defaults"],
+}
+
+cc_fuzz {
+     name: "mtp_event_packet_fuzzer",
+     srcs: ["mtp_event_packet_fuzzer.cpp"],
+     defaults: ["mtp_packet_defaults"],
+}
+
+cc_fuzz {
+     name: "mtp_response_packet_fuzzer",
+     srcs: ["mtp_response_packet_fuzzer.cpp"],
+     defaults: ["mtp_packet_defaults"],
+}
+
+cc_fuzz {
+     name: "mtp_data_packet_fuzzer",
+     srcs: ["mtp_data_packet_fuzzer.cpp"],
+     defaults: ["mtp_packet_defaults"],
+}

@@ -1,0 +1,168 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+filegroup {
+    name: "libmesa_drirc_gfxstream",
+    srcs: ["00-mesa-defaults.conf"],
+}
+
+python_binary_host {
+    name: "format_srgb_gen_gfxstream",
+    main: "format_srgb.py",
+    srcs: ["format_srgb.py"],
+}
+
+python_binary_host {
+    name: "driconf_static_gen_gfxstream",
+    main: "driconf_static.py",
+    srcs: ["driconf_static.py"],
+    libs: [
+        "mako",
+    ],
+}
+
+genrule {
+    name: "format_srgb_impl_gfxstream",
+    out: ["format_srgb.c"],
+    tools: ["format_srgb_gen_gfxstream"],
+    cmd: "python3 $(location format_srgb_gen_gfxstream) " +
+        "&> $(location format_srgb.c)",
+}
+
+genrule {
+    name: "driconf_static_header_gfxstream",
+    srcs: [":libmesa_drirc_gfxstream"],
+    out: ["driconf_static.h"],
+    tools: ["driconf_static_gen_gfxstream"],
+    cmd: "python3 $(location driconf_static_gen_gfxstream) " +
+        "$(location :libmesa_drirc_gfxstream) " +
+        "$(location driconf_static.h)",
+}
+
+cc_library_headers {
+    name: "libmesa_util_headers_gfxstream",
+    host_supported: true,
+    vendor_available: true,
+    export_include_dirs: [
+        ".",
+    ],
+}
+
+cc_library_static {
+    name: "libmesa_util_gfxstream",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "mesa_common_defaults_gfxstream",
+    ],
+    generated_headers: [
+        "driconf_static_header_gfxstream",
+    ],
+    static_libs: [
+        "libmesa_util_c11_gfxstream",
+    ],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+    ],
+    srcs: [
+        "anon_file.c",
+        "bitscan.c",
+        "blob.c",
+        "build_id.c",
+        "compress.c",
+        "crc32.c",
+        "dag.c",
+        "double.c",
+        "disk_cache.c",
+        "disk_cache_os.c",
+        "fast_idiv_by_const.c",
+        "fossilize_db.c",
+        "futex.c",
+        "half_float.c",
+        "hash_table.c",
+        "u_idalloc.c",
+        "log.c",
+        "memstream.c",
+        "mesa-sha1.c",
+        "mesa-blake3.c",
+        "os_time.c",
+        "os_file.c",
+        "os_memory_fd.c",
+        "os_misc.c",
+        "os_socket.c",
+        "perf/u_trace.c",
+        "u_process.c",
+        "u_qsort.cpp",
+        "rwlock.c",
+        "sha1/sha1.c",
+        "ralloc.c",
+        "rand_xor.c",
+        "rb_tree.c",
+        "register_allocate.c",
+        "rgtc.c",
+        "set.c",
+        "simple_mtx.c",
+        "slab.c",
+        "softfloat.c",
+        "sparse_array.c",
+        "string_buffer.c",
+        "strtod.c",
+        "u_atomic.c",
+        "u_call_once.c",
+        "u_dl.c",
+        "u_dynarray.c",
+        "u_hash_table.c",
+        "u_queue.c",
+        "u_thread.c",
+        "u_vector.c",
+        "u_math.c",
+        "u_mm.c",
+        "u_debug.c",
+        "u_debug_memory.c",
+        "u_cpu_detect.c",
+        "u_printf.c",
+        "u_worklist.c",
+        "vl_zscan_data.c",
+        "vma.c",
+        "mesa_cache_db.c",
+        "mesa_cache_db_multipart.c",
+        "xmlconfig.c",
+    ],
+    target: {
+        host: {
+            header_libs: [
+                "mesa_common_headers_gfxstream",
+            ],
+            cflags: [
+                "-DHAVE_PROGRAM_INVOCATION_NAME",
+            ],
+        },
+        android: {
+            header_libs: [
+                "mesa_common_headers_gfxstream",
+            ],
+            cflags: [
+                "-DHAVE_MEMFD_CREATE",
+            ],
+        },
+    },
+}

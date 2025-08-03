@@ -1,0 +1,1 @@
+See "core-tests-prebuilt-dex-from-java" in libcore/JavaLibrary.bp for details.

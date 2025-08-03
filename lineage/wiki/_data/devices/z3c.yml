@@ -1,0 +1,40 @@
+architecture: arm
+battery: {capacity: 2600, removable: False, tech: 'Li-Ion'}
+before_install: {instructions: 'shinano'}
+before_recovery_install: shinano
+bluetooth: {profiles: [A2DP + aptX], spec: 4.0 + LE}
+cameras:
+  - {flash: 'LED', info: '20.7 MP'}
+  - {flash: None, info: '2.2 MP'}
+codename: z3c
+cpu: Krait 400
+cpu_cores: '4'
+cpu_freq: 2.5 GHz
+current_branch: 18.1
+dimensions: {depth: 8.6, height: 127.3, width: 64.9}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> and connect the USB cable. The notification light should turn blue.
+format_on_upgrade: 18.1
+gpu: Qualcomm Adreno 330
+image: z3c.png
+install_method: fastboot_sony
+kernel: {repo: android_kernel_sony_msm8974, version: '3.4'}
+maintainers: []
+models: [D5803, D5833]
+name: Xperia Z3 Compact
+network: [2G GSM, 3G UMTS, 4G LTE]
+no_oem_unlock_switch: true
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Barometer, Compass, Dual front speakers, FM radio, GLONASS, GPS, Gyroscope, Light sensor, MHL, NFC, Pedometer, Proximity sensor, USB OTG]
+ram: 2 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the device vibrates, then release.
+recovery_partition_name: recovery
+release: 2014-09-04
+screen: {resolution: '1280x720', size: 4.6, technology: 'IPS LCD'}
+sdcard: {size_max: '128 GB'}
+soc: Qualcomm MSM8974AC Snapdragon 801
+storage: 16 GB
+tree: android_device_sony_z3c
+type: phone
+vendor: Sony
+vendor_short: sony
+versions: [16.0, 17.1, 18.1]
+wifi: 802.11 a/b/g/n/ac

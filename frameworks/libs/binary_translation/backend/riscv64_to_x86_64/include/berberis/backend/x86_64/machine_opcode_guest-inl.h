@@ -1,0 +1,7 @@
+
+kMachineOpMacroFeGetExceptionsTranslateMemBaseDispReg,
+    kMachineOpMacroFeSetExceptionsAndRoundImmTranslateMemBaseDispImm,
+    kMachineOpMacroFeSetExceptionsAndRoundTranslateRegMemBaseDispRegReg,
+    kMachineOpMacroFeSetExceptionsImmTranslateMemBaseDispImm,
+    kMachineOpMacroFeSetExceptionsTranslateRegMemBaseDispReg,
+    kMachineOpMacroFeSetRoundImmTranslateMemBaseDispMemBaseDispImm,

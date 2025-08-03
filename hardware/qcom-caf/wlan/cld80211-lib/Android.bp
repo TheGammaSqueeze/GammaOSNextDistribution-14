@@ -1,0 +1,19 @@
+cc_library_headers {
+    name: "libcld80211_headers",
+    vendor: true,
+    export_include_dirs: ["."],
+}
+
+cc_library_shared {
+    name: "libcld80211",
+    vendor: true,
+
+    header_libs: ["libcld80211_headers"],
+    shared_libs: ["libcutils", "libnl", "liblog"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    srcs: ["cld80211_lib.c"],
+}

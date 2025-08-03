@@ -1,0 +1,44 @@
+architecture: arm64
+battery: {capacity: 5000, removable: False, tech: 'Li-Po'}
+before_install: {instructions: 'needs_specific_android_fw', lineage_version: 20, version: '12'}
+before_lineage_install: ab_copy_partitions
+before_recovery_install: {instructions: 'boot_stack', partitions: [dtbo, vbmeta, vendor_boot]}
+bluetooth: {profiles: [A2DP + aptX], spec: '5.1'}
+cameras:
+  - {flash: 'LED', info: '13 MP (main)'}
+  - {flash: 'LED', info: '2 MP (macro)'}
+  - {flash: 'LED', info: '2 MP (depth)'}
+  - {flash: None, info: '16 MP'}
+codename: dre
+cpu: Kryo 460
+cpu_cores: '8'
+cpu_freq: 2 x 2.0 GHz + 6 x 1.8 GHz
+current_branch: 22.2
+dimensions: {depth: 8.3, height: 163.1, width: 74.9}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+firmware_update: firmware_update_oplus_sm4350
+gpu: Qualcomm Adreno 619
+image: dre.png
+install_method: fastboot_nexus
+is_ab_device: true
+kernel: {repo: android_kernel_oneplus_sm4350, version: '5.4'}
+maintainers: [tangalbert919]
+models: [DE2117]
+name: 'Nord N200'
+network: [2G GSM, 3G UMTS, 4G LTE, 5G NR]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Barometer, Compass, Dual-frequency GNSS, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, SBAS, QZSS, Gyroscope, Hall effect sensor, Light sensor, NFC, Pedometer, Proximity sensor, USB OTG]
+ram: 4 GB LPDDR4x
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: boot
+recovery_reboot: fastboot_menu
+release: 2021-06-21
+screen: {resolution: '1080x2400', size: 6.49, technology: 'IPS LCD'}
+sdcard: {size_max: '256 GB', slot: 'sim'}
+soc: Qualcomm SM4350 Snapdragon 480
+storage: 64 GB UFS 2.1
+tree: android_device_oneplus_dre
+type: phone
+vendor: OnePlus
+vendor_short: oneplus
+versions: [19.1, 20, 21, 22.2]
+wifi: 802.11 a/b/g/n/ac

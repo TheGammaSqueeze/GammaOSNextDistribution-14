@@ -1,0 +1,10 @@
+prefix="@CMAKE_INSTALL_PREFIX@"
+libdir="${prefix}/lib"
+includedir="${prefix}/include/aemu/host-common"
+
+Name: @PROJECT_NAME@ host common
+Description: @CMAKE_PROJECT_DESCRIPTION@
+Version: @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@
+
+Libs: -L${libdir} -laemu-host-common
+Cflags: -I${includedir}

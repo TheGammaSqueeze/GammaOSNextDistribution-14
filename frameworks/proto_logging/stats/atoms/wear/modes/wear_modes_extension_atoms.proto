@@ -1,0 +1,52 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.wear.modes;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/wear/modes/enums.proto";
+
+option java_package = "com.android.os.wear.modes";
+option java_multiple_files = true;
+
+extend Atom {
+  optional WearModeStateChanged wear_mode_state_changed = 715 [(module) = "framework"];
+}
+
+// This file contains atom related to Modes in Wear.
+
+message WearModeStateChanged {
+  // ModeId of the mode being toggled
+  optional com.google.android.wearable.modes.telemetry.ModeId mode_id = 1;
+
+  // ModeState of the mode being toggled [MODE_STATE_OFF, MODE_STATE_ON]
+  optional com.google.android.wearable.modes.telemetry.ModeState mode_state = 2;
+
+  // Current Wifi state when mode is toggled
+  optional com.google.android.wearable.modes.telemetry.NetworkState current_wifi_state = 3;
+
+  // Current LTE state when mode is toggled
+  optional com.google.android.wearable.modes.telemetry.NetworkState current_cellular_state = 4;
+
+  // Current BT state when mode is toggled
+  optional com.google.android.wearable.modes.telemetry.NetworkState current_bluetooth_state = 5;
+
+  // Current Battery level. Should be in [0, 100].
+  optional int32 battery_level = 6;
+}

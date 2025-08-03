@@ -1,0 +1,37 @@
+architecture: arm
+battery: {capacity: 4050, removable: False, tech: 'Li-Ion'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: 'LED', info: '13 MP'}
+  - {flash: None, info: '5 MP'}
+codename: mt2
+cpu: Cortex-A7
+cpu_cores: '4'
+cpu_freq: 1.6 GHz
+current_branch: 14.1
+dimensions: None
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>
+gpu: Qualcomm Adreno 305
+image: mt2.png
+install_method: fastboot_huawei
+is_unlockable: false
+kernel: {repo: android_kernel_huawei_msm8928, version: '3.4'}
+maintainers: []
+name: Ascend Mate 2 4G
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, GPS, Gyroscope, Proximity sensor]
+ram: 2 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+release: 2014-01
+screen: {resolution: '1280x720', size: 6.1, technology: 'IPS+ LCD'}
+sdcard: {size_max: '64 GB'}
+soc: Qualcomm MSM8928 Snapdragon 400
+storage: 16 GB
+tree: android_device_huawei_mt2
+type: phone
+uses_twrp: true
+vendor: Huawei
+vendor_short: huawei
+versions: [14.1]
+wifi: 802.11 b/g/n

@@ -1,0 +1,170 @@
+    @Test
+    public void testFullApfV4ProgramGeneration() throws IllegalInstructionException {
+        ApfV4Generator gen = new ApfV4Generator(APF_VERSION_4);
+        gen.addLoadImmediate(R1, -8);
+        gen.addLoadData(R0, 0);
+        gen.addAdd(1);
+        gen.addStoreData(R0, 0);
+        gen.addLoad16(R0, 12);
+        gen.addLoadImmediate(R1, -120);
+        gen.addJumpIfR0LessThan(0x600, "LABEL_INC_AND_DROP");
+        gen.addLoadImmediate(R1, -124);
+        gen.addJumpIfR0Equals(0x88a2, "LABEL_INC_AND_DROP");
+        gen.addJumpIfR0Equals(0x88a4, "LABEL_INC_AND_DROP");
+        gen.addJumpIfR0Equals(0x88b8, "LABEL_INC_AND_DROP");
+        gen.addJumpIfR0Equals(0x88cd, "LABEL_INC_AND_DROP");
+        gen.addJumpIfR0Equals(0x88e1, "LABEL_INC_AND_DROP");
+        gen.addJumpIfR0Equals(0x88e3, "LABEL_INC_AND_DROP");
+        gen.addJumpIfR0NotEquals(0x806, "LABEL_122");
+        gen.addLoadImmediate(R0, 14);
+        gen.addLoadImmediate(R1, -152);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("000108000604"), "LABEL_INC_AND_DROP");
+        gen.addLoad16(R0, 20);
+        gen.addJumpIfR0Equals(0x1, "LABEL_104");
+        gen.addLoadImmediate(R1, -156);
+        gen.addJumpIfR0NotEquals(0x2, "LABEL_INC_AND_DROP");
+        gen.addLoad32(R0, 28);
+        gen.addLoadImmediate(R1, -128);
+        gen.addJumpIfR0Equals(0x0, "LABEL_INC_AND_DROP");
+        gen.addLoadImmediate(R0, 0);
+        gen.addLoadImmediate(R1, -56);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("ffffffffffff"), "LABEL_INC_AND_PASS");
+
+        gen.defineLabel("LABEL_104");
+        gen.addLoadImmediate(R0, 38);
+        gen.addLoadImmediate(R1, -80);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("c0a801ec"), "LABEL_INC_AND_DROP");
+        gen.addLoadImmediate(R1, -20);
+        gen.addJump("LABEL_INC_AND_PASS");
+
+        gen.defineLabel("LABEL_122");
+        gen.addLoad16(R0, 12);
+        gen.addJumpIfR0NotEquals(0x800, "LABEL_249");
+        gen.addLoad8(R0, 23);
+        gen.addJumpIfR0NotEquals(0x11, "LABEL_165");
+        gen.addLoad16(R0, 20);
+        gen.addJumpIfR0AnyBitsSet(0x1fff, "LABEL_165");
+        gen.addLoadFromMemory(R1, 13);
+        gen.addLoad16Indexed(R0, 16);
+        gen.addJumpIfR0NotEquals(0x44, "LABEL_165");
+        gen.addLoadImmediate(R0, 50);
+        gen.addAddR1();
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("7e9046bc7008"), "LABEL_165");
+        gen.addLoadImmediate(R1, -24);
+        gen.addJump("LABEL_INC_AND_PASS");
+
+        gen.defineLabel("LABEL_165");
+        gen.addLoad8(R0, 30);
+        gen.addAnd(240);
+        gen.addLoadImmediate(R1, -96);
+        gen.addJumpIfR0Equals(0xe0, "LABEL_INC_AND_DROP");
+        gen.addLoadImmediate(R1, -88);
+        gen.addLoad32(R0, 30);
+        gen.addJumpIfR0Equals(0xffffffff, "LABEL_INC_AND_DROP");
+        gen.addLoadImmediate(R1, -92);
+        gen.addJumpIfR0Equals(0xc0a801ff, "LABEL_INC_AND_DROP");
+        gen.addLoad8(R0, 23);
+        gen.addJumpIfR0NotEquals(0x6, "LABEL_225");
+        gen.addLoad16(R0, 20);
+        gen.addJumpIfR0AnyBitsSet(0x1fff, "LABEL_225");
+        gen.addLoadFromMemory(R1, 13);
+        gen.addLoad16Indexed(R0, 16);
+        gen.addJumpIfR0NotEquals(0x7, "LABEL_225");
+        gen.addLoadImmediate(R1, -148);
+        gen.addJump("LABEL_INC_AND_DROP");
+
+        gen.defineLabel("LABEL_225");
+        gen.addLoadImmediate(R1, -36);
+        gen.addLoadImmediate(R0, 0);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("ffffffffffff"), "LABEL_INC_AND_PASS");
+        gen.addLoadImmediate(R1, -84);
+        gen.addJump("LABEL_INC_AND_DROP");
+        gen.addLoadImmediate(R1, -28);
+        gen.addJump("LABEL_INC_AND_PASS");
+
+        gen.defineLabel("LABEL_249");
+        gen.addJumpIfR0Equals(0x86dd, "LABEL_273");
+        gen.addLoadImmediate(R0, 0);
+        gen.addLoadImmediate(R1, -60);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("ffffffffffff"), "LABEL_INC_AND_PASS");
+        gen.addLoadImmediate(R1, -68);
+        gen.addJump("LABEL_INC_AND_DROP");
+
+        gen.defineLabel("LABEL_273");
+        gen.addLoad8(R0, 20);
+        gen.addJumpIfR0Equals(0x0, "LABEL_INC_AND_PASS");
+        gen.addJumpIfR0Equals(0x3a, "LABEL_297");
+        gen.addLoadImmediate(R1, -116);
+        gen.addLoad8(R0, 38);
+        gen.addJumpIfR0Equals(0xff, "LABEL_INC_AND_DROP");
+        gen.addLoadImmediate(R1, -44);
+        gen.addJump("LABEL_INC_AND_PASS");
+
+        gen.defineLabel("LABEL_297");
+        gen.addLoad8(R0, 54);
+        gen.addLoadImmediate(R1, -100);
+        gen.addJumpIfR0Equals(0x85, "LABEL_INC_AND_DROP");
+        gen.addJumpIfR0NotEquals(0x88, "LABEL_333");
+        gen.addLoadImmediate(R0, 38);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("ff0200000000000000000000000000"), "LABEL_333");
+        gen.addLoadImmediate(R1, -104);
+        gen.addJump("LABEL_INC_AND_DROP");
+
+        gen.defineLabel("LABEL_333");
+        gen.addLoadFromMemory(R0, 14);
+        gen.addJumpIfR0NotEquals(0x96, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadFromMemory(R0, 15);
+        gen.addJumpIfR0GreaterThan(0x48e, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadImmediate(R0, 0);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("7e9046bc700828c68e23672c86dd60"), "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadImmediate(R0, 18);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("00603afffe800000000000002ac68efffe23672c"), "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadImmediate(R0, 54);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("8600"), "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadImmediate(R0, 58);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("40c0"), "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoad16(R0, 60);
+        gen.addJumpIfR0LessThan(0x91e, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addJumpIfR0GreaterThan(0x1b58, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadImmediate(R0, 62);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("0000000000000000010128c68e23672c05010000000005dc030440c0"), "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoad32(R0, 90);
+        gen.addJumpIfR0LessThan(0x55555555, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addJumpIfR0GreaterThan(0xffffffffL, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoad32(R0, 94);
+        gen.addJumpIfR0LessThan(0x55555555, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addJumpIfR0GreaterThan(0xffffffffL, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadImmediate(R0, 98);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("000000002401fa000480f000000000000000000019030000"), "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoad32(R0, 122);
+        gen.addJumpIfR0Equals(0x0, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addJumpIfR0LessThan(0x78, "LABEL_535");
+        gen.addJumpIfR0LessThan(0x91e, "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addJumpIfR0GreaterThan(0x1b58, "LABEL_UNSOLICITED_MULTICAST_NA");
+
+        gen.defineLabel("LABEL_535");
+        gen.addLoadImmediate(R0, 126);
+        gen.addJumpIfBytesAtR0NotEqual(hexStringToByteArray("2401fa000480f00000000000000000010701"), "LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadImmediate(R1, -72);
+        gen.addJump("LABEL_INC_AND_DROP");
+
+        gen.defineLabel("LABEL_UNSOLICITED_MULTICAST_NA");
+        gen.addLoadImmediate(R1, -40);
+
+        gen.defineLabel("LABEL_INC_AND_PASS");
+        gen.addLoadData(R0, 0);
+        gen.addAdd(1);
+        gen.addStoreData(R0, 0);
+        gen.addJump(PASS_LABEL);
+
+        gen.defineLabel("LABEL_INC_AND_DROP");
+        gen.addLoadData(R0, 0);
+        gen.addAdd(1);
+        gen.addStoreData(R0, 0);
+        gen.addJump(DROP_LABEL);
+
+        byte[] program = gen.generate();
+        final String programString = toHexString(program).toLowerCase();
+        final String referenceProgramHexString = "6bf8b03a01b8120c6b8894022b06006b847c022488a27c021f88a47c021a88b87c021588cd7c021088e17c020b88e384004608066a0e6dff68a401f6000600010800060412147a1f016dff648401e900021a1c6b807c01e00000686bc8a401cc0006ffffffffffff6a266bb0a401c50004c0a801ec6bec7401ba120c84007808000a17821f1112149c00181fffab0d2a108211446a3239a205067e9046bc70086be874018f0a1e52f06ba07c018a00e06ba81a1e7e0000017dffffffff6ba47e00000172c0a801ff0a1782140612149c000d1fffab0d2a108206076dff6c7401596bdc68a401450006ffffffffffff6bac7401466be474013b7c001386dd686bc4a401280006ffffffffffff6bbc7401290a147c011c00007a0e3a6b8c0a267c011600ff6bd474010b0a366b9c7c010800858218886a26a2040fff02000000000000000000000000006b9872edaa0e82e096aa0f8c00d9048e68a2c60f7e9046bc700828c68e23672c86dd606a12a2ad1400603afffe800000000000002ac68efffe23672c6a36a2a60286006a3aa29f0240c0123c940098091e8c00931b586a3ea2721c0000000000000000010128c68e23672c05010000000005dc030440c01a5a9600000067555555558e0000005effffffff1a5e9600000053555555558e0000004affffffff6a62a22d18000000002401fa000480f0000000000000000000190300001a7a7a2800920a78940020091e8c001b1b586a7ea204122401fa000480f000000000000000000107016bb872086bd8b03a01b87206b03a01b87201";
+        assertEquals(referenceProgramHexString, programString);
+    }

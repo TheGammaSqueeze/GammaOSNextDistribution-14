@@ -1,0 +1,18 @@
+# ODPM: change VSYS_PWR_MMWAVE to S9M_LLDO3 on sub6 device
+# detail: b/231463665#10
+on early-boot && property:ro.boot.hardware.sku=GP4BC
+    write /sys/bus/iio/devices/iio:device0/enabled_rails "CH0=BUCK9M"
+
+on early-boot && property:ro.boot.hardware.sku=GFE4J
+    write /sys/bus/iio/devices/iio:device0/enabled_rails "CH0=BUCK9M"
+
+on early-boot && property:ro.boot.hardware.sku=GVU6C
+    write /sys/bus/iio/devices/iio:device0/enabled_rails "CH0=BUCK9M"
+
+on early-boot && property:ro.boot.hardware.sku=G03Z5
+    write /sys/bus/iio/devices/iio:device0/enabled_rails "CH0=BUCK9M"
+
+service vendor.power.stats /vendor/bin/hw/android.hardware.power.stats-service.pixel
+    class hal
+    user system
+    group system

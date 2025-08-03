@@ -1,0 +1,42 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_libhardware_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_libhardware_license"],
+}
+
+cc_test {
+    name: "libinput_evdevtests",
+
+    srcs: [
+        "BitUtils_test.cpp",
+        "InputDevice_test.cpp",
+        "InputHub_test.cpp",
+        "InputMocks.cpp",
+        "MouseInputMapper_test.cpp",
+        "SwitchInputMapper_test.cpp",
+        "TestHelpers.cpp",
+    ],
+
+    static_libs: ["libgmock"],
+
+    shared_libs: [
+        "libinput_evdev",
+        "liblog",
+        "libutils",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-unused-parameter",
+
+        // TestHelpers uses mktemp. As the path is given to TempFile, we can't do too much
+        // here (e.g., use mkdtemp first). At least races will lead to an early failure, as
+        // mkfifo fails on existing files.
+        "-Wno-deprecated-declarations",
+    ],
+}

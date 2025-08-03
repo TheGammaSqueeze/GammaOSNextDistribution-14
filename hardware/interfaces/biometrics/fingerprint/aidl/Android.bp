@@ -1,0 +1,61 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+aidl_interface {
+    name: "android.hardware.biometrics.fingerprint",
+    vendor_available: true,
+    srcs: [
+        "android/hardware/biometrics/fingerprint/**/*.aidl",
+    ],
+    imports: [
+        "android.hardware.biometrics.common-V4",
+        "android.hardware.keymaster-V4",
+    ],
+    stability: "vintf",
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        cpp: {
+            enabled: false,
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [
+                "android.hardware.biometrics.common-V1",
+                "android.hardware.keymaster-V3",
+            ],
+        },
+        {
+            version: "2",
+            imports: [
+                "android.hardware.biometrics.common-V2",
+                "android.hardware.keymaster-V3",
+            ],
+        },
+        {
+            version: "3",
+            imports: [
+                "android.hardware.biometrics.common-V3",
+                "android.hardware.keymaster-V4",
+            ],
+        },
+        {
+            version: "4",
+            imports: [
+                "android.hardware.biometrics.common-V4",
+                "android.hardware.keymaster-V4",
+            ],
+        },
+
+    ],
+    frozen: true,
+}

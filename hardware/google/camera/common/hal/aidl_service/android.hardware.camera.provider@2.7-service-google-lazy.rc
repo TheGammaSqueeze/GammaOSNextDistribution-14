@@ -1,0 +1,10 @@
+service vendor.camera-provider-2-7-google /vendor/bin/hw/android.hardware.camera.provider@2.7-service-google-lazy
+    interface aidl android.hardware.camera.provider.ICameraProvider/internal/0
+    oneshot
+    disabled
+    class hal
+    user system
+    group system
+    capabilities SYS_NICE
+    rlimit rtprio 10 10
+    task_profiles CameraServiceCapacity CameraServicePerformance

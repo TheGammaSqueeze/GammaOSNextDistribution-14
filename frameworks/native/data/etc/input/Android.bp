@@ -1,0 +1,23 @@
+package {
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+filegroup {
+    name: "motion_predictor_model",
+    srcs: [
+        "motion_predictor_model.tflite",
+        "motion_predictor_config.xml",
+    ],
+}
+
+prebuilt_etc {
+    name: "motion_predictor_model_prebuilt",
+    filename_from_src: true,
+    src: "motion_predictor_model.tflite",
+}
+
+prebuilt_etc {
+    name: "motion_predictor_model_config",
+    filename_from_src: true,
+    src: "motion_predictor_config.xml",
+}

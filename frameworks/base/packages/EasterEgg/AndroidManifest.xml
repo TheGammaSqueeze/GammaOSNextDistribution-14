@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    Copyright (C) 2023 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.egg"
+    android:versionCode="12"
+    android:versionName="1.0">
+
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+    <!-- used for cat notifications -->
+    <uses-permission android:name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME" />
+
+    <!-- used to save cat images -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- controls -->
+    <uses-permission android:name="android.permission.BIND_CONTROLS" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:icon="@drawable/android14_patch_adaptive"
+        android:label="@string/app_name">
+
+        <!-- Android U easter egg -->
+
+        <activity
+            android:name=".landroid.MainActivity"
+            android:exported="true"
+            android:label="@string/u_egg_name"
+            android:icon="@drawable/android14_patch_adaptive"
+            android:configChanges="orientation|screenLayout|screenSize|density"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="com.android.internal.category.PLATLOGO" />
+            </intent-filter>
+        </activity>
+
+
+        <!-- Android Q easter egg -->
+        <activity
+            android:name=".quares.QuaresActivity"
+            android:exported="true"
+            android:icon="@drawable/q_icon"
+            android:label="@string/q_egg_name"
+            android:theme="@style/QuaresTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".paint.PaintActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode"
+            android:exported="true"
+            android:icon="@drawable/p_icon"
+            android:label="@string/p_egg_name"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <!-- Android N easter egg bits -->
+        <activity
+            android:name=".neko.NekoLand"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Material.NoActionBar">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- This is where the magic happens -->
+        <service
+            android:name=".neko.NekoService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- Used to show over lock screen -->
+        <activity
+            android:name=".neko.NekoLockedActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:showOnLockScreen="true"
+            android:theme="@android:style/Theme.Material.Light.Dialog.NoActionBar" />
+        <!-- Used to enable easter egg components for earlier easter eggs. -->
+        <activity
+            android:name=".ComponentActivationActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- The quick settings tile, disabled by default -->
+        <service
+            android:name=".neko.NekoTile"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/stat_icon"
+            android:label="@string/default_tile_name"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".neko.NekoControlsService"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_fullcat_icon"
+            android:label="@string/r_egg_name"
+            android:permission="android.permission.BIND_CONTROLS">
+            <intent-filter>
+                <action android:name="android.service.controls.ControlsProviderService" />
+            </intent-filter>
+        </service> <!-- FileProvider for sending pictures -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.android.egg.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
+
+        <!-- Android S easter egg bits -->
+
+        <!-- List of all system theme colors on the device. -->
+        <activity
+            android:name=".widget.PaintChipsActivity"
+            android:theme="@android:style/Theme.Material.Wallpaper.NoTitleBar"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode"
+            android:label="@string/s_egg_name"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <!-- Homescreen widget also showing paint chips (may be affected by the exact position in
+             the workspace) -->
+        <receiver
+            android:name=".widget.PaintChipsWidget"
+            android:label="@string/s_egg_name"
+            android:exported="true"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/paint_chips_widget_info" />
+        </receiver>
+    </application>
+
+</manifest>

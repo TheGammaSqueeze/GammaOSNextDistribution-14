@@ -1,0 +1,6 @@
+# for factory_-prefixed targets only
+type factory-post-boot-sh, domain;
+type factory-post-boot-sh_exec, vendor_file_type, exec_type, file_type;
+init_daemon_domain(factory-post-boot-sh)
+
+allow factory-post-boot-sh vendor_toolbox_exec:file execute_no_trans;

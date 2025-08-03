@@ -1,0 +1,22 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "pixel-power-ext",
+    owner: "google",
+    vendor_available: true,
+    srcs: [
+        "google/hardware/power/extension/pixel/IPowerExt.aidl",
+    ],
+
+    stability: "vintf",
+
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+    },
+    versions: ["1"],
+}

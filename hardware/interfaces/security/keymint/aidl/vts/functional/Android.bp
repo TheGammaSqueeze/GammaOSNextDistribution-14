@@ -1,0 +1,104 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_defaults {
+    name: "keymint_vts_defaults",
+    defaults: [
+        "keymint_use_latest_hal_aidl_ndk_static",
+        "use_libaidlvintf_gtest_helper_static",
+        "VtsHalTargetTestDefaults",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libbinder_ndk",
+        "libcrypto",
+        "libbase",
+        "libgatekeeper",
+        "packagemanager_aidl-cpp",
+    ],
+    static_libs: [
+        "android.hardware.gatekeeper@1.0",
+        "android.hardware.gatekeeper-V1-ndk",
+        "android.hardware.security.rkp-V3-ndk",
+        "android.hardware.security.secureclock-V1-ndk",
+        "libavb_user",
+        "libavb",
+        "libcppbor_external",
+        "libcppcose_rkp",
+        "libfs_mgr",
+        "libjsoncpp",
+        "libkeymint",
+        "libkeymint_remote_prov_support",
+        "libkeymint_support",
+    ],
+}
+
+cc_test {
+    name: "VtsAidlKeyMintTargetTest",
+    defaults: [
+        "keymint_vts_defaults",
+    ],
+    tidy_timeout_srcs: [
+        "KeyMintTest.cpp",
+    ],
+    srcs: [
+        "AttestKeyTest.cpp",
+        "AuthTest.cpp",
+        "BootloaderStateTest.cpp",
+        "DeviceUniqueAttestationTest.cpp",
+        "KeyBlobUpgradeTest.cpp",
+        "KeyMintTest.cpp",
+        "SecureElementProvisioningTest.cpp",
+    ],
+    static_libs: [
+        "libkeymint_vts_test_utils",
+    ],
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+}
+
+cc_test_library {
+    name: "libkeymint_vts_test_utils",
+    defaults: [
+        "keymint_vts_defaults",
+    ],
+    tidy_timeout_srcs: [
+        "KeyMintAidlTestBase.cpp",
+    ],
+    srcs: [
+        "KeyMintAidlTestBase.cpp",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    export_static_lib_headers: [
+        "libkeymint_support",
+    ],
+    static_libs: [
+        "libgmock_ndk",
+    ],
+}

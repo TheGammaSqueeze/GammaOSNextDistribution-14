@@ -1,0 +1,132 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+ // The original Work has been changed by NXP.
+ //
+ // Licensed under the Apache License, Version 2.0 (the "License");
+ // you may not use this file except in compliance with the License.
+ // You may obtain a copy of the License at
+ //
+ // http://www.apache.org/licenses/LICENSE-2.0
+ //
+ // Unless required by applicable law or agreed to in writing, software
+ // distributed under the License is distributed on an "AS IS" BASIS,
+ // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ // See the License for the specific language governing permissions and
+ // limitations under the License.
+ //
+ // Copyright 2022-2023 NXP
+ //
+
+package {
+    default_applicable_licenses: [
+        "//hardware/nxp/keymint:hardware_nxp_keymint_license",
+    ],
+}
+
+cc_library {
+    name: "libjc_keymint3.nxp",
+    defaults: [
+        "keymaster_defaults",
+    ],
+    srcs: [
+        "CborConverter.cpp",
+        "JavacardKeyMintDevice.cpp",
+        "JavacardKeyMintOperation.cpp",
+        "JavacardRemotelyProvisionedComponentDevice.cpp",
+        "JavacardSecureElement.cpp",
+        "JavacardSharedSecret.cpp",
+        "keymint_utils.cpp",
+    ],
+    cflags:[
+        "-O0",
+        "-DNXP_EXTNS",
+    ],
+    shared_libs: [
+        "android.hardware.security.rkp-V3-ndk",
+        "android.hardware.security.secureclock-V1-ndk",
+        "android.hardware.security.sharedsecret-V1-ndk",
+        "lib_android_keymaster_keymint_utils",
+        "libbase",
+        "libbinder",
+        "libcppbor_external",
+        "libkeymaster_portable",
+        "libkeymaster_messages",
+        "libsoft_attestation_cert",
+        "liblog",
+        "libcrypto",
+        "libcutils",
+        "libjc_keymint_transport.nxp",
+        "libbinder_ndk",
+        "libmemunreachable",
+        "android.hardware.security.keymint-V3-ndk",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    product_variables: {
+        debuggable: {
+            cflags: ["-DDCHECK_ALWAYS_ON"],
+        },
+    },
+    vendor_available: true,
+}
+
+cc_binary {
+    name: "android.hardware.security.keymint3-service.strongbox.nxp",
+    relative_install_path: "hw",
+    init_rc: ["android.hardware.security.keymint3-service.strongbox.nxp.rc"],
+    vintf_fragments: [
+        "android.hardware.security.keymint3-service.strongbox.nxp.xml",
+        "android.hardware.security.sharedsecret3-service.strongbox.nxp.xml",
+    ],
+    vendor: true,
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-DOMAPI_TRANSPORT",
+        "-DNXP_EXTNS",
+    ],
+    shared_libs: [
+        "android.hardware.security.rkp-V3-ndk",
+        "android.hardware.security.sharedsecret-V1-ndk",
+        "lib_android_keymaster_keymint_utils",
+        "android.se.omapi-V1-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcppbor_external",
+        "libcrypto",
+        "libkeymaster_portable",
+        "libjc_keymint3.nxp",
+        "libjc_keymint_transport.nxp",
+        "liblog",
+        "libutils",
+        "libhidlbase",
+        "android.hardware.security.keymint-V3-ndk",
+    ],
+    srcs: [
+        "service.cpp",
+    ],
+    required: [
+        "android.hardware.hardware_keystore.jc-strongbox-keymint3.nxp.xml",
+    ],
+}
+
+prebuilt_etc {
+    name: "android.hardware.hardware_keystore.jc-strongbox-keymint3.nxp.xml",
+    sub_dir: "permissions",
+    vendor: true,
+    src: "android.hardware.hardware_keystore.jc-strongbox-keymint3.nxp.xml",
+}

@@ -1,0 +1,321 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.wearservices;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/app/wearservices/wearservices_enums.proto";
+
+option java_package = "com.android.os.wearservices";
+option java_multiple_files = true;
+
+extend Atom {
+  // Pushed Atom
+  optional WsWearTimeSession ws_wear_time_session = 610
+      [(module) = "wearservices"];
+
+  optional WsIncomingCallActionReported ws_incoming_call_action_reported = 626
+      [(module) = "wearservices"];
+
+  optional WsCallDisconnectionReported ws_call_disconnection_reported = 627
+      [(module) = "wearservices"];
+
+  optional WsCallDurationReported ws_call_duration_reported = 628
+      [(module) = "wearservices"];
+
+  optional WsCallUserExperienceLatencyReported ws_call_user_experience_latency_reported = 629
+      [(module) = "wearservices"];
+
+  optional WsCallInteractionReported ws_call_interaction_reported = 630
+      [(module) = "wearservices"];
+
+  optional WsOnBodyStateChanged ws_on_body_state_changed = 787
+      [(module) = "wearservices"];
+
+  optional WsWatchFaceRestrictedComplicationsImpacted
+    ws_watch_face_restricted_complications_impacted = 802
+      [(module) = "wearservices"];
+
+  optional WsWatchFaceDefaultRestrictedComplicationsRemoved
+    ws_watch_face_default_restricted_complications_removed = 803
+      [(module) = "wearservices"];
+
+  optional WsComplicationsImpactedNotificationEventReported
+    ws_complications_impacted_notification_event_reported = 804
+      [(module) = "wearservices"];
+
+  // Pulled Atom
+  optional WsStandaloneModeSnapshot ws_standalone_mode_snapshot = 10197
+      [(module) = "wearservices"];
+
+  optional WsFavouriteWatchFaceSnapshot ws_favorite_watch_face_snapshot = 10206
+      [(module) = "wearservices"];
+}
+
+/**
+ * Logged whenever an incoming call is accepted or rejected or silenced.
+ *
+ * Logged from package :
+ * vendor/google_clockwork_partners/packages/WearServices
+ */
+message WsIncomingCallActionReported {
+
+  // Depicts different call actions possible.
+  // Values: (CALL_ACTION_ACCEPTED, CALL_ACTION_REJECTED, CALL_ACTION_SILENCED)
+  optional android.app.wearservices.CallAction action = 1;
+
+  // Depicts different call account in use.
+  // Values: (CALL_SOURCE_WATCH, CALL_SOURCE_PHONE_HFP,
+  // CALL_SOURCE_PHONE_COMPANION)
+  optional android.app.wearservices.CallSource call_source = 2;
+}
+
+/**
+ * Logged whenever a call is disconnected.
+ *
+ * Logged from package :
+ * vendor/google_clockwork_partners/packages/WearServices
+ */
+message WsCallDisconnectionReported {
+
+  // Depicts Disconnection reason.
+  // Values: (DISCONNECT_REASON_ERROR, DISCONNECT_REASON_REJECTED, etc)
+  optional android.app.wearservices.DisconnectionReason reason = 1;
+
+  // Depicts the error behind the disconnection.
+  // Values: (DISCONNECTION_ERROR_CODE_DIALER,
+  // DISCONNECTION_ERROR_CODE_PHONE_DISCONNECTED, etc)
+  optional android.app.wearservices.DisconnectionErrorCode error_code = 2;
+}
+
+/**
+ * Logged whenever an incoming or outgoing call is bridged and picked up.
+ * The call picked up can be either on the watch, phone or via another connected
+ * device like bluetooth headphones.
+ *
+ * Logged from package :
+ * vendor/google_clockwork_partners/packages/WearServices
+ */
+message WsCallDurationReported {
+
+  // Depicts the type of call.
+  // Values: (CALL_TYPE_INCOMING, CALL_TYPE_OUTGOING)
+  optional android.app.wearservices.CallType call_type = 1;
+
+  // This field depicts whether the call was accepted or initiated on the watch.
+  // For OUTGOING calls it MUST be set to true when the call is initiated on the
+  // watch, for INCOMING calls it MUST be set to true when the call is accepted
+  // on the watch.
+  optional bool is_initiated_or_accepted_on_watch = 2;
+
+  // Depicts different call account in use.
+  // Values: (CALL_SOURCE_WATCH, CALL_SOURCE_PHONE_HFP,
+  // CALL_SOURCE_PHONE_COMPANION)
+  optional android.app.wearservices.CallSource call_source = 3;
+
+  // Depicts call duration in millis.
+  optional int32 call_duration_millis = 4;
+}
+
+/**
+ * Logged whenever a call request is received and bridged to the watch.
+ * This metric particularly measures the latency of different stages and actions
+ * during a call.
+ *
+ * Logged from package :
+ * vendor/google_clockwork_partners/packages/WearServices
+ */
+message WsCallUserExperienceLatencyReported {
+
+  // Depicts for what action the latency is being reported.
+  // Values: (LATENCY_ACTION_CALL_CREATION, LATENCY_ACTION_RING,
+  // LATENCY_ACTION_PICKED_CALL, LATENCY_ACTION_AUDIO_OUTPUT_SWITCH)
+  optional android.app.wearservices.LatencyAction latency_action = 1;
+
+  // Depicts the result of the overall call.
+  // Values: CALL_RESULT_NO_INTERACTION_ON_WATCH, CALL_RESULT_ACCEPTED_ON_WATCH,
+  // CALL_RESULT_REJECTED_ON_WATCH)
+  optional android.app.wearservices.CallResult result = 2;
+
+  // Depicts latency duration in millis.
+  optional int32 latency_duration_millis = 3;
+}
+
+/**
+ * Logged for call interactions in Wear Services.
+ *
+ * Logged from package :
+ * vendor/google_clockwork_partners/packages/WearServices
+ */
+message WsCallInteractionReported {
+
+  // Depicts user interaction during the call.
+  // Values: (CALL_INTERACTION_VOLUME_INCREASE,
+  // CALL_INTERACTION_VOLUME_DECREASE, CALL_INTERACTION_MUTE)
+  optional android.app.wearservices.CallInteraction interaction = 1;
+
+  // Depicts different call account in use.
+  // Values: (CALL_SOURCE_WATCH, CALL_SOURCE_PHONE_HFP,
+  // CALL_SOURCE_PHONE_COMPANION)
+  optional android.app.wearservices.CallSource call_source = 2;
+}
+
+/**
+ * Atom used to log the wear time for Wearables.
+ *
+ * Logged from package :
+ * vendor/google_clockwork_partners/packages/WearServices
+ */
+message WsWearTimeSession {
+    optional int64 session_duration_millis = 1;
+}
+
+/**
+ * Atom used to log that on body state of a Wearable have changed.
+ * Logged from package :
+ * vendor/google_clockwork_partners/packages/WearServices
+ */
+message WsOnBodyStateChanged {
+  optional android.app.wearservices.OnBodyState on_body_state = 1;
+}
+
+/**
+* A snapshot of the tether status on certain watches.
+* (go/wear-tether-mode-telemetry)
+*
+* Logged from package :
+* vendor/google_clockwork_partners/packages/WearServices
+*/
+message WsStandaloneModeSnapshot {
+  // Depicts the standalone/tether status of the watch.
+  optional android.app.wearservices.TetherConfigurationStatus tether_configuration_status = 1;
+}
+
+/**
+ * Logged for each watch face affected by the complication restrictions during
+ * upgrading to a build that supports the feature.
+ */
+message WsWatchFaceRestrictedComplicationsImpacted {
+  // Watch face package uid.
+  optional int32 watch_face_package_uid = 1 [(is_uid) = true];
+
+  // Watch face component class name.
+  optional string watch_face_component_class_name = 2;
+
+  // Complication component package UIDs for complications being restricted.
+  // A single watch face may have multiple restricted complications and each entry in this field
+  // corresponds to one of the restricted complications being removed.
+  repeated int32 complication_component_package_uid = 3 [(is_uid) = true];
+
+  // Complication component class names for complications being restricted corresponding to each
+  // restricted complication on the watch face.
+  repeated string complication_component_class_name = 4;
+
+  // Complication type (e.g. icon, small text) corresponding to the integer values defined in
+  // ComplicationData
+  // see: http://cs/h/googleplex-android/platform/frameworks/support/+/androidx-platform-release:wear/watchface/watchface-complications-data/src/main/java/android/support/wearable/complications/ComplicationData.kt
+  repeated int32 complication_type = 5;
+
+  // Indicates whether this watch face is the currently active watch face.
+  optional bool is_current_active = 6;
+}
+
+/**
+ * Snapshot of a favorite watch face with all of its complications.
+ */
+message WsFavouriteWatchFaceSnapshot {
+  // Active watch face package uid.
+  optional int32 watch_face_package_uid = 1 [(is_uid) = true];
+
+  // Active watch face class name. This will be
+  // null for Declarative WF packages, as these packages have only one WF.
+  optional string watch_face_class_name = 2;
+
+  // An ID number generated on a watch to uniquely identify watch face instances.
+  // An Androidx watch face can be added multiple times to the favorites list and this field is used
+  // to differentiate each instance, without leaking any information about the watch face itself.
+  // Note: equals to -1 in case of WSL watch faces.
+  optional int32 favorite_id = 3;
+
+  // Complication package name.
+  repeated int32 complication_component_package_uid = 4 [(is_uid) = true];
+
+  // Complication component class name.
+  repeated string complication_component_class_name = 5;
+
+  // Complication type (e.g. icon, small text) corresponding to the integer values defined in
+  // ComplicationData
+  // see: http://cs/h/googleplex-android/platform/frameworks/support/+/androidx-platform-release:wear/watchface/watchface-complications-data/src/main/java/android/support/wearable/complications/ComplicationData.kt
+  repeated int32 complication_type = 6;
+
+  // Indicates whether this watch face is the current active one.
+  optional bool is_current_active = 7;
+
+  // Indicates whether this watch face is restricted.
+  optional bool is_restricted = 8;
+}
+
+/**
+ * Logged whenever a user adds a watch face to the list of favorites and it contains
+ * restricted default complications.
+ */
+message WsWatchFaceDefaultRestrictedComplicationsRemoved {
+  // Watch face package uid.
+  optional int32 watch_face_package_uid = 1 [(is_uid) = true];
+
+  // Watch face component class name.
+  optional string watch_face_component_class_name = 2;
+
+  // Complication component package uids for complications being restricted.
+  repeated int32 complication_component_package_uid = 3 [(is_uid) = true];
+
+  // Complication component class names for complications being restricted.
+  repeated string complication_component_class_name = 4;
+
+  // Complication type (e.g. icon, small text) corresponding to the integer values defined in
+  // ComplicationData
+  // see: http://cs/h/googleplex-android/platform/frameworks/support/+/androidx-platform-release:wear/watchface/watchface-complications-data/src/main/java/android/support/wearable/complications/ComplicationData.kt
+  repeated int32 complication_type = 5;
+
+  // Complication slot IDs being affected by the restriction.
+  // Each watch face defines some complication slots. Each slot corresponds to a complication that
+  // can be configured on the watch face (e.g. battery, steps). Slots on the same watch face are
+  // defined with unique IDs. Those IDs are not unique across devices.
+  repeated int32 slot_id = 6;
+
+  // Type of the watch face being affected by the restriction.
+  optional android.app.wearservices.WatchFaceType watch_face_type = 7;
+}
+
+/**
+ * Logged whenever a user gets the notification informing them that their watch faces are affected
+ * by the complications restrictions, or they click on the "open on phone" action.
+ */
+message WsComplicationsImpactedNotificationEventReported {
+  enum Event {
+    UNSPECIFIED = 0;
+
+    // Indicates that the notification is sent.
+    SENT = 1;
+
+    // Indicates that the user clicked through the notification to the help center.
+    CLICKED = 2;
+  }
+  optional Event event = 1;
+}

@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.neuralnetworks;
+
+enum DataClass {
+    DATA_CLASS_UNKNOWN = 0;
+    DATA_CLASS_OTHER = 1;
+    DATA_CLASS_FLOAT32 = 2;
+    DATA_CLASS_FLOAT16 = 3;
+    DATA_CLASS_QUANT = 4;
+    DATA_CLASS_MIXED = 5;
+}
+
+enum Mode {
+    MODE_UNKNOWN = 0;
+
+    // Async execution.
+    MODE_ASYNC = 1;
+
+    // Sync execution.
+    MODE_SYNC = 2;
+
+    // Burst execution.
+    MODE_BURST = 3;
+
+    // Async with dependencies.
+    MODE_ASYNC_WITH_DEPS = 4;
+}
+
+// Mirrors the types in packages/modules/NeuralNetworks/runtime/include/NeuralNetworksTypes.h.
+enum ResultCode {
+    RESULT_CODE_NO_ERROR = 0;
+    RESULT_CODE_OUT_OF_MEMORY = 1;
+    RESULT_CODE_INCOMPLETE = 2;
+    RESULT_CODE_UNEXPECTED_NULL = 3;
+    RESULT_CODE_BAD_DATA = 4;
+    RESULT_CODE_OP_FAILED = 5;
+    RESULT_CODE_BAD_STATE = 6;
+    RESULT_CODE_UNMAPPABLE = 7;
+    RESULT_CODE_OUTPUT_INSUFFICIENT_SIZE = 8;
+    RESULT_CODE_UNAVAILABLE_DEVICE = 9;
+    RESULT_CODE_MISSED_DEADLINE_TRANSIENT = 10;
+    RESULT_CODE_MISSED_DEADLINE_PERSISTENT = 11;
+    RESULT_CODE_RESOURCE_EXHAUSTED_TRANSIENT = 12;
+    RESULT_CODE_RESOURCE_EXHAUSTED_PERSISTENT = 13;
+    RESULT_CODE_DEAD_OBJECT = 14;
+  }

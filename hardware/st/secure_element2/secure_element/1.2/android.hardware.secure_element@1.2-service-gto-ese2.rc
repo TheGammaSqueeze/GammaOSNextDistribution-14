@@ -1,0 +1,4 @@
+service gto_secure_element_hal_service_ese2_1_2 /vendor/bin/hw/android.hardware.secure_element@1.2-service-gto-ese2
+    class hal
+    user secure_element
+    group secure_element

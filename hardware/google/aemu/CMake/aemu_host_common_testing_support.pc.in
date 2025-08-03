@@ -1,0 +1,10 @@
+prefix="@CMAKE_INSTALL_PREFIX@"
+libdir="${prefix}/lib"
+includedir="${prefix}/include"
+
+Name: @PROJECT_NAME@ host common testing support
+Description: @CMAKE_PROJECT_DESCRIPTION@ (for testing support)
+Version: @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@
+
+Libs: -L${libdir} -laemu-host-common-testing-support
+Cflags: -I${includedir}

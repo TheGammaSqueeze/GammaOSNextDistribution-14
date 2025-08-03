@@ -1,0 +1,37 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "libhwjpeg",
+    proprietary: true,
+    owner: "google",
+    srcs: [
+        "AppMarkerWriter.cpp",
+        "ExynosJpegEncoder.cpp",
+        "ExynosJpegEncoderForCamera.cpp",
+        "FileLock.cpp",
+        "hwjpeg-base.cpp",
+        "hwjpeg-v4l2.cpp",
+        "libhwjpeg-exynos.cpp",
+        "LibScalerForJpeg.cpp",
+        "ThumbnailScaler.cpp",
+    ],
+    export_include_dirs: ["include"],
+    cflags: ["-DLOG_TAG=\"exynos-libhwjpeg\""],
+    header_libs: [
+        "google_hal_headers",
+        "libcutils_headers",
+        "libhardware_headers",
+        "libsystem_headers",
+    ],
+    export_header_lib_headers: [
+        "google_hal_headers",
+    ],
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libion_google",
+    ],
+}

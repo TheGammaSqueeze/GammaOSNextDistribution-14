@@ -1,0 +1,167 @@
+syntax = "proto2";
+
+package android.os.statsd.aiwallpapers;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/attribution_node.proto";
+
+option java_package = "com.android.os.aiwallpapers";
+option java_multiple_files = true;
+
+extend Atom {
+    optional AiWallpapersButtonPressed ai_wallpapers_button_pressed = 706
+        [(module) = "aiwallpapers"];
+
+    optional AiWallpapersTemplateSelected ai_wallpapers_template_selected = 707
+         [(module) = "aiwallpapers"];
+
+    optional AiWallpapersTermSelected ai_wallpapers_term_selected = 708
+        [(module) = "aiwallpapers"];
+
+    optional AiWallpapersWallpaperSet ai_wallpapers_wallpaper_set = 709
+        [(module) = "aiwallpapers"];
+
+    optional AiWallpapersSessionSummary ai_wallpapers_session_summary = 710
+        [(module) = "aiwallpapers"];
+}
+
+enum AiWallpapersButton {
+  /* unknown button. */
+  BUTTON_UNSPECIFIED = 0;
+  /* "Create Wallpaper" button */
+  BUTTON_CREATE_WALLPAPER = 1;
+  /* "Randomize" button */
+  BUTTON_RANDOMIZE = 2;
+  /* preview wallpaper ("check" mark) button */
+  BUTTON_PREVIEW_WALLPAPER = 3;
+}
+
+enum AiWallpapersBackend {
+  /* unknown backend. */
+  BACKEND_UNSPECIFIED = 0;
+  /* Aratea backend */
+  BACKEND_ARATEA = 1;
+  /* local images (for testing) backend */
+  BACKEND_LOCAL = 2;
+}
+
+/**
+  Enum corresponding to prompt templates. These are preapproved sentences,
+  with immutable structure, like "An abstract photo of pastel <texture>".
+  We assign them to enums in order to transmit fewer bytes per atom.
+  */
+enum AiWallpapersPrompt {
+  /* unknown prompt. */
+  PROMPT_UNSPECIFIED = 0;
+  PROMPT_CANDY_PASTELS = 1;
+  PROMPT_LINE_DRAWING = 2;
+  PROMPT_IRIDESCENT = 3;
+  PROMPT_SOFT_FOCUS = 4;
+  PROMPT_AMBIENT_TEXTURES = 5;
+  PROMPT_TRANSLUCENT = 6;
+  PROMPT_DARK_THEME = 7;
+  PROMPT_MOOD = 8;
+  PROMPT_GLITCH = 9;
+  PROMPT_MYSTICAL_BOTANICALS = 10;
+  PROMPT_MINERALS = 11;
+  PROMPT_COSMIC = 12;
+  PROMPT_CHARACTERS = 13;
+  PROMPT_CLASSIC_ART = 14;
+  PROMPT_COLLAGE = 15;
+  PROMPT_DREAMSCAPES = 16;
+  PROMPT_UNEXPECTED_LANDSCAPE = 17;
+  PROMPT_VIVID = 18;
+  PROMPT_PATTERN = 19;
+  PROMPT_AIRBRUSH_FLOWERS = 20;
+  PROMPT_SPIRITUAL = 21;
+  PROMPT_CURIOUS_WORLD = 22;
+  PROMPT_SCAN = 23;
+}
+
+
+/**
+ * A record of the fact that a specific button was pressed.
+ * One message for each press of a button we care about.
+ * Logged from:
+ *     platform/vendor/unbundled_google/packages/WallpaperEffect/master/AiWallpapers/src/com/google/android/apps/aiwallpapers/utils/
+ */
+message AiWallpapersButtonPressed {
+  optional AiWallpapersButton button = 1;
+  /* the backend (image generation system) */
+  optional AiWallpapersBackend backend = 2;
+}
+
+/**
+ * A record of the fact that a specific prompt template was selected.
+ * We want to know whether it was set from within the app, or launched with that
+ * template selected from the WallpaperPicker.
+ * Logged from:
+ *     platform/vendor/unbundled_google/packages/WallpaperEffect/master/AiWallpapers/src/com/google/android/apps/aiwallpapers/utils/
+ */
+message AiWallpapersTemplateSelected {
+  /* true if prompt template was selected from WallpaperPicker, else false */
+  optional bool selected_from_picker = 1;
+  /* the phrase shown for the prompt template in the dropdown */
+  optional AiWallpapersPrompt prompt = 2;
+}
+
+/**
+ * A record of the fact that a specific term option (chip) was selected.
+ * These are preapproved words, and the user cannot type in arbitrary strings.
+ * Their values can only be selected from a menu of preapproved words/phrases.
+ * E.g. for a <subject> option, the list of preapproved values includes:
+ *      flowers, leaves, roses, ..., cats, deer, ..., owls, etc.
+ * Logged from:
+ *     platform/vendor/unbundled_google/packages/WallpaperEffect/master/AiWallpapers/src/com/google/android/apps/aiwallpapers/utils/
+ */
+message AiWallpapersTermSelected {
+  /* identifies the prompt within which this term option resides */
+  optional AiWallpapersPrompt prompt = 1;
+  /* the term option selected; these can only be one of the preapproved entries in:
+     platform/vendor/unbundled_google/packages/WallpaperEffect/AiWallpapers/scripts/chips.txt
+   */
+  optional string term_option = 2;
+  /* the zero-indexed position of that option within the list of options */
+  optional int32 term_index = 3;
+  /* the fractional position of that option within the list of options */
+  optional float term_pos_frac = 4;
+}
+
+/**
+ * A record of the fact that a wallpaper was set from the app.
+ * Logged from:
+ *     platform/vendor/unbundled_google/packages/WallpaperEffect/master/AiWallpapers/src/com/google/android/apps/aiwallpapers/utils/
+ */
+message AiWallpapersWallpaperSet {
+  /* the prompt template selected from the dropdown */
+  optional AiWallpapersPrompt prompt = 1;
+  /* the term options selected for this prompt; these can only be one of the
+     preapproved entries in:
+     platform/vendor/unbundled_google/packages/WallpaperEffect/AiWallpapers/scripts/chips.txt
+   */
+  repeated string term_options = 2;
+  /* the backend (image generation system) */
+  optional AiWallpapersBackend backend = 3;
+}
+
+/**
+ * A summary of a session, starting from launching the activity, till setting
+ * the wallpaper (or quitting).
+ * Logged from:
+ *     platform/vendor/unbundled_google/packages/WallpaperEffect/master/AiWallpapers/src/com/google/android/apps/aiwallpapers/utils/
+ */
+message AiWallpapersSessionSummary {
+  /* number of times user changed the value of a term */
+  optional int32 term_change_count = 1;
+  /* number of times user clicked the "Randomize" button */
+  optional int32 randomize_click_count = 2;
+  /* number of times user swiped through the list of term options */
+  optional int32 term_options_swipe_count = 3;
+  /* number of times user swiped through the carousel of AI-generated bitmaps */
+  optional int32 bitmap_carousel_swipe_count = 4;
+  /* how long the app was open */
+  optional int64 session_duration_millis = 5;
+  /* the backend (image generation system) */
+  optional AiWallpapersBackend backend = 6;
+}

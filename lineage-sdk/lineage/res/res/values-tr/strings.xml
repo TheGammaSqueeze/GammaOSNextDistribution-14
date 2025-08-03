@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015 The CyanogenMod Project
+                   2017-2023 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lineageos_system_label">LineageOS Sistemi</string>
+    <string name="permlab_modifyProfiles">sistem profillerini değiştir</string>
+    <string name="permdesc_modifyProfiles">Uygulamaya sistem profillerini değiştirme izni verir.</string>
+    <string name="permlab_useHardwareFramework">donanım altyapısını kullan</string>
+    <string name="permdesc_useHardwareFramework">Uygulamanın Lineage donanım altyapısına erişimine izin verir.</string>
+    <string name="permlab_writeSettings">Lineage sistem ayarlarını değiştir</string>
+    <string name="permdesc_writeSettings">Bir uygulamaya Lineage sistem ayarlarını değiştirme izni verir.</string>
+    <string name="permlab_writeSecureSettings">Lineage güvenli sistem ayarlarını değiştir</string>
+    <string name="permdesc_writeSecureSettings">Bir uygulamaya Lineage güvenli sistem ayarlarını değiştirme izni verir. Normal uygulamalar tarafından kullanılamaz.</string>
+    <string name="profileNameDefault">Varsayılan</string>
+    <string name="profileNameWork">İş</string>
+    <string name="profileNameHome">Ev</string>
+    <string name="profileNameSilent">Sessiz</string>
+    <string name="profileNameNight">Gece</string>
+    <string name="profileNameAutomobile">Otomobil</string>
+    <string name="profileGroupPhone">Telefon</string>
+    <string name="profileGroupCalendar">Takvim</string>
+    <string name="profileGroupGmail">Gmail</string>
+    <string name="profileGroupEmail">E-posta</string>
+    <string name="profileGroupSMS">SMS</string>
+    <string name="wildcardProfile">Diğer</string>
+    <string name="live_display_auto">Otomatik</string>
+    <string name="live_display_auto_summary">Gün batımı ve doğumundan sonra ekranın renk sıcaklığını otomatik ayarlar</string>
+    <string name="live_display_off">Kapalı</string>
+    <string name="live_display_off_summary">Tüm ayarlamaları devre dışı bırak</string>
+    <string name="live_display_day">Gün</string>
+    <string name="live_display_day_summary">Sadece gündüz ayarlarını kullan</string>
+    <string name="live_display_night">Gece</string>
+    <string name="live_display_night_summary">Sadece gece ayarlarını kullan</string>
+    <string name="live_display_outdoor">Açık alan (parlak güneş)</string>
+    <string name="live_display_outdoor_summary">Sadece açık alan ayarlarını kullan</string>
+    <string name="live_display_hint">LiveDisplay göz yorgunluğunuzu azaltıp geceleri uyumanıza yardımcı olabilir. Denemek için buraya tıklayın!</string>
+    <string name="accessibility_quick_settings_live_display_off">LiveDisplay kapalı.</string>
+    <string name="accessibility_quick_settings_live_display_auto">LiveDisplay: otomatik mod.</string>
+    <string name="accessibility_quick_settings_live_display_day">LiveDisplay: gündüz modu.</string>
+    <string name="accessibility_quick_settings_live_display_night">LiveDisplay: gece modu.</string>
+    <string name="accessibility_quick_settings_live_display_outdoor">LiveDisplay: açık hava modu.</string>
+    <string name="accessibility_quick_settings_live_display_changed_off">LiveDisplay kapatıldı.</string>
+    <string name="accessibility_quick_settings_live_display_changed_auto">LiveDisplay otomatik moda geçti.</string>
+    <string name="accessibility_quick_settings_live_display_changed_day">LiveDisplay gündüz moduna geçti.</string>
+    <string name="accessibility_quick_settings_live_display_changed_night">LiveDisplay gece moduna geçti.</string>
+    <string name="accessibility_quick_settings_live_display_changed_outdoor">LiveDisplay açık hava moduna geçti.</string>
+    <string name="permlab_manageLiveDisplay">LiveDisplay ayarlarını yönet</string>
+    <string name="permdesc_manageLiveDisplay">Uygulamalara gelişmiş ekran ayarlarını düzenleme izni verir.</string>
+    <string name="permlab_manageRemotePrefs">uzak bağlantı ayarları</string>
+    <string name="permdesc_manageRemotePrefs">Bir uygulamaya uzak bağlantı ayarlarını yönetme izni verir</string>
+    <string name="build_date">İnşa tarihi</string>
+    <string name="lineage_api_level">LineageOS API düzeyi</string>
+    <string name="lineage_updates">LineageOS güncellemeleri</string>
+    <string name="lineage_version">LineageOS sürümü</string>
+    <string name="lineage_vendor_security_patch">Üretici güvenlik yaması düzeyi</string>
+    <string name="unknown">Bilinmiyor</string>
+    <string name="app_killed_message">Uygulama sonlandırıldı</string>
+    <string name="kilobitspersecond_short">kb/s</string>
+    <string name="megabitspersecond_short">Mb/s</string>
+    <string name="kilobytespersecond_short">kB/s</string>
+    <string name="megabytespersecond_short">MB/s</string>
+    <string name="kilobytespersecond_compact">k</string>
+    <string name="megabytespersecond_compact">M</string>
+    <string name="trust_feature_name">Trust</string>
+    <string name="permlab_trustInterface">Güven arayüzüne erişim</string>
+    <string name="permdesc_trustInterface">Bir uygulamanın Güven uyarılarını ve önerilerini görüntülemesine izin verir</string>
+    <string name="trust_notification_channel">Trust uyarıları</string>
+    <string name="trust_notification_title_security">Trust \u2022 Sistem güvenliği</string>
+    <string name="trust_notification_content_selinux">SELinux zorlanmıyor, güvenliğiniz zayıfladı</string>
+    <string name="trust_notification_content_keys">Bu yapı ortak anahtarlarla imzalandı</string>
+    <string name="trust_notification_title_onboarding">Trust\'ı Keşfet</string>
+    <string name="trust_notification_content_onboarding">Cihazınızın güvenliğini nasıl sağlayacağınızı öğrenin</string>
+    <string name="trust_notification_action_manage">Uyarıları yönet</string>
+    <string name="charging_control_notification_channel">Şarj kontrolü</string>
+    <string name="charging_control_notification_title">Şarj kontrolü</string>
+    <string name="charging_control_notification_cancel_once">İptal</string>
+    <string name="charging_control_notification_content_limit">Pil  %1$d%% seviyesine kadar şarj olacak</string>
+    <string name="charging_control_notification_content_limit_reached">Pil  %1$d%% seviyesine kadar şarj edildi</string>
+    <string name="charging_control_notification_content_target">Pil şu saatte tamamen şarj olmuş olacak: %1$s</string>
+    <string name="charging_control_notification_content_target_reached">Pil şarj oldu</string>
+</resources>

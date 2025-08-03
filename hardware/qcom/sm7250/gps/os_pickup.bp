@@ -1,0 +1,17 @@
+//hardware/qcom/sm7250/Android.bp links to this file
+bootstrap_go_package {
+    name: "soong-display_defaults_sm7250",
+    pkgPath: "android/soong/hardware/qcom/sm7250/display",
+    deps: [
+        "blueprint",
+        "blueprint-pathtools",
+        "soong",
+        "soong-android",
+        "soong-cc",
+        "soong-genrule",
+    ],
+    srcs: [
+        "display/display_defaults.go",
+    ],
+    pluginFor: ["soong_build"],
+}

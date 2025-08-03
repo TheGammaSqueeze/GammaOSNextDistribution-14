@@ -1,0 +1,104 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.uwb;
+
+option java_outer_classname = "UwbProtoEnums";
+option java_multiple_files = true;
+
+// UWB profiles
+enum Profile {
+    UNKNOWN = 0;
+    FIRA = 1;
+    CCC = 2;
+    CUSTOMIZED = 3;
+    ALIRO = 4;
+}
+// UWB scrambled timestamp sequence (STS) type
+enum Sts {
+    UNKNOWN_STS = 0;
+    STATIC = 1;
+    DYNAMIC = 2;
+    PROVISIONED = 3;
+}
+
+// UWB session status codes
+enum Status {
+    STATUS_UNKNOWN = 0;
+    SUCCESS = 1;
+    GENERAL_FAILURE = 2;
+    BAD_PARAMS = 3;
+    REJECTED = 4;
+    SESSION_DUPLICATE = 5;
+    SESSION_EXCEEDED = 6;
+    SERVICE_NOT_FOUND = 7;
+    PROVISION_FAILED = 8;
+}
+
+// UWB ranging session status codes
+enum RangingStatus {
+    RANGING_STATUS_UNKNOWN = 0;
+    RANGING_SUCCESS = 1;
+    RANGING_GENERAL_FAILURE = 2;
+    RANGING_REJECTED = 3;
+    RANGING_BAD_PARAMS = 4;
+    TX_FAILED = 5;
+    RX_PHY_DEC_FAILED = 6;
+    RX_PHY_TOA_FAILED = 7;
+    RX_PHY_STS_FAILED = 8;
+    RX_MAC_DEC_FAILED = 9;
+    RX_MAC_IE_DEC_FAILED = 10;
+    RX_MAC_IE_MISSING = 11;
+}
+
+// UWB session duration buckets
+enum DurationBucket {
+    DURATION_UNKNOWN = 0;
+    WITHIN_ONE_SEC = 1;
+    ONE_TO_TEN_SEC = 2;
+    TEN_SEC_TO_ONE_MIN = 3;
+    ONE_TO_TEN_MIN = 4;
+    TEN_MIN_TO_ONE_HOUR = 5;
+    MORE_THAN_ONE_HOUR = 6;
+}
+
+// UWB count buckets
+enum CountBucket {
+    COUNT_UNKNOWN = 0;
+    ZERO = 1;
+    ONE_TO_FIVE = 2;
+    FIVE_TO_TWENTY = 3;
+    TWENTY_TO_ONE_HUNDRED = 4;
+    ONE_HUNDRED_TO_FIVE_HUNDRED = 5;
+    MORE_THAN_FIVE_HUNDRED = 6;
+}
+
+// Non-Line-of-Sight indication
+enum Nlos {
+    NLOS_UNKNOWN = 0;
+    NLOS = 1;
+    LOS = 2;
+}
+
+// UWB ranging measurement types
+enum RangingType {
+    TYPE_UNKNOWN = 0;
+    ONE_WAY = 1;
+    TWO_WAY = 2;
+    DL_TDOA = 3;
+    OWR_AOA = 4;
+}

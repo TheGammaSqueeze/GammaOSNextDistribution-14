@@ -1,0 +1,74 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+
+package android.os.statsd.automotive.carlauncher;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.automotive.carlauncher";
+option java_multiple_files = true;
+
+extend Atom {
+  optional CarRecentsEventReported car_recents_event_reported = 770 [(module) = "carlauncher"];
+  optional CarCalmModeEventReported car_calm_mode_event_reported = 797 [(module) = "carlauncher"];
+}
+
+/**
+ * Logs when an recents event occurs in carlauncher.
+ *
+ * Logged from package: packages/apps/Car/Launcher
+ */
+message CarRecentsEventReported {
+  enum RecentsEventType {
+    UNSPECIFIED = 0;
+    SESSION_STARTED = 1;
+    SESSION_FINISHED = 2;
+    APP_LAUNCHED = 3;
+    APP_DISMISSED = 4;
+    CLEAR_ALL = 5;
+  }
+  optional int64 session_id = 1;
+  optional int64 event_id = 2;
+  optional RecentsEventType event_type = 3;
+  optional int32 total_task_count = 4;
+  optional int32 event_task_index = 5;
+  optional int64 time_to_event_millis = 6;
+  optional int32 package_uid = 7 [(is_uid) = true];
+}
+
+/**
+ * Logs when a calm mode event occurs in carlauncher.
+ *
+ * Logged from package: packages/apps/Car/Launcher
+ */
+message CarCalmModeEventReported {
+  enum CalmModeEventType {
+    UNSPECIFIED_EVENT_TYPE = 0;
+    SESSION_STARTED = 1;
+    SESSION_FINISHED = 2;
+  }
+  enum CalmModeLaunchType {
+    UNSPECIFIED_LAUNCH_TYPE = 0;
+    SETTINGS = 1;
+    QUICK_CONTROLS = 2;
+  }
+  optional int64 session_id = 1;
+  optional int64 event_id = 2;
+  optional CalmModeEventType event_type = 3;
+  optional CalmModeLaunchType launch_type = 4;
+}

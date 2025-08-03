@@ -1,0 +1,312 @@
+/******************************************************************************
+ *
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *****************************************************************************
+ * Originally developed and contributed by Ittiam Systems Pvt. Ltd, Bangalore
+ */
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_defaults {
+    name: "extractor-fuzzerbase-defaults",
+
+    local_include_dirs: [
+        "include",
+    ],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    static_libs: [
+        "liblog",
+        "libstagefright_foundation_colorutils_ndk",
+        "libstagefright_foundation",
+        "libmediandk_format",
+        "libmedia_ndkformatpriv",
+    ],
+
+    shared_libs: [
+        "libutils",
+        "libbinder",
+        "libbase",
+        "libcutils",
+    ],
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_defaults {
+    name: "extractor-fuzzer-defaults",
+    defaults: ["extractor-fuzzerbase-defaults"],
+
+    static_libs: [
+        "libextractorfuzzerbase",
+    ],
+
+    fuzz_config: {
+        cc: [
+            "android-media-playback+bugs@google.com",
+        ],
+        componentid: 817235,
+        hotlists: [
+            "4593311",
+        ],
+        description: "The fuzzers targets the APIs of all the various extractors",
+        vector: "remote",
+        service_privilege: "constrained",
+        users: "multi_user",
+        fuzzed_code_usage: "shipped",
+    },
+}
+
+cc_defaults {
+    name: "mpeg2-extractor-fuzzer-defaults",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    static_libs: [
+        "libstagefright_foundation_without_imemory",
+        "libstagefright_mpeg2support",
+        "libstagefright_mpeg2extractor",
+        "libstagefright_esds",
+        "libmpeg2extractor",
+        "libmedia_helper",
+    ],
+
+    shared_libs: [
+        "android.hardware.cas@1.0",
+        "android.hardware.cas.native@1.0",
+        "android.hidl.token@1.0-utils",
+        "android.hidl.allocator@1.0",
+        "libcrypto",
+        "libhidlmemory",
+        "libhidlbase",
+    ],
+}
+
+cc_library_static {
+    name: "libextractorfuzzerbase",
+    defaults: ["extractor-fuzzerbase-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "ExtractorFuzzerBase.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "mp4_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "mp4_extractor_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libstagefright_id3",
+        "libstagefright_esds",
+        "libmp4extractor",
+    ],
+
+    dictionary: "mp4_extractor_fuzzer.dict",
+}
+
+cc_fuzz {
+    name: "wav_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "wav_extractor_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libfifo",
+        "libwavextractor",
+    ],
+
+    shared_libs: [
+        "libbinder_ndk",
+    ],
+}
+
+cc_fuzz {
+    name: "amr_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "amr_extractor_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libamrextractor",
+    ],
+
+    dictionary: "amr_extractor_fuzzer.dict",
+}
+
+cc_fuzz {
+    name: "mkv_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "mkv_extractor_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libwebm_mkvparser",
+        "libstagefright_flacdec",
+        "libstagefright_metadatautils",
+        "libmkvextractor",
+        "libFLAC",
+    ],
+
+    dictionary: "mkv_extractor_fuzzer.dict",
+
+    corpus: ["corpus/*"],
+}
+
+cc_fuzz {
+    name: "ogg_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "ogg_extractor_fuzzer.cpp",
+    ],
+
+
+    static_libs: [
+        "libstagefright_metadatautils",
+        "libvorbisidec",
+        "liboggextractor",
+    ],
+
+    dictionary: "ogg_extractor_fuzzer.dict",
+}
+
+cc_fuzz {
+    name: "mpeg2ps_extractor_fuzzer",
+    defaults: ["mpeg2-extractor-fuzzer-defaults"],
+
+    srcs: [
+        "mpeg2_extractor_fuzzer.cpp",
+    ],
+
+    cflags: [
+        "-DMPEG2PS",
+    ],
+
+    dictionary: "mpeg2ps_extractor_fuzzer.dict",
+}
+
+cc_fuzz {
+    name: "mpeg2ts_extractor_fuzzer",
+    defaults: ["mpeg2-extractor-fuzzer-defaults"],
+
+    srcs: [
+        "mpeg2_extractor_fuzzer.cpp",
+    ],
+
+    dictionary: "mpeg2ts_extractor_fuzzer.dict",
+}
+
+cc_fuzz {
+    name: "mp3_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "mp3_extractor_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libfifo",
+        "libmp3extractor",
+        "libstagefright_id3",
+    ],
+}
+
+cc_fuzz {
+    name: "aac_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "aac_extractor_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libaacextractor",
+        "libstagefright_metadatautils",
+    ],
+}
+
+cc_fuzz {
+    name: "flac_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "flac_extractor_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libstagefright_metadatautils",
+        "libFLAC",
+        "libflacextractor",
+    ],
+
+    shared_libs: [
+        "libbinder_ndk",
+    ],
+
+    dictionary: "flac_extractor_fuzzer.dict",
+}
+
+cc_fuzz {
+    name: "midi_extractor_fuzzer",
+    defaults: ["extractor-fuzzer-defaults"],
+
+    srcs: [
+        "midi_extractor_fuzzer.cpp",
+    ],
+
+    static_libs: [
+        "libsonivox",
+        "libmedia_midiiowrapper",
+        "libmidiextractor",
+        "libwatchdog",
+    ],
+
+    dictionary: "midi_extractor_fuzzer.dict",
+
+    host_supported: true,
+}

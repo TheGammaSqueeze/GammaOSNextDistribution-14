@@ -1,0 +1,4 @@
+service vendor.livedisplay-hal-2-0-legacymm /vendor/bin/hw/vendor.lineage.livedisplay@2.0-service-legacymm
+    class late_start
+    user system
+    group system

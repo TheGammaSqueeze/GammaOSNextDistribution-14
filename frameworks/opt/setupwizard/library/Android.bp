@@ -1,0 +1,74 @@
+//
+// Build the platform version of setup wizard library.
+//
+
+package {
+    default_applicable_licenses: ["frameworks_opt_setupwizard_library_license"],
+}
+
+// Added automatically by a large-scale-change
+// http://go/android-license-faq
+license {
+    name: "frameworks_opt_setupwizard_library_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+android_library {
+    name: "setup-wizard-lib",
+
+    libs: ["androidx.annotation_annotation"],
+    manifest: "main/AndroidManifest.xml",
+    resource_dirs: [
+        "main/res",
+        "platform/res",
+    ],
+    sdk_version: "current",
+    srcs: [
+        "main/src/**/*.java",
+        "platform/src/**/*.java",
+    ],
+    min_sdk_version: "23",
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+//
+// Build gingerbread-compat library, which uses AppCompat support library to provide backwards
+// compatibility back to SDK v9.
+//
+
+android_library {
+    name: "setup-wizard-lib-gingerbread-compat",
+    manifest: "main/AndroidManifest.xml",
+    resource_dirs: [
+        "main/res",
+        "gingerbread/res",
+        "recyclerview/res",
+    ],
+    sdk_version: "current",
+    srcs: [
+        "main/src/**/*.java",
+        "gingerbread/src/**/*.java",
+        "recyclerview/src/**/*.java",
+    ],
+
+    libs: [
+        "androidx.annotation_annotation",
+        "androidx.core_core",
+        "androidx.legacy_legacy-support-core-ui",
+        "androidx.appcompat_appcompat",
+        "androidx.recyclerview_recyclerview",
+    ],
+
+    min_sdk_version: "14",
+    lint: {
+        baseline_filename: "lint-baseline2.xml",
+    },
+}

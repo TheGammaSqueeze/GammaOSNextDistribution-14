@@ -1,0 +1,40 @@
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_qcom_sm7250_gps_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["hardware_qcom_sm7250_gps_license"],
+}
+
+cc_library_shared {
+
+    name: "libbatching",
+    vendor: true,
+
+
+
+    shared_libs: [
+        "libutils",
+        "libcutils",
+        "liblog",
+        "libloc_core",
+        "libgps.utils",
+        "libdl",
+    ],
+
+    srcs: [
+        "location_batching.cpp",
+        "BatchingAdapter.cpp",
+    ],
+
+    header_libs: [
+        "libgps.utils_headers",
+        "libloc_core_headers",
+        "libloc_pla_headers",
+        "liblocation_api_headers",
+    ],
+
+    cflags: GNSS_CFLAGS,
+}

@@ -1,0 +1,69 @@
+
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto2";
+package android.os.statsd.ondevicepersonalization;
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+option java_package = "com.android.os.ondevicepersonalization";
+option java_multiple_files = true;
+extend Atom {
+  optional OnDevicePersonalizationApiCalled ondevicepersonalization_api_called =
+            711 [(module) = "ondevicepersonalization", (truncate_timestamp) = true];
+}
+/**
+ * Logs when an OnDevicePersonalization api is called.
+ */
+message OnDevicePersonalizationApiCalled {
+    enum OnDevicePersonalizationApiClassType {
+        UNKNOWN = 0;
+        DOWNLOADING = 1;
+        SERVING = 2;
+        OPTIMIZATION = 3;
+        REPORTING = 4;
+    }
+    enum OnDevicePersonalizationApiName {
+        API_NAME_UNKNOWN = 0;
+        EXECUTE = 1;
+        REQUEST_SURFACE_PACKAGE = 2;
+        SERVICE_ON_EXECUTE = 3;
+        SERVICE_ON_DOWNLOAD_COMPLETED = 4;
+        SERVICE_ON_RENDER = 5;
+        SERVICE_ON_EVENT = 6;
+        SERVICE_ON_TRAINING_EXAMPLE = 7;
+        SERVICE_ON_WEB_TRIGGER = 8;
+        REMOTE_DATA_GET = 9;
+        REMOTE_DATA_KEYSET = 10;
+        LOCAL_DATA_GET = 11;
+        LOCAL_DATA_KEYSET = 12;
+        LOCAL_DATA_PUT = 13;
+        LOCAL_DATA_REMOVE = 14;
+        EVENT_URL_CREATE_WITH_RESPONSE = 15;
+        EVENT_URL_CREATE_WITH_REDIRECT = 16;
+        LOG_READER_GET_REQUESTS = 17;
+        LOG_READER_GET_JOINED_EVENTS = 18;
+        FEDERATED_COMPUTE_SCHEDULE = 19;
+        MODEL_MANAGER_RUN = 20;
+    }
+    optional OnDevicePersonalizationApiClassType api_class = 1;
+    optional OnDevicePersonalizationApiName api_name = 2;
+    // end to end latency of the operation
+    optional int32 latency_millis = 3;
+    // response_code is the error/failure code for the given api.
+    optional int32 response_code = 4;
+    // latency excluding time spent in user code
+    optional int32 overhead_latency_millis = 5;
+}

@@ -1,0 +1,27 @@
+#!/bin/bash
+# Requires:
+#   sudo apt install gcc-arm-linux-gnueabihf gcc-arm-linux-gnueabi
+
+set -e
+set -u
+
+cd "${0%/*}"
+
+declare -ar FLAGS=(
+  '-std=c89'
+  '-Wall'
+  '-Werror'
+  '-Werror=implicit-fallthrough'
+  '-Werror=strict-prototypes'
+  '-Wsign-compare'
+  '-Wsign-conversion'
+  '-Wunused-parameter'
+  '-Wuninitialized'
+  '-Os'
+  '-fomit-frame-pointer'
+)
+
+arm-linux-gnueabi-gcc "${FLAGS[@]}" -Wno-sign-conversion apf_interpreter.c -c -o apf_interpreter.arm.o
+clang -m32 "${FLAGS[@]}" -Wnullable-to-nonnull-conversion -Wthread-safety apf_interpreter.c -c -o apf_interpreter.x86.o
+size apf_interpreter.arm.o
+size apf_interpreter.x86.o

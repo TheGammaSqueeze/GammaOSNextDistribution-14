@@ -1,0 +1,48 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+java_library_host {
+    name: "protologtool-lib",
+    srcs: [
+        "src/com/android/protolog/tool/**/*.kt",
+        ":protolog-common-src",
+    ],
+    static_libs: [
+        "javaparser",
+        "platformprotos",
+        "jsonlib",
+        "perfetto_trace-full",
+    ],
+}
+
+java_binary_host {
+    name: "protologtool",
+    manifest: "manifest.txt",
+    static_libs: [
+        "protologtool-lib",
+    ],
+}
+
+java_test_host {
+    name: "protologtool-tests",
+    test_suites: ["general-tests"],
+    srcs: [
+        "tests/**/*.kt",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    static_libs: [
+        "protologtool-lib",
+        "junit",
+        "mockito",
+        "objenesis",
+        "truth",
+    ],
+}

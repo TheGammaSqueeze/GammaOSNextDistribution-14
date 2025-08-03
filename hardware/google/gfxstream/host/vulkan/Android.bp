@@ -1,0 +1,96 @@
+package {
+    default_team: "trendy_team_android_developer_tools",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_google_gfxstream_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-MIT
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_static {
+    name: "libgfxstream_host_vulkan_server",
+    defaults: ["gfxstream_defaults"],
+    header_libs: [
+        "gfxstream_gl_host_common_headers",
+        "gfxstream_opengl_headers",
+        "libgfxstream_host_vulkan_cereal_common",
+    ],
+    static_libs: [
+        "gfxstream_base",
+        "libgfxstream_thirdparty_glm",
+        "libgfxstream_host_compressedtextures",
+        "libgfxstream_host_vulkan_emulatedtextures",
+        "gfxstream_host_common",
+        "libgfxstream_host_apigen_codec_common",
+        "libgfxstream_host_vulkan_cereal",
+    ],
+    cflags: [
+        "-fvisibility=hidden",
+        "-Wno-inconsistent-missing-override",
+        "-Wno-unused-value",
+        "-Wno-return-type",
+        "-Wno-return-type-c-linkage",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-unused-function",
+        "-Wno-uninitialized",
+        "-Wno-unreachable-code-loop-increment",
+    ],
+    srcs: [
+        "BorrowedImageVk.cpp",
+        "BufferVk.cpp",
+        "ColorBufferVk.cpp",
+        "CompositorVk.cpp",
+        "DebugUtilsHelper.cpp",
+        "DisplayVk.cpp",
+        "DisplaySurfaceVk.cpp",
+        "PostWorkerVk.cpp",
+        "SwapChainStateVk.cpp",
+        "VkAndroidNativeBuffer.cpp",
+        "VkCommonOperations.cpp",
+        "VkDecoder.cpp",
+        "VkDecoderGlobalState.cpp",
+        "RenderThreadInfoVk.cpp",
+        "VkDecoderSnapshot.cpp",
+        "VkDecoderSnapshotUtils.cpp",
+        "VkFormatUtils.cpp",
+        "VkReconstruction.cpp",
+        "VulkanDispatch.cpp",
+        "VulkanHandleMapping.cpp",
+        "VulkanStream.cpp",
+        "vk_util.cpp",
+    ],
+    // http://b/178667698 - clang-tidy crashes with VulkanStream.cpp
+    // https://android-review.googlesource.com/c/device/generic/vulkan-cereal/+/1560695/
+    // http://b/255937616 - clang-tidy can take long with VkDecoder.cpp
+    tidy_disabled_srcs: [
+        "VulkanStream.cpp",
+        "VkDecoderGlobalState.cpp", // took more than 400 seconds
+        "VkDecoder.cpp",
+    ],
+}
+
+// Run with `atest --host gfxstream_vkformatutils_tests`
+cc_test_host {
+    name: "gfxstream_vkformatutils_tests",
+    defaults: ["gfxstream_defaults"],
+    srcs: [
+        "VkFormatUtils_unittest.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    static_libs: [
+        "libgfxstream_thirdparty_glm",
+        "gfxstream_host_common",
+        "libgfxstream_host_vulkan_server",
+        "libgtest",
+        "libgmock",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}

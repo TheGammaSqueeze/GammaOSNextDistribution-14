@@ -1,0 +1,228 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <RenderEngineBench.h>
+#include <android-base/file.h>
+#include <benchmark/benchmark.h>
+#include <gui/SurfaceComposerClient.h>
+#include <log/log.h>
+#include <renderengine/ExternalTexture.h>
+#include <renderengine/LayerSettings.h>
+#include <renderengine/RenderEngine.h>
+#include <renderengine/impl/ExternalTexture.h>
+
+#include <mutex>
+
+using namespace android;
+using namespace android::renderengine;
+
+///////////////////////////////////////////////////////////////////////////////
+//  Helpers for calling drawLayers
+///////////////////////////////////////////////////////////////////////////////
+
+std::pair<uint32_t, uint32_t> getDisplaySize() {
+    // These will be retrieved from a ui::Size, which stores int32_t, but they will be passed
+    // to GraphicBuffer, which wants uint32_t.
+    static uint32_t width, height;
+    std::once_flag once;
+    std::call_once(once, []() {
+        auto surfaceComposerClient = SurfaceComposerClient::getDefault();
+        auto ids = SurfaceComposerClient::getPhysicalDisplayIds();
+        LOG_ALWAYS_FATAL_IF(ids.empty(), "Failed to get any display!");
+        ui::Size resolution = ui::kEmptySize;
+        // find the largest display resolution
+        for (auto id : ids) {
+            auto displayToken = surfaceComposerClient->getPhysicalDisplayToken(id);
+            ui::DisplayMode displayMode;
+            if (surfaceComposerClient->getActiveDisplayMode(displayToken, &displayMode) < 0) {
+                LOG_ALWAYS_FATAL("Failed to get active display mode!");
+            }
+            auto tw = displayMode.resolution.width;
+            auto th = displayMode.resolution.height;
+            LOG_ALWAYS_FATAL_IF(tw <= 0 || th <= 0, "Invalid display size!");
+            if (resolution.width * resolution.height <
+                displayMode.resolution.width * displayMode.resolution.height) {
+                resolution = displayMode.resolution;
+            }
+        }
+        width = static_cast<uint32_t>(resolution.width);
+        height = static_cast<uint32_t>(resolution.height);
+    });
+    return std::pair<uint32_t, uint32_t>(width, height);
+}
+
+static std::unique_ptr<RenderEngine> createRenderEngine(RenderEngine::Threaded threaded,
+                                                        RenderEngine::GraphicsApi graphicsApi) {
+    auto args = RenderEngineCreationArgs::Builder()
+                        .setPixelFormat(static_cast<int>(ui::PixelFormat::RGBA_8888))
+                        .setImageCacheSize(1)
+                        .setEnableProtectedContext(true)
+                        .setPrecacheToneMapperShaderOnly(false)
+                        .setSupportsBackgroundBlur(true)
+                        .setContextPriority(RenderEngine::ContextPriority::REALTIME)
+                        .setThreaded(threaded)
+                        .setGraphicsApi(graphicsApi)
+                        .build();
+    return RenderEngine::create(args);
+}
+
+static std::shared_ptr<ExternalTexture> allocateBuffer(RenderEngine& re, uint32_t width,
+                                                       uint32_t height,
+                                                       uint64_t extraUsageFlags = 0,
+                                                       std::string name = "output") {
+    return std::make_shared<
+            impl::ExternalTexture>(sp<GraphicBuffer>::make(width, height,
+                                                           HAL_PIXEL_FORMAT_RGBA_8888, 1u,
+                                                           GRALLOC_USAGE_HW_RENDER |
+                                                                   GRALLOC_USAGE_HW_TEXTURE |
+                                                                   extraUsageFlags,
+                                                           std::move(name)),
+                                   re,
+                                   impl::ExternalTexture::Usage::READABLE |
+                                           impl::ExternalTexture::Usage::WRITEABLE);
+}
+
+static std::shared_ptr<ExternalTexture> copyBuffer(RenderEngine& re,
+                                                   std::shared_ptr<ExternalTexture> original,
+                                                   uint64_t extraUsageFlags, std::string name) {
+    const uint32_t width = original->getBuffer()->getWidth();
+    const uint32_t height = original->getBuffer()->getHeight();
+    auto texture = allocateBuffer(re, width, height, extraUsageFlags, name);
+
+    const Rect displayRect(0, 0, static_cast<int32_t>(width), static_cast<int32_t>(height));
+    DisplaySettings display{
+            .physicalDisplay = displayRect,
+            .clip = displayRect,
+            .maxLuminance = 500,
+    };
+
+    const FloatRect layerRect(0, 0, width, height);
+    LayerSettings layer{
+            .geometry =
+                    Geometry{
+                            .boundaries = layerRect,
+                    },
+            .source =
+                    PixelSource{
+                            .buffer =
+                                    Buffer{
+                                            .buffer = original,
+                                    },
+                    },
+            .alpha = half(1.0f),
+    };
+    auto layers = std::vector<LayerSettings>{layer};
+
+    sp<Fence> waitFence = re.drawLayers(display, layers, texture, base::unique_fd()).get().value();
+    waitFence->waitForever(LOG_TAG);
+    return texture;
+}
+
+/**
+ * Helper for timing calls to drawLayers.
+ *
+ * Caller needs to create RenderEngine and the LayerSettings, and this takes
+ * care of setting up the display, starting and stopping the timer, calling
+ * drawLayers, and saving (if --save is used).
+ *
+ * This times both the CPU and GPU work initiated by drawLayers. All work done
+ * outside of the for loop is excluded from the timing measurements.
+ */
+static void benchDrawLayers(RenderEngine& re, const std::vector<LayerSettings>& layers,
+                            benchmark::State& benchState, const char* saveFileName) {
+    auto [width, height] = getDisplaySize();
+    auto outputBuffer = allocateBuffer(re, width, height);
+
+    const Rect displayRect(0, 0, static_cast<int32_t>(width), static_cast<int32_t>(height));
+    DisplaySettings display{
+            .physicalDisplay = displayRect,
+            .clip = displayRect,
+            .maxLuminance = 500,
+    };
+
+    // This loop starts and stops the timer.
+    for (auto _ : benchState) {
+        sp<Fence> waitFence =
+                re.drawLayers(display, layers, outputBuffer, base::unique_fd()).get().value();
+        waitFence->waitForever(LOG_TAG);
+    }
+
+    if (renderenginebench::save() && saveFileName) {
+        // Copy to a CPU-accessible buffer so we can encode it.
+        outputBuffer = copyBuffer(re, outputBuffer, GRALLOC_USAGE_SW_READ_OFTEN, "to_encode");
+
+        std::string outFile = base::GetExecutableDirectory();
+        outFile.append("/");
+        outFile.append(saveFileName);
+        outFile.append(".jpg");
+        renderenginebench::encodeToJpeg(outFile.c_str(), outputBuffer->getBuffer());
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//  Benchmarks
+///////////////////////////////////////////////////////////////////////////////
+
+template <class... Args>
+void BM_blur(benchmark::State& benchState, Args&&... args) {
+    auto args_tuple = std::make_tuple(std::move(args)...);
+    auto re = createRenderEngine(static_cast<RenderEngine::Threaded>(std::get<0>(args_tuple)),
+                                 static_cast<RenderEngine::GraphicsApi>(std::get<1>(args_tuple)));
+
+    // Initially use cpu access so we can decode into it with AImageDecoder.
+    auto [width, height] = getDisplaySize();
+    auto srcBuffer =
+            allocateBuffer(*re, width, height, GRALLOC_USAGE_SW_WRITE_OFTEN, "decoded_source");
+    {
+        std::string srcImage = base::GetExecutableDirectory();
+        srcImage.append("/resources/homescreen.png");
+        renderenginebench::decode(srcImage.c_str(), srcBuffer->getBuffer());
+
+        // Now copy into GPU-only buffer for more realistic timing.
+        srcBuffer = copyBuffer(*re, srcBuffer, 0, "source");
+    }
+
+    const FloatRect layerRect(0, 0, width, height);
+    LayerSettings layer{
+            .geometry =
+                    Geometry{
+                            .boundaries = layerRect,
+                    },
+            .source =
+                    PixelSource{
+                            .buffer =
+                                    Buffer{
+                                            .buffer = srcBuffer,
+                                    },
+                    },
+            .alpha = half(1.0f),
+    };
+    LayerSettings blurLayer{
+            .geometry =
+                    Geometry{
+                            .boundaries = layerRect,
+                    },
+            .alpha = half(1.0f),
+            .skipContentDraw = true,
+            .backgroundBlurRadius = 60,
+    };
+
+    auto layers = std::vector<LayerSettings>{layer, blurLayer};
+    benchDrawLayers(*re, layers, benchState, "blurred");
+}
+
+BENCHMARK_CAPTURE(BM_blur, SkiaGLThreaded, RenderEngine::Threaded::YES,
+                  RenderEngine::GraphicsApi::GL);

@@ -1,0 +1,352 @@
+syntax = "proto2";
+
+package android.os.statsd.art;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.art";
+option java_multiple_files = true;
+
+extend Atom {
+    // Pushed atoms
+    optional ArtDatumReported art_datum_reported = 332 [(module) = "art"];
+    // Deprecated in favour of the ArtDeviceStatus pulled atom
+    optional ArtDeviceDatumReported art_device_datum_reported = 550 [(module) = "art", deprecated = true];
+    optional ArtDatumDeltaReported art_datum_delta_reported = 565 [(module) = "art"];
+
+    // Pulled atoms
+    optional ArtDeviceStatus art_device_status = 10205 [(module) = "art"];
+}
+
+// Indicates which compile filter was used for the package being loaded in an ART session.
+enum ArtCompileFilter {
+    ART_COMPILATION_FILTER_UNSPECIFIED = 0;
+    ART_COMPILATION_FILTER_ERROR = 1;
+    ART_COMPILATION_FILTER_UNKNOWN = 2;
+    ART_COMPILATION_FILTER_ASSUMED_VERIFIED = 3;
+    ART_COMPILATION_FILTER_EXTRACT = 4;
+    ART_COMPILATION_FILTER_VERIFY = 5;
+    ART_COMPILATION_FILTER_QUICKEN = 6;
+    ART_COMPILATION_FILTER_SPACE_PROFILE = 7;
+    ART_COMPILATION_FILTER_SPACE = 8;
+    ART_COMPILATION_FILTER_SPEED_PROFILE = 9;
+    ART_COMPILATION_FILTER_SPEED = 10;
+    ART_COMPILATION_FILTER_EVERYTHING_PROFILE = 11;
+    ART_COMPILATION_FILTER_EVERYTHING = 12;
+    ART_COMPILATION_FILTER_FAKE_RUN_FROM_APK = 13;
+    ART_COMPILATION_FILTER_FAKE_RUN_FROM_APK_FALLBACK = 14;
+    ART_COMPILATION_FILTER_FAKE_RUN_FROM_VDEX_FALLBACK = 15;
+}
+
+// Indicates what triggered the compilation of the package.
+enum ArtCompilationReason {
+    ART_COMPILATION_REASON_UNSPECIFIED = 0;
+    ART_COMPILATION_REASON_ERROR = 1;
+    ART_COMPILATION_REASON_UNKNOWN = 2;
+    ART_COMPILATION_REASON_FIRST_BOOT = 3;
+    ART_COMPILATION_REASON_BOOT = 4;
+    ART_COMPILATION_REASON_INSTALL = 5;
+    ART_COMPILATION_REASON_BG_DEXOPT = 6;
+    ART_COMPILATION_REASON_AB_OTA = 7;
+    ART_COMPILATION_REASON_INACTIVE = 8;
+    ART_COMPILATION_REASON_SHARED = 9;
+    ART_COMPILATION_REASON_INSTALL_WITH_DEX_METADATA = 10;
+    ART_COMPILATION_REASON_POST_BOOT = 11;
+    ART_COMPILATION_REASON_INSTALL_FAST = 12;
+    ART_COMPILATION_REASON_INSTALL_BULK = 13;
+    ART_COMPILATION_REASON_INSTALL_BULK_SECONDARY = 14;
+    ART_COMPILATION_REASON_INSTALL_BULK_DOWNGRADED = 15;
+    ART_COMPILATION_REASON_INSTALL_BULK_SECONDARY_DOWNGRADED = 16;
+    ART_COMPILATION_REASON_BOOT_AFTER_OTA = 17;
+    ART_COMPILATION_REASON_PREBUILT = 18;
+    ART_COMPILATION_REASON_CMDLINE = 19;
+    ART_COMPILATION_REASON_VDEX = 20;
+    ART_COMPILATION_REASON_BOOT_AFTER_MAINLINE_UPDATE = 21;
+}
+
+// Indicates which kind of measurement ART is reporting.
+//
+// Where it makes sense, the datum ID ends with the type of datum (counter or histogram) and the
+// units.
+// Note: Histograms are not yet reported by statsd.
+enum ArtDatumId {
+    ART_DATUM_INVALID = 0;
+    ART_DATUM_GC_WORLD_STOP_TIME_AVG_MICROS = 1;
+    ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_TIME_HISTO_MILLIS = 2;
+    ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_COUNT = 3;
+    ART_DATUM_GC_FULL_HEAP_COLLECTION_TIME_HISTO_MILLIS = 4;
+    ART_DATUM_GC_FULL_HEAP_COLLECTION_COUNT = 5;
+    ART_DATUM_JIT_METHOD_COMPILE_TIME_MICROS = 6;
+    ART_DATUM_AOT_COMPILE_TIME = 7;
+    ART_DATUM_CLASS_VERIFICATION_TIME_COUNTER_MICROS = 8;
+    ART_DATUM_CLASS_LOADING_TIME_COUNTER_MICROS = 9;
+
+    // Metrics IDs for dex2oat.
+    ART_DATUM_DEX2OAT_RESULT_CODE = 10 [deprecated = true];
+    ART_DATUM_DEX2OAT_DEX_CODE_COUNTER_BYTES = 11 [deprecated = true];
+    ART_DATUM_DEX2OAT_TOTAL_TIME_COUNTER_MILLIS = 12 [deprecated = true];
+    ART_DATUM_DEX2OAT_VERIFY_DEX_FILE_TIME_COUNTER_MILLIS = 13 [deprecated = true];
+    ART_DATUM_DEX2OAT_FAST_VERIFY_TIME_COUNTER_MILLIS = 14 [deprecated = true];
+    ART_DATUM_DEX2OAT_RESOLVE_METHODS_AND_FIELDS_TIME_COUNTER_MILLIS = 15 [deprecated = true];
+
+    ART_DATUM_CLASS_VERIFICATION_COUNT = 16;
+    ART_DATUM_GC_TOTAL_BYTES_ALLOCATED = 17;
+    ART_DATUM_GC_TOTAL_METADATA_SIZE_BYTES = 18 [deprecated=true];
+    ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_THROUGHPUT_HISTO_MB_PER_SEC = 19;
+    ART_DATUM_GC_FULL_HEAP_COLLECTION_THROUGHPUT_HISTO_MB_PER_SEC = 20;
+    ART_DATUM_JIT_METHOD_COMPILE_COUNT = 21;
+    ART_DATUM_GC_YOUNG_GENERATION_TRACING_THROUGHPUT_HISTO_MB_PER_SEC = 22;
+    ART_DATUM_GC_FULL_HEAP_TRACING_THROUGHPUT_HISTO_MB_PER_SEC = 23;
+    ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC = 24;
+    ART_DATUM_GC_FULL_HEAP_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC = 25;
+    ART_DATUM_GC_YOUNG_GENERATION_TRACING_THROUGHPUT_AVG_MB_PER_SEC = 26;
+    ART_DATUM_GC_FULL_HEAP_TRACING_THROUGHPUT_AVG_MB_PER_SEC = 27;
+    ART_DATUM_GC_TOTAL_COLLECTION_TIME_MS = 28;
+
+    // New metrics to support averages reported as sum (numerator) and count (denominator),
+    // in order to make it easier to be reported as Value Metrics.
+
+    // numerator from ART_DATUM_GC_WORLD_STOP_TIME_AVG_MICROS
+    ART_DATUM_GC_WORLD_STOP_TIME_US = 29;
+    // denominator from ART_DATUM_GC_WORLD_STOP_TIME_AVG_MICROS
+    ART_DATUM_GC_WORLD_STOP_COUNT = 30;
+    // numerator from ART_DATUM_GC_YOUNG_GENERATION_TRACING_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_SCANNED_BYTES = 31;
+    // numerator from ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_FREED_BYTES = 32;
+    // denominator from ART_DATUM_GC_YOUNG_GENERATION_TRACING_THROUGHPUT_AVG_MB_PER_SEC
+    // and ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_DURATION_MS = 33;
+    // numerator from ART_DATUM_GC_FULL_HEAP_TRACING_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_GC_FULL_HEAP_COLLECTION_SCANNED_BYTES = 34;
+    // numerator from ART_DATUM_GC_FULL_HEAP_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_GC_FULL_HEAP_COLLECTION_FREED_BYTES = 35;
+    // denominator from ART_DATUM_GC_FULL_HEAP_TRACING_THROUGHPUT_AVG_MB_PER_SEC
+    // and ART_DATUM_GC_FULL_HEAP_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_GC_FULL_HEAP_COLLECTION_DURATION_MS = 36;
+}
+
+// Indicates which kind of measurement ART is reporting as increments / deltas.
+// Next ID: 37
+enum ArtDatumDeltaId {
+    ART_DATUM_DELTA_INVALID = 0;
+
+    // These IDs are the equivalent of the ArtDatumId values,
+    // but for reporting increments / deltas.
+    ART_DATUM_DELTA_CLASS_VERIFICATION_COUNT = 16;
+    ART_DATUM_DELTA_CLASS_VERIFICATION_TIME_MICROS = 8;
+    ART_DATUM_DELTA_CLASS_LOADING_TIME_MICROS = 9;
+    ART_DATUM_DELTA_GC_FULL_HEAP_COLLECTION_COUNT = 5;
+    ART_DATUM_DELTA_GC_TOTAL_BYTES_ALLOCATED = 17;
+    ART_DATUM_DELTA_GC_TOTAL_COLLECTION_TIME_MS = 28;
+    ART_DATUM_DELTA_GC_YOUNG_GENERATION_COLLECTION_COUNT = 3;
+    ART_DATUM_DELTA_JIT_METHOD_COMPILE_COUNT = 21;
+    ART_DATUM_DELTA_JIT_METHOD_COMPILE_TIME_MICROS = 6;
+
+    // numerator from ART_DATUM_GC_WORLD_STOP_TIME_AVG_MICROS
+    ART_DATUM_DELTA_GC_WORLD_STOP_TIME_US = 29;
+    // denominator from ART_DATUM_GC_WORLD_STOP_TIME_AVG_MICROS
+    ART_DATUM_DELTA_GC_WORLD_STOP_COUNT = 30;
+    // numerator from ART_DATUM_GC_YOUNG_GENERATION_TRACING_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_DELTA_GC_YOUNG_GENERATION_COLLECTION_SCANNED_BYTES = 31;
+    // numerator from ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_DELTA_GC_YOUNG_GENERATION_COLLECTION_FREED_BYTES = 32;
+    // denominator from ART_DATUM_GC_YOUNG_GENERATION_TRACING_THROUGHPUT_AVG_MB_PER_SEC
+    // and ART_DATUM_GC_YOUNG_GENERATION_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_DELTA_GC_YOUNG_GENERATION_COLLECTION_DURATION_MS = 33;
+    // numerator from ART_DATUM_GC_FULL_HEAP_TRACING_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_DELTA_GC_FULL_HEAP_COLLECTION_SCANNED_BYTES = 34;
+    // numerator from ART_DATUM_GC_FULL_HEAP_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_DELTA_GC_FULL_HEAP_COLLECTION_FREED_BYTES = 35;
+    // denominator from ART_DATUM_GC_FULL_HEAP_TRACING_THROUGHPUT_AVG_MB_PER_SEC
+    // and ART_DATUM_GC_FULL_HEAP_COLLECTION_THROUGHPUT_AVG_MB_PER_SEC
+    ART_DATUM_DELTA_GC_FULL_HEAP_COLLECTION_DURATION_MS = 36;
+    // The number of milliseconds since the last time metrics were reported.
+    ART_DATUM_DELTA_TIME_ELAPSED_MS = 37;
+
+    reserved 1, 2, 4, 7, 10, 11, 12, 13, 14, 15, 18, 19, 20, 22, 23, 24, 25, 26, 27;
+}
+
+// DEPRECATED - Used to indicate what class of thread the reported values apply to.
+// Deprecated in Jan 2024 as the corresponding filter is no longer needed.
+enum ArtThreadType {
+    ART_THREAD_UNKNOWN = 0;
+    ART_THREAD_MAIN = 1;
+    ART_THREAD_BACKGROUND = 2;
+}
+
+// DEPRECATED - Used to indicate the type of dex metadata.
+// Deprecated in Jan 2024 as the corresponding filter is no longer needed.
+enum ArtDexMetadataType {
+  ART_DEX_METADATA_TYPE_UNKNOWN = 0;
+  ART_DEX_METADATA_TYPE_PROFILE = 1;
+  ART_DEX_METADATA_TYPE_VDEX = 2;
+  ART_DEX_METADATA_TYPE_PROFILE_AND_VDEX = 3;
+  ART_DEX_METADATA_TYPE_NONE = 4;
+  ART_DEX_METADATA_TYPE_ERROR = 5;
+}
+
+// DEPRECATED - Used to indicate the type of the apk.
+// Deprecated in Jan 2024 as the corresponding filter is no longer needed.
+enum ArtApkType {
+    ART_APK_TYPE_UNKNOWN = 0;
+    ART_APK_TYPE_BASE = 1;
+    ART_APK_TYPE_SPLIT = 2;
+}
+
+// Indicates the ISA.
+enum ArtIsa {
+    ART_ISA_UNKNOWN = 0;
+    ART_ISA_ARM = 1;
+    ART_ISA_ARM64 = 2;
+    ART_ISA_X86 = 3;
+    ART_ISA_X86_64 = 4;
+    ART_ISA_MIPS = 5;
+    ART_ISA_MIPS64 = 6;
+    ART_ISA_RISCV64 = 7;
+}
+
+// Indicates the GC collector type.
+enum ArtGcCollectorType {
+    ART_GC_COLLECTOR_TYPE_UNKNOWN = 0;
+    ART_GC_COLLECTOR_TYPE_MARK_SWEEP = 1;
+    ART_GC_COLLECTOR_TYPE_CONCURRENT_MARK_SWEEP = 2;
+    ART_GC_COLLECTOR_TYPE_CONCURRENT_MARK_COMPACT = 3;
+    ART_GC_COLLECTOR_TYPE_SEMI_SPACE = 4;
+    ART_GC_COLLECTOR_TYPE_CONCURRENT_COPYING = 5;
+    ART_GC_COLLECTOR_TYPE_CONCURRENT_COPYING_BACKGROUND = 6;
+    ART_GC_COLLECTOR_TYPE_CONCURRENT_MARK_COMPACT_BACKGROUND = 7;
+}
+
+// Indicates support for userfaultfd and minor fault mode.
+enum ArtUffdSupport {
+    ART_UFFD_SUPPORT_UNKNOWN = 0;
+    ART_UFFD_SUPPORT_UFFD_NOT_SUPPORTED = 1;
+    ART_UFFD_SUPPORT_MINOR_FAULT_MODE_NOT_SUPPORTED = 2;
+    ART_UFFD_SUPPORT_MINOR_FAULT_MODE_SUPPORTED = 3;
+}
+
+message ArtDatumReported {
+    // The session ID is used to correlate this report with others from the same ART instance.
+    optional int64 session_id = 1;
+
+    // The UID of the app that ART is running on behalf of.
+    optional int32 uid = 2 [(is_uid) = true];
+
+    // What compiler filter the APK or DEX file was compiled with.
+    optional ArtCompileFilter compile_filter = 3;
+
+    // Why the package was compiled the way it was.
+    optional ArtCompilationReason compilation_reason = 4;
+
+    // The number of milliseconds since the ART runtime instance was started.
+    optional int64 timestamp_millis = 5;
+
+    // What kind of thread (UI or background) this metric corresponds to.
+    optional ArtThreadType thread_type = 6 [deprecated = true];
+
+    // Which counter this is that is being reported.
+    optional ArtDatumId kind = 7;
+
+    // The value of the counter.
+    optional int64 value = 8;
+
+    // The type of dex metadata
+    optional ArtDexMetadataType dex_metadata_type = 9 [deprecated = true];
+
+    // The type of the APK file.
+    optional ArtApkType apk_type = 10 [deprecated = true];
+
+    // The ISA of the device.
+    optional ArtIsa isa = 11;
+
+    // The Garbage Collector used in the Android Runtime.
+    optional ArtGcCollectorType gc = 12;
+
+    // The support for userfaultfd and minor fault mode.
+    optional ArtUffdSupport uffd_support = 13;
+}
+
+// ArtDatumDeltaReported is the same as ArtDatumReported, except for the kind field
+// (ArtDatumDeltaId here, ArtDatumId for ArtDatumReported)
+message ArtDatumDeltaReported {
+    // The session ID is used to correlate this report with others from the same ART instance.
+    optional int64 session_id = 1;
+
+    // The UID of the app that ART is running on behalf of.
+    optional int32 uid = 2 [(is_uid) = true];
+
+    // What compiler filter the APK or DEX file was compiled with.
+    optional ArtCompileFilter compile_filter = 3;
+
+    // Why the package was compiled the way it was.
+    optional ArtCompilationReason compilation_reason = 4;
+
+    // The number of milliseconds since the ART runtime instance was started.
+    optional int64 timestamp_millis = 5;
+
+    // What kind of thread (UI or background) this metric corresponds to.
+    optional ArtThreadType thread_type = 6 [deprecated = true];
+
+    // Which counter this is that is being reported.
+    optional ArtDatumDeltaId kind = 7;
+
+    // The value of the counter.
+    optional int64 value = 8;
+
+    // The type of dex metadata
+    optional ArtDexMetadataType dex_metadata_type = 9 [deprecated = true];
+
+    // The type of the APK file.
+    optional ArtApkType apk_type = 10 [deprecated = true];
+
+    // The ISA of the device.
+    optional ArtIsa isa = 11;
+
+    // The Garbage Collector used in the Android Runtime.
+    optional ArtGcCollectorType gc = 12;
+
+    // The support for userfaultfd and minor fault mode.
+    optional ArtUffdSupport uffd_support = 13;
+}
+
+/**
+ * Logs ART metrics that are device-specific (as opposed to app-specific ones logged by
+ * ArtDatumReported).
+ *
+ * Logged from:
+ *   art/runtime/metrics/statsd.cc
+ */
+ message ArtDeviceDatumReported {
+    enum BootImageStatus {
+        // Unknown value.
+        STATUS_UNSPECIFIED = 0;
+        // Boot image(s) are fully usable.
+        STATUS_FULL = 1;
+        // Only the minimal boot image is usable.
+        STATUS_MINIMAL = 2;
+        // No boot image is usable.
+        STATUS_NONE = 3;
+    }
+
+    optional BootImageStatus boot_image_status = 1;
+}
+
+/**
+ * Reports ART metrics that are device-specific (as opposed to app-specific ones logged by
+ * ArtDatumReported).
+ */
+message ArtDeviceStatus {
+    enum BootImageStatus {
+        // Unknown value.
+        STATUS_UNSPECIFIED = 0;
+        // Boot image(s) are fully usable.
+        STATUS_FULL = 1;
+        // Only the minimal boot image is usable.
+        STATUS_MINIMAL = 2;
+        // No boot image is usable.
+        STATUS_NONE = 3;
+    }
+    optional BootImageStatus boot_image_status = 1;
+}

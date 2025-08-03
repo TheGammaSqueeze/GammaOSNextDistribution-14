@@ -1,0 +1,106 @@
+{
+  "License": [
+    "Copyright (C) 2023 The Android Open Source Project",
+    "",
+    "Licensed under the Apache License, Version 2.0 (the “License”);",
+    "you may not use this file except in compliance with the License.",
+    "You may obtain a copy of the License at",
+    "",
+    "     http://www.apache.org/licenses/LICENSE-2.0",
+    "",
+    "Unless required by applicable law or agreed to in writing, software",
+    "distributed under the License is distributed on an “AS IS” BASIS,",
+    "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.",
+    "See the License for the specific language governing permissions and",
+    "limitations under the License."
+  ],
+  "arch": "x86_32",
+  "insns": [
+    {
+      "encodings": {
+        "Calll": { "opcodes": [ "FF", "2" ] }
+      },
+      "args": [
+        { "class": "RSP", "usage": "use_def" },
+        { "class": "Mem32", "usage": "use" }
+      ]
+    },
+    {
+      "encodings": {
+        "Decl": { "opcodes": [ "48" ] },
+        "Incl": { "opcodes": [ "40" ] }
+      },
+      "args": [
+        { "class": "GeneralReg32", "usage": "use_def" },
+        { "class": "FLAGS", "usage": "def" }
+      ]
+    },
+    {
+      "encodings": {
+        "Decw": { "opcodes": [ "66", "48" ] },
+        "Incw": { "opcodes": [ "66", "40" ] }
+      },
+      "args": [
+        { "class": "GeneralReg16", "usage": "use_def" },
+        { "class": "FLAGS", "usage": "def" }
+      ]
+    },
+    {
+      "encodings": {
+        "Jmpl": { "opcodes": [ "FF", "4" ] }
+      },
+      "args": [
+        { "class": "Mem32", "usage": "use" }
+      ]
+    },
+    {
+      "encodings": {
+        "Popl": { "opcodes": [ "8F", "0" ] }
+      },
+      "args": [
+        { "class": "RSP", "usage": "use_def" },
+        { "class": "Mem32", "usage": "def" }
+      ]
+    },
+    {
+      "encodings": {
+        "Pushl": { "opcodes": [ "FF", "6" ] }
+      },
+      "args": [
+        { "class": "RSP", "usage": "use_def" },
+        { "class": "Mem32", "usage": "use" }
+      ]
+    },
+    {
+      "encodings": {
+        "Vmovapd": { "feature": "AVX", "opcodes": [ "C4", "01", "01", "28" ] },
+        "Vmovaps": { "feature": "AVX", "opcodes": [ "C4", "01", "00", "28" ] }
+      },
+      "args": [
+        { "class": "XmmReg", "usage": "def" },
+        { "class": "XmmReg", "usage": "use" }
+      ]
+    },
+    {
+      "encodings": {
+        "Vmovdqa": { "feature": "AVX", "opcodes": [ "C4", "01", "01", "6F" ] },
+        "Vmovdqu": { "feature": "AVX", "opcodes": [ "C4", "01", "02", "6F" ] }
+      },
+      "args": [
+        { "class": "XmmReg", "usage": "def" },
+        { "class": "XmmReg", "usage": "use" }
+      ]
+    },
+    {
+      "encodings": {
+        "Vmovsd": { "feature": "AVX", "opcodes": [ "C4", "01", "03", "10" ], "vex_rm_to_reg": true },
+        "Vmovss": { "feature": "AVX", "opcodes": [ "C4", "01", "02", "10" ], "vex_rm_to_reg": true }
+      },
+      "args": [
+        { "class": "XmmReg", "usage": "def" },
+        { "class": "XmmReg", "usage": "use" },
+        { "class": "XmmReg", "usage": "use" }
+      ]
+    }
+  ]
+}

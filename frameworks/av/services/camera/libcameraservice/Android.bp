@@ -1,0 +1,287 @@
+// Copyright 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+//
+// libcameraservice
+//
+
+package {
+    default_applicable_licenses: [
+        "frameworks_av_services_camera_libcameraservice_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_services_camera_libcameraservice_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "libcameraservice_deps",
+    defaults: ["android.hardware.graphics.common-ndk_shared"],
+    shared_libs: [
+        "libactivitymanager_aidl",
+        "libbase",
+        "libdl",
+        "libui",
+        "liblog",
+        "libutilscallstack",
+        "libutils",
+        "libbinder",
+        "libbinder_ndk",
+        "libactivitymanager_aidl",
+        "libpermission",
+        "libcutils",
+        "libexif",
+        "libmedia",
+        "libmediautils",
+        "libcamera_client",
+        "libcamera_metadata",
+        "libfmq",
+        "libgui",
+        "libhardware",
+        "libhidlbase",
+        "libimage_io",
+        "libjpeg",
+        "libultrahdr",
+        "libmedia_codeclist",
+        "libmedia_omx",
+        "libmemunreachable",
+        "libnativewindow",
+        "libprocessgroup",
+        "libprocinfo",
+        "libsensorprivacy",
+        "libstagefright",
+        "libstagefright_foundation",
+        "libxml2",
+        "libyuv",
+        "android.companion.virtualdevice.flags-aconfig-cc",
+        "android.hardware.camera.common@1.0",
+        "android.hardware.camera.device@1.0",
+        "android.hardware.camera.device@3.2",
+        "android.hardware.camera.device@3.3",
+        "android.hardware.camera.device@3.4",
+        "android.hardware.camera.device@3.5",
+        "android.hardware.camera.device@3.6",
+        "android.hardware.camera.device@3.7",
+        "vendor.samsung.hardware.camera.device@5.0",
+        "vendor.samsung.hardware.camera.device@4.0",
+        "android.hardware.common-V2-ndk",
+        "android.hardware.common.fmq-V1-ndk",
+        "camera_platform_flags_c_lib",
+        "media_permission-aidl-cpp",
+    ],
+
+    static_libs: [
+        "android.frameworks.cameraservice.common@2.0",
+        "android.frameworks.cameraservice.service@2.0",
+        "android.frameworks.cameraservice.service@2.1",
+        "android.frameworks.cameraservice.service@2.2",
+        "android.frameworks.cameraservice.device@2.0",
+        "android.frameworks.cameraservice.device@2.1",
+        "android.frameworks.cameraservice.common-V1-ndk",
+        "android.frameworks.cameraservice.service-V2-ndk",
+        "android.frameworks.cameraservice.device-V2-ndk",
+        "android.hardware.camera.common-V1-ndk",
+        "android.hardware.camera.device-V3-ndk",
+        "android.hardware.camera.metadata-V3-ndk",
+        "android.hardware.camera.provider@2.4",
+        "android.hardware.camera.provider@2.5",
+        "android.hardware.camera.provider@2.6",
+        "android.hardware.camera.provider@2.7",
+        "android.hardware.camera.provider-V3-ndk",
+        "vendor.samsung.hardware.camera.provider@3.0",
+        "vendor.samsung.hardware.camera.provider@4.0",
+        "vendor.samsung.hardware.camera.provider-V1-ndk",
+        "libaidlcommonsupport",
+        "libbinderthreadstateutils",
+        "libcameraservice_device_independent",
+        "libdynamic_depth",
+        "libprocessinfoservice_aidl",
+        "libvirtualdevicebuildflags",
+        "media_permission-aidl-cpp",
+    ],
+}
+
+cc_library {
+    name: "libcameraservice",
+
+    defaults: [
+        "libcameraservice_deps",
+    ],
+    // Camera service source
+
+    srcs: [
+        "CameraService.cpp",
+        "CameraServiceWatchdog.cpp",
+        "CameraFlashlight.cpp",
+        "common/Camera2ClientBase.cpp",
+        "common/CameraDeviceBase.cpp",
+        "common/CameraOfflineSessionBase.cpp",
+        "common/CameraProviderManager.cpp",
+        "common/FrameProcessorBase.cpp",
+        "common/hidl/HidlProviderInfo.cpp",
+        "common/aidl/AidlProviderInfo.cpp",
+        "api1/Camera2Client.cpp",
+        "api1/client2/Parameters.cpp",
+        "api1/client2/FrameProcessor.cpp",
+        "api1/client2/StreamingProcessor.cpp",
+        "api1/client2/JpegProcessor.cpp",
+        "api1/client2/CallbackProcessor.cpp",
+        "api1/client2/CaptureSequencer.cpp",
+        "api1/client2/ZslProcessor.cpp",
+        "api2/CameraDeviceClient.cpp",
+        "api2/CameraOfflineSessionClient.cpp",
+        "api2/CompositeStream.cpp",
+        "api2/DepthCompositeStream.cpp",
+        "api2/HeicEncoderInfoManager.cpp",
+        "api2/HeicCompositeStream.cpp",
+        "api2/JpegRCompositeStream.cpp",
+        "device3/BufferUtils.cpp",
+        "device3/Camera3Device.cpp",
+        "device3/Camera3OfflineSession.cpp",
+        "device3/Camera3Stream.cpp",
+        "device3/Camera3IOStreamBase.cpp",
+        "device3/Camera3InputStream.cpp",
+        "device3/Camera3OutputStream.cpp",
+        "device3/Camera3FakeStream.cpp",
+        "device3/Camera3SharedOutputStream.cpp",
+        "device3/StatusTracker.cpp",
+        "device3/Camera3BufferManager.cpp",
+        "device3/Camera3StreamSplitter.cpp",
+        "device3/Camera3OutputStreamInterface.cpp",
+        "device3/Camera3OutputUtils.cpp",
+        "device3/Camera3DeviceInjectionMethods.cpp",
+        "device3/UHRCropAndMeteringRegionMapper.cpp",
+        "device3/PreviewFrameSpacer.cpp",
+        "device3/hidl/HidlCamera3Device.cpp",
+        "device3/hidl/HidlCamera3OfflineSession.cpp",
+        "device3/hidl/HidlCamera3OutputUtils.cpp",
+        "device3/aidl/AidlCamera3Device.cpp",
+        "device3/aidl/AidlCamera3OutputUtils.cpp",
+        "device3/aidl/AidlCamera3OfflineSession.cpp",
+        "gui/RingBufferConsumer.cpp",
+        "hidl/AidlCameraDeviceCallbacks.cpp",
+        "hidl/AidlCameraServiceListener.cpp",
+        "hidl/HidlCameraDeviceUser.cpp",
+        "hidl/HidlCameraService.cpp",
+        "hidl/Utils.cpp",
+        "aidl/AidlCameraDeviceCallbacks.cpp",
+        "aidl/AidlCameraDeviceUser.cpp",
+        "aidl/AidlCameraService.cpp",
+        "aidl/AidlCameraServiceListener.cpp",
+        "aidl/AidlUtils.cpp",
+        "aidl/DeathPipe.cpp",
+        "utils/CameraServiceProxyWrapper.cpp",
+        "utils/CameraThreadState.cpp",
+        "utils/CameraTraces.cpp",
+        "utils/AutoConditionLock.cpp",
+        "utils/SchedulingPolicyUtils.cpp",
+        "utils/SessionConfigurationUtils.cpp",
+        "utils/SessionConfigurationUtilsHidl.cpp",
+        "utils/SessionStatsBuilder.cpp",
+        "utils/TagMonitor.cpp",
+        "utils/LatencyHistogram.cpp",
+        "utils/Utils.cpp",
+    ],
+
+    header_libs: [
+        "libdynamic_depth-internal_headers",
+        "libdynamic_depth-public_headers",
+        "libmediadrm_headers",
+        "libmediametrics_headers",
+    ],
+
+    export_shared_lib_headers: [
+        "libbinder",
+        "libactivitymanager_aidl",
+        "libpermission",
+        "libcamera_client",
+        "libfmq",
+        "libsensorprivacy",
+    ],
+
+    include_dirs: [
+        "system/media/private/camera/include",
+        "frameworks/native/include/media/openmax",
+    ],
+
+    export_include_dirs: ["."],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-ignored-qualifiers",
+    ],
+
+}
+
+cc_library_static {
+    name: "libcameraservice_device_independent",
+    host_supported: true,
+
+    // Camera service source
+
+    srcs: [
+        "common/DepthPhotoProcessor.cpp",
+        "device3/CoordinateMapper.cpp",
+        "device3/DistortionMapper.cpp",
+        "device3/RotateAndCropMapper.cpp",
+        "device3/ZoomRatioMapper.cpp",
+        "utils/ExifUtils.cpp",
+        "utils/SessionConfigurationUtilsHost.cpp",
+    ],
+
+    header_libs: [
+        "libdynamic_depth-internal_headers",
+        "libdynamic_depth-public_headers",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libcamera_metadata",
+        "libdynamic_depth",
+        "libexif",
+        "libjpeg",
+        "liblog",
+        "libutils",
+        "libxml2",
+        "camera_platform_flags_c_lib"
+    ],
+
+    include_dirs: [
+        "frameworks/av/camera/include",
+        "frameworks/av/camera/include/camera",
+    ],
+
+    export_include_dirs: ["."],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-ignored-qualifiers",
+    ],
+
+}

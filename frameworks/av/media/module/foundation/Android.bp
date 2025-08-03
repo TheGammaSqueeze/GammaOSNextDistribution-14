@@ -1,0 +1,221 @@
+package {
+    default_applicable_licenses: [
+        "frameworks_av_media_libstagefright_foundation_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_libstagefright_foundation_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library_headers {
+    name: "libstagefright_foundation_headers",
+    export_include_dirs: ["include"],
+    vendor_available: true,
+    host_supported: true,
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+}
+
+cc_defaults {
+    name: "libstagefright_foundation_defaults",
+    vendor_available: true,
+    vndk: {
+        enabled: true,
+    },
+    host_supported: true,
+    double_loadable: true,
+
+    local_include_dirs: [
+        "include/media/stagefright/foundation",
+    ],
+
+    header_libs: [
+        "av-headers",
+        // this is only needed for the vendor variant that removes libbinder, but vendor
+        // target below does not allow adding header_libs.
+        "libbinder_headers",
+        "libstagefright_foundation_headers",
+        "media_ndk_headers",
+        "media_plugin_headers",
+    ],
+
+    export_header_lib_headers: [
+        "libstagefright_foundation_headers",
+        "media_plugin_headers",
+    ],
+
+    cflags: [
+        "-Wno-multichar",
+        "-Werror",
+        "-Wall",
+    ],
+
+    shared_libs: [
+        "libbinder",
+        "libutils",
+        "libcutils",
+        "liblog",
+    ],
+
+    srcs: [
+        "AAtomizer.cpp",
+        "ABitReader.cpp",
+        "ABuffer.cpp",
+        "ADebug.cpp",
+        "AHandler.cpp",
+        "ALooper.cpp",
+        "ALooperRoster.cpp",
+        "AMessage.cpp",
+        "AString.cpp",
+        "AStringUtils.cpp",
+        "AudioPresentationInfo.cpp",
+        "ByteUtils.cpp",
+        "ColorUtils.cpp",
+        "ColorUtils_fill.cpp",
+        "FoundationUtils.cpp",
+        "MediaBuffer.cpp",
+        "MediaBufferBase.cpp",
+        "MediaBufferGroup.cpp",
+        "MediaDefs.cpp",
+        "MediaKeys.cpp",
+        "MetaData.cpp",
+        "MetaDataBase.cpp",
+        "OpusHeader.cpp",
+        "avc_utils.cpp",
+        "base64.cpp",
+        "hexdump.cpp",
+    ],
+
+    target: {
+        vendor: {
+            // TODO: add libbinder_headers here instead of above when it becomes supported
+            exclude_shared_libs: [
+                "libbinder",
+            ],
+            cflags: [
+                "-DNO_IMEMORY",
+            ],
+        },
+        host: {
+            sanitize: {
+                cfi: false,
+            },
+        },
+        apex: {
+            exclude_shared_libs: [
+                "libbinder",
+            ],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+        cfi: true,
+    },
+}
+
+cc_library {
+    name: "libstagefright_foundation",
+    defaults: ["libstagefright_foundation_defaults"],
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+}
+
+cc_library_static {
+    name: "libstagefright_foundation_without_imemory",
+    defaults: ["libstagefright_foundation_defaults"],
+    min_sdk_version: "29",
+    apex_available: ["com.android.media"],
+
+
+    cflags: [
+        "-Wno-multichar",
+        "-Werror",
+        "-Wall",
+        "-DNO_IMEMORY",
+    ],
+}
+
+// this gets linked into extractors in media mainline module
+// so must be ndk api 29 so that it runs on >=Q
+cc_library_static {
+    name: "libstagefright_foundation_colorutils_ndk",
+    host_supported: true,
+    vendor_available: true,
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+
+    shared_libs: [
+        "liblog",
+        "libutils", // for sp<>
+        // actually invokes this, but called from folks who already load it
+        // "libmediandk",
+    ],
+
+    header_libs: [
+        // this is only needed for the vendor variant that removes libbinder, but vendor
+        // target below does not allow adding header_libs.
+        "libbinder_headers",
+        "libstagefright_foundation_headers",
+        "media_ndk_headers",
+        "media_plugin_headers",
+    ],
+
+    local_include_dirs: [
+        "include/media/stagefright/foundation",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    srcs: [
+        "ColorUtils_ndk.cpp",
+        "ColorUtils_fill.cpp",
+    ],
+
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+        cfi: true,
+    },
+
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+
+}

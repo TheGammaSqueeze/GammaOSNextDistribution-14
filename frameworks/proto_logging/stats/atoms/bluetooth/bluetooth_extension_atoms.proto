@@ -1,0 +1,286 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.bluetooth;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/enums/bluetooth/enums.proto";
+import "frameworks/proto_logging/stats/enums/bluetooth/hci/enums.proto";
+import "frameworks/proto_logging/stats/enums/bluetooth/le/enums.proto";
+import "frameworks/proto_logging/stats/enums/bluetooth/rfcomm/enums.proto";
+
+option java_package = "com.android.os.bluetooth";
+option java_multiple_files = true;
+
+extend Atom {
+    optional BluetoothHashedDeviceNameReported bluetooth_hashed_device_name_reported
+        = 613 [(module) = "bluetooth"];
+    optional BluetoothL2capCocClientConnection bluetooth_l2cap_coc_client_connection
+        = 614 [(module) = "bluetooth"];
+    optional BluetoothL2capCocServerConnection bluetooth_l2cap_coc_server_connection
+        = 615 [(module) = "bluetooth"];
+    optional BluetoothLeSessionConnected bluetooth_le_session_connected
+        = 656 [(module) = "bluetooth"];
+    optional RestrictedBluetoothDeviceNameReported
+        restricted_bluetooth_device_name_reported = 666 [
+          (module) = "bt_restricted",
+          (restriction_category) = RESTRICTION_DIAGNOSTIC
+        ];
+    optional BluetoothProfileConnectionAttempted bluetooth_profile_connection_attempted
+        = 696 [(module) = "bluetooth"];
+    optional BluetoothContentProfileErrorReported bluetooth_content_profile_error_reported
+        = 781 [(module) = "bluetooth"];
+    optional BluetoothRfcommConnectionAttempted bluetooth_rfcomm_connection_attempted
+        = 782 [(module) = "bluetooth"];
+}
+
+/**
+* Logs hashed Bluetooth device names
+*
+* Logged from:
+*     packages/modules/Bluetooth
+*/
+message BluetoothHashedDeviceNameReported {
+
+ // An identifier that can be used to match events for this device.
+ // The incremental identifier is locally generated and guaranteed not derived
+ // from any globally unique hardware id.
+ // For paired devices, it stays consistent between Bluetooth toggling for the
+ // same remote device.
+ // For unpaired devices, it stays consistent within the same Bluetooth adapter
+ // session for the same remote device.
+ // Default: 0 if the device's metric id is unknown.
+ optional int32 metric_id = 1;
+
+ // SHA256 hashed Bluetooth device name.
+ optional string device_name_hash = 2;
+}
+
+/**
+* Logs when L2CAP CoC on a Bluetooth device connects and disconnects.
+*/
+message BluetoothL2capCocClientConnection {
+
+ // An identifier that can be used to match events for this device.
+ // The incremental identifier is locally generated and guaranteed not derived
+ // from any globally unique hardware id.
+ // For paired devices, it stays consistent between Bluetooth toggling for the
+ // same remote device.
+ // For unpaired devices, it stays consistent within the same Bluetooth adapter
+ // session for the same remote device.
+ // Default: 0 if the device's metric id is unknown.
+ optional int32 metric_id = 1;
+
+ // Port used for the connection session
+ optional int32 port = 2;
+
+ // Flag to show if the connection is secured or not
+ optional bool is_secured = 3;
+
+ // Result of L2CAP CoC connection
+ optional android.bluetooth.L2capCocConnectionResult result = 4;
+
+ // Latency between connection start and end
+ optional int64 connection_latency_millis = 5;
+
+ // Uid of the app who calls l2cap coc connection API
+ optional int32 uid = 6 [(is_uid) = true];
+
+ // Latency of BluetoothSocket constructor
+ optional int64 socket_creation_latency_millis = 7;
+
+ // Latency of BluetoothSocket.connect
+ optional int64 socket_connection_latency_millis = 8;
+}
+
+/**
+* Logs when L2CAP CoC on a Bluetooth device connects and disconnects.
+*/
+message BluetoothL2capCocServerConnection {
+
+ // An identifier that can be used to match events for this device.
+ // The incremental identifier is locally generated and guaranteed not derived
+ // from any globally unique hardware id.
+ // For paired devices, it stays consistent between Bluetooth toggling for the
+ // same remote device.
+ // For unpaired devices, it stays consistent within the same Bluetooth adapter
+ // session for the same remote device.
+ // Default: 0 if the device's metric id is unknown.
+ optional int32 metric_id = 1;
+
+ // Port used for the connection session
+ optional int32 port = 2;
+
+ // Flag to show if the connection is secured or not
+ optional bool is_secured = 3;
+
+ // Result of L2CAP CoC connection
+ optional android.bluetooth.L2capCocConnectionResult result = 4;
+
+ // Latency between connection start and end
+ optional int64 latency_since_listening_millis = 5;
+
+ // Timeout for connection acceptance. -1 if not timeout.
+ optional int64 timeout_millis = 6;
+
+ // Uid of the app who calls l2cap coc connection API
+ optional int32 uid = 7 [(is_uid) = true];
+
+ // Latency of BluetoothServerSocket constructor
+ optional int64 socket_creation_latency_millis = 8;
+
+ // Latency of BluetoothServerSocket.accept
+ optional int64 socket_acceptance_latency_millis = 9;
+}
+
+/**
+ * Logs when Bluetooth LE Connection Session is made
+ *
+ * Logged from: system/bt
+ */
+message BluetoothLeSessionConnected {
+  // Contains the state of the LE Connection Session
+  // Default: LE_ACL_ABSENT
+  optional android.bluetooth.le.LeAclConnectionState acl_state = 1;
+  // Origin type of the connection whether it was from the ORIGIN_JAVA
+  // or the ORIGIN_NATIVE layer
+  // Default: ORIGIN_NATIVE
+  optional android.bluetooth.le.LeConnectionOriginType connection_origin = 2;
+  // Contains the connection type whether it was CONNECTION_TYPE_GATT
+  // ,CONNECTION_TYPE_LE_ACL
+  // Default: CONNECTION_TYPE_LE_ACL
+  optional android.bluetooth.le.LeConnectionType connection_type = 3;
+  // Connection State which contain the last state associated with the
+  // event
+  // Default: STATE_UNSPECIFIED
+  optional android.bluetooth.le.LeConnectionState state = 4;
+  // Contains the latency of the transaction from the beginning till
+  // the end:
+  // Default: 0
+  optional int64 latency_nanos = 5;
+  // Contains the metric id associated with the remote device
+  // Default: 0
+  optional int32 metric_id = 6;
+  // Contains the UID which is associated with the app
+  // Default: 0
+  optional int32 app_uid = 7 [(is_uid) = true];
+  // Contains the latency of the ACL Connection, which if made will be
+  // greater than 0
+  // Default: 0
+  optional int64 acl_latency_nanos = 8;
+  // Contains the status of the ACL Transactions, which if made will be
+  // something other than STATUS_UNKNOWN Default: STATUS_UNKNOWN
+  optional android.bluetooth.hci.StatusEnum acl_connection_state = 9;
+  // Identifies whether the LE-ACL Connection failed due to cancellation
+  // Default: false
+  optional bool is_cancelled = 10;
+}
+
+/**
+ * Logs the user created Bluetooth device's name.
+ * It is pushed at Bluetooth pairing and connection.
+ *
+ * Logged from:
+ *     packages/modules/Bluetooth
+ */
+message RestrictedBluetoothDeviceNameReported {
+  // Name of the Bluetooth device. It is created by the user.
+  optional string device_name = 1
+      [(field_restriction_option).peripheral_device_info = true];
+}
+
+/**
+ * Logs profile connection known completions.
+ *
+ * Logged from:
+ *     packages/modules/Bluetooth
+ */
+message BluetoothProfileConnectionAttempted {
+  // The profile that is connected. Eg. GATT, A2DP, HEADSET.
+  // From android.bluetooth.BluetoothAdapter.java
+  // Default: 0 when not used
+  optional int32 bt_profile = 1;
+
+  // Result of Profile connection
+  optional android.bluetooth.ProfileConnectionResult result = 2;
+
+  // Previous connection state
+  optional android.bluetooth.ConnectionStateEnum previous_state = 3;
+
+  // Terminating connection state
+  optional android.bluetooth.ConnectionStateEnum current_state = 4;
+
+  // Reason for the connection result
+  optional android.bluetooth.ProfileConnectionReason reason = 5;
+}
+
+/**
+ * Logs content profiles' caught exceptions or logs (ERROR, WARN)
+ *
+ * Logged from:
+ *     packages/modules/Bluetooth
+ */
+message BluetoothContentProfileErrorReported {
+  enum ErrorType {
+    UNKNOWN = 0;
+    EXCEPTION = 1;
+    LOG_ERROR = 2;
+    LOG_WARN = 3;
+  }
+
+  // The content profile where the error happened. (E.g. PBAP, MAP, OPP)
+  // From android.bluetooth.BluetoothProfile.java
+  // Default: 0 when not used
+  optional int32 bt_profile = 1;
+
+  // The file name where the error is reported from
+  optional android.bluetooth.ContentProfileFileName file_name = 2;
+
+  // The type of error (exception, Log.e, Log.w)
+  optional ErrorType type = 3;
+
+  // Integer tag associated with the error
+  optional int32 tag = 4;
+}
+
+/**
+* Logs RFCOMM connection attempts
+*
+* Logged from:
+*     packages/modules/Bluetooth
+*/
+message BluetoothRfcommConnectionAttempted {
+  // Locally generated id for event matching
+  optional int32 metric_id = 1;
+
+  // Latency of the connection
+  optional int64 latency_nanos = 2;
+
+  // Whether or not the connection is secured
+  optional android.bluetooth.rfcomm.SocketConnectionSecurity security = 3;
+
+  // Result of Rfcomm connection
+  optional android.bluetooth.rfcomm.RfcommConnectionResult status = 4;
+
+  // is_serial_port is true if the service class UUID is 0x1101
+  optional bool is_serial_port = 5;
+
+  // Uid of the app that calls RFCOMM connection API
+  optional int32 uid = 6 [(is_uid) = true]; // [(datapol.semantic_type) = ST_SOFTWARE_ID]
+}

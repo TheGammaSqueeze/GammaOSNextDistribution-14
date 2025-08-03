@@ -1,0 +1,133 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_library_static {
+    name: "librebootescrowdefaultimpl",
+    vendor: true,
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "android.hardware.rebootescrow-V1-ndk",
+    ],
+    export_include_dirs: ["include"],
+    srcs: [
+        "RebootEscrow.cpp",
+    ],
+    visibility: [
+        ":__subpackages__",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.rebootescrow-service.default",
+    relative_install_path: "hw",
+    vendor: true,
+    installable: false, // installed in APEX
+
+    srcs: [
+        "service.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    stl: "c++_static",
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+    static_libs: [
+        "android.hardware.rebootescrow-V1-ndk",
+        "libbase",
+        "libhadamardutils",
+        "librebootescrowdefaultimpl",
+    ],
+}
+
+cc_library_static {
+    name: "libhadamardutils",
+    vendor_available: true,
+    host_supported: true,
+    shared_libs: [
+        "libbase",
+    ],
+    srcs: [
+        "HadamardUtils.cpp",
+    ],
+    visibility: [
+        ":__subpackages__",
+    ],
+}
+
+cc_test {
+    name: "HadamardUtilsTest",
+    host_supported: true,
+    srcs: [
+        "HadamardUtilsTest.cpp",
+    ],
+    static_libs: [
+        "libhadamardutils",
+    ],
+    header_libs: [
+        "libgtest_prod_headers",
+    ],
+    shared_libs: [
+        "liblog",
+        "libbase",
+    ],
+    test_suites: ["device-tests"],
+}
+
+prebuilt_etc {
+    name: "rebootescrow-default.rc",
+    src: "rebootescrow-default.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "rebootescrow-default.xml",
+    src: "rebootescrow-default.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+apex {
+    name: "com.android.hardware.rebootescrow",
+    manifest: "apex_manifest.json",
+    file_contexts: "apex_file_contexts",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    vendor: true,
+    updatable: false,
+
+    binaries: [
+        "android.hardware.rebootescrow-service.default",
+    ],
+    prebuilts: [
+        "rebootescrow-default.rc",
+        "rebootescrow-default.xml",
+        "android.hardware.reboot_escrow.prebuilt.xml", // <feature>
+    ],
+}

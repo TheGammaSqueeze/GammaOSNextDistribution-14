@@ -1,0 +1,162 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.hardware.biometrics;
+
+option java_outer_classname = "BiometricsProtoEnums";
+option java_multiple_files = true;
+
+// Logging constants for <Biometric>Service and BiometricService
+
+enum ModalityEnum {
+    MODALITY_UNKNOWN = 0;
+    MODALITY_FINGERPRINT = 1;   // 1 << 0
+    MODALITY_IRIS = 2;          // 1 << 1
+    MODALITY_FACE = 4;          // 1 << 2
+}
+
+enum ClientEnum {
+    CLIENT_UNKNOWN = 0;
+    CLIENT_KEYGUARD = 1;
+    CLIENT_BIOMETRIC_PROMPT = 2;
+    CLIENT_FINGERPRINT_MANAGER = 3; // Deprecated API before BiometricPrompt was introduced
+}
+
+enum ActionEnum {
+    ACTION_UNKNOWN = 0;
+    ACTION_ENROLL = 1;
+    ACTION_AUTHENTICATE = 2;
+    ACTION_ENUMERATE = 3;
+    ACTION_REMOVE = 4;
+}
+
+enum IssueEnum {
+    ISSUE_UNKNOWN = 0;
+    // When a biometric HAL has crashed.
+    ISSUE_HAL_DEATH = 1;
+    // When Android Framework has a template that doesn't exist in the HAL. The framework
+    // is expected to remove its template to stay in sync with the HAL.
+    ISSUE_UNKNOWN_TEMPLATE_ENROLLED_FRAMEWORK = 2;
+    // When the HAL has a template that doesn't exist in Android Framework. The framework
+    // is expected to notify the HAL to remove this template to stay in sync with the framework.
+    ISSUE_UNKNOWN_TEMPLATE_ENROLLED_HAL = 3;
+    // When the HAL has not sent ERROR_CANCELED within the specified timeout.
+    ISSUE_CANCEL_TIMED_OUT = 4;
+}
+
+enum SessionTypeEnum {
+    SESSION_TYPE_UNKNOWN = 0;
+    SESSION_TYPE_KEYGUARD_ENTRY = 1;
+    SESSION_TYPE_BIOMETRIC_PROMPT = 2;
+}
+
+enum TouchTypeEnum {
+    // No finger entered or left the sensor area.
+    TOUCH_TYPE_UNCHANGED = 0;
+    // A finger entered the sensor area.
+    TOUCH_TYPE_DOWN = 1;
+    // A finger left the sensor area.
+    TOUCH_TYPE_UP = 2;
+    // The touch reporting has stopped. If there was a finger on the sensor, it may or may not
+    // still be on the sensor.
+    TOUCH_TYPE_CANCEL = 3;
+}
+
+enum OrientationEnum {
+    ORIENTATION_UNKNOWN = 0;
+    ORIENTATION_0 = 1;
+    ORIENTATION_90 = 2;
+    ORIENTATION_180 = 3;
+    ORIENTATION_270 = 4;
+}
+
+enum FoldStateEnum {
+    FOLD_UNKNOWN = 0;
+    FOLD_OPEN = 1;
+    FOLD_CLOSED = 2;
+    FOLD_HALF_OPEN = 3;
+}
+
+enum WakeReasonEnum {
+    WAKE_REASON_UNKNOWN = 0;
+    WAKE_REASON_POWER_BUTTON = 1;
+    WAKE_REASON_GESTURE = 2;
+    WAKE_REASON_WAKE_KEY = 3;
+    WAKE_REASON_WAKE_MOTION = 4;
+    WAKE_REASON_LID = 5;
+    WAKE_REASON_DISPLAY_GROUP_ADDED = 6;
+    WAKE_REASON_TAP = 7;
+    WAKE_REASON_LIFT = 8;
+    WAKE_REASON_BIOMETRIC = 9;
+}
+
+enum WakeReasonDetailsEnum {
+    DETAILS_UNKNOWN = 0;
+    DETAILS_FACE_STARTED_WAKING_UP = 1;
+    DETAILS_FACE_PRIMARY_BOUNCER_SHOWN = 2;
+    DETAILS_FACE_ASSISTANT_VISIBLE = 3;
+    DETAILS_FACE_ALTERNATE_BIOMETRIC_BOUNCER_SHOWN = 4;
+    DETAILS_FACE_NOTIFICATION_PANEL_CLICKED = 5;
+    DETAILS_FACE_OCCLUDING_APP_REQUESTED = 6;
+    DETAILS_FACE_PICK_UP_GESTURE_TRIGGERED = 7;
+    DETAILS_FACE_QS_EXPANDED = 8;
+    DETAILS_FACE_SWIPE_UP_ON_BOUNCER = 9;
+    DETAILS_FACE_UDFPS_POINTER_DOWN = 10;
+}
+
+enum StrengthEnum {
+    STRENGTH_UNKNOWN = 0;
+    // A sensor that meets the requirements for Class 1 biometrics as defined in
+    // the CDD. This does not correspond to a public
+    // BiometricManager.Authenticators constant. Sensors of this strength are
+    // not available to applications via the public API surface.
+    STRENGTH_CONVENIENCE = 1;
+    // A sensor that meets the requirements for Class 2 biometrics as defined in
+    // the CDD. Corresponds to BiometricManager.Authenticators.BIOMETRIC_WEAK.
+    STRENGTH_WEAK = 2;
+    // A sensor that meets the requirements for Class 3 biometrics as defined in
+    // the CDD. Corresponds to BiometricManager.Authenticators.BIOMETRIC_STRONG.
+    // Notably, this is the only strength that allows generation of
+    // HardwareAuthToken(s).
+    STRENGTH_STRONG = 3;
+}
+
+enum SensorTypeEnum {
+    SENSOR_UNKNOWN = 0;
+    SENSOR_FP_REAR = 1;
+    SENSOR_FP_UDFPS_ULTRASONIC = 2;
+    SENSOR_FP_UDFPS_OPTICAL = 3;
+    SENSOR_FP_POWER_BUTTON = 4;
+    SENSOR_FP_HOME_BUTTON = 5;
+    SENSOR_FACE_RGB = 6;
+    SENSOR_FACE_IR = 7;
+}
+
+enum EnrollmentSourceEnum {
+   ENROLLMENT_SOURCE_UNKNOWN = 0;
+   ENROLLMENT_SOURCE_SUW = 1;
+   ENROLLMENT_SOURCE_SETTINGS = 2;
+   ENROLLMENT_SOURCE_FRR_NOTIFICATION = 3;
+}
+
+enum FRRNotificationAction {
+  FRR_NOTIFICATION_ACTION_UNKNOWN = 0;
+  FRR_NOTIFICATION_ACTION_SHOWN = 1;
+  FRR_NOTIFICATION_ACTION_CLICKED = 2;
+  FRR_NOTIFICATION_ACTION_DISMISSED = 3;
+}

@@ -1,0 +1,15 @@
+{
+  "presubmit": [
+    {
+      "name": "FrameworksWifiNonUpdatableApiTests"
+    },
+    {
+      "name": "CtsWifiNonUpdatableTestCases"
+    }
+  ],
+  "presubmit-large": [
+    {
+      "name": "CtsWifiTestCases"
+    }
+  ]
+}

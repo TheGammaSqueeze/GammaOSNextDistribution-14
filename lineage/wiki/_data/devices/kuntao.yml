@@ -1,0 +1,36 @@
+architecture: arm64
+battery: {capacity: 5100, removable: False, tech: 'Li-Ion'}
+bluetooth: {profiles: [A2DP], spec: '4.1'}
+cameras:
+  - {flash: 'Dual LED', info: '13 MP'}
+  - {flash: None, info: '5 MP'}
+codename: kuntao
+cpu: Cortex-A53
+cpu_cores: '8'
+cpu_freq: 2.0 GHz
+current_branch: 18.1
+dimensions: {depth: 8.3, height: 153, width: 76}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+gpu: Qualcomm Adreno 506
+image: kuntao.png
+install_method: fastboot_lenovo
+kernel: {repo: android_kernel_lenovo_msm8953, version: '3.18'}
+maintainers: []
+models: [P2a42]
+name: P2
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Dual SIM, FM radio, Fingerprint reader, GLONASS, GPS, Gyroscope, Light sensor, NFC, Pedometer, Proximity sensor, RGB ambient light, USB OTG]
+ram: 3/4 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+release: 2016-11
+screen: {resolution: '1080x1920', size: 5.5, technology: 'Super AMOLED'}
+sdcard: {size_max: '256 GB'}
+soc: Qualcomm MSM8953 Snapdragon 625
+storage: 32/64 GB
+tree: android_device_lenovo_kuntao
+type: phone
+vendor: Lenovo
+vendor_short: lenovo
+versions: [14.1, 15.1, 16.0, 17.1, 18.1]
+wifi: 802.11 a/b/g/n/ac

@@ -1,0 +1,39 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.mms;
+
+option java_outer_classname = "MmsProtoEnums";
+option java_multiple_files = true;
+
+// MMS send/download result codes.
+// See frameworks/base/telephony/java/android/telephony/SmsManager.java
+enum MmsResultEnum {
+  MMS_RESULT_ERROR_UNSPECIFIED = 0;
+  MMS_RESULT_SUCCESS = 1;
+  MMS_RESULT_ERROR_INVALID_APN = 2;
+  MMS_RESULT_ERROR_UNABLE_CONNECT_MMS = 3;
+  MMS_RESULT_ERROR_HTTP_FAILURE = 4;
+  MMS_RESULT_ERROR_IO_ERROR = 5;
+  MMS_RESULT_ERROR_RETRY = 6;
+  MMS_RESULT_ERROR_CONFIGURATION_ERROR = 7;
+  MMS_RESULT_ERROR_NO_DATA_NETWORK = 8;
+  MMS_RESULT_ERROR_INVALID_SUBSCRIPTION_ID = 9;
+  MMS_RESULT_ERROR_INACTIVE_SUBSCRIPTION = 10;
+  MMS_RESULT_ERROR_DATA_DISABLED = 11;
+  MMS_RESULT_ERROR_MMS_DISABLED_BY_CARRIER = 12;
+}

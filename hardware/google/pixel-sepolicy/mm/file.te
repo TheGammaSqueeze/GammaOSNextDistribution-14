@@ -1,0 +1,4 @@
+type mm_logd_vendor_data_file, file_type, data_file_type;
+type debugfs_page_owner, debugfs_type, fs_type;
+type sysfs_fastrpc, sysfs_type, fs_type;
+

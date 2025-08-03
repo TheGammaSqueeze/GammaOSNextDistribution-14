@@ -1,0 +1,38 @@
+architecture: arm
+battery: {capacity: 6000, removable: False, tech: 'Li-Po'}
+bluetooth: {profiles: [A2DP], spec: 4.0 + LE}
+cameras:
+  - {flash: 'LED', info: '8.1 MP'}
+  - {flash: None, info: '2.2 MP'}
+codename: pollux_windy
+cpu: Krait
+cpu_cores: '4'
+cpu_freq: 1.5 GHz
+current_branch: 15.1
+dimensions: {depth: 6.9, height: 172, width: 266}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> and connect the USB cable. The notification light should turn blue.
+gpu: Qualcomm Adreno 320
+image: pollux.png
+install_method: fastboot_sony
+install_variant: sony_unlock_contacts sony_init_fota
+kernel: {repo: android_kernel_sony_apq8064, version: '3.4'}
+maintainers: []
+name: Xperia Tablet Z Wi-Fi
+network: None
+no_oem_unlock_switch: true
+peripherals: [3.5mm jack, Accelerometer, Compass, GPS, Gyroscope, HDMI, Light sensor, MHL, NFC, Proximity sensor]
+ram: 2 GB LPDDR2
+recovery_boot: On boot, press <kbd>Volume Down</kbd> when the LEDs start lighting up.<br /><b>Second Recovery:</b> To boot the FOTA Recovery, press <kbd>Volume Up</kbd> instead.
+recovery_partition_name: boot
+release: 2013-02
+screen: {resolution: '1200x1920', size: 10.1, technology: 'TFT LCD'}
+sdcard: {size_max: '64 GB'}
+soc: Qualcomm APQ8064 Snapdragon S4 Pro
+storage: 16/32 GB
+tree: android_device_sony_pollux_windy
+type: tablet
+uses_twrp: true
+vendor: Sony
+vendor_short: sony
+versions: [14.1, 15.1]
+wifi: 802.11 a/b/g/n

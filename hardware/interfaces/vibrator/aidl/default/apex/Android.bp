@@ -1,0 +1,30 @@
+package {
+    default_team: "trendy_team_haptics_framework",
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+prebuilt_etc {
+    name: "com.android.hardware.vibrator.rc",
+    src: "com.android.hardware.vibrator.rc",
+    installable: false,
+}
+
+apex {
+    name: "com.android.hardware.vibrator",
+    manifest: "apex_manifest.json",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    file_contexts: "file_contexts",
+    updatable: false,
+    vendor: true,
+
+    binaries: [
+        "android.hardware.vibrator-service.example",
+    ],
+    prebuilts: [
+        "com.android.hardware.vibrator.rc",
+        "android.hardware.vibrator.xml",
+    ],
+    // vibrator.default.so is not needed by the AIDL service binary.
+    overrides: ["vibrator.default"],
+}

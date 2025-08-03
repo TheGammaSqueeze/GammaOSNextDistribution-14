@@ -1,0 +1,74 @@
+# Audio flags intended for general consumption (cross-cutting), but NOT included in framework.
+#
+# Please add flags in alphabetical order.
+
+package: "com.android.media.audio"
+container: "system"
+
+flag {
+    name: "alarm_min_volume_zero"
+    namespace: "media_audio"
+    description: "Support configuring alarm min vol to zero"
+    bug: "296884402"
+}
+
+flag {
+    name: "as_device_connection_failure"
+    namespace: "media_audio"
+    description: "AudioService handles device connection failures."
+    bug: "326597760"
+}
+
+flag {
+    name: "bluetooth_mac_address_anonymization"
+    namespace: "media_audio"
+    description:
+        "Enable Bluetooth MAC address anonymization when reporting "
+        "audio device descriptors to non privileged apps."
+    bug: "285588444"
+}
+
+flag {
+    name: "disable_prescale_absolute_volume"
+    namespace: "media_audio"
+    description:
+        "Disable pre-scale absolute volume."
+    bug: "302553525"
+}
+
+flag {
+    name: "dsa_over_bt_le_audio"
+    namespace: "media_audio"
+    description:
+        "Enable dynamic spatial audio over Bluetooth LE Audio."
+    bug: "307588546"
+}
+
+flag {
+    name: "ringer_mode_affects_alarm"
+    namespace: "media_audio"
+    description:
+        "Support a configuration where ringer mode affects alarm stream"
+    bug: "312456558"
+}
+
+flag {
+    name: "spatializer_offload"
+    namespace: "media_audio"
+    description: "Enable spatializer offload"
+    bug: "307842941"
+}
+
+flag {
+    name: "stereo_spatialization"
+    namespace: "media_audio"
+    description: "Enable stereo channel mask for spatialization."
+    bug: "303920722"
+}
+
+flag {
+    name: "volume_refactoring"
+    namespace: "media_audio"
+    description: "Refactor the audio volume internal architecture logic"
+    bug: "324152869"
+}

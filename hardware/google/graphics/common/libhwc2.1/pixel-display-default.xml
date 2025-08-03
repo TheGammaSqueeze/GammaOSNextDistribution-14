@@ -1,0 +1,7 @@
+<manifest version="1.0" type="device">
+    <hal format="aidl">
+        <name>com.google.hardware.pixel.display</name>
+        <version>10</version>
+        <fqname>IDisplay/default</fqname>
+    </hal>
+</manifest>

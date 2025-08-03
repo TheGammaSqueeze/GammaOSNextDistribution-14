@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.locale;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.locale";
+option java_multiple_files = true;
+
+/**
+ * Logs when an override of app-specific supported locales is changed.
+ * Logged from
+ *   frameworks/base/services/core/java/com/android/server/locales/LocaleManagerService.java
+ */
+message AppSupportedLocalesChanged {
+    // The uid which invoked this update.
+    optional int32 calling_uid = 1 [(is_uid) = true];
+
+    // The uid for which the override of app’s supported locales change is being done.
+    optional int32 target_uid = 2 [(is_uid) = true];
+
+    // The total number of locales in the override LocaleConfig.
+    optional int32 num_locales = 3;
+
+
+    // Whether to remove the override LocaleConfig from the storage.
+    optional bool remove_override = 4;
+
+    // Whether the new override LocaleConfig is the same as the app’s LocaleConfig.
+    optional bool same_as_resource_localeconfig = 5;
+
+    // Whether the new override LocaleConfig is the same as the previously effective one. This means
+    // a comparison with the previous override LocaleConfig if there was one, and a comparison with
+    // the resource LocaleConfig if no override was present.
+    optional bool same_as_previous_localeconfig = 6;
+
+    // Application supported locales changed status.
+    enum Status {
+        // A placeholder for unspecified values.
+        STATUS_UNSPECIFIED = 0;
+
+        // New override of supported locales is set successfully.
+        SUCCESS = 1;
+
+        // The new override fails to be written to the storage.
+        FAILURE_WRITE_TO_STORAGE = 2;
+
+        // The target package is invalid.
+        FAILURE_INVALID_TARGET_PACKAGE = 3;
+
+        // The calling package doesn't have the required permission.
+        FAILURE_PERMISSION_ABSENT = 4;
+    }
+
+    optional Status status = 7;
+}

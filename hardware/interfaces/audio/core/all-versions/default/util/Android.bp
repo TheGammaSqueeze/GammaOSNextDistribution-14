@@ -1,0 +1,201 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_defaults {
+    name: "android.hardware.audio-util_default",
+    defaults: ["hidl_defaults"],
+
+    vendor_available: true,
+
+    export_include_dirs: ["include"],
+
+    srcs: [
+        "CoreUtils.cpp",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libhidlbase",
+        "android.hardware.audio.common-util",
+    ],
+    export_shared_lib_headers: [
+        "android.hardware.audio.common-util",
+    ],
+
+    header_libs: [
+        "libaudio_system_headers",
+        "libhardware_headers",
+    ],
+}
+
+cc_library_shared {
+    name: "android.hardware.audio@2.0-util",
+    defaults: ["android.hardware.audio-util_default"],
+    shared_libs: [
+        "android.hardware.audio.common@2.0",
+        "android.hardware.audio.common@2.0-util",
+        "android.hardware.audio@2.0",
+    ],
+    cflags: [
+        "-DMAJOR_VERSION=2",
+        "-DMINOR_VERSION=0",
+        "-include common/all-versions/VersionMacro.h",
+    ],
+}
+
+cc_library_shared {
+    name: "android.hardware.audio@4.0-util",
+    defaults: ["android.hardware.audio-util_default"],
+    shared_libs: [
+        "android.hardware.audio.common@4.0",
+        "android.hardware.audio.common@4.0-util",
+        "android.hardware.audio@4.0",
+    ],
+    cflags: [
+        "-DMAJOR_VERSION=4",
+        "-DMINOR_VERSION=0",
+        "-include common/all-versions/VersionMacro.h",
+    ],
+}
+
+cc_library_shared {
+    name: "android.hardware.audio@5.0-util",
+    defaults: ["android.hardware.audio-util_default"],
+    shared_libs: [
+        "android.hardware.audio.common@5.0",
+        "android.hardware.audio.common@5.0-util",
+        "android.hardware.audio@5.0",
+    ],
+    cflags: [
+        "-DMAJOR_VERSION=5",
+        "-DMINOR_VERSION=0",
+        "-include common/all-versions/VersionMacro.h",
+    ],
+}
+
+cc_library_shared {
+    name: "android.hardware.audio@6.0-util",
+    defaults: ["android.hardware.audio-util_default"],
+    shared_libs: [
+        "android.hardware.audio.common@6.0",
+        "android.hardware.audio.common@6.0-util",
+        "android.hardware.audio@6.0",
+    ],
+    cflags: [
+        "-DMAJOR_VERSION=6",
+        "-DMINOR_VERSION=0",
+        "-include common/all-versions/VersionMacro.h",
+    ],
+}
+
+cc_library {
+    name: "android.hardware.audio@7.0-util",
+    defaults: ["android.hardware.audio-util_default"],
+    shared_libs: [
+        "android.hardware.audio.common@7.0",
+        "android.hardware.audio.common@7.0-enums",
+        "android.hardware.audio.common@7.0-util",
+        "android.hardware.audio@7.0",
+        "libbase",
+    ],
+    cflags: [
+        "-DMAJOR_VERSION=7",
+        "-DMINOR_VERSION=0",
+        "-include common/all-versions/VersionMacro.h",
+    ],
+}
+
+cc_library {
+    name: "android.hardware.audio@7.1-util",
+    defaults: ["android.hardware.audio-util_default"],
+    shared_libs: [
+        "android.hardware.audio.common@7.0",
+        "android.hardware.audio.common@7.1-enums",
+        "android.hardware.audio.common@7.1-util",
+        "android.hardware.audio@7.1",
+        "libbase",
+    ],
+    cflags: [
+        "-DMAJOR_VERSION=7",
+        "-DMINOR_VERSION=1",
+        "-DCOMMON_TYPES_MINOR_VERSION=0",
+        "-DCORE_TYPES_MINOR_VERSION=0",
+        "-include common/all-versions/VersionMacro.h",
+    ],
+}
+
+// Note: this isn't a VTS test, but rather a unit test
+// to verify correctness of conversion utilities.
+cc_test {
+    name: "android.hardware.audio@7.0-util_tests",
+    defaults: ["android.hardware.audio-util_default"],
+
+    srcs: ["tests/coreutils_tests.cpp"],
+
+    // Use static linking to allow running in presubmit on
+    // targets that don't have HAL V7.
+    static_libs: [
+        "android.hardware.audio.common@7.0",
+        "android.hardware.audio.common@7.0-enums",
+        "android.hardware.audio.common@7.0-util",
+        "android.hardware.audio@7.0",
+        "android.hardware.audio@7.0-util",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libxml2",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-DMAJOR_VERSION=7",
+        "-DMINOR_VERSION=0",
+        "-include common/all-versions/VersionMacro.h",
+    ],
+
+    test_suites: ["device-tests"],
+}
+
+cc_test {
+    name: "android.hardware.audio@7.1-util_tests",
+    defaults: ["android.hardware.audio-util_default"],
+
+    srcs: ["tests/coreutils_tests.cpp"],
+
+    // Use static linking to allow running in presubmit on
+    // targets that don't have HAL V7.1.
+    static_libs: [
+        "android.hardware.audio.common@7.0",
+        "android.hardware.audio.common@7.1-enums",
+        "android.hardware.audio.common@7.1-util",
+        "android.hardware.audio@7.1",
+        "android.hardware.audio@7.1-util",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libxml2",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-DMAJOR_VERSION=7",
+        "-DMINOR_VERSION=1",
+        "-DCOMMON_TYPES_MINOR_VERSION=0",
+        "-DCORE_TYPES_MINOR_VERSION=0",
+        "-include common/all-versions/VersionMacro.h",
+    ],
+
+    test_suites: ["device-tests"],
+}

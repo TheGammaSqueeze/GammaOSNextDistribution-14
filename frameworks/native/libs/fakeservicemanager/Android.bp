@@ -1,0 +1,81 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+cc_defaults {
+    name: "fakeservicemanager_defaults",
+    host_supported: true,
+    srcs: [
+        "FakeServiceManager.cpp",
+    ],
+
+    shared_libs: [
+        "libbinder",
+        "libutils",
+        "liblog",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_library {
+    name: "libfakeservicemanager",
+    defaults: ["fakeservicemanager_defaults"],
+    export_include_dirs: ["include"],
+}
+
+cc_test_host {
+    name: "fakeservicemanager_test",
+    defaults: ["fakeservicemanager_defaults"],
+    srcs: [
+        "test_sm.cpp",
+    ],
+    static_libs: ["libgmock"],
+    local_include_dirs: ["include"],
+}
+
+rust_bindgen {
+    name: "libfakeservicemanager_bindgen",
+    crate_name: "fakeservicemanager_bindgen",
+    host_supported: true,
+    wrapper_src: "rust/wrappers/FakeServiceManagerWrapper.hpp",
+    source_stem: "bindings",
+    visibility: [":__subpackages__"],
+    bindgen_flags: [
+        "--allowlist-function",
+        "setupFakeServiceManager",
+        "--allowlist-function",
+        "clearFakeServiceManager",
+    ],
+    shared_libs: [
+        "libc++",
+        "libbinder",
+        "libfakeservicemanager",
+    ],
+}
+
+rust_library {
+    name: "libfakeservicemanager_rs",
+    crate_name: "fakeservicemanager_rs",
+    host_supported: true,
+    srcs: [
+        "rust/src/lib.rs",
+    ],
+    shared_libs: [
+        "libc++",
+        "libfakeservicemanager",
+    ],
+    rustlibs: [
+        "libfakeservicemanager_bindgen",
+    ],
+    lints: "none",
+    clippy_lints: "none",
+}

@@ -1,0 +1,79 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_library {
+    name: "libaudiopolicycomponents",
+
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_shared",
+    ],
+
+    srcs: [
+        "src/AudioCollections.cpp",
+        "src/AudioInputDescriptor.cpp",
+        "src/AudioOutputDescriptor.cpp",
+        "src/AudioPatch.cpp",
+        "src/AudioPolicyConfig.cpp",
+        "src/AudioPolicyMix.cpp",
+        "src/AudioProfileVectorHelper.cpp",
+        "src/AudioRoute.cpp",
+        "src/ClientDescriptor.cpp",
+        "src/DeviceDescriptor.cpp",
+        "src/EffectDescriptor.cpp",
+        "src/HwModule.cpp",
+        "src/IOProfile.cpp",
+        "src/PolicyAudioPort.cpp",
+        "src/PreferredMixerAttributesInfo.cpp",
+        "src/Serializer.cpp",
+        "src/SoundTriggerSession.cpp",
+        "src/TypeConverter.cpp",
+    ],
+    shared_libs: [
+        "android.media.audiopolicy-aconfig-cc",
+        "audioclient-types-aidl-cpp",
+        "audiopolicy-types-aidl-cpp",
+        "libaudioclient_aidl_conversion",
+        "libaudiofoundation",
+        "libaudiopolicy",
+        "libbase",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libmedia",
+        "libmedia_helper",
+        "libutils",
+        "libxml2",
+    ],
+    export_shared_lib_headers: [
+        "libaudiofoundation",
+        "libmedia",
+        "libmedia_helper",
+    ],
+    static_libs: [
+        "libaudioutils",
+    ],
+    header_libs: [
+        "libaudiopolicycommon",
+        "libaudiopolicymanager_interface_headers",
+    ],
+    export_header_lib_headers: ["libaudiopolicycommon"],
+
+    include_dirs: [
+        "frameworks/av/services/audiopolicy",
+    ],
+
+    export_include_dirs: ["include"],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+}

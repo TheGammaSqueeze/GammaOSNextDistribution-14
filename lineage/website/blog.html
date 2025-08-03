@@ -1,0 +1,34 @@
+---
+layout: default
+title: Blog
+---
+<style>body {background-color: #fafafa;}</style>
+
+<div class="jumbotron">
+  <div class="container">
+
+    <h1>Blog</h1>
+    <p>Changelogs and news from the LineageOS team.</p>
+    <a class="btn btn-primary" href="{{ site.baseurl }}/feed.xml"><i class="material-icons-outlined post-icons">rss_feed</i> RSS Feed</a>
+  </div>
+</div>
+
+<div class="container post">
+  {% for post in site.categories.blog %}
+  <div class="card">
+
+    <div class="card-body">
+      <h6>{{ post.excerpt }}</h6>
+      <h2 class="card-title"><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
+      <p class="card-text"><i class="material-icons-outlined post-icons" alt="Creation date">calendar_today</i> {{ post.date | date: '%B %d, %Y' }}
+      {% if post.modified %} <i class="material-icons-outlined post-icons" alt="Last modified">edit_calendar</i> {{ post.modified | date: '%B %d, %Y' }}{% endif %}
+      {% if post.author %} <i class="material-icons-outlined post-icons" alt="Author">person_outline</i> {{ post.author }}{% endif %}</p>
+    </div>
+
+    <div class="card-button">
+      <a href="{{ site.baseurl }}{{ post.url }}" class="btn btn-link text-primary">Read More</a>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>

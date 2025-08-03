@@ -1,0 +1,342 @@
+{
+  "License": [
+    "Copyright (C) 2023 The Android Open Source Project",
+    "",
+    "Licensed under the Apache License, Version 2.0 (the “License”);",
+    "you may not use this file except in compliance with the License.",
+    "You may obtain a copy of the License at",
+    "",
+    "     http://www.apache.org/licenses/LICENSE-2.0",
+    "",
+    "Unless required by applicable law or agreed to in writing, software",
+    "distributed under the License is distributed on an “AS IS” BASIS,",
+    "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.",
+    "See the License for the specific language governing permissions and",
+    "limitations under the License."
+  ],
+  "reg_classes": [
+    {
+      "name": "GeneralReg64",
+      "size": 8,
+      "regs": [
+        "R10",
+        "R11",
+        "R13",
+        "R14",
+        "R15",
+        "R8",
+        "R9",
+        "RDX",
+        "RBX",
+        "R12",
+        "RCX",
+        "RAX",
+        "RSI",
+        "RDI"
+      ]
+    },
+    {
+      "name": "XmmReg",
+      "size": 16,
+      "regs": [
+        "XMM15",
+        "XMM14",
+        "XMM13",
+        "XMM12",
+        "XMM11",
+        "XMM10",
+        "XMM9",
+        "XMM8",
+        "XMM7",
+        "XMM6",
+        "XMM5",
+        "XMM4",
+        "XMM3",
+        "XMM2",
+        "XMM1",
+        "XMM0"
+      ]
+    },
+    {
+      "name": "Reg64",
+      "size": 8,
+      "regs": [
+        "GeneralReg64",
+        "XmmReg"
+      ]
+    },
+    {
+      "name": "Reg32",
+      "size": 4,
+      "regs": [
+        "Reg64"
+      ]
+    },
+    {
+      "name": "GeneralReg32",
+      "size": 4,
+      "regs": [
+        "GeneralReg64"
+      ]
+    },
+    {
+      "name": "GeneralReg16",
+      "size": 2,
+      "regs": [
+        "GeneralReg64"
+      ]
+    },
+    {
+      "name": "GeneralReg8",
+      "size": 1,
+      "regs": [
+        "GeneralReg64"
+      ]
+    },
+    {
+      "name": "FpReg64",
+      "size": 8,
+      "regs": [
+        "XmmReg"
+      ]
+    },
+    {
+      "name": "FpReg32",
+      "size": 4,
+      "regs": [
+        "XmmReg"
+      ]
+    },
+    {
+      "name": "VecReg128",
+      "size": 16,
+      "regs": [
+        "XmmReg"
+      ]
+    },
+    {
+      "name": "RAX",
+      "size": 8,
+      "regs": [
+        "RAX"
+      ]
+    },
+    {
+      "name": "EAX",
+      "size": 4,
+      "regs": [
+        "RAX"
+      ]
+    },
+    {
+      "name": "RBX",
+      "size": 8,
+      "regs": [
+        "RBX"
+      ]
+    },
+    {
+      "name": "EBX",
+      "size": 4,
+      "regs": [
+        "RBX"
+      ]
+    },
+    {
+      "name": "RCX",
+      "size": 8,
+      "regs": [
+        "RCX"
+      ]
+    },
+    {
+      "name": "ECX",
+      "size": 4,
+      "regs": [
+        "RCX"
+      ]
+    },
+    {
+      "name": "CL",
+      "size": 1,
+      "regs": [
+        "RCX"
+      ]
+    },
+    {
+      "name": "RDX",
+      "size": 8,
+      "regs": [
+        "RDX"
+      ]
+    },
+    {
+      "name": "EDX",
+      "size": 4,
+      "regs": [
+        "RDX"
+      ]
+    },
+    {
+      "name": "RSI",
+      "size": 8,
+      "regs": [
+        "RSI"
+      ]
+    },
+    {
+      "name": "RDI",
+      "size": 8,
+      "regs": [
+        "RDI"
+      ]
+    },
+    {
+      "name": "R8",
+      "size": 8,
+      "regs": [
+        "R8"
+      ]
+    },
+    {
+      "name": "R9",
+      "size": 8,
+      "regs": [
+        "R9"
+      ]
+    },
+    {
+      "name": "R10",
+      "size": 8,
+      "regs": [
+        "R10"
+      ]
+    },
+    {
+      "name": "R11",
+      "size": 8,
+      "regs": [
+        "R11"
+      ]
+    },
+    {
+      "name": "XMM0",
+      "size": 16,
+      "regs": [
+        "XMM0"
+      ]
+    },
+    {
+      "name": "XMM1",
+      "size": 16,
+      "regs": [
+        "XMM1"
+      ]
+    },
+    {
+      "name": "XMM2",
+      "size": 16,
+      "regs": [
+        "XMM2"
+      ]
+    },
+    {
+      "name": "XMM3",
+      "size": 16,
+      "regs": [
+        "XMM3"
+      ]
+    },
+    {
+      "name": "XMM4",
+      "size": 16,
+      "regs": [
+        "XMM4"
+      ]
+    },
+    {
+      "name": "XMM5",
+      "size": 16,
+      "regs": [
+        "XMM5"
+      ]
+    },
+    {
+      "name": "XMM6",
+      "size": 16,
+      "regs": [
+        "XMM6"
+      ]
+    },
+    {
+      "name": "XMM7",
+      "size": 16,
+      "regs": [
+        "XMM7"
+      ]
+    },
+    {
+      "name": "XMM8",
+      "size": 16,
+      "regs": [
+        "XMM8"
+      ]
+    },
+    {
+      "name": "XMM9",
+      "size": 16,
+      "regs": [
+        "XMM9"
+      ]
+    },
+    {
+      "name": "XMM10",
+      "size": 16,
+      "regs": [
+        "XMM10"
+      ]
+    },
+    {
+      "name": "XMM11",
+      "size": 16,
+      "regs": [
+        "XMM11"
+      ]
+    },
+    {
+      "name": "XMM12",
+      "size": 16,
+      "regs": [
+        "XMM12"
+      ]
+    },
+    {
+      "name": "XMM13",
+      "size": 16,
+      "regs": [
+        "XMM13"
+      ]
+    },
+    {
+      "name": "XMM14",
+      "size": 16,
+      "regs": [
+        "XMM14"
+      ]
+    },
+    {
+      "name": "XMM15",
+      "size": 16,
+      "regs": [
+        "XMM15"
+      ]
+    },
+    {
+      "name": "FLAGS",
+      "size": 0,
+      "regs": [
+        "FLAGS"
+      ]
+    }
+  ]
+}

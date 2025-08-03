@@ -1,0 +1,113 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.app.motiontool;
+
+import "view_capture.proto";
+
+option java_multiple_files = true;
+
+message MotionToolsRequest {
+  oneof type {
+    HandshakeRequest handshake = 1;
+    BeginTraceRequest begin_trace = 2;
+    EndTraceRequest end_trace = 3;
+    PollTraceRequest poll_trace = 4;
+  }
+}
+
+// RPC response messages.
+//
+// Returns the result from the corresponding request.
+message MotionToolsResponse {
+  oneof type {
+    // Contains error information whenever the request failed.
+    ErrorResponse error = 1;
+
+    HandshakeResponse handshake = 2;
+    BeginTraceResponse begin_trace = 3;
+    EndTraceResponse end_trace = 4;
+    PollTraceResponse poll_trace = 5;
+  }
+}
+
+message ErrorResponse {
+  enum Code {
+    UNKNOWN = 0;
+    INVALID_REQUEST = 1;
+    UNKNOWN_TRACE_ID = 2;
+    WINDOW_NOT_FOUND = 3;
+  }
+
+  optional Code code = 1;
+  // Human readable error message.
+  optional string message = 2;
+}
+
+// Identifies the window, in which context the motion tools are executed
+message WindowIdentifier {
+  // An identifier for the root view, as accepted by
+  // WindowManagerGlobal#getRootView. This is formatted as
+  // `windowName/rootViewClassName@rootViewIdentityHashCode`,
+  // for example `NotificationShade/android.view.ViewRootImpl@bab6a53`.
+  optional string root_window = 1;
+}
+
+// Verifies the motion tools are available for the specified window.
+message HandshakeRequest {
+  optional WindowIdentifier window = 1;
+  optional int32 client_version = 2;
+}
+
+message HandshakeResponse {
+  enum Status {
+    OK = 1;
+    WINDOW_NOT_FOUND = 2;
+  }
+  optional Status status = 1;
+  optional int32 server_version = 2;
+}
+
+// Enables motion tracing for the specified window
+message BeginTraceRequest {
+  optional WindowIdentifier window = 1;
+}
+
+message BeginTraceResponse {
+  optional int32 trace_id = 1;
+}
+
+// Disabled motion tracing for the specified window
+message EndTraceRequest {
+  optional int32 trace_id = 1;
+}
+
+message EndTraceResponse {
+  optional com.android.app.viewcapture.data.MotionWindowData data = 1;
+}
+
+// Polls collected motion trace data collected since the last PollTraceRequest (or the
+// BeginTraceRequest)
+message PollTraceRequest {
+  optional int32 trace_id = 1;
+}
+
+message PollTraceResponse {
+  optional com.android.app.viewcapture.data.MotionWindowData data = 1;
+}
+

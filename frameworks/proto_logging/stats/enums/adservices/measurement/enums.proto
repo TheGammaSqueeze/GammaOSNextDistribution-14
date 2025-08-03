@@ -1,0 +1,158 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.adservices.service.measurement;
+
+option java_outer_classname = "MeasurementProtoEnums";
+option java_multiple_files = true;
+
+/**
+ * Enum used by AdServicesMeasurement(Registration, Attribution).
+ */
+enum SourceType {
+  UNKNOWN_SOURCE_TYPE = 0;
+  EVENT_SOURCE_TYPE = 1; // only deprecated for AdServicesMeasurementAttribution in favor of a VIEW_SOURCE_TYPE
+  NAVIGATION_SOURCE_TYPE = 2; // only deprecated for AdServicesMeasurementAttribution in favor of a CLICK_SOURCE_TYPE
+  VIEW_SOURCE_TYPE = 3;
+  CLICK_SOURCE_TYPE = 4;
+}
+
+/**
+ * Enum used by AdServicesMeasurementRegistration.
+ */
+enum RegistrationSurfaceType {
+  UNKNOWN_REGISTRATION_SURFACE_TYPE = 0;
+  WEB_REGISTRATION_SURFACE_TYPE = 1;
+  APP_REGISTRATION_SURFACE_TYPE = 2;
+}
+
+/**
+ * Enum used by AdServicesMeasurement(Registration, Attribution, Reporting,
+ * Jobs)
+ */
+enum Status {
+  UNKNOWN_STATUS = 0;
+  SUCCESS_STATUS = 1;
+  FAILURE_STATUS = 2;
+  AGGREGATE_REPORT_GENERATED_SUCCESS_STATUS = 3;
+  EVENT_REPORT_GENERATED_SUCCESS_STATUS = 4;
+  AGGREGATE_AND_EVENT_REPORTS_GENERATED_SUCCESS_STATUS = 5;
+}
+
+/**
+ * Enum used by AdServicesMeasurementRegistration.
+ */
+enum RegistrationFailureType {
+  UNKNOWN_REGISTRATION_FAILURE_TYPE = 0;
+  PARSING_REGISTRATION_FAILURE_TYPE = 1;
+  NETWORK_REQUEST_REGISTRATION_FAILURE_TYPE = 2;
+  ENROLLMENT_REGISTRATION_FAILURE_TYPE = 3;
+  REDIRECT_REGISTRATION_FAILURE_TYPE = 4;
+  STORAGE_REGISTRATION_FAILURE_TYPE = 5;
+  JOB_RETRY_LIMIT_EXCEEDED_REGISTRATION_FAILURE_TYPE = 6;
+  HEADER_SIZE_LIMIT_EXCEEDED_FAILURE_TYPE  = 7;
+}
+
+/**
+ * Enum used by AdServicesMeasurementReporting.
+ */
+enum ReportUploadFailureType {
+  UNKNOWN_REPORT_UPLOAD_FAILURE_TYPE = 0;
+  ENROLLMENT_NOT_FOUND_REPORT_UPLOAD_FAILURE_TYPE = 1;
+  NETWORK_ERROR_REPORT_UPLOAD_FAILURE_TYPE = 2;
+  DATASTORE_ERROR_REPORT_UPLOAD_FAILURE_TYPE = 3;
+  REPORT_NOT_PENDING_REPORT_UPLOAD_FAILURE_TYPE = 4;
+  JOB_RETRY_LIMIT_EXCEEDED_REPORT_UPLOAD_FAILURE_TYPE = 5;
+  SERIALIZATION_ERROR_REPORT_UPLOAD_FAILURE_TYPE = 6;
+  ENCRYPTION_ERROR_REPORT_UPLOAD_FAILURE_TYPE = 7;
+  UNSUCCESSFUL_HTTP_RESPONSE_CODE_FAILURE_TYPE = 8;
+  REPORT_NOT_FOUND_FAILURE_TYPE = 9;
+}
+
+/**
+ * Enum used by AdServicesMeasurementReporting.
+ */
+enum ReportUploadMethod {
+  UNKNOWN_REPORT_UPLOAD_METHOD = 0;
+  REGULAR_REPORT_UPLOAD_METHOD = 1;
+  FALLBACK_REPORT_UPLOAD_METHOD = 2;
+}
+
+/**
+ * Enum used by AdServicesMeasurementDelayedSourceRegistration.
+ */
+enum DelayedSourceRegistrationStatus {
+  UNKNOWN_DELAYED_SOURCE_REGISTRATION_STATUS = 0;
+  MISSING_DELAYED_SOURCE_REGISTRATION_STATUS = 1;
+  VALID_DELAYED_SOURCE_REGISTRATION_STATUS = 2;
+}
+
+/**
+ * Enum used by AdServicesMeasurementAttribution.
+ */
+enum AttributionSurfaceCombination {
+  UNKNOWN_ATTRIBUTION_SURFACE_COMBINATION = 0;
+  APP_APP_ATTRIBUTION_SURFACE_COMBINATION = 1;
+  APP_WEB_ATTRIBUTION_SURFACE_COMBINATION = 2;
+  WEB_APP_ATTRIBUTION_SURFACE_COMBINATION = 3;
+  WEB_WEB_ATTRIBUTION_SURFACE_COMBINATION = 4;
+}
+
+/**
+ * Enum used by AdServicesMeasurementAttribution.
+ */
+enum AttributionFailureType {
+  UNKNOWN_ATTRIBUTION_FAILURE_TYPE = 0;
+  TRIGGER_IGNORED_ATTRIBUTION_FAILURE_TYPE = 1;
+  TRIGGER_ALREADY_ATTRIBUTED_ATTRIBUTION_FAILURE_TYPE = 2;
+  TRIGGER_MARKED_FOR_DELETION_ATTRIBUTION_FAILURE_TYPE = 3;
+  NO_MATCHING_SOURCE_ATTRIBUTION_FAILURE_TYPE = 4;
+  NO_TOP_LEVEL_FILTER_MATCH_ATTRIBUTION_FAILURE_TYPE = 5;
+  RATE_LIMIT_EXCEEDED_ATTRIBUTION_FAILURE_TYPE = 6;
+  NO_REPORTS_GENERATED_ATTRIBUTION_FAILURE_TYPE = 7;
+  JOB_RETRY_LIMIT_EXCEEDED_ATTRIBUTION_FAILURE_TYPE = 8;
+  TRIGGER_NOT_FOUND_FAILURE_TYPE = 9;
+}
+
+/**
+ * Enum used by AdServicesMeasurementJobs.
+ */
+enum JobType {
+  UNKNOWN_JOB_TYPE = 0;
+  ASYNC_REGISTRATION_JOB_TYPE = 1;
+  ASYNC_REGISTRATION_FALLBACK_JOB_TYPE = 2;
+  ATTRIBUTION_JOB_TYPE = 3;
+  AGGREGATION_REPORTING_JOB_TYPE = 4;
+  AGGREGATE_REPORTING_FALLBACK_JOB_TYPE = 5;
+  EVENT_REPORTING_JOB_TYPE = 6;
+  EVENT_REPORTING_FALLBACK_JOB_TYPE = 7;
+  DELETE_EXPIRED_JOB_TYPE = 8;
+  DELETE_UNINSTALLED_JOB_TYPE = 9;
+}
+
+/**
+ * Enum used by AdServicesMeasurementWipeout.
+ */
+enum WipeoutCause {
+  UNKNOWN_WIPEOUT_CAUSE = 0;
+  UNINSTALL_WIPEOUT_CAUSE = 1;
+  CONSENT_FLIP_WIPEOUT_CAUSE = 2;
+  CLEAR_DATA_WIPEOUT_CAUSE = 3;
+  DELETE_REGISTRATIONS_API_CLEAR_DATA_WIPEOUT_CAUSE = 4;
+  PACKAGE_CHANGED_WIPEOUT_CAUSE = 5;
+  ROLLBACK_WIPEOUT_CAUSE = 6;
+}

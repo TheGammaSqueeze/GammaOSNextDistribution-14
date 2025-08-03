@@ -1,0 +1,35 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_binary {
+    name: "android.hardware.dumpstate@1.1-service.example",
+    vendor: true,
+    relative_install_path: "hw",
+    defaults: ["hidl_defaults"],
+    init_rc: [
+        "android.hardware.dumpstate@1.1-service.example.rc",
+    ],
+    vintf_fragments: [
+        "android.hardware.dumpstate@1.1-service.example.xml",
+    ],
+    srcs: ["main.cpp"],
+    shared_libs: [
+        "android.hardware.dumpstate@1.0",
+        "android.hardware.dumpstate@1.1",
+        "libbase",
+        "libcutils",
+        "libdumpstateutil",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"android.hardware.dumpstate@1.1-service.example\"",
+    ],
+}

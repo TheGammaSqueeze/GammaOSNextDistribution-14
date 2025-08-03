@@ -1,0 +1,2 @@
+include platform/frameworks/rs:/RS_OWNERS  # Bug component: 43047
+srhines@google.com

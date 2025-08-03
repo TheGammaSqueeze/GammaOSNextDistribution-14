@@ -1,0 +1,382 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+import "atom_field_options.proto";
+import "attribution_node.proto";
+
+package android.stats_log_api_gen;
+
+message IntAtom {
+    optional int32 field1 = 1;
+}
+
+message AnotherIntAtom {
+    optional int32 field1 = 1;
+}
+
+message OutOfOrderAtom {
+    optional int32 field2 = 2;
+    optional int32 field1 = 1;
+}
+
+enum AnEnum {
+    VALUE0 = 0;
+    VALUE1 = 1;
+}
+
+message AllTypesAtom {
+  repeated android.os.statsd.AttributionNode attribution_chain = 1;
+  optional float float_field = 2;
+  optional int64 int64_field = 3;
+  optional uint64 uint64_field = 4;
+  optional int32 int32_field = 5;
+  optional bool bool_field = 6;
+  optional string string_field = 7;
+  optional uint32 uint32_field = 8;
+  optional AnEnum enum_field = 9;
+  repeated float repeated_float_field = 10;
+  repeated int64 repeated_int64_field = 11;
+  repeated int32 repeated_int32_field = 12;
+  repeated bool repeated_bool_field = 13;
+  repeated string repeated_string_field = 14;
+}
+
+// Separated from AllTypesAtom because tests can't properly check atoms with multiple enum type
+// fields
+message RepeatedEnumAtom {
+    repeated AnEnum repeated_enum_field = 1;
+}
+
+message Event {
+    oneof pushed {
+        OutOfOrderAtom out_of_order_atom = 2;
+        IntAtom int_atom = 1;
+        AnotherIntAtom another_int_atom = 3;
+        AllTypesAtom all_types_atom = 4;
+        RepeatedEnumAtom repeated_enum_atom = 5;
+    }
+}
+
+message BadTypesAtom {
+    optional IntAtom bad_int_atom = 1;
+    optional bytes bad_bytes = 2;
+    optional double double_field = 3;
+    optional fixed64 fixed64_field = 4;
+    optional fixed32 fixed32_field = 5;
+    optional sfixed64 sfixed64_field = 6;
+    optional sfixed32 sfixed32_field = 7;
+    optional sint64 sint64_field = 8;
+    optional sint32 sint32_field = 9;
+    repeated double double_repeated_field = 10;
+    repeated fixed64 fixed64_repeated_field = 11;
+    repeated fixed32 fixed32_repeated_field = 12;
+    repeated sfixed64 sfixed64_repeated_field = 13;
+    repeated sfixed32 sfixed32_repeated_field = 14;
+    repeated sint64 sint64_repeated_field = 15;
+    repeated sint32 sint32_repeated_field = 16;
+    repeated uint64 uint64_repeated_field = 17;
+    repeated uint32 uint32_repeated_field = 18;
+    repeated IntAtom bad_int_atom_repeated_field = 19;
+    repeated bytes bad_bytes_repeated_field = 20;
+}
+
+message BadTypesEvent {
+    oneof pushed {
+        BadTypesAtom bad_types_atom = 1;
+    }
+}
+
+message BadSkippedFieldSingleAtom {
+    optional int32 field2 = 2;
+}
+
+message BadSkippedFieldSingle {
+    oneof pushed {
+        BadSkippedFieldSingleAtom bad = 1;
+    }
+}
+
+message BadSkippedFieldMultipleAtom {
+    optional int32 field1 = 1;
+    optional int32 field3 = 3;
+    optional int32 field5 = 5;
+}
+
+message BadSkippedFieldMultiple {
+    oneof pushed {
+        BadSkippedFieldMultipleAtom bad = 1;
+    }
+}
+
+message BadAttributionNodePositionAtom {
+  optional int32 field1 = 1;
+  repeated android.os.statsd.AttributionNode attribution = 2;
+}
+
+message BadAttributionNodePosition {
+  oneof pushed { BadAttributionNodePositionAtom bad = 1; }
+}
+
+message GoodEventWithBinaryFieldAtom {
+    oneof pushed { GoodBinaryFieldAtom field1 = 1; }
+}
+
+message ComplexField {
+    optional string str = 1;
+}
+
+message GoodBinaryFieldAtom {
+    optional int32 field1 = 1;
+    optional ComplexField bf = 2 [(android.os.statsd.log_mode) = MODE_BYTES];
+}
+
+message BadEventWithBinaryFieldAtom {
+    oneof pushed { BadBinaryFieldAtom field1 = 1; }
+}
+
+message BadBinaryFieldAtom {
+    optional int32 field1 = 1;
+    optional ComplexField bf = 2;
+}
+
+message BadStateAtoms {
+    oneof pushed {
+        BadStateAtom1 bad1 = 1;
+        BadStateAtom2 bad2 = 2;
+        BadStateAtom3 bad3 = 3;
+        BadStateAtom4 bad4 = 4;
+    }
+}
+
+message GoodStateAtoms {
+    oneof pushed {
+        GoodStateAtom1 good1 = 1;
+        GoodStateAtom2 good2 = 2;
+    }
+}
+
+message GoodRestrictedAtom {
+    optional int64 int64_field = 1 [(android.os.statsd.field_restriction_option).app_usage = true];
+    optional uint64 uint64_field = 2
+        [(android.os.statsd.field_restriction_option).app_activity = true];
+    optional int32 int32_field_1 = 3
+        [(android.os.statsd.field_restriction_option).health_connect = true];
+    optional bool bool_field = 4
+        [(android.os.statsd.field_restriction_option).accessibility = true];
+    optional string string_field = 5
+        [(android.os.statsd.field_restriction_option).system_search = true];
+    optional AnEnum enum_field = 6
+        [(android.os.statsd.field_restriction_option).ambient_sensing = true];
+    optional uint32 uint32_field = 7
+        [(android.os.statsd.field_restriction_option).user_engagement = true];
+    optional float float_field = 8
+        [(android.os.statsd.field_restriction_option).peripheral_device_info = true];
+    optional int32 int32_field_2 = 9
+        [(android.os.statsd.field_restriction_option).demographic_classification = true];
+}
+
+// Nonprimitive fields
+message BadRestrictedAtom1 {
+    repeated android.os.statsd.AttributionNode attribution_chain = 1
+        [(android.os.statsd.field_restriction_option).demographic_classification = true];
+    repeated float repeated_float_field = 2
+        [(android.os.statsd.field_restriction_option).app_usage = true];
+    repeated int64 repeated_int64_field = 3
+        [(android.os.statsd.field_restriction_option).app_activity = true];
+    repeated int32 repeated_int32_field = 4
+        [(android.os.statsd.field_restriction_option).health_connect = true];
+    repeated bool repeated_bool_field = 5
+        [(android.os.statsd.field_restriction_option).accessibility = true];
+    repeated string repeated_string_field = 6
+        [(android.os.statsd.field_restriction_option).system_search = true];
+}
+
+// Restriction category on atom field
+message BadRestrictedAtom2 {
+    optional int32 int32_field = 1
+        [(android.os.statsd.restriction_category) = RESTRICTION_DIAGNOSTIC];
+}
+
+// The atom has only primary field but no exclusive state field.
+message BadStateAtom1 {
+    optional int32 uid = 1 [(android.os.statsd.state_field_option).primary_field = true];
+}
+
+// Only primative types can be annotated.
+message BadStateAtom2 {
+    repeated android.os.statsd.AttributionNode attribution = 1
+            [(android.os.statsd.state_field_option).primary_field = true];
+    optional int32 state = 2 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+// Having 2 exclusive state field in the atom means the atom is badly designed.
+// E.g., putting bluetooth state and wifi state in the same atom.
+message BadStateAtom3 {
+    optional int32 uid = 1 [(android.os.statsd.state_field_option).primary_field = true];
+    optional int32 state = 2 [(android.os.statsd.state_field_option).exclusive_state = true];
+    optional int32 state2 = 3 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+// Repeated fields can't have state annotations.
+message BadStateAtom4 {
+    repeated int32 state = 1 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+message GoodStateAtom1 {
+    optional int32 uid = 1 [(android.os.statsd.state_field_option).primary_field = true];
+    optional int32 state = 2 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+// Atoms can have exclusive state field, but no primary field. That means
+// the state is globally exclusive (e.g., DisplayState).
+message GoodStateAtom2 {
+    optional int32 uid = 1;
+    optional int32 state = 2 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+// We can have more than one primary fields. That means their combination is a
+// primary key.
+message GoodStateAtom3 {
+    optional int32 uid = 1 [(android.os.statsd.state_field_option).primary_field = true];
+    optional int32 tid = 2 [(android.os.statsd.state_field_option).primary_field = true];
+    optional int32 state = 3 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+message BadUidAtoms {
+    oneof pushed {
+        BadUidAtom1 bad1 = 1;
+        BadUidAtom2 bad2 = 2;
+    }
+}
+
+message GoodUidAtoms {
+    oneof pushed {
+        GoodUidAtom1 good1 = 1;
+        GoodUidAtom2 good2 = 2;
+    }
+}
+
+// The only repeated field type that can have is_uid annotation is int32.
+message BadUidAtom1 {
+    repeated int64 uid = 1 [(android.os.statsd.is_uid) = true];
+}
+
+message BadUidAtom2 {
+    optional string uid = 1 [(android.os.statsd.is_uid) = true];
+}
+
+message GoodUidAtom1 {
+    optional int32 uid = 1 [(android.os.statsd.is_uid) = true];
+}
+
+message GoodUidAtom2 {
+    repeated int32 uid = 1 [(android.os.statsd.is_uid) = true];
+}
+
+message ModuleOneAtom {
+    optional int32 field = 1 [(android.os.statsd.is_uid) = true];
+}
+
+message ModuleTwoAtom {
+    optional int32 field = 1;
+}
+
+message ModuleOneAndTwoAtom {
+    optional int32 field = 1 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+message NoModuleAtom {
+    optional string field = 1;
+}
+
+message ModuleAtoms {
+    oneof pushed {
+        ModuleOneAtom module_one_atom = 1 [(android.os.statsd.module) = "module1"];
+        ModuleTwoAtom module_two_atom = 2 [(android.os.statsd.module) = "module2"];
+        ModuleOneAndTwoAtom module_one_and_two_atom = 3 [
+                (android.os.statsd.module) = "module1", (android.os.statsd.module) = "module2"
+        ];
+        NoModuleAtom no_module_atom = 4;
+    }
+}
+
+message PushedAndPulledAtoms {
+    oneof pushed {
+        IntAtom int_atom_1 = 1;
+    }
+
+    oneof pulled {
+        OutOfOrderAtom out_of_order_atom = 99999;
+        AnotherIntAtom another_int_atom = 10000;
+    }
+}
+
+message VendorAtoms {
+    optional IntAtom pushed_atom_100000 = 100000;
+    optional AnotherIntAtom pulled_atom_199999 = 199999;
+}
+
+message GoodRestrictedAtoms {
+    optional GoodRestrictedAtom pushed_atom_1 = 1
+        [(android.os.statsd.restriction_category) = RESTRICTION_DIAGNOSTIC];
+    optional GoodRestrictedAtom pushed_atom_2 = 2
+        [(android.os.statsd.restriction_category) = RESTRICTION_SYSTEM_INTELLIGENCE];
+}
+
+// Nonprimitive fields
+message BadRestrictedAtoms1 {
+    optional BadRestrictedAtom1 pushed_atom_1 = 1
+        [(android.os.statsd.restriction_category) = RESTRICTION_AUTHENTICATION];
+}
+
+// Restriction category on atom field
+message BadRestrictedAtoms2 {
+    optional BadRestrictedAtom2 pushed_atom_1 = 1;
+}
+
+// Field restriction without restriction category
+message BadRestrictedAtoms3 {
+    optional GoodRestrictedAtom pushed_atom_1 = 1;
+}
+
+// Field restriction option on top level atom field
+message BadRestrictedAtoms4 {
+    optional IntAtom pushed_atom_1 = 1
+        [(android.os.statsd.field_restriction_option).peripheral_device_info = true];
+}
+
+// Restricted pulled atoms
+message BadRestrictedAtoms5 {
+    optional GoodRestrictedAtom pulled_atom_10001 = 10001
+        [(android.os.statsd.restriction_category) = RESTRICTION_AUTHENTICATION];
+    optional GoodRestrictedAtom pulled_atom_10002 = 10002
+        [(android.os.statsd.restriction_category) = RESTRICTION_FRAUD_AND_ABUSE];
+}
+
+message ExtensionAtoms {
+    oneof pushed {
+        IntAtom int_atom_1 = 1;
+    }
+    oneof pulled {
+        OutOfOrderAtom out_of_order_atom = 10000;
+    }
+
+    extensions 9999; // Pushed atom extension, ExtensionAtomPushed
+
+    extensions 99999; // Pulled atom extension, ExtensionAtomPulled
+}

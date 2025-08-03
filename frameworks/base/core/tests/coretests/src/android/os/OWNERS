@@ -1,0 +1,11 @@
+# Display
+per-file BrightnessLimit.java = michaelwr@google.com, santoscordon@google.com
+
+# Haptics
+per-file *Vibrat*.java = file:/services/core/java/com/android/server/vibrator/OWNERS
+
+# Power
+per-file PowerManager*.java = michaelwr@google.com, santoscordon@google.com
+
+# PerformanceHintManager
+per-file PerformanceHintManagerTest.java = file:/ADPF_OWNERS

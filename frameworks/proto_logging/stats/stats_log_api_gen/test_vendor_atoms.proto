@@ -1,0 +1,221 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+package android.stats_log_api_gen;
+
+message Atom {
+    oneof pushed {
+        VendorAtom1 vendorAtom1 = 105501 [(android.os.statsd.module) = "test"];
+        VendorAtom2 vendorAtom2 = 105502 [(android.os.statsd.module) = "test"];
+        VendorAtom3 vendorAtom3 = 105503 [(android.os.statsd.module) = "test"];
+        VendorAtom4 vendorAtom4 = 105504 [(android.os.statsd.module) = "test"];
+        VendorAtom5 vendorAtom5 = 105505 [(android.os.statsd.module) = "test"];
+        VendorAtom6 vendorAtom6 = 105513 [(android.os.statsd.module) = "test"];
+        VendorAtom5WithAnnotation vendorAtom5WithAnnotation = 105514 [
+            (android.os.statsd.module) = "test"
+        ];
+        VendorAtom5WithState vendorAtom5WithState = 105515 [(android.os.statsd.module) = "test"];
+        VendorAtomWithState stateAtom1 = 105506 [(android.os.statsd.module) = "test"];
+        VendorAtomWithState2 stateAtom2 = 105507 [(android.os.statsd.module) = "test"];
+        VendorAtomWithState3 stateAtom3 = 105508 [(android.os.statsd.module) = "test"];
+        VendorAtomWithState4 stateAtom4 = 105509 [(android.os.statsd.module) = "test"];
+        VendorAtomWithTruncateTimestamp truncateTimestampAtom1 = 105510 [
+            (android.os.statsd.module) = "test",
+            (android.os.statsd.truncate_timestamp) = true
+        ];
+        VendorAtomWithTruncateTimestamp2 truncateTimestampAtom2 = 105511 [
+            (android.os.statsd.module) = "test",
+            (android.os.statsd.truncate_timestamp) = true
+        ];
+        VendorAtomWithTruncateTimestamp3 truncateTimestampAtom3 = 105512 [
+            (android.os.statsd.module) = "test",
+            (android.os.statsd.truncate_timestamp) = true
+        ];
+    }
+}
+
+message VendorAtom1 {
+    enum EnumType {
+        TYPE_UNKNOWN = 0;
+        TYPE_1 = 1;
+        TYPE_2 = 2;
+        TYPE_3 = 3;
+    }
+
+    enum EnumType2 {
+        ANOTHER_TYPE_UNKNOWN = 0;
+        ANOTHER_TYPE_1 = 1;
+        ANOTHER_TYPE_2 = 2;
+        ANOTHER_TYPE_3 = 3;
+    }
+
+    optional string reverse_domain_name = 1;
+    optional EnumType enumField1 = 2;
+    optional EnumType enumField2 = 3;
+    optional int32 int_value32 = 4;
+    optional int64 int_value64 = 5;
+    optional float float_value = 6;
+    optional bool bool_value = 7;
+    optional EnumType2 enumField3 = 8;
+    optional EnumType2 enumField4 = 9;
+}
+
+message VendorAtom2 {
+    enum EnumType {
+        TYPE_UNKNOWN = 0;
+        TYPE_1 = 1;
+        TYPE_2 = 2;
+        TYPE_3 = 3;
+    }
+
+    enum EnumType2 {
+        ANOTHER_TYPE_UNKNOWN = 0;
+        ANOTHER_TYPE_1 = 1;
+        ANOTHER_TYPE_2 = 2;
+        ANOTHER_TYPE_3 = 3;
+    }
+
+    optional string reverse_domain_name = 1;
+    optional int32 intField = 2;
+    optional EnumType enumField1 = 3;
+    optional EnumType enumField2 = 4;
+    optional EnumType2 enumField3 = 5;
+    optional EnumType2 enumField4 = 6;
+}
+
+message VendorAtom3 {
+    optional string reverse_domain_name = 1;
+    optional int32 int_field = 2;
+}
+
+message VendorAtom4 {
+    enum EnumType4 {
+        TYPE_UNKNOWN = 0;
+        TYPE_1 = 1;
+    }
+
+    optional string reverse_domain_name = 1;
+    optional float float_field = 2;
+    optional int32 int_field = 3;
+    optional int64 long_field = 4;
+    optional bool bool_field = 5;
+    optional EnumType4 type4 = 6;
+
+    repeated bool bool_repeated = 7;
+    repeated float float_repeated = 8;
+    repeated int32 int_repeated = 9;
+    repeated int64 long_repeated = 10;
+    repeated string string_repeated = 11;
+    repeated EnumType4 enum_repeated = 12;
+}
+
+message TestNestedMessage {
+    optional float float_field = 1;
+    optional int32 int_field = 2;
+    optional int64 long_field = 3;
+}
+
+message VendorAtom5 {
+    optional string reverse_domain_name = 1;
+    optional float float_field = 2;
+    optional int32 int_field = 3;
+    optional int64 long_field = 4;
+    optional TestNestedMessage nested_message_field = 5 [(android.os.statsd.log_mode) = MODE_BYTES];
+}
+
+message VendorAtom5WithAnnotation {
+    optional string reverse_domain_name = 1;
+    optional float float_field = 2;
+    optional int32 int_field = 3 [(android.os.statsd.state_field_option).primary_field = true];
+    optional int64 long_field = 4 [(android.os.statsd.state_field_option).exclusive_state = true];
+    optional TestNestedMessage nested_message_field = 5 [(android.os.statsd.log_mode) = MODE_BYTES];
+}
+
+enum TestState {
+    TEST_STATE_UNKNOWN = 0;
+    TEST_STATE_1 = 1;
+    TEST_STATE_2 = 2;
+    TEST_STATE_3 = 3;
+}
+
+message VendorAtom5WithState {
+    optional string reverse_domain_name = 1;
+    optional float float_field = 2;
+    optional TestState state_field = 3 [(android.os.statsd.state_field_option).exclusive_state = true];
+    optional int64 long_field = 4 [(android.os.statsd.state_field_option).primary_field = true];
+    optional TestNestedMessage nested_message_field = 5 [(android.os.statsd.log_mode) = MODE_BYTES];
+}
+
+message VendorAtom6 {
+    optional string reverse_domain_name = 1;
+    optional TestState state_field = 2;
+}
+
+message VendorAtomWithState {
+    optional string reverse_domain_name = 1;
+    optional int32 uid = 2 [(android.os.statsd.state_field_option).primary_field = true];
+    optional TestState state = 3 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+message VendorAtomWithState2 {
+    optional string reverse_domain_name = 1;
+    optional int32 uid = 2 [(android.os.statsd.state_field_option).primary_field = true];
+    optional int32 pid = 3 [(android.os.statsd.state_field_option).primary_field = true];
+    optional TestState state = 4 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+message VendorAtomWithState3 {
+    optional string reverse_domain_name = 1;
+    optional TestState state = 2 [(android.os.statsd.state_field_option).exclusive_state = true];
+}
+
+message VendorAtomWithState4 {
+    optional string reverse_domain_name = 1;
+
+    enum State {
+        OFF = 0;
+        ON = 1;
+        RESET = 2;
+    }
+
+    optional State state = 2 [
+        (android.os.statsd.state_field_option).exclusive_state = true,
+        (android.os.statsd.state_field_option).default_state_value = 0 /* State.OFF */,
+        (android.os.statsd.state_field_option).trigger_state_reset_value = 2 /* State.RESET */,
+        (android.os.statsd.state_field_option).nested = true
+    ];
+
+    optional bool some_flag = 3 [(android.os.statsd.state_field_option).primary_field = true];
+}
+
+message VendorAtomWithTruncateTimestamp {
+    optional string reverse_domain_name = 1;
+    optional TestState state = 2;
+}
+
+message VendorAtomWithTruncateTimestamp2 {
+    optional string reverse_domain_name = 1;
+    optional TestState state = 2;
+}
+
+message VendorAtomWithTruncateTimestamp3 {
+    optional string reverse_domain_name = 1;
+    optional int32 int_value = 2;
+}

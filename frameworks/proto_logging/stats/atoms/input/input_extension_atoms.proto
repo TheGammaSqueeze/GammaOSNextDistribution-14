@@ -1,0 +1,179 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.input;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/input/enums.proto";
+
+option java_package = "com.android.os.input";
+option java_multiple_files = true;
+
+extend Atom {
+    optional KeyboardConfigured keyboard_configured = 682 [(module) = "framework"];
+    optional KeyboardSystemsEventReported keyboard_systems_event_reported = 683 [(module) = "framework"];
+    optional InputDeviceUsageReported inputdevice_usage_reported = 686 [(module) = "framework"];
+
+    optional TouchpadUsage touchpad_usage = 10191 [(module) = "framework"];
+}
+
+// Keyboard layout configured when the device is connected
+message KeyboardLayoutConfig {
+    // Keyboard configuration details provided by device
+    // Layout type mappings found at:
+    // frameworks/base/core/res/res/values/attrs.xml
+    optional int32 keyboard_layout_type = 1;
+    // Keyboard language tag (e.g. en-US, ru-Cyrl, etc) provided by device.
+    // This will follow BCP-47 language tag standards.
+    optional string keyboard_language_tag = 2;
+    // Selected PK layout name (e.g. English(US), English(Dvorak), etc.)
+    optional string keyboard_layout_name = 3;
+    // Criteria for layout selection
+    optional int32 layout_selection_criteria = 4;
+    // Keyboard layout type provided by IME
+    optional int32 ime_layout_type = 5;
+    // Language tag provided by IME (e.g. en-US, ru-Cyrl etc.)
+    optional string ime_language_tag = 6;
+}
+
+// Message containing the repeated field for KeyboardLayoutConfig
+message RepeatedKeyboardLayoutConfig {
+     repeated KeyboardLayoutConfig keyboard_layout_config = 1;
+}
+
+/**
+ * Logged when an external physical keyboard (PK) is connected and configured
+ * Also logs every time there is a configuration change for the keyboard,
+ * and the current configuration
+ *
+ * Logged from:
+ *   frameworks/base/services/core/java/com/android/server/input
+ */
+message KeyboardConfigured {
+    // Tracking if this is the first time the device is configured
+    optional bool is_first_time_configuration = 1;
+    // The Input Device Vendor ID
+    optional int32 vendor_id = 2;
+    // The Input Device Product ID
+    optional int32 product_id = 3;
+    // Keyboard configuration details
+    optional RepeatedKeyboardLayoutConfig repeated_keyboard_layout_config = 4 [(log_mode) = MODE_BYTES];
+    // The Input Device Bus ID
+    optional android.input.InputDeviceBus device_bus = 5;
+}
+
+/**
+ * Logs shortcut usage on the physical keyboard
+ * Atom pushed when shortcut is used
+ *
+ * Logged from:
+ *   frameworks/base/.../PhoneWindowManager.java
+ *   frameworks/base/.../PhoneWindow.java
+ *   frameworks/native/inputflinger
+ */
+message KeyboardSystemsEventReported {
+    // The Input Device Vendor ID
+    optional int32 vendor_id = 1;
+    // The Input Device Product ID
+    optional int32 product_id = 2;
+    // Key event that occurred
+    optional android.input.KeyboardSystemEvent keyboard_system_event = 3;
+    // Key pressed to trigger the keyboard event
+    repeated int32 key_code = 4;
+    // Flag based modifier state when keyboard event was triggered
+    // This field represents the decimal version of the flag in binary
+    optional int32 modifier_state = 5;
+    // The Input Device Bus ID
+    optional android.input.InputDeviceBus device_bus = 6;
+}
+
+/**
+ * Logs input device usage information when a usage session is detected.
+ * Pushed when the system identifies the end of a usage session.
+ *
+ * Logged from:
+ *   frameworks/native/services/inputflinger
+ */
+message InputDeviceUsageReported {
+    // The Input Device Vendor ID
+    // Note that the meaning of the vendor ID may depend on the bus through
+    // which the device is connected. For example, the identifiers used for USI
+    // styluses are different than those for USB or Bluetooth devices.
+    optional int32 vendor_id = 1;
+    // The Input Device Product ID
+    // Note that the meaning of the product ID may depend on the bus through
+    // which the device is connected. For example, the identifiers used for USI
+    // styluses are different than those for USB or Bluetooth devices.
+    optional int32 product_id = 2;
+    // The Input Device Version ID
+    optional int32 version_id = 3;
+    // The Input Device Bus ID
+    optional android.input.InputDeviceBus device_bus = 4;
+
+    // The duration of the aggregated usage session for this Input Device, in
+    // milliseconds.
+    // (The int32_t will overflow at ~25 days)
+    optional int32 usage_duration_millis = 5;
+
+    // The breakdown of this usage session by source.
+    repeated android.input.InputDeviceUsageType usage_sources = 6;
+    // The breakdown of usage duration for each of the {@link usage_sources}
+    // reported above, in milliseconds.
+    repeated int32 usage_durations_per_source = 7;
+
+    // The breakdown of this usage session by uid.
+    repeated int32 uids = 8 [(is_uid) = true];
+    // The breakdown of usage duration for each of the {@link uids} reported
+    // above, in milliseconds.
+    repeated int32 usage_durations_per_uid = 9;
+}
+
+/**
+ * Logs information about the usage of a touchpad.
+ *
+ * Logged from:
+ *   frameworks/native/services/inputflinger
+ */
+message TouchpadUsage {
+    // The Input Device Vendor ID
+    optional int32 vendor_id = 1;
+    // The Input Device Product ID
+    optional int32 product_id = 2;
+    // The Input Device Version ID
+    optional int32 version_id = 3;
+    // The Input Device Bus ID
+    optional android.input.InputDeviceBus device_bus = 4;
+
+    // The number of touches that are classified as fingers by the touchpad for
+    // their entire duration (i.e. from the touch down event until the lift
+    // event).
+    optional int32 finger_count = 5;
+    // The number of touches that are classified as palms by the touchpad at
+    // least once during their duration.
+    optional int32 palm_count = 6;
+
+    // The number of two-finger swipes recognized by the framework.
+    optional int32 two_finger_swipe_gesture_count = 7;
+    // The number of three-finger swipes recognized by the framework.
+    optional int32 three_finger_swipe_gesture_count = 8;
+    // The number of four-finger swipes recognized by the framework.
+    optional int32 four_finger_swipe_gesture_count = 9;
+    // The number of pinch gestures recognized by the framework.
+    optional int32 pinch_gesture_count = 10;
+}

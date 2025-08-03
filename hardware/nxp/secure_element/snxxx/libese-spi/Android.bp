@@ -1,0 +1,93 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_nxp_secure_element_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_nxp_secure_element_license"],
+}
+
+cc_library_shared {
+
+    name: "ese_spi_nxp_snxxx",
+    defaults: ["hidl_defaults"],
+    proprietary: true,
+
+    srcs: [
+        "p73/lib/phNxpEseDataMgr.cpp",
+        "p73/lib/phNxpEseProto7816_3.cpp",
+        "p73/lib/phNxpEse_Apdu_Api.cpp",
+        "p73/lib/phNxpEse_Api.cpp",
+        "p73/pal/phNxpEsePal.cpp",
+        "p73/pal/EseTransportFactory.cpp",
+        "p73/pal/spi/EseSpiTransport.cpp",
+        "p73/pal/NxpTimer.cpp",
+        "p73/spm/phNxpEse_Spm.cpp",
+        "p73/utils/ese_config.cpp",
+        "p73/utils/config.cpp",
+        "p73/utils/ringbuffer.cpp",
+        "src/adaptation/NfcAdaptation.cpp",
+        "src/adaptation/CondVar.cpp",
+        "src/adaptation/Mutex.cpp",
+    ],
+
+    local_include_dirs: [
+        "p73/lib",
+        "p73/pal/spi",
+        "p73/utils",
+    ],
+    export_include_dirs: [
+        "common/include",
+        "p73/common",
+        "p73/inc",
+        "p73/pal",
+        "src/include",
+    ],
+    include_dirs: [
+        "hardware/nxp/nfc/snxxx/extns/impl/nxpnfc/aidl",
+        "hardware/nxp/nfc/snxxx/extns/impl/nxpnfc/2.0",
+        "hardware/nxp/secure_element/snxxx/extns/impl",
+        "hardware/nxp/secure_element/snxxx/ese-clients/inc"
+],
+
+    cflags: [
+        "-DANDROID",
+        "-DJCOP_VER_3_1=1",
+        "-DJCOP_VER_3_2=2",
+        "-DJCOP_VER_3_3=3",
+        "-DJCOP_VER_4_0=4",
+        "-DJCOP_VER_5_x=5",
+        "-DBUILDCFG=1",
+        "-DNXP_EXTNS=TRUE",
+        "-DNFC_NXP_ESE_VER=JCOP_VER_5_x",
+        "-Wall",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "android.hardware.nfc@1.0",
+        "android.hardware.nfc@1.1",
+        "android.hardware.secure_element@1.0",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "libutils",
+        "libbinder",
+        "libbinder_ndk",
+        "liblog",
+        "libbase",
+        "libchrome",
+        "vendor.nxp.nxpese@1.0",
+        "vendor.nxp.nxpnfc@2.0",
+        "vendor.nxp.nxpnfc_aidl-V1-ndk",
+    ],
+
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DDCHECK_ALWAYS_ON"
+            ],
+        },
+    },
+
+}

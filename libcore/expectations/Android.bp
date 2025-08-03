@@ -1,0 +1,58 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "libcore_license":
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-GPL
+    //   SPDX-license-identifier-GPL-2.0
+    //   SPDX-license-identifier-LGPL
+    //   SPDX-license-identifier-MIT
+    //   SPDX-license-identifier-W3C
+    default_applicable_licenses: ["libcore_license"],
+}
+
+expectations_visibility = [
+    "//art/build/sdk",
+    "//cts/tests/libcore:__subpackages__",
+]
+
+java_library {
+    name: "libcore-expectations-knownfailures-jar",
+    visibility: expectations_visibility,
+    java_resources: [
+        "knownfailures.txt",
+        "skippedCtsTest.txt",
+    ],
+    sdk_version: "core_current",
+    // Make sure that this will be added to the sdk snapshot for S.
+    min_sdk_version: "S",
+}
+
+java_library {
+    name: "libcore-expectations-virtualdeviceknownfailures-jar",
+    visibility: expectations_visibility,
+    java_resources: ["virtualdeviceknownfailures.txt"],
+    sdk_version: "core_current",
+    // Make sure that this will be added to the sdk snapshot for S.
+    min_sdk_version: "S",
+}
+
+java_library_host {
+    name: "skippedCtsTest-manual-base-jar",
+    java_resources: ["skippedCtsTest_manual_base.txt"],
+    visibility: ["//libcore/tools/non-cts-json-generator"],
+}

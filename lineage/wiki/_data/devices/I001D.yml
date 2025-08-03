@@ -1,0 +1,39 @@
+architecture: arm64
+battery: {capacity: 6000, removable: False, tech: 'Li-Po'}
+before_install: {instructions: 'needs_specific_android_fw', lineage_version: 17.1, version: '10'}
+before_lineage_install: ab_copy_partitions
+bluetooth: {profiles: [A2DP + aptX HD], spec: '5'}
+cameras:
+  - {flash: 'LED', info: '48 MP (wide)'}
+  - {flash: 'LED', info: '13 MP (ultrawide)'}
+  - {flash: None, info: '24 MP'}
+codename: I001D
+cpu: Kryo 485
+cpu_cores: '8'
+cpu_freq: 1x2.964 GHz & 3x2.42 GHz & 4x1.78 GHz
+current_branch: 17.1
+dimensions: {depth: 9.48, height: 170.99, width: 77.6}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the words "Fastboot Mode" appear on the screen, then release.
+gpu: Qualcomm Adreno 640
+image: I001D.png
+install_method: fastboot_zenfone
+is_ab_device: true
+is_unlockable: false
+kernel: {repo: android_kernel_asus_I001, version: '4.14'}
+maintainers: []
+name: ROG Phone 2 (ZS660KL)
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Dual SIM, FM radio, Fingerprint reader, GLONASS, GPS, Gyroscope, Light sensor, Proximity sensor, USB OTG]
+ram: 8/12 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the words "Fastboot Mode" appear on the screen, then release. Now with the volume rocker select "Recovery mode", then press <kbd>Power</kbd>.
+recovery_partition_name: boot
+release: 2019-09
+screen: {resolution: '2340x1080', size: 6.59, technology: 'AMOLED'}
+soc: Qualcomm SM8150-AC Snapdragon 855+
+storage: 128/512/1024 GB UFS3.0
+tree: android_device_asus_I001D
+type: phone
+vendor: ASUS
+vendor_short: asus
+versions: [17.1]
+wifi: 802.11 a/b/g/n/ac

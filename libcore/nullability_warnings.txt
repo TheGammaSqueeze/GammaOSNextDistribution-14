@@ -1,0 +1,43 @@
+WARNING: method java.lang.invoke.MethodType.appendParameterTypes(Class<?>...), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.appendParameterTypes(java.util.List<java.lang.Class<?>>), parameter ptypesToInsert, MISSING
+WARNING: method java.lang.invoke.MethodType.appendParameterTypes(java.util.List<java.lang.Class<?>>), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.changeParameterType(int, Class<?>), parameter nptype, MISSING
+WARNING: method java.lang.invoke.MethodType.changeParameterType(int, Class<?>), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.changeReturnType(Class<?>), parameter nrtype, MISSING
+WARNING: method java.lang.invoke.MethodType.changeReturnType(Class<?>), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.dropParameterTypes(int, int), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.equals(Object), parameter x, MISSING
+WARNING: method java.lang.invoke.MethodType.erase(), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.fromMethodDescriptorString(String, ClassLoader), parameter descriptor, MISSING
+WARNING: method java.lang.invoke.MethodType.fromMethodDescriptorString(String, ClassLoader), parameter loader, MISSING
+WARNING: method java.lang.invoke.MethodType.fromMethodDescriptorString(String, ClassLoader), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.generic(), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.genericMethodType(int), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.genericMethodType(int, boolean), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.insertParameterTypes(int, Class<?>...), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.insertParameterTypes(int, java.util.List<java.lang.Class<?>>), parameter ptypesToInsert, MISSING
+WARNING: method java.lang.invoke.MethodType.insertParameterTypes(int, java.util.List<java.lang.Class<?>>), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.lastParameterType(), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>), parameter rtype, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, Class<?>), parameter ptype0, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, Class<?>), parameter rtype, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, Class<?>), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, Class<?>, Class<?>...), parameter ptype0, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, Class<?>, Class<?>...), parameter rtype, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, Class<?>, Class<?>...), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, Class<?>[]), parameter rtype, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, Class<?>[]), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, java.lang.invoke.MethodType), parameter ptypes, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, java.lang.invoke.MethodType), parameter rtype, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, java.lang.invoke.MethodType), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, java.util.List<java.lang.Class<?>>), parameter ptypes, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, java.util.List<java.lang.Class<?>>), parameter rtype, MISSING
+WARNING: method java.lang.invoke.MethodType.methodType(Class<?>, java.util.List<java.lang.Class<?>>), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.parameterList(), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.parameterType(int), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.returnType(), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.toMethodDescriptorString(), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.toString(), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.unwrap(), return value, MISSING
+WARNING: method java.lang.invoke.MethodType.wrap(), return value, MISSING

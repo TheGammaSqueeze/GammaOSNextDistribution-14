@@ -1,0 +1,103 @@
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_library {
+    name: "libheadtracking",
+    host_supported: true,
+    srcs: [
+        "HeadTrackingProcessor.cpp",
+        "ModeSelector.cpp",
+        "Pose.cpp",
+        "PoseBias.cpp",
+        "PoseDriftCompensator.cpp",
+        "PosePredictor.cpp",
+        "PoseRateLimiter.cpp",
+        "QuaternionUtil.cpp",
+        "ScreenHeadFusion.cpp",
+        "StillnessDetector.cpp",
+        "Twist.cpp",
+        "VectorRecorder.cpp",
+    ],
+    shared_libs: [
+        "libaudioutils",
+        "libbase",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+    header_libs: [
+        "libeigen",
+    ],
+    export_header_lib_headers: [
+        "libeigen",
+    ],
+    cflags: [
+        "-Wthread-safety",
+    ],
+    product_variables: {
+        debuggable: {
+            // enable experiments only in userdebug and eng builds
+            cflags: ["-DENABLE_VERIFICATION"],
+        },
+    },
+}
+
+cc_library {
+    name: "libheadtracking-binding",
+    srcs: [
+        "SensorPoseProvider.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libheadtracking",
+        "liblog",
+        "libsensor",
+        "libutils",
+    ],
+    export_shared_lib_headers: [
+        "libheadtracking",
+        "libsensor",
+    ],
+}
+
+cc_binary {
+    name: "SensorPoseProvider-example",
+    srcs: [
+        "SensorPoseProvider-example.cpp",
+    ],
+    shared_libs: [
+        "libheadtracking",
+        "libheadtracking-binding",
+        "libsensor",
+        "libutils",
+    ],
+}
+
+cc_test_host {
+    name: "libheadtracking-test",
+    srcs: [
+        "HeadTrackingProcessor-test.cpp",
+        "ModeSelector-test.cpp",
+        "Pose-test.cpp",
+        "PoseBias-test.cpp",
+        "PoseDriftCompensator-test.cpp",
+        "PosePredictor.cpp",
+        "PoseRateLimiter-test.cpp",
+        "QuaternionUtil-test.cpp",
+        "ScreenHeadFusion-test.cpp",
+        "StillnessDetector-test.cpp",
+        "Twist-test.cpp",
+    ],
+    shared_libs: [
+        "libaudioutils",
+        "libbase", // StringAppendF
+        "libheadtracking",
+    ],
+}

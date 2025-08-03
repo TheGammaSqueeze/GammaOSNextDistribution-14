@@ -1,0 +1,12 @@
+type init_dpm, domain;
+type init_dpm_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(init_dpm)
+
+userdebug_or_eng(`
+allow init_dpm vendor_toolbox_exec:file execute_no_trans;
+allow init_dpm sysfs_dpm:file r_file_perms;
+allow init_dpm block_device:dir search;
+allow init_dpm dpm_block_device:blk_file rw_file_perms;
+allow init_dpm custom_ab_block_device:blk_file rw_file_perms;
+')

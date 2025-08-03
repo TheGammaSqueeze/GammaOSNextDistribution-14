@@ -1,0 +1,15 @@
+{
+  "presubmit": [
+    {
+      "name": "stats-log-api-gen-test"
+    },
+    {
+      "name": "VendorAtomCodeGenJavaTest",
+      "options": [
+        {
+          "exclude-annotation": "org.junit.Ignore"
+        }
+      ]
+    }
+  ]
+}

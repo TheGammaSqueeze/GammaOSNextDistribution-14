@@ -1,0 +1,134 @@
+//
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// Build the android.test.base library
+// ===================================
+// This contains the junit.framework and android.test classes that were in
+// Android API level 25 excluding those from android.test.runner.
+// Also contains the com.android.internal.util.Predicate[s] classes.
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-CPL-1.0
+    default_applicable_licenses: ["frameworks_base_test-base_license"],
+}
+
+license {
+    name: "frameworks_base_test-base_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-CPL-1.0",
+    ],
+    license_text: [
+        "src/junit/cpl-v10.html",
+    ],
+}
+
+java_sdk_library {
+    name: "android.test.base",
+
+    srcs: [":android-test-base-sources"],
+
+    errorprone: {
+        javacflags: ["-Xep:DepAnn:ERROR"],
+    },
+
+    hostdex: true,
+
+    api_packages: [
+        "android.test",
+        "android.test.suitebuilder.annotation",
+        "com.android.internal.util",
+        "junit.framework",
+    ],
+
+    compile_dex: true,
+    default_to_stubs: true,
+
+    // Additional hiddenapi annotations are provided in a separate module.
+    // TODO(b/180295980) - investigate whether this can be removed
+    hiddenapi_additional_annotations: [
+        "android.test.base-hiddenapi-annotations",
+    ],
+    dist_group: "android",
+}
+
+// Build the android.test.base_static library
+// ==========================================
+// This is only intended for use by the android.test.runner-minus-junit
+// library.
+//
+// Must not be used elsewhere.
+//
+java_library_static {
+    name: "android.test.base_static",
+    visibility: [
+        "//frameworks/base/test-runner",
+    ],
+    installable: false,
+
+    srcs: [":android-test-base-sources"],
+
+    errorprone: {
+        javacflags: ["-Xep:DepAnn:ERROR"],
+    },
+
+    // Needs to be consistent with the repackaged version of this make target.
+    java_version: "1.8",
+
+    sdk_version: "current",
+}
+
+// Build the android.test.base-minus-junit library
+// ===============================================
+// This contains the android.test classes from android.test.base plus
+// the com.android.internal.util.Predicate[s] classes.
+java_library_static {
+    name: "android.test.base-minus-junit",
+
+    srcs: [
+        "src/android/**/*.java",
+        "src/com/**/*.java",
+    ],
+
+    sdk_version: "current",
+    libs: [
+        "junit",
+    ],
+}
+
+filegroup {
+    name: "android-test-base-sources",
+    srcs: ["src/**/*.java"],
+    path: "src",
+}
+
+// Make the current.txt available for use by the cts/tests/signature and /vendor tests.
+// ========================================================================
+filegroup {
+    name: "android-test-base-current.txt",
+    visibility: [
+        "//cts/tests/signature/api",
+        "//vendor:__subpackages__",
+    ],
+    srcs: [
+        "api/current.txt",
+    ],
+}

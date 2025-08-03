@@ -1,0 +1,37 @@
+architecture: arm64
+battery: {capacity: 5000, removable: False, tech: 'Li-Po'}
+bluetooth: {profiles: [A2DP], spec: '5'}
+cameras:
+  - {flash: 'LED', info: '13 MP'}
+  - {flash: 'LED', info: '5 MP'}
+  - {flash: 'LED', info: '13 MP'}
+codename: X01BD
+cpu: Kryo 260
+cpu_cores: '8'
+cpu_freq: 1.9 GHz
+current_branch: 18.1
+dimensions: {depth: 8.5, height: 157.9, width: 75.5}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the word "FASTBOOT" appears on the screen, then release.
+gpu: Qualcomm Adreno 512
+image: X01BD.png
+install_method: fastboot_zenfone
+is_unlockable: false
+kernel: {repo: android_kernel_asus_sdm660, version: '4.4'}
+maintainers: []
+name: Zenfone Max Pro M2
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, FM radio, Fingerprint reader, GPS, Proximity sensor]
+ram: 3/4/6 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the "ASUS" logo appears on the screen, then release.
+recovery_partition_name: recovery
+release: 2018-12
+screen: {resolution: '1080x2280', size: 6.26, technology: 'IPS LCD'}
+sdcard: {size_max: '2 TB'}
+soc: Qualcomm SDM660 Snapdragon 660
+storage: 32/64 GB
+tree: android_device_asus_X01BD
+type: phone
+vendor: ASUS
+vendor_short: asus
+versions: [16.0, 18.1]
+wifi: 802.11 b/g/n

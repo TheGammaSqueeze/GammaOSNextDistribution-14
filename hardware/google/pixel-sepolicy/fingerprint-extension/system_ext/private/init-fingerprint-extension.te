@@ -1,0 +1,17 @@
+type init-fingerprint-extension, domain, coredomain;
+type init-fingerprint-extension_exec, exec_type, system_file_type, file_type;
+
+userdebug_or_eng(`
+  init_daemon_domain(init-fingerprint-extension)
+
+  allow init-fingerprint-extension shell_exec:file rx_file_perms;
+  allow init-fingerprint-extension system_file:file execute_no_trans;
+  allow init-fingerprint-extension toolbox_exec:file {execute read open execute_no_trans map getattr};
+  allow init-fingerprint-extension activity_service:service_manager find;
+  binder_call(init-fingerprint-extension, servicemanager)
+  binder_call(init-fingerprint-extension, system_server)
+  binder_call(system_server, init-fingerprint-extension)
+
+  set_prop(init-fingerprint-extension, pixel_fingerprint_prop)
+  get_prop(init-fingerprint-extension, pixel_fingerprint_prop)
+')

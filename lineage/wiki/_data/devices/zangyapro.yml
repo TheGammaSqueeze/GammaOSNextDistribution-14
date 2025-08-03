@@ -1,0 +1,38 @@
+architecture: arm64
+battery: {capacity: 3100, removable: False, tech: 'Li-Po'}
+bluetooth: {profiles: [A2DP + aptX], spec: '5'}
+cameras:
+  - {flash: 'Dual LED (dual tone)', info: '12 MP'}
+  - {flash: 'Dual LED (dual tone)', info: '5 MP (depth)'}
+  - {flash: 'LED', info: '8 MP'}
+codename: zangyapro
+cpu: Kryo 260
+cpu_cores: '8'
+cpu_freq: 4 x 2.2 GHz + 4 x 1.8 GHz
+current_branch: 20
+dimensions: {depth: 8.35, height: 150.7, width: 72.3}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+format_on_upgrade: fbe
+gpu: Qualcomm Adreno 512
+image: zangyapro.png
+install_method: fastboot_nexus
+is_ab_device: true
+kernel: {repo: android_kernel_bq_sdm660, version: '4.4'}
+maintainers: []
+name: Aquaris X2 Pro
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Dual SIM, FM radio, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, SBAS, QZSS, Gyroscope, Hall effect sensor, Light sensor, NFC, Proximity sensor, USB OTG]
+ram: 4/6 GB LPDDR3
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: boot
+release: 2018-05
+screen: {resolution: '2160x1080', size: 5.65, technology: 'IPS LTPS LCD'}
+sdcard: {size_max: '256 GB', slot: 'hybrid'}
+soc: Qualcomm SDM660 Snapdragon 660
+storage: 64/128 GB
+tree: android_device_bq_zangyapro
+type: phone
+vendor: BQ
+vendor_short: bq
+versions: [16.0, 20]
+wifi: 802.11 b/g/n/ac

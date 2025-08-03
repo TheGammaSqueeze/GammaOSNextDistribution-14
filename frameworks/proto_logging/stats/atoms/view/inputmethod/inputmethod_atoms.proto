@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.view.inputmethod;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/view/inputmethod/enums.proto";
+
+option java_package = "com.android.os.view.inputmethod";
+option java_multiple_files = true;
+
+/**
+ * Logged when an IME request finished.
+ *
+ * Logged from:
+ *   frameworks/base/services/core/java/com/android/server/inputmethod/ImeTrackerService.java
+ */
+message ImeRequestFinished {
+  // Uid of the client that requested the IME.
+  optional int32 requester_uid = 1 [(is_uid) = true];
+
+  // Duration in milliseconds of the IME request from start to end,
+  // (according to System.currentTimeMIllis()).
+  optional int64 duration_millis = 2;
+
+  // Type of the IME request, from
+  // frameworks/proto_logging/stats/enums/view/inputmethod/enums.proto.
+  optional android.view.inputmethod.ImeRequestTypeEnum type = 3;
+
+  // Status of the IME request, from
+  // frameworks/proto_logging/stats/enums/view/inputmethod/enums.proto.
+  optional android.view.inputmethod.ImeRequestStatusEnum status = 4;
+
+  // Reason for creating the IME request, from
+  // frameworks/proto_logging/stats/enums/view/inputmethod/enums.proto.
+  optional android.view.inputmethod.SoftInputShowHideReasonEnum reason = 5;
+
+  // Origin of the IME request, from
+  // frameworks/proto_logging/stats/enums/view/inputmethod/enums.proto.
+  optional android.view.inputmethod.ImeRequestOriginEnum origin = 6;
+
+  // Last phased reached by the IME request, from
+  // frameworks/proto_logging/stats/enums/view/inputmethod/enums.proto.
+  optional android.view.inputmethod.ImeRequestPhaseEnum phase = 7;
+
+  // Whether this request was created directly from user interaction.
+  optional bool from_user = 8;
+}

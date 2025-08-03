@@ -1,0 +1,6 @@
+# Bug component: 31808
+set noparent
+maze@google.com
+file:platform/packages/modules/Connectivity:main:/OWNERS_core_networking_xts
+
+per-file build_rootfs.sh = rammuthiah@google.com, adelva@google.com, muntsinger@google.com

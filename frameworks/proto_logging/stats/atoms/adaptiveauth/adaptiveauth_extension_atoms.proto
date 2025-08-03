@@ -1,0 +1,54 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.adaptiveauth;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.adaptiveauth";
+option java_multiple_files = true;
+
+extend Atom {
+  optional AdaptiveAuthUnlockAfterLockReported adaptive_auth_unlock_after_lock_reported = 820 [(module) = "framework"];
+}
+
+/**
+ * Logs unlock and lock info when a successful primary auth or biometric auth happens after the
+ * device is locked by adaptive auth
+ *
+ * Pushed from:
+ *   frameworks/base/services/core/java/com/android/server/adaptiveauth/AdaptiveAuthService.java
+ *
+ */
+message AdaptiveAuthUnlockAfterLockReported {
+  // The last time that the device is locked by adaptive auth in milliseconds since boot
+  // (see SystemClock.elapsedRealtime())
+  optional int64 last_lock_timestamp_since_boot = 1;
+
+  // The time that a successful primary or biometric auth happens in milliseconds since boot
+  // (See SystemClock.elapsedRealtime()) and since the last locked time by adaptive auth
+  optional int64 unlock_timestamp_since_boot = 2;
+
+  enum UnlockType {
+      UNKNOWN = 0;
+      PRIMARY_AUTH = 1;
+      BIOMETRIC_AUTH = 2;
+  }
+  optional UnlockType unlock_type = 3;
+}

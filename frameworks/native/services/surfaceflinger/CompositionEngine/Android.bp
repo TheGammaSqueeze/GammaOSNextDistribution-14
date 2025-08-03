@@ -1,0 +1,182 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+    default_team: "trendy_team_android_core_graphics_stack",
+}
+
+cc_defaults {
+    name: "libcompositionengine_defaults",
+    defaults: [
+        "android.hardware.graphics.composer3-ndk_shared",
+        "android.hardware.power-ndk_shared",
+        "librenderengine_deps",
+        "libtimestats_deps",
+        "surfaceflinger_defaults",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"CompositionEngine\"",
+        "-DATRACE_TAG=ATRACE_TAG_GRAPHICS",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.allocator@2.0",
+        "android.hardware.graphics.composer@2.1",
+        "android.hardware.graphics.composer@2.2",
+        "android.hardware.graphics.composer@2.3",
+        "android.hardware.graphics.composer@2.4",
+        "android.hardware.power@1.0",
+        "android.hardware.power@1.3",
+        "libbase",
+        "libcutils",
+        "libgui",
+        "liblog",
+        "libnativewindow",
+        "libprotobuf-cpp-lite",
+        "libSurfaceFlingerProp",
+        "libui",
+        "libutils",
+        "server_configurable_flags",
+        "vendor.samsung.hardware.miscpower@2.0",
+    ],
+    static_libs: [
+        "liblayers_proto",
+        "libmath",
+        "librenderengine",
+        "libtimestats",
+        "libtonemap",
+        "libaidlcommonsupport",
+        "libprocessgroup",
+        "libcgrouprc",
+        "libjsoncpp",
+        "libcgrouprc_format",
+    ],
+    header_libs: [
+        "android.hardware.graphics.composer@2.1-command-buffer",
+        "android.hardware.graphics.composer@2.2-command-buffer",
+        "android.hardware.graphics.composer@2.3-command-buffer",
+        "android.hardware.graphics.composer@2.4-command-buffer",
+        "android.hardware.graphics.composer3-command-buffer",
+        "libsurfaceflinger_headers",
+    ],
+}
+
+filegroup {
+    name: "libcompositionengine_sources",
+    srcs: [
+        "src/planner/CachedSet.cpp",
+        "src/planner/Flattener.cpp",
+        "src/planner/LayerState.cpp",
+        "src/planner/Planner.cpp",
+        "src/planner/Predictor.cpp",
+        "src/planner/TexturePool.cpp",
+        "src/ClientCompositionRequestCache.cpp",
+        "src/CompositionEngine.cpp",
+        "src/Display.cpp",
+        "src/DisplayColorProfile.cpp",
+        "src/DisplaySurface.cpp",
+        "src/DumpHelpers.cpp",
+        "src/HwcAsyncWorker.cpp",
+        "src/HwcBufferCache.cpp",
+        "src/LayerFECompositionState.cpp",
+        "src/Output.cpp",
+        "src/OutputCompositionState.cpp",
+        "src/OutputLayer.cpp",
+        "src/OutputLayerCompositionState.cpp",
+        "src/RenderSurface.cpp",
+    ],
+}
+
+cc_library {
+    name: "libcompositionengine",
+    defaults: ["libcompositionengine_defaults"],
+    static_libs: [
+        "libsurfaceflinger_common",
+        "libsurfaceflingerflags",
+    ],
+    srcs: [
+        ":libcompositionengine_sources",
+    ],
+    local_include_dirs: ["include"],
+    export_include_dirs: ["include"],
+    shared_libs: [
+        "server_configurable_flags",
+    ],
+}
+
+cc_library {
+    name: "libcompositionengine_mocks",
+    defaults: ["libcompositionengine_defaults"],
+    srcs: [
+        "mock/CompositionEngine.cpp",
+        "mock/Display.cpp",
+        "mock/DisplayColorProfile.cpp",
+        "mock/DisplaySurface.cpp",
+        "mock/LayerFE.cpp",
+        "mock/NativeWindow.cpp",
+        "mock/Output.cpp",
+        "mock/OutputLayer.cpp",
+        "mock/RenderSurface.cpp",
+    ],
+    static_libs: [
+        "libgtest",
+        "libgmock",
+        "libcompositionengine",
+        "libsurfaceflinger_common_test",
+        "libsurfaceflingerflags_test",
+    ],
+    shared_libs: [
+        "server_configurable_flags",
+    ],
+    local_include_dirs: ["include"],
+    export_include_dirs: ["include"],
+}
+
+cc_test {
+    name: "libcompositionengine_test",
+    test_suites: ["device-tests"],
+    include_dirs: [
+        "frameworks/native/services/surfaceflinger/common/include",
+        "frameworks/native/services/surfaceflinger/tests/unittests",
+    ],
+    defaults: ["libcompositionengine_defaults"],
+    srcs: [
+        ":libcompositionengine_sources",
+        "tests/planner/CachedSetTest.cpp",
+        "tests/planner/FlattenerTest.cpp",
+        "tests/planner/LayerStateTest.cpp",
+        "tests/planner/PredictorTest.cpp",
+        "tests/planner/TexturePoolTest.cpp",
+        "tests/CompositionEngineTest.cpp",
+        "tests/DisplayColorProfileTest.cpp",
+        "tests/DisplayTest.cpp",
+        "tests/HwcBufferCacheTest.cpp",
+        "tests/MockHWC2.cpp",
+        "tests/MockHWComposer.cpp",
+        "tests/MockPowerAdvisor.cpp",
+        "tests/OutputLayerTest.cpp",
+        "tests/OutputTest.cpp",
+        "tests/ProjectionSpaceTest.cpp",
+        "tests/RenderSurfaceTest.cpp",
+    ],
+    static_libs: [
+        "libcompositionengine_mocks",
+        "libgui_mocks",
+        "librenderengine_mocks",
+        "libgmock",
+        "libgtest",
+        "libsurfaceflinger_common_test",
+        "libsurfaceflingerflags_test",
+    ],
+    shared_libs: [
+        // For some reason, libvulkan isn't picked up from librenderengine
+        // Probably ASAN related?
+        "libvulkan",
+        "server_configurable_flags",
+    ],
+    sanitize: {
+        hwaddress: true,
+    },
+}

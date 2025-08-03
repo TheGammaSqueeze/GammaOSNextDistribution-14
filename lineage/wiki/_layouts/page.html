@@ -1,0 +1,51 @@
+---
+layout: default
+---
+<div class="container page">
+
+  {%- if page.device != None %}
+    {%- assign device = site.data.devices[page.device] %}
+    {%- capture link %}{{ device | device_link | relative_url }}{% endcapture %}
+  {%- elsif page.tags contains "how-to" %}
+    {%- capture link %}{{ "how-to/" | relative_url }}{% endcapture %}
+  {%- endif %}
+
+  {%- assign parts = "/build /update /upgrade /install /fw_update" | split: " " %}
+  {%- for part in parts %}
+    {%- if page.url contains part %}
+      {%- assign action = part | remove: "/" %}
+      {%- unless part == "/build" or part == "/update" %}
+        {%- assign notoc = true %}
+      {%- endunless %}
+      {%- break %}
+    {%- endif %}
+  {%- endfor %}
+
+  {%- if link != None %}
+  <a href={{ link }} class="back-link"><span class="material-icons">keyboard_arrow_left</span> Back to the overview</a>
+  {%- endif %}
+
+  {%- if page.title contains "variant" %}
+    <h1 class="post-title-main">Select your {{ page.device }} variant</h1>
+  {%- elsif action %}
+    {%- if action == "build" %}
+      {%- assign firstLine = action | capitalize | append: " LineageOS for" %}
+    {%- elsif action == "fw_update" %}
+      {%- assign firstLine = "Update firmware on" %}
+    {%- else %}
+      {%- assign firstLine = action | capitalize | append: " LineageOS on" %}
+    {%- endif %}
+    <h1 class="post-title-main">{{ firstLine }}<br/>
+    {{ device.vendor }} {{ device.name }}</h1>
+    <span class="codename">{{ device.codename }}</span>
+  {%- else %}
+    <h1 class="post-title-main">{{ page.title }}</h1>
+  {%- endif %}
+
+  {% unless page.toc == false or notoc == true -%}
+  {% include toc.html -%}
+  {%- endunless -%}
+
+  {{ content }}
+
+</div>

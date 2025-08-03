@@ -1,0 +1,77 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.corenetworking.connectivity;
+
+option java_package = "com.android.os.corenetworking.connectivity";
+option java_multiple_files = true;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/corenetworking/connectivity/enums.proto";
+
+/**
+ * Logs validation failure statistics for all <Rat, Signalstrength> pair on the system
+ * default network once a day.
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message NetworkValidationFailureStatsDailyReported {
+    optional ValidationFailureStatsPerRatSignalPair validation_failure_stats_per_rat_signal_pair = 1
+          [(android.os.statsd.log_mode) = MODE_BYTES];
+}
+
+/**
+ * Logs validation failure statistics on each list of <Rat, Signalstrength> pair.
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message ValidationFailureStatsPerRatSignalPair{
+    repeated ValidationFailureStatsForRatSignalPair validation_failure_stats_for_rat_signal_pair= 1;
+}
+
+/**
+ * Logs the validation failure statistics about a <Rat, Signalstrength> pair of the system
+ * default network. The statistics include: 1.Validation failure count. 2.Validation failure
+ * duration in milliseconds. 3.Total duration of connection in service in milliseconds.
+ *
+ * Logs from:
+ *   packages/modules/Connectivity/service/src/com/android/server/ConnectivityService.java
+ */
+message ValidationFailureStatsForRatSignalPair {
+    // Radio access type(2G, 3G, 4G, 5G, WIFI) of the system default network
+    optional android.corenetworking.connectivity.RatType rat_type = 1;
+
+    // The signal strength(Poor, moderate, good, great) of the default network when validation
+    // failed. This field is only meaningful in the mobile network, it is useless in the WIFI
+    // network. So the value will always be 'SIGNAL_STRENGTH_NONE_OR_UNKNOWN' in WIFI network.
+    optional android.corenetworking.connectivity.SignalStrength signal_strength= 2;
+
+    // The number of times the network transitioned from validation success to validation failure
+    optional int32 count_of_failures  = 3;
+
+    // The duration of validation_failure in milliseconds
+    optional int32 validation_failure_duration_millis = 4;
+
+    // The duration of connection in service in milliseconds
+    optional int32 connection_in_service_duration_millis = 5;
+}
+
+
+

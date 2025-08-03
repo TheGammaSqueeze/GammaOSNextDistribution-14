@@ -1,0 +1,133 @@
+/******************************************************************************
+ *
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *****************************************************************************
+ * Originally developed and contributed by Ittiam Systems Pvt. Ltd, Bangalore
+ */
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_media_libstagefright_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_media_libstagefright_license"],
+}
+
+cc_defaults {
+    name: "writer-fuzzerbase-defaults",
+    local_include_dirs: [
+        "include",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+    static_libs: [
+        "liblog",
+        "libstagefright_foundation",
+        "libstagefright",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libcutils",
+        "libutils",
+    ],
+}
+
+cc_defaults {
+    name: "writer-fuzzer-defaults",
+    defaults: ["writer-fuzzerbase-defaults"],
+    static_libs: [
+        "libwriterfuzzerbase",
+    ],
+    fuzz_config: {
+        cc: [
+            "android-media-fuzzing-reports@google.com",
+        ],
+        componentid: 155276,
+        hotlists: [
+            "4593311",
+        ],
+        description: "The fuzzers target the APIs of all the various writers",
+        vector: "local_no_privileges_required",
+        service_privilege: "constrained",
+        users: "multi_user",
+        fuzzed_code_usage: "shipped",
+    },
+}
+
+cc_library_static {
+    name: "libwriterfuzzerbase",
+    defaults: ["writer-fuzzerbase-defaults"],
+    srcs: [
+        "WriterFuzzerBase.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "amrnb_writer_fuzzer",
+    defaults: ["writer-fuzzer-defaults"],
+    srcs: [
+        "amr_writer_fuzzer.cpp",
+    ],
+    cflags: [
+        "-DAMRNB",
+    ],
+}
+
+cc_fuzz {
+    name: "amrwb_writer_fuzzer",
+    defaults: ["writer-fuzzer-defaults"],
+    srcs: [
+        "amr_writer_fuzzer.cpp",
+    ],
+}
+
+cc_fuzz {
+    name : "mpeg4_writer_fuzzer",
+    defaults : ["writer-fuzzer-defaults"],
+    srcs : [
+        "mpeg4_writer_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libstagefright_esds",
+    ],
+}
+
+cc_fuzz {
+    name : "ogg_writer_fuzzer",
+    defaults : ["writer-fuzzer-defaults"],
+    srcs : [
+        "ogg_writer_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libogg",
+    ],
+}
+
+cc_fuzz {
+    name : "webm_writer_fuzzer",
+    defaults : ["writer-fuzzer-defaults"],
+    srcs : [
+        "webm_writer_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libstagefright_webm",
+        "libdatasource",
+    ],
+    header_libs: [
+        "libstagefright_headers",
+    ],
+}

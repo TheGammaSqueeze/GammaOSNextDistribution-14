@@ -1,0 +1,72 @@
+//########################################################################
+// Build FrameworksUtilTests package
+//########################################################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+android_test {
+    name: "FrameworksUtilTests",
+
+    // We only want this apk build for tests.
+
+    // Include all test java files.
+    srcs: [
+        "src/**/*.java",
+        "src/android/util/IRemoteMemoryIntArray.aidl",
+    ],
+
+    jni_libs: [
+        "libmemoryintarraytest",
+        "libcutils",
+        "libc++",
+    ],
+
+    static_libs: [
+        "androidx.test.rules",
+        "frameworks-base-testutils",
+        "mockito-target-minus-junit4",
+        "androidx.test.ext.junit",
+        "truth",
+        "servicestests-utils",
+        "ravenwood-junit",
+    ],
+
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+    ],
+
+    platform_apis: true,
+
+    certificate: "platform",
+
+    test_suites: ["device-tests"],
+
+}
+
+android_ravenwood_test {
+    name: "FrameworksUtilTestsRavenwood",
+    libs: [
+        "android.test.mock",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.test.rules",
+        "frameworks-base-testutils",
+        "servicestests-utils",
+    ],
+    srcs: [
+        "src/android/util/IRemoteMemoryIntArray.aidl",
+        "src/android/util/**/*.java",
+        "src/com/android/internal/util/**/*.java",
+    ],
+    auto_gen_config: true,
+}

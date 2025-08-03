@@ -1,0 +1,63 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+android_test_helper_app {
+    name: "FrameworksCoreTests_version_1",
+    defaults: ["FrameworksCoreTests_apks_defaults"],
+    srcs: ["**/*.java"],
+    aaptflags: [
+        "--version-code 1",
+        "--version-name 1.0",
+    ],
+    certificate: ":FrameworksCoreTests_unit_test_cert",
+}
+
+android_test_helper_app {
+    name: "FrameworksCoreTests_version_2",
+    defaults: ["FrameworksCoreTests_apks_defaults"],
+    srcs: ["**/*.java"],
+    aaptflags: [
+        "--version-code 2",
+        "--version-name 2.0",
+    ],
+    certificate: ":FrameworksCoreTests_unit_test_cert",
+}
+
+android_test_helper_app {
+    name: "FrameworksCoreTests_version_3",
+    defaults: ["FrameworksCoreTests_apks_defaults"],
+    srcs: ["**/*.java"],
+    aaptflags: [
+        "--version-code 3",
+        "--version-name 3.0",
+    ],
+    certificate: ":FrameworksCoreTests_unit_test_cert",
+}
+
+android_test_helper_app {
+    name: "FrameworksCoreTests_version_1_diff",
+    defaults: ["FrameworksCoreTests_apks_defaults"],
+    srcs: ["**/*.java"],
+    aaptflags: [
+        "--version-code 1",
+        "--version-name 1.0",
+    ],
+    certificate: ":FrameworksCoreTests_unit_test_cert",
+}
+
+android_test_helper_app {
+    name: "FrameworksCoreTests_version_2_diff",
+    defaults: ["FrameworksCoreTests_apks_defaults"],
+    srcs: ["**/*.java"],
+    aaptflags: [
+        "--version-code 2",
+        "--version-name 2.0",
+    ],
+    certificate: ":FrameworksCoreTests_unit_test_cert",
+}

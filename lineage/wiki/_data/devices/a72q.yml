@@ -1,0 +1,42 @@
+architecture: arm64
+battery: {capacity: 5000, removable: False, tech: 'Li-Ion'}
+before_install: {instructions: 'needs_specific_android_fw', lineage_version: 20, version: '13/14'}
+before_recovery_install: samsung_qcom
+bluetooth: {profiles: [A2DP], spec: '5'}
+cameras:
+  - {flash: 'LED', info: '64 MP'}
+  - {flash: 'LED', info: '12 MP (ultrawide)'}
+  - {flash: 'LED', info: '8 MP (telephoto)'}
+  - {flash: None, info: '5 MP (macro)'}
+codename: a72q
+cpu: Kryo 465 Gold & Kryo 465 Silver
+cpu_cores: '8'
+cpu_freq: 2 x 2.3 GHz & 6 x 1.8 GHz
+current_branch: 22.2
+dimensions: {depth: 8.4, height: 165, width: 77.4}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Volume Down</kbd> and connect USB cable to PC.
+firmware_update: firmware_update_samsung_sm7125
+gpu: Qualcomm Adreno 618
+image: a72q.png
+install_method: odin
+kernel: {repo: android_kernel_samsung_sm7125, version: '4.14'}
+maintainers: [Simon1511]
+models: [SM-A725F, SM-A725M, SM-A725F/DS, SM-A725M/DS]
+name: Galaxy A72
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Barometer, Compass, Fingerprint reader, GPS, Gyroscope, Proximity sensor]
+quirks: [ims]
+ram: 6/8 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd> while the device is connected to a PC via USB cable.
+recovery_partition_name: recovery
+release: 2021
+screen: {refresh_rate: 90, resolution: '1080x2400', size: 6.7, technology: 'Super AMOLED'}
+sdcard: {size_max: '512 GB', slot: 'hybrid'}
+soc: Qualcomm SM7125 Snapdragon 720G
+storage: 128/256 GB
+tree: android_device_samsung_a72q
+type: phone
+vendor: Samsung
+vendor_short: samsung
+versions: [19.1, 20, 21, 22.1, 22.2]
+wifi: 802.11 a/b/g/n/ac

@@ -1,0 +1,28 @@
+/*
+ * Copyright (C) 2022-2023 The LineageOS Project
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+aidl_interface {
+    name: "vendor.lineage.health",
+    vendor_available: true,
+    srcs: ["vendor/lineage/health/*.aidl"],
+    stability: "vintf",
+    owner: "lineage",
+
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+}

@@ -1,0 +1,29 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "VtsHalBluetoothEwpTargetTest",
+    defaults: [
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    srcs: ["VtsHalBluetoothEwpTargetTest.cpp"],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "libbinder_ndk",
+        "liblog",
+        "libutils",
+        "//hardware/google/interfaces:hardware.google.bluetooth.ewp-V1-ndk",
+    ],
+    static_libs: [
+        "libbluetooth-types",
+    ],
+    test_config: "VtsHalBluetoothEwpTargetTest.xml",
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+}
+

@@ -1,0 +1,78 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Headers module is in frameworks/av/Android.bp because modules are not allowed
+// to refer to headers in parent directories and the headers live in
+// frameworks/av/include.
+
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_defaults {
+    name: "libaudiohal_aidl_test_default",
+    test_suites: ["device-tests"],
+    defaults: [
+        "libaudiohal_default",
+        "libaudiohal_aidl_default",
+    ],
+    shared_libs: [
+        "libaudiohal",
+    ],
+}
+
+cc_test {
+    name: "CoreAudioHalAidlTest",
+    srcs: [
+        "CoreAudioHalAidl_test.cpp",
+        ":core_audio_hal_aidl_src_files",
+    ],
+    defaults: ["libaudiohal_aidl_test_default"],
+    header_libs: ["libaudiohalimpl_headers"],
+}
+
+cc_test {
+    name: "EffectsFactoryHalInterfaceTest",
+    srcs: ["EffectsFactoryHalInterface_test.cpp"],
+    defaults: ["libaudiohal_aidl_test_default"],
+    shared_libs: [
+        "libvibrator",
+    ],
+    test_config_template: "AudioHalTestTemplate.xml",
+}
+
+cc_test {
+    name: "EffectProxyTest",
+    srcs: [
+        "EffectProxy_test.cpp",
+        ":audio_effectproxy_src_files",
+    ],
+    defaults: [
+        "libaudiohal_aidl_test_default",
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    header_libs: ["libaudiohalimpl_headers"],
+}
+
+cc_test {
+    name: "EffectHalVersionCompatibilityTest",
+    srcs: [
+        "EffectHalVersionCompatibility_test.cpp",
+        ":audio_effect_hal_aidl_src_files",
+    ],
+    defaults: ["libaudiohal_aidl_test_default"],
+    header_libs: ["libaudiohalimpl_headers"],
+    static_libs: ["libgmock"],
+}

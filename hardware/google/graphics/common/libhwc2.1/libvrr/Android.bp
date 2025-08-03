@@ -1,0 +1,17 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_headers {
+    name: "libvrr_headers",
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: [
+        "./interface",
+    ],
+    visibility: [
+        "//visibility:public",
+    ],
+}
+

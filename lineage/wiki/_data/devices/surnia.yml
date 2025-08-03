@@ -1,0 +1,38 @@
+architecture: arm
+battery: {capacity: 2390, removable: False, tech: 'Li-Ion'}
+before_install: {instructions: 'needs_specific_android_fw', lineage_version: 17.1, version: '6.0'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: None, info: '5 MP'}
+  - {flash: None, info: '0.3 MP'}
+codename: surnia
+cpu: Cortex-A53
+cpu_cores: '4'
+cpu_freq: 1.2 GHz
+current_branch: 17.1
+dimensions: {depth: 12.3, height: 129.9, width: 66.8}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. On the next screen use <kbd>Volume Down</kbd> to scroll and then press <kbd>Volume Up</kbd> to select.
+gpu: Qualcomm Adreno 306
+image: otus.png
+install_method: fastboot_motorola
+kernel: {repo: android_kernel_motorola_msm8916, version: '3.10'}
+maintainers: []
+models: [XT1514, XT1521, XT1523, XT1524, XT1526, XT1527]
+name: moto e LTE (2015)
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Proximity sensor]
+ram: 1 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. On the next screen use <kbd>Volume Down</kbd> to scroll to recovery and then press <kbd>Volume Up</kbd> to select.
+recovery_partition_name: recovery
+recovery_reboot: fastboot_menu
+release: 2015-02
+screen: {resolution: '540x960', size: 4.5, technology: 'IPS LCD'}
+sdcard: {size_max: '32 GB'}
+soc: Qualcomm MSM8916 Snapdragon 410
+storage: 8 GB
+tree: android_device_motorola_surnia
+type: phone
+vendor: Motorola
+vendor_short: motorola
+versions: [14.1, 17.1]
+wifi: 802.11 b/g/n

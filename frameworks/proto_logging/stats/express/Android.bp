@@ -1,0 +1,69 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_host_shared {
+    name: "libexpressconfig_proto_host",
+    srcs: [
+        "express_config.proto",
+    ],
+
+    proto: {
+        type: "full",
+        export_proto_headers: true,
+        include_dirs: [
+            "external/protobuf/src",
+        ],
+    },
+}
+
+java_library {
+    name: "expresslog-catalog",
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    srcs: [
+        ":expresslog-catalog-gen",
+    ],
+}
+
+filegroup {
+    name: "metric_config_files",
+    srcs: [
+        "catalog/**/*.cfg",
+    ],
+}
+
+genrule {
+    name: "expresslog-catalog-gen",
+    tools: ["expresscatalog-codegen"],
+    cmd: "$(location expresscatalog-codegen) " +
+        " --java $(out)" +
+        " --javaPackage com.android.modules.expresslog" +
+        " --javaClass MetricIds",
+    out: [
+        "com/android/modules/expresslog/MetricIds.java",
+    ],
+    srcs: [
+        ":metric_config_files",
+    ],
+}

@@ -1,0 +1,4 @@
+userdebug_or_eng(`
+  set_prop(hal_fingerprint_default, pixel_fingerprint_prop)
+')
+

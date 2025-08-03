@@ -1,0 +1,27 @@
+package {
+    default_applicable_licenses: [
+        "hardware_google_gfxstream_third_party_renderdoc_license",
+    ],
+}
+
+license {
+    name: "hardware_google_gfxstream_third_party_renderdoc_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_headers {
+    name: "libgfxstream_thirdparty_renderdoc_headers",
+    defaults: ["gfxstream_defaults"],
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: [
+        ".",
+        "include",
+    ],
+}

@@ -1,0 +1,45 @@
+architecture: arm64
+battery: {capacity: 5020, removable: False, tech: 'Li-Po'}
+before_install: {instructions: 'needs_specific_android_fw', lineage_version: 20}
+before_install_device_variants:
+  - {device: 'Redmi Note 10 Pro Max India', download_link: 'https://bn.d.miui.com/V14.0.1.0.TKFINXM/miui_SWEETININGlobal_V14.0.1.0.TKFINXM_022ce09a45_13.0.zip', firmware: 'V14.0.1.0.TKFINXM'}
+bluetooth: {profiles: [A2DP + aptX HD], spec: '5.1'}
+cameras:
+  - {flash: 'LED', info: '108 MP'}
+  - {flash: 'LED', info: '8 MP (ultrawide)'}
+  - {flash: 'LED', info: '5 MP (macro)'}
+  - {flash: 'LED', info: '2 MP (depth)'}
+  - {flash: None, info: '16 MP'}
+codename: sweet
+cpu: Kryo 470
+cpu_cores: '8'
+cpu_freq: 2 x 2.3 GHz + 6 x 1.8 GHz
+current_branch: 22.2
+dimensions: {depth: 8.1, height: 164, width: 76.5}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the word "FASTBOOT" appears on the screen, then release.
+firmware_update: firmware_update_xiaomi_sm6150_km41
+gpu: Qualcomm Adreno 618
+image: sweet.png
+install_method: fastboot_xiaomi
+kernel: {repo: android_kernel_xiaomi_sm6150, version: '4.14'}
+maintainers: [basamaryan, danielml3]
+models: [M2101K6I]
+name: Redmi Note 10 Pro Max (India)
+network: [2G GSM, 2G CDMA, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Dual SIM, FM radio, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, Gyroscope, IR blaster, Light sensor, Ultrasound proximity sensor, USB OTG]
+ram: 6/8 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. Keep holding both buttons until the "MI" logo appears on the screen, then release.
+recovery_partition_name: recovery
+recovery_reboot: fastboot_reboot
+release: 2021-03
+screen: {refresh_rate: 120, resolution: '2400x1080', size: 6.67, technology: 'AMOLED'}
+sdcard: {size_max: '512 GB'}
+soc: Qualcomm SM7150-AC Snapdragon 732G
+storage: 64/128 GB
+tree: android_device_xiaomi_sweet
+type: phone
+variant: 3
+vendor: Xiaomi
+vendor_short: xiaomi
+versions: [20, 21, 22.1, 22.2]
+wifi: 802.11 a/b/g/n/ac

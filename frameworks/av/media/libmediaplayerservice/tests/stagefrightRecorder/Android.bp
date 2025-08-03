@@ -1,0 +1,88 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_media_libmediaplayerservice_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: [
+        "frameworks_av_media_libmediaplayerservice_license",
+    ],
+}
+
+cc_test {
+    name: "StagefrightRecorderTest",
+    gtest: true,
+
+    srcs: [
+        "StagefrightRecorderTest.cpp",
+    ],
+
+    static_libs: [
+        "libmediaplayerservice",
+        "libstagefright_httplive",
+        "libstagefright_rtsp",
+    ],
+
+    shared_libs: [
+        "android.hardware.media.c2@1.0",
+        "android.hardware.media.omx@1.0",
+        "libbase",
+        "libandroid_net",
+        "libaudioclient",
+        "libbinder",
+        "libcamera_client",
+        "libcodec2_client",
+        "libcrypto",
+        "libcutils",
+        "libdatasource",
+        "libdl",
+        "libdrmframework",
+        "libgui",
+        "libhidlbase",
+        "liblog",
+        "libmedia",
+        "libmedia_codeclist",
+        "libmedia_omx",
+        "libmediadrm",
+        "libmediandk",
+        "libmediametrics",
+        "libmediautils",
+        "libmemunreachable",
+        "libnetd_client",
+        "libpowermanager",
+        "libstagefright",
+        "libstagefright_foundation",
+        "libutils",
+        "framework-permission-aidl-cpp",
+        "libaudioclient_aidl_conversion",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    sanitize: {
+        cfi: true,
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+    },
+}

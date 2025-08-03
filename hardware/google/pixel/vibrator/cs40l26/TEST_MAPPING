@@ -1,0 +1,10 @@
+{
+  "presubmit": [
+    {
+      "name": "VibratorHalCs40l26TestSuite",
+      "keywords": [
+        "nextgen"
+      ]
+    }
+  ]
+}

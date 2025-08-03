@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015 The CyanogenMod Project
+                   2017-2023 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lineageos_system_label">Sistema LineageOS</string>
+    <string name="permlab_modifyProfiles">modìfica sos profilos de sistema</string>
+    <string name="permdesc_modifyProfiles">Permitit a un\'aplicatzione de modificare sos profilos de sistema.</string>
+    <string name="permlab_writeSettings">modìfica sas impostatziones de sistema de Lineage</string>
+    <string name="permdesc_writeSettings">Permitit a un\'aplicatzione de modificare sas impostatziones de sistema de Lineage.</string>
+    <string name="profileNameDefault">Predefinidu</string>
+    <string name="profileNameWork">Traballu</string>
+    <string name="profileNameHome">Domo</string>
+    <string name="profileNameNight">Note</string>
+    <string name="profileNameAutomobile">Automòbile</string>
+    <string name="profileGroupPhone">Telèfonu</string>
+    <string name="profileGroupCalendar">Calendàriu</string>
+    <string name="profileGroupGmail">Gmail</string>
+    <string name="profileGroupSMS">SMS</string>
+    <string name="wildcardProfile">Àteru</string>
+    <string name="live_display_auto">Automàticu</string>
+    <string name="live_display_auto_summary">Acontza automaticamente sa temperadura de su colore de s\'ischermu a pustis de s\'arbèschida e de s\'intrinada</string>
+    <string name="live_display_off">Istudadu</string>
+    <string name="live_display_off_summary">Disabìlita totu sos acontzos</string>
+    <string name="live_display_day">Die</string>
+    <string name="live_display_day_summary">Imprea petzi sas impostatziones pro sa die</string>
+    <string name="live_display_night">Note</string>
+    <string name="live_display_night_summary">Imprea petzi sas impostatziones pro sa note</string>
+    <string name="live_display_outdoor">In foras (lughe de su sole)</string>
+    <string name="live_display_outdoor_summary">Imprea petzi sas impostatziones pro istare in foras</string>
+    <string name="accessibility_quick_settings_live_display_off">LiveDisplay istudadu.</string>
+    <string name="accessibility_quick_settings_live_display_auto">LiveDisplay: modalidade automàtica.</string>
+    <string name="accessibility_quick_settings_live_display_day">LiveDisplay: modalidade pro sa die.</string>
+    <string name="accessibility_quick_settings_live_display_night">LiveDisplay: modalidade pro sa note.</string>
+    <string name="accessibility_quick_settings_live_display_outdoor">LiveDisplay: modalidade a s\'àera aberta.</string>
+    <string name="accessibility_quick_settings_live_display_changed_off">LiveDisplay istudadu.</string>
+    <string name="accessibility_quick_settings_live_display_changed_auto">LiveDisplay: cambiadu in modalidade automàtica.</string>
+    <string name="accessibility_quick_settings_live_display_changed_day">LiveDisplay: cambiadu in modalidade pro sa die.</string>
+    <string name="accessibility_quick_settings_live_display_changed_night">LiveDisplay: cambiadu in modalidade pro sa note.</string>
+    <string name="accessibility_quick_settings_live_display_changed_outdoor">LiveDisplay: cambiadu in modalidade a s\'àera aberta.</string>
+    <string name="lineage_api_level">Livellu de s\'API de LineageOS</string>
+    <string name="unknown">Disconnotu</string>
+    <string name="charging_control_notification_content_target">Sa bateria at a èssere carrigada de su totu a su %1$s</string>
+</resources>

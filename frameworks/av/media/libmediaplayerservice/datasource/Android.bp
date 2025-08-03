@@ -1,0 +1,53 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_media_libmediaplayerservice_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: [
+        "frameworks_av_media_libmediaplayerservice_license",
+    ],
+}
+
+cc_library_static {
+    name: "libplayerservice_datasource",
+
+    srcs: [
+        "PlayerServiceDataSourceFactory.cpp",
+        "PlayerServiceFileSource.cpp",
+        "PlayerServiceMediaHTTP.cpp",
+    ],
+
+    header_libs: [
+        "libmedia_headers",
+    ],
+
+    shared_libs: [
+        "libdatasource",
+        "libdrmframework",
+        "liblog",
+        "libutils",
+    ],
+
+    local_include_dirs: [
+        "include",
+    ],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wno-error=deprecated-declarations",
+        "-Wall",
+    ],
+
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+        cfi: true,
+    },
+}

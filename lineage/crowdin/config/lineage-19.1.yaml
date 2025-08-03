@@ -1,0 +1,222 @@
+# lineage-19.0.yaml
+#
+# Crowdin configuration file for LineageOS
+#
+# Copyright (C) 2014-2016 The CyanogenMod Project
+# Copyright (C) 2017-2022 The LineageOS Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"api_token_env": LINEAGE_CROWDIN_API_TOKEN
+"base_path_env": LINEAGE_CROWDIN_BASE_PATH_LINEAGE_19_1
+"project_id": 237414
+"preserve_hierarchy": true
+
+"files": [
+    {
+        "source":      "/frameworks/base/packages/SettingsLib/res/values/cm_strings.xml",
+        "translation": "/frameworks/base/packages/SettingsLib/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SystemUI/res/values/cm_strings.xml",
+        "translation": "/frameworks/base/packages/SystemUI/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/AudioFX/res/values/cm_strings.xml",
+        "translation": "/packages/apps/AudioFX/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Backgrounds/res/values/strings.xml",
+        "translation": "/packages/apps/Backgrounds/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Camera2/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Camera2/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Contacts/res/values/lineage_strings.xml",
+        "translation": "/packages/apps/Contacts/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/DeskClock/res/values/cm_strings.xml",
+        "translation": "/packages/apps/DeskClock/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/app/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/app/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/calldetails/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/calldetails/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/calllogutils/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/calllogutils/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/callstats/res/values/cm_arrays.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/callstats/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/callstats/res/values/cm_plurals.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/callstats/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/callstats/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/callstats/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/helplines/res/values/strings.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/helplines/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/helplines/res/values/helpline_categories.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/helplines/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/lookup/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/dialer/lookup/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Dialer/java/com/android/incallui/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Eleven/res/values/plurals.xml",
+        "translation": "/packages/apps/Eleven/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Eleven/res/values/strings.xml",
+        "translation": "/packages/apps/Eleven/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Etar/app/src/main/res/values/arrays.xml",
+        "translation": "/packages/apps/Etar/app/src/main/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Etar/app/src/main/res/values/strings.xml",
+        "translation": "/packages/apps/Etar/app/src/main/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Jelly/app/src/main/res/values/strings.xml",
+        "translation": "/packages/apps/Jelly/app/src/main/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/LineageParts/res/values/plurals.xml",
+        "translation": "/packages/apps/LineageParts/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/LineageParts/res/values/strings.xml",
+        "translation": "/packages/apps/LineageParts/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Messaging/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Messaging/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Profiles/res/values/strings.xml",
+        "translation": "/packages/apps/Profiles/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Recorder/app/src/main/res/values/strings.xml",
+        "translation": "/packages/apps/Recorder/app/src/main/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Settings/res/values/cm_strings.xml",
+        "translation": "/packages/apps/Settings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/SetupWizard/res/values/strings.xml",
+        "translation": "/packages/apps/SetupWizard/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Trebuchet/res/values/lineage_strings.xml",
+        "translation": "/packages/apps/Trebuchet/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Updater/res/values/strings.xml",
+        "translation": "/packages/apps/Updater/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LatinIME/java/res/values/cm_strings.xml",
+        "translation": "/packages/inputmethods/LatinIME/java/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/DownloadProvider/res/values/cm_plurals.xml",
+        "translation": "/packages/providers/DownloadProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/DownloadProvider/res/values/cm_strings.xml",
+        "translation": "/packages/providers/DownloadProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/Mms/res/values/cm_strings.xml",
+        "translation": "/packages/services/Mms/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/lineage-sdk/lineage/res/res/values/strings.xml",
+        "translation": "/lineage-sdk/lineage/res/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/lineage-sdk/packages/LineageSettingsProvider/res/values/strings.xml",
+        "translation": "/lineage-sdk/packages/LineageSettingsProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/device/oneplus/sm8150-common/camera_helper/res/values/strings.xml",
+        "translation": "/device/oneplus/sm8150-common/camera_helper/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/hardware/oneplus/KeyHandler/res/values/strings.xml",
+        "translation": "/hardware/oneplus/KeyHandler/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/hardware/oplus/KeyHandler/res/values/strings.xml",
+        "translation": "/hardware/oplus/KeyHandler/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/hardware/samsung/AdvancedDisplay/res/values/arrays.xml",
+        "translation": "/hardware/samsung/AdvancedDisplay/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/hardware/samsung/AdvancedDisplay/res/values/strings.xml",
+        "translation": "/hardware/samsung/AdvancedDisplay/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/hardware/samsung/dap/res/values/strings.xml",
+        "translation": "/hardware/samsung/dap/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/hardware/sony/SonyOpenTelephony/ModemConfig/res/values/strings.xml",
+        "translation": "/hardware/sony/SonyOpenTelephony/ModemConfig/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/ElmyraService/res/values/strings.xml",
+        "translation": "/packages/apps/ElmyraService/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/resources/devicesettings/res/values/strings.xml",
+        "translation": "/packages/resources/devicesettings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/FlipFlap/res/values/strings.xml",
+        "translation": "/packages/apps/FlipFlap/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/vendor/qcom/opensource/fm-commonsys/fmapp2/res/values/arrays.xml",
+        "translation": "/vendor/qcom/opensource/fm-commonsys/fmapp2/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/vendor/qcom/opensource/fm-commonsys/fmapp2/res/values/strings.xml",
+        "translation": "/vendor/qcom/opensource/fm-commonsys/fmapp2/res/values-%android_code%/%original_file_name%"
+    }
+]

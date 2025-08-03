@@ -1,0 +1,410 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#define LOG_TAG "ITransactionCompletedListener"
+//#define LOG_NDEBUG 0
+
+#include <cstdint>
+#include <optional>
+
+#include <gui/ISurfaceComposer.h>
+#include <gui/ITransactionCompletedListener.h>
+#include <gui/LayerState.h>
+#include <private/gui/ParcelUtils.h>
+
+#include <com_android_graphics_libgui_flags.h>
+
+using namespace com::android::graphics::libgui;
+
+namespace android {
+
+namespace { // Anonymous
+
+enum class Tag : uint32_t {
+    ON_TRANSACTION_COMPLETED = IBinder::FIRST_CALL_TRANSACTION,
+    ON_RELEASE_BUFFER,
+    ON_TRANSACTION_QUEUE_STALLED,
+    ON_TRUSTED_PRESENTATION_CHANGED,
+    LAST = ON_TRUSTED_PRESENTATION_CHANGED,
+};
+
+} // Anonymous namespace
+
+namespace { // Anonymous
+
+constexpr int32_t kSerializedCallbackTypeOnCompelteWithJankData = 2;
+
+} // Anonymous namespace
+
+status_t FrameEventHistoryStats::writeToParcel(Parcel* output) const {
+    status_t err = output->writeUint64(frameNumber);
+    if (err != NO_ERROR) return err;
+
+    if (flags::frametimestamps_previousrelease()) {
+        err = output->writeUint64(previousFrameNumber);
+        if (err != NO_ERROR) return err;
+    }
+
+    if (gpuCompositionDoneFence) {
+        err = output->writeBool(true);
+        if (err != NO_ERROR) return err;
+
+        err = output->write(*gpuCompositionDoneFence);
+    } else {
+        err = output->writeBool(false);
+    }
+    if (err != NO_ERROR) return err;
+
+    err = output->writeInt64(compositorTiming.deadline);
+    if (err != NO_ERROR) return err;
+
+    err = output->writeInt64(compositorTiming.interval);
+    if (err != NO_ERROR) return err;
+
+    err = output->writeInt64(compositorTiming.presentLatency);
+    if (err != NO_ERROR) return err;
+
+    err = output->writeInt64(refreshStartTime);
+    if (err != NO_ERROR) return err;
+
+    err = output->writeInt64(dequeueReadyTime);
+    return err;
+}
+
+status_t FrameEventHistoryStats::readFromParcel(const Parcel* input) {
+    status_t err = input->readUint64(&frameNumber);
+    if (err != NO_ERROR) return err;
+
+    if (flags::frametimestamps_previousrelease()) {
+        err = input->readUint64(&previousFrameNumber);
+        if (err != NO_ERROR) return err;
+    }
+
+    bool hasFence = false;
+    err = input->readBool(&hasFence);
+    if (err != NO_ERROR) return err;
+
+    if (hasFence) {
+        gpuCompositionDoneFence = new Fence();
+        err = input->read(*gpuCompositionDoneFence);
+        if (err != NO_ERROR) return err;
+    }
+
+    err = input->readInt64(&(compositorTiming.deadline));
+    if (err != NO_ERROR) return err;
+
+    err = input->readInt64(&(compositorTiming.interval));
+    if (err != NO_ERROR) return err;
+
+    err = input->readInt64(&(compositorTiming.presentLatency));
+    if (err != NO_ERROR) return err;
+
+    err = input->readInt64(&refreshStartTime);
+    if (err != NO_ERROR) return err;
+
+    err = input->readInt64(&dequeueReadyTime);
+    return err;
+}
+
+JankData::JankData()
+      : frameVsyncId(FrameTimelineInfo::INVALID_VSYNC_ID), jankType(JankType::None) {}
+
+status_t JankData::writeToParcel(Parcel* output) const {
+    SAFE_PARCEL(output->writeInt64, frameVsyncId);
+    SAFE_PARCEL(output->writeInt32, jankType);
+    SAFE_PARCEL(output->writeInt64, frameIntervalNs);
+    return NO_ERROR;
+}
+
+status_t JankData::readFromParcel(const Parcel* input) {
+    SAFE_PARCEL(input->readInt64, &frameVsyncId);
+    SAFE_PARCEL(input->readInt32, &jankType);
+    SAFE_PARCEL(input->readInt64, &frameIntervalNs);
+    return NO_ERROR;
+}
+
+status_t SurfaceStats::writeToParcel(Parcel* output) const {
+    SAFE_PARCEL(output->writeStrongBinder, surfaceControl);
+    if (const auto* acquireFence = std::get_if<sp<Fence>>(&acquireTimeOrFence)) {
+        SAFE_PARCEL(output->writeBool, true);
+        SAFE_PARCEL(output->write, **acquireFence);
+    } else {
+        SAFE_PARCEL(output->writeBool, false);
+        SAFE_PARCEL(output->writeInt64, std::get<nsecs_t>(acquireTimeOrFence));
+    }
+
+    if (previousReleaseFence) {
+        SAFE_PARCEL(output->writeBool, true);
+        SAFE_PARCEL(output->write, *previousReleaseFence);
+    } else {
+        SAFE_PARCEL(output->writeBool, false);
+    }
+
+    SAFE_PARCEL(output->writeBool, transformHint.has_value());
+    if (transformHint.has_value()) {
+        output->writeUint32(transformHint.value());
+    }
+
+    SAFE_PARCEL(output->writeUint32, currentMaxAcquiredBufferCount);
+    SAFE_PARCEL(output->writeParcelable, eventStats);
+    SAFE_PARCEL(output->writeInt32, static_cast<int32_t>(jankData.size()));
+    for (const auto& data : jankData) {
+        SAFE_PARCEL(output->writeParcelable, data);
+    }
+    SAFE_PARCEL(output->writeParcelable, previousReleaseCallbackId);
+    return NO_ERROR;
+}
+
+status_t SurfaceStats::readFromParcel(const Parcel* input) {
+    SAFE_PARCEL(input->readStrongBinder, &surfaceControl);
+
+    bool hasFence = false;
+    SAFE_PARCEL(input->readBool, &hasFence);
+    if (hasFence) {
+        acquireTimeOrFence = sp<Fence>::make();
+        SAFE_PARCEL(input->read, *std::get<sp<Fence>>(acquireTimeOrFence));
+    } else {
+        nsecs_t acquireTime;
+        SAFE_PARCEL(input->readInt64, &acquireTime);
+        acquireTimeOrFence = acquireTime;
+    }
+
+    SAFE_PARCEL(input->readBool, &hasFence);
+    if (hasFence) {
+        previousReleaseFence = new Fence();
+        SAFE_PARCEL(input->read, *previousReleaseFence);
+    }
+    bool hasTransformHint = false;
+    SAFE_PARCEL(input->readBool, &hasTransformHint);
+    if (hasTransformHint) {
+        uint32_t tempTransformHint;
+        SAFE_PARCEL(input->readUint32, &tempTransformHint);
+        transformHint = std::make_optional(tempTransformHint);
+    } else {
+        transformHint = std::nullopt;
+    }
+
+    SAFE_PARCEL(input->readUint32, &currentMaxAcquiredBufferCount);
+    SAFE_PARCEL(input->readParcelable, &eventStats);
+
+    int32_t jankData_size = 0;
+    SAFE_PARCEL_READ_SIZE(input->readInt32, &jankData_size, input->dataSize());
+    for (int i = 0; i < jankData_size; i++) {
+        JankData data;
+        SAFE_PARCEL(input->readParcelable, &data);
+        jankData.push_back(data);
+    }
+    SAFE_PARCEL(input->readParcelable, &previousReleaseCallbackId);
+    return NO_ERROR;
+}
+
+status_t TransactionStats::writeToParcel(Parcel* output) const {
+    status_t err = output->writeParcelableVector(callbackIds);
+    if (err != NO_ERROR) {
+        return err;
+    }
+    err = output->writeInt64(latchTime);
+    if (err != NO_ERROR) {
+        return err;
+    }
+    if (presentFence) {
+        err = output->writeBool(true);
+        if (err != NO_ERROR) {
+            return err;
+        }
+        err = output->write(*presentFence);
+    } else {
+        err = output->writeBool(false);
+    }
+    if (err != NO_ERROR) {
+        return err;
+    }
+    return output->writeParcelableVector(surfaceStats);
+}
+
+status_t TransactionStats::readFromParcel(const Parcel* input) {
+    status_t err = input->readParcelableVector(&callbackIds);
+    if (err != NO_ERROR) {
+        return err;
+    }
+    err = input->readInt64(&latchTime);
+    if (err != NO_ERROR) {
+        return err;
+    }
+    bool hasFence = false;
+    err = input->readBool(&hasFence);
+    if (err != NO_ERROR) {
+        return err;
+    }
+    if (hasFence) {
+        presentFence = new Fence();
+        err = input->read(*presentFence);
+        if (err != NO_ERROR) {
+            return err;
+        }
+    }
+    return input->readParcelableVector(&surfaceStats);
+}
+
+status_t ListenerStats::writeToParcel(Parcel* output) const {
+    status_t err = output->writeInt32(static_cast<int32_t>(transactionStats.size()));
+    if (err != NO_ERROR) {
+        return err;
+    }
+    for (const auto& stats : transactionStats) {
+        err = output->writeParcelable(stats);
+        if (err != NO_ERROR) {
+            return err;
+        }
+    }
+    return NO_ERROR;
+}
+
+status_t ListenerStats::readFromParcel(const Parcel* input) {
+    int32_t transactionStats_size = input->readInt32();
+
+    for (int i = 0; i < transactionStats_size; i++) {
+        TransactionStats stats;
+        status_t err = input->readParcelable(&stats);
+        if (err != NO_ERROR) {
+            return err;
+        }
+        transactionStats.push_back(stats);
+    }
+    return NO_ERROR;
+}
+
+ListenerStats ListenerStats::createEmpty(
+        const sp<IBinder>& listener,
+        const std::unordered_set<CallbackId, CallbackIdHash>& callbackIds) {
+    ListenerStats listenerStats;
+    listenerStats.listener = listener;
+    listenerStats.transactionStats.emplace_back(callbackIds);
+
+    return listenerStats;
+}
+
+class BpTransactionCompletedListener : public SafeBpInterface<ITransactionCompletedListener> {
+public:
+    explicit BpTransactionCompletedListener(const sp<IBinder>& impl)
+          : SafeBpInterface<ITransactionCompletedListener>(impl, "BpTransactionCompletedListener") {
+    }
+
+    ~BpTransactionCompletedListener() override;
+
+    void onTransactionCompleted(ListenerStats stats) override {
+        callRemoteAsync<decltype(&ITransactionCompletedListener::
+                                         onTransactionCompleted)>(Tag::ON_TRANSACTION_COMPLETED,
+                                                                  stats);
+    }
+
+    void onReleaseBuffer(ReleaseCallbackId callbackId, sp<Fence> releaseFence,
+                         uint32_t currentMaxAcquiredBufferCount) override {
+        callRemoteAsync<decltype(&ITransactionCompletedListener::
+                                         onReleaseBuffer)>(Tag::ON_RELEASE_BUFFER, callbackId,
+                                                           releaseFence,
+                                                           currentMaxAcquiredBufferCount);
+    }
+
+    void onTransactionQueueStalled(const String8& reason) override {
+        callRemoteAsync<
+                decltype(&ITransactionCompletedListener::
+                                 onTransactionQueueStalled)>(Tag::ON_TRANSACTION_QUEUE_STALLED,
+                                                             reason);
+    }
+
+    void onTrustedPresentationChanged(int id, bool inTrustedPresentationState) override {
+        callRemoteAsync<decltype(&ITransactionCompletedListener::onTrustedPresentationChanged)>(
+                Tag::ON_TRUSTED_PRESENTATION_CHANGED, id, inTrustedPresentationState);
+    }
+};
+
+// Out-of-line virtual method definitions to trigger vtable emission in this translation unit (see
+// clang warning -Wweak-vtables)
+BpTransactionCompletedListener::~BpTransactionCompletedListener() = default;
+
+IMPLEMENT_META_INTERFACE(TransactionCompletedListener, "android.gui.ITransactionComposerListener");
+
+status_t BnTransactionCompletedListener::onTransact(uint32_t code, const Parcel& data,
+                                                    Parcel* reply, uint32_t flags) {
+    if (code < IBinder::FIRST_CALL_TRANSACTION || code > static_cast<uint32_t>(Tag::LAST)) {
+        return BBinder::onTransact(code, data, reply, flags);
+    }
+    auto tag = static_cast<Tag>(code);
+    switch (tag) {
+        case Tag::ON_TRANSACTION_COMPLETED:
+            return callLocalAsync(data, reply,
+                                  &ITransactionCompletedListener::onTransactionCompleted);
+        case Tag::ON_RELEASE_BUFFER:
+            return callLocalAsync(data, reply, &ITransactionCompletedListener::onReleaseBuffer);
+        case Tag::ON_TRANSACTION_QUEUE_STALLED:
+            return callLocalAsync(data, reply,
+                                  &ITransactionCompletedListener::onTransactionQueueStalled);
+        case Tag::ON_TRUSTED_PRESENTATION_CHANGED:
+            return callLocalAsync(data, reply,
+                                  &ITransactionCompletedListener::onTrustedPresentationChanged);
+    }
+}
+
+ListenerCallbacks ListenerCallbacks::filter(CallbackId::Type type) const {
+    std::vector<CallbackId> filteredCallbackIds;
+    for (const auto& callbackId : callbackIds) {
+        if (callbackId.type == type) {
+            filteredCallbackIds.push_back(callbackId);
+        }
+    }
+    return ListenerCallbacks(transactionCompletedListener, filteredCallbackIds);
+}
+
+status_t CallbackId::writeToParcel(Parcel* output) const {
+    SAFE_PARCEL(output->writeInt64, id);
+    if (type == Type::ON_COMPLETE && includeJankData) {
+        SAFE_PARCEL(output->writeInt32, kSerializedCallbackTypeOnCompelteWithJankData);
+    } else {
+        SAFE_PARCEL(output->writeInt32, static_cast<int32_t>(type));
+    }
+    return NO_ERROR;
+}
+
+status_t CallbackId::readFromParcel(const Parcel* input) {
+    SAFE_PARCEL(input->readInt64, &id);
+    int32_t typeAsInt;
+    SAFE_PARCEL(input->readInt32, &typeAsInt);
+    if (typeAsInt == kSerializedCallbackTypeOnCompelteWithJankData) {
+        type = Type::ON_COMPLETE;
+        includeJankData = true;
+    } else {
+        type = static_cast<CallbackId::Type>(typeAsInt);
+        includeJankData = false;
+    }
+    return NO_ERROR;
+}
+
+status_t ReleaseCallbackId::writeToParcel(Parcel* output) const {
+    SAFE_PARCEL(output->writeUint64, bufferId);
+    SAFE_PARCEL(output->writeUint64, framenumber);
+    return NO_ERROR;
+}
+
+status_t ReleaseCallbackId::readFromParcel(const Parcel* input) {
+    SAFE_PARCEL(input->readUint64, &bufferId);
+    SAFE_PARCEL(input->readUint64, &framenumber);
+    return NO_ERROR;
+}
+
+const ReleaseCallbackId ReleaseCallbackId::INVALID_ID = ReleaseCallbackId(0, 0);
+
+}; // namespace android

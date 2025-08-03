@@ -1,0 +1,35 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_st_secure_element_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_st_secure_element_license"],
+}
+
+cc_binary {
+    name: "android.hardware.secure_element@1.0-service.st",
+    relative_install_path: "hw",
+    init_rc: ["android.hardware.secure_element@1.0-service.st.rc"],
+    proprietary: true,
+    defaults: ["hidl_defaults"],
+    srcs: [
+        "StEseService.cpp",
+        "SecureElement.cpp",
+    ],
+
+    shared_libs: [
+        "android.hardware.secure_element@1.0",
+        "ese_spi_st",
+        "libbase",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+
+    arch: {
+        arm: { cflags: ["-DST_LIB_32"] },
+    }
+}

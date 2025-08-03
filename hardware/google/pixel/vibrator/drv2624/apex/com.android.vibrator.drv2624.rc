@@ -1,0 +1,18 @@
+service vendor.vibrator.drv2624 /apex/com.android.vibrator.drv2624/bin/hw/android.hardware.vibrator-service.drv2624
+    class hal
+    user system
+    group system
+
+    setenv PROPERTY_PREFIX ro.vendor.vibrator.hal.
+    setenv CALIBRATION_FILEPATH /persist/haptics/drv2624.cal
+
+    setenv HWAPI_PATH_PREFIX /sys/class/leds/vibrator/
+    setenv HWAPI_DEBUG_PATHS "
+        device/autocal
+        device/lp_trigger_effect
+        device/lp_trigger_scale
+        device/ol_lra_period
+        state
+        "
+
+    disabled

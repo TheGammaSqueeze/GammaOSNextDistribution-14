@@ -1,0 +1,16 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+hidl_interface {
+    name: "hardware.google.bluetooth.sar@1.0",
+    root: "hardware.google",
+    srcs: [
+        "IBluetoothSar.hal",
+    ],
+    interfaces: [
+        "android.hidl.base@1.0",
+    ],
+    gen_java: true,
+}

@@ -1,0 +1,543 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package android.hardware.audio.common@7.0;
+
+import android.hidl.safe_union@1.0;
+
+/**
+ * Handle type for identifying audio resources. Handles are allocated by the framework.
+ */
+typedef int32_t AudioIoHandle;
+
+/**
+ * Each port has a unique ID or handle allocated by policy manager.
+ */
+typedef int32_t AudioPortHandle;
+
+/**
+ * Each patch is identified by a handle allocated by the HAL.
+ */
+typedef int32_t AudioPatchHandle;
+
+/**
+ * A HW synchronization source returned by the audio HAL.
+ */
+typedef uint32_t AudioHwSync;
+
+/**
+ * Commonly used structure for passing unique identifieds (UUID).
+ * For the definition of UUID, refer to ITU-T X.667 spec.
+ */
+struct Uuid {
+    uint32_t timeLow;
+    uint16_t timeMid;
+    uint16_t versionAndTimeHigh;
+    uint16_t variantAndClockSeqHigh;
+    uint8_t[6] node;
+};
+
+
+/*
+ *
+ *  Audio streams
+ *
+ */
+
+/**
+ * Audio stream type describing the intended use case of a stream.
+ * See 'audioStreamType' in audio_policy_configuration.xsd for the
+ * list of allowed values.
+ *
+ * An empty string is used to specify the "default" stream type.
+ */
+typedef string AudioStreamType;
+
+/**
+ * An audio source defines the intended use case for the sound being recorded.
+ * See 'audioSource' in audio_policy_configuration.xsd for the
+ * list of allowed values.
+ */
+typedef string AudioSource;
+
+/**
+ * An audio session identifier is used to designate the particular
+ * playback or recording session (e.g. playback performed by a certain
+ * application).
+ */
+typedef int32_t AudioSession;
+
+@export(name="", value_prefix="HAL_AUDIO_SESSION_")
+enum AudioSessionConsts : int32_t {
+    /**
+     * Session for effects attached to a particular sink or source audio device
+     * (e.g an effect only applied to a speaker)
+     */
+    DEVICE = -2,
+    /**
+     * Session for effects attached to a particular output stream
+     * (value must be less than 0)
+     */
+    OUTPUT_STAGE = -1,
+    /**
+     * Session for effects applied to output mix. These effects can
+     * be moved by audio policy manager to another output stream
+     * (value must be 0)
+     */
+    OUTPUT_MIX = 0,
+};
+
+/**
+ * Audio format indicates audio codec type.
+ * See 'audioFormat' in audio_policy_configuration.xsd for the
+ * list of allowed values.
+ */
+typedef string AudioFormat;
+
+/**
+ * Audio channel mask indicates presence of particular channels.
+ * Note that every value is already a mask comprised of individual
+ * channels.
+ * See 'audioChannelMask' in audio_policy_configuration.xsd for the
+ * list of allowed values.
+ */
+typedef string AudioChannelMask;
+
+/**
+ * Base configuration attributes applicable to any stream of audio.
+ */
+struct AudioConfigBase {
+    AudioFormat format;
+    uint32_t sampleRateHz;
+    AudioChannelMask channelMask;
+};
+
+/**
+ * Base configuration attributes applicable to any stream of audio.
+ * Any attribute may be left unspecified.
+ */
+struct AudioConfigBaseOptional {
+    safe_union Format {
+        Monostate unspecified;
+        AudioFormat value;
+    } format;
+    safe_union SampleRate {
+        Monostate unspecified;
+        uint32_t value;
+    } sampleRateHz;
+    safe_union ChannelMask {
+        Monostate unspecified;
+        AudioChannelMask value;
+    } channelMask;
+};
+
+/**
+ * Audio encapsulation type indicates the encapsulation type that is required
+ * for playback/capture.
+ * See 'audioEncapsulationType' in audio_policy_configuration.xsd for the list
+ * of allowed values.
+ */
+typedef string AudioEncapsulationType;
+
+/**
+ * Configurations supported for a certain audio format.
+ */
+struct AudioProfile {
+    AudioFormat format;
+    /** List of the sample rates (in Hz) supported by the profile. */
+    vec<uint32_t> sampleRates;
+    /** List of channel masks supported by the profile. */
+    vec<AudioChannelMask> channelMasks;
+};
+
+/**
+ * AudioTransport struct describes the capability of an audio port. The
+ * capability is described via AudioProfile or raw hardware descriptors for
+ * for formats that are not supported by the platform.
+ */
+struct AudioTransport {
+    safe_union AudioCapability {
+        /**
+         * A certain audio format that is known by the platform and its
+         * corresponding configuration.
+         */
+        AudioProfile profile;
+        /**
+         * The audio descriptor that is reported from EDID. See HDMI
+         * specification 1.4b section 7 and CEA-861-G section 7.5.2 for more
+         * information. When this value is set, it indicates the standard is
+         * AUDIO_STANDARD_EDID.
+         */
+        vec<uint8_t> edid;
+    } audioCapability;
+
+    /**
+     * The encapsulation type that is required when the framework is using this
+     * format when playing or capturing to/from a stream or device exposing this
+     * audio transport.
+     */
+    AudioEncapsulationType encapsulationType;
+};
+
+/**
+ * Major modes for a mobile device. The current mode setting affects audio
+ * routing.
+ */
+@export(name="", value_prefix="HAL_AUDIO_MODE_")
+enum AudioMode : int32_t {
+    NORMAL           = 0,
+    RINGTONE         = 1,
+    /** Calls handled by the telephony stack (Eg: PSTN). */
+    IN_CALL          = 2,
+    /** Calls handled by apps (Eg: Hangout). */
+    IN_COMMUNICATION = 3,
+    /** Call screening in progress. */
+    CALL_SCREEN      = 4,
+};
+
+/**
+ * Audio device specifies type (or category) of audio I/O device
+ * (e.g. speaker or headphones).
+ * See 'audioDevice' in audio_policy_configuration.xsd for the
+ * list of allowed values.
+ */
+typedef string AudioDevice;
+
+/**
+ * Specifies a device address in case when several devices of the same type
+ * can be connected (e.g. BT A2DP, USB).
+ */
+struct DeviceAddress {
+    /** The type of the device. */
+    AudioDevice deviceType;
+    safe_union Address {
+        /**
+         * String uniquely identifying the device among other devices
+         * of the same type. Can be empty in case there is only one device
+         * of this type.
+         *
+         * Depending on the device type, its id may be assigned by the framework
+         * (this is done for REMOTE_SUBMIX), or specified in the audio policy
+         * configuration file (typically done for BUS devices), or assigned
+         * by the HAL service. In any case, both framework and HAL must
+         * never attempt to parse the value of the id. If the address must
+         * be parsed, one of the members below must be used instead of 'id'.
+         */
+        string id;
+        /** IEEE 802 MAC address. Set for Bluetooth devices. */
+        uint8_t[6] mac;
+        /** IPv4 Address. Set for IPv4 devices. */
+        uint8_t[4] ipv4;
+        /** IPv6 Address. Set for IPv6 devices. */
+        uint16_t[8] ipv6;
+        /** PCI bus Address. Set for USB devices. */
+        struct Alsa {
+            int32_t card;
+            int32_t device;
+        } alsa;
+    } address;
+};
+
+/**
+ * Audio usage specifies the intended use case for the sound being played.
+ * See 'audioUsage' in audio_policy_configuration.xsd for the
+ * list of allowed values.
+ */
+typedef string AudioUsage;
+
+/**
+ * Audio content type expresses the general category of the content.
+ * See 'audioContentType' in audio_policy_configuration.xsd for the
+ * list of allowed values.
+ */
+typedef string AudioContentType;
+
+/** Encapsulation mode used for sending audio compressed data. */
+@export(name="audio_encapsulation_mode_t", value_prefix="AUDIO_ENCAPSULATION_MODE_")
+enum AudioEncapsulationMode : int32_t {
+    // Do not change these values without updating their counterparts
+    // in frameworks/base/media/java/android/media/AudioTrack.java
+    /**
+     * No encapsulation mode for metadata.
+     */
+    NONE              = 0,
+    /**
+     * Elementary stream payload with metadata
+     */
+    ELEMENTARY_STREAM = 1,
+    /**
+     *  Handle-based payload with metadata
+     */
+    HANDLE            = 2,
+};
+
+/**
+ * Enumeration of metadata types permitted for use by
+ * encapsulation mode audio streams.
+ */
+@export(name="audio_encapsulation_metadata_type_t", value_prefix="AUDIO_ENCAPSULATION_METADATA_TYPE_")
+enum AudioEncapsulationMetadataType : int32_t {
+    /**
+     * No metadata.
+     */
+    NONE              = 0,
+    /**
+     * Encapsulation metadata type for framework tuner information.
+     */
+    FRAMEWORK_TUNER   = 1,
+    /**
+     * Encapsulation metadata type for DVB AD descriptor.
+     * This metadata is formatted per ETSI TS 101 154 Table E.1: AD_descriptor.
+     */
+    DVB_AD_DESCRIPTOR = 2,
+};
+
+/**
+ * Additional information about the stream passed to hardware decoders.
+ */
+struct AudioOffloadInfo {
+    AudioConfigBase base;
+    AudioStreamType streamType;
+    uint32_t bitRatePerSecond;
+    int64_t durationMicroseconds;  // -1 if unknown
+    bool hasVideo;
+    bool isStreaming;
+    uint32_t bitWidth;
+    uint32_t bufferSize;
+    AudioUsage usage;
+    AudioEncapsulationMode encapsulationMode;
+    int32_t contentId;
+    int32_t syncId;
+};
+
+/**
+ * Commonly used audio stream configuration parameters.
+ */
+struct AudioConfig {
+    AudioConfigBase base;
+    safe_union OffloadInfo {
+        Monostate unspecified;
+        AudioOffloadInfo info;
+    } offloadInfo;
+    uint64_t frameCount;
+};
+
+/**
+ * AudioTag is an additional use case qualifier complementing
+ * AudioUsage and AudioContentType. Tags are set by vendor specific applications
+ * and must be prefixed by "VX_". Vendor must namespace their tag
+ * names to avoid conflicts. See 'vendorExtension' in audio_policy_configuration.xsd
+ * for a formal definition.
+ */
+typedef string AudioTag;
+
+/** Metadata of a playback track for a StreamOut. */
+struct PlaybackTrackMetadata {
+    AudioUsage usage;
+    AudioContentType contentType;
+    /**
+     * Positive linear gain applied to the track samples. 0 being muted and 1 is no attenuation,
+     * 2 means double amplification...
+     * Must not be negative.
+     */
+    float gain;
+    AudioChannelMask channelMask;
+    /** Tags from AudioTrack audio atttributes */
+    vec<AudioTag> tags;
+};
+
+/** Metadatas of the source of a StreamOut. */
+struct SourceMetadata {
+    vec<PlaybackTrackMetadata> tracks;
+};
+
+/** Metadata of a record track for a StreamIn. */
+struct RecordTrackMetadata {
+    AudioSource source;
+    /**
+     * Positive linear gain applied to the track samples. 0 being muted and 1 is no attenuation,
+     * 2 means double amplification...
+     * Must not be negative.
+     */
+    float gain;
+    /**
+     * Indicates the destination of an input stream, can be left unspecified.
+     */
+    safe_union Destination {
+        Monostate unspecified;
+        DeviceAddress device;
+    } destination;
+    AudioChannelMask channelMask;
+    /** Tags from AudioRecord audio atttributes */
+    vec<AudioTag> tags;
+};
+
+/** Metadatas of the sink of a StreamIn. */
+struct SinkMetadata {
+    vec<RecordTrackMetadata> tracks;
+};
+
+/*
+ *
+ *  Volume control
+ *
+ */
+
+/**
+ * Type of gain control exposed by an audio port.
+ * See 'audioGainMode' in audio_policy_configuration.xsd for the
+ * list of allowed values.
+ */
+typedef string AudioGainMode;
+
+/**
+ * An audio_gain struct is a representation of a gain stage.
+ * A gain stage is always attached to an audio port.
+ */
+struct AudioGain {
+    /** Modes of operation. */
+    vec<AudioGainMode> mode;
+    /** Channels which gain can be controlled. */
+    AudioChannelMask channelMask;
+    /** Minimum gain value in millibels. */
+    int32_t minValue;
+    /** Maximum gain value in millibels. */
+    int32_t maxValue;
+    /** Default gain value in millibels. */
+    int32_t defaultValue;
+    /** Gain step in millibels. */
+    uint32_t stepValue;
+    /** Ramp duration in ms. */
+    uint32_t minRampMs;
+    /** Maximum ramp duration in ms. */
+    uint32_t maxRampMs;
+};
+
+/**
+ * The gain configuration structure is used to get or set the gain values of a
+ * given port.
+ */
+struct AudioGainConfig {
+    /** Index of the corresponding AudioGain in AudioPort.gains. */
+    int32_t index;
+    /** Modes of operation. */
+    vec<AudioGainMode> mode;
+    /** Channels which gain value follows. */
+    AudioChannelMask channelMask;
+    /**
+     * Gain values in millibels for each channel ordered from LSb to MSb in
+     * channel mask. The number of values is 1 in joint mode or
+     * the number of channels in the channel mask.
+     */
+    vec<int32_t> values;
+    /** Ramp duration in ms. */
+    uint32_t rampDurationMs;
+};
+
+
+/*
+ *
+ *  Routing control
+ *
+ */
+
+/*
+ * Types defined here are used to describe an audio source or sink at internal
+ * framework interfaces (audio policy, patch panel) or at the audio HAL.
+ * Sink and sources are grouped in a concept of “audio port” representing an
+ * audio end point at the edge of the system managed by the module exposing
+ * the interface.
+ */
+
+/**
+ * A helper aggregate structure providing parameters that depend on the
+ * port role.
+ */
+safe_union AudioPortExtendedInfo {
+    /** Set when no information is provided. */
+    Monostate unspecified;
+    /** Set when the audio port is an audio device. */
+    DeviceAddress device;
+    /** Set when the audio port is a mix. The handle is of a stream. */
+    struct AudioPortMixExt {
+        /** I/O handle of the input/output stream. */
+        AudioIoHandle ioHandle;
+        safe_union UseCase {
+            /** Specified when the port is in the SOURCE role. */
+            AudioStreamType stream;
+            /** Specified when the port is in the SINK role. */
+            AudioSource source;
+        } useCase;
+    } mix;
+    /** Set when the audio port is an audio session. */
+    AudioSession session;
+};
+
+/**
+ * Audio port configuration structure used to specify a particular configuration
+ * of an audio port.
+ */
+struct AudioPortConfig {
+    /**
+     * The 'id' field is set when it is needed to select the port and
+     * apply new configuration for it.
+     */
+    AudioPortHandle id;
+    /**
+     * Basic parameters: sampling rate, format, channel mask.
+     */
+    AudioConfigBaseOptional base;
+    /** Associated gain control. */
+    safe_union OptionalGain {
+        Monostate unspecified;
+        AudioGainConfig config;
+    } gain;
+    /** Parameters that depend on the actual port role. */
+    AudioPortExtendedInfo ext;
+};
+
+/**
+ * Audio port structure describes the capabilities of an audio port
+ * as well as its current configuration.
+ */
+struct AudioPort {
+    /**
+     * Unique identifier of the port within this HAL service. When calling
+     * from the client side functions like IDevice.getAudioPort is it allowed
+     * to only specify the 'id' and leave the other fields unspecified.
+     */
+    AudioPortHandle id;
+    /**
+     * Human-readable name describing the function of the port.
+     * E.g. "telephony_tx" or "fm_tuner".
+     */
+    string name;
+    /**
+     * List of audio transports supported by the audio port. This includes
+     * supported formats and raw hardware descriptors for formats not supported
+     * by the platform.
+     */
+    vec<AudioTransport> transports;
+    /** List of gain controls attached to the port. */
+    vec<AudioGain> gains;
+    /** Parameters that depend on the actual port role. */
+    AudioPortExtendedInfo ext;
+    /**
+     * Current configuration of the audio port, may have all the fields left
+     * unspecified.
+     */
+    AudioPortConfig activeConfig;
+};

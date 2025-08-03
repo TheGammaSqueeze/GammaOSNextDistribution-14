@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.dnd;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atoms/dnd/dnd_atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/dnd/dnd_enums.proto";
+
+option java_package = "com.android.os.dnd";
+option java_multiple_files = true;
+
+extend Atom {
+  optional DNDStateChanged dnd_state_changed = 657 [(module) = "framework"];
+}
+
+/**
+ * Logs when the state of Do Not Disturb on the device has changed.
+ * This may be due to DND turning on or off or due to a policy change.
+ *
+ * Logged from:
+ *   frameworks/base/services/core/java/com/android/server/notification/ZenMode*.java
+ */
+message DNDStateChanged {
+  // event_id (as for UiEventReported).
+  optional int32 event_id = 1;
+
+  // Mode after this event.
+  optional android.stats.dnd.ZenMode new_mode = 2;
+
+  // Mode before this event. May be the same as the mode after the event if
+  // only the policy has changed.
+  optional android.stats.dnd.ZenMode previous_mode = 3;
+
+  // Which type of rule is associated with this state change?
+  optional android.stats.dnd.RuleType rule_type = 4;
+
+  // Number of rules currently active once this change takes effect.
+  optional int32 num_rules_active = 5;
+
+  // Was this change triggered by a user action, or was it automatic?
+  optional bool user_action = 6;
+
+  // Package UID of the automatic rule or triggerer of manual rule, if applicable.
+  optional int32 package_uid = 7 [(is_uid) = true];
+
+  // Full policy in effect at the time of the event. Depending on what rules are active,
+  // this may be a consolidation of several sets of rules.
+  optional DNDPolicyProto current_policy = 8 [(log_mode) = MODE_BYTES];
+
+  // Whether any app notification channels are permitted to bypass DND.
+  optional bool are_channels_bypassing = 9;
+
+  // The types of rules that are currently active.
+  repeated android.stats.dnd.ActiveRuleType active_rule_types = 10;
+}

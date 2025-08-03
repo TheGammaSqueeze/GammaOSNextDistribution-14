@@ -1,0 +1,2 @@
+# Pixel PowerShare HAL
+/vendor/bin/hw/vendor\.lineage\.powershare@1\.0-service\.pixel             u:object_r:hal_lineage_powershare_default_exec:s0

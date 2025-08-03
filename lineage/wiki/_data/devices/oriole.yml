@@ -1,0 +1,40 @@
+architecture: arm64
+battery: {capacity: 4614, removable: False, tech: 'Li-Ion'}
+before_install: {instructions: 'needs_specific_android_fw', ships_fw: True, version: '15'}
+before_recovery_install: {instructions: 'boot_stack', partitions: [boot, dtbo]}
+bluetooth: {profiles: [A2DP + aptX HD], spec: '5.2'}
+cameras:
+  - {flash: 'Dual LED (dual tone)', info: '50 MP (main)'}
+  - {flash: 'Dual LED (dual tone)', info: '12 MP (ultrawide)'}
+  - {flash: None, info: '8 MP (front)'}
+codename: oriole
+cpu: Cortex-X1 & Cortex-A76 & Cortex-A55
+cpu_cores: '8'
+cpu_freq: 2 x 2.8 GHz + 2 x 2.25 GHz + 4 x 1.8 GHz
+current_branch: 22.2
+custom_unlock_cmd: 'fastboot flashing unlock'
+dimensions: {depth: 8.9, height: 158.6, width: 74.8}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+gpu: ARM Mali-G78 MP20
+image: oriole.png
+install_method: fastboot_nexus
+is_ab_device: true
+kernel: {version: '6.1'}
+maintainers: [mikeioannina]
+name: Pixel 6
+network: [2G GSM, 3G UMTS, 4G LTE, 5G NR]
+peripherals: [Accelerometer, Barometer, Compass, eSIM, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, QZSS, Gyroscope, Light sensor, NFC, Proximity sensor, Qi wireless charging, Qi reverse wireless charging, USB OTG]
+ram: 8 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Then use the menu to select *Recovery Mode*.
+recovery_partition_name: vendor_boot
+recovery_reboot: fastboot_menu
+release: 2021-10-19
+screen: {refresh_rate: 90, resolution: '1080x2400', size: 6.4, technology: 'AMOLED'}
+soc: Google Tensor GS101
+storage: 128/256 GB
+tree: android_device_google_oriole
+type: phone
+vendor: Google
+vendor_short: google
+versions: [20, 21, 22.1, 22.2]
+wifi: 802.11 a/b/g/n/ac/ax

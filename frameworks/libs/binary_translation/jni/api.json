@@ -1,0 +1,2217 @@
+[
+  {
+    "name": "GetVersion",
+    "param_types": [
+      "JNIEnv *"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "DefineClass",
+    "param_types": [
+      "JNIEnv *",
+      "const char *",
+      "jobject",
+      "const jbyte *",
+      "jsize"
+    ],
+    "return_type": "jclass"
+  },
+  {
+    "name": "FindClass",
+    "param_types": [
+      "JNIEnv *",
+      "const char *"
+    ],
+    "return_type": "jclass"
+  },
+  {
+    "name": "FromReflectedMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jmethodID"
+  },
+  {
+    "name": "FromReflectedField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jfieldID"
+  },
+  {
+    "name": "ToReflectedMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jboolean"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "GetSuperclass",
+    "param_types": [
+      "JNIEnv *",
+      "jclass"
+    ],
+    "return_type": "jclass"
+  },
+  {
+    "name": "IsAssignableFrom",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jclass"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "ToReflectedField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jboolean"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "Throw",
+    "param_types": [
+      "JNIEnv *",
+      "jthrowable"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "ThrowNew",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "const char *"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "ExceptionOccurred",
+    "param_types": [
+      "JNIEnv *"
+    ],
+    "return_type": "jthrowable"
+  },
+  {
+    "name": "ExceptionDescribe",
+    "param_types": [
+      "JNIEnv *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ExceptionClear",
+    "param_types": [
+      "JNIEnv *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "FatalError",
+    "param_types": [
+      "JNIEnv *",
+      "const char *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "PushLocalFrame",
+    "param_types": [
+      "JNIEnv *",
+      "jint"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "PopLocalFrame",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "NewGlobalRef",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "DeleteGlobalRef",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "DeleteLocalRef",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "IsSameObject",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jobject"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "NewLocalRef",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "EnsureLocalCapacity",
+    "param_types": [
+      "JNIEnv *",
+      "jint"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "AllocObject",
+    "param_types": [
+      "JNIEnv *",
+      "jclass"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "NewObject",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "NewObjectV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "NewObjectA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "GetObjectClass",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jclass"
+  },
+  {
+    "name": "IsInstanceOf",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "GetMethodID",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "const char *",
+      "const char *"
+    ],
+    "return_type": "jmethodID"
+  },
+  {
+    "name": "CallObjectMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallObjectMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallObjectMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallBooleanMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallBooleanMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallBooleanMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallByteMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallByteMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallByteMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallCharMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallCharMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallCharMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallShortMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallShortMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallShortMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallIntMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallIntMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallIntMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallLongMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallLongMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallLongMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallFloatMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallFloatMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallFloatMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallDoubleMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallDoubleMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallDoubleMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallVoidMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "CallVoidMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "CallVoidMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "CallNonvirtualObjectMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallNonvirtualObjectMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallNonvirtualObjectMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallNonvirtualBooleanMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallNonvirtualBooleanMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallNonvirtualBooleanMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallNonvirtualByteMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallNonvirtualByteMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallNonvirtualByteMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallNonvirtualCharMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallNonvirtualCharMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallNonvirtualCharMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallNonvirtualShortMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallNonvirtualShortMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallNonvirtualShortMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallNonvirtualIntMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallNonvirtualIntMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallNonvirtualIntMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallNonvirtualLongMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallNonvirtualLongMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallNonvirtualLongMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallNonvirtualFloatMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallNonvirtualFloatMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallNonvirtualFloatMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallNonvirtualDoubleMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallNonvirtualDoubleMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallNonvirtualDoubleMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallNonvirtualVoidMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "CallNonvirtualVoidMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "CallNonvirtualVoidMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetFieldID",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "const char *",
+      "const char *"
+    ],
+    "return_type": "jfieldID"
+  },
+  {
+    "name": "GetObjectField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "GetBooleanField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "GetByteField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "GetCharField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "GetShortField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "GetIntField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "GetLongField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "GetFloatField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "GetDoubleField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID"
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "SetObjectField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jobject"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetBooleanField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jboolean"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetByteField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jbyte"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetCharField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jchar"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetShortField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jshort"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetIntField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetLongField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jlong"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetFloatField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jfloat"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetDoubleField",
+    "param_types": [
+      "JNIEnv *",
+      "jobject",
+      "jfieldID",
+      "jdouble"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetStaticMethodID",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "const char *",
+      "const char *"
+    ],
+    "return_type": "jmethodID"
+  },
+  {
+    "name": "CallStaticObjectMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallStaticObjectMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallStaticObjectMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "CallStaticBooleanMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallStaticBooleanMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallStaticBooleanMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "CallStaticByteMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallStaticByteMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallStaticByteMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "CallStaticCharMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallStaticCharMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallStaticCharMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "CallStaticShortMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallStaticShortMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallStaticShortMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "CallStaticIntMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallStaticIntMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallStaticIntMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "CallStaticLongMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallStaticLongMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallStaticLongMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "CallStaticFloatMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallStaticFloatMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallStaticFloatMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "CallStaticDoubleMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallStaticDoubleMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallStaticDoubleMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "CallStaticVoidMethod",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "..."
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "CallStaticVoidMethodV",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "va_list"
+    ],
+    "return_type": "void",
+    "trampoline": "DoTrampoline_JNIEnv_CallStaticVoidMethodV"
+  },
+  {
+    "name": "CallStaticVoidMethodA",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jmethodID",
+      "jvalue *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetStaticFieldID",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "const char *",
+      "const char *"
+    ],
+    "return_type": "jfieldID"
+  },
+  {
+    "name": "GetStaticObjectField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "GetStaticBooleanField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "GetStaticByteField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jbyte"
+  },
+  {
+    "name": "GetStaticCharField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jchar"
+  },
+  {
+    "name": "GetStaticShortField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jshort"
+  },
+  {
+    "name": "GetStaticIntField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "GetStaticLongField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "GetStaticFloatField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jfloat"
+  },
+  {
+    "name": "GetStaticDoubleField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID"
+    ],
+    "return_type": "jdouble"
+  },
+  {
+    "name": "SetStaticObjectField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jobject"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetStaticBooleanField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jboolean"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetStaticByteField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jbyte"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetStaticCharField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jchar"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetStaticShortField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jshort"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetStaticIntField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetStaticLongField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jlong"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetStaticFloatField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jfloat"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetStaticDoubleField",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "jfieldID",
+      "jdouble"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "NewString",
+    "param_types": [
+      "JNIEnv *",
+      "const jchar *",
+      "jsize"
+    ],
+    "return_type": "jstring"
+  },
+  {
+    "name": "GetStringLength",
+    "param_types": [
+      "JNIEnv *",
+      "jstring"
+    ],
+    "return_type": "jsize"
+  },
+  {
+    "name": "GetStringChars",
+    "param_types": [
+      "JNIEnv *",
+      "jstring",
+      "jboolean *"
+    ],
+    "return_type": "const jchar *"
+  },
+  {
+    "name": "ReleaseStringChars",
+    "param_types": [
+      "JNIEnv *",
+      "jstring",
+      "const jchar *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "NewStringUTF",
+    "param_types": [
+      "JNIEnv *",
+      "const char *"
+    ],
+    "return_type": "jstring"
+  },
+  {
+    "name": "GetStringUTFLength",
+    "param_types": [
+      "JNIEnv *",
+      "jstring"
+    ],
+    "return_type": "jsize"
+  },
+  {
+    "name": "GetStringUTFChars",
+    "param_types": [
+      "JNIEnv *",
+      "jstring",
+      "jboolean *"
+    ],
+    "return_type": "const char *"
+  },
+  {
+    "name": "ReleaseStringUTFChars",
+    "param_types": [
+      "JNIEnv *",
+      "jstring",
+      "const char *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetArrayLength",
+    "param_types": [
+      "JNIEnv *",
+      "jarray"
+    ],
+    "return_type": "jsize"
+  },
+  {
+    "name": "NewObjectArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize",
+      "jclass",
+      "jobject"
+    ],
+    "return_type": "jobjectArray"
+  },
+  {
+    "name": "GetObjectArrayElement",
+    "param_types": [
+      "JNIEnv *",
+      "jobjectArray",
+      "jsize"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "SetObjectArrayElement",
+    "param_types": [
+      "JNIEnv *",
+      "jobjectArray",
+      "jsize",
+      "jobject"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "NewBooleanArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize"
+    ],
+    "return_type": "jbooleanArray"
+  },
+  {
+    "name": "NewByteArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize"
+    ],
+    "return_type": "jbyteArray"
+  },
+  {
+    "name": "NewCharArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize"
+    ],
+    "return_type": "jcharArray"
+  },
+  {
+    "name": "NewShortArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize"
+    ],
+    "return_type": "jshortArray"
+  },
+  {
+    "name": "NewIntArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize"
+    ],
+    "return_type": "jintArray"
+  },
+  {
+    "name": "NewLongArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize"
+    ],
+    "return_type": "jlongArray"
+  },
+  {
+    "name": "NewFloatArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize"
+    ],
+    "return_type": "jfloatArray"
+  },
+  {
+    "name": "NewDoubleArray",
+    "param_types": [
+      "JNIEnv *",
+      "jsize"
+    ],
+    "return_type": "jdoubleArray"
+  },
+  {
+    "name": "GetBooleanArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jbooleanArray",
+      "jboolean *"
+    ],
+    "return_type": "jboolean *"
+  },
+  {
+    "name": "GetByteArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jbyteArray",
+      "jboolean *"
+    ],
+    "return_type": "jbyte *"
+  },
+  {
+    "name": "GetCharArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jcharArray",
+      "jboolean *"
+    ],
+    "return_type": "jchar *"
+  },
+  {
+    "name": "GetShortArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jshortArray",
+      "jboolean *"
+    ],
+    "return_type": "jshort *"
+  },
+  {
+    "name": "GetIntArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jintArray",
+      "jboolean *"
+    ],
+    "return_type": "jint *"
+  },
+  {
+    "name": "GetLongArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jlongArray",
+      "jboolean *"
+    ],
+    "return_type": "jlong *"
+  },
+  {
+    "name": "GetFloatArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jfloatArray",
+      "jboolean *"
+    ],
+    "return_type": "jfloat *"
+  },
+  {
+    "name": "GetDoubleArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jdoubleArray",
+      "jboolean *"
+    ],
+    "return_type": "jdouble *"
+  },
+  {
+    "name": "ReleaseBooleanArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jbooleanArray",
+      "jboolean *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ReleaseByteArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jbyteArray",
+      "jbyte *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ReleaseCharArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jcharArray",
+      "jchar *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ReleaseShortArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jshortArray",
+      "jshort *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ReleaseIntArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jintArray",
+      "jint *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ReleaseLongArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jlongArray",
+      "jlong *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ReleaseFloatArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jfloatArray",
+      "jfloat *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ReleaseDoubleArrayElements",
+    "param_types": [
+      "JNIEnv *",
+      "jdoubleArray",
+      "jdouble *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetBooleanArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jbooleanArray",
+      "jsize",
+      "jsize",
+      "jboolean *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetByteArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jbyteArray",
+      "jsize",
+      "jsize",
+      "jbyte *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetCharArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jcharArray",
+      "jsize",
+      "jsize",
+      "jchar *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetShortArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jshortArray",
+      "jsize",
+      "jsize",
+      "jshort *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetIntArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jintArray",
+      "jsize",
+      "jsize",
+      "jint *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetLongArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jlongArray",
+      "jsize",
+      "jsize",
+      "jlong *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetFloatArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jfloatArray",
+      "jsize",
+      "jsize",
+      "jfloat *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetDoubleArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jdoubleArray",
+      "jsize",
+      "jsize",
+      "jdouble *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetBooleanArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jbooleanArray",
+      "jsize",
+      "jsize",
+      "const jboolean *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetByteArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jbyteArray",
+      "jsize",
+      "jsize",
+      "const jbyte *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetCharArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jcharArray",
+      "jsize",
+      "jsize",
+      "const jchar *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetShortArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jshortArray",
+      "jsize",
+      "jsize",
+      "const jshort *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetIntArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jintArray",
+      "jsize",
+      "jsize",
+      "const jint *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetLongArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jlongArray",
+      "jsize",
+      "jsize",
+      "const jlong *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetFloatArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jfloatArray",
+      "jsize",
+      "jsize",
+      "const jfloat *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "SetDoubleArrayRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jdoubleArray",
+      "jsize",
+      "jsize",
+      "const jdouble *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "RegisterNatives",
+    "param_types": [
+      "JNIEnv *",
+      "jclass",
+      "const JNINativeMethod *",
+      "jint"
+    ],
+    "return_type": "jint",
+    "trampoline": "DoTrampoline_JNIEnv_RegisterNatives"
+  },
+  {
+    "name": "UnregisterNatives",
+    "param_types": [
+      "JNIEnv *",
+      "jclass"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "MonitorEnter",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "MonitorExit",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jint"
+  },
+  {
+    "name": "GetJavaVM",
+    "param_types": [
+      "JNIEnv *",
+      "JavaVM * *"
+    ],
+    "return_type": "jint",
+    "trampoline": "DoTrampoline_JNIEnv_GetJavaVM"
+  },
+  {
+    "name": "GetStringRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jstring",
+      "jsize",
+      "jsize",
+      "jchar *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetStringUTFRegion",
+    "param_types": [
+      "JNIEnv *",
+      "jstring",
+      "jsize",
+      "jsize",
+      "char *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetPrimitiveArrayCritical",
+    "param_types": [
+      "JNIEnv *",
+      "jarray",
+      "jboolean *"
+    ],
+    "return_type": "void *"
+  },
+  {
+    "name": "ReleasePrimitiveArrayCritical",
+    "param_types": [
+      "JNIEnv *",
+      "jarray",
+      "void *",
+      "jint"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "GetStringCritical",
+    "param_types": [
+      "JNIEnv *",
+      "jstring",
+      "jboolean *"
+    ],
+    "return_type": "const jchar *"
+  },
+  {
+    "name": "ReleaseStringCritical",
+    "param_types": [
+      "JNIEnv *",
+      "jstring",
+      "const jchar *"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "NewWeakGlobalRef",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jweak"
+  },
+  {
+    "name": "DeleteWeakGlobalRef",
+    "param_types": [
+      "JNIEnv *",
+      "jweak"
+    ],
+    "return_type": "void"
+  },
+  {
+    "name": "ExceptionCheck",
+    "param_types": [
+      "JNIEnv *"
+    ],
+    "return_type": "jboolean"
+  },
+  {
+    "name": "NewDirectByteBuffer",
+    "param_types": [
+      "JNIEnv *",
+      "void *",
+      "jlong"
+    ],
+    "return_type": "jobject"
+  },
+  {
+    "name": "GetDirectBufferAddress",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "void *"
+  },
+  {
+    "name": "GetDirectBufferCapacity",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jlong"
+  },
+  {
+    "name": "GetObjectRefType",
+    "param_types": [
+      "JNIEnv *",
+      "jobject"
+    ],
+    "return_type": "jobjectRefType"
+  }
+]

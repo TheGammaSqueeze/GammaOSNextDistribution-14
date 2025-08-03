@@ -1,0 +1,105 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.telephony;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/telephony/enums.proto";
+
+option java_package = "com.android.os.telephony";
+option java_multiple_files = true;
+
+extend Atom {
+    optional CellularRadioPowerStateChanged cellular_radio_power_state_changed = 713 [(module) = "telephony"];
+    optional EmergencyNumbersInfo emergency_numbers_info = 10180 [(module) = "telephony"];
+    optional DataNetworkValidation data_network_validation = 10207 [(module) = "telephony"];
+}
+
+message CellularRadioPowerStateChanged {
+    optional android.telephony.CellularRadioPowerStateEnum state = 1
+            [(state_field_option).exclusive_state = true, (state_field_option).nested = false];
+}
+
+/**
+ * pulled atom to capture all emergency numbers information stored.
+ */
+message EmergencyNumbersInfo {
+    // flag for db version ignored
+    optional bool is_db_version_ignored = 1;
+
+    // version number read from assets
+    optional int32 asset_version = 2;
+
+    // version number from OTA updated DB
+    optional int32 ota_version = 3;
+
+    // the emergency number
+    optional string number = 4;
+
+    // iso code for the country
+    optional string country_iso = 5;
+
+    // Carrier mnc
+    optional string mnc = 6;
+
+    // call route associated with emergency number.
+    optional android.telephony.CallRoute route = 7;
+
+    // list of URNs associated with emergency number.
+    repeated string urns = 8;
+
+    // service categories of the emergency number.
+    repeated android.telephony.ServiceCategory service_categories = 9;
+
+    // sources of the captured emergency number.
+    repeated android.telephony.Source sources = 10;
+}
+
+/**
+ * Pulls information for a data network validation
+ *
+ * Each pull creates multiple atoms, one for each data network validation.
+ *
+ * Pulled from:
+ *   frameworks/opt/telephony/src/java/com/android/internal/telephony/metrics/MetricsCollector.java
+ */
+message DataNetworkValidation {
+    // Data RAT when network validation was performed
+    // Used as a dimension
+    optional android.telephony.NetworkTypeEnum network_type = 1;
+
+    // APN type bitmask where network verification was performed
+    // @ApnType in frameworks/base/telephony/java/android/telephony/Annotation.java
+    optional int32 apn_type_bitmask = 2;
+
+    // Signal strength when network validation was performed
+    optional android.telephony.SignalStrengthEnum signal_strength = 3;
+
+    // Result of network validation for one request
+    optional android.telephony.NetworkValidationResult validation_result = 4;
+
+    // The time in milliseconds from requesting network validation to receiving
+    optional int64 elapsed_time_in_millis = 5;
+
+    // Boolean that handover attempted during validation.
+    optional bool handover_attempted = 6;
+
+    // Number of network validation
+    optional int32 network_validation_count = 7;
+}

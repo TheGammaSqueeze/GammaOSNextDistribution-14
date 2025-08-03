@@ -1,0 +1,151 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+//TODO: b/196432585
+//Change the service names to match AIDL instead of HIDL major, minor versioning. Currently
+//left alone to avoid accidentally breaking targets.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_module_type {
+    name: "gch_lazy_hal_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "gch",
+    bool_variables: ["use_lazy_hal"],
+    properties: ["enabled"],
+}
+
+gch_lazy_hal_cc_defaults {
+    name: "camera_service_eager_hal_defaults",
+    enabled: true,
+    soong_config_variables: {
+        use_lazy_hal: {
+            enabled: false,
+        },
+    },
+}
+
+gch_lazy_hal_cc_defaults {
+    name: "camera_service_lazy_hal_defaults",
+    enabled: false,
+    soong_config_variables: {
+        use_lazy_hal: {
+            enabled: true,
+        },
+    },
+}
+
+// Exported for use in vendor/google/services/LyricCameraHAL/src/
+python_binary_host {
+    name: "camera_hal_version_script",
+    main: "version_script.py",
+    srcs: ["version_script.py"],
+}
+
+cc_genrule {
+   name: "aidl_camera_build_version",
+   tool_files: ["version_script.py"],
+   cmd: "python3 $(location version_script.py) $(in) $(out)",
+   vendor: true,
+   srcs: [
+       "aidl_camera_build_version.inl",
+   ],
+   out: ["aidl_camera_build_version.h"],
+}
+
+cc_defaults {
+    name: "camera_service_defaults_common",
+    defaults: [
+        "google_camera_hal_defaults",
+        "apex_update_listener_cc_defaults_static",
+    ],
+    vendor: true,
+    relative_install_path: "hw",
+    srcs: [
+        "aidl_camera_device.cc",
+        "aidl_camera_device_session.cc",
+        "aidl_camera_provider.cc",
+        "aidl_profiler.cc",
+        "aidl_thermal_utils.cc",
+        "aidl_utils.cc",
+        "libc_wrappers.cc",
+    ],
+    generated_headers: [
+        "aidl_camera_build_version",
+    ],
+    compile_multilib: "first",
+    shared_libs: [
+        "android.hardware.camera.device-V3-ndk",
+        "android.hardware.camera.common-V1-ndk",
+        "android.hardware.camera.provider-V3-ndk",
+        "android.hardware.thermal-V1-ndk",
+        "libbinder_ndk",
+        "libbase",
+        "libcamera_metadata",
+        "libcutils",
+        "libfmq",
+        "libgooglecamerahal",
+        "libgooglecamerahalutils",
+        "libhidlbase",
+        "liblog",
+        "libui",
+        "libutils",
+        "lib_profiler",
+    ],
+    export_shared_lib_headers: [
+        "lib_profiler",
+    ],
+    static_libs: [
+        "libaidlcommonsupport",
+    ],
+}
+
+cc_defaults {
+    name: "hardware_camera_service_defaults",
+    defaults: [
+        "camera_service_defaults_common",
+    ],
+    srcs: [
+        "aidl_service.cc",
+    ],
+    vintf_fragments: [":android.hardware.camera.provider@2.7-service-google.xml"],
+}
+
+cc_binary {
+    name: "android.hardware.camera.provider@2.7-service-google",
+    defaults: [
+        "hardware_camera_service_defaults",
+        "camera_service_eager_hal_defaults",
+    ],
+    init_rc: ["android.hardware.camera.provider@2.7-service-google.rc"],
+}
+
+cc_binary {
+    name: "android.hardware.camera.provider@2.7-service-google-lazy",
+    defaults: [
+        "hardware_camera_service_defaults",
+        "camera_service_lazy_hal_defaults",
+    ],
+    init_rc: ["android.hardware.camera.provider@2.7-service-google-lazy.rc"],
+    cflags: ["-DLAZY_SERVICE"],
+}
+
+filegroup {
+    name: "android.hardware.camera.provider@2.7-service-google.xml",
+    srcs: ["android.hardware.camera.provider@2.7-service-google.xml"],
+}

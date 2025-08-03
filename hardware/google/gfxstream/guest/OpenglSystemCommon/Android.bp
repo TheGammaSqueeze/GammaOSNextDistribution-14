@@ -1,0 +1,216 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_headers {
+    name: "libgfxstream_guest_sync",
+    export_include_dirs: [
+        ".",
+    ],
+}
+
+cc_library_headers {
+    name: "libOpenglSystemCommonHeaders",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "libgfxstream_guest_cc_defaults",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    header_libs: [
+        "libgfxstream_guest_rendercontrol_encoder_headers",
+    ],
+    export_header_lib_headers: [
+        "libgfxstream_guest_rendercontrol_encoder_headers",
+    ],
+}
+
+cc_defaults {
+    name: "libOpenglSystemCommonDefaults",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "libgfxstream_guest_cc_defaults",
+    ],
+    header_libs: [
+        "libgfxstream_vulkan_headers",
+        "libgfxstream_guest_graphics_headers",
+        "libgfxstream_guest_iostream",
+        "libhardware_headers",
+        "libnativebase_headers",
+    ],
+    export_header_lib_headers: [
+        "libgfxstream_guest_graphics_headers",
+        "libgfxstream_guest_iostream",
+        "libhardware_headers",
+        "libnativebase_headers",
+    ],
+    shared_libs: [
+        "lib_renderControl_enc",
+        "libbase",
+        "libdrm",
+        "libcutils",
+        "libGLESv1_enc",
+        "libGLESv2_enc",
+        "liblog",
+        "libOpenglCodecCommon",
+    ],
+    export_shared_lib_headers: [
+        "lib_renderControl_enc",
+        "libGLESv1_enc",
+        "libGLESv2_enc",
+    ],
+    static_libs: [
+        "libGoldfishAddressSpace",
+        "libringbuffer",
+        "libqemupipe.ranchu",
+    ],
+    cflags: [
+        "-Wno-unused-variable",
+        "-Wno-unused-parameter",
+    ],
+    srcs: [
+        "FormatConversions.cpp",
+        "HostConnection.cpp",
+        "ProcessPipe.cpp",
+        "QemuPipeStream.cpp",
+        "ThreadInfo.cpp",
+        "VirtioGpuPipeStream.cpp",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    target: {
+        android: {
+            header_libs: [
+                "gfxstream_opengl_headers",
+            ],
+            export_header_lib_headers: [
+                "gfxstream_opengl_headers",
+            ],
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libOpenglSystemCommon",
+    defaults: [
+        "libOpenglSystemCommonDefaults",
+    ],
+    shared_libs: [
+        "libandroidemu",
+    ],
+    static_libs: [
+        "libgfxstream_guest_android",
+        "libvulkan_enc",
+        "libplatform",
+    ],
+    export_static_lib_headers: [
+        "libgfxstream_guest_android",
+        "libplatform",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libnativewindow",
+                "libsync",
+            ],
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libOpenglSystemCommonWithHost",
+    defaults: [
+        "libOpenglSystemCommonDefaults",
+    ],
+    shared_libs: [
+        "libandroidemu",
+        "libgfxstream_platform_rutabaga_server",
+    ],
+    static_libs: [
+        "libgfxstream_guest_android_with_host",
+        "libgfxstream_guest_vulkan_encoder_with_host",
+        "libgfxstream_platform_rutabaga",
+    ],
+    export_static_lib_headers: [
+        "libgfxstream_guest_android_with_host",
+        "libgfxstream_platform_rutabaga",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        },
+        android: {
+            compile_multilib: "64",
+        },
+    },
+}
+
+cc_library_static {
+    name: "libgfxstream_guest_system_common",
+    defaults: [
+        "libOpenglSystemCommonDefaults",
+    ],
+    header_libs: [
+        "vulkan_enc_headers",
+    ],
+    static_libs: [
+        "libgfxstream_androidemu_static",
+        "libgfxstream_guest_android",
+        "libplatform",
+    ],
+    export_static_lib_headers: [
+        "libgfxstream_guest_android",
+        "libplatform",
+    ],
+}
+
+cc_library_static {
+    name: "libgfxstream_guest_system_common_with_host",
+    defaults: [
+        "libOpenglSystemCommonDefaults",
+    ],
+    header_libs: [
+        "vulkan_enc_headers",
+    ],
+    shared_libs: [
+        "libgfxstream_platform_rutabaga_server",
+    ],
+    static_libs: [
+        "libgfxstream_androidemu_static",
+        "libgfxstream_guest_android_with_host",
+        "libgfxstream_platform_rutabaga",
+    ],
+    export_static_lib_headers: [
+        "libgfxstream_guest_android_with_host",
+        "libgfxstream_platform_rutabaga",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        },
+        android: {
+            compile_multilib: "64",
+        },
+    },
+}

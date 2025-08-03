@@ -1,0 +1,323 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// ==========================================================
+// Build the host executable: stats-log-api-gen
+// ==========================================================
+package {
+    default_team: "trendy_team_android_telemetry_infra",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary_host {
+    name: "stats-log-api-gen",
+    srcs: [
+        "Collation.cpp",
+        "java_writer.cpp",
+        "java_writer_q.cpp",
+        "java_writer_vendor.cpp",
+        "main.cpp",
+        "native_writer.cpp",
+        "native_writer_vendor.cpp",
+        "rust_writer.cpp",
+        "utils.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-deprecated-declarations",
+        "-DWITH_VENDOR",
+    ],
+
+    shared_libs: [
+        "libstats_proto_host",
+        "libprotobuf-cpp-full",
+        "libbase",
+    ],
+
+    whole_static_libs: [
+        "libc++fs",
+    ],
+
+    proto: {
+        type: "full",
+    },
+
+    tidy: true,
+
+    tidy_checks: [
+        "android-*",
+        "bugprone-*",
+        "cert-*",
+        "clang-analyzer-security*",
+        "google-*",
+        "misc-*",
+        "performance-*",
+        "-bugprone-narrowing-conversions", // lots of unsigned -> int conversions
+        "-cert-err34-c",
+        "-cert-msc30-c", // warning: rand() has limited randomness; use C++11 random library
+        "-cert-msc50-cpp", // warning: rand() has limited randomness; use C++11 random library
+    ],
+
+    tidy_checks_as_errors: [
+        "android-*",
+        "bugprone-*",
+        "cert-*",
+        "clang-analyzer-security*",
+        "google-*",
+        "misc-*",
+        "performance-*",
+    ],
+}
+
+// ==========================================================
+// Build the host test executable: stats-log-api-gen-test
+// ==========================================================
+cc_test_host {
+    name: "stats-log-api-gen-test",
+    test_suites: [
+        "general-tests",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-g",
+        "-DUNIT_TEST",
+        "-Wno-deprecated-declarations",
+    ],
+    srcs: [
+        "Collation.cpp",
+        "test_api_gen.cpp",
+        "test_api_gen_vendor.cpp",
+        "test_collation.cpp",
+        "test.proto",
+        "test_feature_atoms.proto",
+        "test_vendor_atoms.proto",
+        "utils.cpp",
+    ],
+
+    static_libs: [
+        "libgmock_host",
+        "libtestvendoratoms",
+    ],
+
+    shared_libs: [
+        "android.frameworks.stats-V2-ndk",
+        "libstats_proto_host",
+        "libprotobuf-cpp-full",
+        "libstatslog",
+    ],
+
+    whole_static_libs: [
+        "libc++fs",
+    ],
+
+    proto: {
+        type: "full",
+        include_dirs: [
+            "external/protobuf/src",
+        ],
+    },
+
+    data: [
+        ":libprotobuf-internal-protos",
+        ":libstats_internal_protos",
+        "test_external.proto",
+    ],
+}
+
+// Filegroup for stats-log-api-gen test proto.
+filegroup {
+    name: "stats_log_api_gen_test_protos",
+    srcs: [
+        "test.proto",
+        "test_external.proto",
+        "test_feature_atoms.proto",
+        "test_vendor_atoms.proto",
+    ],
+}
+
+genrule {
+    name: "test_vendor_atoms.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --header $(out)" +
+        " --module test" +
+        " --namespace android,VendorAtoms" +
+        " --vendor-proto frameworks/proto_logging/stats/stats_log_api_gen/test_vendor_atoms.proto",
+    out: [
+        "test_vendor_atoms.h",
+    ],
+    srcs: [
+        "test_vendor_atoms.proto",
+        ":libprotobuf-internal-descriptor-proto",
+        ":libstats_atom_options_protos",
+    ],
+}
+
+genrule {
+    name: "test_vendor_atoms.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --cpp $(out)" +
+        " --module test" +
+        " --importHeader test_vendor_atoms.h" +
+        " --namespace android,VendorAtoms" +
+        " --vendor-proto frameworks/proto_logging/stats/stats_log_api_gen/test_vendor_atoms.proto",
+    out: [
+        "test_vendor_atoms.cpp",
+    ],
+    srcs: [
+        "test_vendor_atoms.proto",
+        ":libprotobuf-internal-descriptor-proto",
+        ":libstats_atom_options_protos",
+    ],
+}
+
+cc_library_static {
+    name: "libtestvendoratoms",
+    host_supported: true,
+    generated_headers: [
+        "test_vendor_atoms.h",
+    ],
+    generated_sources: [
+        "test_vendor_atoms.cpp",
+    ],
+    export_generated_headers: [
+        "test_vendor_atoms.h",
+    ],
+    shared_libs: [
+        "android.frameworks.stats-V2-ndk",
+    ],
+}
+
+// ==========================================================
+// Native library
+// ==========================================================
+genrule {
+    name: "statslog.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog.h",
+    out: [
+        "statslog.h",
+    ],
+}
+
+genrule {
+    name: "statslog.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --cpp $(genDir)/statslog.cpp",
+    out: [
+        "statslog.cpp",
+    ],
+}
+
+cc_library {
+    name: "libstatslog",
+    host_supported: true,
+    generated_sources: [
+        "statslog.cpp",
+    ],
+    generated_headers: [
+        "statslog.h",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    export_generated_headers: [
+        "statslog.h",
+    ],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libstatssocket",
+        "libstatspull",
+    ],
+    export_shared_lib_headers: [
+        "libstatssocket",
+        "libstatspull",
+    ],
+    target: {
+        host: {
+            static_libs: [
+                "libbase",
+                "statsd-aidl-ndk",
+            ],
+            shared_libs: ["libbinder_ndk"],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+// ==========================================================
+// Rust library
+// ==========================================================
+
+genrule {
+    name: "statslog_header.rs",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --rustHeader $(genDir)/statslog_header.rs --rustHeaderCrate statslog_rust_header",
+    out: [
+        "statslog_header.rs",
+    ],
+}
+
+rust_library {
+    name: "libstatslog_rust_header",
+    crate_name: "statslog_rust_header",
+    srcs: [
+        "rust_header_wrapper.rs",
+        ":statslog_header.rs",
+    ],
+    rustlibs: [
+        "libstatspull_bindgen",
+        "libthiserror",
+    ],
+    apex_available: [
+        "com.android.resolv",
+        "com.android.virt",
+    ],
+    min_sdk_version: "29",
+}
+
+genrule {
+    name: "statslog.rs",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --rust $(genDir)/statslog.rs --rustHeaderCrate statslog_rust_header",
+    out: [
+        "statslog.rs",
+    ],
+}
+
+rust_library {
+    name: "libstatslog_rust",
+    crate_name: "statslog_rust",
+    srcs: [
+        "rust_wrapper.rs",
+        ":statslog.rs",
+    ],
+    rustlibs: [
+        "libstatslog_rust_header",
+        "libstatspull_bindgen",
+    ],
+    apex_available: [
+        "com.android.resolv",
+        "com.android.virt",
+    ],
+    min_sdk_version: "29",
+}

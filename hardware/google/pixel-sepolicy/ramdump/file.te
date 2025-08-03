@@ -1,0 +1,1 @@
+allow ramdump_vendor_mnt_file self:filesystem associate;

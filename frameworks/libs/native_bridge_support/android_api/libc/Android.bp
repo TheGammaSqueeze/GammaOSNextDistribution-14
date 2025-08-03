@@ -1,0 +1,182 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// We introduce this namespace so that native bridge guest libraries are built
+// only for targets that explicitly use this namespace via PRODUCT_SOONG_NAMESPACES
+// and checkbuild.
+soong_namespace {
+}
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library {
+    defaults: [
+        "native_bridge_stub_library_defaults",
+        // Definitions come from bionic/libc/Android.bp that force
+        // the usage of the correct native allocator.
+        "libc_native_allocator_defaults",
+    ],
+    name: "libnative_bridge_guest_libc",
+    overrides: ["libc"],
+    stem: "libc",
+
+    srcs: [
+        ":libc_sources_shared",
+        "__cxa_thread_atexit_impl.cpp",
+        "__libc_add_main_thread.cpp",
+        "__libc_init_scudo.cpp",
+        "__libc_set_target_sdk_version.cpp",
+        "exit.c",
+        "malloc_init.cpp",
+    ],
+
+    include_dirs: [
+        "bionic/libc",
+        "bionic/libc/arch-common/bionic",
+        "bionic/libc/async_safe/include",
+        "bionic/libc/bionic",
+        "bionic/libc/stdio",
+        "bionic/libstdc++/include",
+    ],
+
+    cflags: [
+        "-D_LIBC=1",
+    ],
+
+    product_variables: {
+        platform_sdk_version: {
+            asflags: ["-DPLATFORM_SDK_VERSION=%d"],
+            cflags: ["-DPLATFORM_SDK_VERSION=%d"],
+        },
+    },
+
+    arch: {
+        arm: {
+            srcs: [
+                ":libc_sources_shared_arm",
+                "stubs_arm.cpp",
+            ],
+
+            cflags: [
+                "-DCRT_LEGACY_WORKAROUND",
+            ],
+
+            version_script: ":libc.arm.map",
+            no_libcrt: true,
+
+            shared: {
+                // For backwards-compatibility, some arm32 builtins are exported from libc.so.
+                static_libs: ["libclang_rt.builtins-exported"],
+            },
+
+            // Arm 32 bit does not produce complete exidx unwind information
+            // so keep the .debug_frame which is relatively small and does
+            // include needed unwind information.
+            // See b/132992102 for details.
+            strip: {
+                keep_symbols_and_debug_frame: true,
+            },
+        },
+        arm64: {
+            srcs: ["stubs_arm64.cpp"],
+
+            version_script: ":libc.arm64.map",
+
+	    // Leave the symbols in the shared library so that stack unwinders can produce
+	    // meaningful name resolution.
+	    strip: {
+		keep_symbols: true,
+	    },
+        },
+        riscv64: {
+            srcs: ["stubs_riscv64.cpp"],
+
+            version_script: ":libc.riscv64.map",
+
+	    // Leave the symbols in the shared library so that stack unwinders can produce
+	    // meaningful name resolution.
+	    strip: {
+		keep_symbols: true,
+	    },
+        }
+    },
+
+    nocrt: true,
+
+    required: ["tzdata_prebuilt"],
+
+    whole_static_libs: [
+        "gwp_asan",
+        "libc_init_dynamic",
+        "libc_common_shared",
+        "libunwind-exported",
+    ],
+
+    shared_libs: [
+        "ld-android",
+        "libdl",
+    ],
+
+    static_libs: [
+        "libdl_android",
+    ],
+
+    system_shared_libs: [],
+    stl: "none",
+
+    strip: {
+        keep_symbols: true,
+    },
+
+    sanitize: {
+        never: true,
+    },
+
+    // lld complains about duplicate symbols in libcrt and libgcc. Suppress the
+    // warning since this is intended right now.
+    // Bug: 117558759
+    ldflags: ["-Wl,-z,muldefs"],
+}
+
+filegroup {
+    name: "native_bridge_proxy_libc_files",
+    srcs: [
+        "proxy/cxa_trampolines.cc",
+        "proxy/libc_translation.cc",
+        "proxy/malloc_translation.cc",
+        "proxy/pthread_translation.cc",
+        "proxy/setjmp_thunks.cc",
+        "proxy/system_properties_trampolines.cc",
+        "proxy/unistd_thunks.cc",
+    ],
+}
+
+cc_defaults {
+    name: "native_bridge_proxy_libc_defaults",
+    srcs: [ "//frameworks/libs/native_bridge_support/android_api/libc:native_bridge_proxy_libc_files" ],
+    header_libs: [
+	"libberberis_guest_abi_headers",
+        "libberberis_guest_os_primitives_headers",
+        "libberberis_guest_state_headers",
+	"libberberis_proxy_loader_headers",
+        "libberberis_runtime_primitives_headers",
+    ],
+
+    // We need to access Bionic private headers in the libc proxy.
+    include_dirs: ["bionic/libc"],
+}

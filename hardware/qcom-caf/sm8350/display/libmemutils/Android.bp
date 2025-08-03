@@ -1,0 +1,30 @@
+cc_library_shared {
+
+    name: "libmemutils",
+    defaults: ["qtidisplay_defaults"],
+    sanitize: {
+        integer_overflow: true,
+    },
+
+    shared_libs: [
+        "libion",
+        "libc++",
+    ],
+    header_libs: [
+        "display_headers",
+        "qti_kernel_headers",
+    ],
+    cflags: [
+        "-Wno-missing-field-initializers",
+        "-Wall",
+        "-Werror",
+        "-fno-operator-names",
+        "-Wno-unused-parameter",
+        "-DLOG_TAG=\"MEM-UTILS\"",
+    ],
+    srcs: [
+        "membuf_wrapper.cpp",
+    ],
+
+    vendor: true,
+}

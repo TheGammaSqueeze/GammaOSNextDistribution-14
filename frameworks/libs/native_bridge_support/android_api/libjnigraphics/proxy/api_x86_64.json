@@ -1,0 +1,959 @@
+{
+	"symbols" : 
+	{
+		"AImageDecoderFrameInfo_create" : 
+		{
+			"type" : "func AImageDecoderFrameInfo_create"
+		},
+		"AImageDecoderFrameInfo_delete" : 
+		{
+			"type" : "func AImageDecoderFrameInfo_delete"
+		},
+		"AImageDecoderFrameInfo_getBlendOp" : 
+		{
+			"type" : "func AImageDecoderFrameInfo_getBlendOp"
+		},
+		"AImageDecoderFrameInfo_getDisposeOp" : 
+		{
+			"type" : "func AImageDecoderFrameInfo_getDisposeOp"
+		},
+		"AImageDecoderFrameInfo_getDuration" : 
+		{
+			"type" : "func AImageDecoderFrameInfo_getDuration"
+		},
+		"AImageDecoderFrameInfo_getFrameRect" : 
+		{
+			"type" : "func AImageDecoderFrameInfo_getFrameRect"
+		},
+		"AImageDecoderFrameInfo_hasAlphaWithinBounds" : 
+		{
+			"type" : "func AImageDecoderFrameInfo_hasAlphaWithinBounds"
+		},
+		"AImageDecoderHeaderInfo_getAlphaFlags" : 
+		{
+			"type" : "func AImageDecoderHeaderInfo_getAlphaFlags"
+		},
+		"AImageDecoderHeaderInfo_getAndroidBitmapFormat" : 
+		{
+			"type" : "func AImageDecoderHeaderInfo_getAndroidBitmapFormat"
+		},
+		"AImageDecoderHeaderInfo_getDataSpace" : 
+		{
+			"type" : "func AImageDecoderHeaderInfo_getDataSpace"
+		},
+		"AImageDecoderHeaderInfo_getHeight" : 
+		{
+			"type" : "func AImageDecoderHeaderInfo_getHeight"
+		},
+		"AImageDecoderHeaderInfo_getMimeType" : 
+		{
+			"type" : "func AImageDecoderHeaderInfo_getMimeType"
+		},
+		"AImageDecoderHeaderInfo_getWidth" : 
+		{
+			"type" : "func AImageDecoderHeaderInfo_getWidth"
+		},
+		"AImageDecoder_advanceFrame" : 
+		{
+			"type" : "func AImageDecoder_advanceFrame"
+		},
+		"AImageDecoder_computeSampledSize" : 
+		{
+			"type" : "func AImageDecoder_computeSampledSize"
+		},
+		"AImageDecoder_createFromAAsset" : 
+		{
+			"type" : "func AImageDecoder_createFromAAsset"
+		},
+		"AImageDecoder_createFromBuffer" : 
+		{
+			"type" : "func AImageDecoder_createFromBuffer"
+		},
+		"AImageDecoder_createFromFd" : 
+		{
+			"type" : "func AImageDecoder_createFromFd"
+		},
+		"AImageDecoder_decodeImage" : 
+		{
+			"type" : "func AImageDecoder_decodeImage"
+		},
+		"AImageDecoder_delete" : 
+		{
+			"type" : "func AImageDecoder_delete"
+		},
+		"AImageDecoder_getFrameInfo" : 
+		{
+			"type" : "func AImageDecoder_getFrameInfo"
+		},
+		"AImageDecoder_getHeaderInfo" : 
+		{
+			"type" : "func AImageDecoder_getHeaderInfo"
+		},
+		"AImageDecoder_getMinimumStride" : 
+		{
+			"type" : "func AImageDecoder_getMinimumStride"
+		},
+		"AImageDecoder_getRepeatCount" : 
+		{
+			"type" : "func AImageDecoder_getRepeatCount"
+		},
+		"AImageDecoder_isAnimated" : 
+		{
+			"type" : "func AImageDecoder_isAnimated"
+		},
+		"AImageDecoder_resultToString" : 
+		{
+			"type" : "func AImageDecoder_resultToString"
+		},
+		"AImageDecoder_rewind" : 
+		{
+			"type" : "func AImageDecoder_rewind"
+		},
+		"AImageDecoder_setAndroidBitmapFormat" : 
+		{
+			"type" : "func AImageDecoder_setAndroidBitmapFormat"
+		},
+		"AImageDecoder_setCrop" : 
+		{
+			"type" : "func AImageDecoder_setCrop"
+		},
+		"AImageDecoder_setDataSpace" : 
+		{
+			"type" : "func AImageDecoder_setDataSpace"
+		},
+		"AImageDecoder_setInternallyHandleDisposePrevious" : 
+		{
+			"type" : "func AImageDecoder_setInternallyHandleDisposePrevious"
+		},
+		"AImageDecoder_setTargetSize" : 
+		{
+			"type" : "func AImageDecoder_setTargetSize"
+		},
+		"AImageDecoder_setUnpremultipliedRequired" : 
+		{
+			"type" : "func AImageDecoder_setUnpremultipliedRequired"
+		},
+		"AndroidBitmap_compress" : 
+		{
+			"type" : "func AndroidBitmap_compress"
+		},
+		"AndroidBitmap_getDataSpace" : 
+		{
+			"type" : "func AndroidBitmap_getDataSpace"
+		},
+		"AndroidBitmap_getHardwareBuffer" : 
+		{
+			"type" : "func AndroidBitmap_getHardwareBuffer"
+		},
+		"AndroidBitmap_getInfo" : 
+		{
+			"type" : "func AndroidBitmap_getInfo"
+		},
+		"AndroidBitmap_lockPixels" : 
+		{
+			"type" : "func AndroidBitmap_lockPixels"
+		},
+		"AndroidBitmap_unlockPixels" : 
+		{
+			"type" : "func AndroidBitmap_unlockPixels"
+		}
+	},
+	"types" : 
+	{
+		"bool" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 8
+		},
+		"char8" : 
+		{
+			"kind" : "char",
+			"signed" : true,
+			"size" : 8
+		},
+		"char8 const" : 
+		{
+			"base_type" : "char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8 const",
+			"size" : 64
+		},
+		"class _jobject" : 
+		{
+			"fields" : [],
+			"inheritance" : [],
+			"kind" : "class",
+			"size" : 8
+		},
+		"class _jobject*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class _jobject",
+			"size" : 64
+		},
+		"func #1" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void*",
+				"void const*",
+				"unsigned int64"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func #1*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #1",
+			"size" : 64
+		},
+		"func AImageDecoderFrameInfo_create" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "struct AImageDecoderFrameInfo*",
+			"size" : 0
+		},
+		"func AImageDecoderFrameInfo_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderFrameInfo*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AImageDecoderFrameInfo_getBlendOp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderFrameInfo const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoderFrameInfo_getDisposeOp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderFrameInfo const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoderFrameInfo_getDuration" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderFrameInfo const*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AImageDecoderFrameInfo_getFrameRect" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderFrameInfo const*"
+			],
+			"return_type" : "struct ARect",
+			"size" : 0
+		},
+		"func AImageDecoderFrameInfo_hasAlphaWithinBounds" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderFrameInfo const*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AImageDecoderHeaderInfo_getAlphaFlags" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderHeaderInfo const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoderHeaderInfo_getAndroidBitmapFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderHeaderInfo const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoderHeaderInfo_getDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderHeaderInfo const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoderHeaderInfo_getHeight" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderHeaderInfo const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoderHeaderInfo_getMimeType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderHeaderInfo const*"
+			],
+			"return_type" : "char8 const*",
+			"size" : 0
+		},
+		"func AImageDecoderHeaderInfo_getWidth" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoderHeaderInfo const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_advanceFrame" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_computeSampledSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder const*",
+				"int32",
+				"int32*",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_createFromAAsset" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAsset*",
+				"struct AImageDecoder**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_createFromBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"void const*",
+				"unsigned int64",
+				"struct AImageDecoder**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_createFromFd" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct AImageDecoder**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_decodeImage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*",
+				"void*",
+				"unsigned int64",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AImageDecoder_getFrameInfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*",
+				"struct AImageDecoderFrameInfo*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_getHeaderInfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder const*"
+			],
+			"return_type" : "struct AImageDecoderHeaderInfo const*",
+			"size" : 0
+		},
+		"func AImageDecoder_getMinimumStride" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*"
+			],
+			"return_type" : "unsigned int64",
+			"size" : 0
+		},
+		"func AImageDecoder_getRepeatCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_isAnimated" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AImageDecoder_resultToString" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "char8 const*",
+			"size" : 0
+		},
+		"func AImageDecoder_rewind" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_setAndroidBitmapFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_setCrop" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*",
+				"struct ARect"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_setDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_setInternallyHandleDisposePrevious" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*",
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AImageDecoder_setTargetSize" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*",
+				"int32",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AImageDecoder_setUnpremultipliedRequired" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AImageDecoder*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AndroidBitmap_compress" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AndroidBitmapInfo const*",
+				"int32",
+				"void const*",
+				"int32",
+				"int32",
+				"void*",
+				"func #1*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AndroidBitmap_getDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct _JNIEnv*",
+				"class _jobject*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AndroidBitmap_getHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct _JNIEnv*",
+				"class _jobject*",
+				"struct AHardwareBuffer**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AndroidBitmap_getInfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct _JNIEnv*",
+				"class _jobject*",
+				"struct AndroidBitmapInfo*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AndroidBitmap_lockPixels" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct _JNIEnv*",
+				"class _jobject*",
+				"void**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AndroidBitmap_unlockPixels" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct _JNIEnv*",
+				"class _jobject*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"int32" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 32
+		},
+		"int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32",
+			"size" : 64
+		},
+		"int64" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 64
+		},
+		"struct AAsset" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AAsset*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AAsset",
+			"size" : 64
+		},
+		"struct AHardwareBuffer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AHardwareBuffer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer",
+			"size" : 64
+		},
+		"struct AHardwareBuffer**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer*",
+			"size" : 64
+		},
+		"struct AImageDecoder" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AImageDecoder const" : 
+		{
+			"base_type" : "struct AImageDecoder",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct AImageDecoder const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageDecoder const",
+			"size" : 64
+		},
+		"struct AImageDecoder*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageDecoder",
+			"size" : 64
+		},
+		"struct AImageDecoder**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageDecoder*",
+			"size" : 64
+		},
+		"struct AImageDecoderFrameInfo" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AImageDecoderFrameInfo const" : 
+		{
+			"base_type" : "struct AImageDecoderFrameInfo",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct AImageDecoderFrameInfo const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageDecoderFrameInfo const",
+			"size" : 64
+		},
+		"struct AImageDecoderFrameInfo*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageDecoderFrameInfo",
+			"size" : 64
+		},
+		"struct AImageDecoderHeaderInfo" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AImageDecoderHeaderInfo const" : 
+		{
+			"base_type" : "struct AImageDecoderHeaderInfo",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct AImageDecoderHeaderInfo const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AImageDecoderHeaderInfo const",
+			"size" : 64
+		},
+		"struct ARect" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "left",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "top",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "right",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "bottom",
+					"offset" : 96,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct AndroidBitmapInfo" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "width",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "height",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "stride",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "format",
+					"offset" : 96,
+					"type" : "int32"
+				},
+				{
+					"name" : "flags",
+					"offset" : 128,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 160
+		},
+		"struct AndroidBitmapInfo const" : 
+		{
+			"base_type" : "struct AndroidBitmapInfo",
+			"kind" : "const",
+			"size" : 160
+		},
+		"struct AndroidBitmapInfo const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AndroidBitmapInfo const",
+			"size" : 64
+		},
+		"struct AndroidBitmapInfo*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AndroidBitmapInfo",
+			"size" : 64
+		},
+		"struct _JNIEnv" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct _JNIEnv*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct _JNIEnv",
+			"size" : 64
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int64" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 64
+		},
+		"void" : 
+		{
+			"kind" : "incomplete"
+		},
+		"void const" : 
+		{
+			"base_type" : "void",
+			"kind" : "const",
+			"size" : 0
+		},
+		"void const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void const",
+			"size" : 64
+		},
+		"void*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void",
+			"size" : 64
+		},
+		"void**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void*",
+			"size" : 64
+		}
+	}
+}

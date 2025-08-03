@@ -1,0 +1,46 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_qcom_sm7250_gps_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["hardware_qcom_sm7250_gps_license"],
+}
+
+cc_library_static {
+
+    name: "liblocbatterylistener",
+    vendor: true,
+
+
+
+    cflags: GNSS_CFLAGS + ["-DBATTERY_LISTENER_ENABLED"],
+    local_include_dirs: ["."],
+
+    srcs: ["battery_listener.cpp"],
+
+    shared_libs: [
+        "liblog",
+        "libhidlbase",
+        "libcutils",
+        "libutils",
+        "android.hardware.health@1.0",
+        "android.hardware.health@2.0",
+        "android.hardware.health@2.1",
+        "android.hardware.power@1.2",
+        "libbase",
+    ],
+
+    static_libs: ["libhealthhalutils"],
+
+    header_libs: [
+        "libgps.utils_headers",
+        "libloc_pla_headers",
+    ],
+}
+
+cc_library_headers {
+
+    name: "liblocbatterylistener_headers",
+    export_include_dirs: ["."],
+}

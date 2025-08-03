@@ -1,0 +1,294 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsWindowManagerDeviceWindow",
+      "options": [
+        {
+          "include-filter": "android.server.wm.window.WindowInputTests"
+        }
+      ]
+    },
+    {
+      "name": "libinput_tests"
+    },
+    {
+      "name": "inputflinger_tests"
+    },
+    {
+      "name": "libchrome-gestures_test"
+    },
+    {
+      "name": "libpalmrejection_test"
+    },
+    {
+      "name": "InputTests"
+    },
+    {
+      "name": "libinputservice_test"
+    },
+    {
+      "name": "libgui_test",
+      "options": [
+        {
+          "native-test-flag": "--gtest_filter=\"InputSurfacesTest*:MultiDisplayTests*\""
+        }
+      ]
+    },
+    {
+      "name": "CtsHardwareTestCases",
+      "options": [
+        {
+          "include-filter": "android.hardware.input.cts.tests"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsInputTestCases"
+    },
+    {
+      "name": "CtsViewTestCases",
+      "options": [
+        {
+          "include-filter": "android.view.cts.input"
+        }
+      ]
+    },
+    {
+      "name": "CtsViewTestCases",
+      "options": [
+        {
+          "include-filter": "android.view.cts.HoverTest"
+        },
+        {
+          "include-filter": "android.view.cts.MotionEventTest"
+        },
+        {
+          "include-filter": "android.view.cts.PointerCaptureTest"
+        },
+        {
+          "include-filter": "android.view.cts.TooltipTest"
+        },
+        {
+          "include-filter": "android.view.cts.TouchDelegateTest"
+        },
+        {
+          "include-filter": "android.view.cts.VerifyInputEventTest"
+        },
+        {
+          "include-filter": "android.view.cts.ViewTest"
+        },
+        {
+          "include-filter": "android.view.cts.ViewUnbufferedTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsWidgetTestCases",
+      "options": [
+        {
+          "include-filter": "android.widget.cts.NumberPickerTest"
+        },
+        {
+          "include-filter": "android.widget.cts.SeekBarTest"
+        }
+      ]
+    },
+    {
+      "name": "FrameworksCoreTests",
+      "options": [
+        {
+          "include-filter": "android.hardware.input"
+        }
+      ]
+    },
+    {
+      "name": "FrameworksCoreTests",
+      "options": [
+        {
+          "include-filter": "android.view.VerifiedKeyEventTest"
+        },
+        {
+          "include-filter": "android.view.VerifiedMotionEventTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsAppTestCases",
+      "options": [
+        {
+          "include-filter": "android.app.cts.ToolbarActionBarTest"
+        }
+      ]
+    },
+    {
+      "name": "FrameworksServicesTests",
+      "options": [
+        {
+          "include-filter": "com.android.server.input"
+        }
+      ]
+    },
+    {
+      "name": "CtsSecurityTestCases",
+      "options": [
+        {
+          "include-filter": "android.security.cts.MotionEventTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsSecurityBulletinHostTestCases",
+      "options": [
+        {
+          "include-filter": "android.security.cts.Poc19_03#testPocBug_115739809"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsWindowManagerDeviceWindow",
+      "options": [
+        {
+          "include-filter": "android.server.wm.window.WindowInputTests"
+        }
+      ]
+    },
+    {
+      "name": "libinput_tests"
+    },
+    {
+      "name": "inputflinger_tests"
+    },
+    {
+      "name": "libpalmrejection_test"
+    },
+    {
+      "name": "InputTests"
+    },
+    {
+      "name": "libinputservice_test"
+    },
+    {
+      "name": "libgui_test",
+      "options": [
+        {
+          "native-test-flag": "--gtest_filter=\"InputSurfacesTest*:MultiDisplayTests*\""
+        }
+      ]
+    },
+    {
+      "name": "CtsHardwareTestCases",
+      "options": [
+        {
+          "include-filter": "android.hardware.input.cts.tests"
+        }
+      ]
+    },
+    {
+      "name": "CtsInputTestCases"
+    },
+    {
+      "name": "CtsViewTestCases",
+      "options": [
+        {
+          "include-filter": "android.view.cts.input"
+        }
+      ]
+    },
+    {
+      "name": "CtsViewTestCases",
+      "options": [
+        {
+          "include-filter": "android.view.cts.HoverTest"
+        },
+        {
+          "include-filter": "android.view.cts.MotionEventTest"
+        },
+        {
+          "include-filter": "android.view.cts.PointerCaptureTest"
+        },
+        {
+          "include-filter": "android.view.cts.TooltipTest"
+        },
+        {
+          "include-filter": "android.view.cts.TouchDelegateTest"
+        },
+        {
+          "include-filter": "android.view.cts.VerifyInputEventTest"
+        },
+        {
+          "include-filter": "android.view.cts.ViewTest"
+        },
+        {
+          "include-filter": "android.view.cts.ViewUnbufferedTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsWidgetTestCases",
+      "options": [
+        {
+          "include-filter": "android.widget.cts.NumberPickerTest"
+        },
+        {
+          "include-filter": "android.widget.cts.SeekBarTest"
+        }
+      ]
+    },
+    {
+      "name": "FrameworksCoreTests",
+      "options": [
+        {
+          "include-filter": "android.view.VerifiedKeyEventTest"
+        },
+        {
+          "include-filter": "android.view.VerifiedMotionEventTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsAppTestCases",
+      "options": [
+        {
+          "include-filter": "android.app.cts.ToolbarActionBarTest"
+        }
+      ]
+    },
+    {
+      "name": "FrameworksServicesTests",
+      "options": [
+        {
+          "include-filter": "com.android.server.input"
+        }
+      ]
+    },
+    {
+      "name": "CtsSecurityTestCases",
+      "options": [
+        {
+          "include-filter": "android.security.cts.MotionEventTest"
+        }
+      ]
+    },
+    {
+      "name": "CtsSecurityBulletinHostTestCases",
+      "options": [
+        {
+          "include-filter": "android.security.cts.Poc19_03#testPocBug_115739809"
+        }
+      ]
+    },
+    {
+      "name": "CtsInputHostTestCases"
+    }
+  ],
+  "staged-platinum-postsubmit": [
+    {
+      "name": "inputflinger_tests"
+    }
+  ]
+}

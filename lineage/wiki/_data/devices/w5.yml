@@ -1,0 +1,38 @@
+architecture: arm
+battery: {capacity: 2040, removable: False, tech: 'Li-Ion'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: 'LED', info: '5 MP'}
+  - {flash: None, info: '0.3 MP'}
+codename: w5
+cpu: Cortex-A7
+cpu_cores: '2'
+cpu_freq: 1.2 GHz
+current_branch: 14.1
+custom_recovery_link: https://androidfilehost.com/?fid=673956719939825991
+dimensions: {depth: 9.5, height: 127.2, width: 66.8}
+gpu: Qualcomm Adreno 302
+image: w5.png
+install_method: dd
+kernel: {repo: android_kernel_lge_msm8226, version: '3.4'}
+maintainers: []
+name: Optimus L70
+network: [2G GSM, 3G UMTS]
+peripherals: [3.5mm jack, Accelerometer, Compass, FM radio, GPS, Proximity sensor]
+ram: 1 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. Release the <kbd>Power</kbd> button for a brief second when the LG logo is displayed, then immediately hold it again.
+recovery_partition: /dev/block/platform/msm_sdcc.1/by-name/recovery
+recovery_partition_name: recovery
+release: 2014-04
+root_method: [custom, 'https://forum.xda-developers.com/showthread.php?t=2732311']
+screen: {resolution: '480x800', size: 4.5, technology: 'IPS LCD'}
+sdcard: {size_max: '32 GB'}
+soc: Qualcomm MSM8210 Snapdragon 200
+storage: 4 GB
+tree: android_device_lge_w5
+type: phone
+uses_twrp: true
+vendor: LG
+vendor_short: lge
+versions: [14.1]
+wifi: 802.11 b/g/n

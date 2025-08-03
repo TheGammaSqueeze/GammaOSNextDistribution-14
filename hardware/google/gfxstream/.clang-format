@@ -1,0 +1,15 @@
+# There is a copy of this file at http://google3/play/games/battlestar/build/gfxstream/.clang-format
+# for the AyeAye presubmit check. If you change this file, please also change the location above.
+
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 100
+IncludeCategories:
+  - Regex: '^(<(gtest|gmock))'
+    Priority: -1
+FixNamespaceComments: true
+PointerAlignment: Left
+DerivePointerAlignment: false
+
+# Ensure proper formatting of macros such as GOLDFISH_VK_LIST_DISPATCHABLE_HANDLE_TYPES
+StatementMacros: ["f"]

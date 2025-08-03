@@ -1,0 +1,517 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.cronet;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.cronet";
+option java_multiple_files = true;
+
+extend Atom {
+  optional CronetEngineCreated cronet_engine_created = 703
+  [(module) = "cronet"];
+  optional CronetTrafficReported cronet_traffic_reported = 704
+  [(module) = "cronet"];
+  optional CronetEngineBuilderInitialized cronet_engine_builder_initialized = 762 [(module) = "cronet"];
+  optional CronetHttpFlagsInitialized cronet_http_flags_initialized = 763 [(module) = "cronet"];
+  optional CronetInitialized cronet_initialized = 764 [(module) = "cronet"];
+}
+
+// Logged every time CronetEngine.Builder#build() returns.
+message CronetEngineCreated {
+  // A weak-ID-like reference to the instance of the Cronet engine being
+  // created. The field can be used to join subsequent request metrics with the
+  // engine details.
+  //
+  // The reference is NOT meant to be globally (or even on-device) unique, but
+  // on device collisions should be unlikely.
+  // Defaults to max positive int64 value which is equivalent to "not set".
+  optional int64 engine_instance_ref = 1 [default = 9223372036854775807];
+  // Deprecated, moved to CronetEngineBuilderInitialized
+  optional int32 major_version = 2 [deprecated = true];
+  // Deprecated, moved to CronetEngineBuilderInitialized
+  optional int32 minor_version = 3 [deprecated = true];
+  // Deprecated, moved to CronetEngineBuilderInitialized
+  optional int32 build_version = 4 [deprecated = true];
+  // Deprecated, moved to CronetEngineBuilderInitialized
+  optional int32 patch_version = 5 [deprecated = true];
+
+  // Deprecated, moved to CronetInitialized
+  optional CronetSource source = 6 [deprecated = true];
+  // Options that can be set on the Cronet builder. Only fields which are
+  // actively set by the Cronet user are populated. When using the protos
+  // default values should be considered as "null" - default semnantics can
+  // change based on the Cronet version.
+  //
+  // Fields that can contain free text (even if just theoretically) should be
+  // curated and/or replaced with fields that provide useful signal while not
+  // being sensitive. For instance, instead of logging values of quic hint hosts
+  // verbatim, prefer to log if a request was affected by a hint.
+  //
+  // For field names, follow the nomenclature below:
+  // - fields set directly on the builder should have no prefix
+  //   (e.g., enableBrotli() translates to enable_brotli)
+  // - fields which are set in a sub-object or sub-structure should be prefixed
+  //   with the path leading to that field. For example,
+  //   builder.setExperimentalOptions("quic: { foo: { bar: 2 } }");
+  //   translates to experimental_options_quic_foo_bar
+  //
+  //
+  // In both cases, keep the existing names that are used in Cronet if at all
+  // possible.
+
+  // --- CronetEngine.Builder controls ---
+  optional bool enable_brotli = 7;
+  optional bool enable_http2 = 8;
+  optional CronetHttpCacheMode http_cache_mode = 9;
+  optional bool enable_public_key_pinning_bypass_for_local_trust_anchors = 10;
+  optional bool enable_quic = 11;
+
+  // --- ExperimentalCronetEngine.Builder controls ---
+  optional bool enable_network_quality_estimator = 12;
+  optional int32 thread_priority = 13;
+
+  // --- JSON experimental options ---
+  // The JSON config offers a lot of options but most of the atoms will have
+  // a majority of the fields below unset. We considered lumping the boolean
+  // flags into a single int32 field bud decided not to do so because
+  //   a) having the standalone booleans makes the data set easier to understand
+  //      and use
+  //   b) we need to distinguish between three states (unset / true / false)
+  //      which makes the compaction less efficient
+  //   c) we expect the booleans to not be set in majority of the cases,
+  //      in such a case, no space is saved.
+
+  // QUIC
+  // Lexicographically sorted, comma separated, curated list of QUIC connection
+  // options.
+  optional string experimental_options_quic_connection_options = 14;
+  optional OptionalBoolean
+      experimental_options_quic_store_server_configs_in_properties = 15;
+  // Unset value is -1
+  optional int32
+      experimental_options_quic_max_server_configs_stored_in_properties = 16
+      [default = -1];
+  // Unset value is -1
+  optional int32 experimental_options_quic_idle_connection_timeout_seconds = 17
+      [default = -1];
+  optional OptionalBoolean
+      experimental_options_quic_goaway_sessions_on_ip_change = 18;
+  optional OptionalBoolean
+      experimental_options_quic_close_sessions_on_ip_change = 19;
+  optional OptionalBoolean
+      experimental_options_quic_migrate_sessions_on_network_change_v2 = 20;
+  optional OptionalBoolean experimental_options_quic_migrate_sessions_early_v2 =
+      21;
+  optional OptionalBoolean
+      experimental_options_quic_quic_disable_bidirectional_streams = 22;
+  // Unset value is -1
+  optional int32
+      experimental_options_quic_max_time_before_crypto_handshake_seconds = 23
+      [default = -1];
+  // Unset value is -1
+  optional int32
+      experimental_options_quic_max_idle_time_before_crypto_handshake_seconds =
+          24 [default = -1];
+  optional OptionalBoolean
+      experimental_options_quic_enable_socket_recv_optimization = 25;
+
+  // DNS
+  optional OptionalBoolean experimental_options_asyncdns_enable = 26;
+  optional OptionalBoolean experimental_options_staledns_enable = 27;
+  // Unset value is -1
+  optional int32 experimental_options_staledns_delay_ms = 28 [default = -1];
+  // Unset value is -1
+  optional int32 experimental_options_staledns_max_expired_time_ms = 29
+  [default = -1];
+  // Unset value is -1
+  optional int32 experimental_options_staledns_max_stale_uses = 30
+  [default = -1];
+  optional OptionalBoolean experimental_options_staledns_allow_other_network =
+      31;
+  optional OptionalBoolean experimental_options_staledns_persist_to_disk = 32;
+  // Unset value is -1
+  optional int32 experimental_options_staledns_persist_delay_ms = 33
+  [default = -1];
+  optional OptionalBoolean
+      experimental_options_staledns_use_stale_on_name_not_resolved = 34;
+  // Host resolver rules omitted
+  optional OptionalBoolean experimental_options_disable_ipv6_on_wifi = 35;
+
+  // Deprecated, moved to CronetEngineBuilderInitialized.
+  enum CronetSource {
+    option deprecated = true;
+    // Safe default, don't use explicitly.
+    CRONET_SOURCE_UNSPECIFIED = 0;
+    // The library is bundled with the application.
+    CRONET_SOURCE_STATICALLY_LINKED = 1;
+    // The library is loaded from GMS Core
+    CRONET_SOURCE_GMSCORE_DYNAMITE = 2;
+    // The application is using the fallback implementation
+    CRONET_SOURCE_FALLBACK = 3;
+  }
+
+  // A pointer to CronetInitialized.cronet_initialization_ref for the Cronet initialization
+  // sequence that this engine relied on.
+  // Note that CronetInitialized may be logged after CronetEngineCreated because initialization
+  // continues in the background after the CronetEngine is instantiated.
+  // One consequence is that this reference can be broken if a
+  // crash occurs after the engine is created but before initialization is complete.
+  optional int64 cronet_initialization_ref = 36;
+
+  // See
+  // https://developer.android.com/guide/topics/connectivity/cronet/reference/org/chromium/net/CronetEngine.Builder.html#constants
+  // for detailed semantics.
+  enum CronetHttpCacheMode {
+    // Safe default, don't use explicitly.
+    HTTP_CACHE_MODE_UNSPECIFIED = 0;
+
+    HTTP_CACHE_DISABLED = 1;
+    HTTP_CACHE_DISK = 2;
+    HTTP_CACHE_DISK_NO_HTTP = 3;
+    HTTP_CACHE_IN_MEMORY = 4;
+  }
+}
+
+// Logged when a request has reached terminal state after the final user callback has returned
+// and before the requestFinishedListeners has fired.
+message CronetTrafficReported {
+  // The Cronet engine that sent the trafic. See
+  // CronetEngineCreated.engine_instance_ref for more details.
+  // Defaults to max negative int64 value which is equivalent to "not set".
+  // The default value is deliberately different from
+  // CronetEngineCreated.engine_instance_ref to avoid unintentional joining.
+  optional int64 engine_instance_ref = 1 [default = -9223372036854775808];
+
+  // Bucketized sizes for request and response headers and body.
+  optional CronetRequestHeadersSizeBucket request_headers_size = 2;
+  optional CronetRequestBodySizeBucket request_body_size = 3;
+  optional CronetResponseHeadersSizeBucket response_headers_size = 4;
+  optional CronetResponseBodySizeBucket response_body_size = 5;
+
+  // The status code of the response.
+  optional int32 http_status_code = 6;
+  // The Fingerprint2011 hash of the protocol that was negotiated for this
+  // request (as returned by UrlResponseInfo.getNegotiatedProtocol()). The
+  // possible values for the string are limited so the hash is sufficient
+  // to identify known values while preventing accidental presence of
+  // freeform text.
+  // See go/cronet-negotiated-protocols for possible values.
+  optional int64 negotiated_protocol_hash = 7;
+
+  // The time it took from starting the request to receiving the full set of
+  // response headers, in milliseconds.
+  optional int32 headers_latency_millis = 8;
+
+  // The time that elapsed from the point UrlRequest#start() was called to the point
+  // we are ready to call the final user callback (e.g. onSucceeded).
+  // Note: this includes time spent waiting for the user to issue an I/O request.
+  // In other words this includes the effect of the user
+  // throttling Cronet (a.k.a. flow control, a.k.a. backpressure).
+  // See also total_idle_time_millis
+  optional int32 overall_latency_millis = 9;
+
+  // Whether a connection migration was attempted for this request.
+  optional bool connection_migration_attempted = 10;
+  // Whether a connection migration was attempted and successful for this
+  // request.
+  optional bool connection_migration_successful = 11;
+
+  // Number of previous CronetTrafficReported records that were dropped due to rate limiting.
+  optional int32 samples_rate_limited = 12;
+
+  // Terminal state of the reported request.
+  optional CronetRequestTerminalState terminal_state = 13;
+
+  enum CronetRequestTerminalState {
+    STATE_UNKNOWN = 0;
+    STATE_SUCCEEDED = 1;
+    STATE_ERROR = 2;
+    STATE_CANCELLED = 3;
+  }
+
+  // count of exceptions thrown during the execution of a user callback.
+  optional int32 user_callback_exception_count = 14;
+
+  // Same as `overall_latency_millis`, but only including time spent with no
+  // outstanding I/O request from the user. For example, the time that elapses between Cronet
+  // becoming ready to call the onReadCompleted callback and the user making the
+  // next UrlRequest#read() call is idle time: during that time
+  // there is no outstanding read request.
+  // If this value is large relative to overall_latency_millis, it may mean the request was
+  // throttled by the user, i.e. they applied backpressure/flow control, intentionally or not.
+  // Note that in this context, "idle" should be interpreted from the
+  // perspective of the Cronet user. Internally, Cronet might not actually be "idle"
+  // as it may still attempt to keep its internal buffers filled.
+  // An example of Cronet idly waiting for the user would look like the following
+  /*
+              Cronet                          User
+                |
+                |
+                |----- OnResponseStarted ------|
+                                               |
+     Cronet                                    |
+     Idle                                      |
+     Time                                      |
+                                               |
+Cronet          |------------------------------| User calls request.read()
+Doing           |
+Work            |
+                |
+OnReadCompleted |
+                |
+                |----- onReadCompleted -------|
+                                              | Cronet Idle Time includes the time taken to call
+                                              | Executor#execute() on the user's executor.
+                                              |
+      Cronet                                  | If the user is blocking the network
+      Idle                                    | thread in Executor#execute(), then technically that
+      Time                                    | counts as backpressure / flow control.
+                                              |
+                                              |
+                                              |
+                                              |
+                                              |
+                                              |
+                                              |
+                                              |
+                                              |
+                                              |
+               |------------------------------|
+   */
+  // This field contains the sum of Cronet Idle time waiting for user calls.
+  optional int64 total_idle_time_millis = 15;
+
+  // The time it takes for the user's Executor#execute() method to return
+  // Note: contrary to most other metrics in this atom, this also includes
+  // the final user callback (e.g. onSucceeded).
+  // Note: in the case of the native implementation, Executor#execute() is called on
+  // the network thread, which is a shared resource. High values for this metric are
+  // usually a red flag because they mean the network thread is unable to service any
+  // other UrlRequests during this time (including those from other engines).
+  optional int64 total_user_executor_execute_latency_millis = 16;
+
+  // The total amount of times `UrlRequest#read()` was called.
+  optional int32 read_count = 17;
+
+  // The total amount of times `UploadDataProvider#read` has been fired.
+  optional int32 on_upload_read_count = 18;
+
+  // Indicates if the request is a bidirectional stream or not.
+  optional OptionalBoolean is_bidi_stream = 19;
+
+
+  enum CronetRequestHeadersSizeBucket {
+    REQUEST_HEADERS_SIZE_BUCKET_UNSPECIFIED = 0;
+    // It's impossible to send requests without any headers in Cronet
+    REQUEST_HEADERS_SIZE_BUCKET_UNDER_ONE_KIB = 1;
+    REQUEST_HEADERS_SIZE_BUCKET_ONE_TO_TEN_KIB = 2;
+    REQUEST_HEADERS_SIZE_BUCKET_TEN_TO_TWENTY_FIVE_KIB = 3;
+    REQUEST_HEADERS_SIZE_BUCKET_TWENTY_FIVE_TO_FIFTY_KIB = 4;
+    REQUEST_HEADERS_SIZE_BUCKET_FIFTY_TO_HUNDRED_KIB = 5;
+    REQUEST_HEADERS_SIZE_BUCKET_OVER_HUNDRED_KIB = 6;
+  }
+
+  enum CronetRequestBodySizeBucket {
+    REQUEST_BODY_SIZE_BUCKET_UNSPECIFIED = 0;
+    REQUEST_BODY_SIZE_BUCKET_ZERO = 1;
+    REQUEST_BODY_SIZE_BUCKET_UNDER_TEN_KIB = 2;
+    REQUEST_BODY_SIZE_BUCKET_TEN_TO_FIFTY_KIB = 3;
+    REQUEST_BODY_SIZE_BUCKET_FIFTY_TO_TWO_HUNDRED_KIB = 4;
+    REQUEST_BODY_SIZE_BUCKET_TWO_HUNDRED_TO_FIVE_HUNDRED_KIB = 5;
+    REQUEST_BODY_SIZE_BUCKET_FIVE_HUNDRED_KIB_TO_ONE_MIB = 6;
+    REQUEST_BODY_SIZE_BUCKET_ONE_TO_FIVE_MIB = 7;
+    REQUEST_BODY_SIZE_BUCKET_OVER_FIVE_MIB = 8;
+  }
+
+  enum CronetResponseHeadersSizeBucket {
+    RESPONSE_HEADERS_SIZE_BUCKET_UNSPECIFIED = 0;
+    RESPONSE_HEADERS_SIZE_BUCKET_UNDER_ONE_KIB = 1;
+    RESPONSE_HEADERS_SIZE_BUCKET_ONE_TO_TEN_KIB = 2;
+    RESPONSE_HEADERS_SIZE_BUCKET_TEN_TO_TWENTY_FIVE_KIB = 3;
+    RESPONSE_HEADERS_SIZE_BUCKET_TWENTY_FIVE_TO_FIFTY_KIB = 4;
+    RESPONSE_HEADERS_SIZE_BUCKET_FIFTY_TO_HUNDRED_KIB = 5;
+    RESPONSE_HEADERS_SIZE_BUCKET_OVER_HUNDRED_KIB = 6;
+  }
+
+  enum CronetResponseBodySizeBucket {
+    RESPONSE_BODY_SIZE_BUCKET_UNSPECIFIED = 0;
+    RESPONSE_BODY_SIZE_BUCKET_ZERO = 1;
+    RESPONSE_BODY_SIZE_BUCKET_UNDER_TEN_KIB = 2;
+    RESPONSE_BODY_SIZE_BUCKET_TEN_TO_FIFTY_KIB = 3;
+    RESPONSE_BODY_SIZE_BUCKET_FIFTY_TO_TWO_HUNDRED_KIB = 4;
+    RESPONSE_BODY_SIZE_BUCKET_TWO_HUNDRED_TO_FIVE_HUNDRED_KIB = 5;
+    RESPONSE_BODY_SIZE_BUCKET_FIVE_HUNDRED_KIB_TO_ONE_MIB = 6;
+    RESPONSE_BODY_SIZE_BUCKET_ONE_TO_FIVE_MIB = 7;
+    RESPONSE_BODY_SIZE_BUCKET_OVER_FIVE_MIB = 8;
+  }
+}
+
+// Logged when the HTTP flags have been read.
+message CronetHttpFlagsInitialized {
+  // A weak-ID-like reference to the http flags loading operation.
+  // The field can be used to join with CronetEngineBuilderInitialized atom.
+  optional int64 cronet_http_flags_ref = 1;
+  // how long it took to load (or attempt to load) http flags.
+  // This field is set to -1 if flag loading was not attempted
+  // (e.g. because the app opted out of Cronet flag support).
+  // Note: There is no support for unset values, hence -1 is used.
+  optional int32 http_flags_latency_millis = 2 [default = -1];
+  // Determine whether flag loading was successful or not.
+  optional OptionalBoolean flags_successful = 3;
+
+  // The first 8 bytes of the MD5 hashes, interpreted as signed little-endian integers,
+  // of the HTTP flag names that the Cronet instance logging the atoms is
+  // actually running with.
+  repeated int64 http_flags_names = 4 [packed = true];
+
+  // The effective values of the flags, in the same order as
+  // http_flags_names.
+  // For boolean flags, this is 0 or 1.
+  // For integer flags, this is the value of the flag itself.
+  // For float values, this is the floating point value multiplied by 1 billion,
+  // rounded, and clamped to the int64 range. (This should result in distinct
+  // values for most commonly used floating point inputs.)
+  // For string or bytes flags, this is a hash of the value
+  // calculated in the same way as http_flags_names above.
+  repeated int64 http_flags_values = 5 [packed = true];
+}
+
+/*
+  ---------------------                                  -----------------
+  |                   |           createBuilder()        |               |  ================⦀
+  |     Provider      | -------------------------------> |     Builder   |                  ⦀
+  |                   |                                  |               |                  ⦀
+  |-------------------|    engine_builder_created_lat    |----------------                  ⦀
+                                                                 |                          ⦀
+                                                       Build()   | engine_created_latency   ⦀
+                                                                 |                          ⦀
+                                                                 V                          ⦀
+                          ------------------                 -------------------            ⦀
+                          |                |                 |                 |            ⦀
+                          |  REQ CAN START |  <------------- |      Engine     |            ⦀
+                          |WITHOUT BLOCKING|                 |                 |            ⦀
+                          |----------------|                 |-----------------|            ⦀
+                          ⦀                                                                 ⦀
+                          ==================================================================⦀
+               engine_async_latency (This takes a variable amount of time depending on async jobs)
+
+  engine_builder_created_latency: The wall time elapsed since createBuilder() has been called
+  until a builder has been returned.
+
+  engine_created_latency: The wall time elapsed since Build() has been called until a CronetEngine
+  has been returned.
+
+  engine_async_latency: The wall time elapsed since Build()
+  has been called until the returned CronetEngine
+  is usable (All Asynchronous setup calls have finished executing).
+*/
+
+// Logged once for each CronetSource when createBuilder() has returned.
+// This atom should normally be logged from Cronet API code (as opposed to impl code).
+// If the app is bundling a Cronet API version that is too old to know about this atom,
+// the impl takes responsibility for logging this atom and attempts to do so soon as
+// the impl is loaded. Some fields may be missing in this case.
+message CronetEngineBuilderInitialized {
+  // A weak-ID-like reference to the instance of the Cronet initialization.
+  // The field can be used to join subsequent engine creation and request
+  // metrics with the initialization details.
+  optional int64 cronet_initialization_ref = 1;
+
+  // How long it took to produce the first `CronetEngine.Builder` instance for the source specified.
+  // This field can be set by Api layer or Impl Layer, If this field was set by the Impl layer then
+  // the value of the field will be equal to -1.
+  optional int32 engine_builder_created_latency_millis = 2 [default = -1];
+
+  // Source of the Cronet being loaded
+  optional Source source = 3;
+
+  enum Source {
+    // Safe default, don't use explicitly.
+    CRONET_SOURCE_UNSPECIFIED = 0;
+    // Native-based Cronet implementation, bundled within the client app.
+    CRONET_SOURCE_EMBEDDED_NATIVE = 1;
+    // Java-based Cronet implementation, bundled within the client app.
+    CRONET_SOURCE_EMBEDDED_JAVA = 2;
+    // Native-based Cronet implementation, loaded from GMS Core (Google Play Services).
+    CRONET_SOURCE_GMSCORE_NATIVE = 3;
+    // Native-based Cronet implementation, loaded from the bootclasspath
+    // through the android.net.http.HttpEngine API.
+    CRONET_SOURCE_HTTPENGINE_NATIVE = 4;
+  }
+
+
+  // Whether the Provider successfully created a builder or not.
+  // This field can be set by Api layer or Impl Layer, If this field was set by the Impl layer then
+  // the value of the field will be equal to `UNSET`.
+  optional OptionalBoolean creation_successful = 4;
+
+  // A weak-ID-like reference to the http flags loading operation.
+  // The field can be used to join with CronetHttpFlagsInitialized atoms.
+  // Note: at the time of writing, loading of flags happens after the builder creation
+  // has returned. This means the corresponding CronetHttpFlagsLoaded is logged
+  // after or might not be logged at all (if there was a crash or
+  // the resulting builder was never used).
+  optional int64 cronet_http_flags_ref = 5;
+
+  // This field carries the value stored in the file below
+  // https://source.chromium.org/chromium/chromium/src/+/main:components/cronet/android/api/src/org/chromium/net/ApiVersion.template
+  optional int32 cronet_api_level = 6;
+
+  // This field carries the value stored in the file below
+  // https://source.chromium.org/chromium/chromium/src/+/main:components/cronet/android/java/src/org/chromium/net/impl/ImplVersion.template
+  optional int32 cronet_impl_api_level = 7;
+
+  // The following fields corresponds to the version of Chromium for which the implementation
+  // was compiled against as seen https://source.chromium.org/chromium/chromium/src/+/main:chrome/VERSION;l=1;bpv=0;bpt=0
+  optional int32 major_version = 8;
+  optional int32 minor_version = 9;
+  optional int32 build_version = 10;
+  optional int32 patch_version = 11;
+  // The Android UID of the process that Cronet was initialized in.
+  optional int32 uid = 12 [(is_uid) = true];
+}
+
+// Logged once for each CronetSource when the first CronetEngine is ready to be used.
+// Note that CronetInitialized may be logged after CronetEngineCreated because initialization
+// may continue in the background after the CronetEngine is instantiated.
+// One consequence is that cronet_initialization_ref can be broken if a
+// crash occurs after the engine is created but before initialization is complete.
+message CronetInitialized {
+  // A weak-ID-like reference to the instance of the Cronet initialization.
+  // The field can be used to join subsequent engine creation and request
+  // metrics with the native details.
+  optional int64 cronet_initialization_ref = 1;
+
+  // The wall clock time spent in the execution of the first call to `CronetEngine.Builder#build`
+  optional int32 engine_creation_latency_millis = 2 [default = -1];
+
+  // How much wall clock time was spent from the moment the first `CronetEngine.Builder#build()`
+  // was made and the point where Cronet is ready to send requests. Notably,
+  // this includes the time it took for any asynchronous background initialization code to complete
+  optional int32 engine_async_latency_millis = 3 [default = -1];
+}
+
+// Distinguishes between three states (unset / true / false)
+enum OptionalBoolean {
+  UNSET = 0;
+  TRUE = 1;
+  FALSE = 2;
+}

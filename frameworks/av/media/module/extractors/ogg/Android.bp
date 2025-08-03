@@ -1,0 +1,47 @@
+package {
+    default_applicable_licenses: ["frameworks_av_media_extractors_ogg_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_extractors_ogg_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "liboggextractor",
+
+    defaults: ["extractor-defaults"],
+
+    srcs: ["OggExtractor.cpp"],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    header_libs: [
+        "libaudio_system_headers",
+    ],
+
+    static_libs: [
+        "libstagefright_foundation",
+        "libstagefright_metadatautils",
+        "libutils",
+        "libvorbisidec",
+    ],
+
+    host_supported: true,
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}

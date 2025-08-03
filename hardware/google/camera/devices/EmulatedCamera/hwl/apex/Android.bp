@@ -1,0 +1,87 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex_key {
+    name: "com.google.emulated.camera.provider.hal.key",
+    public_key: "com.google.emulated.camera.provider.hal.avbpubkey",
+    private_key: "com.google.emulated.camera.provider.hal.pem",
+}
+
+android_app_certificate {
+    name: "com.google.emulated.camera.provider.hal.certificate",
+    certificate: "com.google.emulated.camera.provider.hal",
+}
+
+prebuilt_etc {
+    name: "com.google.emulated.camera.provider.hal.rc",
+    src: "com.google.emulated.camera.provider.hal.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "com.google.emulated.camera.provider.hal.xml",
+    src: ":android.hardware.camera.provider@2.7-service-google.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+apex_defaults {
+    name: "com.google.emulated.camera.provider.hal.defaults",
+    manifest: "apex_manifest.json",
+    key: "com.google.emulated.camera.provider.hal.key",
+    certificate: ":com.google.emulated.camera.provider.hal.certificate",
+    file_contexts: "file_contexts",
+    use_vndk_as_stable: true,
+    updatable: false,
+    // Install the apex in /vendor/apex
+    soc_specific: true,
+    binaries: [
+        "android.hardware.camera.provider@2.7-service-google",
+    ],
+    overrides: [
+        "android.hardware.camera.provider@2.7-impl-google",
+        "android.hardware.camera.provider@2.7-service-google",
+        "libgooglecamerahwl_impl",
+        "libgooglecamerahwl_impl_fast_scene_cycle",
+    ],
+    prebuilts: [
+        "com.google.emulated.camera.provider.hal.rc",
+        "com.google.emulated.camera.provider.hal.xml", // vintf fragment
+        "android.hardware.camera.concurrent.prebuilt.xml",
+        "android.hardware.camera.flash-autofocus.prebuilt.xml",
+        "android.hardware.camera.front.prebuilt.xml",
+        "android.hardware.camera.full.prebuilt.xml",
+        "android.hardware.camera.raw.prebuilt.xml",
+        "emu_camera_back.json",
+        "emu_camera_depth.json",
+        "emu_camera_front.json",
+        "emu_camera_external.json",
+    ],
+}
+
+apex {
+    name: "com.google.emulated.camera.provider.hal",
+    defaults: ["com.google.emulated.camera.provider.hal.defaults"],
+    native_shared_libs: ["libgooglecamerahwl_impl"],
+}
+
+apex {
+    name: "com.google.emulated.camera.provider.hal.fastscenecycle",
+    defaults: ["com.google.emulated.camera.provider.hal.defaults"],
+    native_shared_libs: ["libgooglecamerahwl_impl_fast_scene_cycle"],
+}

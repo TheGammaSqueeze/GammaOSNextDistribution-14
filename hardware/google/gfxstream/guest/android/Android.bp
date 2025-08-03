@@ -1,0 +1,105 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_defaults {
+    name: "libgfxstream_guest_android_defaults",
+    defaults: [
+        "libgfxstream_guest_cc_defaults",
+    ],
+    host_supported: true,
+    vendor: true,
+    header_libs: [
+        "gfxstream_opengl_headers",
+    ],
+    shared_libs: [
+        "libcutils",
+        "libdrm",
+        "liblog",
+        "libutils",
+    ],
+    export_shared_lib_headers: [
+        "libdrm",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+    local_include_dirs: [
+        ".",
+        "include",
+    ],
+}
+
+cc_library_static {
+    name: "libgfxstream_guest_android",
+    defaults: [
+        "libgfxstream_guest_android_defaults",
+    ],
+    static_libs: [
+        "libplatform",
+    ],
+    target: {
+        android: {
+            header_libs: [
+                "libnativebase_headers",
+                "libgralloc_cb.ranchu",
+                "minigbm_headers",
+            ],
+            shared_libs: [
+                "lib_renderControl_enc",
+                "libnativewindow",
+            ],
+            srcs: [
+                "ANativeWindowAndroid.cpp",
+                "Gralloc.cpp",
+                "GrallocGoldfish.cpp",
+                "GrallocMinigbm.cpp",
+            ],
+        },
+        host: {
+            srcs: [
+                "ANativeWindowStub.cpp",
+                "GrallocStub.cpp",
+            ],
+        },
+    },
+}
+
+cc_library_static {
+    name: "libgfxstream_guest_android_with_host",
+    defaults: [
+        "libgfxstream_guest_android_defaults",
+    ],
+    static_libs: [
+        "libgfxstream_platform_rutabaga",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        },
+        android: {
+            compile_multilib: "64",
+        },
+    },
+    srcs: [
+        "ANativeWindowEmulated.cpp",
+        "GrallocEmulated.cpp",
+    ],
+}

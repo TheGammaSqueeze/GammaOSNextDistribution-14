@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+package android.os.statsd.adpf;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.adpf";
+option java_multiple_files = true;
+
+/**
+ * Logs information related to Android Dynamic Performance Framework (ADPF).
+ */
+
+message PerformanceHintSessionReported {
+    // UID of the package.
+    optional int32 package_uid = 1 [(is_uid) = true];
+
+    // Unique ID of the hint session.
+    optional int64 session_id = 2;
+
+    // Hint session target duration, in nanoseconds.
+    optional int64 target_duration_ns = 3;
+
+    // Number of threads affected by this session
+    optional int32 tid_count = 4;
+}
+
+message ADPFSystemComponentInfo {
+    // True if SurfaceFlinger CPU hint is enabled on the device.
+    optional bool surfaceflinger_cpu_hint_enabled = 1;
+
+    // True if HWUI hint is enabled on the device.
+    optional bool hwui_hint_enabled = 2;
+}

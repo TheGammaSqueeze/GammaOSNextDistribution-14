@@ -1,0 +1,32 @@
+{
+  "presubmit": [
+    // TODO failing 4 of 13
+    // { "name": "codec2_core_param_test"},
+    // TODO(b/155516524)
+    // { "name": "codec2_vndk_interface_test"},
+    { "name": "codec2_vndk_test"}
+  ],
+  "presubmit-large": [
+    {
+      "name": "CtsMediaAudioTestCases",
+      "options": [
+        {
+          "include-annotation": "android.platform.test.annotations.Presubmit"
+        },
+        {
+          "exclude-annotation": "android.platform.test.annotations.RequiresDevice"
+        },
+        // TODO: b/149314419
+        {
+          "exclude-filter": "android.media.audio.cts.AudioPlaybackCaptureTest"
+        },
+        {
+          "exclude-filter": "android.media.audio.cts.AudioRecordTest"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    { "name": "c2aidl_gtracker_test"}
+  ]
+}

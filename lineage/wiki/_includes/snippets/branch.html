@@ -1,0 +1,28 @@
+{%- capture android_version -%}
+{%- case version -%}
+    {% when 13.0 %}
+        Android 6
+    {% when 14.1 %}
+        Android 7.1
+    {% when 15.1 %}
+        Android 8.1
+    {% when 16.0 %}
+        Android 9
+    {% when 17.1 %}
+        Android 10
+    {% when 18.1 %}
+        Android 11
+    {% when 19.1 %}
+        Android 12L
+    {% when 20 %}
+        Android 13
+    {% when 21 %}
+        Android 14
+    {% when 22.1 %}
+        Android 15
+    {% when 22.2 %}
+        Android 15
+{%- endcase -%}
+{%- endcapture -%}
+{%- assign android_version = android_version | strip -%}
+{{ version }} {% if android_version != '' %}({{ android_version }}){% endif -%}

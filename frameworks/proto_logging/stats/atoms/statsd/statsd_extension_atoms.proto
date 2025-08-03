@@ -1,0 +1,130 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.statsd;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/attribution_node.proto";
+
+option java_package = "com.android.os.statsd";
+
+extend Atom {
+    optional TestExtensionAtomReported test_extension_atom_reported =
+            660 [(module) = "cts", (module) = "statsdtest"];
+    optional TestRestrictedAtomReported test_restricted_atom_reported = 672
+    [(module) = "cts", (restriction_category) = RESTRICTION_DIAGNOSTIC];
+    optional StatsSocketLossReported stats_socket_loss_reported =
+            752 [(module) = "statsdsocket", (module) = "statsd"];
+}
+
+message TestExtensionAtomNestedMessage {
+    repeated int64 long_field = 1;
+}
+
+/* Test atom, is not logged anywhere */
+message TestExtensionAtomReported {
+    repeated AttributionNode attribution_node = 1;
+    optional int32 int_field = 2;
+    optional int64 long_field = 3;
+    optional float float_field = 4;
+    optional string string_field = 5;
+    optional bool boolean_field = 6;
+    enum State {
+        UNKNOWN = 0;
+        OFF = 1;
+        ON = 2;
+    }
+    optional State state = 7;
+    optional TestExtensionAtomNestedMessage bytes_field =
+            8 [(android.os.statsd.log_mode) = MODE_BYTES];
+    repeated int32 repeated_int_field = 9;
+    repeated int64 repeated_long_field = 10;
+    repeated float repeated_float_field = 11;
+    repeated string repeated_string_field = 12;
+    repeated bool repeated_boolean_field = 13;
+    repeated State repeated_enum_field = 14;
+}
+
+/* Test restricted atom, is not logged anywhere */
+message TestRestrictedAtomReported {
+    optional int32 int_field = 1;
+    optional int64 long_field = 2;
+    optional float float_field = 3;
+    optional string string_field = 4;
+    optional bool boolean_field = 5;
+}
+
+/**
+ * Represents the atom loss info from libstatssocket
+ */
+message StatsSocketLossReported {
+
+    /**
+     * initial set of errors defined based on write() API potential codes
+     * and what is observed via statsdstats LogLosStats.last_error
+     */
+    enum SocketLossError {
+        SOCKET_LOSS_ERROR_UNKNOWN = 0;
+
+        // errno based error codes are negated to not overlap with internal codes
+        // Values are aligned with what is reported by StatsdStatsReport::LogLossStats
+        SOCKET_LOSS_ERROR_ON_WRITE_EDQUOT = -122;
+        SOCKET_LOSS_ERROR_ON_WRITE_EDESTADDRREQ = -89;
+        SOCKET_LOSS_ERROR_ON_WRITE_EPIPE = -32;
+        SOCKET_LOSS_ERROR_ON_WRITE_ENOSPC = -28;
+        SOCKET_LOSS_ERROR_ON_WRITE_EFBIG = -27;
+        SOCKET_LOSS_ERROR_ON_WRITE_EINVAL = -22;
+        SOCKET_LOSS_ERROR_ON_WRITE_ENODEV = -19;
+        SOCKET_LOSS_ERROR_ON_WRITE_EFAULT = -14;
+        SOCKET_LOSS_ERROR_ON_WRITE_EAGAIN = -11; // same as EWOULDBLOCK
+        SOCKET_LOSS_ERROR_ON_WRITE_EBADF = -9;
+        SOCKET_LOSS_ERROR_ON_WRITE_EIO = -5;
+        SOCKET_LOSS_ERROR_ON_WRITE_EINTR = -4;
+        SOCKET_LOSS_ERROR_ON_WRITE_EPERM = -1;
+
+        // internal error codes are positive
+        SOCKET_LOSS_ERROR_QUEUE_OVERFLOW = 1;
+    }
+
+    optional int32 uid = 1 [(is_uid) = true];
+
+    /* denotes timestamp when first socket loss event detected */
+    optional int64 first_timestamp_nanos = 2;
+
+    /* denotes timestamp when last socket loss event detected */
+    optional int64 last_timestamp_nanos = 3;
+
+    /* represents number of times loss info container hits guardrail */
+    optional int32 overflow_count = 4;
+
+    /**
+     * below tuples represent number of times atom loss detected for the pair [error, tag],
+     * where for each pair such as [errors[i], tags[i]] there is a matching counts[i] element
+     *
+     * For ex:
+     * errors [EBUSY,ERROR1,EBUSY,ERROR2]
+     * tags   [    5,     6,    6,     5]
+     * counts [    2,     1,    1,     1]
+     */
+    repeated SocketLossError errors = 5;
+
+    repeated int32 tags = 6;
+
+    repeated int32 counts = 7;
+}

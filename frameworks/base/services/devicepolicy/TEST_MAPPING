@@ -1,0 +1,30 @@
+{
+  "presubmit-devicepolicy": [
+    {
+      "name": "CtsDevicePolicyManagerTestCases",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.LargeTest"
+        }
+      ]
+    }
+  ],
+  "postsubmit-devicepolicy": [
+    {
+      "name": "CtsDevicePolicyManagerTestCases"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "CtsDevicePolicyManagerTestCases",
+      "options": [
+        {
+          "include-filter": "com.android.cts.devicepolicy.ManagedProfileTest#testParentProfileApiDisabled"
+        }
+      ]
+    }
+  ]
+}

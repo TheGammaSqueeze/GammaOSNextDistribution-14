@@ -1,0 +1,430 @@
+{
+	"symbols" : 
+	{
+		"SL_IID_3DCOMMIT" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_3DDOPPLER" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_3DGROUPING" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_3DLOCATION" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_3DMACROSCOPIC" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_3DSOURCE" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDACOUSTICECHOCANCELLATION" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDAUTOMATICGAINCONTROL" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDBUFFERQUEUESOURCE" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDCONFIGURATION" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDEFFECT" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDEFFECTCAPABILITIES" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDEFFECTSEND" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDNOISESUPPRESSION" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ANDROIDSIMPLEBUFFERQUEUE" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_AUDIODECODERCAPABILITIES" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_AUDIOENCODER" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_AUDIOENCODERCAPABILITIES" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_AUDIOIODEVICECAPABILITIES" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_BASSBOOST" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_BUFFERQUEUE" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_DEVICEVOLUME" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_DYNAMICINTERFACEMANAGEMENT" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_DYNAMICSOURCE" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_EFFECTSEND" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ENGINE" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ENGINECAPABILITIES" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_ENVIRONMENTALREVERB" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_EQUALIZER" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_LED" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_METADATAEXTRACTION" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_METADATATRAVERSAL" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_MIDIMESSAGE" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_MIDIMUTESOLO" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_MIDITEMPO" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_MIDITIME" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_MUTESOLO" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_NULL" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_OBJECT" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_OUTPUTMIX" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_PITCH" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_PLAY" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_PLAYBACKRATE" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_PREFETCHSTATUS" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_PRESETREVERB" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_RATEPITCH" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_RECORD" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_SEEK" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_THREADSYNC" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_VIBRA" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_VIRTUALIZER" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_VISUALIZATION" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"SL_IID_VOLUME" : 
+		{
+			"type" : "struct SLInterfaceID_ const* const"
+		},
+		"slCreateEngine" : 
+		{
+			"type" : "func slCreateEngine"
+		},
+		"slQueryNumSupportedEngineInterfaces" : 
+		{
+			"type" : "func slQueryNumSupportedEngineInterfaces"
+		},
+		"slQuerySupportedEngineInterfaces" : 
+		{
+			"type" : "func slQuerySupportedEngineInterfaces"
+		}
+	},
+	"types" : 
+	{
+		"func slCreateEngine" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct SLObjectItf_ const* const**",
+				"unsigned int32",
+				"struct SLEngineOption_ const*",
+				"unsigned int32",
+				"struct SLInterfaceID_ const* const*",
+				"unsigned int32 const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func slQueryNumSupportedEngineInterfaces" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func slQuerySupportedEngineInterfaces" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct SLInterfaceID_ const**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"struct SLEngineOption_" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct SLEngineOption_ const" : 
+		{
+			"base_type" : "struct SLEngineOption_",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct SLEngineOption_ const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct SLEngineOption_ const",
+			"size" : 64
+		},
+		"struct SLInterfaceID_" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "time_low",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "time_mid",
+					"offset" : 32,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "time_hi_and_version",
+					"offset" : 48,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "clock_seq",
+					"offset" : 64,
+					"type" : "unsigned int16"
+				},
+				{
+					"name" : "node",
+					"offset" : 80,
+					"type" : "unsigned char8[6]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct SLInterfaceID_ const" : 
+		{
+			"base_type" : "struct SLInterfaceID_",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct SLInterfaceID_ const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct SLInterfaceID_ const",
+			"size" : 64
+		},
+		"struct SLInterfaceID_ const* const" : 
+		{
+			"base_type" : "struct SLInterfaceID_ const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct SLInterfaceID_ const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct SLInterfaceID_ const* const",
+			"size" : 64
+		},
+		"struct SLInterfaceID_ const**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct SLInterfaceID_ const*",
+			"size" : 64
+		},
+		"struct SLObjectItf_" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct SLObjectItf_ const" : 
+		{
+			"base_type" : "struct SLObjectItf_",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct SLObjectItf_ const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct SLObjectItf_ const",
+			"size" : 64
+		},
+		"struct SLObjectItf_ const* const" : 
+		{
+			"base_type" : "struct SLObjectItf_ const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct SLObjectItf_ const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct SLObjectItf_ const* const",
+			"size" : 64
+		},
+		"struct SLObjectItf_ const* const**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct SLObjectItf_ const* const*",
+			"size" : 64
+		},
+		"unsigned char8" : 
+		{
+			"kind" : "char",
+			"signed" : false,
+			"size" : 8
+		},
+		"unsigned char8[6]" : 
+		{
+			"element_type" : "unsigned char8",
+			"kind" : "array",
+			"size" : 48
+		},
+		"unsigned int16" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 16
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int32 const" : 
+		{
+			"base_type" : "unsigned int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"unsigned int32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32 const",
+			"size" : 64
+		},
+		"unsigned int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32",
+			"size" : 64
+		}
+	}
+}

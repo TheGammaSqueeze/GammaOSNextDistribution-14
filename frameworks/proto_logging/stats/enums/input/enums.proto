@@ -1,0 +1,226 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.input;
+
+option java_outer_classname = "InputProtoEnums";
+option java_multiple_files = true;
+
+/**
+ * Contains the key events that are pressed from keyboard
+ * Logged in KeyboardSystemsEventReported atom
+ */
+enum KeyboardSystemEvent {
+    UNSPECIFIED = 0;
+    // Go to Homescreen
+    HOME = 1;
+    // Open Overview/Recent apps
+    RECENT_APPS = 2;
+    // Go back
+    BACK = 3;
+    // Toggle recent apps
+    APP_SWITCH = 4;
+    // Launch assistant app
+    LAUNCH_ASSISTANT = 5;
+    // Launch assistant in voice mode
+    LAUNCH_VOICE_ASSISTANT = 6;
+    // Launch settings
+    LAUNCH_SYSTEM_SETTINGS = 7;
+    // Open/close notification panel
+    TOGGLE_NOTIFICATION_PANEL = 8;
+    // Show/hide taskbar
+    TOGGLE_TASKBAR = 9;
+    // Take full screenshot
+    TAKE_SCREENSHOT = 10;
+    // Show system shortcut list
+    OPEN_SHORTCUT_HELPER = 11;
+    // Increase display brightness
+    BRIGHTNESS_UP = 12;
+    // Decrease display brightness
+    BRIGHTNESS_DOWN = 13;
+    // Increase keyboard backlight brightness
+    KEYBOARD_BACKLIGHT_UP = 14;
+    // Decrease keyboard backlight brightness
+    KEYBOARD_BACKLIGHT_DOWN = 15;
+    // Turn keyboard backlight on/off
+    KEYBOARD_BACKLIGHT_TOGGLE = 16;
+    // Increase speaker volume
+    VOLUME_UP = 17;
+    // Decrease speaker volume
+    VOLUME_DOWN = 18;
+    // Mute speaker volume
+    VOLUME_MUTE = 19;
+    // Open app drawer
+    ALL_APPS = 20;
+    // Open default search activity
+    LAUNCH_SEARCH = 21;
+    // Change IME language
+    LANGUAGE_SWITCH = 22;
+    // Launch app drawer in accessibility mode
+    ACCESSIBILITY_ALL_APPS = 23;
+    // Toggle caps lock
+    TOGGLE_CAPS_LOCK = 24;
+    // Mute system microphone
+    SYSTEM_MUTE = 25;
+    // Navigate to/from split screen mode
+    SPLIT_SCREEN_NAVIGATION = 26;
+    // Trigger bug report
+    TRIGGER_BUG_REPORT = 27;
+    // Lock the device
+    LOCK_SCREEN = 28;
+    // Open notes app
+    OPEN_NOTES = 29;
+    // Power button pressed
+    TOGGLE_POWER = 30;
+    // System navigation keys
+    SYSTEM_NAVIGATION = 31;
+    // Sleep button press
+    SLEEP = 32;
+    // Wakeup button pressed
+    WAKEUP = 33;
+    // Media keys like play, pause, next, previous pressed
+    MEDIA_KEY = 34;
+    // Application launch shortcuts
+    LAUNCH_DEFAULT_BROWSER = 35;
+    LAUNCH_DEFAULT_EMAIL = 36;
+    LAUNCH_DEFAULT_CONTACTS = 37;
+    LAUNCH_DEFAULT_CALENDAR = 38;
+    LAUNCH_DEFAULT_CALCULATOR = 39;
+    LAUNCH_DEFAULT_MUSIC = 40;
+    LAUNCH_DEFAULT_MAPS = 41;
+    LAUNCH_DEFAULT_MESSAGING = 42;
+    LAUNCH_DEFAULT_GALLERY = 43;
+    LAUNCH_DEFAULT_FILES = 44;
+    LAUNCH_DEFAULT_WEATHER = 45;
+    LAUNCH_DEFAULT_FITNESS = 46;
+    // Launch application by package name defined by custom overlays for OEM specific shortcuts
+    LAUNCH_APPLICATION_BY_PACKAGE_NAME = 47;
+    // Enter desktop mode
+    DESKTOP_MODE = 48;
+    // Navigate to/from a multiwindow mode
+    MULTI_WINDOW_NAVIGATION = 49;
+}
+
+/**
+ * Criteria for keyboard layout selection
+ * DEPRECATED: Since Enums should include a default UNSPECIFIED value
+ * as the first value in the declaration
+ */
+enum KeyboardLayoutSelectionCriteria {
+    option deprecated = true;
+    // Manual selection by user
+    USER = 0;
+    // Auto-detection based on device provided language tag and layout type
+    DEVICE = 1;
+    // Auto-detection based on IME provided language tag and layout type
+    VIRTUAL_KEYBOARD = 2;
+    // Default selection
+    DEFAULT = 3;
+}
+
+/**
+ * Criteria for keyboard layout selection
+ */
+enum LayoutSelectionCriteriaKeyboard {
+    // Unspecified
+    LAYOUT_SELECTION_CRITERIA_UNSPECIFIED = 0;
+    // Manual selection by user
+    LAYOUT_SELECTION_CRITERIA_USER = 1;
+    // Auto-detection based on device provided language tag and layout type
+    LAYOUT_SELECTION_CRITERIA_DEVICE = 2;
+    // Auto-detection based on IME provided language tag and layout type
+    LAYOUT_SELECTION_CRITERIA_VIRTUAL_KEYBOARD = 3;
+    // Default selection
+    LAYOUT_SELECTION_CRITERIA_DEFAULT = 4;
+}
+
+/**
+ * Keyboard Layout Type
+ * This enum is for layout types provided both by the physical keyboard
+ * and the  IME
+ */
+enum KeyboardLayoutType {
+    LAYOUT_TYPE_UNDEFINED = 0;
+    LAYOUT_TYPE_QWERTY = 1;
+    LAYOUT_TYPE_QWERTZ = 2;
+    LAYOUT_TYPE_AZERTY = 3;
+    LAYOUT_TYPE_DVORAK = 4;
+    LAYOUT_TYPE_COLEMAK = 5;
+    LAYOUT_TYPE_WORKMAN = 6;
+    LAYOUT_TYPE_TURKISH_F = 7;
+    LAYOUT_TYPE_TURKISH_Q = 8;
+    LAYOUT_TYPE_EXTENDED = 9;
+}
+
+/**
+ * Contains usage type/category definitions.
+ * Logged in InputDeviceUsageReported atom.
+ */
+enum InputDeviceUsageType {
+    UNKNOWN = 0;
+    // Miscellaneous buttons (such as volume, power, stylus buttons, remote controls etc.)
+    // that are not categorized a full keyboards.
+    BUTTONS = 1;
+    // An alphabetical physical keyboard.
+    KEYBOARD = 2;
+    // A D-Pad.
+    DPAD = 3;
+    // Gamepad buttons.
+    GAMEPAD = 4;
+    // A joystick, like one part of a gaming controller.
+    JOYSTICK = 5;
+    // A mouse that controls an on-screen cursor. (Touchpads are not included)
+    MOUSE = 6;
+    // A mouse that is operating under Pointer Capture mode.
+    MOUSE_CAPTURED = 7;
+    // A touchpad (trackpad) that controls an on-screen cursor.
+    TOUCHPAD = 8;
+    // A touchpad that is operating under Pointer Capture mode.
+    TOUCHPAD_CAPTURED = 9;
+    // A rotary encoder.
+    ROTARY_ENCODER = 10;
+    // A stylus, where touches are mapped directly to the display.
+    STYLUS_DIRECT = 11;
+    // A stylus that interacts with a display indirectly, such as by controlling an
+    // on-screen cursor. This includes external drawing tablets that don't have a built-in
+    // display.
+    STYLUS_INDIRECT = 12;
+    // A stylus that reports some information through Bluetooth that is then fused
+    // with touch information from the built-in touchscreen.
+    STYLUS_FUSED = 13;
+    // A touch device that navigates through the UI using gestures.
+    TOUCH_NAVIGATION = 14;
+    // A touchscreen, where touches are mapped directly to the display.
+    TOUCHSCREEN = 15;
+    // A trackball.
+    TRACKBALL = 16;
+};
+
+/**
+ * Contains buses through which an input device can be connected.
+ * Logged in InputDeviceUsageReported atom.
+ */
+enum InputDeviceBus {
+    OTHER = 0;
+    // Universal Serial Bus
+    USB = 1;
+    // Bluetooth or Bluetooth Low Energy (BLE)
+    BLUETOOTH = 2;
+    // Universal Stylus Initiative (USI) protocol (https://universalstylus.org)
+    USI = 3;
+}

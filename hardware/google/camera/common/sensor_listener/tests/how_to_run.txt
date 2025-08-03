@@ -1,0 +1,53 @@
+# Build tests:
+mmm -j16 hardware/google/camera/common/sensor_listener/
+
+# Currently there are 4 testsuites:
+# GoogSensorSyncTest: test Vsync sensor.
+# GoogGyroTest: test gyro direct channel and polling based gyro.
+# GoogSensorEnvironmentTest: test environment sensors, including:
+# device_orientation, light, proximity.
+# GoogSensorMotionTest: test motion sensors, including
+# accelerometer, gravity, gyroscope, linear_acceleration, magnetic_field.
+
+# Install test:
+adb shell mkdir vendor/bin/lib_sensor_listener_test
+adb push $OUT/testcases/lib_sensor_listener_test/arm64/lib_sensor_listener_test /vendor/bin/lib_sensor_listener_test/
+
+# Run gyro test:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogGyroTest.*
+
+# Run device_orientation sensor test, try to rotate device:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorEnvironmentTest.TestDeviceOrientation
+
+# Run light sensor test, try to put device under different lighting conditions:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorEnvironmentTest.TestLight
+
+# Run proximity sensor test, try to move hands close/away from device:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorEnvironmentTest.TestProximity
+
+# Run accelerometer sensor test:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorMotionTest.TestAccelerometer
+
+# Run gravity sensor test:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorMotionTest.TestGravity
+
+# Run gyroscope sensor test:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorMotionTest.TestGyroscope
+
+# Run linear_acceleration sensor test:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorMotionTest.TestLinearAcceleration
+
+ # Run magnetic_field sensor test:
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorMotionTest.TestMagneticField
+
+# Run GoogSensorSyncTest
+# Since this test requires camera active streaming, install mCamera.apk first.
+# Steps:
+adb install -r -g vendor/google/camera/test/factory/prebuilt/mCamera.apk
+sh hardware/google/camera/common/sensor_listener/tests/run_goog_sensor_sync_test.sh
+
+# Test slider rear camera; Please open AOSP camera app manually first and then run the test.
+adb shell /vendor/bin/lib_sensor_listener_test/lib_sensor_listener_test --gtest_filter=GoogSensorSyncTest.TestSliderBackWideCamera
+
+# If making changes to lib_sensor_listener, update lib_sensor_listener as well:
+adb push $OUT/vendor/lib64/lib_sensor_listener.so vendor/lib64/

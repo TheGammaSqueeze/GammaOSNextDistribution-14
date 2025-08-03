@@ -1,0 +1,8 @@
+add_service(hal_power_stats_default, hal_power_stats_vendor_service)
+
+vndbinder_use(hal_power_stats)
+add_service(hal_power_stats_server, hal_power_stats_service)
+
+r_dir_file(hal_power_stats_default, sysfs_power_stats)
+
+allow hal_power_stats_default power_stats_device:chr_file rw_file_perms;

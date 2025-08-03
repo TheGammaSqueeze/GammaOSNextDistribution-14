@@ -1,0 +1,2 @@
+type sysfs_irq, fs_type, sysfs_type;
+type proc_irq, fs_type, proc_type;

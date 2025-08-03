@@ -1,0 +1,33 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+android_test {
+    name: "mediaframeworktest",
+    srcs: ["**/*.java"],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+    ],
+    static_libs: [
+        "mockito-target-inline-minus-junit4",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "android-ex-camera2",
+        "android.media.playback.flags-aconfig-java",
+        "flag-junit",
+        "testng",
+        "truth",
+    ],
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+    ],
+    platform_apis: true,
+}

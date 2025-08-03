@@ -1,0 +1,92 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_binary {
+    name: "android.hardware.memtrack-service.example",
+    relative_install_path: "hw",
+    init_rc: ["memtrack-default.rc"],
+    vintf_fragments: ["memtrack-default.xml"],
+    vendor: true,
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "android.hardware.memtrack-V1-ndk",
+    ],
+    srcs: [
+        "main.cpp",
+        "Memtrack.cpp",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.memtrack-service.apex",
+    stem: "android.hardware.memtrack-service.example",
+    relative_install_path: "hw",
+    vendor: true,
+
+    stl: "c++_static",
+    static_libs: [
+        "libbase",
+        "android.hardware.memtrack-V1-ndk",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+    srcs: [
+        "main.cpp",
+        "Memtrack.cpp",
+    ],
+    installable: false, // installed in APEX
+}
+
+prebuilt_etc {
+    name: "memtrack-default-apex.rc",
+    src: "memtrack-default-apex.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "memtrack-default.xml",
+    src: "memtrack-default.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+apex {
+    name: "com.android.hardware.memtrack",
+    file_contexts: "apex_file_contexts",
+    manifest: "apex_manifest.json",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    updatable: false,
+    vendor: true,
+
+    binaries: [
+        "android.hardware.memtrack-service.apex",
+    ],
+    prebuilts: [
+        "memtrack-default-apex.rc",
+        "memtrack-default.xml",
+    ],
+}

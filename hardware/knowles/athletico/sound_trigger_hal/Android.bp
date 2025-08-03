@@ -1,0 +1,386 @@
+// Copyright (C) 2018 Knowles Electronics
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+    ],
+}
+
+soong_config_string_variable {
+    name: "use_sound_trigger_hal",
+    values: [
+        "iaxxx",
+    ],
+}
+
+soong_config_bool_variable {
+    name: "sound_trigger_hal_is_android_p",
+}
+
+soong_config_module_type {
+    name: "use_sound_trigger_hal_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "knowles",
+    variables: [
+        "use_sound_trigger_hal",
+        "sound_trigger_hal_is_android_p",
+    ],
+    properties: [
+        "enabled",
+        "proprietary",
+        "cflags",
+    ],
+}
+
+use_sound_trigger_hal_cc_defaults {
+    name: "use_sound_trigger_hal_defaults",
+    header_libs: ["device_kernel_headers"],
+    soong_config_variables: {
+        use_sound_trigger_hal: {
+            iaxxx: {
+                enabled: true,
+            },
+            conditions_default: {
+                enabled: false,
+            }
+        },
+        sound_trigger_hal_is_android_p: {
+            proprietary: true,
+            cflags: ["-DANDROID_P"],
+        }
+    },
+}
+
+cc_library_shared {
+    name: "sound_trigger.primary.msmnile",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    relative_install_path: "hw",
+    srcs: [
+        "sound_trigger_hw_iaxxx.c",
+        "cvq_util.c",
+    ],
+    vendor: true,
+    include_dirs: [
+        "external/tinyalsa/include",
+        "system/media/audio_route/include",
+    ],
+    header_libs: ["libhardware_headers"],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libtinyalsa",
+        "libaudioroute",
+        "libodsp",
+        "libhardware_legacy",
+    ],
+}
+
+cc_library_shared {
+    name: "adnc_strm.primary.default",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    relative_install_path: "hw",
+    vendor: true,
+    srcs: ["adnc_strm.c"],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libtinyalsa",
+        "libtunnel",
+    ],
+}
+
+cc_library_shared {
+    name: "libtunnel",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    vendor: true,
+    srcs: ["tunnel.c"],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+    ],
+}
+
+cc_library_shared {
+    name: "libodsp",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    vendor: true,
+    srcs: ["iaxxx_odsp_hw.c"],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+    ],
+}
+
+cc_binary {
+    name: "tunneling_hal_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    vendor: true,
+    srcs: [
+        "tests/tunnel_test.c",
+        "tests/conversion_routines.c",
+    ],
+    compile_multilib: "32",
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libtunnel",
+    ],
+    cflags: ["-DFILENAME_ASSIGN"],
+}
+
+cc_binary {
+    name: "sensor_param_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    vendor: true,
+    srcs: ["tests/sensor_param_test.c"],
+    compile_multilib: "32",
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libtinyalsa",
+    ],
+    include_dirs: ["external/tinyalsa/include"],
+}
+
+cc_library_shared {
+    name: "libosloutils",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: [
+        "tests/oslo_sound_model_control.cpp",
+        "tests/oslo_iaxxx_sensor_control.c",
+    ],
+    include_dirs: [
+        "external/tinyalsa/include",
+        "system/media/audio_route/include",
+    ],
+    header_libs: ["libhardware_headers"],
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libtinyalsa",
+        "libhidlbase",
+        "libodsp",
+        "android.hardware.soundtrigger@2.0",
+    ],
+    proprietary: true,
+}
+
+cc_binary {
+    name: "oslo_data_injection_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/oslo_data_injection_test.c"],
+    compile_multilib: "32",
+    header_libs: ["libhardware_headers"],
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libosloutils",
+    ],
+    proprietary: true,
+}
+
+cc_binary {
+    name: "oslo_config_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/oslo_config_test.c"],
+    compile_multilib: "32",
+    header_libs: ["libhardware_headers"],
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libosloutils",
+    ],
+    proprietary: true,
+}
+
+cc_binary {
+    name: "oslo_get_stats",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/oslo_get_stats.c"],
+    header_libs: ["libhardware_headers"],
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libosloutils",
+    ],
+    proprietary: true,
+}
+
+cc_binary {
+    name: "spi_reliability_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/spi_reliability_test.c"],
+    compile_multilib: "32",
+    shared_libs: [
+        "liblog",
+        "libcutils",
+    ],
+    vendor: true,
+}
+
+cc_binary {
+    name: "oslo_package_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["./tests/oslo_package_test.c"],
+    compile_multilib: "32",
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libtinyalsa",
+    ],
+    vendor: true,
+}
+
+cc_binary {
+    name: "tunneling_hal_test_sensor",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/tunnel_test_sensor.c"],
+    compile_multilib: "32",
+    shared_libs: ["liblog"],
+    vendor: true,
+}
+
+cc_binary {
+    name: "odsp_api_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    vendor: true,
+    srcs: ["tests/odsp_api_test.c"],
+    include_dirs: ["hardware/knowles/athletico/sound_trigger_hal/tests"],
+    compile_multilib: "32",
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libodsp",
+    ],
+}
+
+cc_binary {
+    name: "dump_debug_info",
+    vendor: true,
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/dump_debug_info.c"],
+    compile_multilib: "32",
+    shared_libs: ["liblog"],
+}
+
+cc_binary {
+    name: "crash_event_logger",
+    vendor: true,
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: [
+        "tests/crash_event_logger.c",
+        "tests/crash_analyzer.c",
+    ],
+    compile_multilib: "32",
+    shared_libs: [
+        "liblog",
+        "libcutils",
+    ],
+}
+
+cc_binary {
+    vendor: true,
+    name: "setparamblk_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/setparamblk_test.c"],
+    compile_multilib: "32",
+    shared_libs: [
+        "libcutils",
+        "libodsp",
+    ],
+}
+
+cc_binary {
+    name: "crash_trigger_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/crash_trigger_test.c"],
+    vendor: true,
+    compile_multilib: "32",
+    shared_libs: [
+        "liblog",
+        "libodsp",
+    ],
+}
+
+cc_binary {
+    name: "plugin_status_test",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    srcs: ["tests/plugin_status_test.c"],
+    vendor: true,
+    local_include_dirs: [""],
+    compile_multilib: "32",
+    shared_libs: [
+        "libcutils",
+        "libodsp",
+    ],
+}
+
+cc_binary {
+    name: "get_pwr_stats",
+    defaults: [
+        "use_sound_trigger_hal_defaults",
+    ],
+    vendor: true,
+    srcs: ["tests/get_pwr_stats.c"],
+    local_include_dirs: [""],
+    compile_multilib: "32",
+    shared_libs: [
+        "libcutils",
+        "liblog",
+    ],
+}

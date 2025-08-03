@@ -1,0 +1,43 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// This library does not have srcs, so it is basically equivalent to a
+// cc_library_headers at the moment: users of the library will compile the
+// headers themselves and will need to include the necessary dependencies
+// themselves (so there are no "libs" or "static_libs" below). Right now there
+// is no lib dependency; the tests include the headers and build them without
+// dependency to enforce that.
+// If sources are added in the future, make sure not to add any heavy
+// dependency, as it would grow all targets using the library, and such targets
+// could be very lightweight originally (such as <20kB JNI libraries not using
+// libc++).
+cc_library_static {
+    name: "libmodules-utils-build",
+    min_sdk_version: "29",
+    sdk_version: "29",
+    export_include_dirs: ["include"],
+    header_libs: ["liblog_headers"],
+    export_header_lib_headers: ["liblog_headers"],
+    visibility: ["//visibility:public"],
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+}

@@ -1,0 +1,92 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library {
+    name: "libpixelhealth",
+    vendor: true,
+    export_include_dirs: ["include"],
+
+    srcs: [
+        "BatteryDefender.cpp",
+        "BatteryMetricsLogger.cpp",
+        "BatteryThermalControl.cpp",
+        "ChargerDetect.cpp",
+        "CycleCountBackupRestore.cpp",
+        "DeviceHealth.cpp",
+        "HealthHelper.cpp",
+        "LowBatteryShutdownMetrics.cpp",
+        "StatsHelper.cpp"
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    static_libs: [
+        "libbatterymonitor",
+    ],
+
+    whole_static_libs: [
+        "android.hardware.health-translate-ndk",
+        "android.hardware.health@1.0-convert",
+    ],
+
+    export_shared_lib_headers: [
+        "android.frameworks.stats-V1-ndk",
+        "android.hardware.health-V3-ndk",
+        "libpixelatoms_defs",
+    ],
+
+    shared_libs: [
+        "android.frameworks.stats-V1-ndk",
+        "android.hardware.health-V3-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "libhidlbase",
+        "libpixelatoms_defs",
+        "libutils",
+    ],
+}
+
+cc_test {
+    name: "HealthTestCases",
+
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+
+    srcs: [
+        "test/TestBatteryDefender.cpp",
+    ],
+
+    local_include_dirs: [
+        "include/pixelhealth",
+    ],
+
+    static_libs: [
+        "libgmock",
+        "libhidlbase",
+        "libpixelhealth",
+        "libbatterymonitor",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "libutils",
+    ],
+
+    test_suites: [
+        "device-tests",
+    ],
+    vendor: true,
+}

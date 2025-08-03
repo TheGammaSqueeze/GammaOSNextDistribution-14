@@ -1,0 +1,2 @@
+# wifi_ext service
+type hal_wifi_ext_hwservice, hwservice_manager_type;

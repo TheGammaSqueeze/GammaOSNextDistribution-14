@@ -1,0 +1,35 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "pixel-gralloc-headers-dependencies",
+    defaults: [
+        "android.hardware.graphics.common-ndk_shared",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.mapper@4.0",
+        "libgralloctypes",
+    ],
+}
+
+cc_library_headers {
+    name: "pixel-gralloc-headers",
+    // TODO(270442578): Change to vendor: true
+    vendor_available: true,
+    defaults: [
+        "pixel-gralloc-headers-dependencies",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    visibility: [
+        "//visibility:public",
+    ],
+    // should be platform available since this header is used in lib_aion_buffer which is platform-available
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+
+}

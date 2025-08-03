@@ -1,0 +1,33 @@
+package: "com.android.systemui.shared"
+container: "system"
+
+flag {
+    name: "example_shared_flag"
+    namespace: "systemui"
+    description: "An Example Flag"
+    bug: "308482106"
+}
+
+flag {
+    name: "return_animation_framework_library"
+    namespace: "systemui"
+    description: "Turn on Return functionality in the Animation library"
+    bug: "273205603"
+}
+
+flag {
+    name: "shade_allow_back_gesture"
+    namespace: "systemui"
+    description: "Allow Back Gestures in Shade"
+    bug: "309545085"
+}
+
+flag {
+    name: "enable_home_delay"
+    namespace: "systemui"
+    description: "Enables fix that exposes signal to notify the completion of the RRO loading."
+    bug: "307507412"
+    metadata {
+        purpose: PURPOSE_BUGFIX
+    }
+}

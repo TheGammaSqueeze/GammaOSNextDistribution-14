@@ -1,0 +1,49 @@
+# NfcProperties.sysprop
+
+module: "vendor.nfc.nxp.NfcProps"
+# owner can be Platform or Vendor or Odm
+owner: Vendor
+
+# Defines all properties
+prop {
+    prop_name: "vendor.nfc.nxp.activestate.entrycount"
+    type: UInt
+    scope: Internal
+    access: ReadWrite
+    api_name: "activeStateEntryCount"
+}
+prop {
+    prop_name: "vendor.nfc.nxp.standbystate.entrycount"
+    type: UInt
+    scope: Internal
+    access: ReadWrite
+    api_name: "standbyStateEntryCount"
+}
+prop {
+    prop_name: "vendor.nfc.nxp.ulpdetstate.entrycount"
+    type: UInt
+    scope: Internal
+    access: ReadWrite
+    api_name: "ulpdetStateEntryCount"
+}
+prop {
+    prop_name: "vendor.nfc.nxp.activestate.tick"
+    type: UInt
+    scope: Internal
+    access: ReadWrite
+    api_name: "activeStateTick"
+}
+prop {
+    prop_name: "vendor.nfc.nxp.standbystate.tick"
+    type: UInt
+    scope: Internal
+    access: ReadWrite
+    api_name: "standbyStateTick"
+}
+prop {
+    prop_name: "vendor.nfc.nxp.ulpdetstate.tick"
+    type: UInt
+    scope: Internal
+    access: ReadWrite
+    api_name: "ulpdetStateTick"
+}

@@ -1,0 +1,140 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_defaults {
+    name: "neuralnetworks_utils_hal_aidl_defaults",
+    defaults: [
+        "android.hardware.graphics.common-ndk_static",
+        "neuralnetworks_utils_defaults",
+    ],
+    srcs: [
+        // AIDL utils that a driver may depend on.
+        "src/BufferTracker.cpp",
+        "src/Conversions.cpp",
+        "src/HalUtils.cpp",
+        "src/Utils.cpp",
+        "src/ValidateHal.cpp",
+    ],
+    local_include_dirs: ["include/nnapi/hal/aidl/"],
+    export_include_dirs: ["include"],
+    cflags: ["-Wthread-safety"],
+    static_libs: [
+        "libaidlcommonsupport",
+        "libarect",
+        "neuralnetworks_types",
+        "neuralnetworks_utils_hal_common",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+    ],
+    target: {
+        android: {
+            shared_libs: ["libnativewindow"],
+        },
+    },
+}
+
+// Deprecated. Remove once all modules depending on this are migrated away.
+cc_library_static {
+    name: "neuralnetworks_utils_hal_aidl_v1",
+    defaults: ["neuralnetworks_utils_hal_aidl_defaults"],
+    shared_libs: [
+        "android.hardware.neuralnetworks-V1-ndk",
+    ],
+}
+
+cc_library_static {
+    name: "neuralnetworks_utils_hal_aidl",
+    defaults: ["neuralnetworks_utils_hal_aidl_defaults"],
+    srcs: [
+        // Additional AIDL utils for the runtime.
+        "src/Assertions.cpp",
+        "src/Buffer.cpp",
+        "src/Burst.cpp",
+        "src/Callbacks.cpp",
+        "src/Device.cpp",
+        "src/Execution.cpp",
+        "src/InvalidDevice.cpp",
+        "src/PreparedModel.cpp",
+        "src/ProtectCallback.cpp",
+        "src/Service.cpp",
+    ],
+    shared_libs: [
+        "android.hardware.neuralnetworks-V4-ndk",
+    ],
+    cflags: ["-DNN_AIDL_V4_OR_ABOVE"],
+}
+
+// A cc_defaults that includes the latest non-experimental AIDL utilities and other AIDL libraries
+// that are commonly used together. Modules that always depend on the latest non-experimental
+// AIDL features can include this cc_defaults to avoid managing dependency versions explicitly.
+cc_defaults {
+    name: "neuralnetworks_use_latest_utils_hal_aidl",
+    defaults: ["android.hardware.graphics.common-ndk_static"],
+    static_libs: [
+        "android.hardware.common-V2-ndk",
+        "android.hardware.neuralnetworks-V4-ndk",
+        "neuralnetworks_utils_hal_aidl",
+    ],
+    cflags: ["-DNN_AIDL_V4_OR_ABOVE"],
+}
+
+cc_test {
+    name: "neuralnetworks_utils_hal_aidl_test",
+    defaults: [
+        "neuralnetworks_use_latest_utils_hal_aidl",
+        "neuralnetworks_utils_defaults",
+    ],
+    tidy_timeout_srcs: [
+        "test/DeviceTest.cpp",
+        "test/PreparedModelTest.cpp",
+    ],
+    srcs: [
+        "test/*.cpp",
+    ],
+    static_libs: [
+        "libaidlcommonsupport",
+        "libgmock",
+        "neuralnetworks_types",
+        "neuralnetworks_utils_hal_common",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+    ],
+    target: {
+        android: {
+            shared_libs: ["libnativewindow"],
+        },
+    },
+    cflags: [
+        /* GMOCK defines functions for printing all MOCK_DEVICE arguments and
+         * MockDevice contains a string pointer which triggers a warning in the
+         * base logging library. */
+        "-Wno-user-defined-warnings",
+    ],
+    test_suites: ["general-tests"],
+}

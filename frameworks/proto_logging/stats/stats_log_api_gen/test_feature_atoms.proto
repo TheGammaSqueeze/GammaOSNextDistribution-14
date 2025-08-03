@@ -1,0 +1,40 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.stats_log_api_gen.test_feature;
+
+import "frameworks/proto_logging/stats/stats_log_api_gen/test.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+message ExtensionAtomPushed {
+    optional int32 uid = 1 [(android.os.statsd.is_uid) = true];
+
+    optional int64 latency_millis = 2;
+}
+
+message ExtensionAtomPulled {
+    optional int64 latency_millis = 1;
+}
+
+extend ExtensionAtoms {
+    optional ExtensionAtomPushed extension_atom_pushed = 9999
+        [(android.os.statsd.module) = "test_feature"];
+
+    optional ExtensionAtomPulled extension_atom_pulled = 99999
+        [(android.os.statsd.module) = "test_feature"];
+}

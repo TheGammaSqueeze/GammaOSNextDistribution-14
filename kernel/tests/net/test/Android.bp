@@ -1,0 +1,28 @@
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Main target used for VTS tests.
+python_test {
+    name: "vts_kernel_net_tests",
+    stem: "kernel_net_tests_bin",
+    srcs: [
+        "*.py",
+    ],
+    libs: [
+        "scapy",
+    ],
+    main: "all_tests.py",
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+    test_config: "vts_kernel_net_tests.xml",
+    test_suites: [
+        "vts",
+        "general-tests",
+    ],
+}

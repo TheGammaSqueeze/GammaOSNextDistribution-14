@@ -1,0 +1,46 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.selinux;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+
+option java_package = "com.android.os.selinux";
+option java_multiple_files = true;
+
+extend Atom {
+  optional SelinuxAuditLog selinux_audit_log = 799 [(module) = "framework"];
+}
+
+/**
+ * Logs SELinux audit messages.
+ */
+message SelinuxAuditLog {
+  optional bool granted = 1 [default = false];
+  repeated string permissions = 2;
+  optional string stype = 3;
+  repeated int32 scategories = 4;
+  optional string ttype = 5;
+  repeated int32 tcategories = 6;
+  optional string tclass = 7;
+  // If the log message contains a path, we collect the first two levels of it.
+  // For example, for "/data/local/tmp", we would collect "/data/local".
+  optional string path_prefix = 8;
+  optional bool permissive = 9 [default = false];
+}

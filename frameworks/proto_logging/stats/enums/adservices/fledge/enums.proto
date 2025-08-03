@@ -1,0 +1,99 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.adservices.service;
+
+option java_outer_classname = "FledgeProtoEnums";
+option java_multiple_files = true;
+
+/**
+ * Script language type.
+ */
+enum ScriptType {
+  UNSET = 0;
+  JAVASCRIPT = 1;
+  WASM = 2;
+}
+
+// Logs the type of beacon reporting destination.
+enum BeaconReportingDestinationType {
+  UNSET_DESTINATION = 0;
+  SELLER_DESTINATION = 1;
+  BUYER_DESTINATION = 2;
+  SELLER_AND_BUYER_DESTINATION = 3;
+}
+
+// Results of signature verification process.
+enum VerificationStatus {
+  UNKNOWN_FAILURE = 0;
+  VERIFIED = 1;
+  KEY_FETCH_FAILURE = 2;
+  NO_KEYS_FETCHED = 3;
+  VERIFICATION_FAILED = 4;
+}
+
+// The result code of a K-Anon Job (triggered immediately after auction or via background job)
+enum KAnonJobResult {
+  KANON_JOB_RESULT_UNSET = 0;
+  KANON_JOB_RESULT_INITIALIZE_FAILED = 1;
+  KANON_JOB_RESULT_SOME_OR_ALL_SIGN_FAILED = 2;
+  KANON_JOB_RESULT_SOME_OR_ALL_JOIN_FAILED = 3;
+  KANON_JOB_RESULT_SUCCESS = 4;
+}
+
+// The result code of an individual K-Anon action
+enum KAnonActionResult {
+  KANON_ACTION_FAILURE_REASON_UNSET = 0;
+  KANON_ACTION_FAILURE_REASON_NETWORK_EXCEPTION = 1; // 404 for example
+  KANON_ACTION_FAILURE_REASON_SERVER_EXCEPTION = 2; // Server failed our request
+  KANON_ACTION_FAILURE_REASON_PROTO_PARSE_EXCEPTION = 3;  // Couldn't parse proto. Most likely if Server returned a malformed response
+  KANON_ACTION_FAILURE_REASON_INTERNAL_ERROR = 4;  // A non-proto or server related error, internal to implementation
+  KANON_ACTION_FAILURE_REASON_UNKNOWN_ERROR = 5;
+}
+
+// Lists all the type of different KAnon actions
+enum KAnonAction {
+  KANON_ACTION_UNSET = 0;
+  // 1 - 7 are actions required to initialize a K-Anon Caller
+  KANON_ACTION_GET_CHALLENGE_HTTP_CALL = 1;
+  KANON_ACTION_KEY_ATTESTATION_CERT_GENERATION = 2;
+  KANON_ACTION_SERVER_PARAM_HTTP_CALL = 3;
+  KANON_ACTION_SERVER_PUBLIC_PARAMS_PROTO_COMPOSITION = 4;
+  KANON_ACTION_GENERATE_CLIENT_PARAM_ACT = 5;
+  KANON_ACTION_REGISTER_CLIENT_HTTP_CALL = 6;
+  KANON_ACTION_REGISTER_CLIENT_RESPONSE_PROTO_COMPOSITION = 7;
+
+  // Following are various actions required to perform the sign and join calls
+  KANON_ACTION_GENERATE_TOKENS_REQUEST_ACT = 8;
+  KANON_ACTION_GET_TOKENS_REQUEST_HTTP_CALL = 9;
+  KANON_ACTION_GET_TOKENS_RESPONSE_PROTO_COMPOSITION = 10;
+  KANON_ACTION_VERIFY_TOKENS_RESPONSE_ACT = 11;
+  KANON_ACTION_RECOVER_TOKENS_ACT = 12;
+  KANON_ACTION_JOIN_HTTP_CALL = 13;
+
+}
+
+// The result of a KAnon Key Attestation action
+enum KAnonKeyAttestationResult {
+  KEY_ATTESTATION_RESULT_UNSET = 0;
+  KEY_ATTESTATION_RESULT_KEYSTORE_EXCEPTION = 1;
+  KEY_ATTESTATION_RESULT_ILLEGAL_STATE_EXCEPTION = 2;
+  KEY_ATTESTATION_RESULT_CERTIFICATE_EXCEPTION = 3;
+  KEY_ATTESTATION_RESULT_IO_EXCEPTION = 4;
+  KEY_ATTESTATION_RESULT_NO_SUCH_ALGORITHM_EXCEPTION = 5;
+  KEY_ATTESTATION_RESULT_SUCCESS = 6;
+}

@@ -1,0 +1,2 @@
+persist.vendor.wifi.sniffer.                    u:object_r:vendor_wifi_sniffer_prop:s0
+vendor.wifi.sniffer.start                       u:object_r:vendor_wifi_sniffer_prop:s0

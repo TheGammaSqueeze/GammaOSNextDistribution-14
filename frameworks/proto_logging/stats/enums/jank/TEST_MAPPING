@@ -1,0 +1,27 @@
+{
+  "presubmit": [
+    {
+      "name": "FrameworksCoreTests",
+      "options": [
+        {
+          "include-filter": "com.android.internal.jank.InteractionJankMonitorTest"
+        },
+        {
+          "include-filter": "com.android.internal.jank.FrameTrackerTest"
+        },
+        {
+          "include-filter": "com.android.internal.util.LatencyTrackerTest"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        },
+        {
+          "exclude-annotation": "org.junit.Ignore"
+        }
+      ],
+      "file_patterns": [
+        "enums.proto"
+      ]
+    }
+  ]
+}

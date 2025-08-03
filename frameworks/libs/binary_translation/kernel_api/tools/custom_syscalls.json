@@ -1,0 +1,286 @@
+{
+  "__ARM_NR_cacheflush": {
+    "arm": {
+      "custom_reason": "custom syscall",
+      "id": "0x0f0002",
+      "params": ["void*", "void*", "int32"]
+    }
+  },
+  "__ARM_NR_set_tls": {
+    "arm": {
+      "custom_reason": "custom syscall",
+      "id": "0x0f0005",
+      "params": ["void*"]
+    }
+  },
+  "__NR_accept": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "5"
+    }
+  },
+  "__NR_accept4": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "18"
+    }
+  },
+  "__NR_acct": {
+    "arm64": {
+      "comment": "64-bit kernel doesn't have this prototype",
+      "params": ["unsigned char8 const*"]
+    },
+    "riscv64": {
+      "comment": "64-bit kernel doesn't have this prototype",
+      "params": ["unsigned char8 const*"]
+    }
+  },
+  "__NR_arm_fadvise64_64": {
+    "arm": {
+      "params": ["int32", "int32", "int64", "int64"]
+    }
+  },
+  "__NR_bind": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "2"
+    }
+  },
+  "__NR_clone": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_clone3": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_connect": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "3"
+    }
+  },
+  "__NR_execve": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_execveat": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_exit": {
+    "custom_reason": "cleans guest thread"
+  },
+  "__NR_faccessat": {
+    "custom_reason": "follows symlinks"
+  },
+  "__NR_fcntl": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_fcntl64": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_fork": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_fstatfs64": {
+    "arm": {
+      "custom_reason": "statfs64 size mismatch"
+    },
+    "x86": {
+      "custom_reason": "statfs64 size mismatch"
+    }
+  },
+  "__NR_getpeername": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "7"
+    }
+  },
+  "__NR_getsockname": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "6"
+    }
+  },
+  "__NR_getsockopt": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "15"
+    }
+  },
+  "__NR_ioctl": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_listen": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "4"
+    }
+  },
+  "__NR_lookup_dcookie": {
+    "comment": "64-bit kernel doesn't have this prototype",
+    "x86_64": {
+      "id": "212",
+      "entry": "sys_lookup_dcookie",
+      "params" : [ "unsigned int64", "char8*", "unsigned int64" ]
+    },
+    "arm64": {
+      "id": "18",
+      "entry": "sys_lookup_dcookie",
+      "params" : [ "unsigned int64", "unsigned char8*", "unsigned int64" ]
+    },
+    "riscv64": {
+      "id": "18",
+      "entry": "sys_lookup_dcookie",
+      "params" : [ "unsigned int64", "unsigned char8*", "unsigned int64" ]
+    }
+  },
+  "__NR_mmap": {
+    "custom_reason": "changes memory protection"
+  },
+  "__NR_mmap2": {
+    "arm": {
+      "params": ["void*", "unsigned int32", "int32", "int32", "int32", "int32"]
+    },
+    "custom_reason": "changes memory protection"
+  },
+  "__NR_mprotect": {
+    "custom_reason": "changes memory protection"
+  },
+  "__NR_mremap": {
+    "custom_reason": "changes memory protection"
+  },
+  "__NR_munmap": {
+    "custom_reason": "changes memory protection"
+  },
+  "__NR_newfstatat": {
+    "custom_reason": "follows symlinks"
+  },
+  "__NR_open": {
+    "custom_reason": "follows symlinks, open flags value mismatch"
+  },
+  "__NR_openat": {
+    "custom_reason": "follows symlinks, open flags value mismatch"
+  },
+  "__NR_prctl": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_ptrace": {
+    "custom_reason": "custom syscall"
+  },
+  "__NR_readlink": {
+    "custom_reason": "follows symlinks"
+  },
+  "__NR_readlinkat": {
+    "custom_reason": "follows symlinks"
+  },
+  "__NR_recv": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "10"
+    }
+  },
+  "__NR_recvfrom": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "12"
+    }
+  },
+  "__NR_recvmmsg": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "19"
+    }
+  },
+  "__NR_recvmsg": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "17"
+    }
+  },
+  "__NR_riscv_flush_icache": {
+    "riscv64": {
+      "id": "259",
+      "params": ["void*", "void*", "int32"]
+    }
+  },
+  "__NR_rt_sigaction": {
+    "custom_reason": "changes signal action"
+  },
+  "__NR_rt_sigreturn": {
+    "custom_reason": "should never be called from guest",
+    "arm64": {
+      "comment": ["arm64 doesn't have this prototype"],
+      "params": [ "struct pt_regs const*" ]
+    },
+    "riscv64": {
+      "comment": ["riscv64 doesn't have this prototype"],
+      "params": [ "struct pt_regs const*" ]
+    }
+  },
+  "__NR_send": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "9"
+    }
+  },
+  "__NR_sendmmsg": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "20"
+    }
+  },
+  "__NR_sendmsg": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "16"
+    }
+  },
+  "__NR_sendto": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "11"
+    }
+  },
+  "__NR_setsockopt": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "14"
+    }
+  },
+  "__NR_shutdown": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "13"
+    }
+  },
+  "__NR_sigaction": {
+    "custom_reason": "changes signal action"
+  },
+  "__NR_sigaltstack": {
+    "custom_reason": "changes signal stack"
+  },
+  "__NR_socket": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "1"
+    }
+  },
+  "__NR_socketpair": {
+    "x86": {
+      "custom_reason": "socketcall",
+      "socketcall": "8"
+    }
+  },
+  "__NR_statfs64": {
+    "arm": {
+      "custom_reason": "statfs64 size mismatch"
+    },
+    "x86": {
+      "custom_reason": "statfs64 size mismatch"
+    }
+  },
+  "__NR_statx": {
+    "custom_reason": "follows symlinks"
+  },
+  "__NR_vfork": {
+    "custom_reason": "custom syscall"
+  }
+}

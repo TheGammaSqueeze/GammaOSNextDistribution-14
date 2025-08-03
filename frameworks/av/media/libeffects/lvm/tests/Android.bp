@@ -1,0 +1,128 @@
+// Build the unit tests for effects
+
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_test {
+    name: "EffectReverbTest",
+    defaults: [
+        "libeffects-test-defaults",
+    ],
+    srcs: [
+        "EffectReverbTest.cpp",
+    ],
+    static_libs: [
+        "libreverb",
+        "libreverbwrapper",
+    ],
+    header_libs: [
+        "libaudioeffects",
+    ],
+}
+
+cc_test {
+    name: "EffectBundleTest",
+    defaults: [
+        "libeffects-test-defaults",
+    ],
+    srcs: [
+        "EffectBundleTest.cpp",
+    ],
+    static_libs: [
+        "libbundlewrapper",
+        "libmusicbundle",
+    ],
+}
+
+cc_test {
+    name: "lvmtest",
+    host_supported: false,
+    proprietary: true,
+
+    include_dirs: [
+        "frameworks/av/media/libeffects/lvm/lib/Bass/lib",
+        "frameworks/av/media/libeffects/lvm/lib/Bass/src",
+        "frameworks/av/media/libeffects/lvm/lib/Bundle/src",
+        "frameworks/av/media/libeffects/lvm/lib/Common/src",
+        "frameworks/av/media/libeffects/lvm/lib/Eq/lib",
+        "frameworks/av/media/libeffects/lvm/lib/Eq/src",
+        "frameworks/av/media/libeffects/lvm/lib/SpectrumAnalyzer/lib",
+        "frameworks/av/media/libeffects/lvm/lib/SpectrumAnalyzer/src",
+        "frameworks/av/media/libeffects/lvm/lib/StereoWidening/lib",
+        "frameworks/av/media/libeffects/lvm/lib/StereoWidening/src",
+        "frameworks/av/media/libeffects/lvm/wrapper/Bundle",
+    ],
+
+    header_libs: [
+        "libaudioeffects",
+    ],
+
+    shared_libs: [
+        "libaudioutils",
+        "liblog",
+    ],
+
+    static_libs: [
+        "libmusicbundle",
+    ],
+
+    srcs: ["lvmtest.cpp"],
+
+    cflags: [
+        "-DSUPPORT_MC",
+
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
+    name: "reverb_test",
+    host_supported: true,
+    proprietary: true,
+    gtest: false,
+
+    header_libs: [
+        "libaudioeffects",
+    ],
+
+    shared_libs: [
+        "libaudioutils",
+        "liblog",
+    ],
+
+    static_libs: [
+        "libreverb",
+        "libreverbwrapper",
+    ],
+    srcs: [
+        "reverb_test.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
+    name: "snr",
+    host_supported: false,
+
+    srcs: ["snr.cpp"],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}

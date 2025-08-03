@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 29): `android.telephony.TelephonyManager#getActiveModemCount`"
+        errorLine1="            if (slotIndex &lt; 0 || slotIndex &gt;= telephonyManager.getActiveModemCount()) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="frameworks/libs/service_entitlement/java/com/android/libraries/entitlement/Ts43Authentication.java"
+            line="180"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 29): `android.telephony.SubscriptionManager#getSubscriptionId`"
+        errorLine1="                    SubscriptionManager.getSubscriptionId(slotIndex));"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="frameworks/libs/service_entitlement/java/com/android/libraries/entitlement/Ts43Authentication.java"
+            line="201"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 29): `android.telephony.SubscriptionManager#getSubscriptionId`"
+        errorLine1="                        mContext, carrierConfig, SubscriptionManager.getSubscriptionId(slotIndex));"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="frameworks/libs/service_entitlement/java/com/android/libraries/entitlement/Ts43Operation.java"
+            line="170"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 30 (current min is 29): `android.telephony.TelephonyManager#getActiveModemCount`"
+        errorLine1="            if (slotIndex &lt; 0 || slotIndex &gt;= telephonyManager.getActiveModemCount()) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="frameworks/libs/service_entitlement/java/com/android/libraries/entitlement/Ts43Operation.java"
+            line="175"
+            column="64"/>
+    </issue>
+
+</issues>

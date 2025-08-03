@@ -1,0 +1,21 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_google_graphics_gs201_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_google_graphics_gs201_license"],
+}
+
+cc_library {
+    name: "libacryl_hdr_plugin",
+    proprietary: true,
+    include_dirs: [
+        "hardware/google/graphics/gs201/include",
+        "hardware/google/graphics/common/include"
+    ],
+    srcs: ["libacryl_hdr_plugin.cpp"],
+    shared_libs: ["liblog", "android.hardware.graphics.common@1.2"],
+    header_libs: ["google_libacryl_hdrplugin_headers", "libsystem_headers"],
+    cflags: ["-Werror"],
+}

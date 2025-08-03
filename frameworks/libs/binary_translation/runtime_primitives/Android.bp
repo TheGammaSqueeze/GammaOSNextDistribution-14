@@ -1,0 +1,156 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_headers {
+    name: "libberberis_runtime_primitives_headers",
+    defaults: ["berberis_defaults"],
+    host_supported: true,
+    export_include_dirs: ["include"],
+    header_libs: [
+        "libberberis_assembler_headers",
+        "libberberis_base_headers",
+        "libberberis_guest_state_headers",
+    ],
+    export_header_lib_headers: [
+        "libberberis_assembler_headers",
+        "libberberis_base_headers",
+        "libberberis_guest_state_headers",
+    ],
+}
+
+cc_library_static {
+    name: "libberberis_runtime_primitives",
+    defaults: ["berberis_defaults"],
+    host_supported: true,
+    srcs: [
+        "code_pool.cc",
+        "crash_reporter.cc",
+        "guest_function_wrapper_impl.cc",
+        "host_call_frame.cc",
+        "host_function_wrapper_impl.cc",
+        "known_guest_function_wrapper.cc",
+        "platform.cc",
+        "profiler_interface.cc",
+        "recovery_code.cc",
+        "signal_queue.cc",
+        "translation_cache.cc",
+    ],
+    header_libs: [
+        "libberberis_code_gen_lib_headers",
+        "libberberis_base_headers",
+        "libberberis_guest_abi_headers",
+        "libberberis_guest_state_headers",
+        "libberberis_instrument_headers",
+        "libberberis_runtime_primitives_headers",
+    ],
+    export_header_lib_headers: ["libberberis_runtime_primitives_headers"],
+}
+
+filegroup {
+    name: "berberis_memory_region_reservation_srcs",
+    srcs: [
+        "memory_region_reservation.cc",
+    ],
+}
+
+cc_defaults {
+    name: "berberis_memory_region_reservation_defaults",
+    defaults: ["berberis_defaults"],
+    host_supported: true,
+    srcs: [":berberis_memory_region_reservation_srcs"],
+    header_libs: [
+        "libberberis_runtime_primitives_headers",
+    ],
+    arch: {
+        x86_64: {
+            cflags: [
+                // CMPXCHG16B is not enabled for host by default at the moment.
+                // It should be always available for our use cases, though.
+                // TODO(b/123428084): Remove if it becomes the default.
+                "-mcx16",
+            ],
+        },
+    },
+    // Targets using these defaults must provide the following guest-specific fields:
+    // header_libs: ["libberberis_guest_state_<guest>_headers"],
+    // export_header_lib_headers: ["libberberis_guest_state_<guest>_headers"],
+}
+
+cc_library_static {
+    name: "libberberis_runtime_primitives_riscv64",
+    defaults: [
+        "berberis_defaults_64",
+        "berberis_memory_region_reservation_defaults",
+    ],
+    host_supported: true,
+    srcs: [
+        "checks_riscv64.cc",
+        "host_call_frame_riscv64.cc",
+        "interpret_helpers_riscv64.cc",
+    ],
+    whole_static_libs: [
+        "libberberis_runtime_primitives",
+    ],
+    header_libs: [
+        "libberberis_assembler_headers",
+        "libberberis_base_headers",
+        "libberberis_guest_state_riscv64_headers",
+        "libberberis_runtime_primitives_headers",
+    ],
+    export_header_lib_headers: [
+        "libberberis_runtime_primitives_headers",
+        "libberberis_guest_state_riscv64_headers",
+    ],
+}
+
+cc_test_library {
+    name: "libberberis_runtime_primitives_unit_tests",
+    defaults: ["berberis_test_library_defaults"],
+    host_supported: true,
+    srcs: [
+        "code_pool_test.cc",
+        "signal_queue_test.cc",
+        "table_of_tables_test.cc",
+    ],
+    header_libs: [
+        "berberis_test_utils_headers",
+        "libberberis_guest_state_riscv64_headers",
+        "libberberis_runtime_primitives_headers",
+    ],
+    // libgmock does not have header_lib
+    static_libs: ["libgmock"],
+}
+
+cc_test_library {
+    name: "libberberis_runtime_primitives_riscv64_unit_tests",
+    defaults: ["berberis_test_library_defaults_64"],
+    host_supported: true,
+    srcs: [
+        "host_call_frame_riscv64_test.cc",
+        "memory_region_reservation_test.cc",
+        // Translation cache test relies on implementation of runtime_library
+        // function pointers to link.
+        "translation_cache_test.cc",
+    ],
+    header_libs: [
+        "berberis_test_utils_headers",
+        "libberberis_guest_state_riscv64_headers",
+        "libberberis_runtime_primitives_headers",
+    ],
+}

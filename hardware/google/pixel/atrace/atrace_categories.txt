@@ -1,0 +1,68 @@
+gfx
+ sde/sde_cmd_release_bw
+ sde/sde_encoder_underrun
+ sde/sde_evtlog
+ sde/sde_perf_calc_crtc
+ sde/sde_perf_crtc_update
+ sde/sde_perf_set_ot
+ sde/sde_perf_set_qos_luts
+ sde/sde_perf_uidle_cntr
+ sde/sde_perf_uidle_status
+ sde/sde_perf_update_bus
+ sde/tracing_mark_write
+ dpu/tracing_mark_write
+ g2d/g2d_perf_update_qos
+ g2d/tracing_mark_write
+ mali/gpu_power_state
+ mali/mali_jit_alloc
+ mali/mali_jit_free
+ mali/mali_jit_report
+ mali/mali_jit_report_gpu_mem
+ mali/mali_jit_report_pressure
+ mali/mali_jit_trim
+ mali/mali_jit_trim_from_region
+ mali/mali_job_slots_event
+ mali/mali_mmu_page_fault_grow
+ mali/mali_page_fault_insert_pages
+ mali/mali_pm_status
+ mali/mali_total_alloc_pages_change
+ mali/sysgraph
+ mali/sysgraph_gpu
+ mali/mali_KCPU_CQS_SET
+ mali/mali_KCPU_CQS_WAIT_BEGIN
+ mali/mali_KCPU_CQS_WAIT_END
+memory
+ fastrpc/fastrpc_dma_stat
+ dmabuf_heap/dma_heap_stat
+ cma/cma_alloc_start
+ cma/cma_alloc_info
+ion
+ kmem/ion_alloc_buffer_start
+sched
+ scm/scm_call_start
+ scm/scm_call_end
+ systrace/0
+freq
+ msm_bus/bus_rules_matches
+thermal_tj
+ lmh/lmh_dcvs_freq
+ thermal_exynos/thermal_cpu_pressure
+ thermal_exynos/thermal_exynos_allow_max_power
+ thermal_exynos/thermal_exynos_acpm_bulk
+ thermal_exynos/thermal_exynos_acpm_high_overhead
+ thermal_exynos/thermal_exynos_arm_update
+ thermal_exynos/thermal_exynos_cpu_pause
+ thermal_exynos/thermal_exynos_hard_limit_cdev_update
+ thermal_exynos/thermal_exynos_power_allocator
+ thermal_exynos/thermal_exynos_power_allocator_pid
+ thermal_exynos/thermal_exynos_power_cpu_get_power
+ thermal_exynos/thermal_exynos_power_cpu_limit
+ thermal_exynos/thermal_exynos_power_gpu_get_power
+ thermal_exynos/thermal_exynos_power_gpu_limit
+ thermal_exynos/thermal_exynos_tpu_pause
+ thermal_exynos/vendor_cdev_update
+ thermal_exynos_gpu/thermal_exynos_power_gpu_get_power
+ thermal_exynos_gpu/thermal_exynos_power_gpu_limit
+ thermal_exynos_gpu/vendor_cdev_update
+camera
+ lwis/tracing_mark_write

@@ -1,0 +1,72 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_headers {
+    name: "libberberis_heavy_optimizer_riscv64_headers",
+    defaults: ["berberis_defaults_64"],
+    host_supported: true,
+    export_include_dirs: ["include"],
+    header_libs: [
+        "libberberis_assembler_headers",
+        "libberberis_guest_state_riscv64_headers",
+    ],
+    export_header_lib_headers: [
+        "libberberis_assembler_headers",
+        "libberberis_guest_state_riscv64_headers",
+    ],
+}
+
+cc_library_static {
+    name: "libberberis_heavy_optimizer_riscv64",
+    defaults: ["berberis_defaults_64"],
+    host_supported: true,
+    local_include_dirs: ["."],
+    header_libs: [
+        "libberberis_base_headers",
+        "libberberis_backend_headers_riscv64_to_x86_64",
+        "libberberis_decoder_riscv64_headers",
+        "libberberis_heavy_optimizer_riscv64_headers",
+        "libberberis_intrinsics_riscv64_headers",
+        "libberberis_macro_assembler_headers_riscv64_to_x86_64",
+    ],
+    srcs: [
+        "frontend.cc",
+        "heavy_optimize_region.cc",
+    ],
+}
+
+cc_test_library {
+    name: "libberberis_heavy_optimizer_riscv64_unit_tests",
+    defaults: ["berberis_test_library_defaults_64"],
+    local_include_dirs: ["."],
+    header_libs: [
+        "berberis_test_utils_headers",
+        "libberberis_backend_headers_riscv64_to_x86_64",
+        "libberberis_base_headers",
+        "libberberis_code_gen_lib_headers",
+        "libberberis_decoder_riscv64_headers",
+        "libberberis_heavy_optimizer_riscv64_headers",
+        "libberberis_intrinsics_riscv64_headers",
+    ],
+    srcs: [
+        "call_intrinsic_tests.cc",
+        "frontend_tests.cc",
+        "heavy_optimizer_insn_exec_tests.cc",
+    ],
+}

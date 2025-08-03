@@ -1,0 +1,53 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_google_gfxstream_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_static {
+    name: "libgfxstream_glestranslator_egl",
+    defaults: ["gfxstream_defaults"],
+    header_libs: [
+        "gfxstream_gl_host_common_headers",
+        "gfxstream_opengl_headers",
+    ],
+    static_libs: [
+        "gfxstream_base",
+        "libgfxstream_host_apigen_codec_common",
+        "libgfxstream_host_glestranslator_glcommon",
+        "libgfxstream_glestranslator_glescm",
+        "libgfxstream_glestranslator_glesv2",
+    ],
+    cflags: [
+        "-fvisibility=hidden",
+        "-Wno-inconsistent-missing-override",
+    ],
+    srcs: [
+        "ClientAPIExts.cpp",
+        "EglConfig.cpp",
+        "EglContext.cpp",
+        "EglDisplay.cpp",
+        "EglGlobalInfo.cpp",
+        "EglImp.cpp",
+        "EglPbufferSurface.cpp",
+        "EglSurface.cpp",
+        "EglThreadInfo.cpp",
+        "EglValidate.cpp",
+        "EglWindowSurface.cpp",
+        "ShaderCache.cpp",
+        "ThreadInfo.cpp",
+        "CoreProfileConfigs_linux.cpp",
+        "EglOsApi_egl.cpp",
+    ],
+    target: {
+        host: {
+            srcs: [
+                "EglOsApi_glx.cpp",
+                "X11ErrorHandler.cpp",
+            ],
+        },
+    },
+}

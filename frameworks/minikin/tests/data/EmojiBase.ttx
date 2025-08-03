@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<ttFont sfntVersion="\x00\x01\x00\x00" ttLibVersion="3.9">
+
+  <GlyphOrder>
+    <!-- The 'id' attribute is only for humans; it is ignored when parsed. -->
+    <GlyphID name=".notdef"/>
+
+    <!-- Compbining characters for Emoji -->
+    <GlyphID name="U+200D"/>
+    <GlyphID name="U+1F3FB"/>
+    <GlyphID name="U+1F3FC"/>
+
+    <!-- Random Emoji -->
+    <GlyphID name="U+1F9B0"/>
+    <GlyphID name="U+1F9B1"/>
+    <GlyphID name="U+1F9B2"/>
+    <GlyphID name="U+1F9B3"/>
+    <GlyphID name="U+1F9B4"/>
+    <GlyphID name="U+1F9B5"/>
+    <GlyphID name="U+1F9B6"/>
+    <GlyphID name="U+1F9B7"/>
+    <GlyphID name="U+1F9B8"/>
+    <GlyphID name="U+1F9B9"/>
+    <GlyphID name="U+1F9BA"/>
+
+    <!-- Ligature Form. Not in cmap -->
+    <GlyphID name="LigaForm1"/>
+    <GlyphID name="LigaForm2"/>
+    <GlyphID name="LigaForm3"/>
+    <GlyphID name="LigaForm4"/>
+    <GlyphID name="LigaForm5"/>
+    <GlyphID name="LigaForm6"/>
+    <GlyphID name="LigaForm7"/>
+
+    <!-- Regional Indicators -->
+    <GlyphID name="U+1F1E6"/>
+    <GlyphID name="U+1F1E7"/>
+
+    <!-- Tag Character -->
+    <GlyphID name="U+E0001"/>
+    <GlyphID name="U+E0002"/>
+    <GlyphID name="U+E0003"/>
+    <GlyphID name="U+E0004"/>
+    <GlyphID name="U+E007F"/>
+
+  </GlyphOrder>
+
+  <head>
+    <!-- Most of this table will be recalculated by the compiler -->
+    <tableVersion value="1.0"/>
+    <fontRevision value="1.0"/>
+    <checkSumAdjustment value="0x640cdb2f"/>
+    <magicNumber value="0x5f0f3cf5"/>
+    <flags value="00000000 00000011"/>
+    <unitsPerEm value="1000"/>
+    <created value="Wed Sep  9 08:01:17 2015"/>
+    <modified value="Wed Sep  9 08:48:07 2015"/>
+    <xMin value="0"/>
+    <yMin value="0"/>
+    <xMax value="0"/>
+    <yMax value="0"/>
+    <macStyle value="00000000 00000000"/>
+    <lowestRecPPEM value="7"/>
+    <fontDirectionHint value="2"/>
+    <indexToLocFormat value="0"/>
+    <glyphDataFormat value="0"/>
+  </head>
+
+  <hhea>
+    <tableVersion value="0x00010000"/>
+    <ascent value="1000"/>
+    <descent value="-200"/>
+    <lineGap value="0"/>
+    <advanceWidthMax value="500"/>
+    <minLeftSideBearing value="0"/>
+    <minRightSideBearing value="0"/>
+    <xMaxExtent value="0"/>
+    <caretSlopeRise value="1"/>
+    <caretSlopeRun value="0"/>
+    <caretOffset value="0"/>
+    <reserved0 value="0"/>
+    <reserved1 value="0"/>
+    <reserved2 value="0"/>
+    <reserved3 value="0"/>
+    <metricDataFormat value="0"/>
+    <numberOfHMetrics value="1"/>
+  </hhea>
+
+  <maxp>
+    <!-- Most of this table will be recalculated by the compiler -->
+    <tableVersion value="0x10000"/>
+    <numGlyphs value="8"/>
+    <maxPoints value="0"/>
+    <maxContours value="0"/>
+    <maxCompositePoints value="0"/>
+    <maxCompositeContours value="0"/>
+    <maxZones value="2"/>
+    <maxTwilightPoints value="12"/>
+    <maxStorage value="28"/>
+    <maxFunctionDefs value="119"/>
+    <maxInstructionDefs value="0"/>
+    <maxStackElements value="61"/>
+    <maxSizeOfInstructions value="2967"/>
+    <maxComponentElements value="0"/>
+    <maxComponentDepth value="0"/>
+  </maxp>
+
+  <OS_2>
+    <!-- The fields 'usFirstCharIndex' and 'usLastCharIndex'
+         will be recalculated by the compiler -->
+    <version value="3"/>
+    <xAvgCharWidth value="594"/>
+    <usWeightClass value="400"/>
+    <usWidthClass value="5"/>
+    <fsType value="00000000 00001000"/>
+    <ySubscriptXSize value="650"/>
+    <ySubscriptYSize value="600"/>
+    <ySubscriptXOffset value="0"/>
+    <ySubscriptYOffset value="75"/>
+    <ySuperscriptXSize value="650"/>
+    <ySuperscriptYSize value="600"/>
+    <ySuperscriptXOffset value="0"/>
+    <ySuperscriptYOffset value="350"/>
+    <yStrikeoutSize value="50"/>
+    <yStrikeoutPosition value="300"/>
+    <sFamilyClass value="0"/>
+    <panose>
+      <bFamilyType value="0"/>
+      <bSerifStyle value="0"/>
+      <bWeight value="5"/>
+      <bProportion value="0"/>
+      <bContrast value="0"/>
+      <bStrokeVariation value="0"/>
+      <bArmStyle value="0"/>
+      <bLetterForm value="0"/>
+      <bMidline value="0"/>
+      <bXHeight value="0"/>
+    </panose>
+    <ulUnicodeRange1 value="00000000 00000000 00000000 00000001"/>
+    <ulUnicodeRange2 value="00000000 00000000 00000000 00000000"/>
+    <ulUnicodeRange3 value="00000000 00000000 00000000 00000000"/>
+    <ulUnicodeRange4 value="00000000 00000000 00000000 00000000"/>
+    <achVendID value="UKWN"/>
+    <fsSelection value="00000000 01000000"/>
+    <usFirstCharIndex value="48"/>
+    <usLastCharIndex value="65535"/>
+    <sTypoAscender value="800"/>
+    <sTypoDescender value="-200"/>
+    <sTypoLineGap value="200"/>
+    <usWinAscent value="1000"/>
+    <usWinDescent value="200"/>
+    <ulCodePageRange1 value="00000000 00000000 00000000 00000001"/>
+    <ulCodePageRange2 value="00000000 00000000 00000000 00000000"/>
+    <sxHeight value="500"/>
+    <sCapHeight value="700"/>
+    <usDefaultChar value="0"/>
+    <usBreakChar value="32"/>
+    <usMaxContext value="0"/>
+  </OS_2>
+
+  <hmtx>
+    <mtx name=".notdef" width="500" lsb="93"/>
+    <mtx name="U+200D" width="500" lsb="93"/>
+    <mtx name="U+1F1E6" width="500" lsb="93"/>
+    <mtx name="U+1F1E7" width="500" lsb="93"/>
+    <mtx name="U+1F3FB" width="500" lsb="93"/>
+    <mtx name="U+1F3FC" width="500" lsb="93"/>
+    <mtx name="U+1F9B0" width="500" lsb="93"/>
+    <mtx name="U+1F9B1" width="500" lsb="93"/>
+    <mtx name="U+1F9B2" width="500" lsb="93"/>
+    <mtx name="U+1F9B3" width="500" lsb="93"/>
+    <mtx name="U+1F9B4" width="500" lsb="93"/>
+    <mtx name="U+1F9B5" width="500" lsb="93"/>
+    <mtx name="U+1F9B6" width="500" lsb="93"/>
+    <mtx name="U+1F9B7" width="500" lsb="93"/>
+    <mtx name="U+1F9B8" width="500" lsb="93"/>
+    <mtx name="U+1F9B9" width="500" lsb="93"/>
+    <mtx name="U+1F9BA" width="500" lsb="93"/>
+    <mtx name="U+E0001" width="500" lsb="93"/>
+    <mtx name="U+E0002" width="500" lsb="93"/>
+    <mtx name="U+E0003" width="500" lsb="93"/>
+    <mtx name="U+E0004" width="500" lsb="93"/>
+    <mtx name="U+E007F" width="500" lsb="93"/>
+    <mtx name="LigaForm1" width="500" lsb="93"/>
+    <mtx name="LigaForm2" width="500" lsb="93"/>
+    <mtx name="LigaForm3" width="500" lsb="93"/>
+    <mtx name="LigaForm4" width="500" lsb="93"/>
+    <mtx name="LigaForm5" width="500" lsb="93"/>
+    <mtx name="LigaForm6" width="500" lsb="93"/>
+    <mtx name="LigaForm7" width="500" lsb="93"/>
+  </hmtx>
+
+  <cmap>
+    <tableVersion version="0"/>
+    <cmap_format_12 format="12" reserved="0" length="3" nGroups="6" platformID="3" platEncID="1" language="0">
+      <map code="0x200D" name="U+200D" />
+      <map code="0x1F1E6" name="U+1F1E6" />
+      <map code="0x1F1E7" name="U+1F1E7" />
+      <map code="0x1F3FB" name="U+1F3FB" />
+      <map code="0x1F3FC" name="U+1F3FC" />
+      <map code="0x1F9B0" name="U+1F9B0" />
+      <map code="0x1F9B1" name="U+1F9B1" />
+      <map code="0x1F9B2" name="U+1F9B2" />
+      <map code="0x1F9B3" name="U+1F9B3" />
+      <map code="0x1F9B4" name="U+1F9B4" />
+      <map code="0x1F9B5" name="U+1F9B5" />
+      <map code="0x1F9B6" name="U+1F9B6" />
+      <map code="0x1F9B7" name="U+1F9B7" />
+      <map code="0x1F9B8" name="U+1F9B8" />
+      <map code="0x1F9B9" name="U+1F9B9" />
+      <map code="0x1F9BA" name="U+1F9BA" />
+      <map code="0xE0001" name="U+E0001" />
+      <map code="0xE0002" name="U+E0002" />
+      <map code="0xE0003" name="U+E0003" />
+      <map code="0xE0004" name="U+E0004" />
+      <map code="0xE007F" name="U+E007F" />
+    </cmap_format_12>
+  </cmap>
+
+  <loca>
+    <!-- The 'loca' table will be calculated by the compiler -->
+  </loca>
+
+  <glyf>
+
+    <!-- The xMin, yMin, xMax and yMax values
+         will be recalculated by the compiler. -->
+
+    <TTGlyph name=".notdef" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+200D" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F1E6" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F1E7" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F3FB" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F3FC" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B0" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B1" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B2" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B3" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B4" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B5" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B6" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B7" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B8" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9B9" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+1F9BA" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+E0001" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+E0002" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+E0003" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+E0004" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="U+E007F" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="LigaForm1" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="LigaForm2" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="LigaForm3" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="LigaForm4" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="LigaForm5" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="LigaForm6" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+    <TTGlyph name="LigaForm7" xMin="0" yMin="0" xMax="100" yMax="100">
+      <contour>
+        <pt x="0" y="0" on="1" />
+        <pt x="100" y="0" on="1" />
+        <pt x="100" y="100" on="1" />
+        <pt x="0" y="100" on="1" />
+      </contour>
+      <instructions><assembly></assembly></instructions>
+    </TTGlyph>
+  </glyf>
+
+  <name>
+    <namerecord nameID="1" platformID="3" platEncID="1" langID="0x409">
+      EmojiBaseFont
+    </namerecord>
+    <namerecord nameID="2" platformID="3" platEncID="1" langID="0x409">
+      Regular
+    </namerecord>
+    <namerecord nameID="4" platformID="3" platEncID="1" langID="0x409">
+      EmojiBaseFont
+    </namerecord>
+    <namerecord nameID="6" platformID="3" platEncID="1" langID="0x409">
+      EmojiBaseFont
+    </namerecord>
+  </name>
+
+  <post>
+    <formatType value="3.0"/>
+    <italicAngle value="0.0"/>
+    <underlinePosition value="-75"/>
+    <underlineThickness value="50"/>
+    <isFixedPitch value="0"/>
+    <minMemType42 value="0"/>
+    <maxMemType42 value="0"/>
+    <minMemType1 value="0"/>
+    <maxMemType1 value="0"/>
+  </post>
+
+  <GSUB>
+    <Version value="0x00010000"/>
+    <ScriptList>
+      <ScriptRecord index="0">
+        <ScriptTag value="DFLT"/>
+        <Script>
+          <DefaultLangSys>
+            <ReqFeatureIndex value="65535"/>
+            <FeatureIndex index="0" value="0"/>
+          </DefaultLangSys>
+        </Script>
+      </ScriptRecord>
+    </ScriptList>
+    <FeatureList>
+      <FeatureRecord index="0">
+        <FeatureTag value="ccmp"/>
+        <Feature>
+          <LookupListIndex index="0" value="0"/>
+        </Feature>
+      </FeatureRecord>
+    </FeatureList>
+    <LookupList>
+      <Lookup index="0">
+        <LookupType value="4"/>
+        <LookupFlag value="0"/>
+        <LigatureSubst index="0" Format="1">
+          <LigatureSet glyph="U+1F9B0">
+            <!-- U+1F9B0 U+1F3FB -> LigaForm1 -->
+            <Ligature components="U+1F3FB" glyph="LigaForm1"/>
+
+            <!-- U+1F9B0 U+1F3FC -> LigaForm2 -->
+            <Ligature components="U+1F3FC" glyph="LigaForm2"/>
+          </LigatureSet>
+          <LigatureSet glyph="U+1F9B1">
+            <!-- U+1F9B1 U+1F3FB -> LigaForm3 -->
+            <Ligature components="U+1F3FB" glyph="LigaForm3"/>
+          </LigatureSet>
+          <LigatureSet glyph="U+1F9B2">
+            <Ligature components="U+200D,U+1F9B3,U+200D,U+1F9B4" glyph="LigaForm4"/>
+          </LigatureSet>
+          <LigatureSet glyph="U+1F9B3">
+            <Ligature components="U+200D,U+1F9B3,U+200D,U+1F9B4" glyph="LigaForm4"/>
+          </LigatureSet>
+          <LigatureSet glyph="U+1F9B4">
+            <Ligature components="U+200D,U+1F9B3,U+200D,U+1F9B4" glyph="LigaForm4"/>
+          </LigatureSet>
+          <LigatureSet glyph="U+1F9B6">
+            <!-- U+1F9B6 U+1F3FB -> LigaForm3 -->
+            <Ligature components="U+1F3FB" glyph="LigaForm3"/>
+          </LigatureSet>
+          <LigatureSet glyph="U+1F1E6">
+            <Ligature components="U+1F1E6" glyph="LigaForm6"/>
+            <Ligature components="U+1F1E7" glyph="LigaForm7"/>
+          </LigatureSet>
+          <LigatureSet glyph="U+1F9BA">
+            <Ligature components="U+E0001,U+E0002,U+E007F"  glyph="LigaForm6"/>
+            <Ligature components="U+E0003,U+E0004,U+E007F"  glyph="LigaForm7"/>
+          </LigatureSet>
+        </LigatureSubst>
+      </Lookup>
+    </LookupList>
+  </GSUB>
+</ttFont>

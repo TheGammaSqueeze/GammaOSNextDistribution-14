@@ -1,0 +1,45 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_st_secure_element2_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-GPL-2.0
+    default_applicable_licenses: ["hardware_st_secure_element2_license"],
+}
+
+cc_library_shared {
+    name: "android.hardware.secure_element.thales.libse",
+    vendor: true,
+    srcs: [
+        "src/checksum.c",
+        "src/iso7816_t1.c",
+        "src/libse-gto.c",
+        "src/spi.c",
+        "src/transport.c",
+        "src/log.c",
+    ],
+
+    local_include_dirs: [
+        "src",
+    ],
+
+    cflags: [
+        "-DANDROID",
+        "-DENABLE_LOGGING=1",
+        "-DENABLE_DEBUG=1",
+        "-Wno-unused-parameter",
+        "-Wno-unused-private-field",
+        "-Wno-error",
+        "-Wreturn-type",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "libhardware",
+        "liblog",
+        "libutils",
+    ],
+
+}

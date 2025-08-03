@@ -1,0 +1,83 @@
+{
+  "presubmit": [
+    {
+      "name": "VtsHalAudioCoreTargetTest"
+    },
+    {
+      "name": "audioeffect_tests"
+    },
+    {
+      "name": "audio_policy_config_xml_converter_tests"
+    },
+    {
+      "name": "trackplayerbase_tests"
+    },
+    {
+      "name": "VtsHalAudioEffectFactoryTargetTest"
+    },
+    {
+      "name": "VtsHalAudioEffectTargetTest"
+    },
+    {
+      "name": "VtsHalDownmixTargetTest"
+    },
+    {
+      "name": "VtsHalEnvironmentalReverbTargetTest"
+    },
+    {
+      "name": "VtsHalEqualizerTargetTest"
+    },
+    {
+      "name": "VtsHalHapticGeneratorTargetTest"
+    },
+    {
+      "name": "VtsHalLoudnessEnhancerTargetTest"
+    },
+    {
+      "name": "VtsHalPresetReverbTargetTest"
+    },
+    {
+      "name": "VtsHalVirtualizerTargetTest"
+    },
+    {
+      "name": "VtsHalVisualizerTargetTest"
+    },
+    {
+      "name": "VtsHalVolumeTargetTest"
+    },
+    {
+      "name": "VtsHalAECTargetTest"
+    },
+    {
+      "name": "VtsHalAGC1TargetTest"
+    },
+    {
+      "name": "VtsHalAGC2TargetTest"
+    },
+    {
+      "name": "VtsHalNSTargetTest"
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "VtsHalSpatializerTargetTest"
+    },
+    {
+      "name": "audiorecord_tests"
+    },
+    {
+      "name": "audiorouting_tests"
+    },
+    {
+      "name": "audiosystem_tests"
+    },
+    {
+      "name": "CtsVirtualDevicesTestCases",
+      "options" : [
+        {
+          "include-filter": "android.virtualdevice.cts.VirtualAudioTest"
+        }
+      ]
+    }
+  ]
+}

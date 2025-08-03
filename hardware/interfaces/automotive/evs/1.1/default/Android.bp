@@ -1,0 +1,67 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_binary {
+    name: "android.hardware.automotive.evs@1.1-service",
+    defaults: ["hidl_defaults"],
+    proprietary: true,
+    relative_install_path: "hw",
+    srcs: [
+        ":libgui_frame_event_aidl",
+        "*.cpp",
+    ],
+    init_rc: ["android.hardware.automotive.evs@1.1-service.rc"],
+    shared_libs: [
+        "android.frameworks.automotive.display@1.0",
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
+        "android.hardware.camera.device@3.3",
+        "android.hardware.graphics.bufferqueue@1.0",
+        "android.hardware.graphics.bufferqueue@2.0",
+        "android.hidl.allocator@1.0",
+        "android.hidl.memory@1.0",
+        "android.hidl.token@1.0-utils",
+        "libEGL",
+        "libGLESv2",
+        "libbase",
+        "libbinder",
+        "libbufferqueueconverter",
+        "libcamera_metadata",
+        "libhardware",
+        "libhidlbase",
+        "libhidlmemory",
+        "liblog",
+        "libtinyxml2",
+        "libui",
+        "libutils",
+    ],
+    cflags: [
+        "-O0",
+        "-g",
+        "-DLOG_TAG=\"MockEvsDriver\"",
+        "-DGL_GLEXT_PROTOTYPES",
+        "-DEGL_EGLEXT_PROTOTYPES",
+    ],
+    include_dirs: [
+        "frameworks/native/include/",
+    ],
+    required: [
+        "evs_default_configuration.xml",
+    ],
+    vintf_fragments: [
+        "manifest_android.hardware.automotive.evs@1.1-service.xml",
+    ],
+}
+
+prebuilt_etc {
+    name: "evs_default_configuration.xml",
+    soc_specific: true,
+    src: "resources/evs_default_configuration.xml",
+    sub_dir: "automotive/evs",
+}

@@ -1,0 +1,17 @@
+type hal_wifi_ext, domain;
+hal_server_domain(hal_wifi_ext, hal_wifi)
+
+type hal_wifi_ext_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hal_wifi_ext)
+
+# Allow to start the IWifi:wifi_ext service
+add_hwservice(hal_wifi_ext, hal_wifi_ext_hwservice);
+add_service(hal_wifi_ext, hal_wifi_ext_service)
+
+# Allow to set up bridged interface
+allowxperm hal_wifi_ext self:udp_socket ioctl { SIOCBRADDBR SIOCBRDELBR SIOCBRADDIF SIOCBRDELIF};
+
+userdebug_or_eng(`
+  allow hal_wifi_ext wifi_logging_data_file:dir rw_dir_perms;
+  allow hal_wifi_ext wifi_logging_data_file:file create_file_perms;
+')

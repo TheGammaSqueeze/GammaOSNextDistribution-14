@@ -1,0 +1,5 @@
+/dev/touch_offload                                                               u:object_r:touch_offload_device:s0
+/dev/touch_offload_fts                                                           u:object_r:touch_offload_device:s0
+/dev/touch_offload_fts_ext                                                       u:object_r:touch_offload_device:s0
+/dev/touch_offload_outer                                                         u:object_r:touch_offload_device:s0
+/vendor/bin/twoshay                                                              u:object_r:twoshay_exec:s0

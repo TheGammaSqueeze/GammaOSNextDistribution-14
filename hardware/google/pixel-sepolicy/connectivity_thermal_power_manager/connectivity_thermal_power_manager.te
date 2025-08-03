@@ -1,0 +1,15 @@
+# platform_apps cannot access PowerHAL, so we need to define our own domain.
+# Since we're defining and moving CTPM to its own domain, we need to assign
+# all of the previous permissions that we had as a platform_app
+
+type connectivity_thermal_power_manager, domain, coredomain, system_suspend_internal_server;
+
+app_domain(connectivity_thermal_power_manager)
+
+# register previous permissions we had as a platform_app
+allow connectivity_thermal_power_manager radio_service:service_manager find;
+allow connectivity_thermal_power_manager app_api_service:service_manager find;
+allow connectivity_thermal_power_manager system_api_service:service_manager find;
+
+# access power stats
+hal_client_domain(connectivity_thermal_power_manager, hal_power_stats);

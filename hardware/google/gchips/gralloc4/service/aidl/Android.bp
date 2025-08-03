@@ -1,0 +1,32 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "android.hardware.graphics.allocator-V1-service",
+    proprietary: true,
+    relative_install_path: "hw",
+    srcs: [
+        "service.cpp",
+    ],
+    init_rc: [
+        "android.hardware.graphics.allocator-aidl-service.rc",
+    ],
+    vintf_fragments: ["manifest_gralloc_aidl.xml"],
+    header_libs: [
+        "libgralloc_headers",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.allocator-V1-ndk",
+        "android.hardware.graphics.allocator-aidl-impl",
+        "libbinder_ndk",
+        "liblog",
+        "libutils",
+    ],
+    static_libs: [
+        "libaidlcommonsupport",
+    ],
+    required: [
+        "android.hardware.graphics.allocator-aidl-impl",
+    ],
+}

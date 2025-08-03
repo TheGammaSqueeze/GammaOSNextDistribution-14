@@ -1,0 +1,141 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_android_gpu",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+filegroup {
+    name: "UpdatableSystemFontTest_NotoColorEmoji.ttf",
+    srcs: ["UpdatableSystemFontTest_NotoColorEmoji.ttf"],
+}
+
+filegroup {
+    name: "UpdatableSystemFontTest_NotoSerif-Regular.ttf",
+    srcs: ["UpdatableSystemFontTest_NotoSerif-Regular.ttf"],
+}
+
+filegroup {
+    name: "UpdatableSystemFontTest_NotoSerif-Bold.ttf",
+    srcs: ["UpdatableSystemFontTest_NotoSerif-Bold.ttf"],
+}
+
+filegroup {
+    name: "UpdatableSystemFontTestKeyPem",
+    srcs: ["UpdatableSystemFontTestKey.pem"],
+}
+
+filegroup {
+    name: "UpdatableSystemFontTestCertPem",
+    srcs: ["UpdatableSystemFontTestCert.pem"],
+}
+
+filegroup {
+    name: "UpdatableSystemFontTestCertDer",
+    srcs: ["UpdatableSystemFontTestCert.der"],
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoColorEmojiV0.ttf",
+    srcs: [":UpdatableSystemFontTest_NotoColorEmoji.ttf"],
+    out: ["UpdatableSystemFontTest_NotoColorEmojiV0.ttf"],
+    tools: ["update_font_metadata"],
+    cmd: "$(location update_font_metadata) " +
+        "--input=$(in) " +
+        "--output=$(out) " +
+        "--revision=0",
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoColorEmojiVPlus1.ttf",
+    srcs: [":UpdatableSystemFontTest_NotoColorEmoji.ttf"],
+    out: ["UpdatableSystemFontTest_NotoColorEmojiVPlus1.ttf"],
+    tools: ["update_font_metadata"],
+    cmd: "$(location update_font_metadata) " +
+        "--input=$(in) " +
+        "--output=$(out) " +
+        "--revision=+1",
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoColorEmojiVPlus2.ttf",
+    srcs: [":UpdatableSystemFontTest_NotoColorEmoji.ttf"],
+    out: ["UpdatableSystemFontTest_NotoColorEmojiVPlus2.ttf"],
+    tools: ["update_font_metadata"],
+    cmd: "$(location update_font_metadata) " +
+        "--input=$(in) " +
+        "--output=$(out) " +
+        "--revision=+2",
+}
+
+genrule_defaults {
+    name: "updatable_system_font_sig_gen_default",
+    tools: ["fsverity"],
+    tool_files: [
+        ":UpdatableSystemFontTestKeyPem",
+        ":UpdatableSystemFontTestCertPem",
+    ],
+    cmd: "$(location fsverity) sign $(in) $(out) " +
+        "--key=$(location :UpdatableSystemFontTestKeyPem) " +
+        "--cert=$(location :UpdatableSystemFontTestCertPem) " +
+        "> /dev/null",
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoColorEmoji.sig",
+    defaults: ["updatable_system_font_sig_gen_default"],
+    srcs: [":UpdatableSystemFontTest_NotoColorEmoji.ttf"],
+    out: ["UpdatableSystemFontTest_NotoColorEmoji.sig"],
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoColorEmojiV0.sig",
+    defaults: ["updatable_system_font_sig_gen_default"],
+    srcs: [":UpdatableSystemFontTest_NotoColorEmojiV0.ttf"],
+    out: ["UpdatableSystemFontTest_NotoColorEmojiV0.sig"],
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoColorEmojiVPlus1.sig",
+    defaults: ["updatable_system_font_sig_gen_default"],
+    srcs: [":UpdatableSystemFontTest_NotoColorEmojiVPlus1.ttf"],
+    out: ["UpdatableSystemFontTest_NotoColorEmojiVPlus1.sig"],
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoColorEmojiVPlus2.sig",
+    defaults: ["updatable_system_font_sig_gen_default"],
+    srcs: [":UpdatableSystemFontTest_NotoColorEmojiVPlus2.ttf"],
+    out: ["UpdatableSystemFontTest_NotoColorEmojiVPlus2.sig"],
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoSerif-Regular.sig",
+    defaults: ["updatable_system_font_sig_gen_default"],
+    srcs: ["UpdatableSystemFontTest_NotoSerif-Regular.ttf"],
+    out: ["UpdatableSystemFontTest_NotoSerif-Regular.sig"],
+}
+
+genrule {
+    name: "UpdatableSystemFontTest_NotoSerif-Bold.sig",
+    defaults: ["updatable_system_font_sig_gen_default"],
+    srcs: ["UpdatableSystemFontTest_NotoSerif-Bold.ttf"],
+    out: ["UpdatableSystemFontTest_NotoSerif-Bold.sig"],
+}

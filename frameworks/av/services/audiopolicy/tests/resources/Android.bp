@@ -1,0 +1,21 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+filegroup {
+    name: "audiopolicytest_configuration_files",
+    srcs: [
+        "test_audio_policy_configuration.xml",
+        "test_audio_policy_primary_only_configuration.xml",
+        "test_car_ap_atmos_offload_configuration.xml",
+        "test_invalid_audio_policy_configuration.xml",
+        "test_tv_apm_configuration.xml",
+        "test_settop_box_surround_configuration.xml",
+    ],
+}

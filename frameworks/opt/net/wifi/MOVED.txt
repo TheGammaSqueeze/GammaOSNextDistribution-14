@@ -1,0 +1,10 @@
+Source code and tests for Wifi service have moved to
+packages/modules/Wifi/service.
+
+- frameworks/opt/net/wifi/service/apex -> packages/modules/Wifi/apex
+- frameworks/opt/net/wifi/service/java -> packages/modules/Wifi/service/java
+- frameworks/opt/net/wifi/service/res -> packages/modules/Wifi/service/ServiceWifiResources/res
+- frameworks/opt/net/wifi/tests/ -> packages/modules/Wifi/service/tests
+
+What remains in frameworks/opt/net/wifi are Wifi libraries that
+are not part of the Wifi module.

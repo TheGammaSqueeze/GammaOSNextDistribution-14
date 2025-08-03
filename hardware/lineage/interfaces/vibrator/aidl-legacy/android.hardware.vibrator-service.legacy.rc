@@ -1,0 +1,4 @@
+service vendor.vibrator-legacy /vendor/bin/hw/android.hardware.vibrator-service.legacy
+    class hal
+    user system
+    group system

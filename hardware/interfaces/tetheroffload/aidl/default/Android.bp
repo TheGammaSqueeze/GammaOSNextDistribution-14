@@ -1,0 +1,70 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "android.hardware.tetheroffload-service.example",
+    relative_install_path: "hw",
+    vendor: true,
+
+    stl: "c++_static",
+    static_libs: [
+        "android.hardware.tetheroffload-V1-ndk",
+        "libbase",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+    srcs: [
+        "main.cpp",
+        "Offload.cpp",
+    ],
+
+    installable: false, // installed in APEX
+}
+
+prebuilt_etc {
+    name: "tetheroffload-example.rc",
+    src: "tetheroffload-example.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "tetheroffload-example.xml",
+    src: "tetheroffload-example.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+apex {
+    name: "com.android.hardware.tetheroffload",
+    manifest: "apex_manifest.json",
+    file_contexts: "apex_file_contexts",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    updatable: false,
+    vendor: true,
+
+    binaries: [
+        "android.hardware.tetheroffload-service.example",
+    ],
+    prebuilts: [
+        "tetheroffload-example.rc",
+        "tetheroffload-example.xml",
+    ],
+}

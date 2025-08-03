@@ -1,0 +1,26 @@
+type hardware_info_app, domain;
+app_domain(hardware_info_app)
+
+allow hardware_info_app app_api_service:service_manager find;
+
+# Storage
+allow hardware_info_app sysfs_scsi_devices_0000:dir search;
+allow hardware_info_app sysfs_scsi_devices_0000:file r_file_perms;
+
+# Audio
+allow hardware_info_app sysfs_pixelstats:file r_file_perms;
+
+# Batteryinfo
+allow hardware_info_app sysfs_batteryinfo:dir search;
+allow hardware_info_app sysfs_batteryinfo:file r_file_perms;
+
+# Display
+allow hardware_info_app sysfs_display:dir search;
+allow hardware_info_app sysfs_display:file r_file_perms;
+
+# SoC
+allow hardware_info_app sysfs_soc:file r_file_perms;
+allow hardware_info_app sysfs_chip_id:file r_file_perms;
+
+# Batery history
+allow hardware_info_app battery_history_device:chr_file r_file_perms;

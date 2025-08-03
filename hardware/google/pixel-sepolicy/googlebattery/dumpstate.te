@@ -1,0 +1,3 @@
+# To find and bind Google Battery HAL
+allow dumpstate hal_googlebattery_service:service_manager find;
+binder_call(dumpstate, hal_googlebattery)

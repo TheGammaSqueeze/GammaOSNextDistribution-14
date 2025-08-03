@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015 The CyanogenMod Project
+                   2017-2023 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lineageos_system_label">Córas LineageOS</string>
+    <string name="permlab_modifyProfiles">próifílí córais a mhodhnú</string>
+    <string name="permdesc_modifyProfiles">Ligeann sé d\'aip próifílí córais a mhodhnú.</string>
+    <string name="permlab_useHardwareFramework">úsáid creatlach crua-earraí</string>
+    <string name="permdesc_useHardwareFramework">Ligeann sé d’app rochtain a fháil ar chreat crua-earraí Lineage.</string>
+    <string name="permlab_writeSettings">athraigh socruithe an chórais Lineage</string>
+    <string name="permdesc_writeSettings">Ligeann sé d’aip socruithe córais Lineage a mhodhnú.</string>
+    <string name="permlab_writeSecureSettings">athraigh socruithe córas slán Lineage</string>
+    <string name="permdesc_writeSecureSettings">Ligeann sé d’aip socruithe córais slán Lineage a mhodhnú. Ní le húsáid ag gnáth-apps.</string>
+    <string name="profileNameDefault">Réamhshocrú</string>
+    <string name="profileNameWork">Obair</string>
+    <string name="profileNameHome">Baile</string>
+    <string name="profileNameSilent">Ciúin</string>
+    <string name="profileNameNight">Oíche</string>
+    <string name="profileNameAutomobile">Gluaisteán</string>
+    <string name="profileGroupPhone">Fón</string>
+    <string name="profileGroupCalendar">Féilire</string>
+    <string name="profileGroupGmail">Gmail</string>
+    <string name="profileGroupEmail">Ríomhphost</string>
+    <string name="profileGroupSMS">SMS</string>
+    <string name="wildcardProfile">Eile</string>
+    <string name="live_display_auto">Uathoibríoch</string>
+    <string name="live_display_auto_summary">Coigeartaigh teocht dath an scáileáin go huathoibríoch tar éis luí na gréine agus éirí na gréine</string>
+    <string name="live_display_off">As</string>
+    <string name="live_display_off_summary">Díchumasaigh gach coigeartú</string>
+    <string name="live_display_day">Lá</string>
+    <string name="live_display_day_summary">Bain úsáid as socruithe lae amháin</string>
+    <string name="live_display_night">Oíche</string>
+    <string name="live_display_night_summary">Bain úsáid as socruithe oíche amháin</string>
+    <string name="live_display_outdoor">Amuigh faoin aer (ghrian geal)</string>
+    <string name="live_display_outdoor_summary">Bain úsáid as socruithe lasmuigh amháin</string>
+    <string name="live_display_hint">Is féidir le LiveDisplay cabhrú le eyestrain a laghdú agus cabhrú leat codladh san oíche. Cliceáil anseo chun triail a bhaint as!</string>
+    <string name="accessibility_quick_settings_live_display_off">Tá LiveDisplay múchta.</string>
+    <string name="accessibility_quick_settings_live_display_auto">LiveDisplay: mód uathoibríoch.</string>
+    <string name="accessibility_quick_settings_live_display_day">LiveDisplay: mód lae.</string>
+    <string name="accessibility_quick_settings_live_display_night">LiveDisplay: mód oíche.</string>
+    <string name="accessibility_quick_settings_live_display_outdoor">LiveDisplay: mód lasmuigh.</string>
+    <string name="accessibility_quick_settings_live_display_changed_off">Tá LiveDisplay múchta.</string>
+    <string name="accessibility_quick_settings_live_display_changed_auto">Athraíodh LiveDisplay go mód uathoibríoch.</string>
+    <string name="accessibility_quick_settings_live_display_changed_day">D\'athraigh LiveDisplay go mód lae.</string>
+    <string name="accessibility_quick_settings_live_display_changed_night">D\'athraigh LiveDisplay go mód oíche.</string>
+    <string name="accessibility_quick_settings_live_display_changed_outdoor">D\'athraigh LiveDisplay go mód lasmuigh.</string>
+    <string name="permlab_manageLiveDisplay">socruithe LiveDisplay a bhainistiú</string>
+    <string name="permdesc_manageLiveDisplay">Ligeann sé d’aip ardsocruithe taispeána a chumrú.</string>
+    <string name="permlab_manageRemotePrefs">socruithe cianda a bhainistiú</string>
+    <string name="permdesc_manageRemotePrefs">Ligeann sé d’aip cianshocruithe a bhainistiú</string>
+    <string name="build_date">Dáta tógála</string>
+    <string name="lineage_api_level">Leibhéal API LineageOS</string>
+    <string name="lineage_updates">Nuashonruithe do LineageOS</string>
+    <string name="lineage_version">LineageOS leagan</string>
+    <string name="lineage_vendor_security_patch">Leibhéal paiste slándála díoltóir</string>
+    <string name="unknown">Anaithnid</string>
+    <string name="app_killed_message">Maraíodh an t-iarratas</string>
+    <string name="kilobitspersecond_short">kb/s</string>
+    <string name="megabitspersecond_short">Mb/s</string>
+    <string name="kilobytespersecond_short">kB/s</string>
+    <string name="megabytespersecond_short">MB/s</string>
+    <string name="kilobytespersecond_compact">k</string>
+    <string name="megabytespersecond_compact">M</string>
+    <string name="trust_feature_name">Iontaobhas</string>
+    <string name="permlab_trustInterface">rochtain a fháil ar chomhéadan Iontaobhais</string>
+    <string name="permdesc_trustInterface">Ligeann sé d’aip rabhaidh agus moltaí Iontaobhais a thaispeáint</string>
+    <string name="trust_notification_channel">Foláirimh Iontaobhas</string>
+    <string name="trust_notification_title_security">Iontaobhas \u2022 Slándáil córais</string>
+    <string name="trust_notification_content_selinux">Níl SELinux ag cur i bhfeidhm, tá do shlándáil lagaithe</string>
+    <string name="trust_notification_content_keys">Síníodh an tógáil seo le heochracha poiblí</string>
+    <string name="trust_notification_title_onboarding">Aimsigh Iontaobhas</string>
+    <string name="trust_notification_content_onboarding">Faigh amach conas a chinntiú go bhfuil do ghléas sábháilte</string>
+    <string name="trust_notification_action_manage">Bainistigh foláirimh</string>
+    <string name="charging_control_notification_channel">Rialú muirir</string>
+    <string name="charging_control_notification_title">Rialú muirir</string>
+    <string name="charging_control_notification_cancel_once">Cealaigh</string>
+    <string name="charging_control_notification_content_limit">Gearrfar ceallraí go %1$d%%</string>
+    <string name="charging_control_notification_content_limit_reached">Gearrtar ceallraí go %1$d%%</string>
+    <string name="charging_control_notification_content_target">Beidh ceallraí luchtaithe go hiomlán ag %1$s</string>
+    <string name="charging_control_notification_content_target_reached">Gearrtar ceallraí</string>
+</resources>

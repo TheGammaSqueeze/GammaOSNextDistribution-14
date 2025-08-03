@@ -1,0 +1,30 @@
+{
+  "presubmit": [
+
+        {
+            "name": "CtsMediaTranscodingTestCases"
+        }
+    // TODO(b/153661591) enable test once the bug is fixed
+    // This tests the extractor path
+    // {
+    //    "name": "GtsYouTubeTestCases",
+    //    "options" : [
+    //      {
+    //        "include-annotation": "android.platform.test.annotations.Presubmit"
+    //      },
+    //      {
+    //        "include-filter": "com.google.android.youtube.gts.SimultaneousClearAndProtectedDecodeTest#testSimultaneousClearAndProtectedDecode"
+    //      }
+    //    ]
+    //  }
+  ],
+
+  // tests which require dynamic content
+  // invoke with: atest -- --enable-module-dynamic-download=true
+  // TODO(b/148094059): unit tests not allowed to download content
+  "dynamic-presubmit": [
+    { "name": "ExtractorUnitTest" }
+  ]
+
+
+}

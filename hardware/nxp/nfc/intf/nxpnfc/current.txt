@@ -1,0 +1,2 @@
+bfa8ad7d3002a8d50529ca97882ef39ecb58630fffcb38dda0874bb9fd1cecd5 vendor.nxp.nxpnfc@2.0::types
+e65f51748c114bd4dfe57dac4c2bd690000c770e76c52df76e234faec500a248 vendor.nxp.nxpnfc@2.0::INxpNfc

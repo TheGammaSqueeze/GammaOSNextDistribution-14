@@ -1,0 +1,38 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+java_binary_host {
+    name: "lockedregioncodeinjection",
+    manifest: "manifest.txt",
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "guava",
+        "ow2-asm",
+        "ow2-asm-analysis",
+        "ow2-asm-commons",
+        "ow2-asm-tree",
+    ],
+}
+
+java_library_host {
+   name: "lockedregioncodeinjection_input",
+   manifest: "test/manifest.txt",
+   srcs: ["test/*/*.java"],
+   static_libs: [
+        "guava",
+        "ow2-asm",
+        "ow2-asm-analysis",
+        "ow2-asm-commons",
+        "ow2-asm-tree",
+        "hamcrest-library",
+        "hamcrest",
+        "platform-test-annotations",
+        "junit",
+    ],
+}

@@ -1,0 +1,139 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.autofill;
+
+option java_outer_classname = "AutofillProtoEnums";
+option java_multiple_files = true;
+
+// Logging constants for Autofill system UI events.
+enum UiEventType {
+  TYPE_UNKNOWN = 0;
+  // OPEN: Settings > Apps > Default Apps > Default autofill app
+  DEFAULT_AUTOFILL_PICKER = 1;
+  // ACTION: Update default app from Settings
+  ACTION_SETTINGS_UPDATE_DEFAULT_APP = 2;
+  // Autofill service called API that disables itself
+  AUTOFILL_SERVICE_DISABLED_SELF = 3;
+  // An autofill service asked to disable autofill for a given application.
+  AUTOFILL_SERVICE_DISABLED_APP = 4;
+  // An autofill service asked to disable autofill for a given activity.
+  AUTOFILL_SERVICE_DISABLED_ACTIVITY = 5;
+  // User manually enable autofill from the denylist for a given app.
+  AUTOFILL_ENABLED_FROM_DENYLIST = 6;
+  // An app attempted to forge a different component name in the AssisStructure that would be passed to the autofill service.
+  AUTOFILL_FORGED_COMPONENT_ATTEMPT = 7;
+}
+
+enum FillRequestTriggerReason {
+  TRIGGER_REASON_UNKNOWN = 0;
+  // A user or an app explicitly requests The request.
+  TRIGGER_REASON_EXPLICITLY_REQUESTED = 1;
+  // The request is retriggered by the provider.
+  TRIGGER_REASON_RETRIGGER = 2;
+  // The request is pre triggered.
+  TRIGGER_REASON_PRE_TRIGGER = 3;
+  // The request is normally triggered.
+  TRIGGER_REASON_NORMAL_TRIGGER = 4;
+  // The request is triggered from cached response.
+  TRIGGER_REASON_SERVED_FROM_CACHED_RESPONSE = 5;
+}
+
+enum AutofillDisplayPresentationType {
+  UNKNOWN_AUTOFILL_DISPLAY_PRESENTATION_TYPE = 0;
+  MENU = 1;    // aka drop-down
+  INLINE = 2;  // shown via IME
+  DIALOG = 3;  // aka Bottom-sheet dialog
+}
+
+enum FillResponseStatus {
+  RESPONSE_STATUS_UNKNOWN = 0;
+  RESPONSE_STATUS_FAILURE = 1;
+  RESPONSE_STATUS_SUCCESS = 2;
+  RESPONSE_STATUS_CANCELLED = 3;
+  RESPONSE_STATUS_TIMEOUT = 4;
+  RESPONSE_STATUS_SESSION_DESTROYED = 5;
+}
+
+enum AuthenticationType {
+  AUTHENTICATION_TYPE_UNKNOWN = 0;
+  DATASET_AUTHENTICATION = 1;
+  FULL_AUTHENTICATION = 2;
+}
+
+enum AuthenticationResult {
+  AUTHENTICATION_RESULT_UNKNOWN = 0;
+  AUTHENTICATION_SUCCESS = 1;
+  AUTHENTICATION_FAILURE = 2;
+}
+
+enum SaveUiShownReason {
+  SAVE_UI_SHOWN_REASON_UNKNOWN = 0;
+  SAVE_UI_SHOWN_REASON_REQUIRED_ID_CHANGE = 1;
+  SAVE_UI_SHOWN_REASON_OPTIONAL_ID_CHANGE = 2;
+  SAVE_UI_SHOWN_REASON_TRIGGER_ID_SET = 3;
+}
+
+enum SaveUiNotShownReason {
+  NO_SAVE_REASON_UNKNOWN = 0;
+  NO_SAVE_REASON_NONE = 1;
+  NO_SAVE_REASON_NO_SAVE_INFO = 2;
+  NO_SAVE_REASON_WITH_DELAY_SAVE_FLAG = 3;
+  NO_SAVE_REASON_HAS_EMPTY_REQUIRED = 4;
+  NO_SAVE_REASON_NO_VALUE_CHANGED = 5;
+  NO_SAVE_REASON_FIELD_VALIDATION_FAILED = 6;
+  NO_SAVE_REASON_DATASET_MATCH = 7;
+  NO_SAVE_REASON_WITH_DONT_SAVE_ON_FINISH_FLAG = 8;
+  NO_SAVE_REASON_SESSION_DESTROYED = 9;
+}
+
+// Determines the reason for committing the autofill Session.
+enum AutofillCommitReason {
+  COMMIT_REASON_UNKNOWN = 0;
+  COMMIT_REASON_ACTIVITY_FINISHED = 1;
+  COMMIT_REASON_VIEW_COMMITTED = 2;
+  COMMIT_REASON_VIEW_CLICKED = 3;
+  COMMIT_REASON_VIEW_CHANGED = 4;
+  COMMIT_REASON_SESSION_DESTROYED = 5;
+}
+
+enum DatasetPickedReason {
+  PICK_REASON_UNKNOWN = 0;
+  PICK_REASON_NO_PCC = 1;
+  PICK_REASON_PROVIDER_DETECTION_ONLY = 2;
+  PICK_REASON_PROVIDER_DETECTION_PREFERRED_WITH_PCC = 3;
+  PICK_REASON_PCC_DETECTION_ONLY = 4;
+  PICK_REASON_PCC_DETECTION_PREFERRED_WITH_PROVIDER = 5;
+}
+
+// Enum for specifying which detection provider gets the preference when choosing
+// final datasets.
+enum DetectionPreference {
+  DETECTION_PREFER_UNKONWN = 0;
+  DETECTION_PREFER_AUTOFILL_PROVIDER = 1;
+  DETECTION_PREFER_PCC = 2;
+}
+
+// Enum for specifying which detection provider gets the preference when choosing
+// final datasets.
+enum FieldClassificationRequestStatus {
+  STATUS_UNKNOWN = 0;
+  STATUS_SUCCESS = 1;
+  STATUS_FAIL = 2;
+  STATUS_CANCELLED = 3;
+}

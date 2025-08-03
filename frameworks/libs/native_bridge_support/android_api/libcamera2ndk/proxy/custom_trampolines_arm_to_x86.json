@@ -1,0 +1,69 @@
+{
+  "symbols": {
+    "ACameraCaptureSession_capture": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraCaptureSession_captureV2": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraCaptureSession_logicalCamera_capture": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraCaptureSession_logicalCamera_captureV2": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraCaptureSession_logicalCamera_setRepeatingRequest": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraCaptureSession_logicalCamera_setRepeatingRequestV2": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraCaptureSession_setRepeatingRequest": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraCaptureSession_setRepeatingRequestV2": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraDevice_createCaptureSession": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraDevice_createCaptureSessionWithSessionParameters": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraManager_openCamera": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraManager_registerAvailabilityCallback": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraManager_registerExtendedAvailabilityCallback": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraManager_unregisterAvailabilityCallback": {
+      "call_method": "custom_thunk"
+    },
+    "ACameraManager_unregisterExtendedAvailabilityCallback": {
+      "call_method": "custom_thunk"
+    }
+  },
+  "types": {
+    "struct ACameraCaptureSession": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct ACameraDevice": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct _JNIEnv*": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "JNIEnv vtable is wrapped on startup"
+      ]
+    }
+  }
+}

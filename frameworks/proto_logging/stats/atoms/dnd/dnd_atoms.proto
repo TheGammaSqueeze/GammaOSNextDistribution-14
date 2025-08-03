@@ -1,0 +1,75 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.dnd;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/dnd/dnd_enums.proto";
+
+option java_package = "com.android.os.dnd";
+option java_multiple_files = true;
+
+/**
+ * Atom that represents an item in the list of Do Not Disturb rules, pulled from
+ * NotificationManagerService.java.
+ */
+message DNDModeProto {
+    optional int32 user = 1;  // Android user ID (0, 1, 10, ...)
+    optional bool enabled = 2;  // true for ROOT_CONFIG if a manualRule is enabled
+    optional bool channels_bypassing = 3; // only valid for ROOT_CONFIG
+    optional android.stats.dnd.ZenMode zen_mode = 4;
+    // id is one of the system default rule IDs, or empty
+    // May also be "MANUAL_RULE" to indicate app-activation of the manual rule.
+    optional string id = 5;
+    optional int32 uid = 6 [(is_uid) = true]; // currently only SYSTEM_UID or 0 for other
+    optional DNDPolicyProto policy = 7 [(log_mode) = MODE_BYTES];
+    optional int32 rule_modified_fields = 8;
+    optional int32 policy_modified_fields = 9;
+    optional int32 device_effects_modified_fields = 10;
+    optional android.stats.dnd.ActiveRuleType rule_type = 11;
+}
+
+/**
+ * Message that represents a Do Not Disturb policy, an optional detail proto for DNDModeProto
+ * and DNDStateChanged.
+ */
+message DNDPolicyProto {
+    optional android.stats.dnd.State calls = 1;
+    optional android.stats.dnd.State repeat_callers = 2;
+    optional android.stats.dnd.State messages = 3;
+    optional android.stats.dnd.State conversations = 4;
+    optional android.stats.dnd.State reminders = 5;
+    optional android.stats.dnd.State events = 6;
+    optional android.stats.dnd.State alarms = 7;
+    optional android.stats.dnd.State media = 8;
+    optional android.stats.dnd.State system = 9;
+    optional android.stats.dnd.State fullscreen = 10;
+    optional android.stats.dnd.State lights = 11;
+    optional android.stats.dnd.State peek = 12;
+    optional android.stats.dnd.State status_bar = 13;
+    optional android.stats.dnd.State badge = 14;
+    optional android.stats.dnd.State ambient = 15;
+    optional android.stats.dnd.State notification_list = 16;
+
+    optional android.stats.dnd.PeopleType allow_calls_from = 17;
+    optional android.stats.dnd.PeopleType allow_messages_from = 18;
+
+    optional android.stats.dnd.ConversationType allow_conversations_from = 19;
+
+    optional android.stats.dnd.ChannelPolicy allow_channels = 20;
+}

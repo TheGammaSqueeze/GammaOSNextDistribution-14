@@ -1,0 +1,2 @@
+/mnt/vendor/persist/haptics(/.*)?   u:object_r:persist_haptics_file:s0
+/persist/haptics(/.*)?              u:object_r:persist_haptics_file:s0

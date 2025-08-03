@@ -1,0 +1,711 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.wifi;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/enums/stats/connectivity/network_stack.proto";
+import "frameworks/proto_logging/stats/enums/wifi/enums.proto";
+import "frameworks/proto_logging/stats/attribution_node.proto";
+
+option java_package = "com.android.os.wifi";
+option java_multiple_files = true;
+
+extend Atom {
+    // Push metrics
+    optional WifiAwareNdpReported wifi_aware_ndp_reported = 638 [(module) = "wifi"];
+    optional WifiAwareAttachReported wifi_aware_attach_reported = 639 [(module) = "wifi"];
+    optional WifiSelfRecoveryTriggered wifi_self_recovery_triggered = 661 [(module) = "wifi"];
+    optional SoftApStarted soft_ap_started = 680 [(module) = "wifi"];
+    optional SoftApStopped soft_ap_stopped = 681 [(module) = "wifi"];
+    optional WifiLockReleased wifi_lock_released = 687 [(module) = "wifi"];
+    optional WifiLockDeactivated wifi_lock_deactivated = 688 [(module) = "wifi"];
+    optional WifiConfigSaved wifi_config_saved = 689 [(module) = "wifi"];
+    optional WifiAwareResourceUsingChanged wifi_aware_resource_using_changed
+        = 690 [(module) = "wifi"];
+    optional WifiAwareHalApiCalled wifi_aware_hal_api_called = 691 [(module) = "wifi"];
+    optional WifiLocalOnlyRequestReceived wifi_local_only_request_received
+        = 692 [(module) = "wifi"];
+    optional WifiLocalOnlyRequestScanTriggered wifi_local_only_request_scan_triggered
+        = 693 [(module) = "wifi"];
+    optional WifiThreadTaskExecuted wifi_thread_task_executed = 694 [(module) = "wifi"];
+    optional WifiStateChanged wifi_state_changed = 700 [(module) = "wifi"];
+    optional PnoScanStarted pno_scan_started = 719 [(module) = "wifi"];
+    optional PnoScanStopped pno_scan_stopped = 720 [(module) = "wifi"];
+    optional WifiIsUnusableReported wifi_is_unusable_reported = 722 [(module) = "wifi"];
+    optional WifiApCapabilitiesReported wifi_ap_capabilities_reported= 723 [(module) = "wifi"];
+    optional SoftApStateChanged soft_ap_state_changed = 805 [(module) = "wifi"];
+
+    // Pull metrics
+    optional WifiAwareCapabilities wifi_aware_capabilities = 10190 [(module) = "wifi"];
+    optional WifiModuleInfo wifi_module_info = 10193 [(module) = "wifi"];
+    optional WifiSettingInfo wifi_setting_info = 10194 [(module) = "wifi"];
+    optional WifiComplexSettingInfo wifi_complex_setting_info = 10195 [(module) = "wifi"];
+    optional WifiConfiguredNetworkInfo wifi_configured_network_info = 10198 [(module) = "wifi"];
+}
+
+/**
+ * Pulled atom for tracking wifi version number.
+ */
+message WifiModuleInfo {
+    enum BuildType {
+        TYPE_UNKNOWN = 0;
+        TYPE_BUILT_FROM_SOURCE = 1;
+        TYPE_PREBUILT = 2;
+    }
+    // Version number of the wifi module
+    optional int32 version_number = 1;
+    // The type of the wifi module
+    optional BuildType build_type = 2;
+}
+
+
+/**
+ * Logged when wifi aware data path is completed
+ */
+message WifiAwareNdpReported {
+    enum Role {
+        ROLE_UNKNOWN = 0;
+        ROLE_INITIATOR = 1;
+        ROLE_RESPONDER = 2;
+    }
+    // Role of data path
+    optional Role role = 1;
+    // If it is over out-of-band
+    optional bool is_out_of_band = 2;
+    // Status of NDP
+    optional android.net.wifi.AwareStatus status = 3;
+    // Duration to create NDP in millis.
+    optional int32 ndp_latency_ms= 4;
+    // The latency of discovery + NDP in millis.
+    optional int32 discovery_ndp_latency_ms= 5;
+    // Channel frequency in MHz, 0 if unavailable, >= 2400 otherwise.
+    optional int32 channel_frequency_mhz= 6;
+    // If the instant mode is enabled
+    optional bool is_instant_mode = 7;
+    // The caller type of the NDP request
+    optional android.net.wifi.WifiCallerType caller_type = 8;
+    // The Attribution tag to identify the caller
+    optional string attribution_tag = 9;
+    // The uid of the caller
+    optional int32 uid = 10 [(is_uid) = true];
+}
+
+/**
+ * Logged when wifi aware attach is completed
+ */
+message WifiAwareAttachReported {
+    // Status of attach
+    optional android.net.wifi.AwareStatus status = 1;
+    // The caller type of the attach
+    optional android.net.wifi.WifiCallerType caller_type = 2;
+    // The Attribution tag to identify the caller
+    optional string attribution_tag = 3;
+    // The uid of the caller
+    optional int32 uid = 4 [(is_uid) = true];
+}
+
+/**
+ * Logged when wifi self recovery triggered
+ */
+message WifiSelfRecoveryTriggered {
+    enum Reason {
+        REASON_UNKNOWN = 0;
+        REASON_LAST_RESORT_WDOG = 1;
+        REASON_WIFINATIVE_FAILURE = 2;
+        REASON_STA_IFACE_DOWN = 3;
+        REASON_API_CALL = 4;
+        REASON_SUBSYSTEM_RESTART = 5;
+        REASON_IFACE_ADDED = 6;
+    }
+    enum Result {
+        RES_UNSPECIFIED = 0;
+        RES_RESTART_SUCCESS = 1;
+        RES_INVALID_REASON = 2;
+        RES_IFACE_DOWN = 3;
+        RES_IFACE_ADD_DISABLED = 4;
+        RES_RETRY_DISABLED = 5;
+        RES_ABOVE_MAX_RETRY = 6;
+        RES_RESTART_FAILURE = 7;
+        RES_RESTART_STARTED_INTERNAL_RECOVERY = 8;
+        RES_RESTART_STARTED_INTERNAL_RECOVERY_BY_NATIVE_CALLBACK = 9;
+    }
+
+    // Trigger reason
+    optional Reason reason = 1;
+    // Self recovery result
+    optional Result result = 2;
+    // Record time elapsed from last trigger event
+    optional int64 time_elapsed_from_last_millis = 3;
+}
+
+/**
+ * Logged when SoftAp is started or stopped.
+ */
+message SoftApStateChanged {
+    enum HotspotState {
+        // Unknown - reserved field for invalid data
+        STATE_UNKNOWN = 0;
+
+        // SoftAp is on
+        STATE_OFF = 1;
+
+        // SoftAp is off
+        STATE_ON = 2;
+    }
+
+    // New hotspot state.
+    optional HotspotState hotspot_on = 1 [
+        (state_field_option).exclusive_state = true,
+        (state_field_option).nested = false
+    ];
+}
+
+/**
+ * Logged when Soft AP is started
+ */
+message SoftApStarted {
+    /**
+     * Result of starting Soft AP
+     */
+    enum StartResult {
+        // Unknown
+        START_RESULT_UNKNOWN = 0;
+        // Successful start
+        START_RESULT_SUCCESS = 1;
+        // General failure
+        START_RESULT_FAILURE_GENERAL = 2;
+        // Failed due to no channel available
+        START_RESULT_FAILURE_NO_CHANNEL = 3;
+        // Failed due to config being unsupported
+        START_RESULT_FAILURE_UNSUPPORTED_CONFIG = 4;
+        // Failed to start the HAL
+        START_RESULT_FAILURE_START_HAL = 5;
+        // Failed to start hostapd
+        START_RESULT_FAILURE_START_HOSTAPD = 6;
+        // Failed due to interface conflict with user rejection
+        START_RESULT_FAILURE_INTERFACE_CONFLICT_USER_REJECTED = 7;
+        // Failed due to interface conflict
+        START_RESULT_FAILURE_INTERFACE_CONFLICT = 8;
+        // Failed to create interface in vendor HAL
+        START_RESULT_FAILURE_CREATE_INTERFACE = 9;
+        // Failed to set country code
+        START_RESULT_FAILURE_SET_COUNTRY_CODE = 10;
+        // Failed to set mac address
+        START_RESULT_FAILURE_SET_MAC_ADDRESS = 11;
+        // Failed to register AP callback with hostapd
+        START_RESULT_FAILURE_REGISTER_AP_CALLBACK_HOSTAPD = 12;
+        // Failed to register AP callback with wificond
+        START_RESULT_FAILURE_REGISTER_AP_CALLBACK_WIFICOND = 13;
+        // Failed to add AP to hostapd
+        START_RESULT_FAILURE_ADD_AP_HOSTAPD = 14;
+    }
+    // Result of the start event
+    optional StartResult result = 1;
+    // Role of the Soft AP
+    optional android.net.wifi.SoftApRole role = 2;
+    // First band bitmask indexed by WifiBandBucket
+    optional int32 band1 = 3;
+    // Second band bitmask indexed by WifiBandBucket
+    optional int32 band2 = 4;
+    // Whether DBS is supported or not
+    optional bool dbs_supported = 5;
+    // STA + AP concurrency capability of the device
+    optional android.net.wifi.StaApConcurrency sta_ap_concurrency = 6;
+    // STA connection status at the time of starting
+    optional android.net.wifi.StaStatus sta_status = 7;
+    // Authentication type of the Soft AP
+    optional android.net.wifi.WifiAuthType auth_type = 8;
+}
+
+/**
+ * Logged when Soft AP is stopped
+ */
+message SoftApStopped {
+    /**
+     * Type of Soft AP stop event
+     */
+    enum StopEvent {
+        // Unknown
+        STOP_EVENT_UNKNOWN = 0;
+        // Stopped by the user
+        STOP_EVENT_STOPPED = 1;
+        // Stopped due to interface down
+        STOP_EVENT_INTERFACE_DOWN = 2;
+        // Stopped due to interface destroyed
+        STOP_EVENT_INTERFACE_DESTROYED = 3;
+        // Stopped due to hostapd failure
+        STOP_EVENT_HOSTAPD_FAILURE = 4;
+        // Stopped due to no usage timeout
+        STOP_EVENT_NO_USAGE_TIMEOUT = 5;
+    }
+    // Soft AP stop event
+    optional StopEvent stop_event = 1;
+    // Role of the Soft AP
+    optional android.net.wifi.SoftApRole role = 2;
+    // Band of the Soft AP at the time of stopping
+    optional int32 band = 3;
+    // Whether the Soft AP is DBS
+    optional bool is_dbs = 4;
+    // STA + AP concurrency capability of the device
+    optional android.net.wifi.StaApConcurrency sta_ap_concurrency = 5;
+    // STA connection status at the time of stopping
+    optional android.net.wifi.StaStatus sta_status = 6;
+    // Whether or not the no usage timeout is enabled
+    optional bool is_timeout_enabled = 7;
+    // Duration of the session in seconds
+    optional int32 session_duration_seconds = 8;
+    // Authentication type of the Soft AP
+    optional android.net.wifi.WifiAuthType auth_type = 9;
+    // Wi-Fi standard of the Soft AP
+    optional android.net.wifi.WifiStandard standard = 10;
+    // Max num of associated clients for the entire session
+    optional int32 max_clients = 11;
+    // Whether or not the opportunistic no usage timeout for DBS is enabled
+    optional bool is_dbs_timeout_enabled = 12;
+    // Band of the DBS instance that failed, if any
+    optional int32 dbs_instance_failure_band = 13;
+    // Band of the DBS instance that timed out, if any
+    optional int32 dbs_instance_timeout_band = 14;
+    // Upstream transport type at the time of stopping
+    optional android.stats.connectivity.TransportType upstream_transport = 15;
+}
+
+/**
+ * Logged when wifi lock is released
+ */
+message WifiLockReleased {
+    // The AttributionNode to identify the caller
+    repeated AttributionNode attribution_node = 1;
+    // Permission model of the caller
+    optional android.net.wifi.WifiCallerType caller_type = 2;
+    // Lock mode
+    optional android.net.wifi.WifiModeEnum mode = 3;
+    // For how long the lock is acquired in milliseconds
+    optional int64 acquired_duration_ms = 4;
+    // Whether power save disable is allowed during lock acquire
+    optional bool is_powersave_disable_allowed = 5;
+    // Whether the application which acquired the lock is exempted from screen ON
+    optional bool is_app_exempted_from_screen_on = 6;
+    // Whether the application which acquired the lock is exempted from being foreground
+    optional bool is_app_exempted_from_foreground = 7;
+}
+
+/**
+ * Logged when wifi lock is deactivated
+ */
+message WifiLockDeactivated {
+    // The AttributionNode to identify the caller
+    repeated AttributionNode attribution_node = 1;
+    // Lock mode
+    optional android.net.wifi.WifiModeEnum mode = 2;
+    // For how long the lock is activated in milliseconds
+    optional int64 activated_duration_ms = 3;
+    // Whether power save disable is allowed during the lock activation
+    optional bool is_powersave_disable_allowed = 4;
+    // Whether the application which activated the lock is exempted from screen ON
+    optional bool is_exempted_from_screen_on = 5;
+    // Whether the application which activated the lock is exempted from being foreground
+    optional bool is_exempted_from_foreground = 6;
+}
+
+/**
+ * Pull metrics for the Wifi Aware capabilities supported by the device
+ */
+message WifiAwareCapabilities {
+    // If instant mode supported
+    optional bool is_instant_mode_supported = 1;
+    // If pairing supported
+    optional bool is_pairing_supported = 2;
+    // If suspension supported
+    optional bool is_suspension_supported = 3;
+    // Supported cipher suites
+    optional int32 cipher_suites = 4;
+    // Max number of the NDI
+    optional int32 ndi_number = 5;
+    // Max number of the NDP
+    optional int32 ndp_number = 6;
+    // Max number of the discovery session
+    optional int32 discovery_session_number = 7;
+}
+
+// Logged when the Wifi Aware resources is used by Apps
+message WifiAwareResourceUsingChanged {
+    optional int32 ndp_num = 1;
+    optional int32 discovery_session_num = 2;
+}
+
+/**
+ * Logged when Aware HAL API is called and send response
+ */
+message WifiAwareHalApiCalled {
+    // The API name
+    optional android.net.wifi.AwareHalApi command = 1;
+    // Status of the API call
+    optional android.net.wifi.AwareStatus status = 2;
+    // The time for this API call to execute
+    optional int32 running_time_ms = 3;
+}
+
+/**
+ * Logged when local-only request received
+ */
+message WifiLocalOnlyRequestReceived {
+    enum UserAction {
+        USER_UNSPECIFIED = 0;
+        USER_BYPASS = 1;
+        USER_ACCEPT = 2;
+        USER_REJECT = 3;
+    }
+    // The AttributionNode to identify the caller
+    repeated AttributionNode attribution_node = 1;
+    // User action on the local-only request
+    optional UserAction action = 2;
+    // The caller type of the request
+    optional android.net.wifi.WifiCallerType caller_type = 3;
+}
+
+// Logged when matched scan result received for local only request
+message WifiLocalOnlyRequestScanTriggered {
+    // The AttributionNode to identify the caller
+    repeated AttributionNode attribution_node = 1;
+    // How many channel specified in the request
+    optional int32 number_channel_specified = 2;
+    // Scan time to get a match
+    optional int32 match_delay_ms = 3;
+    // The caller type of the request
+    optional android.net.wifi.WifiCallerType caller_type = 4;
+}
+
+// Logged when a task on the Wifi thread is executed
+message WifiThreadTaskExecuted {
+    // How long does it take to execute the task
+    optional int32 running_time_ms = 1;
+    // How long does it take to start execute the task
+    optional int32 blocking_time_ms = 2;
+    // The name of the internal task running on Wifi Thread
+    optional string task_name = 3;
+}
+
+// Logged when Wifi config save to storage triggered
+message WifiConfigSaved {
+    // How long does it cost to save all config
+    optional int32 running_time_ms = 1;
+}
+
+// Logged when Wi-Fi state change happens.
+message WifiStateChanged {
+    // If Wi-Fi was enabled
+    optional bool wifi_enabled = 1;
+    // If Wi-Fi Wake feature was enabled
+    optional bool wifi_wake_enabled = 2;
+    // If the state change was due to Wi-Fi Wake
+    optional bool enabled_by_wifi_wake = 3;
+}
+
+// Logged when a PNO scan is started.
+message PnoScanStarted {
+    // Whether this scan includes Passpoint SSIDs
+    optional bool includes_passpoint_ssids = 1;
+}
+
+// Logged when a PNO scan is stopped.
+message PnoScanStopped {
+    enum StopReason {
+        UNSPECIFIED = 0;
+        SCAN_FAILED = 1;
+        FOUND_RESULTS = 2;
+    }
+
+    enum FailureCode {
+        // Default value. Error is unknown
+        UNSPECIFIED_FAILURE = 0;
+        // No error occurred
+        NO_FAILURE = 1;
+        // Wificond scan returned a failure
+        WIFICOND_SCAN_FAILURE = 2;
+        // An error occurred while requesting the wificond scan
+        WIFICOND_REQUEST_FAILURE = 3;
+        // WifiScanningService returned a failure
+        WIFI_SCANNING_SERVICE_FAILURE = 4;
+    }
+
+    // Reason that this scan stopped
+    optional StopReason stop_reason = 1;
+    // Number of results found by this scan
+    optional int32 num_results = 2;
+    // Whether we were scanning for Passpoint SSIDs
+    optional bool scanned_for_passpoint_ssids = 3;
+    // Whether any Passpoint results were found
+    optional bool includes_passpoint_results = 4;
+    // Whether this scan led to the selection of a connection candidate
+    optional bool candidate_selected = 5;
+    // Whether the connection candidate is a Passpoint network
+    optional bool candidate_is_passpoint = 6;
+    // Failure code if this scan stopped due to a failure
+    optional FailureCode failure_code = 7;
+}
+
+/**
+ * Pulled to indicate a single boolean Wifi setting.
+ */
+message WifiSettingInfo {
+    enum SettingName {
+        UNSPECIFIED = 0;
+        WIFI_SCAN_ALWAYS_AVAILABLE = 1;
+        WIFI_SCAN_THROTTLE = 2;
+        WIFI_SCORING = 3;
+        WIFI_PASSPOINT = 4;
+        WIFI_WAKE = 5;
+        WIFI_ENHANCED_MAC_RANDOMIZATION = 6;
+        WIFI_NETWORKS_AVAILABLE_NOTIFICATION = 7;
+        LOCATION_MODE = 8;
+    }
+
+    // Name of the Wifi setting
+    optional SettingName setting_name = 1;
+    // Whether the setting is enabled
+    optional bool enabled = 2;
+}
+
+/**
+ * Pulled to indicate a single non-boolean Wifi setting.
+ */
+message WifiComplexSettingInfo {
+    enum MultiInternetMode {
+        // Default value. Mode is unknown.
+        MULTI_INTERNET_MODE_UNSPECIFIED = 0;
+        // Simultaneous connection to multiple APs is disabled
+        MULTI_INTERNET_MODE_DISABLED = 1;
+        // Enabled but restricted to a single network on multiple bands
+        MULTI_INTERNET_MODE_DBS_AP = 2;
+        // Enabled and allowed to connect to multiple APs using different bands
+        MULTI_INTERNET_MODE_MULTI_AP = 3;
+    }
+
+    // Wifi multi-internet mode
+    optional MultiInternetMode multi_internet_mode = 1;
+}
+
+/**
+ * Logged for every Wi-Fi unusable event.
+ */
+message WifiIsUnusableReported {
+   enum ReportType {
+      // Default/Invalid
+      TYPE_UNKNOWN = 0;
+      // There is a data stall from tx failures
+      TYPE_DATA_STALL_BAD_TX = 1;
+      // There is a data stall from rx failures
+      TYPE_DATA_STALL_TX_WITHOUT_RX = 2;
+      // There is a data stall from both tx and rx failures
+      TYPE_DATA_STALL_BOTH = 3;
+      // Firmware generated an alert
+      TYPE_FIRMWARE_ALERT = 4;
+      // IP Manager lost reachability to network neighbors
+      TYPE_IP_REACHABILITY_LOST = 5;
+   }
+   // Type of this report
+   optional ReportType type = 1;
+   // External scorer UID if external scorer is enabled. Otherwise WIFI_UID for
+   // AOSP scorer.
+   optional int32 scorer_uid = 2 [(is_uid) = true];
+   // Whether or not Wi-Fi is predicted as usable by the scorer
+   // Note: 'is_wifi_predicted_as_usable' is deprectaed by 'wifi_predicted_usability_state'.
+   optional bool is_wifi_predicted_as_usable = 3;
+   // Wi-Fi usability state as predicted by the scorer
+   optional android.net.wifi.WifiPredictedUsabilityState wifi_predicted_usability_state = 4;
+}
+
+/**
+ * AP capabilities logged for every Wi-Fi connection
+ */
+message WifiApCapabilitiesReported {
+    /**
+     * Online certificate status protocol stapling type
+     */
+    enum OcspType {
+        TYPE_OCSP_UNKNOWN = 0;
+        // Do not use OCSP stapling
+        TYPE_OCSP_NONE = 1;
+        // Try to use OCSP stapling, but not require response
+        TYPE_OCSP_REQUEST_CERT_STATUS = 2;
+        // Require valid OCSP stapling response
+        TYPE_OCSP_REQUIRE_CERT_STATUS = 3;
+        // Require valid OCSP stapling response for all not-trusted certificates
+        // in the server certificate chain
+        TYPE_OCSP_REQUIRE_ALL_NON_TRUSTED_CERTS_STATUS = 4;
+    }
+
+    /**
+     * 6 GHz AP type as encoded in 'HE operation -> 6 GHz operation info -> Control ->
+     * Regulatory info'
+     */
+    enum ApType6GHz {
+       AP_TYPE_6HZ_UNKNOWN = 0;
+       AP_TYPE_6GHZ_INDOOR = 1;
+       AP_TYPE_6GHZ_STANDARD_POWER = 2;
+       AP_TYPE_6GHZ_LOW_POWER_INDOOR = 3;
+       AP_TYPE_6GHZ_VERY_LOW_POWER = 4;
+    }
+
+    // Whether roaming is initiated by the framework to connect this AP
+    optional bool is_framework_initiated_roaming = 1;
+    // The center frequency of the primary 20 MHz frequency (in MHz) of the channel over which the
+    // connection was made.
+    optional int32 channel_frequency_mhz = 2;
+    // Band of the channel_frequency_mhz
+    optional android.net.wifi.WifiBandBucket band_mhz = 3;
+    // The DTIM period (in beacon periods) of the AP
+    optional int32 dtimPeriod = 4;
+    // Security mode of the connection
+    optional android.net.wifi.SecurityMode connected_security_mode = 5;
+    // Whether AP is hidden
+    optional bool is_hidden = 6;
+    // Whether the AP is configured incorrectly as hidden by the user
+    optional bool is_incorrectly_configured_as_hidden = 7;
+    // Wi-Fi standard of the connection
+    optional android.net.wifi.WifiStandard standard = 8;
+    // Whether IEEE 802.11b supported by the AP
+    optional bool is_11b_supported = 9;
+    // EAP type used by the AP
+    optional android.net.wifi.EapType eap_type = 10;
+    // EAP inner method used by the AP
+    optional android.net.wifi.EapInnerMethod eap_inner_method = 11;
+    // OCSP used by the AP
+    optional OcspType ocsp_type = 12;
+    // Whether the AP enabled PMK caching
+    optional bool is_pmk_caching_enabled = 13;
+    // Whether AP supports MBO
+    optional bool is_mbo_supported = 14;
+    // Whether AP supports OCE
+    optional bool is_oce_supported = 15;
+    // Whether the AP supports FILS
+    optional bool is_fils_supported = 16;
+    // Whether AP requires TWT support (individual or broadcast)
+    optional bool is_twt_required = 17;
+    // Whether the AP supports individual TWT agreements
+    optional bool is_individual_twt_supported = 18;
+    // Whether the AP supports broadcast TWT agreements
+    optional bool is_broadcast_twt_supported = 19;
+    // Whether the AP supports restricted TWT agreements
+    optional bool is_restricted_twt_supported = 20;
+    // Whether the AP supports IEEE 802.11mc
+    optional bool is_11mc_supported = 21;
+    // Whether the AP supports IEEE 802.11az
+    optional bool is_11az_supported = 22;
+    // Passpoint release version if a Passpoint connection, otherwise PassPointRelease.UNKNOWN
+    optional android.net.wifi.PasspointRelease passpoint_release = 23;
+    // If the Passpoint connection is provided by the Home provider or Roaming/visited network
+    optional bool is_passpoint_home_provider = 24;
+    // 6 GHz AP type
+    optional ApType6GHz ap_type_6ghz = 25;
+    // Whether AP supports ECPS priority access
+    optional bool is_ecps_priority_access_supported = 26;
+}
+
+/*
+ * Pulled to indicate a single configured network on the device.
+ */
+message WifiConfiguredNetworkInfo {
+    enum MacRandomization {
+        // Default value. Mode is unknown
+        MAC_RANDOMIZATION_UNSPECIFIED = 0;
+        // Factory MAC is used when connecting to this network
+        MAC_RANDOMIZATION_NONE = 1;
+        // Randomized MAC is generated once and reused for all connections to this network
+        MAC_RANDOMIZATION_PERSISTENT = 2;
+        // Randomized MAC is used and is not persisted across connections to this network
+        MAC_RANDOMIZATION_NON_PERSISTENT = 3;
+        // Framework decides on the MAC randomization strategy
+        MAC_RANDOMIZATION_AUTO = 4;
+    }
+
+    enum MeteredOverride {
+        // Default value. Mode is unknown
+        METERED_OVERRIDE_UNSPECIFIED = 0;
+        // No metered override
+        METERED_OVERRIDE_NONE = 1;
+        // Override network to be metered
+        METERED_OVERRIDE_METERED = 2;
+        // Override network to be unmetered
+        METERED_OVERRIDE_NOT_METERED = 3;
+    }
+
+    enum TofuConfiguration {
+        // Default value.
+        TOFU_CONFIGURATION_UNSPECIFIED = 0;
+        // TOFU is not enabled on the enterprise config.
+        TOFU_CONFIGURATION_NOT_ENABLED = 1;
+        // TOFU is enabled pre-connection.
+        TOFU_CONFIGURATION_ENABLED_PRE_CONNECTION = 2;
+        // Root CA was configured post-TOFU connection.
+        TOFU_CONFIGURATION_CONFIGURE_ROOT_CA = 3;
+        // Certificate pinning was used post-TOFU connection.
+        TOFU_CONFIGURATION_CERT_PINNING = 4;
+    }
+
+    enum TofuDialogState {
+        // Default value.
+        TOFU_DIALOG_STATE_UNSPECIFIED = 0;
+        // Dialog was rejected by the user.
+        TOFU_DIALOG_STATE_REJECTED = 1;
+        // Dialog was accepted by the user.
+        TOFU_DIALOG_STATE_ACCEPTED = 2;
+    }
+
+    // Unique ID for this network
+    optional int64 network_id = 1;
+    // Whether this is an Enterprise network
+    optional bool is_enterprise = 2;
+    // Whether this is a hidden network
+    optional bool is_hidden = 3;
+    // Whether this is a Passpoint network
+    optional bool is_passpoint = 4;
+    // Whether this is a suggestion network
+    optional bool is_suggestion = 5;
+    // Whether this network has a UTF-8 SSID
+    optional bool is_utf_8_ssid = 6;
+    // Whether the SSID translation feature is enabled
+    optional bool is_ssid_translation_enabled = 7;
+    // Whether this network was configured using TOFU
+    optional bool configured_using_tofu = 8;
+    // Whether this network has encountered a captive portal
+    optional bool encountered_captive_portal = 9;
+    // Whether this network has auto-join enabled
+    optional bool auto_join_enabled = 10;
+    // Security mode used by this network
+    optional android.net.wifi.SecurityMode connected_security_mode = 11;
+    // MAC randomization setting used by this network
+    optional MacRandomization mac_randomization = 12;
+    // Metered override setting used by this network
+    optional MeteredOverride metered_override = 13;
+    // EAP type used by this network
+    optional android.net.wifi.EapType eap_type = 14;
+    // EAP inner authentication method used by this network
+    optional android.net.wifi.EapInnerMethod eap_inner_auth_method = 15;
+    // Whether this network supports free OpenRoaming
+    optional bool free_open_roaming_supported = 16;
+    // Whether this network supports settled OpenRoaming
+    optional bool settled_open_roaming_supported = 17;
+    // Trust On First Use (TOFU) configuration for this network
+    optional TofuConfiguration tofu_configuration = 18;
+    // Whether the user accepted the TOFU dialog
+    optional TofuDialogState tofu_dialog_state = 19;
+}

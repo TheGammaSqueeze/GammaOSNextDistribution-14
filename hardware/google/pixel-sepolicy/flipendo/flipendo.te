@@ -1,0 +1,19 @@
+type flipendo, domain, coredomain;
+
+app_domain(flipendo)
+
+# Access to ISstats service to log atoms
+allow flipendo fwk_stats_service:service_manager find;
+binder_use(flipendo)
+
+binder_call(flipendo, gpuservice)
+
+allow flipendo app_api_service:service_manager find;
+
+# Allows Flipendo to change app saturation
+allow flipendo color_display_service:service_manager find;
+
+# Access to PowerHal service
+hal_client_domain(flipendo, hal_power);
+
+dontaudit flipendo vendor_hwservice_type:hwservice_manager find;

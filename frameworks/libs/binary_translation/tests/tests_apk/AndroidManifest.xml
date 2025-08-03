@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.example.ndk_tests">
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Network permission is required for socket testing. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Note: we MUST use targetSdkVersion="23" (or less) here - otherwise shared libraries
+         greylist is permanently disabled -->
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="23" />
+    <application android:label="NDK Tests"
+                 android:debuggable="true">
+        <uses-library android:name="android.test.runner" />
+        <activity android:name=".NdkTestsActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+    <instrumentation android:name="android.test.InstrumentationTestRunner"
+                     android:targetPackage="com.example.ndk_tests"
+                     android:label="Tests for com.example.ndk_tests"/>
+</manifest>

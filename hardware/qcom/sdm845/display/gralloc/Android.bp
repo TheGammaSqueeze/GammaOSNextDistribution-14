@@ -1,0 +1,32 @@
+package {
+    default_applicable_licenses: ["hardware_qcom_sdm845_display_license"],
+}
+
+cc_library_shared {
+    name: "libgrallocutils",
+    vendor: true,
+    srcs: [
+        "gr_utils.cpp",
+        "gr_adreno_info.cpp",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"qdgralloc\"",
+        "-Wno-sign-conversion",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.mapper@2.0",
+        "android.hardware.graphics.mapper@2.1",
+        "libcutils",
+        "libdl",
+        "liblog",
+        "//vendor/qcom/opensource/display:libqdMetaData",
+    ],
+    header_libs: [
+        "display_headers",
+        "device_kernel_headers",
+    ],
+    export_header_lib_headers: [
+        "device_kernel_headers",
+    ],
+    export_include_dirs: ["."],
+}

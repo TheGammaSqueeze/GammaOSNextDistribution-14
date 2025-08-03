@@ -1,0 +1,693 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package telephonyStatsLog;
+
+option java_package = "com.android.internal.telephony";
+option java_outer_classname = "PersistAtomsProto";
+
+// Holds atoms to store on persist storage in case of power cycle or process crash.
+// NOTE: using int64 rather than google.protobuf.Timestamp for timestamps simplifies implementation.
+// Next id: 70
+message PersistAtoms {
+    /* Aggregated RAT usage during the call. */
+    repeated VoiceCallRatUsage voice_call_rat_usage = 1;
+
+    /* Timestamp of last voice_call_rat_usages pull. */
+    optional int64 voice_call_rat_usage_pull_timestamp_millis = 2;
+
+    /* Per call statistics and information. */
+    repeated VoiceCallSession voice_call_session = 3;
+
+    /* Timestamp of last voice_call_sessions pull. */
+    optional int64 voice_call_session_pull_timestamp_millis = 4;
+
+    /* Incoming SMS statistics and information. */
+    repeated IncomingSms incoming_sms = 5;
+
+    /* Timestamp of last incoming_sms pull. */
+    optional int64 incoming_sms_pull_timestamp_millis = 6;
+
+    /* Outgoing SMS statistics and information. */
+    repeated OutgoingSms outgoing_sms = 7;
+
+    /* Timestamp of last incoming_sms pull. */
+    optional int64 outgoing_sms_pull_timestamp_millis = 8;
+
+    /* List of carrier ID mismatch events already sent. */
+    repeated CarrierIdMismatch carrier_id_mismatch = 9;
+
+    /* Last version of carrier ID table sent. */
+    optional int32 carrier_id_table_version = 10;
+
+    /* Data Call session statistics and information. */
+    repeated DataCallSession data_call_session = 11;
+
+    /* Timestamp of last data_call_session pull. */
+    optional int64 data_call_session_pull_timestamp_millis = 12;
+
+    /* Duration spent in each possible service state. */
+    repeated CellularServiceState cellular_service_state = 13;
+
+    /* Timestamp of last cellular_service_state pull. */
+    optional int64 cellular_service_state_pull_timestamp_millis = 14;
+
+    /* Switch count between data RATs. */
+    repeated CellularDataServiceSwitch cellular_data_service_switch = 15;
+
+    /* Timestamp of last cellular_data_service_switch pull. */
+    optional int64 cellular_data_service_switch_pull_timestamp_millis = 16;
+
+    /* List of IMS registration terminations. */
+    repeated ImsRegistrationTermination ims_registration_termination = 17;
+
+    /* Timestamp of last ims_registration_termination pull. */
+    optional int64 ims_registration_termination_pull_timestamp_millis = 18;
+
+    /* Durations of IMS registrations and capabilities. */
+    repeated ImsRegistrationStats ims_registration_stats = 19;
+
+    /* Timestamp of last ims_registration_stats pull. */
+    optional int64 ims_registration_stats_pull_timestamp_millis = 20;
+
+    /* Last Android build fingerprint. This usually changes after system OTA. */
+    optional string build_fingerprint = 21;
+
+    /* Summary of received network requests. */
+    repeated NetworkRequests network_requests = 22 [deprecated = true];
+
+    /* Timestamp of last network_requests pull. */
+    optional int64 network_requests_pull_timestamp_millis = 23 [deprecated = true];
+
+    /* RCS single registrtions feature tag information. */
+    repeated ImsRegistrationFeatureTagStats ims_registration_feature_tag_stats = 24;
+
+    /* Timestamp of last ims_registration_feature_tag_stats pull. */
+    optional int64 ims_registration_feature_tag_stats_pull_timestamp_millis = 25;
+
+    /* RCS client provisioning statistics and information. */
+    repeated RcsClientProvisioningStats rcs_client_provisioning_stats = 26;
+
+    /* Timestamp of last rcs_client_provisioning_stats pull. */
+    optional int64 rcs_client_provisioning_stats_pull_timestamp_millis = 27;
+
+    /* RCS configuration statistics and information based ACS. */
+    repeated RcsAcsProvisioningStats rcs_acs_provisioning_stats = 28;
+
+    /* Timestamp of last rcs_acs_provisioning_stats pull. */
+    optional int64 rcs_acs_provisioning_stats_pull_timestamp_millis = 29;
+
+    /* SIP delegate statistics and information. */
+    repeated SipDelegateStats sip_delegate_stats = 30;
+
+    /* Timestamp of last sip_delegate_stats pull. */
+    optional int64 sip_delegate_stats_pull_timestamp_millis = 31;
+
+    /* SIP Transport featuere tag statistics and information. */
+    repeated SipTransportFeatureTagStats sip_transport_feature_tag_stats = 32;
+
+    /* Timestamp of last sip_transport_feature_tag_stats pull. */
+    optional int64 sip_transport_feature_tag_stats_pull_timestamp_millis = 33;
+
+    /* SIP Message response statistics and information. */
+    repeated SipMessageResponse sip_message_response = 34;
+
+    /* Timestamp of last sip_message_response pull. */
+    optional int64 sip_message_response_pull_timestamp_millis = 35;
+
+    /* SIP Transport session statistics and information. */
+    repeated SipTransportSession sip_transport_session = 36;
+
+    /* Timestamp of last sip_transport_session pull. */
+    optional int64 sip_transport_session_pull_timestamp_millis = 37;
+
+    /* Dedicated bearer listener statistics and information. */
+    repeated ImsDedicatedBearerListenerEvent ims_dedicated_bearer_listener_event = 38;
+
+    /* Timestamp of last ims_dedicated_bearer_listener_event pull. */
+    optional int64 ims_dedicated_bearer_listener_event_pull_timestamp_millis = 39;
+
+    /* Dedicated bearer event statistics and information. */
+    repeated ImsDedicatedBearerEvent ims_dedicated_bearer_event = 40;
+
+    /* Timestamp of last ims_dedicated_bearer_event pull. */
+    optional int64 ims_dedicated_bearer_event_pull_timestamp_millis = 41;
+
+    /* Publish featere tag statistics and information. */
+    repeated ImsRegistrationServiceDescStats ims_registration_service_desc_stats = 42;
+
+    /* Timestamp of last ims_registration_service_desc_stats pull. */
+    optional int64 ims_registration_service_desc_stats_pull_timestamp_millis = 43;
+
+    /* UCE event stats statistics and information. */
+    repeated UceEventStats uce_event_stats = 44;
+
+    /* Timestamp of last uce_event_stats pull. */
+    optional int64 uce_event_stats_pull_timestamp_millis = 45;
+
+    /* Presence notify event statistics and information. */
+    repeated PresenceNotifyEvent presence_notify_event = 46;
+
+    /* Timestamp of last presence_notify_event pull. */
+    optional int64 presence_notify_event_pull_timestamp_millis = 47;
+
+    /* GBA event statistics and information. */
+    repeated GbaEvent gba_event = 48;
+
+    /* Timestamp of last gba_event pull. */
+    optional int64 gba_event_pull_timestamp_millis = 49;
+
+    /* Summary of received network requests. */
+    repeated NetworkRequestsV2 network_requests_v2 = 50;
+
+    /* Timestamp of last network_requests_v2 pull. */
+    optional int64 network_requests_v2_pull_timestamp_millis = 51;
+
+    /* Unmetered networks information. */
+    repeated UnmeteredNetworks unmetered_networks = 52;
+
+    /* Outgoing Short Code SMS statistics and information. */
+    repeated OutgoingShortCodeSms outgoing_short_code_sms = 53;
+
+    /* Timestamp of last outgoing_short_code_sms pull. */
+    optional int64 outgoing_short_code_sms_pull_timestamp_millis = 54;
+
+    /* Number of time the user toggled the data switch feature since the last collection. */
+    optional int32 auto_data_switch_toggle_count = 55;
+
+    /* Consolidated emergency numbers list information. */
+    repeated EmergencyNumbersInfo emergency_numbers_info = 56;
+
+    /* Timestamp of last emergency number pull. */
+    optional int64 emergency_number_pull_timestamp_millis = 57;
+
+    /** Snapshot of satellite controller. */
+    repeated SatelliteController satellite_controller = 58;
+
+    /* Timestamp of last satellite_controller pull. */
+    optional int64 satellite_controller_pull_timestamp_millis = 59;
+
+    /** Snapshot of satellite controller. */
+    repeated SatelliteSession satellite_session = 60;
+
+    /* Timestamp of last satellite_controller pull. */
+    optional int64 satellite_session_pull_timestamp_millis = 61;
+
+    /** Snapshot of satellite incoming datagram. */
+    repeated SatelliteIncomingDatagram satellite_incoming_datagram = 62;
+
+    /* Timestamp of last satellite_incoming_datagram pull. */
+    optional int64 satellite_incoming_datagram_pull_timestamp_millis = 63;
+
+    /** Snapshot of satellite outgoing datagram. */
+    repeated SatelliteOutgoingDatagram satellite_outgoing_datagram = 64;
+
+    /* Timestamp of last satellite_outgoing_datagram pull. */
+    optional int64 satellite_outgoing_datagram_pull_timestamp_millis = 65;
+
+    /** Snapshot of satellite provision datagram. */
+    repeated SatelliteProvision satellite_provision = 66;
+
+    /* Timestamp of last satellite_provision pull. */
+    optional int64 satellite_provision_pull_timestamp_millis = 67;
+
+    /** Snapshot of satellite SOS message recommender. */
+    repeated SatelliteSosMessageRecommender satellite_sos_message_recommender = 68;
+
+    /* Timestamp of last satellite_sos_message_recommender pull. */
+    optional int64 satellite_sos_message_recommender_pull_timestamp_millis = 69;
+}
+
+// The canonical versions of the following enums live in:
+//   frameworks/proto_logging/stats/enums/telephony/enums.proto
+// The canonical versions of the following atoms live in:
+//   frameworks/proto_logging/stats/atoms.proto
+// We cannot link against framework's and statsd's protolite libraries as it is "for test only".
+// NOTE: StatsLog functions use int in place of enum
+
+message VoiceCallSession {
+    reserved 4;
+    optional int32 bearer_at_start = 1;
+    optional int32 bearer_at_end = 2;
+    optional int32 direction = 3;
+    optional bool setup_failed = 5;
+    optional int32 disconnect_reason_code = 6;
+    optional int32 disconnect_extra_code = 7;
+    optional string disconnect_extra_message = 8;
+    optional int32 rat_at_start = 9;
+    optional int32 rat_at_end = 10;
+    optional int64 rat_switch_count = 11;
+    optional int64 codec_bitmask = 12;
+    optional int32 concurrent_call_count_at_start = 13;
+    optional int32 concurrent_call_count_at_end = 14;
+    optional int32 sim_slot_index = 15;
+    optional bool is_multi_sim = 16;
+    optional bool is_esim = 17;
+    optional int32 carrier_id = 18;
+    optional bool srvcc_completed = 19;
+    optional int64 srvcc_failure_count = 20;
+    optional int64 srvcc_cancellation_count = 21;
+    optional bool rtt_enabled = 22;
+    optional bool is_emergency = 23;
+    optional bool is_roaming = 24;
+    optional int32 signal_strength_at_end = 25;
+    optional int32 band_at_end = 26;
+    optional int32 setup_duration_millis = 27;
+    optional int32 main_codec_quality = 28;
+    optional bool video_enabled = 29;
+    optional int32 rat_at_connected = 30;
+    optional bool is_multiparty = 31;
+    optional int32 call_duration = 32;
+    optional int32 last_known_rat = 33;
+    optional int32 fold_state = 34;
+    optional int64 rat_switch_count_after_connected = 35;
+    optional bool handover_in_progress = 36;
+    optional bool is_iwlan_cross_sim_at_start = 37;
+    optional bool is_iwlan_cross_sim_at_end = 38;
+    optional bool is_iwlan_cross_sim_at_connected = 39;
+    optional bool vonr_enabled = 40;
+
+    // Internal use only
+    optional int64 setup_begin_millis = 10001;
+}
+
+message VoiceCallRatUsage {
+    optional int32 carrier_id = 1;
+    optional int32 rat = 2;
+    optional int64 total_duration_millis = 3; // Duration needs to be rounded when pulled
+    optional int64 call_count = 4;
+}
+
+message IncomingSms {
+    optional int32 sms_format = 1;
+    optional int32 sms_tech = 2;
+    optional int32 rat = 3;
+    optional int32 sms_type = 4;
+    optional int32 total_parts = 5;
+    optional int32 received_parts = 6;
+    optional bool blocked = 7;
+    optional int32 error = 8;
+    optional bool is_roaming = 9;
+    optional int32 sim_slot_index = 10;
+    optional bool is_multi_sim = 11;
+    optional bool is_esim = 12;
+    optional int32 carrier_id = 13;
+    optional int64 message_id = 14;
+    optional int32 count = 15;
+    optional bool is_managed_profile = 16;
+
+    // Internal use only
+    optional int32 hashCode = 10001;
+}
+
+message OutgoingSms {
+    optional int32 sms_format = 1;
+    optional int32 sms_tech = 2;
+    optional int32 rat = 3;
+    optional int32 send_result = 4;
+    optional int32 error_code = 5;
+    optional bool is_roaming = 6;
+    optional bool is_from_default_app = 7;
+    optional int32 sim_slot_index = 8;
+    optional bool is_multi_sim = 9;
+    optional bool is_esim = 10;
+    optional int32 carrier_id = 11;
+    optional int64 message_id = 12;
+    optional int32 retry_id = 13;
+    optional int64 interval_millis = 14;
+    optional int32 count = 15;
+    optional int32 send_error_code = 16;
+    optional int32 network_error_code = 17;
+    optional bool is_managed_profile = 18;
+
+    // Internal use only
+    optional int32 hashCode = 10001;
+}
+
+message CarrierIdMismatch {
+    optional string mcc_mnc = 1;
+    optional string gid1 = 2;
+    optional string spn = 3;
+    optional string pnn = 4;
+}
+
+message DataCallSession {
+    reserved 4;
+    optional int32 dimension = 1;
+    optional bool is_multi_sim = 2;
+    optional bool is_esim = 3;
+    optional int32 apn_type_bitmask = 5;
+    optional int32 carrier_id = 6;
+    optional bool is_roaming = 7;
+    optional int32 rat_at_end = 8;
+    optional bool oos_at_end = 9;
+    optional int64 rat_switch_count = 10;
+    optional bool is_opportunistic = 11;
+    optional int32 ip_type = 12;
+    optional bool setup_failed = 13;
+    optional int32 failure_cause = 14;
+    optional int32 suggested_retry_millis = 15;
+    optional int32 deactivate_reason = 16;
+    optional int64 duration_minutes = 17;
+    optional bool ongoing = 18;
+    optional int32 band_at_end = 19;
+    repeated int32 handover_failure_causes = 20;
+    repeated int32 handover_failure_rat = 21;
+    optional bool is_non_dds = 22;
+    optional bool is_iwlan_cross_sim = 23;
+}
+
+message CellularServiceState {
+    optional int32 voice_rat = 1;
+    optional int32 data_rat = 2;
+    optional int32 voice_roaming_type = 3;
+    optional int32 data_roaming_type = 4;
+    optional bool is_endc = 5;
+    optional int32 sim_slot_index = 6;
+    optional bool is_multi_sim = 7;
+    optional int32 carrier_id = 8;
+    optional int64 total_time_millis = 9; // Duration needs to be rounded when pulled
+    optional bool is_emergency_only = 10;
+    optional bool is_internet_pdn_up = 11;
+    optional int32 fold_state = 12;
+    optional bool override_voice_service = 13;
+    optional bool isDataEnabled = 14;
+    optional bool is_iwlan_cross_sim = 15;
+
+    // Internal use only
+    optional int64 last_used_millis = 10001;
+}
+
+message CellularDataServiceSwitch {
+    optional int32 rat_from = 1;
+    optional int32 rat_to = 2;
+    optional int32 sim_slot_index = 3;
+    optional bool is_multi_sim = 4;
+    optional int32 carrier_id = 5;
+    optional int32 switch_count = 6;
+
+    // Internal use only
+    optional int64 last_used_millis = 10001;
+}
+
+message ImsRegistrationTermination {
+    optional int32 carrier_id = 1;
+    optional bool is_multi_sim = 2;
+    optional int32 rat_at_end = 3;
+    optional bool setup_failed = 4;
+    optional int32 reason_code = 5;
+    optional int32 extra_code = 6;
+    optional string extra_message = 7;
+    optional int32 count = 8;
+    optional bool is_iwlan_cross_sim = 9;
+
+    // Internal use only
+    optional int64 last_used_millis = 10001;
+}
+
+message ImsRegistrationStats {
+    reserved 16;
+    optional int32 carrier_id = 1;
+    optional int32 sim_slot_index = 2;
+    optional int32 rat = 3;
+    // Durations need to be rounded when pulled
+    optional int64 registered_millis = 4;
+    optional int64 voice_capable_millis = 5;
+    optional int64 voice_available_millis = 6;
+    optional int64 sms_capable_millis = 7;
+    optional int64 sms_available_millis = 8;
+    optional int64 video_capable_millis = 9;
+    optional int64 video_available_millis = 10;
+    optional int64 ut_capable_millis = 11;
+    optional int64 ut_available_millis = 12;
+    optional int64 registering_millis = 13;
+    optional int64 unregistered_millis = 14;
+    optional bool is_iwlan_cross_sim = 15;
+    optional int32 registered_times = 17;
+
+    // Internal use only
+    optional int64 last_used_millis = 10001;
+}
+
+// deprecated - please use NetworkRequestsV2 instead
+message NetworkRequests {
+    optional int32 carrier_id = 1;
+    optional int32 enterprise_request_count = 2;
+    optional int32 enterprise_release_count = 3;
+}
+
+message NetworkRequestsV2 {
+    enum NetworkCapability {
+        UNKNOWN = 0;
+        PRIORITIZE_LATENCY = 1;
+        PRIORITIZE_BANDWIDTH = 2;
+        CBS = 3;
+        ENTERPRISE = 4;
+    }
+    optional int32 carrier_id = 1;
+    optional NetworkCapability capability = 2;
+    optional int32 request_count = 3;
+}
+
+message ImsRegistrationFeatureTagStats {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 feature_tag_name = 3;
+    optional int32 registration_tech = 4;
+    optional int64 registered_millis = 5;
+}
+
+message RcsClientProvisioningStats {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 event = 3;
+    optional int32 count = 4;
+}
+
+message RcsAcsProvisioningStats {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 response_code = 3;
+    optional int32 response_type = 4;
+    optional bool is_single_registration_enabled = 5;
+    optional int32 count = 6;
+    optional int64 state_timer_millis = 7;
+}
+
+message SipDelegateStats {
+    optional int32 dimension = 1;
+    optional int32 carrier_id = 2;
+    optional int32 slot_id = 3;
+    optional int32 destroy_reason = 4;
+    optional int64 uptime_millis = 5;
+}
+
+message SipTransportFeatureTagStats {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 feature_tag_name = 3;
+    optional int32 sip_transport_denied_reason = 4;
+    optional int32 sip_transport_deregistered_reason = 5;
+    optional int64 associated_millis = 6;
+}
+
+message SipMessageResponse {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 sip_message_method = 3;
+    optional int32 sip_message_response = 4;
+    optional int32 sip_message_direction = 5;
+    optional int32 message_error = 6;
+    optional int32 count = 7;
+}
+
+message SipTransportSession {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 session_method = 3;
+    optional int32 sip_message_direction = 4;
+    optional int32 sip_response = 5;
+    optional int32 session_count = 6;
+    optional int32 ended_gracefully_count = 7;
+
+    // Internal use only
+    optional bool is_ended_gracefully = 10001;
+}
+
+message ImsDedicatedBearerListenerEvent {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 rat_at_end = 3;
+    optional int32 qci = 4;
+    optional bool dedicated_bearer_established = 5;
+    optional int32 event_count = 6;
+}
+
+message ImsDedicatedBearerEvent {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 rat_at_end = 3;
+    optional int32 qci = 4;
+    optional int32 bearer_state = 5;
+    optional bool local_connection_info_received = 6;
+    optional bool remote_connection_info_received = 7;
+    optional bool has_listeners = 8;
+    optional int32 count = 9;
+}
+
+message ImsRegistrationServiceDescStats {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 service_id_name = 3;
+    optional float service_id_version = 4;
+    optional int32 registration_tech = 5;
+    optional int64 published_millis = 6;
+}
+
+message UceEventStats {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 type = 3;
+    optional bool successful = 4;
+    optional int32 command_code = 5;
+    optional int32 network_response = 6;
+    optional int32 count = 7;
+}
+
+message PresenceNotifyEvent {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional int32 reason = 3;
+    optional bool content_body_received = 4;
+    optional int32 rcs_caps_count = 5;
+    optional int32 mmtel_caps_count = 6;
+    optional int32 no_caps_count = 7;
+    optional int32 count = 8;
+}
+
+message GbaEvent {
+    optional int32 carrier_id = 1;
+    optional int32 slot_id = 2;
+    optional bool successful = 3;
+    optional int32 failed_reason = 4;
+    optional int32 count = 5;
+}
+
+message UnmeteredNetworks {
+    optional int32 phone_id = 1;
+    optional int32 carrier_id = 2;
+    optional int64 unmetered_networks_bitmask = 3;
+}
+
+message OutgoingShortCodeSms {
+    optional int32 category = 1;
+    optional int32 xml_version = 2;
+    optional int32 short_code_sms_count = 3;
+}
+
+message EmergencyNumbersInfo {
+    enum ServiceCategory {
+        EMERGENCY_SERVICE_CATEGORY_UNSPECIFIED = 0;
+        EMERGENCY_SERVICE_CATEGORY_POLICE = 1;
+        EMERGENCY_SERVICE_CATEGORY_AMBULANCE = 2;
+        EMERGENCY_SERVICE_CATEGORY_FIRE_BRIGADE = 3;
+        EMERGENCY_SERVICE_CATEGORY_MARINE_GUARD = 4;
+        EMERGENCY_SERVICE_CATEGORY_MOUNTAIN_RESCUE = 5;
+        EMERGENCY_SERVICE_CATEGORY_MIEC = 6;
+        EMERGENCY_SERVICE_CATEGORY_AIEC = 7;
+    }
+    enum Source {
+        EMERGENCY_NUMBER_SOURCE_NETWORK_SIGNALING = 0;
+        EMERGENCY_NUMBER_SOURCE_SIM = 1;
+        EMERGENCY_NUMBER_SOURCE_DATABASE = 2;
+        EMERGENCY_NUMBER_SOURCE_MODEM_CONFIG = 3;
+        EMERGENCY_NUMBER_SOURCE_DEFAULT = 4;
+    }
+    enum CallRoute {
+        EMERGENCY_CALL_ROUTE_UNKNOWN = 0;
+        EMERGENCY_CALL_ROUTE_EMERGENCY = 1;
+        EMERGENCY_CALL_ROUTE_NORMAL = 2;
+    }
+    optional bool is_db_version_ignored = 1;
+    optional int32 asset_version = 2;
+    optional int32 ota_version = 3;
+    optional string number = 4;
+    optional string country_iso = 5;
+    optional string mnc = 6;
+    optional CallRoute route = 7;
+    repeated string urns = 8;
+    repeated ServiceCategory service_categories = 9;
+    repeated Source sources = 10;
+}
+
+message SatelliteController {
+    optional int32 count_of_satellite_service_enablements_success = 1;
+    optional int32 count_of_satellite_service_enablements_fail = 2;
+    optional int32 count_of_outgoing_datagram_success = 3;
+    optional int32 count_of_outgoing_datagram_fail = 4;
+    optional int32 count_of_incoming_datagram_success = 5;
+    optional int32 count_of_incoming_datagram_fail = 6;
+    optional int32 count_of_datagram_type_sos_sms_success = 7;
+    optional int32 count_of_datagram_type_sos_sms_fail = 8;
+    optional int32 count_of_datagram_type_location_sharing_success = 9;
+    optional int32 count_of_datagram_type_location_sharing_fail = 10;
+    optional int32 count_of_provision_success = 11;
+    optional int32 count_of_provision_fail = 12;
+    optional int32 count_of_deprovision_success = 13;
+    optional int32 count_of_deprovision_fail = 14;
+    optional int32 total_service_uptime_sec = 15;
+    optional int32 total_battery_consumption_percent = 16;
+    optional int32 total_battery_charged_time_sec = 17;
+}
+
+message SatelliteSession {
+    optional int32 satellite_service_initialization_result = 1;
+    optional int32 satellite_technology = 2;
+    optional int32 count = 3;
+}
+
+message SatelliteIncomingDatagram {
+    optional int32 result_code = 1;
+    optional int32 datagram_size_bytes = 2;
+    optional int64 datagram_transfer_time_millis = 3;
+}
+
+message SatelliteOutgoingDatagram {
+    optional int32 datagram_type = 1;
+    optional int32 result_code = 2;
+    optional int32 datagram_size_bytes = 3;
+    optional int64 datagram_transfer_time_millis = 4;
+}
+
+message SatelliteProvision {
+    optional int32 result_code = 1;
+    optional int32 provisioning_time_sec = 2;
+    optional bool is_provision_request = 3;
+    optional bool is_canceled = 4;
+}
+
+message SatelliteSosMessageRecommender {
+    optional bool is_display_sos_message_sent = 1;
+    optional int32 count_of_timer_started = 2;
+    optional bool is_ims_registered = 3;
+    optional int32 cellular_service_state = 4;
+    optional int32 count = 5;
+    optional bool is_multi_sim = 6;
+    optional int32 recommending_handover_type = 7;
+    optional bool is_satellite_allowed_in_current_location = 8;
+}

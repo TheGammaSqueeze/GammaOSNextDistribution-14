@@ -1,0 +1,48 @@
+// for frameworks/av/media
+{
+    "presubmit-large": [
+        // runs whenever we change something in this tree
+        {
+            "name": "CtsMediaCodecTestCases",
+            "options": [
+                {
+                    "include-filter": "android.media.codec.cts.EncodeDecodeTest"
+                }
+            ]
+        },
+        {
+            "name": "CtsMediaCodecTestCases",
+            "options": [
+                {
+                    "include-filter": "android.media.codec.cts.DecodeEditEncodeTest"
+                }
+            ]
+        }
+    ],
+    "presubmit": [
+        {
+            "name": "WvtsDeviceTestCases",
+            "options" : [
+                {
+                    "include-annotation": "android.platform.test.annotations.Presubmit"
+                },
+                {
+                    "include-filter": "com.google.android.media.wvts.WidevineGenericOpsTests"
+                },
+                {
+                    "include-filter": "com.google.android.media.wvts.WidevineH264PlaybackTests"
+                }
+            ],
+            "file_patterns": ["(?i)drm|crypto"]
+        },
+        {
+            "name": "CtsMediaDrmFrameworkTestCases",
+            "options" : [
+                {
+                    "include-annotation": "android.platform.test.annotations.Presubmit"
+                }
+            ],
+            "file_patterns": ["(?i)drm|crypto"]
+        }
+    ]
+}

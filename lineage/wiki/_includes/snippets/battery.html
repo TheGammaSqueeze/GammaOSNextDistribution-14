@@ -1,0 +1,12 @@
+{%- if modelname %}
+<b>{{ modelname }}</b><br/>
+{%- endif %}
+{%- if battery_data.removable -%}
+Removable
+{%- else -%}
+Non-removable
+{%- endif -%}&nbsp;
+{%- if battery_data.tech -%}
+    {{ battery_data.tech }}&nbsp;
+{%- endif -%}
+{{ battery_data.capacity }} mAh

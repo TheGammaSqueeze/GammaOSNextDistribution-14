@@ -1,0 +1,40 @@
+
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_qcom_sm7250_gps_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["hardware_qcom_sm7250_gps_license"],
+}
+
+cc_library_shared {
+
+    name: "libgeofencing",
+    vendor: true,
+
+
+
+    srcs: [
+        "GeofenceAdapter.cpp",
+        "location_geofence.cpp",
+    ],
+
+    shared_libs: [
+        "libutils",
+        "libcutils",
+        "libgps.utils",
+        "liblog",
+        "libloc_core",
+    ],
+
+    header_libs: [
+        "libgps.utils_headers",
+        "libloc_core_headers",
+        "libloc_pla_headers",
+        "liblocation_api_headers",
+    ],
+
+    cflags: GNSS_CFLAGS,
+}

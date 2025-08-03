@@ -1,0 +1,92 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_library_shared {
+    name: "libaudiohal",
+
+    srcs: [
+        "DevicesFactoryHalInterface.cpp",
+        "EffectsFactoryHalInterface.cpp",
+        "FactoryHal.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+
+    required: [
+        "libaudiohal@2.0",
+        "libaudiohal@5.0",
+        "libaudiohal@6.0",
+        "libaudiohal@7.0",
+        "libaudiohal@7.1",
+        "libaudiohal@aidl",
+    ],
+
+    shared_libs: [
+        "audioclient-types-aidl-cpp",
+        "libbinder_ndk",
+        "libdl",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+
+    header_libs: [
+        "libaudiohal_headers",
+        "libbase_headers",
+        "liberror_headers",
+        "libmediautils_headers",
+    ]
+}
+
+cc_library_shared {
+    name: "libaudiohal_deathhandler",
+
+    srcs: [
+        "HalDeathHandlerHidl.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "libhidlbase",
+        "libutils",
+        "liblog",
+    ],
+
+    header_libs: [
+        "libaudiohal_headers"
+    ],
+}
+
+cc_library_headers {
+    name: "libaudiohal_headers",
+
+    header_libs: [
+        "libeffectsconfig_headers",
+    ],
+
+    export_header_lib_headers: ["libeffectsconfig_headers"],
+
+    export_include_dirs: ["include"],
+}
+
+cc_library_headers {
+    name: "libaudiohalimpl_headers",
+
+    header_libs: ["libaudiohal_headers"],
+    export_header_lib_headers: ["libaudiohal_headers"],
+    export_include_dirs: ["impl"],
+}

@@ -1,0 +1,10 @@
+dariofreni@google.com
+hackbod@google.com
+hansson@google.com
+narayan@google.com
+omakoto@google.com
+
+# Modularization team
+file:platform/packages/modules/common:/OWNERS
+
+per-file State* = jchalard@google.com, lorenzo@google.com, satk@google.com

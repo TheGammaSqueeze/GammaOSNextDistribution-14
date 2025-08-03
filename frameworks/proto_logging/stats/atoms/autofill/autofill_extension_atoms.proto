@@ -1,0 +1,234 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.autofill;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/autofill/enums.proto";
+
+option java_package = "com.android.os.autofill";
+option java_multiple_files = true;
+
+extend Atom {
+    optional AutofillUiEventReported autofill_ui_event_reported = 603 [(module) = "framework"];
+    optional AutofillFillRequestReported autofill_fill_request_reported = 604 [(module) = "framework"];
+    optional AutofillFillResponseReported autofill_fill_response_reported = 605 [(module) = "framework"];
+    optional AutofillSaveEventReported autofill_save_event_reported = 606 [(module) = "framework"];
+    optional AutofillSessionCommitted autofill_session_committed = 607 [(module) = "framework"];
+    optional AutofillFieldClassificationEventReported autofill_field_classification_event_reported =
+            659 [(module) = "framework"];
+}
+/**
+ * Log Autofill related system UI events.
+ *
+ * Logged from:
+ *   packages/apps/Settings/src/com/android/settings/
+ */
+message AutofillUiEventReported {
+  optional UiEventType event_type = 1;
+  optional int32 autofill_service_uid = 2 [(is_uid) = true];
+  optional int32 app_package_uid = 3 [(is_uid) = true];
+}
+
+/**
+ * Log information for Autofill FillRequest. It is logged after a
+ * FillRequest is sent to the Autofill provider.
+ *
+ * Logged from:
+ *   frameworks/base/services/autofill/java/com/android/server/autofill/
+ */
+message AutofillFillRequestReported {
+  // Id number which increases for each subsequent request.
+  optional int32 request_id = 1;
+  // SessionId to aggregate requests within a session, and see overall
+  // performance.
+  optional int32 session_id = 2;
+  // App package Uid
+  optional int32 app_package_uid = 11 [(is_uid) = true];
+  // Autofill Service Provider's uid
+  optional int32 autofill_service_uid = 3 [(is_uid) = true];
+  // Inline suggestion host's uid. Populated only when
+  // AutofillDisplayPresentationType = INLINE
+  optional int32 inline_suggestion_host_uid = 4 [(is_uid) = true];
+  // True if the request is augmented.
+  optional bool is_augmented = 5;
+  // True if the request is a fallback of client suggestion request to the
+  // service provider.
+  optional bool is_client_suggestion_fallback = 6;
+  // True if the request is eligible for fill dialog.
+  optional bool is_fill_dialog_eligible = 7;
+  optional FillRequestTriggerReason request_trigger_reason = 8;
+  optional int64 flags = 9;
+  // Timestamp of FillRequest is sent to Autofill provider
+  // Latency of framework before provider is called = fillRequestSentTimestampMs
+  optional int32 latency_fill_request_sent_millis = 10;
+}
+
+/**
+ * Log information for Autofill FillResponse. It is logged after a
+ * FillResponse is received from the Autofill provider.
+ *
+ * Logged from:
+ *   frameworks/base/services/autofill/java/com/android/server/autofill/
+ */
+message AutofillFillResponseReported {
+  // Id number which increases for each subsequent request.
+  optional int32 request_id = 1;
+  // SessionId to aggregate requests within a session, and see overall
+  // performance.
+  optional int32 session_id = 2;
+  // App package uid
+  optional int32 app_package_uid = 3 [(is_uid) = true];
+  // Tells how the Autofill dataset was/will-be displayed.
+  // How the dataset is supposed to be shown to the user
+  optional AutofillDisplayPresentationType display_presentation_type = 4;
+  // Count of datasets that should've been available for display. If the request
+  // times out, this won't be populated. This is the count after PCC detected
+  // datasets are processed and ineligeble datasets have been filtered off.
+  optional int32 available_count = 5;
+  optional int64 save_ui_trigger_ids = 6;
+  // Timestamp of when Autofill provider returns a FillResponse
+  // Latency of Autofill provider = fillResponseReceivedTimestampMs -
+  // fillRequestSentTimestampMs
+  optional int32 latency_fill_response_received_millis = 7;
+  optional AuthenticationType authentication_type = 8 [deprecated = true];
+  optional AuthenticationResult authentication_result = 9 [deprecated = true];
+  optional int64 authentication_failure_reason = 10 [deprecated = true];
+  // From response received to authentication UI displayed to the user.
+  optional int64 latency_authentication_ui_display_millis = 11 [deprecated = true];
+  // From the user finishing authentication to the dataset is displayed to the user.
+  optional int64 latency_dataset_display_millis = 12 [deprecated = true];
+  // The result of Autofill response.
+  optional FillResponseStatus response_status = 13;
+  // Time taken to process the datasets.
+  // For eg: In case of PCC detection, we need to merge the datasets to be
+  // shown for presentataion. This encapsulates the time taken for preparing
+  // final eligible datasets to be shown.
+  optional int64 latency_response_processing_millis = 14;
+
+  // Count of datasets that were provided by the Autofill Provider by
+  // specifying type. These datasets may additionally contain autofill ids for
+  // which this same dataset is applicable that are available due to PCC
+  // detection. These can include datasets available via provider response,
+  // and would be eligible because of PCC too.
+  // If PCC detection is preferred over Autofill Provider, it may include
+  // datasets applicable to autofill ids. So the same datasets would've shown
+  // if Autofill Provider detection was preferred.
+  // In such a case and if the detection of both the Autofill Provider and PCC
+  // detection were the same, the following invariants holds, provided same
+  // datasets were provided.
+  // available_pcc_count = available_count
+  // available_pcc_only_count = 0
+  // If PCC detection is not preferred, the following invariant holds.
+  // available_pcc_count = available_pcc_only_count
+  optional int32 available_pcc_count = 15;
+  // Count of datasets that are available only due to PCC Detection. These
+  // datasets are the ones provided by Autofill Provider by specifying types
+  // only. These datasets don't have any autofill id associated with them.
+  optional int32 available_pcc_only_count = 16;
+  // Count of datasets that are returned by the Autofill Provider. This count
+  // is before any filtering based on PCC detection is performed. This contains
+  // datasets set by both type and autofill ids.
+  optional int32 total_datasets_provided = 17;
+  // Which detection was preferred
+  optional DetectionPreference detection_preference = 18;
+}
+
+/**
+ * Log information for Autofill Save event. It is logged after onSaveRequest
+ * is called.
+ *
+ * Logged from:
+ *   frameworks/base/services/autofill/java/com/android/server/autofill/
+ */
+message AutofillSaveEventReported {
+  // Id number which increases for each subsequent request.
+  optional int32 request_id = 1;
+  // SessionId to aggregate requests within a session, and see overall
+  // performance.
+  optional int32 session_id = 2;
+  // App package uid
+  optional int32 app_package_uid = 3 [(is_uid) = true];
+  // Same as the one from AutofillPresentationEventReported.
+  optional int64 save_ui_trigger_ids = 4;
+  optional int64 flag = 5;
+  // True if attempting to save a new field, rather than updating an existing one.
+  optional bool is_new_field = 6;
+
+  optional SaveUiShownReason save_ui_shown_reason = 7;
+  optional SaveUiNotShownReason save_ui_not_shown_reason = 8;
+
+  optional bool save_button_clicked = 9;
+  optional bool cancel_button_clicked = 10;
+  optional bool dialog_dismissed = 11;
+  optional bool is_saved = 12;
+
+  // From framework detected that any of the “savable” fields(during session
+  // commitment) were changed to the save UI displayed to the user.
+  optional int64 latency_save_ui_display_millis = 13;
+  // From the user clicking the “save” button to the framework making the
+  // onSave request.
+  optional  int64 latency_save_request_millis = 14;
+  // From onSave request to save is finished.
+  optional int64 latency_save_finish_millis = 15;
+
+  // Whether the framework created the save info object.
+  // This is true if provider didn't specify any autofill ids in saveInfo object.
+  optional bool is_framework_created_save_info = 16;
+}
+
+/**
+ * Log information about an Autofill session. It is logged after the session
+ * has been committed.
+ *
+ * Logged from:
+ *   frameworks/base/services/autofill/java/com/android/server/autofill/
+ */
+message AutofillSessionCommitted {
+  optional int32 session_id = 1;
+  optional int32 component_package_uid = 2;
+  optional int64 request_count = 3;
+  // Commit reason
+  optional AutofillCommitReason commit_reason = 4;
+  // Duration of session: Time from session start to session end
+  optional int64 session_duration_millis = 5;
+}
+
+/**
+* Logs FieldClassification event. This event is captured after the request
+* for the classification service has been made.
+*/
+message AutofillFieldClassificationEventReported {
+  // Latency of the request to the field classification service.
+  optional int64 latency_millis = 1;
+  // Count of fields that were classified.
+  optional int32 count_classifications = 2;
+  // SessionId to attribute classifications within a session, and measure overall performance.
+  optional int32 session_id = 3;
+  // field_classification request id.
+  optional int32 request_id = 4;
+  // request_id of the next fill request that'll use this result.
+  optional int32 next_fill_request_id = 5;
+  // App package Uid
+  optional int32 app_package_uid = 6 [(is_uid) = true];
+  // Status of the request
+  optional FieldClassificationRequestStatus status = 7;
+  // Indicates the session that called this request was garbage collected
+  optional bool is_session_gc = 8;
+}

@@ -1,0 +1,687 @@
+# lineage-20.0_aosp.yaml
+#
+# Crowdin configuration file for LineageOS'
+# additional languages not supported by AOSP
+#
+# Copyright (C) 2014-2016 The CyanogenMod Project
+# Copyright (C) 2017-2022 The LineageOS Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"api_token_env": LINEAGE_CROWDIN_API_TOKEN
+"base_path_env": LINEAGE_CROWDIN_BASE_PATH_LINEAGE_20_0
+"project_id": 238011
+"preserve_hierarchy": true
+
+"files": [
+    {
+        "source":      "/frameworks/base/core/res/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/core/res/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/BackupRestoreConfirmation/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/BackupRestoreConfirmation/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/CarrierDefaultApp/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/CarrierDefaultApp/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/CompanionDeviceManager/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/CompanionDeviceManager/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/DynamicSystemInstallationService/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/DynamicSystemInstallationService/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/ExternalStorageProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/ExternalStorageProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/FusedLocation/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/FusedLocation/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/InputDevices/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/InputDevices/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/PackageInstaller/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/PackageInstaller/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/PrintSpooler/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/PrintSpooler/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SettingsLib/res/values/arrays.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SettingsLib/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SettingsLib/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SettingsLib/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SettingsProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SettingsProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/Shell/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/Shell/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SimAppDialog/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SimAppDialog/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SoundPicker/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SoundPicker/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/StatementService/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/StatementService/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SystemUI/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SystemUI/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SystemUI/res/values/tiles_states_strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SystemUI/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SystemUI/res-keyguard/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SystemUI/res-keyguard/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/SystemUI/res-product/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/SystemUI/res-product/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/VpnDialogs/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/VpnDialogs/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/frameworks/base/packages/WallpaperCropper/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/frameworks/base/packages/WallpaperCropper/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/AudioFX/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/AudioFX/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Camera2/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Camera2/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Camera2/res_p/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Camera2/res_p/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/Calendar/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/Calendar/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/Launcher/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/Launcher/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/LinkViewer/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/LinkViewer/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/Notification/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/Notification/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/Settings/res/values/arrays.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/Settings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/Settings/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/Settings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/systemlibs/car-assist-client-lib/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/systemlibs/car-assist-client-lib/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/systemlibs/car-broadcastradio-support/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/systemlibs/car-broadcastradio-support/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/SystemUI/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/SystemUI/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Car/SystemUpdater/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Car/SystemUpdater/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/CellBroadcastReceiver/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/CellBroadcastReceiver/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/CertInstaller/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/CertInstaller/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Contacts/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Contacts/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/DeskClock/res/values/cities.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/DeskClock/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/DeskClock/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/DeskClock/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/app/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/app/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/assisteddialing/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/assisteddialing/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/assisteddialing/ui/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/assisteddialing/ui/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/blockreportspam/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/blockreportspam/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/calldetails/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/calldetails/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/calllog/ui/menu/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/calllog/ui/menu/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/calllogutils/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/calllogutils/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/clipboard/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/clipboard/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/common/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/common/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/contactphoto/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/contactphoto/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/contacts/displaypreference/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/contacts/displaypreference/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/contacts/resources/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/contacts/resources/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/dialpadview/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/dialpadview/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/glidephotomanager/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/glidephotomanager/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/historyitemactions/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/historyitemactions/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/interactions/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/interactions/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/main/impl/bottomnav/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/main/impl/bottomnav/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/main/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/main/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/main/impl/toolbar/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/main/impl/toolbar/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/notification/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/notification/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/phonenumberutil/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/phonenumberutil/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/postcall/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/postcall/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/precall/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/precall/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/preferredsim/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/preferredsim/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/preferredsim/suggestion/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/preferredsim/suggestion/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/promotion/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/promotion/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/searchfragment/cp2/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/searchfragment/cp2/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/searchfragment/directories/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/searchfragment/directories/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/searchfragment/list/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/searchfragment/list/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/searchfragment/nearbyplaces/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/searchfragment/nearbyplaces/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/shortcuts/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/shortcuts/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/spannable/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/spannable/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/speeddial/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/speeddial/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/theme/common/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/theme/common/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/util/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/util/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/voicemail/listui/error/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/voicemail/listui/error/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/voicemail/listui/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/voicemail/listui/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/voicemail/settings/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/voicemail/settings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/dialer/widget/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/dialer/widget/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/answer/impl/answermethod/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/answer/impl/answermethod/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/answer/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/answer/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/audioroute/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/audioroute/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/commontheme/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/commontheme/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/contactgrid/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/contactgrid/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/disconnectdialog/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/disconnectdialog/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/hold/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/hold/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/incall/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/incall/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/rtt/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/rtt/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/sessiondata/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/sessiondata/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/spam/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/spam/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/telecomeventui/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/telecomeventui/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/theme/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/theme/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/incallui/video/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/incallui/video/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/voicemail/impl/configui/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/voicemail/impl/configui/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Dialer/java/com/android/voicemail/impl/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Dialer/java/com/android/voicemail/impl/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/DocumentsUI/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/DocumentsUI/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/EmergencyInfo/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/EmergencyInfo/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/ExactCalculator/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/ExactCalculator/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Gallery2/res/values/filtershow_strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Gallery2/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Gallery2/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Gallery2/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/HTMLViewer/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/HTMLViewer/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/KeyChain/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/KeyChain/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/ManagedProvisioning/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/ManagedProvisioning/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Messaging/res/values/arrays.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Messaging/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Messaging/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Messaging/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Nfc/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Nfc/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/PhoneCommon/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/PhoneCommon/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/QuickAccessWallet/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/QuickAccessWallet/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/SafetyRegulatoryInfo/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/SafetyRegulatoryInfo/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Settings/res/values/arrays.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Settings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Settings/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Settings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Stk/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Stk/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/StorageManager/res/values/arrays.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/StorageManager/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/StorageManager/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/StorageManager/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Tag/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Tag/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/ThemePicker/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/ThemePicker/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/Trebuchet/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/Trebuchet/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/TV/res/values/arrays.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/TV/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/TV/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/TV/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/TvSettings/Settings/res/values/arrays.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/TvSettings/Settings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/TvSettings/Settings/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/TvSettings/Settings/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/apps/WallpaperPicker2/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/apps/WallpaperPicker2/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LatinIME/java/res/values/strings-action-keys.xml",
+        "translation": "/vendor/crowdin/overlay/packages/inputmethods/LatinIME/java/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LatinIME/java/res/values/strings-appname.xml",
+        "translation": "/vendor/crowdin/overlay/packages/inputmethods/LatinIME/java/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LatinIME/java/res/values/strings-config-important-notice.xml",
+        "translation": "/vendor/crowdin/overlay/packages/inputmethods/LatinIME/java/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LatinIME/java/res/values/strings-emoji-descriptions.xml",
+        "translation": "/vendor/crowdin/overlay/packages/inputmethods/LatinIME/java/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LatinIME/java/res/values/strings-letter-descriptions.xml",
+        "translation": "/vendor/crowdin/overlay/packages/inputmethods/LatinIME/java/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LatinIME/java/res/values/strings-talkback-descriptions.xml",
+        "translation": "/vendor/crowdin/overlay/packages/inputmethods/LatinIME/java/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LatinIME/java/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/inputmethods/LatinIME/java/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/inputmethods/LeanbackIME/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/inputmethods/LeanbackIME/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/Bluetooth/android/app/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/Bluetooth/android/app/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/Bluetooth/android/app/res/values/strings_pbap.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/Bluetooth/android/app/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/Bluetooth/android/app/res/values/strings_sap.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/Bluetooth/android/app/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/CaptivePortalLogin/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/CaptivePortalLogin/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/CellBroadcastService/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/CellBroadcastService/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/Connectivity/service/ServiceConnectivityResources/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/Connectivity/service/ServiceConnectivityResources/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/Connectivity/Tethering/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/Connectivity/Tethering/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/NetworkStack/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/NetworkStack/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/Permission/PermissionController/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/Permission/PermissionController/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/Wifi/OsuLogin/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/Wifi/OsuLogin/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/modules/Wifi/service/ServiceWifiResources/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/modules/Wifi/service/ServiceWifiResources/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/BlockedNumberProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/BlockedNumberProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/BookmarkProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/BookmarkProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/CalendarProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/CalendarProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/CallLogProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/CallLogProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/ContactsProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/ContactsProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/DownloadProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/DownloadProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/DownloadProvider/ui/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/DownloadProvider/ui/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/MediaProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/MediaProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/TelephonyProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/TelephonyProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/TvProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/TvProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/providers/UserDictionaryProvider/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/providers/UserDictionaryProvider/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/screensavers/Basic/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/screensavers/Basic/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/screensavers/PhotoTable/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/screensavers/PhotoTable/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/BuiltInPrintService/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/services/BuiltInPrintService/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/Car/car-maps-placeholder/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/services/Car/car-maps-placeholder/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/Car/car-usb-handler/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/services/Car/car-usb-handler/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/Car/FrameworkPackageStubs/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/services/Car/FrameworkPackageStubs/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/Car/service-builtin/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/services/Car/service-builtin/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/Mtp/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/services/Mtp/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/Telecomm/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/services/Telecomm/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/services/Telephony/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/services/Telephony/res/values-%android_code%/%original_file_name%"
+    },
+    {
+        "source":      "/packages/wallpapers/LivePicker/res/values/strings.xml",
+        "translation": "/vendor/crowdin/overlay/packages/wallpapers/LivePicker/res/values-%android_code%/%original_file_name%"
+    }
+]

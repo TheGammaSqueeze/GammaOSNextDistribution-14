@@ -1,0 +1,17 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library {
+    name: "libacryl_hdr_plugin",
+    proprietary: true,
+    include_dirs: [
+        "hardware/google/graphics/gs101/include",
+        "hardware/google/graphics/common/include"
+    ],
+    srcs: ["libacryl_hdr_plugin.cpp"],
+    shared_libs: ["liblog", "android.hardware.graphics.common@1.2"],
+    header_libs: ["google_libacryl_hdrplugin_headers", "libsystem_headers"],
+    cflags: ["-Werror"],
+}

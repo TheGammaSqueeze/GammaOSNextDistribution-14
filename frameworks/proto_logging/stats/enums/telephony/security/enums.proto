@@ -1,0 +1,45 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.telephony;
+
+option java_outer_classname = "SecurityProtoEnums";
+option java_multiple_files = true;
+
+// Identifier types
+enum CellularIdentifier {
+  CELLULAR_IDENTIFIER_UNKNOWN = 0;
+  CELLULAR_IDENTIFIER_IMSI = 1;
+  CELLULAR_IDENTIFIER_IMEI = 2;
+  CELLULAR_IDENTIFIER_SUCI = 3;
+}
+
+// NAS Protocol Messages
+enum NasProtocolMessage {
+ NAS_MESSAGE_UNKNOWN = 0;
+ NAS_MESSAGE_ATTACH_REQUEST = 1;
+ NAS_MESSAGE_IDENTITY_RESPONSE = 2;
+ NAS_MESSAGE_DETACH_REQUEST = 3;
+ NAS_MESSAGE_TRACKING_AREA_UPDATE_REQUEST = 4;
+ NAS_MESSAGE_LOCATION_UPDATE_REQUEST = 5;
+ NAS_MESSAGE_AUTHENTICATION_AND_CIPHERING_RESPONSE = 6;
+ NAS_MESSAGE_REGISTRATION_REQUEST = 7;
+ NAS_MESSAGE_DEREGISTRATION_REQUEST = 8;
+ NAS_MESSAGE_CM_REESTABLISHMENT_REQUEST = 9;
+ NAS_MESSAGE_CM_SERVICE_REQUEST = 10;
+ NAS_MESSAGE_IMSI_DETACH_INDICATION = 11;
+}

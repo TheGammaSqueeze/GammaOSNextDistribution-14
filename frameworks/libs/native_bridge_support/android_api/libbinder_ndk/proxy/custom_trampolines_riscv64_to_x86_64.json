@@ -1,0 +1,35 @@
+{
+  "symbols": {},
+  "types": {
+    "struct AIBinder const*": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct AIBinder*": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct AIBinder_Class const*": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct AIBinder_Class*": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct AIBinder_DeathRecipient*": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    }
+  }
+}

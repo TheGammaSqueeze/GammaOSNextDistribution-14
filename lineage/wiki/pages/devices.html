@@ -1,0 +1,549 @@
+---
+layout: default
+title: Devices
+permalink: devices/
+redirect_from: devices.html
+search: exclude
+---
+
+<script type="text/javascript">
+
+const DEVICES = JSON.parse(
+  decodeURIComponent('{{ site.data.devices | jsonify | url_encode }}'.replaceAll('+', ' '))
+);
+
+$(window).on('load', applyFilters);
+
+function applyFilters() {
+  const checkBoxValue = (filter) =>
+    $(`div[data-filter=${filter}] input[type=checkbox]`)
+      .is(":checked");
+  const checkBoxValues = (filter) =>
+    [...$(`div[data-filter=${filter}] input[type=checkbox]:checked`)]
+      .map((e) => e.getAttribute("data-value"));
+  const radioValue = (filter) =>
+    parseFloat($(`div[data-filter=${filter}] input[type=radio]:checked`).val());
+  const rangeValue = (filter) =>
+    parseFloat($(`div[data-filter=${filter}] input[type=range]`).val());
+
+  let filters = [
+    // Global :: Show discontinued devices
+    (device) => {
+      let value = checkBoxValue("maintainers");
+      return !value || device.maintainers.length > 0;
+    },
+
+    // Global :: Show devices without official BL unlock method
+    (device) => {
+      let value = checkBoxValue("is_unlockable");
+      return !value || device.is_unlockable !== false;
+    },
+
+    // Architecture
+    (device) => {
+      let value = checkBoxValues("architectures");
+      let cpu = device.architecture.cpu ?? device.architecture;
+      return value.length === 0 || value.some(x => cpu === x);
+    },
+
+    // SoC vendor
+    (device) => {
+      let value = checkBoxValues("soc_vendors");
+      return value.length === 0 || value.some(x => device.soc.includes(x));
+    },
+
+    // Device type
+    (device) => {
+      let value = checkBoxValues("types");
+      return value.length === 0 || value.some(x => device.type.includes(x));
+    },
+
+    // Networks
+    (device) => {
+      let value = checkBoxValues("networks");
+      return value.length === 0 || value.every(x => device.network.includes(x));
+    },
+
+    // Wi-Fi
+    (device) => {
+      let value = checkBoxValues("wifi");
+      return value.length === 0 || value.some(x => device.wifi.includes(x));
+    },
+
+    // Peripherals
+    (device) => {
+      let value = checkBoxValues("peripherals");
+      return value.length === 0 || value.every(x => device.peripherals.includes(x));
+    },
+
+    // SDCard slot
+    (device) => {
+      let value = radioValue("sdcard");
+      return value === 0 || device.sdcard !== undefined;
+    },
+
+    // Min screen size in inches
+    (device) => {
+      let value = rangeValue("screen-size-min");
+      let size = device.screen.size ?? 0;
+      return value === 0 || (size > 0 && size >= value);
+    },
+
+    // Max screen size in inches
+    (device) => {
+      let value = rangeValue("screen-size-max");
+      let size = device.screen.size ?? 0;
+      return value === 0 || (size > 0 && size <= value);
+    },
+
+    // Min release year
+    (device) => {
+      let value = rangeValue("release");
+      let years = typeof(device.release) === "object"
+        ? device.release.map(x => parseInt(Object.values(x).toString().substring(0, 4)))
+        : [ parseInt(device.release.toString().substring(0, 4)) ];
+      return years.some(x => x >= value);
+    },
+
+    // LineageOS versions
+    (device) => {
+      let value = checkBoxValues("versions").map((x) => parseFloat(x));
+      return value.length === 0 || value.some(x => device.versions.includes(x));
+    },
+
+    // Kernel versions
+    (device) => {
+      let value = checkBoxValues("kernel_versions");
+      return value.length === 0 || value.some(x => device.kernel.version.includes(x));
+    },
+  ];
+
+  // Hide devices not matching filters
+  $(".devices .item").each(function () {
+    let codename = $(this).attr("data-codename");
+    let variant = $(this).attr("data-variant");
+    if (variant.length > 0) {
+      codename += `_variant${$(this).attr("data-variant")}`;
+    }
+
+    if (filters.every(x => x(DEVICES[codename]))) {
+      $(this).removeClass("hidden");
+      $(this).parent().show();
+    } else {
+      $(this).addClass("hidden");
+    }
+  })
+
+  // Hide empty vendors
+  $(".devices").each(function() {
+    $(`*[data-vendor="${$(this).attr("data-vendor")}"]`)
+      .toggle($(this).find("div:visible").length > 0);
+  });
+
+  // Hide vendors list
+  $("#vendor-list").toggle($(".devices:visible").length > 1);
+
+  // Show empty list placeholder
+  $("#empty-list").toggle($(".devices:visible").length === 0);
+
+  // Update number of devices found
+  $("#filtered-devices").text(`${$(".devices .item:visible[data-variant!=unknown]").length}`);
+  $("#total-devices").text(`${$(".devices .item[data-variant!=unknown]").length}`);
+}
+
+function closeFilters() {
+  $("#popup-filters").trigger("close");
+  applyFilters();
+}
+
+function showFilters() {
+  $("#popup-filters").trigger("open");
+}
+</script>
+
+<div class="container page" markdown=1>
+
+  <h1>{{ page.title }}</h1>
+
+  {%- capture content %}
+  <ul>
+    <li>Devices not listed are <strong>not supported.</strong></li>
+    <li>Builds for other devices can <strong>not be used</strong></li>
+    <li><strong>Nearly identical</strong> is <strong>not</strong> sufficient</li>
+    <li>If your model contains a year in the name, the device with another year in it is not the same!</li>
+  </ul>
+  Please refer to the <a href="/faq">FAQ</a> for further information!
+  {%- endcapture %}
+  {% include alerts/warning.html content=content %}
+
+  Find your device below. You can show discontinued devices or filter for various attributes here:<br/><br/>
+
+{%- assign devices = "" | split: " " %}
+{%- assign variants = "" | split: " " %}
+{%- for device in site.data.devices %}
+{%- assign data = device[1] %}
+{%- if data.variant == None or data.variant == 1 %}
+{%- assign devices = devices | push: data %}
+{%- elsif data.variant %}
+{%- assign variants = variants | push: data %}
+{%- endif %}
+{%- endfor %}
+
+{%- assign sorted = devices | sort_natural: 'name' | sort_natural: 'vendor' %}
+{%- assign lastVendor = "" %}
+
+<div class="form-check form-check-inline">
+  <button onclick="showFilters()" class="btn btn-primary" aria-label="Filter devices">Filter (<span id="filtered-devices">0</span> of <span id="total-devices">0</span> shown)</button>
+</div><br/><br/>
+
+<div id="vendor-list">
+  Select a vendor to jump to:<br/>
+
+  <div class="vendor-container">
+    {%- assign vendors = "" | split: " " %}
+    {%- for device in sorted %}
+    {%- if device.vendor != lastVendor %}
+    {%- assign vendors = vendors | push: device.vendor %}
+    {%- assign lastVendor = device.vendor %}
+      <div data-vendor="{{ lastVendor | slugify }}"><a href="#{{ lastVendor | slugify }}" data-vendor="{{ lastVendor | slugify }}">{{ lastVendor }}</a></div>
+    {%- endif %}
+    {%- endfor %}
+  </div>
+</div>
+
+<div id="empty-list" style="display: none">
+  No devices matching selected filters!
+</div>
+
+{%- for device in sorted %}
+{%- if device.vendor != lastVendor %}
+{%- assign lastVendor = device.vendor %}
+{% capture vendorId %}{{ device.vendor | slugify }}{% endcapture %}
+
+<h2 class="h2" id="{{ vendorId }}" data-vendor="{{ vendorId }}">{{ device.vendor}}</h2>
+
+<a href="#devices" class="top" data-vendor="{{ vendorId }}"><i class="material-icons">arrow_drop_up</i>Top</a>
+
+<div class="devices" data-vendor="{{ vendorId }}">
+{%- endif %}
+
+{%- assign url = "devices/" | append: device.codename | append: "/" | relative_url %}
+{%- if device.maintainers == empty %}
+{%- assign class="discontinued hidden" %}
+{%- else %}
+{%- assign class="" %}
+{%- endif -%}
+
+<div class="item {{ class }}" onClick="location.href='{{ url }}'" data-codename="{{ device.codename }}" data-variant="{{ device.variant }}" data-url="{{ url }}">
+  <div class="deviceimage">
+    <a href="{{ url }}"><img src="{{ "images/devices/small/" | append: device.image | relative_url }}" alt="device-image for {{ device.codename }}" loading="lazy" /></a>
+  </div>
+  <div class="name">
+    <a href="{{ url }}">
+      {%- include snippets/get_displayname.md device=device %}
+      <span class="devicename">{{ display_name }}</span>
+    </a><br>
+    {%- if device.variant %}
+    <div class="variant-container">
+      <span class="aka">AKA</span>
+      {%- assign device_variants = "" | split: " " %}
+      {%- assign sorted_variants = variants | sort_natural: 'variant' %}
+      {%- for variant in sorted_variants %}
+        {%- if variant.codename == device.codename %}
+          {%- assign device_variants = device_variants | push: variant %}
+        {%- endif %}
+      {%- endfor %}
+      {%- for variant in device_variants %}
+      {%- include snippets/get_displayname.md device=variant %}
+      <span class="variant"><a href="{{ url }}">{{ display_name }}</a></span>
+      {%- unless forloop.last %}
+      <span class="bullet"></span>
+      {%- endunless %}
+      {%- endfor %}
+    </div>
+    <div class="variants-list">
+      <ul>
+        {%- assign variant_url = "devices/" | append: device.codename | append: "/variant1/"| relative_url %}
+        {%- include snippets/get_displayname.md device=device %}
+        <li onClick="location.href='{{ variant_url }}'"><a href="{{ variant_url }}">{{ display_name }}</a></li>
+        {%- for variant in device_variants %}
+        {%- assign variant_url = "devices/" | append: variant.codename | append: "/variant" | append: variant.variant | append: "/" | relative_url %}
+        {%- include snippets/get_displayname.md device=variant %}
+        <li onClick="location.href='{{ variant_url }}'"><a href="{{ variant_url }}">{{ display_name }}</a></li>
+        {%- endfor %}
+      </ul>
+    </div>
+    {%- endif %}
+    <a href="{{ url }}">
+      <span class="codename">codename: {{ device.codename }}</span>
+    </a>
+  </div>
+</div>
+
+{%- if sorted[forloop.index].vendor != lastVendor %}
+</div> <!-- div class="devices" -->
+{% endif %}
+{%- endfor %}
+</div>
+
+{%- assign definitions = site.data.schema.definitions %}
+{%- assign properties = site.data.schema.properties %}
+
+<div class="page-overlay" id="popup-filters">
+  <div class="popup-overlay" style="min-width: 400px">
+    <div class="popup-content">
+      <div class="popup-close-action"><span class="material-icons close-action">close</span></div>
+      <div class="popup-header" style="height: auto">
+        <span class="popup-title">Device filters</span><br/>
+      </div>
+      <div class="popup-body" style="max-height: 500px; overscroll-behavior: contain; overflow-y: auto">
+        <p class="device-filters-header">Global:</p>
+        <div class="form-check" data-filter="maintainers">
+          <label class="form-check-label">
+            <input class="form-check-input no-ripple" type="checkbox" checked>
+            Hide discontinued devices
+            <span class="form-check-sign no-ripple">
+                <span class="check" />
+            </span>
+          </label>
+        </div>
+        <div class="form-check" data-filter="is_unlockable">
+          <label class="form-check-label">
+            <input class="form-check-input no-ripple" type="checkbox">
+            Hide devices without official BL unlock method
+            <span class="form-check-sign no-ripple">
+                <span class="check" />
+            </span>
+          </label>
+        </div>
+
+        <p class="device-filters-header">Architecture:</p>
+        {% for value in definitions.valid_architectures.enum %}
+        <div class="form-check" data-filter="architectures">
+          <label class="form-check-label">
+              <input class="form-check-input no-ripple" type="checkbox" data-value="{{ value }}">
+              {{ value }}
+              <span class="form-check-sign no-ripple">
+                  <span class="check" />
+              </span>
+            </label>
+          </div>
+        {% endfor %}
+
+        <p class="device-filters-header">SoC vendor:</p>
+        {% for value in site.data.device_filters.soc_vendors %}
+        <div class="form-check" data-filter="soc_vendors">
+          <label class="form-check-label">
+              <input class="form-check-input no-ripple" type="checkbox" data-value="{{ value }}">
+              {{ value }}
+              <span class="form-check-sign no-ripple">
+                  <span class="check" />
+              </span>
+            </label>
+          </div>
+        {% endfor %}
+
+        <p class="device-filters-header">Device type:</p>
+        {% for value in properties.type.enum %}
+        <div class="form-check" data-filter="types">
+          <label class="form-check-label">
+              <input class="form-check-input no-ripple" type="checkbox" data-value="{{ value }}">
+              {{ value | capitalize }}
+              <span class="form-check-sign no-ripple">
+                  <span class="check" />
+              </span>
+            </label>
+          </div>
+        {% endfor %}
+
+        <p class="device-filters-header">Networks:</p>
+        {% for value in definitions.valid_networks.items.enum %}
+          <div class="form-check" data-filter="networks">
+            <label class="form-check-label">
+              <input class="form-check-input no-ripple" type="checkbox" data-value="{{ value }}">
+              {{ value }}
+              <span class="form-check-sign no-ripple">
+                  <span class="check" />
+              </span>
+            </label>
+          </div>
+        {% endfor %}
+
+        <p class="device-filters-header">Wi-Fi:</p>
+        {% assign wifi_values = properties.wifi.enum | shift %}
+        {% for value in wifi_values %}
+          <div class="form-check" data-filter="wifi">
+            <label class="form-check-label">
+              <input class="form-check-input no-ripple" type="checkbox" data-value="{{ value }}">
+              {{ value }}
+              <span class="form-check-sign no-ripple">
+                  <span class="check" />
+              </span>
+            </label>
+          </div>
+        {% endfor %}
+
+        <p class="device-filters-header">Peripherals:</p>
+        {% for value in definitions.valid_peripherals.items.enum %}
+          <div class="form-check" data-filter="peripherals">
+            <label class="form-check-label">
+              <input class="form-check-input no-ripple" type="checkbox" data-value="{{ value }}">
+              {{ value }}
+              <span class="form-check-sign no-ripple">
+                  <span class="check" />
+              </span>
+            </label>
+          </div>
+        {% endfor %}
+
+        <p class="device-filters-header">SD card slot:</p>
+        <div class="form-check" data-filter="sdcard">
+          <label class="form-check-label">
+            <input class="form-check-input" type="radio" name="device-filter-sdcard" value="0" checked />
+            No
+            <span class="circle no-ripple">
+              <span class="check" />
+            </span>
+          </label>
+        </div>
+        <div class="form-check" data-filter="sdcard">
+          <label class="form-check-label">
+            <input class="form-check-input" type="radio" name="device-filter-sdcard" value="1" />
+            Yes
+            <span class="circle no-ripple">
+              <span class="check" />
+            </span>
+          </label>
+        </div>
+
+        <p class="device-filters-header">Min screen size in inches:</p>
+        <div data-filter="screen-size-min">
+          <input type="range" min="0" max="13" step="0.1" value="0" />
+          <label />
+        </div>
+
+        <p class="device-filters-header">Max screen size in inches:</p>
+        <div data-filter="screen-size-max">
+          <input type="range" min="0" max="13" step="0.1" value="0" />
+          <label />
+        </div>
+
+        <p class="device-filters-header">Min release year:</p>
+        <div data-filter="release">
+          <input type="range" min="2010" value="2010" />
+          <label />
+        </div>
+
+        <p class="device-filters-header">LineageOS versions:</p>
+        {% for value in definitions.valid_branches.enum %}
+          <div class="form-check" data-filter="versions">
+            <label class="form-check-label">
+              <input class="form-check-input no-ripple" type="checkbox" data-value="{{ value }}">
+              {{ value }}
+              <span class="form-check-sign no-ripple">
+                  <span class="check" />
+              </span>
+            </label>
+          </div>
+        {% endfor %}
+
+        <p class="device-filters-header">Kernel versions:</p>
+        {% for value in definitions.valid_kernel_versions.enum %}
+          <div class="form-check" data-filter="kernel_versions">
+            <label class="form-check-label">
+              <input class="form-check-input no-ripple" type="checkbox" data-value="{{ value }}">
+              {{ value }}
+              <span class="form-check-sign no-ripple">
+                  <span class="check" />
+              </span>
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+      <button onclick="closeFilters()" class="btn btn-primary">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div class="page-overlay" id="popup-variants">
+  <div class="popup-overlay">
+    <div class="popup-content">
+      <div class="popup-close-action"><span class="material-icons close-action">close</span></div>
+      <div class="popup-header">
+        <span class="popup-title">Select your variant</span><br/>
+        <span class="popup-subtitle">codename</span>
+      </div>
+      <div class="popup-body">
+        <p>
+          These devices all use the same LineageOS build.
+          The vendor may have released the same device under multiple names, or the maintainer may support multiple devices using the same code.
+        </p>
+        <p style="margin-bottom: 0px;">
+          Select your variant to make sure your guides are correct. Not sure which?<br/>
+          <a href="" id="compare-link">Compare their differences.</a>
+        </p>
+        <div class="popup-variants-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Handle page overlay click and close events
+$('.page-overlay').on('click close', function() {
+  $(this).addClass('closed');
+  $('html, body').css({
+    overflow: 'auto',
+    height: 'auto'
+  });
+});
+// Handle page overlay open event
+$('.page-overlay').on('open', function() {
+  $(this).addClass('active').removeClass('closed');
+  $('html, body').css({
+    overflow: 'hidden',
+  });
+});
+
+// Close the popup
+$('.popup-close-action').on('click', function() {
+  $(this).parents('.page-overlay').trigger('close');
+});
+// Prevent popup close when clicking on the popup itself
+$('.popup-overlay').on('click', function(e) {
+  e.stopPropagation();
+});
+
+// Select all items where variant is set
+$('*[data-variant=1]').each(function () {
+  // remove current onClick target, we do something better
+  $(this).attr('onclick', '').unbind('click');
+  $(this).on('click', function() {
+    codename = $(this).attr('data-codename');
+    $('#popup-variants').trigger('open');
+    // Replace relevant parts of dialog content
+    $('#popup-variants .popup-variants-list').html($(this).find('.variants-list').html());
+    $('#popup-variants .popup-subtitle').text(codename);
+    $('#compare-link').attr('href', $(this).attr('data-url'));
+    // don't remember last scroll position, always start at top
+    $('#popup-variants .popup-body').scrollTop(0);
+  });
+  // Remove current click targets, they are just there as fallback solution
+  $(this).find('a').each(function() {
+    $(this).click(function(e){
+        e.preventDefault();
+    });
+  });
+  // Screen size sliders
+  $('div[data-filter*=screen-size-] input').on('input', function() {
+    $(this).siblings('label').text(parseFloat($(this).val()) || "Unset");
+  });
+  $('div[data-filter*=screen-size-] input').trigger('input');
+  // Release year slider
+  $('div[data-filter=release] input').attr('max', new Date().getFullYear());
+  $('div[data-filter=release] input').on('input', function() {
+    $('div[data-filter=release] label').text($(this).val());
+  });
+  $('div[data-filter=release] input').trigger('input');
+});
+</script>

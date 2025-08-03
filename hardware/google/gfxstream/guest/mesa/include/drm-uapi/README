@@ -1,0 +1,21 @@
+This directory contains a copy of the installed kernel headers
+required by several drivers to communicate with the kernel.
+Whenever one of those driver needs new definitions for new kernel
+APIs, these files should be updated.
+
+These files in master should only be updated once the changes have landed
+in the drm-next tree.
+
+You can copy files installed after running this from the kernel
+repository, at version the drivers require :
+
+$ make headers_install INSTALL_HDR_PATH=/path/to/install
+
+The last update was done at the following kernel commit :
+
+commit 2e1492835e439fceba57a5b0f9b17da8e78ffa3d
+Merge: 85d712f033d2 43049f17b526
+Author: Dave Airlie <airlied@redhat.com>
+Date:   Fri Jun 2 13:38:48 2023 +1000
+
+    Merge tag 'drm-misc-next-2023-06-01' of git://anongit.freedesktop.org/drm/drm-misc into drm-next

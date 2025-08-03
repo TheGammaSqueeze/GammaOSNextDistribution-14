@@ -1,0 +1,39 @@
+architecture: arm64
+battery: {capacity: 4100, removable: False, tech: 'Li-Po'}
+bluetooth: {spec: '4.1'}
+cameras:
+  - {flash: 'LED', info: '13 MP (Rear)'}
+  - {flash: None, info: '5 MP (Front)'}
+codename: Mi8937
+cpu: Cortex-A53 & Cortex-A53
+cpu_cores: '8'
+cpu_freq: 4 x 1.4 GHz & 4 x 1.1 GHz
+current_branch: 22.2
+dimensions: {depth: 8.65, height: 139.24, width: 69.96}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+format_on_upgrade: 21
+gpu: Qualcomm Adreno 505
+image: santoni.png
+install_method: fastboot_xiaomi
+kernel: {repo: android_kernel_xiaomi_msm8937, version: '4.19'}
+maintainers: ["0xCAFEBABE"]
+models: [MAI132]
+name: Redmi 4 (India)
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Dual SIM, FM radio, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, Gyroscope, IR blaster, Light sensor, Pedometer, Proximity sensor, USB OTG]
+ram: 2 / 3 / 4 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Volume Down</kbd> + <kbd>Power</kbd>. When the screen lights up, release the buttons.
+recovery_partition_name: recovery
+recovery_reboot: fastboot_boot
+release: 2017-02-28
+screen: {resolution: '720x1280', size: 5, technology: 'IPS LCD'}
+sdcard: {size_max: '128 GB'}
+soc: Qualcomm MSM8940 Snapdragon 435
+storage: 16 / 32 / 64 GB
+tree: android_device_xiaomi_Mi8937
+type: phone
+variant: 3
+vendor: Xiaomi
+vendor_short: xiaomi
+versions: [19.1, 20, 21, 22.2]
+wifi: 802.11 b/g/n

@@ -1,0 +1,183 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package com.android.server.vibrator;
+
+option java_multiple_files = true;
+
+import "frameworks/base/core/proto/android/privacy.proto";
+
+message StepSegmentProto {
+   option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+   optional int32 duration = 1;
+   optional float amplitude = 2;
+   optional float frequency = 3;
+}
+
+message RampSegmentProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional int32 duration = 1;
+    optional float startAmplitude = 2;
+    optional float endAmplitude = 3;
+    optional float startFrequency = 4;
+    optional float endFrequency = 5;
+}
+
+message PrebakedSegmentProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional int32 effect_id = 1;
+    optional int32 effect_strength = 2;
+    optional int32 fallback = 3;
+}
+
+message PrimitiveSegmentProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional int32 primitive_id = 1;
+    optional float scale = 2;
+    optional int32 delay = 3;
+}
+
+message SegmentProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional PrebakedSegmentProto prebaked = 1;
+    optional PrimitiveSegmentProto primitive = 2;
+    optional StepSegmentProto step = 3;
+    optional RampSegmentProto ramp = 4;
+}
+
+// A com.android.os.VibrationEffect object.
+message VibrationEffectProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional SegmentProto segments = 1;
+    required int32 repeat = 2;
+}
+
+message SyncVibrationEffectProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    repeated VibrationEffectProto effects = 1;
+    repeated int32 vibrator_ids = 2;
+}
+
+// A com.android.os.CombinedVibrationEffect object.
+message CombinedVibrationEffectProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    repeated SyncVibrationEffectProto effects = 1;
+    repeated int32 delays = 2;
+}
+
+// Next Tag: 5
+message VibrationAttributesProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional int32 usage = 1;
+    optional int32 audio_usage = 2;
+    optional int32 flags = 3;
+    optional int32 category = 4;
+}
+
+// Next Tag: 4
+message VibrationParamProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional VibrationScaleParamProto scale = 1;
+    optional int64 create_time = 2;
+    optional bool is_from_request = 3;
+}
+
+// Next Tag: 3
+message VibrationScaleParamProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional int32 types_mask = 1;
+    optional float scale = 2;
+}
+
+// Next Tag: 9
+message VibrationProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    optional int64 start_time = 1;
+    optional int64 end_time = 2;
+    optional CombinedVibrationEffectProto played_effect = 3;
+    optional CombinedVibrationEffectProto original_effect = 4;
+    optional VibrationAttributesProto attributes = 5;
+    optional int64 duration_ms = 7;
+    optional Status status = 8;
+    reserved 6; // prev int32 status
+
+    // Also used by VibrationReported from frameworks/proto_logging/stats/atoms.proto.
+    // Next Tag: 26
+    enum Status {
+        UNKNOWN = 0;
+        RUNNING = 1;
+        FINISHED = 2;
+        FINISHED_UNEXPECTED = 3;  // Didn't terminate in the usual way.
+        FORWARDED_TO_INPUT_DEVICES = 4;
+        CANCELLED_BINDER_DIED = 5;
+        CANCELLED_BY_SCREEN_OFF = 6;
+        CANCELLED_BY_SETTINGS_UPDATE = 7;
+        CANCELLED_BY_USER = 8;
+        CANCELLED_BY_UNKNOWN_REASON = 9;
+        CANCELLED_SUPERSEDED = 10;
+        IGNORED_ERROR_APP_OPS = 11;
+        IGNORED_ERROR_CANCELLING = 12;
+        IGNORED_ERROR_SCHEDULING = 13;
+        IGNORED_ERROR_TOKEN= 14;
+        IGNORED_APP_OPS = 15;
+        IGNORED_BACKGROUND = 16;
+        IGNORED_UNKNOWN_VIBRATION = 17;
+        IGNORED_UNSUPPORTED = 18;
+        IGNORED_FOR_EXTERNAL = 19;
+        IGNORED_FOR_HIGHER_IMPORTANCE = 20;
+        IGNORED_FOR_ONGOING = 21;
+        IGNORED_FOR_POWER = 22;
+        IGNORED_FOR_RINGER_MODE = 23;
+        IGNORED_FOR_SETTINGS = 24;
+        IGNORED_SUPERSEDED = 25;
+        IGNORED_FROM_VIRTUAL_DEVICE = 26;
+        IGNORED_ON_WIRELESS_CHARGER = 27;
+    }
+}
+
+// Next Tag: 29
+message VibratorManagerServiceDumpProto {
+    option (.android.msg_privacy).dest = DEST_AUTOMATIC;
+    repeated int32 vibrator_ids = 1;
+    optional VibrationProto current_vibration = 2;
+    optional bool is_vibrating = 3;
+    optional int32 is_vibrator_controller_registered = 27;
+    optional VibrationProto current_external_vibration = 4;
+    optional bool vibrator_under_external_control = 5;
+    optional bool low_power_mode = 6;
+    optional bool vibrate_on = 24;
+    optional bool keyboard_vibration_on = 25;
+    optional int32 default_vibration_amplitude = 26;
+    optional int32 alarm_intensity = 18;
+    optional int32 alarm_default_intensity = 19;
+    optional int32 haptic_feedback_intensity = 7;
+    optional int32 haptic_feedback_default_intensity = 8;
+    optional int32 hardware_feedback_intensity = 22;
+    optional int32 hardware_feedback_default_intensity = 23;
+    optional int32 media_intensity = 20;
+    optional int32 media_default_intensity = 21;
+    optional int32 notification_intensity = 9;
+    optional int32 notification_default_intensity = 10;
+    optional int32 ring_intensity = 11;
+    optional int32 ring_default_intensity = 12;
+    repeated VibrationProto previous_ring_vibrations = 13;
+    repeated VibrationProto previous_notification_vibrations = 14;
+    repeated VibrationProto previous_alarm_vibrations = 15;
+    repeated VibrationProto previous_vibrations = 16;
+    repeated VibrationParamProto previous_vibration_params = 28;
+    reserved 17; // prev previous_external_vibrations
+}

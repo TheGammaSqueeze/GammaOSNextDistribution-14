@@ -1,0 +1,109 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_input_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+cc_test {
+    name: "inputflinger_tests",
+    host_supported: true,
+    defaults: [
+        "inputflinger_defaults",
+        // For all targets inside inputflinger, these tests build all of their sources using their
+        // defaults rather than including them as shared or static libraries. By doing so, the tests
+        // will always run against the compiled version of the inputflinger code rather than the
+        // version on the device.
+        "libinputflinger_base_defaults",
+        "libinputreader_defaults",
+        "libinputreporter_defaults",
+        "libinputdispatcher_defaults",
+        "libinputflinger_defaults",
+    ],
+    srcs: [
+        "AnrTracker_test.cpp",
+        "BlockingQueue_test.cpp",
+        "CapturedTouchpadEventConverter_test.cpp",
+        "CursorInputMapper_test.cpp",
+        "EventHub_test.cpp",
+        "FakeEventHub.cpp",
+        "FakeInputReaderPolicy.cpp",
+        "FakeInputTracingBackend.cpp",
+        "FakePointerController.cpp",
+        "FocusResolver_test.cpp",
+        "GestureConverter_test.cpp",
+        "HardwareProperties_test.cpp",
+        "HardwareStateConverter_test.cpp",
+        "InputDeviceMetricsCollector_test.cpp",
+        "InputDeviceMetricsSource_test.cpp",
+        "InputMapperTest.cpp",
+        "InputProcessor_test.cpp",
+        "InputProcessorConverter_test.cpp",
+        "InputDispatcher_test.cpp",
+        "InputReader_test.cpp",
+        "InstrumentedInputReader.cpp",
+        "LatencyTracker_test.cpp",
+        "MultiTouchMotionAccumulator_test.cpp",
+        "NotifyArgs_test.cpp",
+        "PointerChoreographer_test.cpp",
+        "PreferStylusOverTouch_test.cpp",
+        "PropertyProvider_test.cpp",
+        "SlopController_test.cpp",
+        "SyncQueue_test.cpp",
+        "TimerProvider_test.cpp",
+        "TestInputListener.cpp",
+        "TouchpadInputMapper_test.cpp",
+        "MultiTouchInputMapper_test.cpp",
+        "KeyboardInputMapper_test.cpp",
+        "UinputDevice.cpp",
+        "UnwantedInteractionBlocker_test.cpp",
+    ],
+    aidl: {
+        include_dirs: [
+            "frameworks/native/libs/gui",
+            "frameworks/native/libs/input",
+        ],
+    },
+    target: {
+        android: {
+            shared_libs: [
+                "libvintf",
+            ],
+        },
+    },
+    sanitize: {
+        hwaddress: true,
+        undefined: true,
+        all_undefined: true,
+        diag: {
+            undefined: true,
+        },
+    },
+    static_libs: [
+        "libflagtest",
+        "libc++fs",
+        "libgmock",
+    ],
+    require_root: true,
+    test_options: {
+        unit_test: true,
+    },
+    test_suites: ["device-tests"],
+}

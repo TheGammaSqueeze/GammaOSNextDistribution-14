@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+genrule {
+    name: "wsi_common_entrypoints_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["wsi_common_entrypoints.h"],
+    tools: ["vk_entrypoints_gen_gfxstream"],
+    cmd: "python3 $(location vk_entrypoints_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --proto --weak --out-h " +
+        "$(location wsi_common_entrypoints.h) --out-c " +
+        "$(genDir)/placeholder.c --prefix wsi --beta false",
+}
+
+genrule {
+    name: "wsi_common_entrypoints_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["wsi_common_entrypoints.c"],
+    tools: ["vk_entrypoints_gen_gfxstream"],
+    cmd: "python3 $(location vk_entrypoints_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --proto --weak --out-h " +
+        "$(genDir)/wsi_common_entrypoints.h --out-c " +
+        "$(location wsi_common_entrypoints.c) --prefix wsi " +
+        "--beta false",
+}
+
+cc_library_static {
+    name: "libmesa_vulkan_wsi_gfxstream",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "mesa_common_defaults_gfxstream",
+    ],
+    header_libs: [
+        "mesa_common_headers_gfxstream",
+    ],
+    static_libs: [
+        "libmesa_vulkan_util_gfxstream",
+        "libmesa_vulkan_runtime_gfxstream",
+        "libgfxstream_guest_vulkan_entrypoints",
+        "libmesa_util_gfxstream",
+        "libdrm",
+    ],
+    shared_libs: [
+        "libcutils",
+    ],
+    cflags: [
+        "-DVK_NO_NIR",
+    ],
+    generated_headers: [
+        "vk_cmd_queue_header_gfxstream",
+        "vk_physical_device_features_header_gfxstream",
+        "vk_physical_device_properties_header_gfxstream",
+        "wsi_common_entrypoints_header_gfxstream",
+    ],
+    generated_sources: [
+        "wsi_common_entrypoints_impl_gfxstream",
+    ],
+    srcs: [
+        "wsi_common.c",
+        "wsi_common_drm.c",
+        "wsi_common_headless.c",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+}

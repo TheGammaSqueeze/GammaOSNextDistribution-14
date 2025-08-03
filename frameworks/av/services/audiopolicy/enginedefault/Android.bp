@@ -1,0 +1,44 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_library_shared {
+    name: "libaudiopolicyenginedefault",
+    srcs: [
+        "src/Engine.cpp",
+        "src/EngineInstance.cpp",
+    ],
+    cflags: [
+        "-fvisibility=hidden",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    header_libs: [
+        "libbase_headers",
+        "libaudiopolicycommon",
+        "libaudiopolicyengine_interface_headers",
+    ],
+    static_libs: [
+        "libaudiopolicyengine_common",
+        "libaudiopolicyengine_config",
+    ],
+    shared_libs: [
+        "libaudio_aidl_conversion_common_cpp",
+        "libaudiofoundation",
+        "libaudiopolicycomponents",
+        "libbase",
+        "liblog",
+        "libcutils",
+        "libutils",
+        "libmedia_helper",
+        "libaudiopolicy",
+        "libxml2",
+    ],
+}

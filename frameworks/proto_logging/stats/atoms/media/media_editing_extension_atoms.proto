@@ -1,0 +1,139 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.media;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/media/codec/enums.proto";
+import "frameworks/proto_logging/stats/enums/media/editing/enums.proto";
+
+extend Atom {
+  optional MediaEditingEndedReported media_editing_ended_reported = 798
+      [(module) = "media_metrics"];
+}
+
+// Media metric for an editing operation having ended, since Android V.
+message MediaEditingEndedReported {
+  // Randomly generated log session ID. A Base64 encoded hex string representing
+  // a 128-bit integer.
+  optional string log_session_id = 1;
+  // Final state of editing operation when it ended.
+  optional android.media.editing.FinalState final_state = 2;
+  // Progress of the editing operation in percent at the moment that it ended,
+  // or -1 if unknown.
+  optional float final_progress_percent = 3;
+  // Error code, if the final state was failure.
+  optional android.media.editing.ErrorCode error_code = 4;
+  // When editing ended relative to its start time, in milliseconds, or -1 if
+  // unknown.
+  optional int64 time_since_editing_created_millis = 5;
+  // Name of the library implementing the exporting operation, or an empty
+  // string if unknown.
+  optional string exporter_name = 6;
+  // Name of the library implementing the muxing operation, or an empty string
+  // if unknown.
+  optional string muxer_name = 7;
+  // Throughput of the editing operation, in frames per second, or -1 if
+  // unknown.
+  optional int32 throughput_fps = 8;
+  // Number of input media items, or 0 if unknown.
+  optional int32 input_media_item_count = 9;
+  // First input media item's source (eg. gallery).
+  optional android.media.editing.SourceType input_media_item_1_source_type = 10;
+  // First input media item's duration, in milliseconds, or -1 if unknown.
+  optional int64 input_media_item_1_duration_millis = 11;
+  // First input media item's clip duration, in milliseconds, or -1 if unknown.
+  optional int64 input_media_item_1_clip_duration_millis = 12;
+  // First input media item's media container MIME type, or an empty string if
+  // unknown.
+  optional string input_media_item_1_container_mime_type = 13;
+  // First input media item's audio sample MIME type, or an empty string if
+  // unknown.
+  optional string input_media_item_1_audio_sample_mime_type = 14;
+  // First input media item's video sample MIME type, or an empty string if
+  // unknown.
+  optional string input_media_item_1_video_sample_mime_type = 15;
+  // First input media item's common video codec type.
+  optional android.media.codec.Codec input_media_item_1_common_video_codec = 16;
+  // First input media item's audio sample rate, in Hertz, or -1 if unknown.
+  optional int32 input_media_item_1_audio_sample_rate_hz = 17;
+  // First input media item's audio channel count, or -1 if unknown.
+  optional int32 input_media_item_1_audio_channel_count = 18;
+  // First input media item's raw video width, in pixels, or -1 if unknown.
+  optional int32 input_media_item_1_video_raw_width_pixels = 19;
+  // First input media item's raw video height, in pixels, or -1 if unknown.
+  optional int32 input_media_item_1_video_raw_height_pixels = 20;
+  // First input media item's closest common resolution.
+  optional android.media.codec.Resolution input_media_item_1_video_resolution = 21;
+  // First input media item's aspect ratio.
+  optional android.media.editing.ResolutionAspectRatio input_media_item_1_video_resolution_aspect_ratio = 22;
+  // First input media item's video data space, packed as
+  // android.hardware.DataSpace.
+  optional int32 input_media_item_1_video_data_space = 23;
+  // First input media item's HDR video format.
+  optional android.media.codec.HdrFormat input_media_item_1_video_hdr_format = 24;
+  // First input media item's video frame rate, in frames per second, or -1 if
+  // unknown.
+  optional int32 input_media_item_1_video_frame_rate = 25;
+  // First input media item's common video frame rate, or -1 if unknown.
+  optional android.media.codec.Framerate input_media_item_1_common_video_frame_rate = 26;
+  // The first MediaCodec codec component name used to decode the first input, or an empty string if unknown or not applicable.
+  optional string input_media_item_1_codec_name_1 = 27;
+  // The second MediaCodec codec component name used to decode the first input, or an empty string if unknown or not applicable.
+  optional string input_media_item_1_codec_name_2 = 28;
+  // Output media item's duration, in milliseconds, or -1 if unknown.
+  optional int64 output_media_item_duration_millis = 29;
+  // Output media item's clip duration, in milliseconds, or -1 if unknown.
+  optional int64 output_media_item_clip_duration_millis = 30;
+  // Output media item's media container MIME type, or an empty string if
+  // unknown.
+  optional string output_media_item_container_mime_type = 31;
+  // Output media item's audio sample MIME type, or an empty string if unknown.
+  optional string output_media_item_audio_sample_mime_type = 32;
+  // Output media item's video sample MIME type, or an empty string if unknown.
+  optional string output_media_item_video_sample_mime_type = 33;
+  // Output media item's common video codec type.
+  optional android.media.codec.Codec output_media_item_common_video_codec = 34;
+  // Output media item's audio sample rate, in Hertz, or -1 if unknown.
+  optional int32 output_media_item_audio_sample_rate_hz = 35;
+  // Output media item's audio channel count, or -1 if unknown.
+  optional int32 output_media_item_audio_channel_count = 36;
+  // Output media item's raw video width, in pixels, or -1 if unknown.
+  optional int32 output_media_item_video_raw_width_pixels = 37;
+  // Output media item's raw video height, in pixels, or -1 if unknown.
+  optional int32 output_media_item_video_raw_height_pixels = 38;
+  // Output media item's closest common resolution.
+  optional android.media.codec.Resolution output_media_item_video_resolution = 39;
+  // Output media item's aspect ratio.
+  optional android.media.editing.ResolutionAspectRatio output_media_item_video_resolution_aspect_ratio = 40;
+  // Output media item's video data space, packed as
+  // android.hardware.DataSpace.
+  optional int32 output_media_item_video_data_space = 41;
+  // Output media item's HDR video format.
+  optional android.media.codec.HdrFormat output_media_item_video_hdr_format = 42;
+  // Output media item's video frame rate, in frames per second, or -1 if
+  // unknown.
+  optional int32 output_media_item_video_frame_rate = 43;
+  // Output media item's common video frame rate, or -1 if unknown.
+  optional android.media.codec.Framerate output_media_item_common_video_frame_rate = 44;
+  // The first MediaCodec codec component name used to encode the output, or an empty string if unknown or not applicable.
+  optional string output_media_item_codec_name_1 = 45;
+  // The second MediaCodec codec component name used to encode the output, or an empty string if unknown or not applicable.
+  optional string output_media_item_codec_name_2 = 46;
+}

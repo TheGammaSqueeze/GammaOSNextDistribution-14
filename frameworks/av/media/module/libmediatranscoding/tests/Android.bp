@@ -1,0 +1,86 @@
+// Build the unit tests for libmediatranscoding.
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+filegroup {
+    name: "test_assets",
+    path: "assets",
+    srcs: ["assets/**/*"],
+}
+
+cc_defaults {
+    name: "libmediatranscoding_test_defaults",
+
+    header_libs: [
+        "libbase_headers",
+        "libmedia_headers",
+    ],
+
+    shared_libs: [
+        "libandroid",
+        "libbinder_ndk",
+        "libcutils",
+        "liblog",
+        "libutils",
+    ],
+
+    static_libs: [
+        "mediatranscoding_aidl_interface-ndk",
+        "libmediatranscoding",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    test_suites: ["device-tests"],
+}
+
+//
+// TranscodingClientManager unit test
+//
+cc_test {
+    name: "TranscodingClientManager_tests",
+    defaults: ["libmediatranscoding_test_defaults"],
+
+    srcs: ["TranscodingClientManager_tests.cpp"],
+}
+
+//
+// TranscodingSessionController unit test
+//
+cc_test {
+    name: "TranscodingSessionController_tests",
+    defaults: ["libmediatranscoding_test_defaults"],
+
+    srcs: ["TranscodingSessionController_tests.cpp"],
+}
+
+//
+// AdjustableMaxPriorityQueue unit test
+//
+cc_test {
+    name: "AdjustableMaxPriorityQueue_tests",
+    defaults: ["libmediatranscoding_test_defaults"],
+
+    srcs: ["AdjustableMaxPriorityQueue_tests.cpp"],
+}
+
+//
+// TranscodingLogger unit test
+//
+cc_test {
+    name: "TranscodingLogger_tests",
+    defaults: ["libmediatranscoding_test_defaults"],
+    shared_libs: ["libmediandk", "libstatssocket#30"],
+    static_libs: ["libmediatranscoder", "libstatslog_media"],
+
+    srcs: ["TranscodingLogger_tests.cpp"],
+}

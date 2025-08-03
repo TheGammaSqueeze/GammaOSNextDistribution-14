@@ -1,0 +1,63 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["libcore_ojluni_src_main_license"],
+}
+
+// Stub library containing the contributions of ART module to Toolchain
+// API Surface.
+// This is a droidstubs and not a java_sdk_library since "toolchain" does not
+// map to the existing ApiScopes supported by java_sdk_library (e.g. public,
+// system, ...).
+// These APIs exist to satisfy javac and are not present in a stable Android
+// API surface yet (public, system, ...). e.g. LambdaMetaFactory (LMF) is not
+// part of JVMS/JLS, and its contract with javac can change in a future Java
+// LTS version.
+// Since this is not a stable API surface, as a corollary these APIs
+// 1. Do not appear in android.jar (public, system, ...)
+// 2. Do not appear in developer.android.com
+// 3. The API definition or any usage should not appear in any .dex / .apk
+// files, except core-oj.jar in libcore, because the API usage should be
+// desugared by d8
+droidstubs {
+    name: "art.module.toolchain.api",
+    visibility: [
+        "//art/build/sdk",
+        "//build/soong/java/core-libraries",
+    ],
+    srcs: [
+        // These classes are necessary to compile source code containing Lambdas
+        ":openjdk_lambda_stub_files",
+    ],
+    check_api: {
+        current: {
+            api_file: "api/current.txt",
+            removed_api_file: "api/removed.txt",
+        },
+    },
+    // LambdaMetaFactory depends on CallSite etc. which are provided by
+    // the system module art-module-intra-core-api-stubs-bootstrap-system-modules
+    // via art.module.intra.core.api.stubs
+    sdk_version: "none",
+    system_modules: "art-module-intra-core-api-stubs-bootstrap-system-modules",
+
+    // Use -target 8 so that it works with old JDKs.
+    java_version: "1.8",
+
+    // The module does not specifically contribute to the public api surface,
+    // but the api_surface property must be one of the allApiScopes defined in
+    // sdk_library.go, and the property is used only to sort the api files.
+    api_surface: "public",
+}

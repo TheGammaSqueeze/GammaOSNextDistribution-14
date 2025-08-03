@@ -1,0 +1,21 @@
+cc_binary {
+    name: "nqnfcinfo",
+    vendor: true,
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+
+    srcs: [
+        "main.cpp",
+    ],
+
+    header_libs: ["generated_kernel_headers"],
+
+    shared_libs: [
+        "libc",
+        "libbase"
+    ],
+}

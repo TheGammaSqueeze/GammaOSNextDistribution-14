@@ -1,0 +1,498 @@
+{
+	"android.colorCorrection.availableAberrationModes": [
+		"0"
+	],
+	"android.control.aeAvailableAntibandingModes": [
+		"3"
+	],
+	"android.control.aeAvailableModes": [
+		"1"
+	],
+	"android.control.aeAvailableTargetFpsRanges": [
+		"10",
+		"20",
+		"24",
+		"24",
+		"30",
+		"30",
+		"15",
+		"30"
+	],
+	"android.control.aeCompensationRange": [
+		"0",
+		"0"
+	],
+	"android.control.aeCompensationStep": [
+		"0",
+		"1"
+	],
+	"android.control.aeLockAvailable": [
+		"FALSE"
+	],
+	"android.control.afAvailableModes": [
+		"1",
+		"0"
+	],
+	"android.control.autoframingAvailable": [
+		"FALSE"
+	],
+	"android.control.availableEffects": [
+		"0"
+	],
+	"android.control.availableModes": [
+		"0",
+		"1"
+	],
+	"android.control.availableSceneModes": [
+		"0"
+	],
+	"android.control.availableVideoStabilizationModes": [
+		"0"
+	],
+	"android.control.awbAvailableModes": [
+		"1"
+	],
+	"android.control.awbLockAvailable": [
+		"FALSE"
+	],
+	"android.control.maxRegions": [
+		"0",
+		"0",
+		"0"
+	],
+	"android.control.zoomRatioRange": [
+		"1.00000000",
+		"4.00000000"
+	],
+	"android.edge.availableEdgeModes": [
+		"0",
+		"1"
+	],
+	"android.flash.info.available": [
+		"FALSE"
+	],
+	"android.hotPixel.availableHotPixelModes": [
+		"0"
+	],
+	"android.info.supportedHardwareLevel": [
+		"EXTERNAL"
+	],
+	"android.jpeg.availableThumbnailSizes": [
+		"0",
+		"0",
+		"176",
+		"144",
+		"240",
+		"144",
+		"256",
+		"144",
+		"240",
+		"160",
+		"256",
+		"154",
+		"240",
+		"180"
+	],
+	"android.jpeg.maxSize": [
+		"3145728"
+	],
+	"android.lens.facing": [
+		"EXTERNAL"
+	],
+	"android.lens.info.availableOpticalStabilization": [
+		"0"
+	],
+	"android.lens.info.focusDistanceCalibration": [
+		"UNCALIBRATED"
+	],
+	"android.noiseReduction.availableNoiseReductionModes": [
+		"0"
+	],
+	"android.noiseReduction.mode": [
+		"OFF"
+	],
+	"android.request.availableCapabilities": [
+		"BACKWARD_COMPATIBLE"
+	],
+	"android.request.availableCharacteristicsKeys": [
+		"4",
+		"65554",
+		"65555",
+		"65556",
+		"65557",
+		"65558",
+		"65572",
+		"65559",
+		"65560",
+		"65574",
+		"65561",
+		"65562",
+		"65563",
+		"65573",
+		"65564",
+		"327680",
+		"1376256",
+		"458759",
+		"524293",
+		"589827",
+		"589831",
+		"655362",
+		"786444",
+		"786440",
+		"786438",
+		"786443",
+		"786442",
+		"851972",
+		"851978",
+		"851981",
+		"983040",
+		"983044",
+		"983046",
+		"983050",
+		"983048",
+		"917518",
+		"1048578",
+		"1179648",
+		"1179654",
+		"1179655",
+		"1179650",
+		"1507329",
+		"65582",
+		"589824",
+		"589826",
+		"589825",
+		"1245189"
+	],
+	"android.request.availableRequestKeys": [
+		"3",
+		"65536",
+		"65537",
+		"65538",
+		"65539",
+		"65542",
+		"65541",
+		"65543",
+		"65545",
+		"65546",
+		"65547",
+		"65549",
+		"65550",
+		"65551",
+		"65552",
+		"65553",
+		"262146",
+		"458755",
+		"458756",
+		"458757",
+		"458758",
+		"524292",
+		"655360",
+		"851968",
+		"917528",
+		"1114112",
+		"1114115",
+		"65583"
+	],
+	"android.request.availableResultKeys": [
+		"3",
+		"65536",
+		"65537",
+		"65538",
+		"65539",
+		"65542",
+		"65567",
+		"65541",
+		"65543",
+		"65568",
+		"65545",
+		"65546",
+		"65547",
+		"65570",
+		"65549",
+		"65550",
+		"65551",
+		"65552",
+		"65553",
+		"262146",
+		"262149",
+		"458755",
+		"458756",
+		"458757",
+		"458758",
+		"524292",
+		"655360",
+		"786441",
+		"851968",
+		"917520",
+		"1114112",
+		"1114115",
+		"1114128",
+		"1114126",
+		"65583"
+	],
+	"android.request.maxNumInputStreams": [
+		"0"
+	],
+	"android.request.maxNumOutputStreams": [
+		"0",
+		"2",
+		"1"
+	],
+	"android.request.partialResultCount": [
+		"1"
+	],
+	"android.request.pipelineMaxDepth": [
+		"4"
+	],
+	"android.scaler.availableMaxDigitalZoom": [
+		"4.00000000"
+	],
+	"android.scaler.availableMinFrameDurations": [
+		"33",
+		"320",
+		"240",
+		"33333333",
+		"35",
+		"320",
+		"240",
+		"33333333",
+		"34",
+		"320",
+		"240",
+		"33333333",
+		"33",
+		"640",
+		"480",
+		"33333333",
+		"35",
+		"640",
+		"480",
+		"33333333",
+		"34",
+		"640",
+		"480",
+		"33333333",
+		"33",
+		"1280",
+		"720",
+		"33333333",
+		"35",
+		"1280",
+		"720",
+		"33333333",
+		"34",
+		"1280",
+		"720",
+		"33333333",
+		"33",
+		"1920",
+		"1080",
+		"33333333",
+		"35",
+		"1920",
+		"1080",
+		"33333333",
+		"34",
+		"1920",
+		"1080",
+		"33333333",
+		"33",
+		"1920",
+		"1080",
+		"33333333",
+		"35",
+		"1920",
+		"1080",
+		"33333333",
+		"34",
+		"1920",
+		"1080",
+		"33333333"
+	],
+	"android.scaler.availableStallDurations": [
+		"33",
+		"320",
+		"240",
+		"1000000000",
+		"35",
+		"320",
+		"240",
+		"0",
+		"34",
+		"320",
+		"240",
+		"0",
+		"33",
+		"640",
+		"480",
+		"1000000000",
+		"35",
+		"640",
+		"480",
+		"0",
+		"34",
+		"640",
+		"480",
+		"0",
+		"33",
+		"1280",
+		"720",
+		"1000000000",
+		"35",
+		"1280",
+		"720",
+		"0",
+		"34",
+		"1280",
+		"720",
+		"0",
+		"33",
+		"1920",
+		"1080",
+		"1000000000",
+		"35",
+		"1920",
+		"1080",
+		"0",
+		"34",
+		"1920",
+		"1080",
+		"0",
+		"33",
+		"1920",
+		"1080",
+		"1000000000",
+		"35",
+		"1920",
+		"1080",
+		"0",
+		"34",
+		"1920",
+		"1080",
+		"0"
+	],
+	"android.scaler.availableStreamConfigurations": [
+		"33",
+		"320",
+		"240",
+		"OUTPUT",
+		"35",
+		"320",
+		"240",
+		"OUTPUT",
+		"34",
+		"320",
+		"240",
+		"OUTPUT",
+		"33",
+		"640",
+		"480",
+		"OUTPUT",
+		"35",
+		"640",
+		"480",
+		"OUTPUT",
+		"34",
+		"640",
+		"480",
+		"OUTPUT",
+		"33",
+		"1280",
+		"720",
+		"OUTPUT",
+		"35",
+		"1280",
+		"720",
+		"OUTPUT",
+		"34",
+		"1280",
+		"720",
+		"OUTPUT",
+		"33",
+		"1920",
+		"1080",
+		"OUTPUT",
+		"35",
+		"1920",
+		"1080",
+		"OUTPUT",
+		"34",
+		"1920",
+		"1080",
+		"OUTPUT",
+		"33",
+		"1920",
+		"1080",
+		"OUTPUT",
+		"35",
+		"1920",
+		"1080",
+		"OUTPUT",
+		"34",
+		"1920",
+		"1080",
+		"OUTPUT"
+	],
+	"android.scaler.croppingType": [
+		"CENTER_ONLY"
+	],
+	"android.sensor.availableTestPatternModes": [
+		"0",
+		"1"
+	],
+	"android.sensor.info.activeArraySize": [
+		"0",
+		"0",
+		"1920",
+		"1080"
+	],
+	"android.sensor.info.maxFrameDuration": [
+		"200000000"
+	],
+	"android.sensor.info.pixelArraySize": [
+		"1920",
+		"1080"
+	],
+	"android.sensor.info.preCorrectionActiveArraySize": [
+		"0",
+		"0",
+		"1920",
+		"1080"
+	],
+	"android.sensor.info.timestampSource": [
+		"REALTIME"
+	],
+	"android.sensor.orientation": [
+		"0"
+	],
+	"android.shading.availableModes": [
+		"0"
+	],
+	"android.statistics.info.availableFaceDetectModes": [
+		"0"
+	],
+	"android.statistics.info.availableHotPixelMapModes": [
+		"0"
+	],
+	"android.statistics.info.availableLensShadingMapModes": [
+		"0"
+	],
+	"android.statistics.info.maxFaceCount": [
+		"0"
+	],
+	"android.sync.maxLatency": [
+		"UNKNOWN"
+	],
+	"android.lens.info.availableApertures": [
+		"1.70000005"
+	],
+	"android.lens.info.availableFocalLengths": [
+		"3.25999999"
+	],
+	"android.lens.info.availableFilterDensities": [
+		"0.00000000"
+	],
+	"android.tonemap.availableToneMapModes": [
+		"1"
+	]
+}

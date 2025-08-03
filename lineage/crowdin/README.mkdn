@@ -1,0 +1,56 @@
+crowdin_sync.py
+==================
+
+Introduction
+------------
+This script is used to synchronize LineageOS' translations with Crowdin's. Also, it can handle
+automatic commiting to Gerrit and pushing/downloading to/from Crowdin.
+
+Prerequisites
+-------------
+The Java variant of crowdin is required for this to work.
+
+    wget -qO - https://artifacts.crowdin.com/repo/GPG-KEY-crowdin | sudo apt-key add -
+    echo 'deb https://artifacts.crowdin.com/repo/deb/ /' | sudo tee /etc/apt/sources.list.d/crowdin.list > /dev/null
+    sudo apt-get update && sudo apt-get install crowdin3
+
+The following tools are also required to run the tool:
+
+    sudo apt-get install python3-git python3-yaml python3-lxml
+
+Run the following command:
+
+    pip install -r requirements.txt
+
+Copy <lineage_version>_extra_packages.xml to .repo/local_manifests of each <lineage_version> tree
+to make sure you sync all the extra packages not included in the main manifest.
+
+Create a personal access token on https://crowdin.com/settings#api-key and store it safely.
+
+Executing
+---------
+Export the following environment variables to set the API keys and the base path.
+Each LineageOS version requires a different environment variable set for the base path that depends on the branch name:
+
+    export LINEAGE_CROWDIN_API_TOKEN=your_api_token
+    export LINEAGE_CROWDIN_BASE_PATH_LINEAGE_19_1=your_19.1_base_path
+    export LINEAGE_CROWDIN_BASE_PATH_LINEAGE_20_0=your_20.0_base_path
+    export LINEAGE_CROWDIN_BASE_PATH_LINEAGE_21_0=your_21.0_base_path
+    export LINEAGE_CROWDIN_BASE_PATH_LINEAGE_22_2=your_22.2_base_path
+
+Example:
+
+    export LINEAGE_CROWDIN_API_TOKEN=1234567890
+    export LINEAGE_CROWDIN_BASE_PATH_LINEAGE_19_1=/mnt/android/lineageos/lineage-19.1
+    export LINEAGE_CROWDIN_BASE_PATH_LINEAGE_20_0=/mnt/android/lineageos/lineage-20.0
+    export LINEAGE_CROWDIN_BASE_PATH_LINEAGE_21_0=/mnt/android/lineageos/lineage-21.0
+    export LINEAGE_CROWDIN_BASE_PATH_LINEAGE_22_2=/mnt/android/lineageos/lineage-22.2
+
+Execute:
+
+    ./crowdin_sync.py --username your_gerrit_username --branch lineage_version [--upload-sources] [--upload-translations] [--download] [--submit]
+
+Bugs
+----
+ - When committing fails, the reason of it cannot be determined. Often this is just when there
+   are no new translations, so the script will not exit when this happens.

@@ -1,0 +1,48 @@
+package {
+    default_applicable_licenses: ["frameworks_av_media_extractors_mkv_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_extractors_mkv_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "libmkvextractor",
+    defaults: ["extractor-defaults"],
+
+    srcs: ["MatroskaExtractor.cpp"],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    shared_libs: [
+        "libstagefright_flacdec",
+    ],
+
+    static_libs: [
+        "libstagefright_foundation_colorutils_ndk",   // for mainline-safe ColorUtils
+        "libstagefright_foundation",
+        "libstagefright_metadatautils",
+        "libwebm_mkvparser",
+        "libutils",
+    ],
+
+    host_supported: true,
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+
+}

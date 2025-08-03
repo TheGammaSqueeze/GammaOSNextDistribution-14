@@ -1,0 +1,248 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_defaults {
+    name: "audio_aidl_conversion_common_util_default",
+    host_supported: true,
+    vendor_available: true,
+    double_loadable: true,
+    min_sdk_version: "29",
+    export_include_dirs: [
+        "include",
+    ],
+    header_libs: [
+        "libbase_headers",
+        "liberror_headers",
+    ],
+    export_header_lib_headers: [
+        "libbase_headers",
+        "liberror_headers",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.media",
+        "com.android.media.swcodec",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+// This is intended for clients needing to include AidlConversionUtil.h, without extra dependencies.
+cc_library_headers {
+    name: "libaudio_aidl_conversion_common_util_cpp",
+    defaults: [
+        "audio_aidl_conversion_common_util_default",
+    ],
+}
+
+cc_library_headers {
+    name: "libaudio_aidl_conversion_common_util_ndk",
+    defaults: [
+        "audio_aidl_conversion_common_util_default",
+    ],
+    cflags: [
+        "-DBACKEND_NDK",
+    ],
+}
+
+cc_defaults {
+    name: "audio_aidl_conversion_common_default_cpp",
+    shared_libs: [
+        "libbinder",
+        "libshmemcompat",
+        "shared-file-region-aidl-cpp",
+        "framework-permission-aidl-cpp",
+    ],
+    export_shared_lib_headers: [
+        "shared-file-region-aidl-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "audio_aidl_conversion_common_default",
+    export_include_dirs: ["include"],
+    host_supported: true,
+    vendor_available: true,
+    double_loadable: true,
+    header_libs: [
+        "libaudio_system_headers",
+        "libhardware_headers",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libstagefright_foundation",
+        "libutils",
+    ],
+    export_shared_lib_headers: [
+        "libbase",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-error=deprecated-declarations",
+    ],
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+    },
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+/**
+ * Only AIDL CPP backend conversion supported.
+ */
+cc_library {
+    name: "libaudio_aidl_conversion_common_cpp",
+    srcs: [
+        "AidlConversionCppNdk.cpp",
+    ],
+    header_libs: [
+        "libaudio_aidl_conversion_common_util_cpp",
+    ],
+    export_header_lib_headers: [
+        "libaudio_aidl_conversion_common_util_cpp",
+    ],
+    defaults: [
+        "audio_aidl_conversion_common_default",
+        "audio_aidl_conversion_common_default_cpp",
+        "latest_android_media_audio_common_types_cpp_export_shared",
+    ],
+    min_sdk_version: "29",
+}
+
+/**
+ * Only AIDL NDK backend conversion supported.
+ */
+cc_library {
+    name: "libaudio_aidl_conversion_common_ndk",
+    srcs: [
+        "AidlConversionCppNdk.cpp",
+        "AidlConversionNdk.cpp",
+    ],
+    header_libs: [
+        "libaudio_aidl_conversion_common_util_ndk",
+    ],
+    export_header_lib_headers: [
+        "libaudio_aidl_conversion_common_util_ndk",
+    ],
+    defaults: [
+        "audio_aidl_conversion_common_default",
+        "latest_android_hardware_audio_common_ndk_shared",
+        "latest_android_media_audio_common_types_ndk_shared",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libbase",
+    ],
+    static_libs: [
+        "libaudioaidlcommon",
+    ],
+    cflags: [
+        "-DBACKEND_NDK",
+    ],
+    min_sdk_version: "31", //AParcelableHolder has been introduced in 31
+}
+
+/**
+ * Only including AIDL core HAL conversion.
+ */
+cc_library {
+    name: "libaudio_aidl_conversion_core_ndk",
+    srcs: [
+        "AidlConversionCore.cpp",
+    ],
+    header_libs: [
+        "libaudio_aidl_conversion_common_util_ndk",
+    ],
+    export_header_lib_headers: [
+        "libaudio_aidl_conversion_common_util_ndk",
+    ],
+    defaults: [
+        "audio_aidl_conversion_common_default",
+        "latest_android_hardware_audio_common_ndk_shared",
+        "latest_android_hardware_audio_core_ndk_shared",
+        "latest_android_media_audio_common_types_ndk_shared",
+    ],
+    shared_libs: [
+        "libaudio_aidl_conversion_common_ndk",
+        "libbinder_ndk",
+        "libbase",
+    ],
+    cflags: [
+        "-DBACKEND_NDK",
+    ],
+    min_sdk_version: "31", //AParcelableHolder has been introduced in 31
+}
+
+/**
+ * Only including AIDL effect HAL conversion.
+ */
+cc_library {
+    name: "libaudio_aidl_conversion_effect_ndk",
+    srcs: [
+        "AidlConversionEffect.cpp",
+    ],
+    header_libs: [
+        "libaudio_aidl_conversion_common_util_ndk",
+    ],
+    export_header_lib_headers: [
+        "libaudio_aidl_conversion_common_util_ndk",
+    ],
+    defaults: [
+        "audio_aidl_conversion_common_default",
+        "latest_android_hardware_audio_common_ndk_shared",
+        "latest_android_hardware_audio_effect_ndk_shared",
+        "latest_android_media_audio_common_types_ndk_shared",
+    ],
+    shared_libs: [
+        "libaudio_aidl_conversion_common_ndk",
+        "libbinder_ndk",
+        "libbase",
+    ],
+    cflags: [
+        "-DBACKEND_NDK",
+    ],
+    min_sdk_version: "31", //AParcelableHolder has been introduced in 31
+}
+
+/**
+ * Conversions between the NDK and CPP backends for common types.
+ */
+cc_library {
+    name: "libaudio_aidl_conversion_common_ndk_cpp",
+    srcs: [
+        "AidlConversionNdkCpp.cpp",
+    ],
+    defaults: [
+        "audio_aidl_conversion_common_default",
+        "audio_aidl_conversion_common_default_cpp",
+        "audio_aidl_conversion_common_util_default",
+        "latest_android_media_audio_common_types_cpp_shared",
+        "latest_android_media_audio_common_types_ndk_shared",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libbase",
+    ],
+    cflags: [
+        "-DBACKEND_CPP_NDK",
+    ],
+    min_sdk_version: "33", //AParcel_unmarshal has been introduced in 33
+}

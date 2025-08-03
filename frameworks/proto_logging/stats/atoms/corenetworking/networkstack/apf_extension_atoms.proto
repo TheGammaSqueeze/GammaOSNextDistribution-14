@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.corenetworking.networkstack;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/stats/connectivity/network_stack.proto";
+
+option java_package = "com.android.os.corenetworking.networkstack";
+option java_multiple_files = true;
+
+extend Atom {
+    optional ApfSessionInfoReported apf_session_info_reported = 777 [(module) = "network_stack"];
+}
+
+/**
+ * Logs value of the APF counter.
+ */
+message ApfCounter {
+    // The name of APF counter.
+    optional android.stats.connectivity.CounterName counter_name = 1;
+
+    // The value of APF counter.
+    optional int64 counter_value = 2;
+}
+
+
+message ApfCounterList {
+    repeated ApfCounter apf_counter = 1;
+}
+
+/**
+ * Logs APF session information event.
+ * Logged from:
+ * packages/modules/NetworkStack/src/android/net/apf/ApfFilter.java or
+ * packages/modules/NetworkStack/src/android/net/apf/LegacyApfFilter.java
+ */
+message ApfSessionInfoReported {
+    // The version of APF, where version = -1 equals APF disable.
+    optional int32 version = 1;
+
+    // The memory size of APF module.
+    optional int32 memory_size = 2;
+
+    // The values of all APF counters.
+    optional ApfCounterList apf_counter_list = 3 [(log_mode) = MODE_BYTES];
+
+    // The duration of APF session in seconds.
+    optional int32 apf_session_duration_seconds = 4;
+
+    // Number of times APF program updated.
+    optional int32 num_of_times_apf_program_updated = 5;
+
+    // Record the maximum of program size.
+    optional int32 max_program_size = 6;
+}

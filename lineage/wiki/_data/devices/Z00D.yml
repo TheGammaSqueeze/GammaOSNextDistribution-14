@@ -1,0 +1,37 @@
+architecture: x86
+battery: {capacity: 2500, removable: False, tech: 'Li-Po'}
+bluetooth: {profiles: [A2DP], spec: '4.0'}
+cameras:
+  - {flash: 'LED', info: '8 MP'}
+  - {flash: None, info: '2 MP'}
+codename: Z00D
+cpu: Intel Atom
+cpu_cores: '2+2'
+cpu_freq: 1.6 GHz
+current_branch: 14.1
+dimensions: {depth: 10.9, height: 148.1, width: 71.5}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+gpu: PowerVR SGX544MP2
+image: Z00A.png
+install_method: fastboot_zenfone
+is_unlockable: false
+kernel: {repo: android_kernel_asus_Z00D, version: '3.10'}
+maintainers: []
+name: Zenfone 2 (ZE500CL)
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, Proximity sensor]
+ram: 2 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. On the next screen (fastboot mode) use <kbd>Volume Down</kbd> to scroll to "RECOVERY" and then press <kbd>Power</kbd> to select.
+recovery_partition_name: recovery
+release: 2015-03
+screen: {resolution: '720x1280', size: 5, technology: 'IPS LCD'}
+sdcard: {size_max: '128 GB'}
+soc: Intel Atom Z2560
+storage: 16 GB
+tree: android_device_asus_Z00D
+type: phone
+uses_twrp: true
+vendor: ASUS
+vendor_short: asus
+versions: [14.1]
+wifi: 802.11 a/b/g/n/ac

@@ -1,0 +1,9 @@
+# Start gpu_probe service for Pixel devices.
+
+service gpu_probe /vendor/bin/gpu_probe
+    class hal
+    oneshot
+    disabled
+    user system
+    capabilities SYS_ADMIN
+    group graphics

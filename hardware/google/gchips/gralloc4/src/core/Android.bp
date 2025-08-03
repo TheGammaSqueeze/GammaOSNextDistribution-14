@@ -1,0 +1,89 @@
+/*
+ * Copyright (C) 2020 Arm Limited.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_module_type {
+	name: "arm_gralloc_core_cc_defaults",
+	module_type: "cc_defaults",
+	config_namespace: "arm_gralloc",
+	variables: [
+		"gralloc_ion_sync_on_lock",
+	],
+	properties: [
+		"cflags",
+	],
+}
+
+soong_config_bool_variable {
+	name: "gralloc_ion_sync_on_lock",
+}
+
+arm_gralloc_core_cc_defaults {
+	name: "arm_gralloc_core_defaults",
+	defaults: [
+		"arm_gralloc_defaults",
+		"android.hardware.graphics.common-ndk_shared",
+	],
+	soong_config_variables: {
+		gralloc_ion_sync_on_lock: {
+			cflags: [
+				"-DGRALLOC_ION_SYNC_ON_LOCK=1",
+			],
+		},
+	},
+	srcs: [
+		"mali_gralloc_bufferaccess.cpp",
+		"mali_gralloc_bufferallocation.cpp",
+		"mali_gralloc_bufferdescriptor.cpp",
+		"mali_gralloc_formats.cpp",
+		"mali_gralloc_reference.cpp",
+		"format_info.cpp",
+	],
+	include_dirs: [
+		"hardware/google/gchips/include",
+	],
+	header_libs: [
+		"device_kernel_headers",
+	],
+	static_libs: [
+		"libarect",
+	],
+	shared_libs: [
+		"liblog",
+		"libcutils",
+		"libutils",
+		"android.hardware.graphics.common@1.2",
+	],
+	target: {
+		android: {
+			shared_libs: [
+				"libhardware",
+			],
+		},
+	},
+}
+
+cc_library_static {
+	name: "libgralloc_core",
+	defaults: [
+		"arm_gralloc_core_defaults",
+		"arm_gralloc_version_defaults",
+	],
+}

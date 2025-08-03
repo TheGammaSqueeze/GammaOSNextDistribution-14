@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/bridge/bridge.iml" filepath="$PROJECT_DIR$/bridge/bridge.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bridge/bridge_client/bridge_client.iml" filepath="$PROJECT_DIR$/bridge/bridge_client/bridge_client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bridge/tests/bridge_tests.iml" filepath="$PROJECT_DIR$/bridge/tests/bridge_tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/create/create.iml" filepath="$PROJECT_DIR$/create/create.iml" />
+      <module fileurl="file://$PROJECT_DIR$/validator/validator.iml" filepath="$PROJECT_DIR$/validator/validator.iml" />
+    </modules>
+  </component>
+</project>

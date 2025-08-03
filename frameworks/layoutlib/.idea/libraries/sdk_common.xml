@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="sdk-common">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../prebuilts/misc/common/sdk-common/sdk-common.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../prebuilts/misc/common/sdk-common/sdk-common-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

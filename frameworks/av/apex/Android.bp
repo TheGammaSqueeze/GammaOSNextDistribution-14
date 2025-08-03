@@ -1,0 +1,274 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+apex_defaults {
+    name: "com.android.media-defaults",
+    bootclasspath_fragments: ["com.android.media-bootclasspath-fragment"],
+    systemserverclasspath_fragments: ["com.android.media-systemserverclasspath-fragment"],
+    multilib: {
+        first: {
+            // Extractor process runs only with the primary ABI.
+            native_shared_libs: [
+                // Extractor plugins
+                "libaacextractor",
+                "libamrextractor",
+                "libflacextractor",
+                "libmidiextractor",
+                "libmkvextractor",
+                "libmp3extractor",
+                "libmp4extractor",
+                "libmpeg2extractor",
+                "liboggextractor",
+                "libwavextractor",
+            ],
+            // Transcoding service only run with primary ABI.
+            binaries: [
+                "mediatranscoding",
+            ],
+        },
+    },
+    // JNI
+    native_shared_libs: [
+        "libmediaparser-jni",
+        "libmediaformatshaper",
+    ],
+    compile_multilib: "both",
+    prebuilts: [
+        "code_coverage.policy",
+        "com.android.media-mediatranscoding.rc",
+        "com.android.media-mediatranscoding.32rc",
+        "crash_dump.policy",
+        "mediaextractor.policy",
+        "media-linker-config",
+    ],
+    key: "com.android.media.key",
+    certificate: ":com.android.media.certificate",
+
+    // Use a custom AndroidManifest.xml used for API targeting.
+    androidManifest: ":com.android.media-androidManifest",
+
+    // IMPORTANT: q-launched-dcla-enabled-apex-module enables the build system to make
+    // sure the package compatible to Android 10 in two ways(if flag APEX_BUILD_FOR_PRE_S_DEVICES=1
+    // is set):
+    // - build the APEX package compatible to Android 10
+    //   so that the package can be installed.
+    // - build artifacts (lib/javalib/bin) against Android 10 SDK
+    //   so that the artifacts can run.
+    // If the flag is not set, the package is built to be compatible with Android 12.
+    defaults: ["q-launched-dcla-enabled-apex-module"],
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+}
+
+apex {
+    name: "com.android.media",
+    manifest: "manifest.json",
+    defaults: ["com.android.media-defaults"],
+    prebuilts: ["current_sdkinfo"],
+}
+
+linker_config {
+    name: "media-linker-config",
+    src: "linker.config.json",
+    installable: false,
+}
+
+// Encapsulate the contributions made by the com.android.media to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.media-bootclasspath-fragment",
+    contents: ["updatable-media"],
+    apex_available: ["com.android.media"],
+
+    api: {
+        stub_libs: [
+            // Stubs for the APIs provided by updatable-media. This has to be
+            // specified explicitly because updatable-media is not a
+            // java_sdk_library.
+            "framework-media",
+        ],
+    },
+
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+
+    // Additional stubs libraries that this fragment's contents use which are
+    // not provided by another bootclasspath_fragment.
+    additional_stubs: [
+        "android-non-updatable",
+    ],
+
+    // Additional hidden API flag files to override the defaults. This must only be
+    // modified by the Soong or platform compat team.
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+
+        // The following packages contain classes from other modules on the
+        // bootclasspath. That means that the hidden API flags for this module
+        // has to explicitly list every single class this module provides in
+        // that package to differentiate them from the classes provided by other
+        // modules. That can include private classes that are not part of the
+        // API.
+        split_packages: [
+            "android.media",
+        ],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.media.internal",
+        ],
+    },
+}
+
+// Encapsulate the contributions made by the com.android.media to the systemserverclasspath.
+systemserverclasspath_fragment {
+    name: "com.android.media-systemserverclasspath-fragment",
+    contents: ["service-media-s"],
+    apex_available: ["com.android.media"],
+}
+
+filegroup {
+    name: "com.android.media-androidManifest",
+    srcs: ["AndroidManifest-media.xml"],
+}
+
+filegroup {
+    name: "com.android.media.swcodec-androidManifest",
+    srcs: ["AndroidManifest-swcodec.xml"],
+}
+
+apex_defaults {
+    name: "com.android.media.swcodec-defaults",
+    binaries: [
+        "mediaswcodec",
+    ],
+    native_shared_libs: [
+        "libcodec2_hidl@1.0",
+        "libcodec2_hidl@1.1",
+        "libcodec2_hidl@1.2",
+        "libstagefright_foundation",
+    ],
+    prebuilts: [
+        "com.android.media.swcodec-mediaswcodec.rc",
+        "com.android.media.swcodec-mediaswcodec.32rc",
+        "com.android.media.swcodec-ld.config.txt",
+        "mediaswcodec.policy",
+        "code_coverage.policy",
+        "crash_dump.policy",
+        "mediaswcodec.xml",
+    ],
+    key: "com.android.media.swcodec.key",
+    certificate: ":com.android.media.swcodec.certificate",
+
+    // Use a custom AndroidManifest.xml used for API targeting.
+    androidManifest: ":com.android.media.swcodec-androidManifest",
+
+    // IMPORTANT: q-launched-dcla-enabled-apex-module enables the build system to make
+    // sure the package compatible to Android 10 in two ways(if flag APEX_BUILD_FOR_PRE_S_DEVICES=1
+    // is set):
+    // - build the APEX package compatible to Android 10
+    //   so that the package can be installed.
+    // - build artifacts (lib/javalib/bin) against Android 10 SDK
+    //   so that the artifacts can run.
+    // If the flag is not set, the package is built to be compatible with Android 12.
+    defaults: ["q-launched-dcla-enabled-apex-module"],
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+}
+
+// install as mediatranscoding.* and mediaswcodec.* instead of init.*
+// so we are ready for day we have more than 1 *rc file within the apex.
+
+prebuilt_etc {
+    name: "com.android.media-mediatranscoding.rc",
+    src: "mediatranscoding.rc",
+    filename: "mediatranscoding.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "com.android.media-mediatranscoding.32rc",
+    src: "mediatranscoding.32rc",
+    filename: "mediatranscoding.32rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "com.android.media.swcodec-mediaswcodec.rc",
+    src: "mediaswcodec.rc",
+    filename: "mediaswcodec.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "com.android.media.swcodec-mediaswcodec.32rc",
+    src: "mediaswcodec.32rc",
+    filename: "mediaswcodec.32rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "com.android.media.swcodec-ld.config.txt",
+    src: "ld.config.txt",
+    filename: "ld.config.txt",
+    installable: false,
+}
+
+apex {
+    name: "com.android.media.swcodec",
+    manifest: "manifest_codec.json",
+    defaults: ["com.android.media.swcodec-defaults"],
+}
+
+apex_key {
+    name: "com.android.media.key",
+    public_key: "com.android.media.avbpubkey",
+    private_key: "com.android.media.pem",
+}
+
+apex_key {
+    name: "com.android.media.swcodec.key",
+    public_key: "com.android.media.swcodec.avbpubkey",
+    private_key: "com.android.media.swcodec.pem",
+}
+
+android_app_certificate {
+    name: "com.android.media.certificate",
+    certificate: "com.android.media",
+}
+
+android_app_certificate {
+    name: "com.android.media.swcodec.certificate",
+    certificate: "com.android.media.swcodec",
+}

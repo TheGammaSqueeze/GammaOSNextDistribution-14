@@ -1,0 +1,67 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_library_headers {
+    name: "libsfplugin_ccodec_utils_headers",
+    vendor_available: true,
+    min_sdk_version: "29",
+    apex_available: [ "//apex_available:platform", "com.android.media.swcodec", ],
+
+    export_include_dirs: [
+        ".",
+    ],
+}
+
+cc_library {
+    name: "libsfplugin_ccodec_utils",
+    vendor_available: true,
+    min_sdk_version: "29",
+    apex_available: [ "//apex_available:platform", "com.android.media.swcodec", ],
+
+    double_loadable: true,
+
+    srcs: [
+        "Codec2BufferUtils.cpp",
+        "Codec2CommonUtils.cpp",
+        "Codec2Mapper.cpp",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    export_include_dirs: [
+        ".",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libcodec2",
+        "libcodec2_vndk",
+        "libcutils",
+        "liblog",
+        "libnativewindow",
+        "libstagefright_foundation",
+        "libutils",
+    ],
+
+    static_libs: [
+        "libarect",
+        "libyuv_static",
+    ],
+
+    sanitize: {
+        cfi: true,
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+    },
+}

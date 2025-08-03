@@ -1,0 +1,3 @@
+ramdump vendor_hw_plat_prop file b/161103878
+ramdump public_vendor_default_prop file b/161103878
+ramdump proc_bootconfig file b/181615626

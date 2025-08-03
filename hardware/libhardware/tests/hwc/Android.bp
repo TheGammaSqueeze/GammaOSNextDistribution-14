@@ -1,0 +1,46 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_libhardware_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_libhardware_license"],
+}
+
+cc_library_static {
+    name: "libcnativewindow",
+    srcs: [
+        "cnativewindow.c",
+        "util.c",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    shared_libs: [
+        "libEGL",
+        "libGLESv2",
+        "libdl",
+        "libhardware",
+        "libnativewindow",
+    ],
+}
+
+cc_binary {
+    name: "hwc-test-arrows",
+    srcs: ["test-arrows.c"],
+    static_libs: ["libcnativewindow"],
+    shared_libs: [
+        "libEGL",
+        "libGLESv2",
+        "libdl",
+        "libhardware",
+        "libnativewindow",
+    ],
+    cflags: [
+        "-DGL_GLEXT_PROTOTYPES",
+        "-Wall",
+        "-Werror",
+    ],
+}

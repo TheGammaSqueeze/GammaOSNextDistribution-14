@@ -1,0 +1,38 @@
+architecture: arm64
+battery: {capacity: 2500, removable: False, tech: 'Li-Po'}
+bluetooth: {profiles: [A2DP], spec: 4.0 + LE}
+cameras:
+  - {flash: 'LED', info: '20 MP'}
+  - {flash: 'LED', info: '8 MP'}
+codename: kipper
+cpu: Cortex-A53
+cpu_cores: '8'
+cpu_freq: 1.5 GHz
+current_branch: 16.0
+custom_recovery_link: https://androidfilehost.com/?fid=1395089523397922500
+dimensions: {depth: 9.2, height: 155.6, width: 77.3}
+download_boot: With the device powered off, hold <kbd>Volume Up</kbd> and connect the USB cable.
+format_on_upgrade: 16.0
+gpu: Qualcomm Adreno 405
+image: kipper.png
+install_method: fastboot_nexus
+kernel: {repo: android_kernel_cyanogen_msm8916, version: '3.10'}
+maintainers: []
+name: Storm
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Dual SIM, FM radio, GLONASS, GPS, Gyroscope, Light sensor, Proximity sensor, USB OTG]
+ram: 3 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>
+recovery_partition_name: recovery
+release: 2015-11
+screen: {resolution: '1920x1080', size: 5.5, technology: 'IPS LCD'}
+sdcard: {size_max: '128 GB'}
+soc: Qualcomm MSM8939 Snapdragon 615
+storage: 32 GB
+tree: android_device_wileyfox_kipper
+type: phone
+uses_twrp: true
+vendor: Wileyfox
+vendor_short: wileyfox
+versions: [13.0, 14.1, 15.1, 16.0]
+wifi: 802.11 b/g/n

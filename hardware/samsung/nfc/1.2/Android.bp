@@ -1,0 +1,36 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_samsung_nfc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_samsung_nfc_license"],
+}
+
+cc_binary {
+    name: "android.hardware.nfc@1.2-service.samsung",
+    defaults: ["hidl_defaults"],
+    proprietary: true,
+    init_rc: ["android.hardware.nfc@1.2-service.samsung.rc"],
+    vintf_fragments: ["android.hardware.nfc@1.2-service.samsung.xml"],
+    relative_install_path: "hw",
+    srcs: [
+        "SecNfcService.cpp",
+        "SecNfc.cpp",
+    ],
+    cflags: [
+    ],
+    shared_libs: [
+        "nfc_nci_samsung",
+        "android.hardware.nfc@1.0",
+        "android.hardware.nfc@1.1",
+        "android.hardware.nfc@1.2",
+        "libbase",
+        "libcutils",
+        "libhardware",
+        "liblog",
+        "libutils",
+        "libhidlbase",
+        "libcrypto",
+    ],
+}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        package="com.android.frameworks.mockingservicestests">
+
+    <uses-sdk android:targetSdkVersion="31" />
+
+    <uses-permission android:name="android.permission.LOG_COMPAT_CHANGE"/>
+    <uses-permission android:name="android.permission.READ_COMPAT_CHANGE_CONFIG"/>
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG"/>
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.HARDWARE_TEST"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <uses-permission android:name="android.permission.MANAGE_APPOPS"/>
+    <uses-permission android:name="android.permission.MONITOR_DEVICE_CONFIG_ACCESS"/>
+    <uses-permission android:name="android.permission.WRITE_ALLOWLISTED_DEVICE_CONFIG"/>
+    <uses-permission android:name="android.permission.READ_WRITE_SYNC_DISABLED_MODE_CONFIG"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission
+        android:name="android.permission.OVERRIDE_COMPAT_CHANGE_CONFIG_ON_RELEASE_BUILD"/>
+    <uses-permission android:name="android.permission.STATUS_BAR_SERVICE" />
+    <uses-permission android:name="android.permission.MANAGE_GAME_ACTIVITY" />
+    <uses-permission android:name="android.permission.SET_ALWAYS_FINISH" />
+    <uses-permission android:name="android.permission.MANAGE_USERS" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC_INTERNAL" />
+
+    <!-- needed by MasterClearReceiverTest to display a system dialog -->
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW"/>
+
+    <!-- needed by TrustManagerServiceTest to access LockSettings' secure storage -->
+    <uses-permission android:name="android.permission.ACCESS_KEYGUARD_SECURE_STORAGE" />
+
+    <!-- needed by GameManagerServiceTest because GameManager creates a UidObserver -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+
+    <application android:testOnly="true"
+                 android:debuggable="true">
+        <uses-library android:name="android.test.runner" />
+        <activity
+            android:name="android.service.games.GameSessionTrampolineActivityTest$TestActivity" />
+    </application>
+
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.android.frameworks.mockingservicestests"
+        android:label="Frameworks Mocking Services Tests" />
+</manifest>

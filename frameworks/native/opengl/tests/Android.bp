@@ -1,0 +1,30 @@
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-MIT
+    //   legacy_notice
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+subdirs = [
+    "angeles",
+    "configdump",
+    "EGLTest",
+    "fillrate",
+    "filter",
+    "finish",
+    "gl2_basic",
+    "gl2_copyTexImage",
+    "gl2_yuvtex",
+    "gl_basic",
+    "gl_perf",
+    "gl_yuvtex", // just renders magenta frame, broken?
+    "gralloc",
+    "hwc",
+    "lib",
+]

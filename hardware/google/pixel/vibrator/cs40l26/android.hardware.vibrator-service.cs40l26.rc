@@ -1,0 +1,39 @@
+service vendor.vibrator.cs40l26 /vendor/bin/hw/android.hardware.vibrator-service.cs40l26
+    class hal
+    user system
+    group system input context_hub
+
+    setenv INPUT_EVENT_NAME cs40l26_input
+    setenv PROPERTY_PREFIX ro.vendor.vibrator.hal.
+    setenv CALIBRATION_FILEPATH /mnt/vendor/persist/haptics/cs40l26.cal
+
+    setenv HWAPI_DEBUG_PATHS "
+        calibration/f0_stored
+        calibration/redc_stored
+        calibration/q_stored
+        default/vibe_state
+        default/num_waves
+        default/f0_offset
+        default/owt_free_space
+        default/f0_comp_enable
+        default/redc_comp_enable
+        default/delay_before_stop_playback_us
+        dbc/dbc_env_rel_coef
+        dbc/dbc_rise_headroom
+        dbc/dbc_fall_headroom
+        dbc/dbc_tx_lvl_thresh_fs
+        dbc/dbc_tx_lvl_hold_off_ms
+        default/pm_active_timeout_ms
+        dbc/dbc_enable
+        "
+
+    setenv STATS_INSTANCE default
+
+    disabled
+
+# Route vibrator.adaptive_haptics.enabled to persist
+on property:vibrator.adaptive_haptics.enabled=0
+    setprop persist.vendor.vibrator.hal.context.enable false
+
+on property:vibrator.adaptive_haptics.enabled=1
+    setprop persist.vendor.vibrator.hal.context.enable true

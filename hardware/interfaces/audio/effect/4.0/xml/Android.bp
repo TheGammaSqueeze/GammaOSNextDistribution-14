@@ -1,0 +1,18 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+genrule {
+    name: "audio_effects_conf_V4_0",
+    srcs: [":audio_effects_conf_V2_0"],
+    out: [
+        "audio_effects_conf_V4_0.xsd",
+    ],
+    cmd: "cp -f $(in) $(out)",
+}

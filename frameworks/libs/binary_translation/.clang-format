@@ -1,0 +1,14 @@
+BasedOnStyle: Google
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: false
+BinPackArguments: false
+BinPackParameters: false
+ColumnLimit: 100
+CommentPragmas: NOLINT:.*
+DerivePointerAlignment: false
+IncludeBlocks: Preserve
+IndentWidth: 2
+PointerAlignment: Left
+TabWidth: 2
+UseTab: Never

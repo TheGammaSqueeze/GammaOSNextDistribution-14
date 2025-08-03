@@ -1,0 +1,209 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_headers {
+    name: "libberberis_ndk_program_tests_headers",
+    native_bridge_supported: true,
+    export_include_dirs: ["include"],
+}
+
+filegroup {
+    name: "berberis_ndk_program_tests_srcs",
+    srcs: [
+        "atomics_test.cc",
+        "condvar_test.cc",
+        "cpp_test.cc",
+        "ctype_test.cc",
+        "div_test.cc",
+        "epoll_test.cc",
+        "memory_order_test.cc",
+        "mutex_test.cc",
+        "ptrace_test.cc",
+        "resource_test.cc",
+        "sem_test.cc",
+        "setjmp_test.cc",
+        "sigaltstack_test.cc",
+        "signal_test.cc",
+        "string_test.cc",
+        "sysconf_test.cc",
+        "thread_test.cc",
+        "time_test.cc",
+        "user_test.cc",
+        "wchar_test.cc",
+        "zlib_test.cc",
+    ],
+}
+
+filegroup {
+    name: "berberis_ndk_program_tests_riscv64_srcs",
+    srcs: [
+        "riscv64/handle_not_executable_test.cc",
+        "riscv64/runtime_code_patching_test.cc",
+        "riscv64/sigill_test.cc",
+    ],
+}
+
+cc_defaults {
+    name: "berberis_ndk_program_tests_defaults",
+    native_bridge_supported: true,
+    cflags: [
+        "-fexceptions",
+        "-Wunused",
+        "-Wextra",
+        "-Wall",
+        "-Werror",
+        "-Wno-deprecated-declarations",
+    ],
+    srcs: [":berberis_ndk_program_tests_srcs"],
+    arch: {
+        riscv64: {
+            srcs: [":berberis_ndk_program_tests_riscv64_srcs"],
+        },
+    },
+    header_libs: ["libberberis_ndk_program_tests_headers"],
+    static_libs: ["libgtest"],
+}
+
+cc_test {
+    name: "berberis_ndk_program_tests",
+    defaults: ["berberis_ndk_program_tests_defaults"],
+    shared_libs: ["libz"],
+    srcs: [
+        // TODO(b/187471779): Signal stress test is unstable with high number of repetitions.
+        // TODO(b/188086209): Errno emulation is not thread-safe - some checks fail.
+        "signal_stress_test.cc",
+        "system_properties_test.cc",
+    ],
+}
+
+cc_test {
+    name: "berberis_ndk_program_tests_static",
+    defaults: ["berberis_ndk_program_tests_defaults"],
+    static_libs: ["libz"],
+    static_executable: true,
+}
+
+//
+// TODO(b/232598137): Merge riscv targets above into general targets with customizations below.
+//
+
+cc_defaults {
+    name: "ndk_program_tests_common_defaults",
+    native_bridge_supported: true,
+    cflags: [
+        "-fexceptions",
+        "-Wunused",
+        "-Wextra",
+        "-Wall",
+        "-Werror",
+        "-Wno-deprecated-declarations",
+    ],
+    srcs: [":berberis_ndk_program_tests_srcs"],
+    arch: {
+        arm: {
+            srcs: [
+                "arm/sigill_test.cc",
+            ],
+        },
+        arm64: {
+            srcs: [
+                "arm64/runtime_code_patching_test.cc",
+                "arm64/sigill_test.cc",
+            ],
+        },
+    },
+    header_libs: ["libberberis_ndk_program_tests_headers"],
+}
+
+cc_defaults {
+    name: "ndk_program_tests_dynamic_defaults",
+    defaults: ["ndk_program_tests_common_defaults"],
+    srcs: [
+        "signal_stress_test.cc",
+        "system_properties_test.cc",
+    ],
+    arch: {
+        arm: {
+            srcs: [
+                "arm/arm_test.cc",
+                "arm/cpu_features_test.cc",
+                "arm/handle_not_executable_test.cc",
+                "arm/neon_test.cc",
+                "arm/runtime_code_patching_test.cc",
+                "arm/syscall_test.cc",
+                "file_test.cc",
+                "futex_test.cc",
+            ],
+            static_libs: ["cpufeatures"],
+        },
+        arm64: {
+            srcs: [
+                "arm64/handle_not_executable_test.cc",
+            ],
+        },
+    },
+    shared_libs: ["libz"],
+}
+
+cc_test {
+    name: "ndk_program_tests",
+    defaults: ["ndk_program_tests_dynamic_defaults"],
+    arch: {
+        arm: {
+            cflags: [
+                "-march=armv7-a",
+                "-mcpu=cortex-a9",
+                "-mfpu=neon",
+                "-mfloat-abi=softfp",
+            ],
+        },
+    },
+}
+
+cc_test {
+    name: "ndk_program_tests_armv8",
+    defaults: ["ndk_program_tests_dynamic_defaults"],
+    enabled: false,
+    arch: {
+        arm: {
+            enabled: true,
+            cflags: [
+                "-march=armv8-a",
+                "-mcpu=cortex-a57",
+                "-mfpu=neon",
+                "-mfloat-abi=softfp",
+            ],
+        },
+    },
+}
+
+cc_test {
+    name: "ndk_program_tests_static",
+    defaults: ["ndk_program_tests_common_defaults"],
+    srcs: [
+        // TODO(b/187471779): fix for static executable.
+        // "handle_not_executable_test.cc",
+        // TODO(b/187471779): Signal stress test is unstable with high number of repeatitions.
+        // TODO(b/188086209): Errno emulation is not thread-safe - some checks fail.
+        // "signal_stress_test.cc",
+    ],
+    static_libs: ["libz"],
+    static_executable: true,
+}

@@ -1,0 +1,76 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.server.display;
+
+option java_outer_classname = "DisplayProtoEnums";
+option java_multiple_files = true;
+
+// Logging constants for DisplayService
+
+enum HbmState {
+    // Unknown state
+    HBM_UNKNOWN = 0;
+    // HBM is off.
+    HBM_OFF = 1;
+    // HBM is on for HDR playback.
+    HBM_ON_HDR = 2;
+    // HBM is on for sunlight visibility.
+    HBM_ON_SUNLIGHT = 3;
+}
+
+enum HbmStateTransitionReason {
+    HBM_TRANSITION_REASON_UNKNOWN = 0;
+    // Hbm sunlight visibility is off due to ambient light drop below threshold.
+    HBM_SV_OFF_LUX_DROP = 1;
+    // Hbm sunlight visibility is off due to out of time budget.
+    HBM_SV_OFF_TIME_LIMIT = 2;
+    // Hbm sunlight visibility is off due to thermal status exceeding threshold.
+    HBM_SV_OFF_THERMAL_LIMIT = 3;
+    // Hbm sunlight visibility is off due to HDR playing.
+    HBM_SV_OFF_HDR_PLAYING = 4;
+    // Hbm sunlight visibility is off due to battery saving is on.
+    HBM_SV_OFF_BATTERY_SAVE_ON = 5;
+    // Hbm sunlight visibility is off due to display off.
+    HBM_SV_OFF_DISPLAY_OFF = 6;
+    // Hbm sunlight visibility is off due to auto brightness off.
+    HBM_SV_OFF_AUTOBRIGHTNESS_OFF = 7;
+    // Hbm HDR is off due to thermal status exceeding threshold.
+    HBM_HDR_OFF_THERMAL_LIMIT = 8;
+    // Hbm sunlight visibility is off due to requested brightness is lower than
+    // HBM transition point. Note if brightness is low due to thermal cap, the
+    // reason will be HBM_SV_OFF_THERMAL_LIMIT.
+    HBM_SV_OFF_LOW_REQUESTED_BRIGHTNESS = 9;
+}
+
+enum ExternalDisplayState {
+    UNKNOWN = 0;
+    DISCONNECTED = 1;
+    CONNECTED = 2;
+    DISABLED = 3;
+    KEYGUARD = 4;
+    MIRRORING = 5;
+    EXTENDED = 6;
+    PRESENTATION_WHILE_MIRRORING = 7;
+    PRESENTATION_WHILE_EXTENDED = 8;
+    PRESENTATION_ENDED = 9;
+    AUDIO_SINK_CHANGED = 10;
+    ERROR_HOTPLUG_CONNECTION = 11;
+    ERROR_DISPLAYPORT_LINK_FAILED = 12;
+    ERROR_CABLE_NOT_CAPABLE_DISPLAYPORT = 13;
+}

@@ -1,0 +1,17 @@
+name: "hwcomposer"
+description:
+    ""
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "http://git.ti.com/android/hardware-ti-dra7xx"
+  }
+  url {
+    type: GIT
+    value: "git://git.ti.com/android/hardware-ti-dra7xx.git"
+  }
+  version: "aa48fb1b44720b22181e945f479a3fcbd5607183"
+  last_upgrade_date { year: 2018 month: 8 day: 15 }
+  license_type: NOTICE
+}

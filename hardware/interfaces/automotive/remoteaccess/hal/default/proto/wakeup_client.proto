@@ -1,0 +1,192 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package android.hardware.automotive.remoteaccess;
+
+enum ErrorCode {
+    OK = 0;
+    UNSPECIFIED = 1;
+    INVALID_ARG = 2;
+}
+
+/**
+ * Service provided by a wakeup client running on TCU.
+ */
+service WakeupClient {
+    /**
+     * Establish a long-live connection to receive remote tasks.
+     *
+     * <p>For the server, whenever a remote task arrives, if the connection is
+     * alive, it will use the return stream to return a task's information.
+     *
+     * <p>If the connection is not alive, the server must stores the remote task
+     * until a new connection is established (which means AP is ready to
+     * receive remote task again) and send the stored tasks.
+     *
+     * <p>If the server closes the connection, the client will try to
+     * reestablish the connection.
+     */
+    rpc GetRemoteTasks(GetRemoteTasksRequest) returns (stream GetRemoteTasksResponse) {}
+
+    /**
+     * Notifies whether AP is required to be waken up when remote task arrives.
+     *
+     * <p>Wakeup client should store and use this state until a new call with a
+     * different state arrives.
+     *
+     * <p>If {@code isWakeupRequired} in the request is true, it must wake up AP
+     * when a remote task arrives.
+     *
+     * <p>If {@code isWakeupRequired} in the request is false, it must not try
+     * to wake up AP.
+     */
+    rpc NotifyWakeupRequired(NotifyWakeupRequiredRequest) returns (NotifyWakeupRequiredResponse) {}
+
+    /**
+     * Schedules a task to be executed later even when the vehicle is off.
+     *
+     * <p>This sends a scheduled task message to a device external to Android so that the device
+     * can wake up Android and deliver the task through {@link IRemoteTaskCallback}.
+     *
+     * <p>Note that the scheduled task execution is on a best-effort basis. Multiple situations
+     * might cause the task not to execute successfully:
+     *
+     * <ul>
+     * <li>The vehicle is low on battery and the other device decides not to wake up Android.
+     * <li>User turns off vehicle while the task is executing.
+     * <li>The task logic itself fails.
+     *
+     * <p>Must return a response with error code: {@code INVALID_ARG} if a pending schedule with the
+     * same {@code scheduleId} for this client exists.
+     */
+    rpc ScheduleTask(ScheduleTaskRequest) returns (ScheduleTaskResponse) {}
+
+    /**
+     * Unschedules a scheduled task.
+     *
+     * <p>Does nothing if a pending schedule with {@code clientId} and {@code scheduleId} does not
+     * exist.
+     */
+    rpc UnscheduleTask(UnscheduleTaskRequest) returns (UnscheduleTaskResponse) {}
+
+    /**
+     * Unschedules all scheduled tasks for the client.
+     */
+    rpc UnscheduleAllTasks(UnscheduleAllTasksRequest) returns (UnscheduleAllTasksResponse) {}
+
+    /**
+     * Returns whether the specified task is scheduled.
+     */
+    rpc IsTaskScheduled(IsTaskScheduledRequest) returns (IsTaskScheduledResponse) {}
+
+    /**
+     * Gets all pending scheduled tasks for the client.
+     *
+     * <p>The finished scheduled tasks will not be included.
+     */
+    rpc GetAllPendingScheduledTasks(GetAllPendingScheduledTasksRequest)
+            returns (GetAllPendingScheduledTasksResponse) {}
+}
+
+message GetRemoteTasksRequest {}
+
+message GetRemoteTasksResponse {
+    string clientId = 1;
+    bytes data = 2;
+}
+
+message NotifyWakeupRequiredRequest {
+    bool isWakeupRequired = 1;
+}
+
+message NotifyWakeupRequiredResponse {}
+
+message ScheduleTaskRequest {
+    GrpcScheduleInfo scheduleInfo = 1;
+}
+
+message ScheduleTaskResponse {
+    ErrorCode errorCode = 1;
+}
+
+enum ScheduleTaskType {
+    CUSTOM = 0;
+    ENTER_GARAGE_MODE = 1;
+}
+
+message GrpcScheduleInfo {
+    string clientId = 1;
+    string scheduleId = 2;
+    bytes data = 3;
+    int32 count = 4;
+    int64 startTimeInEpochSeconds = 5;
+    int64 periodicInSeconds = 6;
+    ScheduleTaskType taskType = 7;
+}
+
+message UnscheduleTaskRequest {
+    string clientId = 1;
+    string scheduleId = 2;
+}
+
+message UnscheduleTaskResponse {}
+
+message UnscheduleAllTasksRequest {
+    string clientId = 1;
+}
+
+message UnscheduleAllTasksResponse {}
+
+message IsTaskScheduledRequest {
+    string clientId = 1;
+    string scheduleId = 2;
+}
+
+message IsTaskScheduledResponse {
+    bool isTaskScheduled = 1;
+}
+
+message GetAllPendingScheduledTasksRequest {
+    string clientId = 1;
+}
+
+message GetAllPendingScheduledTasksResponse {
+    repeated GrpcScheduleInfo allScheduledTasks = 1;
+}
+
+/**
+ * Service provided by a power controller unit.
+ */
+service PowerController {
+    rpc IsVehicleInUse(IsVehicleInUseRequest) returns (IsVehicleInUseResponse) {}
+
+    rpc GetApPowerBootupReason(GetApPowerBootupReasonRequest)
+            returns (GetApPowerBootupReasonResponse) {}
+}
+
+message IsVehicleInUseRequest {}
+
+message IsVehicleInUseResponse {
+    bool isVehicleInUse = 1;
+}
+
+message GetApPowerBootupReasonRequest {}
+
+message GetApPowerBootupReasonResponse {
+    int32 bootupReason = 1;
+}

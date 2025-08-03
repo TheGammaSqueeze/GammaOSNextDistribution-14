@@ -1,0 +1,21 @@
+{
+  "postsubmit": [
+    { "name": "ID3Test" }
+  ],
+
+  "presubmit-large": [
+    // this doesn't seem to run any tests.
+    // but: cts-tradefed run -m CtsMediaMiscTestCases -t \
+    // android.media.misc.cts.MediaMetadataRetrieverTest
+    // does run he 32 and 64 bit tests, but not the instant tests
+    // but all I know is that with 'atest', it's not running
+    {
+      "name": "CtsMediaMiscTestCases",
+      "options": [
+          {
+            "include-filter": "android.media.misc.cts.MediaMetadataRetrieverTest"
+          }
+      ]
+    }
+  ]
+}

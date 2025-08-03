@@ -1,0 +1,6 @@
+service vendor.pixel-fastboot /system/bin/hw/android.hardware.fastboot-service.pixel_recovery
+    class hal
+    seclabel u:r:hal_fastboot_default:s0
+    user root
+    group root
+    interface aidl android.hardware.fastboot.IFastboot/default

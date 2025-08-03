@@ -1,0 +1,50 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Intermediary static library to the headers can be used without heavy deps like stl
+cc_library_static {
+    name: "sdk_level_nostl_static",
+    srcs: ["sdk_level_nostl.cpp"],
+    // Do not add other dependencies (static_libs or shared_libs) here: the purpose of this target
+    // is to verify that the library can be used without dependencies.
+    static_libs: [
+        "libmodules-utils-build",
+    ],
+    sdk_version: "current",
+    stl: "none",
+    visibility: ["//visibility:private"],
+}
+
+cc_test {
+    name: "unbounded_sdk_level_test",
+    srcs: [
+        "sdk_level_test.cpp",
+        "unbounded_sdk_level_test.cpp",
+    ],
+    static_libs: [
+        "libbase",
+        "libmodules-utils-build",
+        "sdk_level_nostl_static",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    test_suites: ["device-tests"],
+}

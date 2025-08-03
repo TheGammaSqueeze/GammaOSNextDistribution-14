@@ -1,0 +1,18 @@
+{
+  "presubmit": [
+    {
+      "name": "WvtsDeviceTestCases",
+      "options" : [
+        {
+          "include-annotation": "android.platform.test.annotations.Presubmit"
+        },
+        {
+          "include-filter": "com.google.android.media.wvts.WidevineGenericOpsTests"
+        },
+        {
+          "include-filter": "com.google.android.media.wvts.WidevineH264PlaybackTests"
+        }
+      ]
+    }
+  ]
+}

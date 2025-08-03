@@ -1,0 +1,215 @@
+package {
+    default_applicable_licenses: ["frameworks_base_media_jni_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_base_media_jni_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library_shared {
+    name: "libmedia_jni",
+
+    defaults: ["libcodec2-internal-defaults"],
+    min_sdk_version: "",
+
+    srcs: [
+        "android_media_ImageWriter.cpp",
+        "android_media_ImageReader.cpp",
+        "android_media_JetPlayer.cpp",
+        "android_media_MediaCrypto.cpp",
+        "android_media_MediaCodec.cpp",
+        "android_media_MediaCodecList.cpp",
+        "android_media_MediaDataSource.cpp",
+        "android_media_MediaDescrambler.cpp",
+        "android_media_MediaDrm.cpp",
+        "android_media_MediaExtractor.cpp",
+        "android_media_MediaHTTPConnection.cpp",
+        "android_media_MediaMetadataRetriever.cpp",
+        "android_media_MediaMuxer.cpp",
+        "android_media_MediaPlayer.cpp",
+        "android_media_MediaProfiles.cpp",
+        "android_media_MediaRecorder.cpp",
+        "android_media_MediaSync.cpp",
+        "android_media_PublicFormatUtils.cpp",
+        "android_media_ResampleInputStream.cpp",
+        "android_media_Streams.cpp",
+        "android_media_SyncParams.cpp",
+        "android_mtp_MtpDatabase.cpp",
+        "android_mtp_MtpDevice.cpp",
+        "android_mtp_MtpServer.cpp",
+        "JetPlayer.cpp",
+    ],
+
+    shared_libs: [
+        "audioclient-types-aidl-cpp",
+        "av-types-aidl-cpp",
+        "framework-permission-aidl-cpp",
+        "libandroid_runtime",
+        "libaudioclient",
+        "libnativehelper",
+        "libnativewindow",
+        "libutils",
+        "libbinder",
+        "libmedia",
+        "libmedia_codeclist",
+        "libmedia_jni_utils",
+        "libmedia_omx",
+        "libmediametrics",
+        "libmediadrm",
+        "libmediadrmmetrics_consumer",
+        "libhwui",
+        "libui",
+        "liblog",
+        "libcutils",
+        "libgui",
+        "libstagefright",
+        "libstagefright_foundation",
+        "libcamera_client",
+        "libmtp",
+        "libpiex",
+        "libprocessgroup",
+        "libandroidfw",
+        "libhidlallocatorutils",
+        "libhidlbase",
+        "libsonivox",
+        "server_configurable_flags",
+        "android.hardware.cas@1.0",
+        "android.hardware.cas.native@1.0",
+        "android.hardware.drm@1.3",
+        "android.hardware.drm@1.4",
+        "android.hidl.memory@1.0",
+        "android.hidl.token@1.0-utils",
+        "android.hardware.drm-V1-ndk",
+        "android.hardware.tv.tuner-V2-ndk",
+    ],
+
+    header_libs: [
+        "libhardware_headers",
+        "libmediadrm_headers",
+    ],
+
+    static_libs: [
+        "libgrallocusage",
+        "libmedia_midiiowrapper",
+        "android.media.playback.flags-aconfig-cc",
+    ],
+
+    include_dirs: [
+        "frameworks/base/core/jni",
+        "frameworks/native/include/media/openmax",
+        "system/media/camera/include",
+    ],
+
+    export_include_dirs: ["."],
+
+    export_shared_lib_headers: [
+        "libpiex",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-error=deprecated-declarations",
+        "-Wunused",
+        "-Wunreachable-code",
+    ],
+}
+
+cc_library_shared {
+    name: "libmedia_jni_utils",
+    srcs: [
+        ":libgui_frame_event_aidl",
+        "android_media_Utils.cpp",
+    ],
+
+    header_libs: [
+        "libgui_headers",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libui",
+        "libutils",
+    ],
+
+    include_dirs: [
+        "system/media/camera/include",
+    ],
+
+    export_include_dirs: ["."],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-error=deprecated-declarations",
+        "-Wunused",
+        "-Wunreachable-code",
+    ],
+}
+
+cc_library_shared {
+    name: "libmedia_tv_tuner",
+    min_sdk_version: "",
+    srcs: [
+        "android_media_tv_Tuner.cpp",
+        "tuner/DemuxClient.cpp",
+        "tuner/DescramblerClient.cpp",
+        "tuner/DvrClient.cpp",
+        "tuner/FilterClient.cpp",
+        "tuner/FrontendClient.cpp",
+        "tuner/LnbClient.cpp",
+        "tuner/TimeFilterClient.cpp",
+        "tuner/TunerClient.cpp",
+    ],
+
+    shared_libs: [
+        "android.hardware.graphics.bufferqueue@2.0",
+        "android.hardware.tv.tuner-V2-ndk",
+        "libbinder_ndk",
+        "libandroid_runtime",
+        "libcutils",
+        "libfmq",
+        "libhidlbase",
+        "liblog",
+        "libmedia",
+        "libnativehelper",
+        "libutils",
+        "tv_tuner_aidl_interface-ndk",
+    ],
+
+    static_libs: [
+        "libaidlcommonsupport",
+    ],
+
+    defaults: [
+        "libcodec2-impl-defaults",
+    ],
+
+    header_libs: [
+        "libcodec2_internal",
+        "libstagefright_foundation_headers",
+    ],
+
+    // TunerService is a system service required for Tuner feature.
+    // TunerJNI is a client of TunerService so we build the dependency here.
+    required: ["mediatuner"],
+
+    export_include_dirs: ["."],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-error=deprecated-declarations",
+        "-Wunused",
+        "-Wunreachable-code",
+    ],
+}

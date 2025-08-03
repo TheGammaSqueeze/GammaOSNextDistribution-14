@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.4.0-alpha01" type="baseline" client="" dependencies="true" name="" variant="all" version="8.4.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 25 (current min is 23): `android.view.View#setRevealOnFocusHint`"
+        errorLine1="    setRevealOnFocusHint(false);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="frameworks/opt/setupwizard/library/platform/src/com/android/setupwizardlib/view/RichTextView.java"
+            line="129"
+            column="5"/>
+    </issue>
+
+</issues>

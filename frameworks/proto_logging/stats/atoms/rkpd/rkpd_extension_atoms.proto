@@ -1,0 +1,115 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.rkpd;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+
+option java_package = "com.android.os.rkpd";
+option java_multiple_files = true;
+
+extend Atom {
+  optional RkpdPoolStats rkpd_pool_stats = 664 [(module) = "rkpd"];
+  optional RkpdClientOperation rkpd_client_operation = 665 [(module) = "rkpd"];
+}
+
+/**
+ * Status of the attestation key pool related to Remote Key Provisioning.
+ *
+ * Logged from: packages/modules/RemoteKeyProvisioning
+ */
+message RkpdPoolStats {
+    /**
+     * The name of the IRemotelyProvisionedComponent for which the keys were
+     * provisioned. There is a small number (~3) of values per device.
+     */
+    optional string remotely_provisioned_component = 1;
+
+    /**
+     * The number of signed attestation certificate chains which are
+     * expiring.
+     */
+    optional int32 expiring = 2;
+
+    /**
+     * The number of signed attestation certificate chains which have
+     * not yet been assigned to an app.
+     */
+    optional int32 unassigned = 3;
+
+    /**
+     * The total number of attestation keys.
+     */
+    optional int32 total = 4;
+}
+
+/**
+ * Records an operation from an Remote Key Provisioning Daemon client.
+ *
+ * Logged from: packages/modules/RemoteKeyProvisioning
+ */
+message RkpdClientOperation {
+    enum Operation {
+        OPERATION_UNKNOWN = 0;
+        OPERATION_GET_REGISTRATION = 1;
+        OPERATION_GET_KEY = 2;
+        OPERATION_CANCEL_GET_KEY = 3;
+        OPERATION_STORE_UPGRADED_KEY = 4;
+    }
+
+    enum Result {
+        RESULT_UNKNOWN = 0;
+        RESULT_SUCCESS = 1;
+        RESULT_CANCELED = 2;
+        RESULT_RKP_UNSUPPORTED = 3;
+        RESULT_ERROR_INTERNAL = 4;
+
+        // results specific to OPERATION_GET_KEY
+        RESULT_ERROR_REQUIRES_SECURITY_PATCH = 5;
+        RESULT_ERROR_PENDING_INTERNET_CONNECTIVITY = 6;
+        RESULT_ERROR_PERMANENT = 7;
+
+        // results specific to OPERATION_GET_REGISTRATION
+        RESULT_ERROR_INVALID_HAL = 8;
+
+        // results specific to OPERATION_STORE_UPGRADED_KEY
+        RESULT_ERROR_KEY_NOT_FOUND = 9;
+    }
+
+    // The name of the remotely provisioned component for whom keys are being
+    // generated and certified. The string value is determined by the vendor,
+    // and is fixed for the lifetime of the device. The number of unique string
+    // values on a given device is determined by how many remotely provisioned
+    // component HALs are on a given device. Typically, this is 2-3 HALs.
+    optional string remotely_provisioned_component = 1;
+
+    // The client package that is requesting keys. The API is exposed to
+    // system, so all clients are built-in system applications.
+    optional int32 client_uid = 2 [(is_uid) = true];
+
+    // Which operation the client requested
+    optional Operation operation = 3;
+
+    // The result of the operation
+    optional Result result = 4;
+
+    // Total time the operation took to run
+    optional int32 operation_time_millis = 5;
+}
+

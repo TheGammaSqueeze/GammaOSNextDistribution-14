@@ -1,0 +1,33 @@
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_test {
+    name: "input_monitor",
+    gtest: false,
+    srcs: ["src/input_monitor.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: ["libaaudio"],
+    header_libs: ["libaaudio_example_utils"],
+}
+
+cc_test {
+    name: "input_monitor_callback",
+    gtest: false,
+    srcs: ["src/input_monitor_callback.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: ["libaaudio"],
+    header_libs: ["libaaudio_example_utils"],
+}

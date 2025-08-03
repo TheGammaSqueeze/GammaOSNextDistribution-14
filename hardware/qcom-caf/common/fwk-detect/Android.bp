@@ -1,0 +1,48 @@
+cc_library_shared {
+    name: "libqti_vndfwk_detect",
+    srcs: ["vndfwk-detect.c"],
+    shared_libs: ["libcutils"],
+    system_ext_specific: true,
+    vendor_available: true,
+    export_include_dirs: ["."],
+
+    compile_multilib: "both",
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+cc_library_shared {
+    name: "libvndfwk_detect_jni.qti",
+    srcs: ["jni/com_qualcomm_qti_VndFwkDetect.cpp"],
+    shared_libs: [
+        "libqti_vndfwk_detect",
+        "libcutils",
+        "libutils",
+        "liblog",
+    ],
+    header_libs: [
+        "jni_headers",
+    ],
+    system_ext_specific: true,
+    vendor_available: true,
+    compile_multilib: "both",
+
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+}
+
+java_library_static {
+    name: "vndfwk.detect",
+    srcs: ["src/**/*.java"],
+    sdk_version: "current",
+}
+
+install_symlink {
+    name: "CneApp.libvndfwk_detect_jni.qti_symlink",
+    vendor: true,
+    installed_location: "app/CneApp/lib/arm64/libvndfwk_detect_jni.qti.so",
+    symlink_target: "/vendor/lib64/libvndfwk_detect_jni.qti.so",
+}

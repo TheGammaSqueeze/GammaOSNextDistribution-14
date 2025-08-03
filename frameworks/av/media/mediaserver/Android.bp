@@ -1,0 +1,120 @@
+package {
+    default_applicable_licenses: ["frameworks_av_media_mediaserver_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_mediaserver_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library_static {
+    name: "libregistermsext",
+    srcs: ["register.cpp"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+}
+
+prebuilt_etc {
+    name: "mediaserver.zygote64_32.rc",
+    src: "mediaserver.zygote64_32.rc",
+    sub_dir: "init/hw",
+}
+
+prebuilt_etc {
+    name: "mediaserver.zygote64.rc",
+    src: "mediaserver.zygote64.rc",
+    sub_dir: "init/hw",
+}
+
+soong_config_module_type {
+    name: "mediaserver_cc_binary",
+    module_type: "cc_binary",
+    config_namespace: "ANDROID",
+    bool_variables: ["TARGET_DYNAMIC_64_32_MEDIASERVER"],
+    properties: [
+        "compile_multilib",
+        "init_rc",
+        "multilib.lib32.suffix",
+        "multilib.lib64.suffix",
+        "required",
+    ],
+}
+
+mediaserver_cc_binary {
+    name: "mediaserver",
+
+    srcs: ["main_mediaserver.cpp"],
+
+    shared_libs: [
+        "android.hardware.media.omx@1.0",
+        "libicu",
+        "libfmq",
+        "libbinder",
+        "libhidlbase",
+        "liblog",
+        "libmediaplayerservice",
+        "libresourcemanagerservice",
+        "libutils",
+    ],
+
+    static_libs: [
+        "libregistermsext",
+    ],
+
+    // By default mediaserver runs in 32-bit to save memory, except
+    // on 64-bit-only lunch targets.
+    // ****************************************************************
+    // TO ENABLE 64-BIT MEDIASERVER ON MIXED 32/64-BIT DEVICES, COMMENT
+    // OUT THE FOLLOWING LINE:
+    // ****************************************************************
+    compile_multilib: "prefer32",
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    // AIDL is only used when release_aidl_use_unfrozen is true
+    // because the swcodec mainline module is a prebuilt from an
+    // Android U branch in that case.
+    // TODO(b/327508501)
+    vintf_fragments: ["manifest_media_c2_software_hidl.xml"],
+    product_variables: {
+        release_aidl_use_unfrozen: {
+            vintf_fragments: ["manifest_media_c2_software_aidl.xml"],
+        },
+    },
+
+    soong_config_variables: {
+        TARGET_DYNAMIC_64_32_MEDIASERVER: {
+            compile_multilib: "both",
+            multilib: {
+                lib32: {
+                    suffix: "32",
+                },
+                lib64: {
+                    suffix: "64",
+                },
+            },
+            required: [
+                "mediaserver.zygote64_32.rc",
+                "mediaserver.zygote64.rc",
+            ],
+            init_rc: ["mediaserver_dynamic.rc"],
+            conditions_default: {
+                init_rc: ["mediaserver.rc"],
+            },
+        },
+    },
+}

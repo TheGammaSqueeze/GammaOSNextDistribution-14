@@ -1,0 +1,11 @@
+# rebalance_interrupts vendor
+type rebalance_interrupts_vendor, domain;
+
+type rebalance_interrupts_vendor_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(rebalance_interrupts_vendor)
+
+allow rebalance_interrupts_vendor sysfs_irq:dir r_dir_perms;
+allow rebalance_interrupts_vendor sysfs_irq:file r_file_perms;
+allow rebalance_interrupts_vendor proc_irq:dir r_dir_perms;
+allow rebalance_interrupts_vendor proc_irq:file { rw_file_perms setattr };
+allow rebalance_interrupts_vendor self:capability { chown setuid setgid };

@@ -1,0 +1,59 @@
+{
+  "presubmit": [
+    {
+      "name": "VehicleHalAidlHidlCompatibilityTest"
+    },
+    {
+      "name": "VehicleHalDefaultConfigTest"
+    },
+    {
+      "name": "VehicleHalDefaultConfigTestEnableTestProperties"
+    },
+    {
+      "name": "JsonConfigLoaderUnitTest"
+    },
+    {
+      "name": "JsonConfigLoaderUnitTestEnableTestProperties"
+    },
+    {
+      "name": "VehicleHalVehicleUtilsTest"
+    },
+    {
+      "name": "VehiclePropertyAnnotationCppTest"
+    },
+    {
+      "name": "VehiclePropertyAnnotationJavaTest"
+    },
+    {
+      "name": "FakeVehicleHalValueGeneratorsTest"
+    },
+    {
+      "name": "FakeObd2FrameTest"
+    },
+    {
+      "name": "FakeUserHalTest"
+    },
+    {
+      "name": "DefaultVehicleHalTest"
+    }
+  ],
+  "auto-presubmit": [
+    {
+      "name": "VtsHalAutomotiveVehicle_TargetTest"
+    },
+    {
+      "name": "FakeVehicleHardwareTest"
+    },
+    {
+      "name": "CarServiceUnitTest",
+      "options" : [
+        {
+          "include-filter": "com.android.car.hal.fakevhal.FakeVehicleStubUnitTest"
+        }
+      ]
+    },
+    {
+      "name": "VehicleHalProtoMessageConverterTest"
+    }
+  ]
+}

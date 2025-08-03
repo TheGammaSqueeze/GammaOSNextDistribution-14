@@ -1,0 +1,54 @@
+// This library is meant to be fairly independent, and dependencies were can be
+// kept to a minimum so that it can be statically linked into both rlsservice
+// and GCH
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "apex_update_listener_cc_defaults_internal",
+    host_supported: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wthread-safety",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+    ],
+    static_libs: [
+        "libtinyxml2",
+    ],
+    proprietary: true,
+    vendor: true,
+}
+
+cc_defaults {
+  name: "apex_update_listener_cc_defaults_static",
+  static_libs: [
+    "libtinyxml2",
+    "libapex_update_listener",
+  ],
+}
+
+cc_library_static {
+    name: "libapex_update_listener",
+    defaults: ["apex_update_listener_cc_defaults_internal"],
+    srcs: ["apex_update_listener.cc"],
+    export_include_dirs: ["."],
+}
+
+cc_test {
+    name: "libapex_update_listener_test",
+    defaults: ["apex_update_listener_cc_defaults_internal"],
+    gtest: true,
+    srcs: ["apex_update_listener_test.cc"],
+    static_libs: [
+        "libgmock",
+        "libapex_update_listener",
+    ],
+    require_root: true,
+}

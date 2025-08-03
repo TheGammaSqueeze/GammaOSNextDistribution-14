@@ -1,0 +1,22 @@
+cc_binary {
+    name: "vendor.qti.hardware.memtrack-service",
+    relative_install_path: "hw",
+    init_rc: ["memtrack_qti.rc"],
+    vintf_fragments: ["memtrack_qti.xml"],
+    vendor: true,
+    cflags: [
+        "-Werror",
+        "-DLOG_TAG=\"memtrack\""
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libbinder_ndk",
+        "android.hardware.memtrack-V1-ndk",
+    ],
+    srcs: [
+        "service.cpp",
+        "memtrack.cpp",
+        "memtrack_kgsl.cpp",
+    ],
+}

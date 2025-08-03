@@ -1,0 +1,119 @@
+// Build the unit tests,
+
+// Build the binary to $(TARGET_OUT_DATA_NATIVE_TESTS)/$(LOCAL_MODULE)
+// to integrate with auto-test framework.
+package {
+    default_team: "trendy_team_android_core_graphics_stack",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+cc_test {
+    name: "libgui_test",
+    test_suites: ["device-tests"],
+
+    defaults: ["libgui-defaults"],
+
+    cppflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-extra",
+        "-DCOM_ANDROID_GRAPHICS_LIBGUI_FLAGS_BQ_SETFRAMERATE=true",
+    ],
+
+    srcs: [
+        "LibGuiMain.cpp", // Custom gtest entrypoint
+        "BLASTBufferQueue_test.cpp",
+        "BufferItemConsumer_test.cpp",
+        "BufferQueue_test.cpp",
+        "CompositorTiming_test.cpp",
+        "CpuConsumer_test.cpp",
+        "EndToEndNativeInputTest.cpp",
+        "FrameRateUtilsTest.cpp",
+        "DisplayInfo_test.cpp",
+        "DisplayedContentSampling_test.cpp",
+        "FillBuffer.cpp",
+        "GLTest.cpp",
+        "IGraphicBufferProducer_test.cpp",
+        "Malicious.cpp",
+        "MultiTextureConsumer_test.cpp",
+        "RegionSampling_test.cpp",
+        "StreamSplitter_test.cpp",
+        "SurfaceTextureClient_test.cpp",
+        "SurfaceTextureFBO_test.cpp",
+        "SurfaceTextureGLThreadToGL_test.cpp",
+        "SurfaceTextureGLToGL_test.cpp",
+        "SurfaceTextureGL_test.cpp",
+        "SurfaceTextureMultiContextGL_test.cpp",
+        "Surface_test.cpp",
+        "TextureRenderer.cpp",
+        "VsyncEventData_test.cpp",
+        "WindowInfo_test.cpp",
+    ],
+
+    shared_libs: [
+        "android.hardware.configstore@1.0",
+        "android.hardware.configstore-utils",
+        "libSurfaceFlingerProp",
+        "libGLESv1_CM",
+        "libinput",
+    ],
+
+    static_libs: [
+        "libgmock",
+    ],
+
+    header_libs: ["libsurfaceflinger_headers"],
+}
+
+// Build the tests that need to run with both 32bit and 64bit.
+cc_test {
+    name: "libgui_multilib_test",
+    test_suites: ["device-tests"],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    srcs: [
+        "DisplayEventStructLayout_test.cpp",
+    ],
+
+    shared_libs: [
+        "libgui",
+    ],
+
+    compile_multilib: "both",
+
+    header_libs: ["libsurfaceflinger_headers"],
+    data: [
+        ":libgui_test",
+    ],
+}
+
+cc_test {
+    name: "SamplingDemo",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    srcs: [
+        "SamplingDemo.cpp",
+    ],
+
+    shared_libs: [
+        "libbinder",
+        "libcutils",
+        "libgui",
+        "liblog",
+        "libui",
+        "libutils",
+    ],
+}

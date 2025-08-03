@@ -1,0 +1,48 @@
+package {
+    default_team: "trendy_team_camera_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_library_static {
+    name: "android.hardware.camera.common-helper",
+    vendor_available: true,
+    defaults: ["hidl_defaults"],
+    srcs: [
+        "CameraModule.cpp",
+        "CameraMetadata.cpp",
+        "CameraParameters.cpp",
+        "VendorTagDescriptor.cpp",
+        "HandleImporter.cpp",
+        "Exif.cpp",
+        "SimpleThread.cpp",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wextra",
+        "-Wall",
+    ],
+    shared_libs: [
+        "liblog",
+        "libgralloctypes",
+        "libhardware",
+        "libcamera_metadata",
+        "libexif",
+        "libui",
+    ],
+    include_dirs: ["system/media/private/camera/include"],
+    export_include_dirs: ["include"],
+    export_shared_lib_headers: ["libui"],
+}
+
+// NOTE: Deprecated module kept for compatibility reasons.
+// Depend on "android.hardware.camera.common-helper" instead
+cc_library_static {
+    name: "android.hardware.camera.common@1.0-helper",
+    vendor_available: true,
+    whole_static_libs: ["android.hardware.camera.common-helper"],
+}

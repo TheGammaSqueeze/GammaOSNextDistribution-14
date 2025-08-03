@@ -1,0 +1,21 @@
+cc_binary {
+    name: "vendor.lineage.powershare@1.0-service.default",
+    defaults: [
+        "hidl_defaults",
+        "powershare_defaults",
+    ],
+    init_rc: ["vendor.lineage.powershare@1.0-service.default.rc"],
+    vintf_fragments: ["vendor.lineage.powershare@1.0-service.default.xml"],
+    vendor: true,
+    relative_install_path: "hw",
+    srcs: [
+        "service.cpp",
+        "PowerShare.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libhidlbase",
+        "libutils",
+        "vendor.lineage.powershare@1.0",
+    ],
+}

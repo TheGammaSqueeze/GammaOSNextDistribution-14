@@ -1,0 +1,23 @@
+{
+  "config": {
+    "ignore_variables": true
+  },
+  "symbols": {
+    "AFileDescriptor_create": {
+      "call_method": "custom_trampoline"
+    },
+    "AFileDescriptor_getFd": {
+      "call_method": "custom_trampoline"
+    },
+    "AFileDescriptor_setFd": {
+      "call_method": "custom_trampoline"
+    },
+    "JNI_CreateJavaVM": {
+      "call_method": "custom_trampoline"
+    },
+    "JNI_GetCreatedJavaVMs": {
+      "call_method": "custom_trampoline"
+    }
+  },
+  "types": {}
+}

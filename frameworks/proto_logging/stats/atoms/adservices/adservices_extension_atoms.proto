@@ -1,0 +1,848 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.adservices;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/adservices/common/adservices_enums.proto";
+import "frameworks/proto_logging/stats/enums/app/job/enums.proto";
+import "frameworks/proto_logging/stats/enums/adservices/enrollment/enums.proto";
+import "frameworks/proto_logging/stats/enums/adservices/measurement/enums.proto";
+import "frameworks/proto_logging/stats/enums/adservices/fledge/enums.proto";
+
+option java_package = "com.android.os.adservices";
+option java_multiple_files = true;
+
+extend Atom {
+  optional AdServicesBackCompatGetTopicsReported
+      ad_services_back_compat_get_topics_reported = 598
+        [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional AdServicesBackCompatEpochComputationClassifierReported
+      ad_services_back_compat_epoch_computation_classifier_reported = 599
+          [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesMeasurementDebugKeys
+      ad_services_measurement_debug_keys = 640
+        [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesErrorReported
+      ad_services_error_reported = 662
+        [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesBackgroundJobsExecutionReported
+      ad_services_background_jobs_execution_reported = 663
+        [(module) = "adservices"];
+
+  optional AdServicesMeasurementDelayedSourceRegistration
+      ad_services_measurement_delayed_source_registration = 673
+        [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesMeasurementAttribution
+      ad_services_measurement_attribution = 674
+        [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesMeasurementJobs
+      ad_services_measurement_jobs = 675
+        [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesMeasurementWipeout
+      ad_services_measurement_wipeout = 676
+        [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesMeasurementAdIdMatchForDebugKeys
+      ad_services_measurement_ad_id_match_for_debug_keys = 695
+        [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional AdServicesEnrollmentDataStored ad_services_enrollment_data_stored = 697
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesEnrollmentFileDownloaded
+      ad_services_enrollment_file_downloaded = 698
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesEnrollmentMatched ad_services_enrollment_matched = 699
+      [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional AdServicesConsentMigrated ad_services_consent_migrated = 702
+  [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional AdServicesEnrollmentFailed ad_services_enrollment_failed = 714
+      [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional AdServicesMeasurementClickVerification ad_services_measurement_click_verification = 756
+      [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional AdServicesEncryptionKeyFetched ad_services_encryption_key_fetched = 765
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdServicesEncryptionKeyDbTransactionEnded ad_services_encryption_key_db_transaction_ended = 766
+      [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional DestinationRegisteredBeacons destination_registered_beacons = 767
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional ReportInteractionApiCalled report_interaction_api_called = 768
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional InteractionReportingTableCleared interaction_reporting_table_cleared = 769
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional AppManifestConfigHelperCalled app_manifest_config_helper_called = 788
+      [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional AdFilteringProcessJoinCAReported ad_filtering_process_join_ca_reported = 793
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdFilteringProcessAdSelectionReported ad_filtering_process_ad_selection_reported = 794
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional AdCounterHistogramUpdaterReported ad_counter_histogram_updater_reported = 795
+      [(module) = "adservices", (truncate_timestamp) = true];
+  optional KAnonImmediateSignJoinStatusReported k_anon_immediate_sign_join_status_reported = 808
+  [(module) = "adservices", (truncate_timestamp) = true];
+  optional KAnonBackgroundJobStatusReported k_anon_background_job_status_reported = 809
+  [(module) = "adservices", (truncate_timestamp) = true];
+  optional KAnonInitializeStatusReported k_anon_initialize_status_reported = 810
+  [(module) = "adservices", (truncate_timestamp) = true];
+  optional KAnonSignStatusReported k_anon_sign_status_reported = 811
+  [(module) = "adservices", (truncate_timestamp) = true];
+  optional KAnonJoinStatusReported k_anon_join_status_reported= 812
+  [(module) = "adservices", (truncate_timestamp) = true];
+  optional KAnonKeyAttestationStatusReported k_anon_key_attestation_status_reported = 813
+  [(module) = "adservices", (truncate_timestamp) = true];
+
+  optional GetAdSelectionDataApiCalled get_ad_selection_data_api_called = 814
+  [(module) = "adservices", (truncate_timestamp) = true];
+  optional GetAdSelectionDataBuyerInputGenerated get_ad_selection_data_buyer_input_generated = 815
+  [(module) = "adservices", (truncate_timestamp) = true];
+}
+
+/**
+ * Represents a list of topic IDs.
+ */
+message AdServicesTopicIds {
+  repeated int32 topic_id = 1;
+}
+
+/**
+ * Logs for AdServices GetTopics API call on R+.
+ * This atom closely mimics AdServicesGetTopicsReported (for T+ logging) and
+ * avoids usage of field types (e.g. repeated) that aren't supported on R/S.
+ */
+message AdServicesBackCompatGetTopicsReported {
+  // Number of filtered duplicate topics.
+  optional int32 duplicate_topic_count = 1;
+
+  // Number of filtered blocked topics.
+  optional int32 filtered_blocked_topic_count = 2;
+
+  // Number of topic ids returned.
+  optional int32 count_of_topic_ids = 3;
+
+  // Topic ids returned, randomized using a random response mechanism.
+  optional AdServicesTopicIds topic_ids = 4 [(log_mode) = MODE_BYTES];
+}
+
+/**
+ * Logs for AdServices Epoch Computation Classifier on R+.
+ * One atom should be logged for each app classification.
+ * This atom closely mimics AdServicesEpochComputationClassifierReported (for T+ logging)
+ * and avoids usage of field types (e.g. repeated) that can't be supported on R/S.
+ */
+message AdServicesBackCompatEpochComputationClassifierReported {
+  // List of topics returned by the classifier for each app. The classification
+  // does not depend on the user's usage of the app.
+  optional AdServicesTopicIds topic_ids = 1 [(log_mode) = MODE_BYTES];
+
+  // Build id of the assets.
+  optional int32 build_id = 2;
+
+  // Version of the assets used.
+  optional string asset_version = 3;
+
+  // Type of the classifier used for classifying apps.
+  optional android.adservices.ClassifierType classifier_type = 4;
+
+  // On Device classifier status.
+  optional android.adservices.OnDeviceClassifierStatus on_device_classifier_status = 5;
+
+  // Precomputed classifier status.
+  optional android.adservices.PrecomputedClassifierStatus precomputed_classifier_status = 6;
+}
+
+/**
+ * Logs debug keys match state when measurement reports are being generated.
+ */
+message AdServicesMeasurementDebugKeys {
+  optional string adtech_enrollment_id = 1;
+  optional android.adservices.AttributionType attribution_type = 2;
+  optional bool is_matched = 3;
+  optional int64 join_key_hash = 4;
+  optional int64 join_key_hash_limit = 5;
+  optional string app_package_name = 6;
+}
+
+/**
+ * Logs AdServices errors/exceptions.
+ */
+message AdServicesErrorReported {
+  optional android.adservices.ErrorCode error_code = 1;
+
+  // Name of the PPAPI if possible where error is occurring.
+  optional android.adservices.PpapiName ppapi_name = 2;
+
+  // Name of the class where we catch the exception or log the error.
+  optional string class_name = 3;
+
+  // Name of the method where we catch the exception or log the error.
+  optional string method_name = 4;
+
+  // Line number where we catch the exception or log the error.
+  optional int32 line_number = 5;
+
+  // The fully qualified name of the last encountered exception.
+  optional string last_observed_exception_name = 6;
+}
+
+/** Logs background job stats to monitor the stability of Rubidium background jobs. */
+message AdServicesBackgroundJobsExecutionReported {
+  // A unique identifier for a background job
+  optional int32 job_id = 1;
+
+  // Time interval from the start to the end of an execution of a background job.
+  // It is on a milli-second basis.
+  optional int32 execution_latency_ms = 2;
+
+  // Time interval from the start of previous execution to the start of current execution of
+  // a background job. It is on a minute basis.
+  optional int32 execution_period_minute = 3;
+
+  // Type of the result code that implies different execution results of Adservices background jobs.
+  optional android.adservices.ExecutionResultCode execution_result_code = 4;
+
+  // The publicly returned reason onStopJob() was called.
+  // This is only applicable when the state is FINISHED, but may be undefined if
+  // JobService.onStopJob() was never called for the job.
+  // The default value is STOP_REASON_UNDEFINED.
+  optional android.app.job.StopReasonEnum public_stop_reason = 5;
+
+  // Module name from which the job execution is being reported.
+  optional android.adservices.ModuleName module_name = 6;
+}
+
+/**
+ * Logs when an AdServices delayed source is fetched and registered.
+ */
+message AdServicesMeasurementDelayedSourceRegistration {
+  optional android.adservices.service.measurement.DelayedSourceRegistrationStatus registration_status = 1;
+  // delay (in milliseconds) between a source registration and a previously registered trigger with matching attribution destination
+  optional int64 missed_source_delay_millis = 2;
+  optional string app_package_name = 3;
+}
+
+/**
+ * Logs when an AdServices trigger is attributed to a source.
+ */
+message AdServicesMeasurementAttribution {
+  optional android.adservices.service.measurement.SourceType source_type = 1;
+  optional android.adservices.service.measurement.AttributionSurfaceCombination attribution_surface_combination = 2;
+  optional android.adservices.service.measurement.Status status = 3;
+  optional android.adservices.service.measurement.AttributionFailureType failure_type = 4;
+  optional bool is_source_derived = 5;
+  optional bool is_install_attribution = 6;
+  // delay (in milliseconds) between trigger registration and a trigger becoming attributed.
+  optional int64 trigger_to_attribution_delay_millis = 7;
+  optional string app_package_name = 8;
+  optional int32 aggregate_report_count = 9;
+  optional int32 aggregate_debug_report_count = 10;
+  optional int32 event_report_count = 11;
+  optional int32 event_debug_report_count = 12;
+  optional int32 retry_count = 13;
+}
+
+/**
+ * Logs AdServices job finish status
+ */
+message AdServicesMeasurementJobs {
+  optional android.adservices.service.measurement.Status status = 1;
+  optional android.adservices.service.measurement.JobType job_type = 2;
+}
+
+/**
+ * Logs when AdServices deletion API is called.
+ */
+message AdServicesMeasurementWipeout {
+  optional android.adservices.service.measurement.WipeoutCause wipeout_cause = 1;
+  optional string app_package_name = 2;
+}
+
+/**
+ * Logs Ad Id match state for debug keys when measurement reports are being generated.
+ */
+message AdServicesMeasurementAdIdMatchForDebugKeys {
+  optional string adtech_enrollment_id = 1;
+  optional android.adservices.AttributionType attribution_type = 2;
+  optional bool is_matched = 3;
+  optional int64 num_unique_ad_ids_used = 4;
+  optional int64 num_unique_ad_id_limit = 5;
+  optional string app_package_name = 6;
+}
+
+/**
+ * Logs when AdServices enrollment data is stored.
+ */
+message AdServicesEnrollmentDataStored {
+  optional android.stats.adservices.enrollment.TransactionType transaction_type = 1;
+  optional bool success = 2;
+  optional int32 build_id = 3; // id of the enrollment file downloaded via mdd
+}
+
+/**
+ * Logs when AdServices enrollment file get downloaded.
+ */
+message AdServicesEnrollmentFileDownloaded {
+  optional bool success = 1;
+  optional int32 build_id = 2; // id of the enrollment file downloaded via mdd
+}
+
+/**
+ * Logs when AdServices enrollment match occurs.
+ */
+message AdServicesEnrollmentMatched {
+  optional bool success = 1;
+  optional int32 build_id = 2; // id of the enrollment file downloaded via mdd
+}
+
+/**
+ * Logs when AdServices enrollment fails.
+ */
+message AdServicesEnrollmentFailed {
+  optional int32 build_id = 1; // id of the enrollment file downloaded via mdd
+  optional android.stats.adservices.enrollment.DataFileGroupStatus data_file_group_status = 2;
+  optional int32 enrollment_record_count_in_table = 3;
+  optional string query_parameter = 4;
+  optional android.stats.adservices.enrollment.ErrorCause error_cause = 5;
+}
+
+/**
+ * Logs for AdServices Consent Migration after OTA.
+ * This atom captures the event of consent migration when we OTA from S to T+.
+ */
+message AdServicesConsentMigrated {
+
+  // Logs the Migration status
+  enum MigrationStatus {
+    UNSPECIFIED_MIGRATION_STATUS = 0;
+
+    // Consent migration unsuccessful
+    FAILURE = 1;
+
+    // Consent migration successful with shared prefs updated
+    SUCCESS_WITH_SHARED_PREF_UPDATED = 2;
+
+    // Consent migration successful with shared prefs not updated
+    SUCCESS_WITH_SHARED_PREF_NOT_UPDATED = 3;
+
+  }
+
+  // Logs the type of migration
+  enum MigrationType {
+    UNSPECIFIED_MIGRATION_TYPE = 0;
+
+    // Migrating consent from PPAPI to system service
+    PPAPI_TO_SYSTEM_SERVICE = 1;
+
+    // Migrating consent from App Search to system service
+    APPSEARCH_TO_SYSTEM_SERVICE = 2;
+
+    // Migrating consent from AdServicesExtDataStorageService to system service
+    ADEXT_SERVICE_TO_SYSTEM_SERVICE = 3;
+
+    // Migrating consent from AdServicesExtDataStorageService to App Search
+    ADEXT_SERVICE_TO_APPSEARCH = 4;
+  }
+
+  // Logs the opt-in/ opt-out value of measurement app
+  optional bool is_measurement_consent_enabled = 1;
+
+  // Logs the opt-in/ opt-out value of topics app
+  optional bool is_topics_consent_enabled = 2;
+
+  // Logs the opt-in/ opt-out value of fledge app
+  optional bool is_fledge_consent_enabled = 3;
+
+  // Logs the opt-in/ opt-out value for all apps in beta
+  optional bool is_default_consent_enabled = 4;
+
+  // Logs the type of migration
+  optional MigrationType migration_type = 5;
+
+  // Logs the region where the OTA took place
+  optional android.adservices.AdServiceSettingRegion region = 6;
+
+  // Logs the Migration status
+  optional MigrationStatus migration_status = 7;
+}
+
+/**
+ * Logs for AdServices click verification for measurement API calls.
+ */
+ message AdServicesMeasurementClickVerification {
+  //  The final source type of the source.
+  optional android.adservices.service.measurement.SourceType source_type = 1;
+
+  // If an input event was included with the registration.
+  // The calling app wanted a click event if an input event is present.
+  optional bool input_event_present = 2;
+
+  // If the system click verification passed.
+  optional bool system_click_verification_passed = 3;
+
+  // If the flag is set to enable the system click verification check.
+  optional bool system_click_verification_enabled = 4;
+
+  // The delay (in millis) from when the input event was created to when the API was called.
+  optional int64 input_event_delay_millis = 5;
+
+  // The max difference (in millis) between input event creation and API call for the source to not get downgraded.
+  optional int64 valid_delay_window_millis = 6;
+
+  // The package calling the API.
+  optional string app_package_name = 7;
+
+  optional bool click_dedup_enabled = 8;
+
+  optional bool click_dedup_enforced = 9;
+
+  optional int64 click_dedup_max_sources_per_click = 10;
+
+  optional bool click_dedup_under_limit = 11;
+}
+
+/**
+ * Logs for AdServices encryption key background job status.
+ */
+message AdServicesEncryptionKeyFetched {
+
+  // Encryption key fetch job type.
+  enum FetchJobType {
+    UNKNOWN_JOB = 0;
+    ENCRYPTION_KEY_DAILY_FETCH_JOB = 1;
+    MDD_DOWNLOAD_JOB = 2;
+  }
+
+  // Encryption key fetch status.
+  enum FetchStatus {
+    UNKNOWN = 0;
+    NULL_ENDPOINT = 1;
+    INVALID_ENDPOINT = 2;
+    IO_EXCEPTION = 3;
+    BAD_REQUEST_EXCEPTION = 4;
+    KEY_NOT_MODIFIED = 5;
+    SUCCESS = 6;
+  }
+
+  // Encryption key fetch job type.
+  optional FetchJobType fetch_job_type = 1;
+  // Encryption key fetch status.
+  optional FetchStatus fetch_status = 2;
+  // Whether the key is fetched for the first time.
+  optional bool is_first_time_fetch = 3;
+  // Enrollment id for the adtech corresponding to the encryption key.
+  // Example: "XYZABC"
+  optional string adtech_enrollment_id = 4;
+  // Company id for the adtech corresponding to this encryption key.
+  // Example: "XYZCompany"
+  optional string company_id = 5;
+  // Encryption key url.
+  optional string encryption_key_url = 6;
+}
+
+/**
+ * Logs for AdServices encryption key datastore transaction status.
+ */
+message AdServicesEncryptionKeyDbTransactionEnded {
+
+  // Encryption key datastore transaction type.
+  enum DbTransactionType {
+    UNKNOWN = 0;
+    READ_TRANSACTION_TYPE = 1;
+    WRITE_TRANSACTION_TYPE = 2;
+  }
+
+  // Encryption key datastore transaction status.
+  enum DbTransactionStatus {
+    UNKNOWN_EXCEPTION = 0;
+    INVALID_KEY= 1;
+    INSERT_EXCEPTION = 2;
+    DELETE_EXCEPTION = 3;
+    SEARCH_EXCEPTION = 4;
+    SUCCESS = 5;
+  }
+
+  // Encryption key dao method names.
+  enum MethodName {
+    UNKNOWN_METHOD = 0;
+    GET_KEY_FROM_ENROLLMENT_ID = 1;
+    GET_KEY_FROM_ENROLLMENT_ID_AND_KEY_TYPE = 2;
+    GET_KEY_FROM_ENROLLMENT_ID_AND_KEY_ID = 3;
+    GET_KEY_FROM_REPORTING_ORIGIN = 4;
+    GET_ALL_KEYS = 5;
+    INSERT_KEY = 6;
+    INSERT_KEYS = 7;
+    DELETE_KEY = 8;
+  }
+
+  // Encryption key datastore transaction type.
+  optional DbTransactionType db_transaction_type = 1;
+  // Encryption key datastore transaction status.
+  optional DbTransactionStatus  db_transaction_status = 2;
+  // Encryption key DAO method name.
+  optional MethodName method_name = 3;
+}
+
+/**
+ * Logs for beacon level reporting for destination registered beacons.
+ */
+message DestinationRegisteredBeacons {
+
+  // Logs the range of key size for interaction key.
+  enum InteractionKeySizeRangeType {
+    UNSET_TYPE = 0;
+    // The key size is smaller than 50% maximum key size.
+    MUCH_SMALLER_THAN_MAXIMUM_KEY_SIZE = 1;
+    // The key size is equal or greater than 50% maximum key size but smaller than maximum key size.
+    SMALLER_THAN_MAXIMUM_KEY_SIZE = 2;
+    // The key size is equal to maximum key size.
+    EQUAL_TO_MAXIMUM_KEY_SIZE = 3;
+    // The key size is greater than maximum key size.
+    LARGER_THAN_MAXIMUM_KEY_SIZE = 4;
+  }
+
+  // The entity who registered the beacons.
+  optional android.adservices.service.BeaconReportingDestinationType destination = 1;
+
+  // Number of beacons ad-tech tries to register during reportImpression.
+  optional int32 attempted_registered_beacons = 2;
+
+  // Key size range for interactionKey in every registerAdBeacon call.
+  repeated InteractionKeySizeRangeType attempted_key_sizes = 3;
+
+  // Size of registered_ad_interactions database after each update to it.
+  optional int32 table_num_rows = 4;
+
+  // The status response code in AdServices.
+  optional int32 status_code = 5;
+}
+
+/**
+ * Logs for beacon level reporting for ReportInteraction API.
+ */
+message ReportInteractionApiCalled {
+  // The entity who registered the beacons.
+  optional android.adservices.service.BeaconReportingDestinationType destination = 1;
+
+  // Number of matching uris for the reportInteraction request is found.
+  optional int32 num_matching_uris = 2;
+}
+
+/**
+ * Logs for beacon level reporting for clearing interaction reporting table.
+ */
+message InteractionReportingTableCleared {
+  // Number of registered URIs cleared every 24 hours.
+  optional int32 num_uris_cleared = 1;
+
+  // Number of unreported URIs before clearing.
+  optional int32 num_unreported_uris = 2;
+}
+
+/**
+ * Logs a call to check if an app is allowed to call an AdServices API.
+ */
+message AppManifestConfigHelperCalled {
+  // Package name of the app that has been queried about.
+  optional string app_package_name = 1;
+  // Which API was called
+  optional android.adservices.AppApiAccessType api_access_type = 2;
+  // Result of the call
+  optional android.adservices.AppApiAccessResult api_access_result = 3;
+}
+
+/**
+ * Logs for Ad filtering process during join CA.
+ */
+message AdFilteringProcessJoinCAReported {
+  // The status response code in AdServices.
+  optional int32 status_code = 1;
+
+  // The following 5 fields are logging the count of Ads in each bucket
+  // when joining CA with the keys.
+  // The total number of Ads using keys less than the maximum number of keys limitation.
+  optional int32 count_of_ads_with_keys_much_smaller_than_limitation = 2;
+
+  // The total number of Ads using keys are equal or greater than
+  // 50% maximum number of keys limitation but smaller than maximum number of keys limitation.
+  optional int32 count_of_ads_with_keys_smaller_than_limitation = 3;
+
+  // The total number of Ads using keys are equal to maximum number of keys limitation.
+  optional int32 count_of_ads_with_keys_equal_to_limitation = 4;
+
+  // The total number of Ads using keys greater than the maximum number of keys limitation.
+  optional int32 count_of_ads_with_keys_larger_than_limitation = 5;
+
+  // The total number of Ads using empty keys.
+  optional int32 count_of_ads_with_empty_keys = 6;
+
+  // The following 5 fields are logging the count of Ads in each bucket
+  // when joining CA with the filters.
+  // The total number of Ads using filters less than the maximum number of filters limitation.
+  optional int32 count_of_ads_with_filters_much_smaller_than_limitation = 7;
+
+  // The total number of Ads using filters are equal or greater than
+  // 50% maximum number of filters limitation but smaller than maximum number of filters limitation.
+  optional int32 count_of_ads_with_filters_smaller_than_limitation = 8;
+
+  // The total number of Ads using filters are equal to maximum number of filters limitation.
+  optional int32 count_of_ads_with_filters_equal_to_limitation = 9;
+
+  // The total number of Ads using filters greater than the maximum number of filters limitation.
+  optional int32 count_of_ads_with_filters_larger_than_limitation = 10;
+
+  // The total number of Ads using empty filters.
+  optional int32 count_of_ads_with_empty_filters = 11;
+
+  // The total number of used Ad filtering keys per custom audience.
+  optional int32 total_num_of_used_keys = 12;
+
+  // The total number of used Ad filtering filters per custom audience.
+  optional int32 total_num_of_used_filters = 13;
+}
+
+/**
+ * Logs for Ad filtering process during ad selection.
+ */
+message AdFilteringProcessAdSelectionReported {
+  // Latency when running the whole Ad filtering process.
+  optional int32 latency_in_millis_of_all_ad_filtering = 1;
+
+  // Latency when calling app install filters in ad filters.
+  optional int32 latency_in_millis_of_app_install_filtering = 2;
+
+  // Latency when calling FCap filters in ad filters.
+  optional int32 latency_in_millis_of_fcap_filters = 3;
+
+  // The status response code in AdServices.
+  optional int32 status_code = 4;
+
+  // The number of Ads which are filtered out of bidding.
+  optional int32 num_of_ads_filtered_out_of_bidding = 5;
+
+  // The number of custom audiences which are filtered out of bidding.
+  optional int32 num_of_custom_audiences_filtered_out_of_bidding = 6;
+
+  // The total number of Ads before Ad filtering process.
+  optional int32 total_num_of_ads_before_filtering = 7;
+
+  // The total number of custom audiences before Ad filtering process.
+  optional int32 total_num_of_custom_audiences_before_filtering = 8;
+
+  // The number of app packages involve in app install filters.
+  optional int32 num_of_package_in_app_install_filters = 9;
+
+  // The number of database operations during ad selection.
+  optional int32 num_of_db_operations = 10;
+}
+
+/**
+ * Logs for Ad counter histogram updater per DB insertion
+ */
+message AdCounterHistogramUpdaterReported {
+  // Latency when calling Ad counter histogram updater.
+  repeated int32 latency_in_millis = 1;
+
+  // The status response code in AdServices.
+  optional int32 status_code = 2;
+
+  // The total number of Ad events in database after Ad counter histogram updater process.
+  optional int32 total_num_of_events_in_database_after_insert = 3;
+
+  // The number of histogram events were inserted in database
+  // during Ad counter histogram updater process.
+  optional int32 num_of_inserted_event = 4;
+
+  // The number of histogram events were evicted from database
+  // during Ad counter histogram updater process.
+  optional int32 num_of_evicted_event = 5;
+}
+
+/**
+ * Logs a request for signature verification for a buyer
+ */
+message SignatureVerification {
+  // Latency of the serialization of a given SignedContextualAds object
+  optional int64 serialization_latency = 1;
+
+  // Latency of fetching the key from key management store
+  optional int64 key_fetch_latency = 2;
+
+  // Latency of the verifying the signature (only the signature verification, without including the
+  // serialization and key fetch)
+  optional int64 verification_latency = 3;
+
+  // End status of the verification request
+  // A verification request can end in success or a failure with various reasons
+  optional android.adservices.service.VerificationStatus signature_verification_status = 4;
+}
+
+// The status of the event when we make a SignJoin call immediately on receiving an ad winner
+message KAnonImmediateSignJoinStatusReported {
+
+  // The result of the immediate sign join operation
+  optional android.adservices.service.KAnonJobResult result = 1;
+
+  // The total number of messages that the operation attempted to process
+  optional int32 total_messages_attempted = 2;
+
+  // The total number of messages that we failed to join
+  optional int32 messages_failed_to_join = 3;
+
+  // The total number of messages that we failed to sign
+  optional int32 messages_failed_to_sign = 4;
+
+  // The latency in milliseconds of the operation
+  optional int32 latency_in_millis = 5;
+}
+
+// The status of the background job where we read messages from database and make
+// batch sign join calls
+message KAnonBackgroundJobStatusReported {
+
+  // The result of the background sign join job
+  optional android.adservices.service.KAnonJobResult result = 1;
+
+  // The total number of messages that the operation attempted to process
+  optional int32 total_messages_attempted = 2;
+
+  // The total number of messages that are unprocessed in the database after the job run
+  optional int32 messages_unprocessed_in_db_after_job = 3;
+
+  // The total number of messages that we failed to join
+  optional int32 messages_failed_to_join = 4;
+
+  // The total number of messages that we failed to sign
+  optional int32 messages_failed_to_sign = 5;
+
+  // The latency in milliseconds of the operation
+  optional int32 latency_in_millis = 6;
+}
+
+// The status of the K-Anonymous Initialize Operation
+message KAnonInitializeStatusReported {
+
+  // Marks true if the operation was completely successful
+  optional bool was_successful = 1;
+
+  // Marks the action due to which the initialize operation failed
+  optional android.adservices.service.KAnonAction failed_action = 2;
+
+  // Marks the reason for the action's failure
+  optional android.adservices.service.KAnonActionResult failed_action_cause = 3;
+
+  // The latency in milliseconds of the operation
+  optional int32 latency_in_millis = 4;
+
+}
+
+// The status of an individual K-anon sign operation
+message KAnonSignStatusReported {
+
+  // Marks true if the operation was completely successful
+  optional bool was_successful = 1;
+
+  // Marks the action due to which the initialize operation failed
+  optional android.adservices.service.KAnonAction failed_action = 2;
+
+  optional android.adservices.service.KAnonActionResult failed_action_cause = 3;
+
+  // The number of messages in a single sign batch
+  optional int32  number_of_messages_in_batch = 4;
+
+  // The latency in milliseconds of the operation
+  optional int32 latency_in_millis = 5;
+}
+
+// The status of an individual K-Anon join operation
+message KAnonJoinStatusReported {
+
+  // Marks true if the operation was completely successful
+  optional bool all_successful = 1;
+
+  // The total number of messages corresponding to this log event
+  optional int32 total_messages = 2;
+
+  // The total number of messages we failed to join
+  optional int32 messages_failed_to_join = 3;
+
+  // The latency in milliseconds of the operation
+  optional int32 latency_in_millis = 4;
+
+}
+
+// The status of the KAnon key attestation certificate generation operation
+message KAnonKeyAttestationStatusReported {
+
+  // The size in bytes of the X.509 certificate chain
+  optional int32 certificate_size_in_bytes = 1;
+
+  // Logs the result code of the Key Attestation operation
+  optional android.adservices.service.KAnonKeyAttestationResult result_code = 2;
+
+  // The latency in milliseconds of the operation
+  optional int32 latency_in_millis = 3;
+}
+
+/*
+ * Logs for per API call for GetAdSelectionData API.
+ */
+message GetAdSelectionDataApiCalled {
+  // Size of the payload in KB
+  optional int32 payload_size_kb = 1;
+
+  // Number of buyers participating in this payload
+  optional int32 num_buyers = 2;
+
+  // The status response code in AdServices.
+  optional int32 status_code = 3;
+}
+
+/**
+ * Logs per buyer input for GetAdSelectionData API.
+ */
+message GetAdSelectionDataBuyerInputGenerated {
+  // Number of custom audiences in this buyer input
+  optional int32 num_custom_audiences = 1;
+
+  // Number of custom audiences opting into the omit-ads feature
+  optional int32 num_custom_audiences_omit_ads = 2;
+
+  // Mean of the size of a custom audience for this buyer input
+  optional float custom_audience_size_mean = 3;
+
+  // Variance of the size of a custom audience for this buyer input
+  optional float custom_audience_size_variance = 4;
+
+  // Mean of the size of the trusted bidding signals keys for this buyer input
+  optional float trusted_bidding_signals_keys_size_mean = 5;
+
+  // Variance of the size of the trusted bidding signals keys for this buyer input
+  optional float trusted_bidding_signals_size_variance = 6;
+
+  // Mean of the size of the user bidding signals for this buyer input
+  optional float user_bidding_signals_size_mean = 7;
+
+  // Variance of the size of the user bidding signals for this buyer input
+  optional float user_bidding_signals_size_variance = 8;
+}

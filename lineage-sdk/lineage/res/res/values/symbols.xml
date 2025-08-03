@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015 The CyanogenMod Project
+                   2017-2024 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <java-symbol type="drawable" name="ic_launcher_lineageos" />
+
+    <!-- Profiles -->
+    <java-symbol type="xml" name="profile_default" />
+    <java-symbol type="string" name="wildcardProfile" />
+
+    <!-- Proximity check on screen on -->
+    <java-symbol type="bool" name="config_proximityCheckOnWake" />
+
+    <!-- Proximity check timeout -->
+    <java-symbol type="integer" name="config_proximityCheckTimeout" />
+
+    <!-- Proximity check on screen on default -->
+    <java-symbol type="bool" name="config_proximityCheckOnWakeEnabledByDefault" />
+
+    <!-- Status bar DT2S gesture -->
+    <java-symbol type="bool" name="config_dt2sGestureAvailable" />
+    <java-symbol type="bool" name="config_dt2sGestureEnabledByDefault" />
+
+    <!-- LiveDisplay -->
+    <java-symbol type="bool" name="config_enableLiveDisplay" />
+    <java-symbol type="string" name="live_display_title" />
+    <java-symbol type="string" name="live_display_hint" />
+    <java-symbol type="string" name="live_display_auto" />
+    <java-symbol type="string" name="live_display_auto_summary" />
+    <java-symbol type="string" name="live_display_day" />
+    <java-symbol type="string" name="live_display_day_summary" />
+    <java-symbol type="string" name="live_display_night" />
+    <java-symbol type="string" name="live_display_night_summary" />
+    <java-symbol type="string" name="live_display_outdoor" />
+    <java-symbol type="string" name="live_display_outdoor_summary" />
+    <java-symbol type="drawable" name="ic_livedisplay_notif" />
+
+    <java-symbol type="array" name="live_display_announcement" />
+    <java-symbol type="array" name="live_display_description" />
+    <java-symbol type="array" name="live_display_drawables" />
+    <java-symbol type="array" name="live_display_entries" />
+    <java-symbol type="array" name="live_display_summaries" />
+    <java-symbol type="array" name="live_display_values" />
+    <java-symbol type="integer" name="config_dayColorTemperature" />
+    <java-symbol type="integer" name="config_nightColorTemperature" />
+    <java-symbol type="integer" name="config_outdoorAmbientLux" />
+    <java-symbol type="integer" name="config_outdoorAmbientLuxHysteresis" />
+    <java-symbol type="integer" name="config_defaultLiveDisplayMode" />
+    <java-symbol type="integer" name="config_minColorTemperature" />
+    <java-symbol type="integer" name="config_maxColorTemperature" />
+
+    <java-symbol type="bool" name="config_defaultAutoContrast" />
+    <java-symbol type="bool" name="config_defaultAutoOutdoorMode" />
+    <java-symbol type="bool" name="config_defaultColorEnhancement" />
+    <java-symbol type="bool" name="config_defaultCABC" />
+    <java-symbol type="bool" name="config_defaultAntiFlicker" />
+
+    <java-symbol type="bool" name="config_filterDisplayModes" />
+    <java-symbol type="array" name="config_displayModeMappings" />
+
+    <!-- On-device lights (LED) capabilities -->
+    <java-symbol type="integer" name="config_deviceLightCapabilities" />
+
+    <!-- External Lineage specific core services -->
+    <java-symbol type="array" name="config_externalLineageServices" />
+
+    <!-- Lineage system server -->
+    <java-symbol type="string" name="config_externalSystemServer" />
+
+    <!-- Device keyhandlers -->
+    <java-symbol type="array" name="config_deviceKeyHandlerLibs" />
+    <java-symbol type="array" name="config_deviceKeyHandlerClasses" />
+
+    <!-- Device hardware keys -->
+    <java-symbol type="integer" name="config_deviceHardwareKeys" />
+    <java-symbol type="integer" name="config_deviceHardwareWakeKeys" />
+
+    <!-- Device keys user-customisable behavior -->
+    <java-symbol type="integer" name="config_longPressOnBackBehavior" />
+    <java-symbol type="integer" name="config_longPressOnHomeBehavior" />
+    <java-symbol type="integer" name="config_doubleTapOnHomeBehavior" />
+    <java-symbol type="integer" name="config_longPressOnMenuBehavior" />
+    <java-symbol type="integer" name="config_longPressOnAppSwitchBehavior" />
+
+    <!-- ATV remote custom keys handling -->
+    <java-symbol type="array" name="keyhandler_keycodes" />
+    <java-symbol type="array" name="keyhandler_packages" />
+
+    <!-- Camera key type -->
+    <java-symbol type="bool" name="config_singleStageCameraKey" />
+
+    <!-- Notification light mappings -->
+    <java-symbol type="array" name="notification_light_package_mapping" />
+
+    <!-- About device info screen -->
+    <java-symbol type="string" name="build_date" />
+    <java-symbol type="string" name="lineage_api_level" />
+    <java-symbol type="string" name="lineage_updates" />
+    <java-symbol type="string" name="lineage_version" />
+    <java-symbol type="string" name="lineage_vendor_security_patch" />
+
+    <!-- General purpose use "unknown" string -->
+    <java-symbol type="string" name="unknown" />
+
+    <!-- Last app switch animations -->
+    <java-symbol type="anim" name="last_app_in" />
+    <java-symbol type="anim" name="last_app_out" />
+
+    <!-- Back kill -->
+    <java-symbol type="string" name="app_killed_message" />
+    <java-symbol type="integer" name="config_backKillTimeout" />
+
+    <!-- Power menu -->
+    <java-symbol type="array" name="config_restartActionsList" />
+
+    <!-- Status bar network traffic monitor -->
+    <java-symbol type="drawable" name="stat_sys_network_traffic_down" />
+    <java-symbol type="drawable" name="stat_sys_network_traffic_up" />
+    <java-symbol type="drawable" name="stat_sys_network_traffic_updown" />
+    <java-symbol type="dimen" name="net_traffic_single_text_size" />
+    <java-symbol type="dimen" name="net_traffic_multi_text_size" />
+    <java-symbol type="string" name="kilobitspersecond_short" />
+    <java-symbol type="string" name="megabitspersecond_short" />
+    <java-symbol type="string" name="kilobytespersecond_short" />
+    <java-symbol type="string" name="megabytespersecond_short" />
+    <java-symbol type="string" name="kilobytespersecond_compact" />
+    <java-symbol type="string" name="megabytespersecond_compact" />
+
+    <java-symbol type="array" name="config_vendorPlatformSignatures" />
+
+    <!-- Colors -->
+    <java-symbol type="color" name="color_error" />
+
+    <!-- Trust interface -->
+    <java-symbol type="bool" name="config_trustLegacyEncryption" />
+    <java-symbol type="drawable" name="ic_trust" />
+    <java-symbol type="drawable" name="ic_trust_notification_manage" />
+    <java-symbol type="drawable" name="ic_warning" />
+    <java-symbol type="string" name="trust_feature_name" />
+    <java-symbol type="string" name="trust_notification_channel" />
+    <java-symbol type="string" name="trust_notification_title_security" />
+    <java-symbol type="string" name="trust_notification_content_selinux" />
+    <java-symbol type="string" name="trust_notification_content_keys" />
+    <java-symbol type="string" name="trust_notification_title_onboarding" />
+    <java-symbol type="string" name="trust_notification_content_onboarding" />
+    <java-symbol type="string" name="trust_notification_action_manage" />
+
+    <!-- Full screen aspect ratio -->
+    <java-symbol type="bool" name="config_haveHigherAspectRatioScreen" />
+
+    <!-- Button and keyboard backlight -->
+    <java-symbol type="integer" name="config_deviceSupportsButtonBrightnessControl" />
+    <java-symbol type="integer" name="config_deviceSupportsKeyboardBrightnessControl" />
+    <java-symbol type="dimen" name="config_buttonBrightnessSettingDefaultFloat" />
+    <java-symbol type="dimen" name="config_keyboardBrightnessSettingDefaultFloat" />
+
+    <!-- Whether the device supports wireless charging or not -->
+    <java-symbol type="bool" name="config_deviceSupportsWirelessCharging" />
+
+    <!-- Whether to cleanup fingerprints upon connection to the daemon and when
+         user switches -->
+    <java-symbol type="bool" name="config_cleanupUnusedFingerprints" />
+
+    <!-- Whether to notify fingerprint client of successful cancelled authentication
+         (needed for some older vendor fingerprint HAL implementations) -->
+    <java-symbol type="bool" name="config_fingerprintPostResetRunnableForAllClients" />
+
+    <!-- Should we listen for fingerprints when the screen is off?  Devices
+         with a rear-mounted sensor want this, but certain devices have
+         the sensor embedded in the power key and listening all the time
+         causes a poor experience. -->
+    <java-symbol type="bool" name="config_fingerprintWakeAndUnlock" />
+
+    <!-- Whether device implements proximity sensor based checks to prevent
+         accidental unlocks when the screen is off. -->
+    <java-symbol type="bool" name="config_proximityCheckOnFpsUnlock" />
+
+    <!-- Package Manager -->
+    <java-symbol type="array" name="config_deviceDisabledComponents" />
+    <java-symbol type="array" name="config_globallyDisabledComponents" />
+    <java-symbol type="array" name="config_forceEnabledComponents" />
+
+    <!-- Health interface -->
+    <java-symbol type="bool" name="config_chargingControlEnabled" />
+    <java-symbol type="integer" name="config_defaultChargingControlMode" />
+    <java-symbol type="integer" name="config_defaultChargingControlStartTime" />
+    <java-symbol type="integer" name="config_defaultChargingControlTargetTime" />
+    <java-symbol type="integer" name="config_defaultChargingControlLimit" />
+    <java-symbol type="drawable" name="ic_charging_control" />
+    <java-symbol type="integer" name="config_chargingControlTimeMargin" />
+    <java-symbol type="integer" name="config_chargingControlBatteryRechargeMargin" />
+    <java-symbol type="string" name="charging_control_notification_channel" />
+    <java-symbol type="string" name="charging_control_notification_title" />
+    <java-symbol type="string" name="charging_control_notification_cancel_once" />
+    <java-symbol type="string" name="charging_control_notification_content_limit" />
+    <java-symbol type="string" name="charging_control_notification_content_limit_reached" />
+    <java-symbol type="string" name="charging_control_notification_content_target" />
+    <java-symbol type="string" name="charging_control_notification_content_target_reached" />
+
+    <!-- Lockscreen rotation default -->
+    <java-symbol type="bool" name="config_lockScreenRotationEnabledByDefault" />
+</resources>

@@ -1,0 +1,110 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+soong_config_module_type_import {
+    from: "hardware/google/camera/common/hal/Android.bp",
+    module_types: ["gch_hal_cc_defaults"],
+}
+
+gch_hal_cc_defaults {
+    name: "gch_hwl_linking_cc_defaults",
+    soong_config_variables: {
+        hwl_library: {
+            lyric: {
+                shared_libs: ["//vendor/google/services/LyricCameraHAL/src:liblyric_hwl"],
+            },
+            conditions_default: {
+                cflags: ["-DGCH_HWL_USE_DLOPEN=1"],
+            },
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libgooglecamerahal",
+    defaults: [
+        "google_camera_hal_defaults",
+        "gch_hwl_linking_cc_defaults",
+    ],
+    owner: "google",
+    vendor: true,
+    compile_multilib: "first",
+    ldflags: [
+        "-Wl,--rpath,/system/${LIB}/camera/capture_sessions",
+        "-Wl,--rpath,/vendor/${LIB}/camera/capture_sessions",
+    ],
+    srcs: [
+        "basic_capture_session.cc",
+        "basic_request_processor.cc",
+        "basic_result_processor.cc",
+        "camera_device.cc",
+        "camera_device_session.cc",
+        "camera_provider.cc",
+        "capture_session_utils.cc",
+        "capture_session_wrapper_process_block.cc",
+        "depth_process_block.cc",
+        "dual_ir_capture_session.cc",
+        "dual_ir_depth_result_processor.cc",
+        "dual_ir_request_processor.cc",
+        "dual_ir_result_request_processor.cc",
+        "hdrplus_capture_session.cc",
+        "pending_requests_tracker.cc",
+        "realtime_zsl_request_processor.cc",
+        "realtime_zsl_result_processor.cc",
+        "realtime_zsl_result_request_processor.cc",
+        "rgbird_capture_session.cc",
+        "rgbird_depth_result_processor.cc",
+        "rgbird_result_request_processor.cc",
+        "rgbird_rt_request_processor.cc",
+        "snapshot_request_processor.cc",
+        "snapshot_result_processor.cc",
+        "vendor_tags.cc",
+        "zsl_snapshot_capture_session.cc",
+    ],
+    shared_libs: [
+        "lib_profiler",
+        "libbase",
+        "libcamera_metadata",
+        "libcutils",
+        "libgooglecamerahalutils",
+        "libhidlbase",
+        "liblog",
+        "libmeminfo",
+        "libui",
+        "libutils",
+        "libsync",
+    ],
+    header_libs: [
+        "lib_depth_generator_headers",
+        "libgooglecamerahal_headers",
+    ],
+    // b/129863492, clang-tidy nondeterministic seg fault
+    tidy: false,
+    export_include_dirs: [
+        ".",
+    ],
+    export_header_lib_headers: [
+        "libgooglecamerahal_headers",
+    ],
+    export_shared_lib_headers: [
+        "lib_profiler",
+    ],
+}

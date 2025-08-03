@@ -1,0 +1,50 @@
+package {
+    default_team: "trendy_team_fwk_wifi_hal",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_test {
+    name: "VtsHalHostapdTargetTest",
+    defaults: [
+        "VtsHalTargetTestDefaults",
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    srcs: ["VtsHalHostapdTargetTest.cpp"],
+    shared_libs: [
+        "libbinder",
+        "libbinder_ndk",
+        "libvndksupport",
+    ],
+    static_libs: [
+        "android.hardware.wifi.hostapd-V2-ndk",
+        "VtsHalWifiV1_0TargetTestUtil",
+        "VtsHalWifiV1_5TargetTestUtil",
+        "VtsHalWifiV1_6TargetTestUtil",
+        "VtsHalWifiHostapdV1_0TargetTestUtil",
+        "android.hardware.wifi.hostapd@1.0",
+        "android.hardware.wifi.hostapd@1.1",
+        "android.hardware.wifi.hostapd@1.2",
+        "android.hardware.wifi.hostapd@1.3",
+        "android.hardware.wifi@1.0",
+        "android.hardware.wifi@1.1",
+        "android.hardware.wifi@1.2",
+        "android.hardware.wifi@1.3",
+        "android.hardware.wifi@1.4",
+        "android.hardware.wifi@1.5",
+        "android.hardware.wifi@1.6",
+        "android.hardware.wifi.common-V1-ndk",
+        "android.hardware.wifi-V2-ndk",
+        "libwifi-system",
+        "libwifi-system-iface",
+        "VtsHalWifiTargetTestUtil",
+    ],
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+}

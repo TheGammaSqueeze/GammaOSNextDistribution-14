@@ -1,0 +1,54 @@
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_defaults {
+    name: "libmediautils_fuzzer_defaults",
+    host_supported: true,
+    shared_libs: [
+        "libbinder",
+        "liblog",
+        "libcutils",
+        "libmediautils",
+        "libutils",
+        "framework-permission-aidl-cpp",
+        "packagemanager_aidl-cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-c++2a-extensions",
+    ],
+}
+
+cc_fuzz {
+    name: "libmediautils_fuzzer_battery_notifier",
+    defaults: ["libmediautils_fuzzer_defaults"],
+    srcs: ["BatteryNotifierFuzz.cpp"],
+}
+
+cc_fuzz {
+    name: "libmediautils_fuzzer_scheduling_policy_service",
+    defaults: ["libmediautils_fuzzer_defaults"],
+    srcs: ["SchedulingPolicyServiceFuzz.cpp"],
+}
+
+cc_fuzz {
+    name: "libmediautils_fuzzer_service_utilities",
+    defaults: ["libmediautils_fuzzer_defaults"],
+    srcs: ["ServiceUtilitiesFuzz.cpp"],
+}
+
+cc_fuzz {
+    name: "libmediautils_fuzzer_time_check",
+    defaults: ["libmediautils_fuzzer_defaults"],
+    srcs: ["TimeCheckFuzz.cpp"],
+}

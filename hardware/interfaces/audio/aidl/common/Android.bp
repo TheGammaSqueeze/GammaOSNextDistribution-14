@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_library {
+    name: "libaudioaidlcommon",
+    host_supported: true,
+    vendor_available: true,
+    export_include_dirs: ["include"],
+    header_libs: [
+        "libbase_headers",
+        "libsystem_headers",
+    ],
+    export_header_lib_headers: [
+        "libbase_headers",
+        "libsystem_headers",
+    ],
+    srcs: [
+        "StreamWorker.cpp",
+    ],
+}
+
+cc_library {
+    name: "libaudioaidlranges",
+    host_supported: true,
+    vendor_available: true,
+    defaults: [
+        "latest_android_hardware_audio_effect_ndk_shared",
+    ],
+    export_include_dirs: ["include"],
+    header_libs: ["libaudioaidl_headers"],
+    srcs: [
+        "EffectRangeSpecific.cpp",
+    ],
+}
+
+cc_test {
+    name: "libaudioaidlcommon_test",
+    host_supported: true,
+    vendor_available: true,
+    defaults: [
+        "latest_android_media_audio_common_types_ndk_static",
+    ],
+    static_libs: [
+        "libaudioaidlcommon",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wthread-safety",
+    ],
+    srcs: [
+        "tests/streamworker_tests.cpp",
+        "tests/utils_tests.cpp",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+}

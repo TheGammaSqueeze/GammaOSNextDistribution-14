@@ -1,0 +1,30 @@
+{
+  "postsubmit": [
+    {
+      "name": "CtsPackageInstallTestCases",
+      "options": [
+        {
+          "exclude-annotation": "android.platform.test.annotations.AppModeInstant"
+        }
+      ]
+    },
+    {
+      "name": "CtsNoPermissionTestCases"
+    },
+    {
+      "name": "CtsNoPermissionTestCases25"
+    },
+    {
+      "name": "CtsPackageInstallerTapjackingTestCases"
+    },
+    {
+      "name": "CtsPackageUninstallTestCases"
+    },
+    {
+      "name": "PackageInstallerTests"
+    },
+    {
+      "name": "CtsIntentSignatureTestCases"
+    }
+  ]
+}

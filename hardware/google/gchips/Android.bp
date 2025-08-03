@@ -1,0 +1,43 @@
+soong_namespace {
+    imports: [
+        "hardware/google/graphics/common",
+        "hardware/google/gchips/gralloc4",
+    ]
+}
+
+package {
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+        "hardware_google_gchips_license",
+    ],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "hardware_google_gchips_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["LICENSE"],
+}
+
+cc_library_headers {
+    name: "google_hal_headers",
+    host_supported: true,
+    header_libs: [
+        "libaudio_system_headers",
+        "libhardware_headers",
+        "libsystem_headers",
+        "libcutils_headers",
+    ],
+    export_header_lib_headers: [
+        "libaudio_system_headers",
+        "libsystem_headers",
+        "libcutils_headers",
+        "libhardware_headers",
+    ],
+
+    export_include_dirs: ["include"],
+    proprietary: true,
+}
+
+subdirs = ["*"]

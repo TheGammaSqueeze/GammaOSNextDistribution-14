@@ -1,0 +1,5 @@
+# The following classes have nullability annotations directly in their source
+# which should be validated for correctness and completeness. (N.B. Classes
+# with annotations in stub files under ojluni/annotations/sdk/nullability/
+# should also be validated, but are not listed here.)
+org.json.JSONObject

@@ -1,0 +1,15 @@
+{
+  "config": {
+    "ignore_variables": true
+  },
+  "symbols": {
+    "_ZN6aaudio18AAudioBinderClient16getAAudioServiceEv": {
+      "call_method": "ignore",
+      "reason": [
+        "This function returns android::sp<> which we do not support, ",
+        "since this is not part of public API we can ignore it"
+      ]
+    }
+  },
+  "types": {}
+}

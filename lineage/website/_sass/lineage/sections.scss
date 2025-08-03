@@ -1,0 +1,76 @@
+@charset "UTF-8";
+section.tools,
+section.security,
+section.longevity,
+section.download {
+  padding: 6rem 1rem;
+}
+
+section.blog {
+  padding-top: 1rem;
+  padding-bottom: 2rem;
+
+h3 {
+      margin-top: 0;
+    }
+
+}
+
+section.home,
+section.tweaks {
+  padding: 4rem 1rem;
+}
+
+section img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding-right: .5rem;
+
+  @media(max-width:992px) {
+    max-height: 330px;
+  }
+}
+
+.section-background-image {
+  background-image: url(../img/power_bg.webp);
+}
+
+section.download .logo svg {
+  fill: white;
+  max-height: 80px;
+  height: auto;
+  width: auto;
+  margin: 0 3rem;
+}
+
+section.longevity {
+  clip-path: border-box;
+}
+
+img#rotate-on-scroll {
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: -230px;
+  overflow: hidden;
+  max-height: none;
+
+  @media(min-width:1200px) {
+    bottom: -230px;
+    height: 600px;
+    max-width: none;
+    width: auto;
+  }
+}
+
+@include media-breakpoint-down(md) {
+
+  img#rotate-on-scroll {
+    position: relative;
+    bottom: 0;
+    transform: none !important;
+    height: 330px;
+  }
+
+}

@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.google.android.wearable.media.sessions;
+
+option java_multiple_files = true;
+
+// Indicates the type of action for controlling the media session.
+enum MediaAction {
+  UNKNOWN_ACTION = 0;
+  PLAY = 1;
+  PAUSE = 2;
+  SKIP_NEXT = 3;
+  SKIP_PREV = 4;
+  RESUME = 5;
+  VOLUME_INCREASE = 6;
+  VOLUME_DECREASE = 7;
+  SEEK_IN_CURRENT_MEDIA_ITEM = 8;
+  SEEK_BACK = 9;
+  SEEK_FORWARD = 10;
+  // CustomActions can be used to extend the capabilities of the standard transport controls
+  // by exposing app specific actions to Controllers. This is for app defined custom actions
+  // insteractions captured by wear media controls. For more information, see
+  // https://developer.android.com/reference/android/media/session/PlaybackState.CustomAction
+  CUSTOM_ACTION = 11;
+  SEEK_TO_MEDIA_ITEM = 12;
+  VOLUME_SET = 13;
+}
+
+// Indicates the type of launch source
+enum LaunchSource {
+  UNKNOWN_SOURCE = 0;
+  ONGOING_ACTIVITY = 1;
+  LAUNCHER = 2;
+  AUTO_LAUNCH = 3;
+  RECENT_APPS = 4;
+  COMPLICATION = 5;
+}

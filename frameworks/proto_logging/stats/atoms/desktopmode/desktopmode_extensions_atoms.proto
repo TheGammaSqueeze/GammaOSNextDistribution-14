@@ -1,0 +1,105 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.desktopmode;
+option java_package = "com.android.os.desktopmode";
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+extend Atom {
+  optional DesktopModeUIChanged desktop_mode_ui_changed = 818 [(module) = "framework"];
+  optional DesktopModeSessionTaskUpdate desktop_mode_session_task_update = 819 [(module) = "framework"];
+}
+
+/**
+* Logged when there is a change to the Desktop mode UI
+*
+* Logged from
+* frameworks/base/libs/WindowManager/Shell/src/com/android/wm/shell/desktopmode/DesktopModeEventLogger.kt
+*/
+message DesktopModeUIChanged {
+  // User interactions with desktopmode
+  enum  Event {
+    UNKNOWN_EVENT = 0;
+    ENTER = 1;
+    EXIT = 2;
+  }
+
+  // The reason for entering desktopmode
+  enum  EnterReason {
+    UNKNOWN_ENTER = 0;
+    OVERVIEW = 1;
+    APP_HANDLE_DRAG = 2;
+    APP_HANDLE_MENU_BUTTON = 3;
+    APP_FREEFORM_INTENT = 4; // This covers intent based starts from app-shortcut, taskbar, keyboard shortcuts where we don't use any custom transition
+    KEYBOARD_SHORTCUT_ENTER = 5;
+    SCREEN_ON = 6; // desktop mode visible after screen turned on
+  }
+
+  // The reason for exiting desktopmode
+  enum  ExitReason {
+    UNKNOWN_EXIT = 0;
+    DRAG_TO_EXIT = 1;
+    APP_HANDLE_MENU_BUTTON_EXIT = 2;
+    KEYBOARD_SHORTCUT_EXIT = 3;
+    RETURN_HOME_OR_OVERVIEW = 4; // user swiped up to go to overview, or home screen
+    TASK_FINISHED = 5; // the task finished or dismissed
+    SCREEN_OFF = 6;
+  }
+
+  optional Event event = 1;
+  // What triggered desktopmode (if the event is ENTER)
+  optional EnterReason enter_reason = 2;
+  // What triggered leaving desktopmode (if the event is EXIT)
+  optional ExitReason exit_reason = 3;
+  // An id used to identify a desktop mode instance
+  optional int32 session_id = 4;
+}
+
+/**
+* Logged when there is a task update in the desktop mode session
+*
+* Logged from
+* frameworks/base/libs/WindowManager/Shell/src/com/android/wm/shell/desktopmode/DesktopModeEventLogger.kt
+*/
+message DesktopModeSessionTaskUpdate {
+  // The kind of the app event
+  enum TaskEvent {
+    UNKNOWN_TASK_EVENT = 0;
+    TASK_ADDED = 1;
+    TASK_REMOVED = 2;
+    TASK_INFO_CHANGED = 3; // covers both size and position changes of the app
+  }
+  // The event associated with this app update
+  optional TaskEvent task_event = 1;
+  // The instance_id of this task
+  optional int32 instance_id = 2;
+  // The uid of the app associated with this task
+  optional int32 uid = 3;
+  // The height of this task in px
+  optional int32 task_height = 4;
+  // The width of this task in px
+  optional int32 task_width = 5;
+  // the x-coordinate of the top-left corner
+  optional int32 task_x = 6;
+  // the y-coordinate of the top-right corner
+  optional int32 task_y = 7;
+  // An id used to identify a desktop mode instance
+  optional int32 session_id = 8;
+}

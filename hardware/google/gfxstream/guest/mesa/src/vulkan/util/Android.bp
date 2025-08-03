@@ -1,0 +1,253 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+python_binary_host {
+    name: "vk_cmd_queue_gen_gfxstream",
+    main: "vk_cmd_queue_gen.py",
+    srcs: [
+        "vk_cmd_queue_gen.py",
+        "vk_entrypoints.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+python_binary_host {
+    name: "vk_entrypoints_gen_gfxstream",
+    main: "vk_entrypoints_gen.py",
+    srcs: [
+        "vk_entrypoints_gen.py",
+        "vk_entrypoints.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+python_binary_host {
+    name: "vk_dispatch_trampolines_gen_gfxstream",
+    main: "vk_dispatch_trampolines_gen.py",
+    srcs: [
+        "vk_dispatch_trampolines_gen.py",
+        "vk_entrypoints.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+python_binary_host {
+    name: "vk_physical_device_features_gen_gfxstream",
+    main: "vk_physical_device_features_gen.py",
+    srcs: [
+        "vk_physical_device_features_gen.py",
+        "vk_entrypoints.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+python_binary_host {
+    name: "vk_physical_device_properties_gen_gfxstream",
+    main: "vk_physical_device_properties_gen.py",
+    srcs: [
+        "vk_physical_device_properties_gen.py",
+        "vk_entrypoints.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+python_binary_host {
+    name: "vk_extensions_gen_gfxstream",
+    main: "vk_extensions_gen.py",
+    srcs: [
+        "vk_extensions_gen.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+python_binary_host {
+    name: "vk_dispatch_table_gen_gfxstream",
+    main: "vk_dispatch_table_gen.py",
+    srcs: [
+        "vk_dispatch_table_gen.py",
+        "vk_entrypoints.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+python_binary_host {
+    name: "gen_enum_to_str_gfxstream",
+    main: "gen_enum_to_str.py",
+    srcs: [
+        "gen_enum_to_str.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+python_binary_host {
+    name: "vk_struct_type_cast_gen_gfxstream",
+    main: "vk_struct_type_cast_gen.py",
+    srcs: [
+        "vk_struct_type_cast_gen.py",
+        "vk_extensions.py",
+    ],
+    libs: [
+        "mako",
+    ],
+}
+
+genrule {
+    name: "vk_extensions_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_extensions.h"],
+    tools: ["vk_extensions_gen_gfxstream"],
+    cmd: "python3 $(location vk_extensions_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(location vk_extensions.h)",
+}
+
+genrule {
+    name: "vk_extensions_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_extensions.c"],
+    tools: ["vk_extensions_gen_gfxstream"],
+    cmd: "python3 $(location vk_extensions_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-c " +
+        "$(location vk_extensions.c)",
+}
+
+genrule {
+    name: "vk_dispatch_table_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_dispatch_table.h"],
+    tools: ["vk_dispatch_table_gen_gfxstream"],
+    cmd: "python3 $(location vk_dispatch_table_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-h " +
+        "$(location vk_dispatch_table.h) --beta false",
+}
+
+genrule {
+    name: "vk_dispatch_table_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_dispatch_table.c"],
+    tools: ["vk_dispatch_table_gen_gfxstream"],
+    cmd: "python3 $(location vk_dispatch_table_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --out-c " +
+        "$(location vk_dispatch_table.c) --beta false",
+}
+
+genrule {
+    name: "vk_enum_to_str_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: [
+        "vk_enum_to_str.h",
+        "vk_enum_defines.h",
+    ],
+    tools: ["gen_enum_to_str_gfxstream"],
+    cmd: "python3 $(location gen_enum_to_str_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --outdir $(genDir) " +
+        "--beta false",
+}
+
+genrule {
+    name: "vk_enum_to_str_impl_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_enum_to_str.c"],
+    tools: ["gen_enum_to_str_gfxstream"],
+    cmd: "python3 $(location gen_enum_to_str_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --outdir $(genDir) " +
+        "--beta false",
+}
+
+genrule {
+    name: "vk_struct_type_cast_header_gfxstream",
+    srcs: [":libmesa_vulkan_xml_gfxstream"],
+    out: ["vk_struct_type_cast.h"],
+    tools: ["vk_struct_type_cast_gen_gfxstream"],
+    cmd: "python3 $(location vk_struct_type_cast_gen_gfxstream) --xml " +
+        "$(location :libmesa_vulkan_xml_gfxstream) --outdir $(genDir) " +
+        "--beta false",
+}
+
+cc_library_static {
+    name: "libmesa_vulkan_util_gfxstream",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "mesa_common_defaults_gfxstream",
+    ],
+    header_libs: [
+        "mesa_common_headers_gfxstream",
+    ],
+    shared_libs: [
+        "libcutils",
+    ],
+    static_libs: [
+        "libmesa_util_gfxstream",
+    ],
+    cflags: [
+        "-DVK_NO_NIR",
+    ],
+    generated_headers: [
+        "vk_extensions_header_gfxstream",
+        "vk_dispatch_table_header_gfxstream",
+        "vk_enum_to_str_header_gfxstream",
+        "vk_struct_type_cast_header_gfxstream",
+    ],
+    generated_sources: [
+        "vk_extensions_impl_gfxstream",
+        "vk_dispatch_table_impl_gfxstream",
+        "vk_enum_to_str_impl_gfxstream",
+    ],
+    srcs: [
+        "vk_alloc.c",
+        "vk_format.c",
+        "vk_util.c",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    export_generated_headers: [
+        "vk_extensions_header_gfxstream",
+        "vk_dispatch_table_header_gfxstream",
+        "vk_enum_to_str_header_gfxstream",
+        "vk_struct_type_cast_header_gfxstream",
+    ],
+}

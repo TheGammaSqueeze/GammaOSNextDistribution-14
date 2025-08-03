@@ -1,0 +1,26 @@
+{
+  "presubmit": [
+    {
+      "name": "minikin_tests"
+    },
+    {
+      "name": "CtsTextTestCases",
+      "options": [
+          {
+              "exclude-annotation": "androidx.test.filters.FlakyTest"
+          },
+          {
+              "exclude-annotation": "androidx.test.filters.LargeTest"
+          }
+      ]
+    },
+    {
+      "name": "CtsGraphicsTestCases",
+      "options": [
+          {
+              "exclude-annotation": "androidx.test.filters.FlakyTest"
+          }
+      ]
+    }
+  ]
+}

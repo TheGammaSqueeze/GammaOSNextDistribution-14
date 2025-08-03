@@ -1,0 +1,11 @@
+# Latency
+ctl.start$fingerprint-extension-bug-latency    u:object_r:pixel_fingerprint_prop:s0
+ctl.stop$fingerprint-extension-bug-latency    u:object_r:pixel_fingerprint_prop:s0
+
+# Lockout
+ctl.start$fingerprint-extension-bug-lockout    u:object_r:pixel_fingerprint_prop:s0
+ctl.stop$fingerprint-extension-bug-lockout    u:object_r:pixel_fingerprint_prop:s0
+
+# Authentication
+ctl.start$fingerprint-extension-bug-auth    u:object_r:pixel_fingerprint_prop:s0
+ctl.stop$fingerprint-extension-bug-auth    u:object_r:pixel_fingerprint_prop:s0

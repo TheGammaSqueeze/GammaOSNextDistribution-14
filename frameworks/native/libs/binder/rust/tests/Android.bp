@@ -1,0 +1,139 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+rust_test {
+    name: "rustBinderTest",
+    srcs: ["integration.rs"],
+    rustlibs: [
+        "libbinder_rs",
+        "libselinux_bindgen",
+        "libbinder_tokio_rs",
+        "libtokio",
+    ],
+    shared_libs: [
+        "libselinux",
+    ],
+    // For the binaries to be pushed properly as specified in AndroidTest.xml,
+    // this cannot be the same as the module name.
+    stem: "rustBinderTestClientBinary",
+    test_suites: ["general-tests"],
+}
+
+rust_test {
+    name: "rustBinderTestService",
+    srcs: ["integration.rs"],
+    rustlibs: [
+        "libbinder_rs",
+        "liblibc",
+    ],
+    // For the binaries to be pushed properly as specified in AndroidTest.xml,
+    // this cannot be the same as the module name.
+    stem: "rustBinderTestServiceBinary",
+    test_harness: false,
+    // TODO(b/164473602): Remove this setting and add the module to `data`
+    // attribute of rustBinderTest.
+    auto_gen_config: false,
+    test_suites: ["general-tests"],
+}
+
+cc_test {
+    name: "binderRustNdkInteropTest",
+    srcs: [
+        "binderRustNdkInteropTest.cpp",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libbinder_ndk",
+    ],
+    static_libs: [
+        "IBinderRustNdkInteropTest-ndk",
+        "libbinder_ndk_rust_interop",
+    ],
+    test_suites: ["general-tests"],
+    require_root: true,
+
+    // rustBinderTestService uses a custom config
+    auto_gen_config: true,
+}
+
+aidl_interface {
+    name: "IBinderRustNdkInteropTest",
+    unstable: true,
+    srcs: [
+        "IBinderRustNdkInteropTest.aidl",
+        "IBinderRustNdkInteropTestOther.aidl",
+    ],
+    backend: {
+        ndk: {
+            enabled: true,
+        },
+        rust: {
+            enabled: true,
+        },
+    },
+}
+
+rust_ffi_static {
+    name: "libbinder_ndk_rust_interop",
+    crate_name: "binder_ndk_rust_interop",
+    srcs: [
+        "ndk_rust_interop.rs",
+    ],
+    rustlibs: [
+        "libbinder_rs",
+        "IBinderRustNdkInteropTest-rust",
+    ],
+}
+
+cc_test {
+    name: "rustBinderSerializationTest",
+    shared_libs: [
+        "libbinder",
+        "libbinder_ndk",
+        "libutils",
+        "libbase",
+    ],
+    static_libs: [
+        "libbinder_rs_serialization_test"
+    ],
+    srcs: [
+        "serialization.cpp",
+    ],
+    auto_gen_config: true,
+    test_suites: ["general-tests"],
+}
+
+rust_bindgen {
+    name: "libbinder_rs_serialization_bindgen",
+    crate_name: "binder_rs_serialization_bindgen",
+    wrapper_src: "serialization.hpp",
+    source_stem: "bindings",
+    cpp_std: "gnu++17",
+    bindgen_flags: [
+        "--allowlist-type", "Transaction",
+        "--allowlist-var", "TESTDATA_.*",
+    ],
+
+    shared_libs: [
+        "libbinder",
+        "libc++",
+    ],
+}
+
+rust_ffi_static {
+    name: "libbinder_rs_serialization_test",
+    crate_name: "binder_rs_serialization_test",
+    srcs: [
+        "serialization.rs",
+        ":libbinder_rs_serialization_bindgen",
+    ],
+    rustlibs: [
+        "libbinder_rs",
+    ],
+}

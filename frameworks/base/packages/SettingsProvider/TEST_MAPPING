@@ -1,0 +1,20 @@
+{
+    "presubmit": [
+        {
+            "name": "SettingsProviderTest"
+        },
+        {
+            "name": "CtsProviderTestCases",
+            "options": [
+                {
+                    "include-filter": "android.provider.cts.settings."
+                }
+            ]
+        }
+    ],
+    "postsubmit": [
+        {
+            "name": "CtsDeviceConfigTestCases"
+        }
+    ]
+}

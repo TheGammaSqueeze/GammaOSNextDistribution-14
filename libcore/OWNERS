@@ -1,0 +1,28 @@
+# Bug component: 24949
+
+# Ideally, we would use this reviewer by default, but gerrit and
+# checkowners.py do not recognize email subaddresses:
+# android-libcore-team+review@google.com
+
+# The default assignee for test failures and possibly other bugs.
+libcore-bugs-triage@google.com #{LAST_RESORT_SUGGESTION}
+
+# People who can approve changes for submission; don't send review emails to them
+# unless you know what you're doing.
+miguelaranda@google.com
+mingaleev@google.com
+prb@google.com
+sorinbasca@google.com
+vichang@google.com
+
+# Emeritus libcore team members; don't send review emails to them
+# unless you are in the libcore team.
+nfuller@google.com #{LAST_RESORT_SUGGESTION}
+paulduffin@google.com #{LAST_RESORT_SUGGESTION}
+
+# Don't send these folks any review emails for this project.
+hboehm@google.com #{LAST_RESORT_SUGGESTION}
+narayan@google.com #{LAST_RESORT_SUGGESTION}
+ngeoffray@google.com #{LAST_RESORT_SUGGESTION}
+rpl@google.com #{LAST_RESORT_SUGGESTION}
+vmarko@google.com #{LAST_RESORT_SUGGESTION}

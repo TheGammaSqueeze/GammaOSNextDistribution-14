@@ -1,0 +1,222 @@
+# face.sysprop
+# module becomes static class (Java) / namespace (C++) for serving API
+module: "android.face.virt.FaceHalProperties"
+owner: Vendor
+
+# type of face sensor
+prop {
+    prop_name: "persist.vendor.face.virtual.type"
+    type: String
+    scope: Internal
+    access: ReadWrite
+    enum_values: "IR|RGB"
+    api_name: "type"
+}
+
+# the strength of the sensor
+prop {
+    prop_name: "persist.vendor.face.virtual.strength"
+    type: String
+    scope: Internal
+    access: ReadWrite
+    enum_values: "convenience|weak|strong"
+    api_name: "strength"
+}
+
+# ids of current enrollments
+prop {
+    prop_name: "persist.vendor.face.virtual.enrollments"
+    type: IntegerList
+    scope: Internal
+    access: ReadWrite
+    api_name: "enrollments"
+}
+
+# List of features
+prop {
+    prop_name: "persist.vendor.face.virtual.features"
+    type: IntegerList
+    scope: Internal
+    access: ReadWrite
+    api_name: "features"
+}
+
+# authenticate and detectInteraction will succeed with this
+# enrollment id, when present, otherwise they will error
+prop {
+    prop_name: "vendor.face.virtual.enrollment_hit"
+    type: Integer
+    scope: Internal
+    access: ReadWrite
+    api_name: "enrollment_hit"
+}
+
+# the next enrollment in the format:
+# "<id>,<bucket_id>:<delay>:<succeeds>,<bucket_id>..."
+# for example: "0:1,0:100:1,1:200:1" indicating that bucket 0 took
+# 50 milliseconds, bucket 1 took 100 milliseconds, bucket 2 took 200 milliseconds.
+# Note that it is up to the configuration to determine how many buckets are required
+# to complete an enrollment
+prop {
+    prop_name: "vendor.face.virtual.next_enrollment"
+    type: String
+    scope: Internal
+    access: ReadWrite
+    api_name: "next_enrollment"
+}
+
+# value for getAuthenticatorId or 0
+prop {
+    prop_name: "vendor.face.virtual.authenticator_id"
+    type: Long
+    scope: Internal
+    access: ReadWrite
+    api_name: "authenticator_id"
+}
+
+# value for generateChallenge
+prop {
+    prop_name: "vendor.face.virtual.challenge"
+    type: Long
+    scope: Internal
+    access: ReadWrite
+    api_name: "challenge"
+}
+
+# if forced to lock out (Default to false)
+prop {
+    prop_name: "vendor.face.virtual.lockout"
+    type: Boolean
+    scope: Internal
+    access: ReadWrite
+    api_name: "lockout"
+}
+
+# force all authenticate operations to fail
+prop {
+    prop_name: "vendor.face.virtual.operation_authenticate_fails"
+    type: Boolean
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_authenticate_fails"
+}
+
+# force all detectInteraction operations to fail
+prop {
+    prop_name: "vendor.face.virtual.operation_detect_interaction_fails"
+    type: Boolean
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_detect_interaction_fails"
+}
+
+# force all enroll operations to fail
+prop {
+    prop_name: "vendor.face.virtual.operation_enroll_fails"
+    type: Boolean
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_enroll_fails"
+}
+
+# add a latency to authentication operations
+# Note that this latency is the initial authentication latency that occurs before
+# the HAL will send AcquiredInfo::START and AcquiredInfo::FIRST_FRAME_RECEIVED
+prop {
+    prop_name: "vendor.face.virtual.operation_authenticate_latency"
+    type: IntegerList
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_authenticate_latency"
+}
+
+# add a latency to detectInteraction operations
+prop {
+    prop_name: "vendor.face.virtual.operation_detect_interaction_latency"
+    type: IntegerList
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_detect_interaction_latency"
+}
+
+# add a latency to enroll operations
+prop {
+    prop_name: "vendor.face.virtual.operation_enroll_latency"
+    type: IntegerList
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_enroll_latency"
+}
+
+# millisecond duration for authenticate operations
+# (waits for changes to enrollment_hit)
+prop {
+    prop_name: "vendor.face.virtual.operation_authenticate_duration"
+    type: Integer
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_authenticate_duration"
+}
+
+# insert error for authenticate operations
+prop {
+    prop_name: "vendor.face.virtual.operation_authenticate_error"
+    type: Integer
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_authenticate_error"
+}
+
+# acquired info during authentication in format of sequence
+prop {
+    prop_name: "vendor.face.virtual.operation_authenticate_acquired"
+    type: String
+    scope: Internal
+    access: ReadWrite
+    api_name: "operation_authenticate_acquired"
+}
+
+# whether support lockout based on the failed auth attempts (default: false)
+prop {
+    prop_name: "persist.vendor.face.virtual.lockout_enable"
+    type: Boolean
+    scope: Internal
+    access: ReadWrite
+    api_name: "lockout_enable"
+}
+
+# whether support timed_lockout based on the failed auth attempts (default: false)
+prop {
+    prop_name: "persist.vendor.face.virtual.lockout_timed_enable"
+    type: Boolean
+    scope: Internal
+    access: ReadWrite
+    api_name: "lockout_timed_enable"
+}
+
+# temperory lockout threshold  in number of consecutive failed auth attempts
+prop {
+    prop_name: "persist.vendor.face.virtual.lockout_timed_threshold"
+    type: Integer
+    scope: Internal
+    access: ReadWrite
+    api_name: "lockout_timed_threshold"
+}
+
+# temporary lockout duration in ms (default: 10000ms)
+prop {
+    prop_name: "persist.vendor.face.virtual.lockout_timed_duration"
+    type: Integer
+    scope: Internal
+    access: ReadWrite
+    api_name: "lockout_timed_duration"
+}
+
+# permanently lockout threshold  in number of consecutive failed auth attempts
+prop {
+    prop_name: "persist.vendor.face.virtual.lockout_permanent_threshold"
+    type: Integer
+    scope: Internal
+    access: ReadWrite
+    api_name: "lockout_permanent_threshold"
+}

@@ -1,0 +1,45 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_library_shared {
+    name: "android.hardware.gatekeeper@1.0-impl",
+    defaults: ["hidl_defaults"],
+    relative_install_path: "hw",
+    vendor: true,
+
+    srcs: ["Gatekeeper.cpp"],
+
+    shared_libs: [
+        "android.hardware.gatekeeper@1.0",
+        "libhardware",
+        "libhidlbase",
+        "libutils",
+        "liblog",
+    ],
+
+}
+
+cc_binary {
+    name: "android.hardware.gatekeeper@1.0-service",
+    defaults: ["hidl_defaults"],
+    relative_install_path: "hw",
+    vendor: true,
+    init_rc: ["android.hardware.gatekeeper@1.0-service.rc"],
+
+    srcs: ["service.cpp"],
+
+    shared_libs: [
+        "android.hardware.gatekeeper@1.0",
+        "libhardware",
+        "libhidlbase",
+        "libutils",
+        "liblog",
+    ],
+
+}

@@ -1,0 +1,24 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "pixel-thermal-ext",
+    owner: "google",
+    vendor_available: true,
+    srcs: [
+        "google/hardware/thermal/extension/pixel/IThermalExt.aidl",
+    ],
+
+    stability: "vintf",
+
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            platform_apis: true,
+        },
+    },
+}

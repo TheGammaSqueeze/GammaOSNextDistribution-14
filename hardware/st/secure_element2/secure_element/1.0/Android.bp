@@ -1,0 +1,75 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_st_secure_element2_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-GPL-2.0
+    default_applicable_licenses: ["hardware_st_secure_element2_license"],
+}
+
+cc_binary {
+    name: "android.hardware.secure_element@1.0-service-gto",
+    relative_install_path: "hw",
+    init_rc: ["android.hardware.secure_element@1.0-service-gto.rc"],
+    vendor: true,
+    defaults: ["hidl_defaults"],
+    srcs: [
+        "SecureElement.cpp",
+        "GtoService.cpp",
+    ],
+
+    shared_libs: [
+        "android.hardware.secure_element@1.0",
+        "android.hardware.secure_element.thales.libse",
+        "libbase",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+
+    cflags: [
+        "-DANDROID",
+        "-DENABLE_LOGGING=1",
+        "-DENABLE_DEBUG=1",
+        "-Wno-unused-parameter",
+        "-Wno-unused-private-field",
+        "-Wno-error",
+        "-Wreturn-type",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.secure_element@1.0-service-gto-ese2",
+    relative_install_path: "hw",
+    init_rc: ["android.hardware.secure_element@1.0-service-gto-ese2.rc"],
+    vendor: true,
+    defaults: ["hidl_defaults"],
+    srcs: [
+        "SecureElement.cpp",
+        "GtoService_ese2.cpp",
+    ],
+
+    shared_libs: [
+        "android.hardware.secure_element@1.0",
+        "android.hardware.secure_element.thales.libse",
+        "libbase",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+
+    cflags: [
+        "-DANDROID",
+        "-DENABLE_LOGGING=1",
+        "-DENABLE_DEBUG=1",
+        "-Wno-unused-parameter",
+        "-Wno-unused-private-field",
+        "-Wno-error",
+        "-Wreturn-type",
+    ],
+}

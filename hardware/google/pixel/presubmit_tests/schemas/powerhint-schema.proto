@@ -1,0 +1,64 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ syntax = "proto3";
+ package devices;
+
+ message PowerhintConfig {
+   repeated Node nodes = 1 [ json_name = "Nodes" ];
+   repeated Action actions = 2 [ json_name = "Actions" ];
+   repeated AdpfConfig adpf_configs = 3 [ json_name = "AdpfConfig" ];
+ }
+ message Node {
+   string name = 1 [ json_name = "Name" ];
+   string path = 2 [ json_name = "Path" ];
+   repeated string values = 3 [ json_name = "Values" ];
+   bool reset_on_init = 4 [ json_name = "ResetOnInit" ];
+   int32 default_index = 5 [ json_name = "DefaultIndex" ];
+   string type = 6 [ json_name = "Type"];
+   bool hold_fd = 7 [ json_name = "HoldFd"];
+   bool write_only = 8 [ json_name = "WriteOnly" ];
+ }
+ message Action {
+   string powerhint = 1 [ json_name = "PowerHint" ];
+   string node = 2 [ json_name = "Node" ];
+   int32 duration = 3 [ json_name = "Duration" ];
+   string value = 4 [ json_name = "Value" ];
+   string type = 5 [ json_name = "Type"];
+ }
+ message AdpfConfig {
+   string name = 1 [ json_name = "Name" ];
+   bool pid_on = 2 [ json_name = "PID_On" ];
+   float pid_po = 3 [ json_name = "PID_Po" ];
+   float pid_pu = 4 [ json_name = "PID_Pu" ];
+   float pid_i = 5 [ json_name = "PID_I" ];
+   float pid_i_init = 6 [ json_name = "PID_I_Init" ];
+   float pid_i_high = 7 [ json_name = "PID_I_High" ];
+   float pid_i_low = 8 [ json_name = "PID_I_Low" ];
+   float pid_do = 9 [ json_name = "PID_Do" ];
+   float pid_du = 10 [ json_name = "PID_Du" ];
+   bool uclampmin_on = 11 [ json_name = "UclampMin_On" ];
+   float uclampmin_init = 12 [ json_name = "UclampMin_Init" ];
+   float uclampmin_high = 13 [ json_name = "UclampMin_High" ];
+   float uclampmin_low = 14 [ json_name = "UclampMin_Low" ];
+   float samplingwindow_p = 15 [ json_name = "SamplingWindow_P" ];
+   float samplingwindow_i = 16 [ json_name = "SamplingWindow_I" ];
+   float samplingwindow_d = 17 [ json_name = "SamplingWindow_D" ];
+   float reportingratelimitns = 18 [ json_name = "ReportingRateLimitNs" ];
+   bool earlyboost_on = 19 [ json_name = "EarlyBoost_On" ];
+   float earlyboost_timefactor = 20 [ json_name = "EarlyBoost_TimeFactor" ];
+   float targettimefactor = 21 [ json_name = "TargetTimeFactor" ];
+   float staletimefactor = 22 [ json_name = "StaleTimeFactor" ];
+}

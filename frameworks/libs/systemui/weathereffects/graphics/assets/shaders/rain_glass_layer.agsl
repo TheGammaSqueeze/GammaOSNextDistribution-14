@@ -1,0 +1,95 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+uniform shader texture;
+uniform float time;
+uniform float screenAspectRatio;
+uniform float2 screenSize;
+uniform half intensity;
+
+#include "shaders/constants.agsl"
+#include "shaders/utils.agsl"
+#include "shaders/glass_rain.agsl"
+#include "shaders/rain_constants.agsl"
+
+vec4 main(float2 fragCoord) {
+    float2 uv = fragCoord / screenSize;
+
+    // 1. Generate small glass rain.
+    GlassRain smallDrippingRain = generateGlassRain(
+         uv,
+         screenAspectRatio,
+         time,
+         /* Grid size = */ vec2(4.0, 2.0),
+         intensity);
+    float dropMask = smallDrippingRain.dropMask;
+    float droppletsMask = smallDrippingRain.droppletsMask;
+    float trailMask = smallDrippingRain.trailMask;
+    vec2 dropUvMasked = smallDrippingRain.drop * dropMask;
+    vec2 droppletsUvMasked = smallDrippingRain.dropplets * droppletsMask;
+
+    // 2. Generate medium size glass rain.
+    GlassRain medDrippingRain = generateGlassRain(
+          uv,
+          screenAspectRatio,
+          time * 1.267,
+          /* Grid size = */ vec2(3.5, 1.5),
+          intensity);
+
+    // 3. Combine those two glass rains.
+    dropMask = max(medDrippingRain.dropMask, dropMask);
+    droppletsMask = max(medDrippingRain.droppletsMask, droppletsMask);
+    trailMask = max(medDrippingRain.trailMask, trailMask);
+    dropUvMasked = mix(dropUvMasked,
+        medDrippingRain.drop * medDrippingRain.dropMask, medDrippingRain.dropMask);
+    droppletsUvMasked = mix(droppletsUvMasked,
+        medDrippingRain.dropplets * medDrippingRain.droppletsMask, medDrippingRain.droppletsMask);
+
+    // 4. Distort uv for the rain drops and dropplets.
+    float distortionDrop = -0.1;
+    vec2 uvDiffractionOffsets =
+        distortionDrop * dropUvMasked;
+    vec2 s = screenSize;
+    // Ensure the diffracted image in drops is not inverted.
+    s.y *= -1;
+
+    vec4 color = texture.eval(fragCoord);
+    vec3 sampledColor = texture.eval(fragCoord + uvDiffractionOffsets * s).rgb;
+    color.rgb = mix(color.rgb, sampledColor, max(dropMask, droppletsMask));
+
+    // 5. Add color tint to the rain drops.
+    color.rgb = mix(
+        color.rgb,
+        dropTint,
+        dropTintIntensity * smoothstep(0.7, 1., max(dropMask, droppletsMask)));
+
+    // 6. Add highlight to the drops.
+    color.rgb = mix(
+        color.rgb,
+        highlightColor,
+        highlightIntensity
+            * smoothstep(0.05, 0.08, max(dropUvMasked * 1.7, droppletsUvMasked * 2.6)).x);
+
+    // 7. Add shadows to the drops.
+    color.rgb = mix(
+        color.rgb,
+        contactShadowColor,
+        dropShadowIntensity *
+            smoothstep(0.055, 0.1, max(length(dropUvMasked * 1.7),
+                length(droppletsUvMasked * 1.9))));
+
+    return color;
+}

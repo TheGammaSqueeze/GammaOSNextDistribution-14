@@ -1,0 +1,29 @@
+on boot
+    wait /sys/class/leds/vibrator/device
+
+    mkdir /mnt/vendor/persist/haptics 0770 system system
+    chmod 770 /mnt/vendor/persist/haptics
+    chmod 440 /mnt/vendor/persist/haptics/drv2624.cal
+    chown system system /mnt/vendor/persist/haptics
+    chown system system /mnt/vendor/persist/haptics/drv2624.cal
+
+    write /sys/class/leds/vibrator/trigger transient
+    chown system system /sys/class/leds/vibrator/activate
+    chown system system /sys/class/leds/vibrator/brightness
+    chown system system /sys/class/leds/vibrator/duration
+    chown system system /sys/class/leds/vibrator/state
+
+    chown system system /sys/class/leds/vibrator/device/autocal
+    chown system system /sys/class/leds/vibrator/device/autocal_result
+    chown system system /sys/class/leds/vibrator/device/ctrl_loop
+    chown system system /sys/class/leds/vibrator/device/lp_trigger_effect
+    chown system system /sys/class/leds/vibrator/device/lp_trigger_scale
+    chown system system /sys/class/leds/vibrator/device/lra_wave_shape
+    chown system system /sys/class/leds/vibrator/device/mode
+    chown system system /sys/class/leds/vibrator/device/od_clamp
+    chown system system /sys/class/leds/vibrator/device/ol_lra_period
+    chown system system /sys/class/leds/vibrator/device/rtp_input
+    chown system system /sys/class/leds/vibrator/device/scale
+    chown system system /sys/class/leds/vibrator/device/set_sequencer
+
+    enable vendor.vibrator.drv2624

@@ -1,0 +1,125 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.healthfitness.api;
+
+option java_outer_classname = "HealthConnectApiEnums";
+option java_multiple_files = true;
+
+enum ApiMethod {
+  API_METHOD_UNKNOWN = 0;
+  DELETE_DATA = 1;
+  GET_CHANGES = 2;
+  GET_CHANGES_TOKEN = 3;
+  GET_GRANTED_PERMISSIONS = 4;
+  INSERT_DATA = 5;
+  READ_AGGREGATED_DATA = 6;
+  READ_DATA = 7;
+  REVOKE_ALL_PERMISSIONS = 8;
+  UPDATE_DATA = 9;
+}
+
+enum ApiStatus {
+  STATUS_UNKNOWN = 0;
+  SUCCESS = 1;
+  ERROR = 2;
+}
+
+enum RateLimit {
+  NOT_DEFINED = 0;
+  NOT_USED = 1;
+
+  RATE_LIMIT_FOREGROUND_15_MIN_UNDER_1000 = 2;
+  RATE_LIMIT_FOREGROUND_15_MIN_BW_1000_TO_2000 = 3;
+  RATE_LIMIT_FOREGROUND_15_MIN_BW_2000_TO_3000 = 4;
+  RATE_LIMIT_FOREGROUND_15_MIN_BW_3000_TO_4000 = 5;
+  RATE_LIMIT_FOREGROUND_15_MIN_ABOVE_4000 = 6;
+
+  RATE_LIMIT_BACKGROUND_15_MIN_UNDER_500 = 7;
+  RATE_LIMIT_BACKGROUND_15_MIN_BW_500_TO_1000 = 8;
+  RATE_LIMIT_BACKGROUND_15_MIN_BW_1000_TO_2000 = 9;
+  RATE_LIMIT_BACKGROUND_15_MIN_BW_2000_TO_3000 = 10;
+  RATE_LIMIT_BACKGROUND_15_MIN_ABOVE_3000 = 11;
+
+  RATE_LIMIT_FOREGROUND_24_HRS_UNDER_2000 = 12;
+  RATE_LIMIT_FOREGROUND_24_HRS_BW_2000_TO_3000 = 13;
+  RATE_LIMIT_FOREGROUND_24_HRS_BW_3000_TO_4000 = 14;
+  RATE_LIMIT_FOREGROUND_24_HRS_BW_4000_TO_5000 = 15;
+  RATE_LIMIT_FOREGROUND_24_HRS_BW_5000_TO_6000 = 16;
+  RATE_LIMIT_FOREGROUND_24_HRS_ABOVE_6000 = 17;
+
+  RATE_LIMIT_BACKGROUND_24_HRS_UNDER_1000 = 18;
+  RATE_LIMIT_BACKGROUND_24_HRS_BW_1000_TO_2000 = 19;
+  RATE_LIMIT_BACKGROUND_24_HRS_BW_2000_TO_3000 = 20;
+  RATE_LIMIT_BACKGROUND_24_HRS_BW_3000_TO_4000 = 21;
+  RATE_LIMIT_BACKGROUND_24_HRS_BW_4000_TO_5000 = 22;
+  RATE_LIMIT_BACKGROUND_24_HRS_ABOVE_5000 = 23;
+
+}
+
+enum Operation {
+  OPERATION_READ = 0;
+  OPERATION_UPSERT = 1;
+}
+
+enum DataType {
+  DATA_TYPE_UNKNOWN = 0;
+  DATA_TYPE_NOT_ASSIGNED = 1;
+
+  ACTIVE_CALORIES_BURNED = 2;
+  BASAL_BODY_TEMPERATURE = 3;
+  BASAL_METABOLIC_RATE = 4;
+  BLOOD_GLUCOSE = 5;
+  BLOOD_PRESSURE = 6;
+  BODY_FAT = 7;
+  BODY_TEMPERATURE = 8;
+  BONE_MASS = 9;
+  CERVICAL_MUCUS = 10;
+  CYCLING_PEDALING_CADENCE = 11;
+  DISTANCE = 12;
+  ELEVATION_GAINED = 13;
+  EXERCISE_SESSION = 14;
+  FLOORS_CLIMBED = 15;
+  HEART_RATE = 16;
+  HEIGHT = 17;
+  HYDRATION = 18;
+  LEAN_BODY_MASS = 19;
+  MENSTRUATION_FLOW = 20;
+  NUTRITION = 21;
+  OVULATION_TEST = 22;
+  OXYGEN_SATURATION = 23;
+  POWER = 24;
+  RESPIRATORY_RATE = 25;
+  RESTING_HEART_RATE = 26;
+  SEXUAL_ACTIVITY = 27;
+  SPEED = 28;
+  STEPS = 29;
+  STEPS_CADENCE = 30;
+  TOTAL_CALORIES_BURNED = 31;
+  VO2_MAX = 32;
+  WEIGHT = 33;
+  WHEELCHAIR_PUSHES = 34;
+  SKIN_TEMPERATURE =  35;
+}
+
+enum ForegroundState {
+  UNSPECIFIED = 0;
+  FOREGROUND = 1;
+  BACKGROUND = 2;
+}
+

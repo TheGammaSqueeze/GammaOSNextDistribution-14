@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_defaults {
+    name: "libgfxstream_guest_vulkan_defaults",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "libgfxstream_guest_cc_defaults",
+        "mesa_common_defaults_gfxstream",
+    ],
+    generated_headers: [
+        "vk_cmd_queue_header_gfxstream",
+        "vk_physical_device_features_header_gfxstream",
+        "vk_physical_device_properties_header_gfxstream",
+    ],
+    header_libs: [
+        "libgfxstream_vulkan_headers",
+        "mesa_common_headers_gfxstream",
+        "libnativewindow_headers",
+        "vulkan_enc_headers",
+    ],
+    static_libs: [
+        "libmesa_util_c11_gfxstream",
+        "libmesa_vulkan_util_gfxstream",
+        "libmesa_vulkan_runtime_gfxstream",
+        "libmesa_vulkan_wsi_gfxstream",
+        "libgfxstream_guest_vulkan_entrypoints",
+        "libmesa_util_gfxstream",
+        "libmesa_util_format_gfxstream",
+        "libGoldfishAddressSpace",
+        "libringbuffer",
+        "libqemupipe.ranchu",
+        "libarect",
+        "libgfxstream_androidemu_static",
+    ],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libGLESv1_enc",
+        "libGLESv2_enc",
+        "lib_renderControl_enc",
+        "libOpenglCodecCommon",
+        "libbase",
+        "libdrm",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"goldfish_vulkan\"",
+        "-DVK_NO_PROTOTYPES",
+        "-DVK_USE_PLATFORM_ANDROID_KHR",
+        "-fstrict-aliasing",
+        "-fvisibility=hidden",
+        "-Wno-missing-field-initializers",
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+        "-Wno-cast-calling-convention",
+    ],
+    ldflags: [
+        // Mesa always adds Bsymbolic when available (see 'ld_args_bsymbolic' in Meson build). Duplicate that
+        // behavior here. '--gc-sections' has stronger justification: this lets drivers drop
+        // shared code unused by that specific driver (particularly relevant for Vulkan drivers).
+        "-Wl,-Bsymbolic",
+        "-Wl,--gc-sections",
+    ],
+    include_dirs: [
+        "hardware/google/gfxstream/guest/GoldfishAddressSpace/include",
+    ],
+    srcs: [
+        "gfxstream_vk_device.cpp",
+        "gfxstream_vk_cmd.cpp",
+        "gfxstream_vk_wsi.cpp",
+        ":vulkan_enc_impl",
+    ],
+    target: {
+        android: {
+            relative_install_path: "hw",
+            header_libs: [
+                "hwvulkan_headers",
+            ],
+            shared_libs: [
+                "libnativewindow",
+                "libsync",
+            ],
+            srcs: [
+                "gfxstream_vk_android.cpp",
+            ],
+        },
+    },
+}
+
+cc_library_shared {
+    name: "vulkan.ranchu",
+    defaults: [
+        "libgfxstream_guest_vulkan_defaults",
+    ],
+    static_libs: [
+        "libplatform",
+        "libgfxstream_guest_android",
+        "libgfxstream_guest_system_common",
+    ],
+}
+
+cc_library_shared {
+    name: "libgfxstream_guest_vulkan_with_host",
+    defaults: [
+        "libgfxstream_guest_vulkan_defaults",
+    ],
+    shared_libs: [
+        "libgfxstream_platform_rutabaga_server",
+    ],
+    static_libs: [
+        "libgfxstream_guest_android_with_host",
+        "libgfxstream_guest_system_common_with_host",
+        "libgfxstream_platform_rutabaga",
+    ],
+    cflags: [
+        "-DEND2END_TESTS",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        },
+        android: {
+            compile_multilib: "64",
+        },
+    },
+}

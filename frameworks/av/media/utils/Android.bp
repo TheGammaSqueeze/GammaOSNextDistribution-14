@@ -1,0 +1,187 @@
+// Copyright 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_defaults {
+    name: "libmediautils_defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    sanitize: {
+        cfi: true,
+        integer_overflow: true,
+    },
+    target: {
+        host: {
+            sanitize: {
+                cfi: false,
+            },
+        },
+    },
+}
+
+filegroup {
+    name: "libmediautils_core_srcs",
+    srcs: [
+        "AImageReaderUtils.cpp",
+        "BatteryNotifier.cpp",
+        "ISchedulingPolicyService.cpp",
+        "Library.cpp",
+        "MediaUtilsDelayed.cpp",
+        "MethodStatistics.cpp",
+        "Process.cpp",
+        "ProcessInfo.cpp",
+        "SchedulingPolicyService.cpp",
+        "ServiceUtilities.cpp",
+        "ThreadSnapshot.cpp",
+        "TimeCheck.cpp",
+        "TimerThread.cpp",
+    ],
+}
+
+cc_library_headers {
+    name: "libmediautils_headers",
+    host_supported: true,
+    vendor_available: true, // required for platform/hardware/interfaces
+    shared_libs: [
+        "liblog",
+    ],
+    local_include_dirs: ["include"],
+    export_include_dirs: ["include"],
+}
+
+
+cc_library {
+    name: "libmediautils",
+    host_supported: true,
+    defaults: ["libmediautils_defaults"],
+    srcs: [
+        ":libmediautils_core_srcs",
+    ],
+    static_libs: [
+        "libbatterystats_aidl",
+        "libprocessinfoservice_aidl",
+    ],
+    shared_libs: [
+        "com.android.media.audio-aconfig-cc",
+        "libaudioclient_aidl_conversion",
+        "libaudioutils", // for clock.h, Statistics.h
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libpermission",
+        "libutils",
+        "android.hardware.graphics.bufferqueue@1.0",
+        "android.hidl.token@1.0-utils",
+        "packagemanager_aidl-cpp",
+    ],
+    export_static_lib_headers: [
+        "libbatterystats_aidl",
+    ],
+
+    logtags: ["EventLogTags.logtags"],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wthread-safety",
+    ],
+
+    export_shared_lib_headers: [
+        "libpermission",
+    ],
+
+    required: [
+        "libmediautils_delayed", // lazy loaded
+    ],
+
+    target: {
+        android: {
+            srcs: [
+                "LimitProcessMemory.cpp",
+                "MemoryLeakTrackUtil.cpp",
+            ],
+            static_libs: [
+                "libc_malloc_debug_backtrace",
+            ],
+            include_dirs: [
+                // For DEBUGGER_SIGNAL
+                "system/core/debuggerd/include",
+            ],
+            header_libs: [
+                "bionic_libc_platform_headers",
+            ],
+        },
+    },
+
+    local_include_dirs: ["include"],
+    export_include_dirs: ["include"],
+}
+
+cc_library {
+    name: "libmediautils_delayed", // match with MEDIAUTILS_DELAYED_LIBRARY_NAME
+    host_supported: true,
+    defaults: ["libmediautils_defaults"],
+    srcs: [
+        "MediaUtilsDelayedLibrary.cpp",
+    ],
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libutilscallstack",
+    ],
+}
+
+cc_library {
+    name: "libmediautils_vendor",
+    defaults: ["libmediautils_defaults"],
+    vendor_available: true, // required for platform/hardware/interfaces
+    srcs: [
+        "MemoryLeakTrackUtil.cpp",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libutils",
+    ],
+
+    static_libs: [
+        "libc_malloc_debug_backtrace",
+    ],
+
+    header_libs: [
+        "bionic_libc_platform_headers",
+    ],
+
+    local_include_dirs: ["include"],
+    export_include_dirs: ["include"],
+}
+
+cc_library_headers {
+    name: "mediautils_headers",
+    export_include_dirs: ["include", "."],
+}

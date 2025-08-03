@@ -1,0 +1,12 @@
+//
+// Copyright (C) 2021 The LineageOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+package vendor.lineage.livedisplay@2.1;
+
+import @2.0::IReadingEnhancement;
+
+interface IReadingEnhancement extends @2.0::IReadingEnhancement {
+};

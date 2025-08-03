@@ -1,0 +1,334 @@
+{
+	"symbols" : 
+	{
+		"XA_IID_ANDROIDBUFFERQUEUESOURCE" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_AUDIODECODERCAPABILITIES" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_AUDIOENCODER" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_AUDIOENCODERCAPABILITIES" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_AUDIOIODEVICECAPABILITIES" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_CAMERA" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_CAMERACAPABILITIES" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_CONFIGEXTENSION" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_DEVICEVOLUME" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_DYNAMICINTERFACEMANAGEMENT" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_DYNAMICSOURCE" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_ENGINE" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_EQUALIZER" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_IMAGECONTROLS" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_IMAGEDECODERCAPABILITIES" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_IMAGEEFFECTS" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_IMAGEENCODER" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_IMAGEENCODERCAPABILITIES" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_LED" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_METADATAEXTRACTION" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_METADATAINSERTION" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_METADATATRAVERSAL" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_NULL" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_OBJECT" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_OUTPUTMIX" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_PLAY" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_PLAYBACKRATE" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_PREFETCHSTATUS" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_RADIO" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_RDS" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_RECORD" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_SEEK" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_SNAPSHOT" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_STREAMINFORMATION" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_THREADSYNC" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_VIBRA" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_VIDEODECODERCAPABILITIES" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_VIDEOENCODER" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_VIDEOENCODERCAPABILITIES" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_VIDEOPOSTPROCESSING" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"XA_IID_VOLUME" : 
+		{
+			"type" : "struct XAInterfaceID_ const* const"
+		},
+		"xaCreateEngine" : 
+		{
+			"type" : "func xaCreateEngine"
+		},
+		"xaQueryNumSupportedEngineInterfaces" : 
+		{
+			"type" : "func xaQueryNumSupportedEngineInterfaces"
+		},
+		"xaQuerySupportedEngineInterfaces" : 
+		{
+			"type" : "func xaQuerySupportedEngineInterfaces"
+		}
+	},
+	"types" : 
+	{
+		"func xaCreateEngine" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct XAObjectItf_ const* const**",
+				"unsigned int32",
+				"struct XAEngineOption_ const*",
+				"unsigned int32",
+				"struct XAInterfaceID_ const* const*",
+				"unsigned int32 const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func xaQueryNumSupportedEngineInterfaces" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func xaQuerySupportedEngineInterfaces" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32",
+				"struct XAInterfaceID_ const**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"struct XAEngineOption_" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct XAEngineOption_ const" : 
+		{
+			"base_type" : "struct XAEngineOption_",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct XAEngineOption_ const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct XAEngineOption_ const",
+			"size" : 64
+		},
+		"struct XAInterfaceID_" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct XAInterfaceID_ const" : 
+		{
+			"base_type" : "struct XAInterfaceID_",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct XAInterfaceID_ const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct XAInterfaceID_ const",
+			"size" : 64
+		},
+		"struct XAInterfaceID_ const* const" : 
+		{
+			"base_type" : "struct XAInterfaceID_ const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct XAInterfaceID_ const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct XAInterfaceID_ const* const",
+			"size" : 64
+		},
+		"struct XAInterfaceID_ const**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct XAInterfaceID_ const*",
+			"size" : 64
+		},
+		"struct XAObjectItf_" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct XAObjectItf_ const" : 
+		{
+			"base_type" : "struct XAObjectItf_",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct XAObjectItf_ const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct XAObjectItf_ const",
+			"size" : 64
+		},
+		"struct XAObjectItf_ const* const" : 
+		{
+			"base_type" : "struct XAObjectItf_ const*",
+			"kind" : "const",
+			"size" : 64
+		},
+		"struct XAObjectItf_ const* const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct XAObjectItf_ const* const",
+			"size" : 64
+		},
+		"struct XAObjectItf_ const* const**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct XAObjectItf_ const* const*",
+			"size" : 64
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int32 const" : 
+		{
+			"base_type" : "unsigned int32",
+			"kind" : "const",
+			"size" : 32
+		},
+		"unsigned int32 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32 const",
+			"size" : 64
+		},
+		"unsigned int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int32",
+			"size" : 64
+		}
+	}
+}

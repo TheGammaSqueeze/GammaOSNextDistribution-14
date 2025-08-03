@@ -1,0 +1,165 @@
+package android.os.statsd.appsearch;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+
+option java_package = "com.android.os.appsearch";
+option java_multiple_files = true;
+
+extend Atom {
+  // Pushed atoms
+  optional AppSearchSetSchemaStatsReported app_search_set_schema_stats_reported = 385 [(module) = "appsearch"];
+  optional AppSearchSchemaMigrationStatsReported
+          app_search_schema_migration_stats_reported = 579 [(module) = "appsearch"];
+}
+
+/**
+ * Logs detailed stats for setting schema in AppSearch.
+ *
+ * stats pushed from:
+ *   frameworks/base/apex/appsearch/service/java/com/android/server/appsearch/AppSearchManagerService.java
+ *
+ * Next tag: 26
+ */
+message AppSearchSetSchemaStatsReported {
+    // The sampling interval for this specific type of stats
+    // For example, sampling_interval=10 means that one out of every 10 stats was logged.
+    optional int32 sampling_interval = 1;
+
+    // # of previous skipped sample for this specific type of stats
+    // We can't push atoms too closely, so some samples might be skipped
+    // In order to extrapolate the counts, we need to save the number of skipped stats and add it back
+    // For example, the true count of an event could be estimated as:
+    //   SUM(sampling_interval * (num_skipped_sample + 1)) as est_count
+    optional int32 num_skipped_sample = 2;
+
+    // Package UID of the application.
+    optional int32 uid = 3 [(is_uid) = true];
+
+    // Hash of the database name within AppSearch
+    optional int32 database = 4;
+
+    // Needs to be sync with AppSearchResult#ResultCode in
+    // frameworks/base/apex/appsearch/framework/java/android/app/appsearch/AppSearchResult.java
+    optional int32 status_code = 5;
+
+    // Overall time used for setting schema including the binder latency
+    optional int32 total_latency_millis = 6;
+
+    // Number of newly added schema types
+    optional int32 new_type_count = 7;
+
+    // Number of deleted schema types
+    optional int32 deleted_type_count = 8;
+
+    // Number of compatible schema type changes
+    optional int32 compatible_type_change_count = 9;
+
+    // Number of index-incompatible schema type changes
+    optional int32 index_incompatible_type_change_count = 10;
+
+    // Number of backwards-incompatible schema type changes
+    optional int32 backwards_incompatible_type_change_count = 11;
+
+    // Time used for verifying the incoming call.
+    optional int32  verify_incoming_call_latency_millis = 12;
+
+    // Time used for creating or waiting the user executor.
+    optional int32  executor_acquisition_latency_millis = 13;
+
+    // Time used for rebuilding objects from bundles.
+    optional int32  rebuild_from_bundle_latency_millis = 14;
+
+    // Time passed while waiting to acquire the lock during Java function calls.
+    optional int32  java_lock_acquisition_latency_millis = 15;
+
+    // Time used for the rewrite schema to proto.
+    optional int32  rewrite_schema_latency_millis = 16;
+
+    // Overall time used for the native function call.
+    optional int32  total_native_latency_millis = 17;
+
+    // Time used for the apply visibility settings function call.
+    optional int32  visibility_setting_latency_millis = 18;
+
+    // Time used for the dispatch change notification function call.
+    optional int32  dispatch_change_notifications_latency_millis = 19;
+
+    // Time used for the optimization function call.
+    optional int32  optimize_latency_millis = 20;
+
+    /** Whether this package is observed. */
+    optional bool is_package_observed = 21;
+
+    /** Time used for the get old schema. */
+    optional int32  get_old_schema_latency_millis = 22;
+
+    /** Time used for the get registered observer function call. */
+    optional int32  get_observer_latency_millis = 23;
+
+    /** Time used for the preparing change notification action. */
+    optional int32  preparing_change_notification_latency_millis = 24;
+
+    // Type of the SetSchema call relative to SchemaMigration case.
+    // This is in sync with
+    // packages/modules/AppSearch/service/java/com/android/server/appsearch/external/localstorage/stats/SetSchemaStats.java
+    optional int32 schema_migration_call_type = 25;
+}
+
+/**
+ * Logs detailed stats for schema migration in AppSearch.
+ *
+ * stats pushed from:
+ *   packages/modules/AppSearch/service/java/com/android/server/appsearch/AppSearchManagerService.java
+ *
+ * Next tag: 15
+ */
+message AppSearchSchemaMigrationStatsReported {
+    // The sampling interval for this specific type of stats
+    // For example, sampling_interval=10 means that one out of every 10 stats was logged.
+    optional int32 sampling_interval = 1;
+
+    // # of previous skipped sample for this specific type of stats
+    // We can't push atoms too closely, so some samples might be skipped
+    // In order to extrapolate the counts, we need to save the number of skipped stats and add it back
+    // For example, the true count of an event could be estimated as:
+    //   SUM(sampling_interval * (num_skipped_sample + 1)) as est_count
+    optional int32 num_skipped_sample = 2;
+
+    // Package UID of the application.
+    optional int32 uid = 3 [(is_uid) = true];
+
+    // Hash of the database name within AppSearch
+    optional int32 database = 4;
+
+    // Needs to be sync with AppSearchResult#ResultCode in
+    // packages/modules/AppSearch/framework/java/external/android/app/appsearch/AppSearchResult.java
+    optional int32 status_code = 5;
+
+    // Overall time used for setting schema including the binder latency
+    optional int32 total_latency_millis = 6;
+
+    // Overall time used for getting schema during schema migration
+    optional int32 schema_migration_get_schema_latency_millis = 7;
+
+    // Overall time used for querying and transforming documents during schema migration
+    optional int32 schema_migration_query_and_transform_latency_millis = 8;
+
+    // Overall time used for first setSchema during schema migration
+    optional int32 schema_migration_first_set_schema_latency_millis = 9;
+
+    // Overall time used for second setSchema during schema migration
+    optional int32 schema_migration_second_set_schema_latency_millis = 10;
+
+    // Overall time used for saving documents during schema migration
+    optional int32 schema_migration_save_document_latency_millis = 11;
+
+    // Number of document that need to be migrated to another version
+    optional int32 total_need_migrated_document_count = 12;
+
+    // Number of successfully migrated and saved in Icing
+    optional int32 total_success_migrated_document_count = 13;
+
+    // Number of migration failure during schema migration
+    optional int32 schema_migration_failure_count = 14;
+}

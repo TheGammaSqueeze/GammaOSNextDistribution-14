@@ -1,0 +1,37 @@
+
+
+package {
+    // http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // the below license kinds from "hardware_qcom_sm8150_data_ipacfg-mgr_license":
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: [
+        "hardware_qcom_sm8150_data_ipacfg-mgr_license",
+    ],
+}
+
+cc_library_shared {
+    name: "libipanat",
+
+    header_libs: ["device_kernel_headers"],
+
+    srcs: [
+        "src/ipa_nat_drv.c",
+        "src/ipa_nat_drvi.c",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "libdl",
+        "libbase",
+        "libutils",
+    ],
+    export_include_dirs: ["inc"],
+    vendor: true,
+    cflags: [
+        "-DDEBUG",
+        "-Wall",
+        "-Werror",
+    ] + ["-DFEATURE_IPA_ANDROID"],
+
+}

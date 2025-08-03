@@ -1,0 +1,27 @@
+package {
+    default_applicable_licenses: [
+        "hardware_google_gfxstream_third_party_stb_encoder_license",
+    ],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "hardware_google_gfxstream_third_party_stb_encoder_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-MIT",
+    ],
+}
+
+cc_library {
+    name: "libgfxstream_thirdparty_stb",
+    defaults: ["gfxstream_defaults"],
+    srcs: [
+        "src/stb_image.cpp",
+        "src/stb_image_write.cpp",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+}

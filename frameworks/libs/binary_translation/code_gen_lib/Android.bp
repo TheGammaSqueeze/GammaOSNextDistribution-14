@@ -1,0 +1,84 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_headers {
+    name: "libberberis_code_gen_lib_headers",
+    defaults: ["berberis_defaults"],
+    host_supported: true,
+    export_include_dirs: ["include"],
+    header_libs: [
+        "libberberis_assembler_headers",
+        "libberberis_guest_state_headers",
+        "libberberis_runtime_primitives_headers",
+    ],
+    export_header_lib_headers: [
+        "libberberis_assembler_headers",
+        "libberberis_guest_state_headers",
+        "libberberis_runtime_primitives_headers",
+    ],
+}
+
+cc_library_static {
+    name: "libberberis_code_gen_lib_riscv64",
+    defaults: ["berberis_defaults_64"],
+    host_supported: true,
+    arch: {
+        x86_64: {
+            srcs: [
+                "code_gen_lib_riscv64_to_x86_64.cc",
+                "gen_wrapper_riscv64_to_x86_64.cc",
+            ],
+        },
+    },
+    header_libs: [
+        "libberberis_assembler_headers",
+        "libberberis_base_headers",
+        "libberberis_calling_conventions_headers",
+        "libberberis_code_gen_lib_headers",
+        "libberberis_guest_abi_riscv64_headers",
+        "libberberis_guest_state_headers",
+        "libberberis_instrument_headers",
+        "libberberis_kernel_api_headers",
+        "libberberis_macro_assembler_headers_riscv64_to_x86_64",
+        "libberberis_runtime_primitives_headers",
+    ],
+    export_header_lib_headers: [
+        "libberberis_assembler_headers",
+        "libberberis_code_gen_lib_headers",
+        "libberberis_macro_assembler_headers_riscv64_to_x86_64",
+    ],
+}
+
+cc_test_library {
+    name: "libberberis_code_gen_lib_riscv64_unit_tests",
+    defaults: ["berberis_test_library_defaults_64"],
+    host_supported: true,
+    srcs: ["code_gen_lib_riscv64_test.cc"],
+    static_libs: ["libberberis_code_gen_lib_riscv64"],
+    header_libs: [
+        "libberberis_base_headers",
+        "libberberis_guest_abi_riscv64_headers",
+        "libberberis_guest_state_headers",
+        "libberberis_runtime_primitives_headers",
+        "berberis_test_utils_headers",
+    ],
+    shared: {
+        enabled: false,
+    },
+}

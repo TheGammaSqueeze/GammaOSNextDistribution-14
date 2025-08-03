@@ -1,0 +1,21 @@
+// slesTest_playStream
+
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "slesTest_playStream",
+    gtest: false,
+
+    srcs: ["slesTestPlayStream.cpp"],
+
+    shared_libs: ["libOpenSLES"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wno-deprecated-declarations",
+    ],
+}

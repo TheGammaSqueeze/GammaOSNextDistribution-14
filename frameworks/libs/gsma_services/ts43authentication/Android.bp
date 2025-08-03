@@ -1,0 +1,17 @@
+// Common defaults to define SDK level
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "Ts43AuthenticationLibrary",
+    installable: true,
+    system_ext_specific: true,
+    srcs: [
+        "src/**/*.java",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "service-entitlement",
+    ],
+}

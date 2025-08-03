@@ -1,0 +1,5 @@
+soong_namespace {
+    imports: [
+        "hardware/qcom-caf/sm8550"
+    ],
+}

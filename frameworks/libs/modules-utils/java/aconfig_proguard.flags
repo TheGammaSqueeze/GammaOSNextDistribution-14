@@ -1,0 +1,16 @@
+# Keep rules to help Aconfig generated java code
+
+# This rule is used to indicate a method will always return false.
+-assumevalues class * {
+    @com.android.aconfig.annotations.AssumeFalseForR8 boolean *(...) return false;
+}
+
+# This rule is used to indicate a method will always return true.
+-assumevalues class * {
+    @com.android.aconfig.annotations.AssumeTrueForR8 boolean *(...) return true;
+}
+
+# Keep members with @VisibleForTesting annotation.
+-keepclassmembers class * {
+    @com.android.aconfig.annotations.VisibleForTesting <methods>;
+}

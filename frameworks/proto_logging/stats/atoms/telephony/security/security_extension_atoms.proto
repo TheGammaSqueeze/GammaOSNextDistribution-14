@@ -1,0 +1,54 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.telephony;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/enums/telephony/enums.proto";
+import "frameworks/proto_logging/stats/enums/telephony/security/enums.proto";
+
+option java_package = "com.android.os.telephony";
+option java_multiple_files = true;
+
+extend Atom {
+  optional CellularIdentifierDisclosed cellular_identifier_disclosed = 800
+  [(module) = "telephony", (restriction_category) = RESTRICTION_DIAGNOSTIC];
+}
+
+/**
+ * A single cellular identifier disclosure
+ */
+message CellularIdentifierDisclosed {
+    // The mobile country code of the SIM on which the disclosure occurred
+    optional int32 sim_mcc = 1;
+    // The mobile network code of the SIM on which the disclosure occurred
+    optional int32 sim_mnc = 2;
+    // The mobile country code reported by the base station to which the identifier was disclosed
+    optional int32 mcc_of_disclosure = 3;
+    // The mobile network code reported by the base station to which the identifier was disclosed
+    optional int32 mnc_of_disclosure = 4;
+    // The type of identifier that was disclosed
+    optional android.telephony.CellularIdentifier cellular_identifier = 5;
+    // The protocol message within which the identifier was disclosed
+    optional android.telephony.NasProtocolMessage nas_protocol_message = 6;
+    // Whether or not the identifier was disclosed for an emergency call
+    optional bool is_emergency = 7;
+    // Whether or not the user was notified for this disclosure
+    optional bool notification_emitted = 8;
+}

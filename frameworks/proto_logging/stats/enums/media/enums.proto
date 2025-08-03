@@ -1,0 +1,54 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.media;
+
+/*
+ * Status for media errors are numbered by google3/google/rpc/code.proto
+ *
+ * Notes:
+ * 1) The default for Status is "OK" not "UNKNOWN".
+ * 2) android.media.Status is based on Android status codes, not http.
+ * 3) We choose code.proto rather than negative numbers (signed status)
+ *    for numeric categorization.
+ *
+ * [Google3 proto]          [android.media.Status]
+ * OK                  = 0;  1 (NO_ERROR)
+ * UNKNOWN             = 2;  0 (ERROR_UNKNOWN)
+ * INVALID_ARGUMENT    = 3;  2 (ERROR_ARGUMENT)
+ * DEADLINE_EXCEEDED   = 4;  3 (ERROR_TIMEOUT)
+ * PERMISSION_DENIED   = 7;  4 (ERROR_SECURITY)
+ * RESOURCE_EXHAUSTED  = 8;  5 (ERROR_MEMORY)
+ * FAILED_PRECONDITION = 9;  6 (ERROR_STATE)
+ * UNAVAILABLE         = 14; 7 (ERROR_IO)
+ */
+enum Status {
+  // See above for the numbering scheme.
+  // We use ERROR_UNKNOWN = 0 as the default value should new error values
+  // be sent to code not yet updated.
+  ERROR_UNKNOWN = 0;
+  // We use NO_ERROR to be visually distinct from an ERROR enumeration,
+  // though it may flag a best practices warning.
+  NO_ERROR = 1;
+  ERROR_ARGUMENT = 2;
+  ERROR_TIMEOUT = 3;
+  ERROR_SECURITY = 4;
+  ERROR_MEMORY = 5;
+  ERROR_STATE = 6;
+  ERROR_IO = 7;
+}

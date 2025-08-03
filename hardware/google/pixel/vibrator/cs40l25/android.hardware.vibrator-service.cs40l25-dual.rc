@@ -1,0 +1,78 @@
+on boot
+    wait /sys/class/leds/vibrator_1/device
+
+    mkdir /mnt/vendor/persist/haptics 0770 system system
+    chmod 770 /mnt/vendor/persist/haptics
+    chmod 440 /mnt/vendor/persist/haptics/cs40l25a_dual.cal
+    chown system system /mnt/vendor/persist/haptics
+    chown system system /mnt/vendor/persist/haptics/cs40l25a_dual.cal
+
+    chown system system /sys/class/leds/vibrator_1/activate
+    chown system system /sys/class/leds/vibrator_1/brightness
+    chown system system /sys/class/leds/vibrator_1/duration
+    chown system system /sys/class/leds/vibrator_1/state
+
+    chown system system /sys/class/leds/vibrator_1/device/asp_enable
+    chown system system /sys/class/leds/vibrator_1/device/available_pwle_segments
+    chown system system /sys/class/leds/vibrator_1/device/clab_enable
+    chown system system /sys/class/leds/vibrator_1/device/comp_enable
+    chown system system /sys/class/leds/vibrator_1/device/cp_dig_scale
+    chown system system /sys/class/leds/vibrator_1/device/cp_trigger_duration
+    chown system system /sys/class/leds/vibrator_1/device/cp_trigger_index
+    chown system system /sys/class/leds/vibrator_1/device/cp_trigger_q_sub
+    chown system system /sys/class/leds/vibrator_1/device/cp_trigger_queue
+    chown system system /sys/class/leds/vibrator_1/device/dig_scale
+    chown system system /sys/class/leds/vibrator_1/device/exc_enable
+    chown system system /sys/class/leds/vibrator_1/device/f0_stored
+    chown system system /sys/class/leds/vibrator_1/device/f0_offset
+    chown system system /sys/class/leds/vibrator_1/device/fw_rev
+    chown system system /sys/class/leds/vibrator_1/device/gpio1_enable
+    chown system system /sys/class/leds/vibrator_1/device/gpio1_fall_dig_scale
+    chown system system /sys/class/leds/vibrator_1/device/gpio1_fall_index
+    chown system system /sys/class/leds/vibrator_1/device/gpio1_rise_dig_scale
+    chown system system /sys/class/leds/vibrator_1/device/gpio1_rise_index
+    chown system system /sys/class/leds/vibrator_1/device/gpio_event
+    chown system system /sys/class/leds/vibrator_1/device/gpio_trigger
+    chown system system /sys/class/leds/vibrator_1/device/heartbeat
+    chown system system /sys/class/leds/vibrator_1/device/hw_reset
+    chown system system /sys/class/leds/vibrator_1/device/num_waves
+    chown system system /sys/class/leds/vibrator_1/device/pwle
+    chown system system /sys/class/leds/vibrator_1/device/q_stored
+    chown system system /sys/class/leds/vibrator_1/device/redc_comp_enable
+    chown system system /sys/class/leds/vibrator_1/device/redc_stored
+    chown system system /sys/class/leds/vibrator_1/device/standby_timeout
+    chown system system /sys/class/leds/vibrator_1/device/vbatt_max
+    chown system system /sys/class/leds/vibrator_1/device/vbatt_min
+    chown system system /sys/class/leds/vibrator_1/device/vibe_state
+
+    enable vendor.vibrator.cs40l25-dual
+
+service vendor.vibrator.cs40l25-dual /vendor/bin/hw/android.hardware.vibrator-service.cs40l25-dual
+    class hal
+    user system
+    group system
+
+    setenv PROPERTY_PREFIX ro.vendor.vibrator.hal.
+    setenv CALIBRATION_FILEPATH /mnt/vendor/persist/haptics/cs40l25a_dual.cal
+
+    setenv HWAPI_PATH_PREFIX /sys/class/leds/vibrator_1/
+    setenv HWAPI_DEBUG_PATHS "
+        device/asp_enable
+        device/available_pwle_segments
+	device/clab_enable
+        device/f0_stored
+	device/f0_offset
+        device/fw_rev
+        device/gpio1_fall_dig_scale
+        device/gpio1_fall_index
+        device/gpio1_rise_dig_scale
+        device/gpio1_rise_index
+        device/heartbeat
+        device/num_waves
+        device/pwle
+        device/q_stored
+        device/redc_stored
+        state
+        "
+
+    disabled

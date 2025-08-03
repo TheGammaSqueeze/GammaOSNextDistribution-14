@@ -1,0 +1,59 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_media_libstagefright_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_media_libstagefright_license"],
+}
+
+cc_library_headers {
+    name: "libstagefright_xmlparser_headers",
+    export_include_dirs: ["include"],
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "libstagefright_xmlparser",
+    vendor_available: true,
+    vndk: {
+        enabled: true,
+    },
+    double_loadable: true,
+
+    srcs: [
+        "MediaCodecsXmlParser.cpp",
+    ],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libexpat",
+        "liblog",
+        "libstagefright_omx_utils",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+        cfi: true,
+    },
+
+}
+
+xsd_config {
+    name: "media_codecs",
+    srcs: ["media_codecs.xsd"],
+    package_name: "media.codecs",
+    root_elements: ["MediaCodecs"],
+}

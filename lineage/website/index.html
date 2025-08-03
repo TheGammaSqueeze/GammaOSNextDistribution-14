@@ -1,0 +1,160 @@
+---
+layout: default
+scrolljs: true
+---
+
+<div class="jumbotron welcome">
+  <div class="container">
+    <div class="row justify-content-between align-items-bottom">
+      <div class="col-lg-5 text-center text-lg-left pb-10">
+
+        <h1>{{ site.description }}</h1>
+        <p>A free and open-source operating system for various devices, based on the Android mobile platform.</p>
+        <a class="btn btn-primary text-primary" href="https://wiki.lineageos.org/devices/">Get LineageOS</a>
+        <a class="btn btn-link text-white" href="{{ site.baseurl }}/blog">Blog</a>
+
+      </div>
+      <img alt="Home" src="{{ site.baseurl }}/assets/img/peek_device.webp" class="welcome-image">
+    </div>
+  </div>
+</div>
+
+<section class="blog bg-primary-lighter">
+  <div class="container">
+    <div class="post text-lg-left">
+      <div>
+        <h2>Latest news</h2>
+
+        {% for post in site.categories.blog limit:1 %}
+        <h3><a class="fg-primary-dark" href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h3>
+        <h6>{{ post.excerpt }}</h6>
+        <p><i class="material-icons-outlined post-icons" alt="Creation date">calendar_today</i> {{ post.date | date: '%B %d, %Y' }}
+        {% if post.modified %} <i class="material-icons-outlined post-icons" alt="Last modified">edit_calendar</i> {{ post.modified | date: '%B %d, %Y' }}{% endif %}
+        {% if post.author %} <i class="material-icons-outlined post-icons" alt="Author">person_outline</i> {{ post.author }}{% endif %}</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tweaks">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+
+      <div id="tweaks" class="col-lg-4">
+        <img alt="A color wheel on top of several alternating squareblocks containing various images" src="{{ site.baseurl }}/assets/img/styles.webp" class="img-fluid text-center h-auto">
+      </div>
+
+      <div class="col-lg-7 text-center text-lg-left">
+        <h2>Individuality</h2>
+        <p class="feature">
+            Customization is paramount to productivity.
+            <br>
+            That’s why LineageOS promises to push for user personalization and preference.
+            <br>
+            <br>
+            Everyone is unique and your device should be too.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="security bg-dark">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+
+      <div class="col-lg-7 order-lg-last">
+        <img alt="Two overlapping abstract screens, the left showing a Trust protocol notification and the right showing a PIN input being scrambled to protect against memorization" src="{{ site.baseurl }}/assets/img/security.webp" class="img-fluid text-center h-auto">
+      </div>
+
+      <div class="col-lg-4 text-center text-lg-left text-white">
+        <h2>Security</h2>
+        <p class="feature">
+          Your data, your rules. Along with monthly security updates to every supported device,
+          we enhance existing privacy touchpoints around the OS and keep you informed of how the system shares your data.<br><br>
+        </p>
+        <div class="feature-inline-image">
+          {% include svg/trust.svg %}
+        </div>
+        <p>
+          Trust helps you understand the state of your device&apos;s security
+          and warns you about possible threats.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="longevity">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+
+      <div class="col-lg-6">
+        <img alt="A pinwheel of four devices each showing Lineage wallpapers" src="{{ site.baseurl }}/assets/img/longevity.webp" class="img-fluid text-center" id="rotate-on-scroll">
+      </div>
+
+      <div class="col-lg-5 text-center text-lg-left">
+        <h2>Longevity</h2>
+        <p class="feature">
+          LineageOS extends the functionality and lifespan of mobile devices from
+          more than 20 different manufacturers thanks to our open-source community
+          of contributors from all around the world.<br><br>
+
+          Want to contribute? <a href="{{ site.baseurl }}/community">See how you can make LineageOS better</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tools bg-dark section-background-image parallax">
+  <div class="container">
+    <div class="row justify-content-between align-items-center">
+
+      <div class="col-lg-7 order-lg-last">
+        <div class="img-fluid text-center">
+          <img alt="The LineageOS core app icons organized in a grid" src="{{ site.baseurl }}/assets/img/icons.webp" class="img-fluid text-center h-auto">
+        </div>
+      </div>
+
+      <div class="col-lg-4 text-center text-lg-left text-white">
+        <h2>Power to you</h2>
+        <p class="feature">
+          Our open-source apps are here to help you get through the day.
+          <br><br>
+          Want to do more with your device?
+          <br>
+          Power users will enjoy Unix command-line utilities.
+          <br>
+          Android developers will turn any device into the perfect device for
+          apps development thanks to enhanced tools and debugging capabilities.
+          <br>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="download bg-primary" style="margin-bottom: -3rem;">
+  <div class="container">
+    <div class="text-center">
+      <div class="logo">
+        {% include svg/lineage_logo.svg %}
+      </div>
+      <h2>Ready? Get LineageOS now!</h2>
+      <p class="feature">
+        LineageOS, an open-source Android distribution, is available for several devices,
+        <br>
+        with more being continuously added thanks to the biggest, yet ever growing,
+        Android open-source community.
+        <br>
+        Join us and breathe new life in your device, be it old or new.
+      </p>
+      <a class="btn btn-primary" href="https://wiki.lineageos.org/devices/">Find your device</a>
+    </div>
+  </div>
+</section>

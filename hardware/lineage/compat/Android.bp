@@ -1,0 +1,510 @@
+//
+// Copyright (C) 2022-2023 The LineageOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+cc_library_shared {
+    name: "android.frameworks.stats-V1-ndk_platform",
+    shared_libs: ["android.frameworks.stats-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.common-V1-ndk_platform",
+    shared_libs: ["android.hardware.common-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.common-V2-ndk_platform",
+    shared_libs: ["android.hardware.common-V2-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.common.fmq-V1-ndk_platform",
+    shared_libs: ["android.hardware.common.fmq-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.graphics.common-V1-ndk_platform",
+    shared_libs: ["android.hardware.graphics.common-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.graphics.common-V2-ndk_platform",
+    shared_libs: ["android.hardware.graphics.common-V2-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.authsecret-V1-ndk_platform",
+    shared_libs: ["android.hardware.authsecret-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.automotive.occupant_awareness-V1-ndk_platform",
+    shared_libs: ["android.hardware.automotive.occupant_awareness-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.gnss-V1-ndk_platform",
+    shared_libs: ["android.hardware.gnss-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.health.storage-V1-ndk_platform",
+    shared_libs: ["android.hardware.health.storage-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.identity-V2-ndk_platform",
+    shared_libs: ["android.hardware.identity-V2-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.identity-V3-ndk_platform",
+    shared_libs: ["android.hardware.identity-V3-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.keymaster-V2-ndk_platform",
+    shared_libs: ["android.hardware.keymaster-V2-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.keymaster-V3-ndk_platform",
+    shared_libs: ["android.hardware.keymaster-V3-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.light-V1-ndk_platform",
+    shared_libs: ["android.hardware.light-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.memtrack-V1-ndk_platform",
+    shared_libs: ["android.hardware.memtrack-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.oemlock-V1-ndk_platform",
+    shared_libs: ["android.hardware.oemlock-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.power-V1-ndk_platform",
+    shared_libs: ["android.hardware.power-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.power-V2-ndk_platform",
+    shared_libs: ["android.hardware.power-V2-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.power.stats-V1-ndk_platform",
+    shared_libs: ["android.hardware.power.stats-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.rebootescrow-V1-ndk_platform",
+    shared_libs: ["android.hardware.rebootescrow-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.security.keymint-V1-ndk_platform",
+    shared_libs: ["android.hardware.security.keymint-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.security.secureclock-V1-ndk_platform",
+    shared_libs: ["android.hardware.security.secureclock-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.security.sharedsecret-V1-ndk_platform",
+    shared_libs: ["android.hardware.security.sharedsecret-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.vibrator-V1-ndk_platform",
+    shared_libs: ["android.hardware.vibrator-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.vibrator-V2-ndk_platform",
+    shared_libs: ["android.hardware.vibrator-V2-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.weaver-V1-ndk_platform",
+    shared_libs: ["android.hardware.weaver-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.system.keystore2-V1-ndk_platform",
+    shared_libs: ["android.system.keystore2-V1-ndk"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.gnss@1.0_types",
+    srcs: ["interfaces/gnss/1.0/types.cpp"],
+    shared_libs: ["android.hardware.gnss@1.0"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.graphics.common@1.0_types",
+    srcs: ["interfaces/graphics/common/1.0/types.cpp"],
+    shared_libs: ["android.hardware.graphics.common@1.0"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.radio@1.0_types",
+    srcs: ["interfaces/radio/1.0/types.cpp"],
+    shared_libs: ["android.hardware.radio@1.0"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hidl.base@1.0",
+    shared_libs: ["libhidlbase"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "android.hidl.manager@1.0",
+    shared_libs: ["libhidlbase"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "libavservices_minijail_vendor",
+    shared_libs: ["libavservices_minijail"],
+    vendor: true,
+}
+
+cc_defaults {
+    name: "libgui_shim_defaults",
+    shared_libs: ["libutils"],
+    srcs: [
+        "libgui/GraphicBufferProducer.cpp",
+        "libgui/SurfaceComposerClient.cpp",
+    ],
+}
+
+cc_library {
+    name: "libbase_shim",
+    shared_libs: ["libbase"],
+    srcs: [
+        "libbase/logging.cpp",
+        "libbase/strings.cpp",
+    ],
+    vendor: true
+}
+
+cc_prebuilt_library_shared {
+    name: "libbase-v33",
+    vendor: true,
+    strip: {
+        none: true,
+    },
+    target: {
+        android_arm: {
+            srcs: ["vndk/v33/arm/libbase-v33.so"],
+        },
+        android_arm64: {
+            srcs: ["vndk/v33/arm64/libbase-v33.so"],
+        },
+    },
+    compile_multilib: "both",
+    check_elf_files: false,
+}
+
+cc_library {
+    name: "libbinder_shim",
+    shared_libs: ["libbinder", "libutils"],
+    srcs: [
+        "libbinder/IServiceManager.cpp",
+        "libbinder/PermissionCache.cpp",
+    ],
+    vendor: true
+}
+
+cc_library {
+    name: "libc_mutexdestroy_shim",
+    shared_libs: ["libc"],
+    srcs: ["libc/pthread_mutex_destroy.cpp"],
+    sanitize: { never: true },
+    stl: "none",
+    vendor: true
+}
+
+cc_library {
+    name: "libc_pthreadts_shim",
+    shared_libs: ["libc"],
+    srcs: ["libc/pthread_cond_timedwait.cpp"],
+    vendor: true
+}
+
+cc_library {
+    name: "libcamera_metadata_shim",
+    shared_libs: ["libcamera_metadata"],
+    srcs: ["libcamera_metadata/camera_metadata.cpp"],
+    vendor: true
+}
+
+cc_library_shared {
+    name: "libcamera_provider_shim",
+    shared_libs: [
+        "camera.device@1.0-impl",
+        "camera.device@3.2-impl",
+        "camera.device@3.3-impl",
+        "camera.device@3.4-impl",
+        "camera.device@3.5-impl",
+        "libcamera_metadata",
+    ],
+    include_dirs: [
+        "hardware/interfaces/camera/common/default/include/",
+        "hardware/libhardware/include",
+    ],
+    srcs: ["libcamera_provider/camera_provider.cpp"],
+    vendor: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libcrypto-v33",
+    vendor: true,
+    strip: {
+        none: true,
+    },
+    target: {
+        android_arm: {
+            srcs: ["vndk/v33/arm/libcrypto-v33.so"],
+        },
+        android_arm64: {
+            srcs: ["vndk/v33/arm64/libcrypto-v33.so"],
+        },
+    },
+    compile_multilib: "both",
+    check_elf_files: false,
+}
+
+cc_library {
+    name: "libcutils_shim",
+    shared_libs: [
+        "libcutils",
+    ],
+    srcs: [
+        "libcutils/strdup16to8.cpp",
+        "libcutils/strdup8to16.cpp",
+    ],
+    vendor_available: true,
+}
+
+cc_library {
+    name: "libgui_shim",
+    defaults: ["libgui_shim_defaults"],
+    shared_libs: ["libgui"],
+    system_ext_specific: true,
+}
+
+cc_library {
+    name: "libgui_shim_vendor",
+    defaults: ["libgui_shim_defaults"],
+    shared_libs: ["libgui_vendor"],
+    vendor: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libhidlbase-v32",
+    system_ext_specific: true,
+    recovery_available: true,
+    vendor_available: true,
+    strip: {
+        none: true,
+    },
+    target: {
+        android_arm: {
+            srcs: ["vndk/v32/arm/libhidlbase-v32.so"],
+        },
+        android_arm64: {
+            srcs: ["vndk/v32/arm64/libhidlbase-v32.so"],
+        },
+    },
+    compile_multilib: "both",
+    check_elf_files: false,
+}
+
+cc_library {
+    name: "libhidlbase_shim",
+    srcs: ["libhidlbase/gBnsConstructorMap.cpp"],
+    shared_libs: ["libhidlbase"],
+    compile_multilib: "both",
+    vendor: true,
+}
+
+cc_library {
+    name: "libmemset_shim",
+    target: {
+        android_arm: {
+            srcs: ["libmemset/memset32.S"],
+            sanitize: {
+                misc_undefined: ["integer"],
+            },
+        },
+        android_arm64: {
+            srcs: ["libmemset/android_memset.S"],
+            sanitize: {
+                misc_undefined: ["integer"],
+            },
+        },
+    },
+    vendor: true,
+}
+
+cc_library_shared {
+    name: "libpiex_shim",
+    shared_libs: ["libpiex"],
+    srcs: ["libpiex/piex_shim.cpp"],
+    vendor: true,
+}
+
+cc_library_shared {
+    name: "libui_shim",
+    shared_libs: [
+        "libui",
+        "libsync",
+        "libutils",
+    ],
+    srcs: [
+        "libui/Fence.cpp",
+        "libui/GraphicBuffer.cpp",
+        "libui/GraphicBufferMapper.cpp",
+    ],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "libutils_shim",
+    shared_libs: ["libutils"],
+    srcs: ["libutils/String16.cpp"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library {
+    name: "libip_checksum_shim",
+    whole_static_libs: [
+        "libip_checksum",
+    ],
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "libsensor_vendor",
+    srcs: [
+        "libsensor/Sensor.cpp",
+        "libsensor/SensorEventQueue.cpp",
+        "libsensor/SensorManager.cpp",
+    ],
+    shared_libs: [
+        "libsensorndkbridge",
+        "libutils",
+    ],
+    vendor: true,
+}
+
+cc_library_shared {
+    name: "libtinyxml2_shim",
+    srcs: ["libtinyxml2/XMLDocument.cpp"],
+    shared_libs: ["libtinyxml2"],
+    system_ext_specific: true,
+    vendor_available: true,
+}
+
+cc_library_shared {
+    name: "libcomparetf2_shim",
+    srcs: ["libcomparetf2/comparetf2.c"],
+    compile_multilib: "64",
+    vendor: true,
+}
+
+cc_prebuilt_library_shared {
+    name: "libstagefright_foundation-v33",
+    vendor: true,
+    strip: {
+        none: true,
+    },
+    target: {
+        android_arm: {
+            srcs: ["vndk/v33/arm/libstagefright_foundation-v33.so"],
+        },
+        android_arm64: {
+            srcs: ["vndk/v33/arm64/libstagefright_foundation-v33.so"],
+        },
+    },
+    compile_multilib: "both",
+    check_elf_files: false,
+}

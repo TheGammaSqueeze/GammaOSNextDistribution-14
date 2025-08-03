@@ -1,0 +1,30 @@
+package {
+    default_applicable_licenses: [
+        "frameworks_av_media_codec2_components_mp3_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_codec2_components_mp3_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "libcodec2_soft_mp3dec",
+    defaults: [
+        "libcodec2_soft-defaults",
+        "libcodec2_soft_sanitize_all-defaults",
+    ],
+
+    srcs: ["C2SoftMp3Dec.cpp"],
+
+    static_libs: ["libstagefright_mp3dec"],
+}

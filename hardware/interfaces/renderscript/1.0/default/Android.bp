@@ -1,0 +1,42 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_library_shared {
+    name: "android.hardware.renderscript@1.0-impl",
+    defaults: ["hidl_defaults"],
+    relative_install_path: "hw",
+    proprietary: true,
+    srcs: [
+        "Context.cpp",
+        "Device.cpp",
+    ],
+    include_dirs: [
+        "frameworks/rs",
+    ],
+    shared_libs: [
+        "libdl",
+        "libbase",
+        "libhidlbase",
+        "libutils",
+        "android.hardware.renderscript@1.0",
+    ],
+
+    runtime_libs: [
+        "libRS_internal",
+        //TODO(b/313564579) Install libRSDriver as dependency of libRS_internal
+        "libRSDriver",
+    ],
+
+    product_variables: {
+        override_rs_driver: {
+            cflags: ["-DOVERRIDE_RS_DRIVER=%s"],
+        },
+    },
+
+}

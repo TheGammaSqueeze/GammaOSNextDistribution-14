@@ -1,0 +1,37 @@
+architecture: arm
+battery: {capacity: 2850, removable: False, tech: 'Li-Po'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: 'Dual LED', info: '13 MP'}
+  - {flash: None, info: '5 MP'}
+codename: vegetalte
+cpu: Cortex-A53
+cpu_cores: '4'
+cpu_freq: 1.4 GHz (E5s)
+current_branch: 14.1
+dimensions: {depth: 8.7, height: 143.15, width: 72.15}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. When the device vibrates, release <kbd>Power</kbd>, wait a second, then release <kbd>Volume Down</kbd>.
+gpu: Qualcomm Adreno 306
+image: vegetalte.png
+install_method: fastboot_nexus
+kernel: {repo: android_kernel_bq_msm8939, version: '3.10'}
+maintainers: []
+name: Aquaris E5s
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, Dual SIM, FM radio, GPS, Gyroscope, Light sensor, Proximity sensor, USB OTG]
+ram: 1/2 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. When the device vibrates, release <kbd>Power</kbd>, wait a second, then release <kbd>Volume Up</kbd>.
+recovery_partition_name: recovery
+release: 2015
+screen: {resolution: '720x1280', size: 5, technology: 'IPS LCD'}
+sdcard: {size_max: '32 GB'}
+soc: Qualcomm MSM8916T Snapdragon 412
+storage: 8/16 GB
+tree: android_device_bq_vegetalte
+type: phone
+uses_twrp: true
+variant: 2
+vendor: BQ
+vendor_short: bq
+versions: [14.1]
+wifi: 802.11 b/g/n

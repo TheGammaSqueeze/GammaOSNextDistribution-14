@@ -1,0 +1,113 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_defaults {
+    name: "service-entitlement-defaults",
+    libs: [
+        "androidx.annotation_annotation",
+        "auto_value_annotations",
+        "error_prone_annotations",
+    ],
+    plugins: ["auto_value_plugin"],
+    sdk_version: "system_current",
+    min_sdk_version: "29",
+}
+
+java_library {
+    defaults: ["service-entitlement-defaults"],
+    name: "service-entitlement-impl",
+    visibility: [
+        "//visibility:private",
+    ],
+    srcs: [
+        "java/com/android/libraries/entitlement/eapaka/*.java",
+        "java/com/android/libraries/entitlement/http/*.java",
+    ],
+    static_libs: [
+        "guava",
+        "service-entitlement-data",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.wifi",
+    ],
+}
+
+java_library {
+    defaults: ["service-entitlement-defaults"],
+    name: "service-entitlement",
+    static_libs: [
+        "service-entitlement-api",
+        "service-entitlement-data",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.wifi",
+    ],
+}
+
+java_library {
+    defaults: ["service-entitlement-defaults"],
+    name: "service-entitlement-api",
+    visibility: [
+        "//visibility:private",
+    ],
+    srcs: [
+        "java/com/android/libraries/entitlement/ServiceEntitlement.java",
+        "java/com/android/libraries/entitlement/EapAkaHelper.java",
+        "java/com/android/libraries/entitlement/Ts43Authentication.java",
+        "java/com/android/libraries/entitlement/Ts43Operation.java",
+    ],
+    static_libs: [
+        "guava",
+        "service-entitlement-data",
+        "service-entitlement-impl",
+
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.wifi",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+java_library {
+    defaults: ["service-entitlement-defaults"],
+    name: "service-entitlement-data",
+    visibility: [
+        "//visibility:private",
+    ],
+    srcs: [
+        "java/com/android/libraries/entitlement/CarrierConfig.java",
+        "java/com/android/libraries/entitlement/EsimOdsaOperation.java",
+        "java/com/android/libraries/entitlement/ServiceEntitlementException.java",
+        "java/com/android/libraries/entitlement/ServiceEntitlementRequest.java",
+        "java/com/android/libraries/entitlement/odsa/*.java",
+        "java/com/android/libraries/entitlement/utils/*.java",
+    ],
+    static_libs: [
+        "guava",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.wifi",
+    ],
+}

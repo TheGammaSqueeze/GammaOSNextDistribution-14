@@ -1,0 +1,225 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// ==========================================================
+// Build the library for use on the host
+// ==========================================================
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+enum_protos = [
+    "enums/adservices/common/*.proto",
+    "enums/adservices/enrollment/*.proto",
+    "enums/adservices/fledge/*.proto",
+    "enums/adservices/measurement/*.proto",
+    "enums/anr/*.proto",
+    "enums/apex/*.proto",
+    "enums/app/**/*.proto",
+    "enums/autofill/**/*.proto",
+    "enums/contexthub/*.proto",
+    "enums/corenetworking/**/*.proto",
+    "enums/debug/*.proto",
+    "enums/display/*.proto",
+    "enums/dnd/*.proto",
+    "enums/federatedcompute/*.proto",
+    "enums/hardware/**/*.proto",
+    "enums/healthfitness/**/*.proto",
+    "enums/hotword/*.proto",
+    "enums/input/*.proto",
+    "enums/jank/*.proto",
+    "enums/media/**/*.proto",
+    "enums/mms/*.proto",
+    "enums/nearby/*.proto",
+    "enums/net/*.proto",
+    "enums/neuralnetworks/*.proto",
+    "enums/nfc/*.proto",
+    "enums/os/*.proto",
+    "enums/server/*.proto",
+    "enums/server/display/*.proto",
+    "enums/server/job/*.proto",
+    "enums/server/location/*.proto",
+    "enums/service/*.proto",
+    "enums/stats/*.proto",
+    "enums/stats/accessibility/*.proto",
+    "enums/stats/docsui/*.proto",
+    "enums/stats/hdmi/*.proto",
+    "enums/stats/ike/*.proto",
+    "enums/stats/intelligence/*.proto",
+    "enums/stats/location/*.proto",
+    "enums/stats/mediametrics/*.proto",
+    "enums/stats/mediaprovider/*.proto",
+    "enums/stats/mobiledatadownload/*.proto",
+    "enums/stats/otaupdate/*.proto",
+    "enums/stats/privacysignals/*.proto",
+    "enums/stats/safetycenter/*.proto",
+    "enums/stats/storage/*.proto",
+    "enums/stats/sysui/*.proto",
+    "enums/stats/tls/*.proto",
+    "enums/stats/tv/*.proto",
+    "enums/stats/wm/*.proto",
+    "enums/system/**/*.proto",
+    "enums/telecomm/*.proto",
+    "enums/telephony/*.proto",
+    "enums/telephony/qns/*.proto",
+    "enums/telephony/satellite/*.proto",
+    "enums/telephony/security/*.proto",
+    "enums/transparency/*.proto",
+    "enums/uwb/*.proto",
+    "enums/view/**/*.proto",
+    "enums/wear/connectivity/*.proto",
+    "enums/wear/media/*.proto",
+    "enums/wear/modes/*.proto",
+    "enums/wifi/*.proto",
+    ":data_stall_event_proto",
+    ":device_policy_proto",
+    ":dns_resolver_proto",
+    ":launcher_proto",
+    ":network_stack_proto",
+    ":connectivity_service_proto",
+    ":srcs_bluetooth_protos",
+    ":srcs_bluetooth_leaudio_protos",
+    ":style_proto",
+    ":tethering_proto",
+    ":text_classifier_proto",
+]
+
+atom_protos = [
+    "atoms.proto",
+    "attribution_node.proto",
+    "atoms/adpf/*.proto",
+    "atoms/agif/*.proto",
+    "atoms/apex/*.proto",
+    "atoms/aiwallpapers/*.proto",
+    "atoms/art/*.proto",
+    "atoms/appsearch/*.proto",
+    "atoms/bluetooth/*.proto",
+    "atoms/corenetworking/**/*.proto",
+    "atoms/autofill/*.proto",
+    "atoms/credentials/*.proto",
+    "atoms/cronet/*.proto",
+    "atoms/display/*.proto",
+    "atoms/dnd/*.proto",
+    "atoms/dream/*.proto",
+    "atoms/expresslog/*.proto",
+    "atoms/framework/*.proto",
+    "atoms/gps/*.proto",
+    "atoms/grammaticalinflection/*.proto",
+    "atoms/hardware/biometrics/*.proto",
+    "atoms/hdmi/*.proto",
+    "atoms/healthfitness/**/*.proto",
+    "atoms/hotword/*.proto",
+    "atoms/ike/*.proto",
+    "atoms/input/*.proto",
+    "atoms/locale/*.proto",
+    "atoms/wearsysui/*.proto",
+    "atoms/location/*.proto",
+    "atoms/view/inputmethod/*.proto",
+    "atoms/permissioncontroller/*.proto",
+    "atoms/placeholder/*.proto",
+    "atoms/power/*.proto",
+    "atoms/rkpd/*.proto",
+    "atoms/settings/*.proto",
+    "atoms/sysui/*.proto",
+    "atoms/tv/*.proto",
+    "atoms/usb/*.proto",
+    "atoms/providers/mediaprovider/*.proto",
+    "atoms/devicelogs/*.proto",
+    "atoms/kernel/*.proto",
+    "atoms/wearservices/*.proto",
+    "atoms/wear/media/*.proto",
+    "atoms/wear/prototiles/*.proto",
+    "atoms/media/*.proto",
+    "atoms/adservices/*.proto",
+    "atoms/wear/modes/*.proto",
+    "atoms/wearpas/*.proto",
+    "atoms/statsd/*.proto",
+    "atoms/telecomm/*.proto",
+    "atoms/telephony/qns/*.proto",
+    "atoms/telephony/*.proto",
+    "atoms/memorysafety/*.proto",
+    "atoms/wifi/*.proto",
+    "atoms/telephony/satellite/*.proto",
+    "atoms/telephony/security/*.proto",
+    "atoms/automotive/caruilib/*.proto",
+    "atoms/uwb/*.proto",
+    "atoms/ondevicepersonalization/*.proto",
+    "atoms/federatedcompute/*.proto",
+    "atoms/wear/connectivity/*.proto",
+    "atoms/devicelock/*.proto",
+    "atoms/cpu/*.proto",
+    "atoms/sdksandbox/*.proto",
+    "atoms/selinux/*.proto",
+    "atoms/threadnetwork/*.proto",
+    "atoms/automotive/carlauncher/*.proto",
+    "atoms/transparency/*.proto",
+    "atoms/desktopmode/*.proto",
+    "atoms/adaptiveauth/*.proto",
+]
+
+cc_library_host_shared {
+    name: "libstats_proto_host",
+    srcs: [
+        "atom_field_options.proto",
+        ":libstats_atom_message_protos",
+    ] + enum_protos + atom_protos,
+
+    cflags: [
+        "-Wno-deprecated-declarations",
+    ],
+
+    proto: {
+        type: "full",
+        export_proto_headers: true,
+        include_dirs: [
+            "external/protobuf/src",
+        ],
+    },
+}
+
+filegroup {
+    name: "libstats_atoms_proto",
+    srcs: atom_protos,
+}
+
+filegroup {
+    name: "libstats_internal_protos",
+    srcs: [
+        ":libstats_atoms_proto",
+        "atom_field_options.proto",
+        ":libstats_atom_enum_protos",
+        ":libstats_atom_message_protos",
+    ],
+}
+
+filegroup {
+    name: "libstats_atom_options_protos",
+    srcs: [
+        "atom_field_options.proto",
+    ],
+}
+
+filegroup {
+    name: "libstats_atom_enum_protos",
+    srcs: enum_protos,
+}
+
+filegroup {
+    name: "libstats_atom_message_protos",
+    srcs: [
+        "message/*.proto",
+    ],
+}

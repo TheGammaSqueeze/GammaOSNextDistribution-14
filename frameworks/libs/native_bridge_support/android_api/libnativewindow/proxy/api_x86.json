@@ -1,0 +1,1847 @@
+{
+	"symbols" : 
+	{
+		"AHardwareBuffer_acquire" : 
+		{
+			"type" : "func AHardwareBuffer_acquire"
+		},
+		"AHardwareBuffer_allocate" : 
+		{
+			"type" : "func AHardwareBuffer_allocate"
+		},
+		"AHardwareBuffer_allocateWithOptions" : 
+		{
+			"type" : "func AHardwareBuffer_allocateWithOptions"
+		},
+		"AHardwareBuffer_createFromHandle" : 
+		{
+			"type" : "func AHardwareBuffer_createFromHandle"
+		},
+		"AHardwareBuffer_describe" : 
+		{
+			"type" : "func AHardwareBuffer_describe"
+		},
+		"AHardwareBuffer_getDataSpace" : 
+		{
+			"type" : "func AHardwareBuffer_getDataSpace"
+		},
+		"AHardwareBuffer_getId" : 
+		{
+			"type" : "func AHardwareBuffer_getId"
+		},
+		"AHardwareBuffer_getNativeHandle" : 
+		{
+			"type" : "func AHardwareBuffer_getNativeHandle"
+		},
+		"AHardwareBuffer_isSupported" : 
+		{
+			"type" : "func AHardwareBuffer_isSupported"
+		},
+		"AHardwareBuffer_lock" : 
+		{
+			"type" : "func AHardwareBuffer_lock"
+		},
+		"AHardwareBuffer_lockAndGetInfo" : 
+		{
+			"type" : "func AHardwareBuffer_lockAndGetInfo"
+		},
+		"AHardwareBuffer_lockPlanes" : 
+		{
+			"type" : "func AHardwareBuffer_lockPlanes"
+		},
+		"AHardwareBuffer_readFromParcel" : 
+		{
+			"type" : "func AHardwareBuffer_readFromParcel"
+		},
+		"AHardwareBuffer_recvHandleFromUnixSocket" : 
+		{
+			"type" : "func AHardwareBuffer_recvHandleFromUnixSocket"
+		},
+		"AHardwareBuffer_release" : 
+		{
+			"type" : "func AHardwareBuffer_release"
+		},
+		"AHardwareBuffer_sendHandleToUnixSocket" : 
+		{
+			"type" : "func AHardwareBuffer_sendHandleToUnixSocket"
+		},
+		"AHardwareBuffer_setDataSpace" : 
+		{
+			"type" : "func AHardwareBuffer_setDataSpace"
+		},
+		"AHardwareBuffer_unlock" : 
+		{
+			"type" : "func AHardwareBuffer_unlock"
+		},
+		"AHardwareBuffer_writeToParcel" : 
+		{
+			"type" : "func AHardwareBuffer_writeToParcel"
+		},
+		"ANativeWindowBuffer_getHardwareBuffer" : 
+		{
+			"type" : "func ANativeWindowBuffer_getHardwareBuffer"
+		},
+		"ANativeWindow_OemStorageGet" : 
+		{
+			"type" : "func ANativeWindow_OemStorageGet"
+		},
+		"ANativeWindow_OemStorageSet" : 
+		{
+			"type" : "func ANativeWindow_OemStorageSet"
+		},
+		"ANativeWindow_acquire" : 
+		{
+			"type" : "func ANativeWindow_acquire"
+		},
+		"ANativeWindow_cancelBuffer" : 
+		{
+			"type" : "func ANativeWindow_cancelBuffer"
+		},
+		"ANativeWindow_dequeueBuffer" : 
+		{
+			"type" : "func ANativeWindow_dequeueBuffer"
+		},
+		"ANativeWindow_getBuffersDataSpace" : 
+		{
+			"type" : "func ANativeWindow_getBuffersDataSpace"
+		},
+		"ANativeWindow_getBuffersDefaultDataSpace" : 
+		{
+			"type" : "func ANativeWindow_getBuffersDefaultDataSpace"
+		},
+		"ANativeWindow_getFormat" : 
+		{
+			"type" : "func ANativeWindow_getFormat"
+		},
+		"ANativeWindow_getHeight" : 
+		{
+			"type" : "func ANativeWindow_getHeight"
+		},
+		"ANativeWindow_getLastDequeueDuration" : 
+		{
+			"type" : "func ANativeWindow_getLastDequeueDuration"
+		},
+		"ANativeWindow_getLastDequeueStartTime" : 
+		{
+			"type" : "func ANativeWindow_getLastDequeueStartTime"
+		},
+		"ANativeWindow_getLastQueueDuration" : 
+		{
+			"type" : "func ANativeWindow_getLastQueueDuration"
+		},
+		"ANativeWindow_getWidth" : 
+		{
+			"type" : "func ANativeWindow_getWidth"
+		},
+		"ANativeWindow_lock" : 
+		{
+			"type" : "func ANativeWindow_lock"
+		},
+		"ANativeWindow_query" : 
+		{
+			"type" : "func ANativeWindow_query"
+		},
+		"ANativeWindow_queryf" : 
+		{
+			"type" : "func ANativeWindow_queryf"
+		},
+		"ANativeWindow_queueBuffer" : 
+		{
+			"type" : "func ANativeWindow_queueBuffer"
+		},
+		"ANativeWindow_readFromParcel" : 
+		{
+			"type" : "func ANativeWindow_readFromParcel"
+		},
+		"ANativeWindow_release" : 
+		{
+			"type" : "func ANativeWindow_release"
+		},
+		"ANativeWindow_setAutoPrerotation" : 
+		{
+			"type" : "func ANativeWindow_setAutoPrerotation"
+		},
+		"ANativeWindow_setAutoRefresh" : 
+		{
+			"type" : "func ANativeWindow_setAutoRefresh"
+		},
+		"ANativeWindow_setBufferCount" : 
+		{
+			"type" : "func ANativeWindow_setBufferCount"
+		},
+		"ANativeWindow_setBuffersDataSpace" : 
+		{
+			"type" : "func ANativeWindow_setBuffersDataSpace"
+		},
+		"ANativeWindow_setBuffersDimensions" : 
+		{
+			"type" : "func ANativeWindow_setBuffersDimensions"
+		},
+		"ANativeWindow_setBuffersFormat" : 
+		{
+			"type" : "func ANativeWindow_setBuffersFormat"
+		},
+		"ANativeWindow_setBuffersGeometry" : 
+		{
+			"type" : "func ANativeWindow_setBuffersGeometry"
+		},
+		"ANativeWindow_setBuffersTimestamp" : 
+		{
+			"type" : "func ANativeWindow_setBuffersTimestamp"
+		},
+		"ANativeWindow_setBuffersTransform" : 
+		{
+			"type" : "func ANativeWindow_setBuffersTransform"
+		},
+		"ANativeWindow_setCancelBufferInterceptor" : 
+		{
+			"type" : "func ANativeWindow_setCancelBufferInterceptor"
+		},
+		"ANativeWindow_setDequeueBufferInterceptor" : 
+		{
+			"type" : "func ANativeWindow_setDequeueBufferInterceptor"
+		},
+		"ANativeWindow_setDequeueTimeout" : 
+		{
+			"type" : "func ANativeWindow_setDequeueTimeout"
+		},
+		"ANativeWindow_setFrameRate" : 
+		{
+			"type" : "func ANativeWindow_setFrameRate"
+		},
+		"ANativeWindow_setFrameRateWithChangeStrategy" : 
+		{
+			"type" : "func ANativeWindow_setFrameRateWithChangeStrategy"
+		},
+		"ANativeWindow_setPerformInterceptor" : 
+		{
+			"type" : "func ANativeWindow_setPerformInterceptor"
+		},
+		"ANativeWindow_setQueueBufferInterceptor" : 
+		{
+			"type" : "func ANativeWindow_setQueueBufferInterceptor"
+		},
+		"ANativeWindow_setSharedBufferMode" : 
+		{
+			"type" : "func ANativeWindow_setSharedBufferMode"
+		},
+		"ANativeWindow_setSwapInterval" : 
+		{
+			"type" : "func ANativeWindow_setSwapInterval"
+		},
+		"ANativeWindow_setUsage" : 
+		{
+			"type" : "func ANativeWindow_setUsage"
+		},
+		"ANativeWindow_tryAllocateBuffers" : 
+		{
+			"type" : "func ANativeWindow_tryAllocateBuffers"
+		},
+		"ANativeWindow_unlockAndPost" : 
+		{
+			"type" : "func ANativeWindow_unlockAndPost"
+		},
+		"ANativeWindow_writeToParcel" : 
+		{
+			"type" : "func ANativeWindow_writeToParcel"
+		},
+		"_ZN7android28AHardwareBuffer_getDataSpaceEP15AHardwareBuffer" : 
+		{
+			"type" : "func _ZN7android28AHardwareBuffer_getDataSpaceEP15AHardwareBuffer"
+		},
+		"_ZN7android32AHardwareBuffer_to_GraphicBufferEP15AHardwareBuffer" : 
+		{
+			"type" : "func _ZN7android32AHardwareBuffer_to_GraphicBufferEP15AHardwareBuffer"
+		},
+		"_ZN7android32AHardwareBuffer_to_GraphicBufferEPK15AHardwareBuffer" : 
+		{
+			"type" : "func _ZN7android32AHardwareBuffer_to_GraphicBufferEPK15AHardwareBuffer"
+		},
+		"_ZN7android34AHardwareBuffer_from_GraphicBufferEPNS_13GraphicBufferE" : 
+		{
+			"type" : "func _ZN7android34AHardwareBuffer_from_GraphicBufferEPNS_13GraphicBufferE"
+		},
+		"_ZN7android36AHardwareBuffer_convertToPixelFormatEj" : 
+		{
+			"type" : "func _ZN7android36AHardwareBuffer_convertToPixelFormatEj"
+		},
+		"_ZN7android38AHardwareBuffer_convertFromPixelFormatEj" : 
+		{
+			"type" : "func _ZN7android38AHardwareBuffer_convertFromPixelFormatEj"
+		},
+		"_ZN7android38AHardwareBuffer_to_ANativeWindowBufferEP15AHardwareBuffer" : 
+		{
+			"type" : "func _ZN7android38AHardwareBuffer_to_ANativeWindowBufferEP15AHardwareBuffer"
+		},
+		"_ZN7android38AHardwareBuffer_to_ANativeWindowBufferEPK15AHardwareBuffer" : 
+		{
+			"type" : "func _ZN7android38AHardwareBuffer_to_ANativeWindowBufferEPK15AHardwareBuffer"
+		},
+		"_ZN7android41AHardwareBuffer_convertToGrallocUsageBitsEy" : 
+		{
+			"type" : "func _ZN7android41AHardwareBuffer_convertToGrallocUsageBitsEy"
+		},
+		"_ZN7android43AHardwareBuffer_convertFromGrallocUsageBitsEy" : 
+		{
+			"type" : "func _ZN7android43AHardwareBuffer_convertFromGrallocUsageBitsEy"
+		}
+	},
+	"types" : 
+	{
+		"bool" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 8
+		},
+		"char8" : 
+		{
+			"kind" : "char",
+			"signed" : true,
+			"size" : 8
+		},
+		"char8 const" : 
+		{
+			"base_type" : "char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8 const",
+			"size" : 32
+		},
+		"char8*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8",
+			"size" : 32
+		},
+		"class android::GraphicBuffer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"class android::GraphicBuffer const" : 
+		{
+			"base_type" : "class android::GraphicBuffer",
+			"kind" : "const",
+			"size" : 0
+		},
+		"class android::GraphicBuffer const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::GraphicBuffer const",
+			"size" : 32
+		},
+		"class android::GraphicBuffer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "class android::GraphicBuffer",
+			"size" : 32
+		},
+		"float32" : 
+		{
+			"kind" : "float",
+			"signed" : true,
+			"size" : 32
+		},
+		"float32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "float32",
+			"size" : 32
+		},
+		"func #1" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"func #2*",
+				"void*",
+				"struct ANativeWindowBuffer*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #1*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #1",
+			"size" : 32
+		},
+		"func #2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"struct ANativeWindowBuffer*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #2*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #2",
+			"size" : 32
+		},
+		"func #3" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"func #4*",
+				"void*",
+				"struct ANativeWindowBuffer**",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #3*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #3",
+			"size" : 32
+		},
+		"func #4" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"struct ANativeWindowBuffer**",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #4*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #4",
+			"size" : 32
+		},
+		"func #5" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"func #2*",
+				"void*",
+				"struct ANativeWindowBuffer*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #5*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #5",
+			"size" : 32
+		},
+		"func #6" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"func #7*",
+				"void*",
+				"int32",
+				"char8*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #6*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #6",
+			"size" : 32
+		},
+		"func #7" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"int32",
+				"char8*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #7*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #7",
+			"size" : 32
+		},
+		"func AHardwareBuffer_acquire" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AHardwareBuffer_allocate" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer_Desc const*",
+				"struct AHardwareBuffer**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_allocateWithOptions" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer_Desc const*",
+				"struct AHardwareBufferLongOptions const*",
+				"unsigned int32",
+				"struct AHardwareBuffer**"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_createFromHandle" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer_Desc const*",
+				"struct native_handle const*",
+				"int32",
+				"struct AHardwareBuffer**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_describe" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*",
+				"struct AHardwareBuffer_Desc*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AHardwareBuffer_getDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_getId" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*",
+				"unsigned int64*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_getNativeHandle" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*"
+			],
+			"return_type" : "struct native_handle const*",
+			"size" : 0
+		},
+		"func AHardwareBuffer_isSupported" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer_Desc const*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_lock" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*",
+				"unsigned int64",
+				"int32",
+				"struct ARect const*",
+				"void**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_lockAndGetInfo" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*",
+				"unsigned int64",
+				"int32",
+				"struct ARect const*",
+				"void**",
+				"int32*",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_lockPlanes" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*",
+				"unsigned int64",
+				"int32",
+				"struct ARect const*",
+				"struct AHardwareBuffer_Planes*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_readFromParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"struct AHardwareBuffer**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_recvHandleFromUnixSocket" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32",
+				"struct AHardwareBuffer**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_release" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AHardwareBuffer_sendHandleToUnixSocket" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_setDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*",
+				"unsigned int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_unlock" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AHardwareBuffer_writeToParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*",
+				"struct AParcel*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindowBuffer_getHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindowBuffer*"
+			],
+			"return_type" : "struct AHardwareBuffer*",
+			"size" : 0
+		},
+		"func ANativeWindow_OemStorageGet" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_OemStorageSet" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"unsigned int32",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_acquire" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANativeWindow_cancelBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"struct ANativeWindowBuffer*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_dequeueBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"struct ANativeWindowBuffer**",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_getBuffersDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_getBuffersDefaultDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_getFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_getHeight" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_getLastDequeueDuration" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func ANativeWindow_getLastDequeueStartTime" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func ANativeWindow_getLastQueueDuration" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func ANativeWindow_getWidth" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_lock" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"struct ANativeWindow_Buffer*",
+				"struct ARect*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_query" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow const*",
+				"unsigned int32",
+				"int32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_queryf" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow const*",
+				"unsigned int32",
+				"float32*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_queueBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"struct ANativeWindowBuffer*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_readFromParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AParcel const*",
+				"struct ANativeWindow**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_release" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANativeWindow_setAutoPrerotation" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setAutoRefresh" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setBufferCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setBuffersDataSpace" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setBuffersDimensions" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"unsigned int32",
+				"unsigned int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setBuffersFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setBuffersGeometry" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"int32",
+				"int32",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setBuffersTimestamp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setBuffersTransform" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setCancelBufferInterceptor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"func #1*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setDequeueBufferInterceptor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"func #3*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setDequeueTimeout" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setFrameRate" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"float32",
+				"char8"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setFrameRateWithChangeStrategy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"float32",
+				"char8",
+				"char8"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setPerformInterceptor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"func #6*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setQueueBufferInterceptor" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"func #5*",
+				"void*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setSharedBufferMode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"bool"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setSwapInterval" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_setUsage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"unsigned int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_tryAllocateBuffers" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func ANativeWindow_unlockAndPost" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func ANativeWindow_writeToParcel" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct ANativeWindow*",
+				"struct AParcel*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func _ZN7android28AHardwareBuffer_getDataSpaceEP15AHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func _ZN7android32AHardwareBuffer_to_GraphicBufferEP15AHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*"
+			],
+			"return_type" : "class android::GraphicBuffer*",
+			"size" : 0
+		},
+		"func _ZN7android32AHardwareBuffer_to_GraphicBufferEPK15AHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*"
+			],
+			"return_type" : "class android::GraphicBuffer const*",
+			"size" : 0
+		},
+		"func _ZN7android34AHardwareBuffer_from_GraphicBufferEPNS_13GraphicBufferE" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"class android::GraphicBuffer*"
+			],
+			"return_type" : "struct AHardwareBuffer*",
+			"size" : 0
+		},
+		"func _ZN7android36AHardwareBuffer_convertToPixelFormatEj" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func _ZN7android38AHardwareBuffer_convertFromPixelFormatEj" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int32"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func _ZN7android38AHardwareBuffer_to_ANativeWindowBufferEP15AHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer*"
+			],
+			"return_type" : "struct ANativeWindowBuffer*",
+			"size" : 0
+		},
+		"func _ZN7android38AHardwareBuffer_to_ANativeWindowBufferEPK15AHardwareBuffer" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AHardwareBuffer const*"
+			],
+			"return_type" : "struct ANativeWindowBuffer const*",
+			"size" : 0
+		},
+		"func _ZN7android41AHardwareBuffer_convertToGrallocUsageBitsEy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int64",
+			"size" : 0
+		},
+		"func _ZN7android43AHardwareBuffer_convertFromGrallocUsageBitsEy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"unsigned int64"
+			],
+			"return_type" : "unsigned int64",
+			"size" : 0
+		},
+		"int32" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 32
+		},
+		"int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32",
+			"size" : 32
+		},
+		"int32[0]" : 
+		{
+			"element_type" : "int32",
+			"kind" : "array",
+			"size" : 0
+		},
+		"int64" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 64
+		},
+		"struct AHardwareBuffer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AHardwareBuffer const" : 
+		{
+			"base_type" : "struct AHardwareBuffer",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct AHardwareBuffer const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer const",
+			"size" : 32
+		},
+		"struct AHardwareBuffer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer",
+			"size" : 32
+		},
+		"struct AHardwareBuffer**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer*",
+			"size" : 32
+		},
+		"struct AHardwareBufferLongOptions" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "name",
+					"offset" : 0,
+					"type" : "char8 const*"
+				},
+				{
+					"name" : "value",
+					"offset" : 32,
+					"type" : "int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct AHardwareBufferLongOptions const" : 
+		{
+			"base_type" : "struct AHardwareBufferLongOptions",
+			"kind" : "const",
+			"size" : 96
+		},
+		"struct AHardwareBufferLongOptions const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBufferLongOptions const",
+			"size" : 32
+		},
+		"struct AHardwareBuffer_Desc" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "width",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "height",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "layers",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "format",
+					"offset" : 96,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "usage",
+					"offset" : 128,
+					"type" : "unsigned int64"
+				},
+				{
+					"name" : "stride",
+					"offset" : 192,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "rfu0",
+					"offset" : 224,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "rfu1",
+					"offset" : 256,
+					"type" : "unsigned int64"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 320
+		},
+		"struct AHardwareBuffer_Desc const" : 
+		{
+			"base_type" : "struct AHardwareBuffer_Desc",
+			"kind" : "const",
+			"size" : 320
+		},
+		"struct AHardwareBuffer_Desc const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer_Desc const",
+			"size" : 32
+		},
+		"struct AHardwareBuffer_Desc*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer_Desc",
+			"size" : 32
+		},
+		"struct AHardwareBuffer_Plane" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "data",
+					"offset" : 0,
+					"type" : "void*"
+				},
+				{
+					"name" : "pixelStride",
+					"offset" : 32,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "rowStride",
+					"offset" : 64,
+					"type" : "unsigned int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct AHardwareBuffer_Plane[4]" : 
+		{
+			"element_type" : "struct AHardwareBuffer_Plane",
+			"kind" : "array",
+			"size" : 384
+		},
+		"struct AHardwareBuffer_Planes" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "planeCount",
+					"offset" : 0,
+					"type" : "unsigned int32"
+				},
+				{
+					"name" : "planes",
+					"offset" : 32,
+					"type" : "struct AHardwareBuffer_Plane[4]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 416
+		},
+		"struct AHardwareBuffer_Planes*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AHardwareBuffer_Planes",
+			"size" : 32
+		},
+		"struct ANativeWindow" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANativeWindow const" : 
+		{
+			"base_type" : "struct ANativeWindow",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANativeWindow const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindow const",
+			"size" : 32
+		},
+		"struct ANativeWindow*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindow",
+			"size" : 32
+		},
+		"struct ANativeWindow**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindow*",
+			"size" : 32
+		},
+		"struct ANativeWindowBuffer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANativeWindowBuffer const" : 
+		{
+			"base_type" : "struct ANativeWindowBuffer",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct ANativeWindowBuffer const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindowBuffer const",
+			"size" : 32
+		},
+		"struct ANativeWindowBuffer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindowBuffer",
+			"size" : 32
+		},
+		"struct ANativeWindowBuffer**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindowBuffer*",
+			"size" : 32
+		},
+		"struct ANativeWindow_Buffer" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct ANativeWindow_Buffer*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ANativeWindow_Buffer",
+			"size" : 32
+		},
+		"struct AParcel" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AParcel const" : 
+		{
+			"base_type" : "struct AParcel",
+			"kind" : "const",
+			"size" : 0
+		},
+		"struct AParcel const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AParcel const",
+			"size" : 32
+		},
+		"struct AParcel*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AParcel",
+			"size" : 32
+		},
+		"struct ARect" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "left",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "top",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "right",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "bottom",
+					"offset" : 96,
+					"type" : "int32"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 128
+		},
+		"struct ARect const" : 
+		{
+			"base_type" : "struct ARect",
+			"kind" : "const",
+			"size" : 128
+		},
+		"struct ARect const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ARect const",
+			"size" : 32
+		},
+		"struct ARect*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct ARect",
+			"size" : 32
+		},
+		"struct native_handle" : 
+		{
+			"fields" : 
+			[
+				{
+					"name" : "version",
+					"offset" : 0,
+					"type" : "int32"
+				},
+				{
+					"name" : "numFds",
+					"offset" : 32,
+					"type" : "int32"
+				},
+				{
+					"name" : "numInts",
+					"offset" : 64,
+					"type" : "int32"
+				},
+				{
+					"name" : "data",
+					"offset" : 96,
+					"type" : "int32[0]"
+				}
+			],
+			"inheritance" : [],
+			"kind" : "struct",
+			"size" : 96
+		},
+		"struct native_handle const" : 
+		{
+			"base_type" : "struct native_handle",
+			"kind" : "const",
+			"size" : 96
+		},
+		"struct native_handle const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct native_handle const",
+			"size" : 32
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"unsigned int64" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 64
+		},
+		"unsigned int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "unsigned int64",
+			"size" : 32
+		},
+		"void" : 
+		{
+			"kind" : "incomplete"
+		},
+		"void*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void",
+			"size" : 32
+		},
+		"void**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void*",
+			"size" : 32
+		}
+	}
+}

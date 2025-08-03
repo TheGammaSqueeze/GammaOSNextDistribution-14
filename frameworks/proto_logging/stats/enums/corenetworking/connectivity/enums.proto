@@ -1,0 +1,77 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.corenetworking.connectivity;
+
+option java_outer_classname = "ConnectivityProtoEnums";
+option java_multiple_files = true;
+
+// Signal strength levels, as defined in android/telephony/SignalStrength.java.
+enum SignalStrength {
+  SIGNAL_STRENGTH_NONE_OR_UNKNOWN = 0;
+  SIGNAL_STRENGTH_POOR = 1;
+  SIGNAL_STRENGTH_MODERATE = 2;
+  SIGNAL_STRENGTH_GOOD = 3;
+  SIGNAL_STRENGTH_GREAT = 4;
+}
+
+// Radio Access Technology(RAT) will only consider the RAT type of (WIFI/2G/3G/4G/5G).
+// So in addition to the above RAT types, others(BT, ethernet or no RAT) will be classified
+// as RT_UNKNOWN.
+enum RatType {
+    RT_UNKNOWN = 0;
+    RT_WIFI = 1;
+    RT_2G = 2;
+    RT_3G = 3;
+    RT_4G = 4;
+    RT_5G = 5;
+}
+
+// Network request states
+// * Network request is in the NETWORK_REQUEST_STATE_RECEIVED state when it
+// was just registered by the Connectivity service;
+// * Network request is in the NETWORK_REQUEST_STATE_REMOVED state when it was
+// just removed by the Connectivity service;
+enum NetworkRequestState {
+  NETWORK_REQUEST_STATE_UNKNOWN = 0;
+  NETWORK_REQUEST_STATE_RECEIVED = 1;
+  NETWORK_REQUEST_STATE_REMOVED = 2;
+}
+
+// Prefix as enum of NetworkStatsRecorder, as defined in
+// android.net.netstats.NetworkStatsDataMigrationUtils#PREFIX_*.
+enum RecorderPrefix {
+  PREFIX_UNKNOWN = 0;
+  PREFIX_XT = 1;
+  PREFIX_UID = 2;
+  PREFIX_UIDTAG = 3;
+}
+
+// Type of NetworkStatsRecorder file operations.
+enum RecorderOperationType {
+  ROT_UNKNOWN = 0;
+  ROT_READ = 1;
+  ROT_WRITE = 2;
+}
+
+// State of applying FastDataInput feature.
+enum FastDataInputState {
+  FDIS_UNKNOWN = 0;
+  FDIS_ENABLED= 1;
+  FDIS_DISABLED = 2;
+}

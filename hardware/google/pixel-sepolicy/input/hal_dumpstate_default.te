@@ -1,0 +1,2 @@
+allow hal_dumpstate_default touch_context_service:service_manager find;
+binder_call(hal_dumpstate_default, twoshay)

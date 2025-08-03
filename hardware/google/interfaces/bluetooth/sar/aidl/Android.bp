@@ -1,0 +1,36 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "hardware.google.bluetooth.sar",
+    owner: "google",
+    vendor_available: true,
+    srcs: ["hardware/google/bluetooth/sar/*.aidl"],
+    stability: "vintf",
+
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            platform_apis: true,
+        },
+        ndk: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.btservices",
+            ],
+            min_sdk_version: "33",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+    frozen: true,
+
+}

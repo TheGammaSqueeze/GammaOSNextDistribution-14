@@ -1,0 +1,138 @@
+# TODO(b/210510433): Refine and optimize this configuration. Note that this
+# configuration is only used when `SOONG_CONFIG_ANDROID_SYSTEM_OPTIMIZE_JAVA=true`.
+
+# Preserve line number information for debugging stack traces.
+-keepattributes SourceFile,LineNumberTable
+
+# Allows making private and protected methods/fields public as part of
+# optimization. This enables inlining of trivial getter/setter methods.
+-allowaccessmodification
+
+# Process entrypoint
+-keep class com.android.server.SystemServer {
+  public static void main(java.lang.String[]);
+}
+
+# APIs referenced by dependent JAR files and modules
+# TODO(b/300514883): Pull @SystemApi keep rules from system-api.pro.
+-keep interface android.annotation.SystemApi
+-keep @android.annotation.SystemApi class * {
+  public protected *;
+}
+-keepclasseswithmembers class * {
+  @android.annotation.SystemApi *;
+}
+# Also ensure nested classes are kept. This is overly conservative, but handles
+# cases where such classes aren't explicitly marked @SystemApi.
+-if @android.annotation.SystemApi class *
+-keep public class <1>$** {
+  public protected *;
+}
+
+# Derivatives of SystemService and other services created via reflection
+-keep,allowoptimization,allowaccessmodification class * extends com.android.server.SystemService {
+  public <methods>;
+}
+-keep,allowoptimization,allowaccessmodification class * extends com.android.server.devicepolicy.BaseIDevicePolicyManager {
+  public <init>(...);
+}
+-keep,allowoptimization,allowaccessmodification class com.android.server.wallpaper.WallpaperManagerService {
+  public <init>(...);
+}
+
+# Accessed from com.android.compos APEX
+-keep,allowoptimization,allowaccessmodification class com.android.internal.art.ArtStatsLog {
+   public static void write(...);
+}
+
+# Various classes subclassed in or referenced via JNI in ethernet-service
+-keep public class android.net.** { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.net.module.util.* { *; }
+-keep,allowoptimization,allowaccessmodification public class com.android.server.net.IpConfigStore { *; }
+-keep,allowoptimization,allowaccessmodification public class com.android.server.net.BaseNetworkObserver { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.display.feature.DisplayManagerFlags { *; }
+-keep,allowoptimization,allowaccessmodification class android.app.admin.flags.FeatureFlagsImpl { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.input.NativeInputManagerService$NativeImpl { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.ThreadPriorityBooster { *; }
+-keep,allowaccessmodification class android.app.admin.flags.Flags { *; }
+
+# Referenced via CarServiceHelperService in car-frameworks-service (avoid removing)
+-keep public class com.android.server.utils.Slogf { *; }
+
+# Referenced in wear-service
+# HIDL interfaces
+-keep public class android.hidl.base.** { *; }
+-keep public class android.hidl.manager.** { *; }
+-keep public class com.android.server.wm.WindowManagerInternal { *; }
+
+# Notification extractors
+# TODO(b/210510433): Revisit and consider generating from frameworks/base/core/res/res/values/config.xml.
+-keep,allowoptimization,allowaccessmodification public class com.android.server.notification.** implements com.android.server.notification.NotificationSignalExtractor
+
+# OEM provided DisplayAreaPolicy.Provider defined in frameworks/base/core/res/res/values/config.xml.
+-keep,allowoptimization,allowaccessmodification class com.android.server.wm.** implements com.android.server.wm.DisplayAreaPolicy$Provider
+
+# JNI keep rules
+# The global keep rule for native methods allows stripping of such methods if they're unreferenced
+# in Java. However, because system_server explicitly registers these methods from native code,
+# stripping them in Java can cause runtime issues. As such, conservatively keep all such methods in
+# system_server subpackages as long as the containing class is also kept or referenced.
+-keepclassmembers class com.android.server.** {
+  native <methods>;
+}
+# TODO(b/210510433): Revisit and fix with @Keep, or consider auto-generating from
+# frameworks/base/services/core/jni/onload.cpp.
+-keep,allowoptimization,allowaccessmodification class com.android.server.broadcastradio.hal1.BroadcastRadioService { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.broadcastradio.hal1.Convert { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.broadcastradio.hal1.Tuner { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.broadcastradio.hal1.TunerCallback { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.location.gnss.GnssConfiguration$HalInterfaceVersion { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.location.gnss.GnssPowerStats { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.location.gnss.hal.GnssNative { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.pm.PackageManagerShellCommandDataLoader { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.sensors.SensorManagerInternal$RuntimeSensorCallback { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.sensors.SensorManagerInternal$ProximityActiveListener { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.sensors.SensorService { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.soundtrigger_middleware.SoundTriggerMiddlewareImpl$AudioSessionProvider$AudioSession { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.soundtrigger_middleware.ExternalCaptureStateTracker { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.storage.AppFuseBridge { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.tv.TvInputHal { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.usb.UsbAlsaJackDetector { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.usb.UsbAlsaMidiDevice { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.vibrator.VibratorController$OnVibrationCompleteListener { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.vibrator.VibratorManagerService$OnSyncedVibrationCompleteListener { *; }
+-keepclasseswithmembers,allowoptimization,allowaccessmodification class com.android.server.** {
+  *** *FromNative(...);
+}
+-keep,allowoptimization,allowaccessmodification class com.android.server.input.InputManagerService {
+  <methods>;
+}
+-keep,allowoptimization,allowaccessmodification class com.android.server.usb.UsbHostManager {
+  *** usbDeviceRemoved(...);
+  *** usbDeviceAdded(...);
+}
+-keep,allowoptimization,allowaccessmodification class **.*NativeWrapper* { *; }
+
+# Miscellaneous reflection keep rules
+# TODO(b/210510433): Revisit and fix with @Keep.
+-keep,allowoptimization,allowaccessmodification class com.android.server.usage.AppStandbyController {
+  public <init>(...);
+}
+-keep,allowoptimization,allowaccessmodification class android.hardware.usb.gadget.** { *; }
+
+# Needed when optimizations enabled
+# TODO(b/210510433): Revisit and fix with @Keep.
+-keep,allowoptimization,allowaccessmodification class com.android.server.SystemService { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.SystemService$TargetUser { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.server.usage.StorageStatsManagerLocal { *; }
+-keep,allowoptimization,allowaccessmodification class com.android.internal.util.** { *; }
+-keep,allowoptimization,allowaccessmodification class android.os.** { *; }
+
+# CoverageService guards optional jacoco class references with a runtime guard, so we can safely
+# suppress build-time warnings.
+-dontwarn org.jacoco.agent.rt.*
+
+# SDK
+-keep,allowoptimization,allowaccessmodification class lineageos.** { *; }
+-keep,allowoptimization,allowaccessmodification class org.lineageos.** { *; }
+-keep,allowoptimization,allowaccessmodification class vendor.lineage.** { *; }

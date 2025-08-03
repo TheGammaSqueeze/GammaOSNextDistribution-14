@@ -1,0 +1,213 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_defaults {
+    name: "libaudioclient_tests_defaults",
+    test_suites: ["device-tests"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libcutils",
+        "liblog",
+        "libutils",
+    ],
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+    },
+}
+
+cc_defaults {
+    name: "audio_aidl_conversion_test_defaults",
+    defaults: [
+        "libaudioclient_tests_defaults",
+        "latest_android_media_audio_common_types_cpp_static",
+    ],
+    static_libs: [
+        "audioclient-types-aidl-cpp",
+        "av-types-aidl-cpp",
+        "libaudio_aidl_conversion_common_cpp",
+        "libaudioclient_aidl_conversion",
+        "libstagefright_foundation",
+    ],
+}
+
+cc_test {
+    name: "audio_aidl_conversion_tests",
+    defaults: [
+        "audio_aidl_conversion_test_defaults",
+    ],
+    srcs: ["audio_aidl_legacy_conversion_tests.cpp"],
+}
+
+cc_test {
+    name: "audio_aidl_status_tests",
+    defaults: ["libaudioclient_tests_defaults"],
+    srcs: ["audio_aidl_status_tests.cpp"],
+    shared_libs: [
+        "libaudioclient_aidl_conversion",
+    ],
+}
+
+cc_test {
+    name: "test_create_audiotrack",
+    defaults: ["libaudioclient_tests_defaults"],
+    srcs: [
+        "test_create_audiotrack.cpp",
+        "test_create_utils.cpp",
+    ],
+    header_libs: [
+        "libmedia_headers",
+        "libmediametrics_headers",
+    ],
+    shared_libs: [
+        "framework-permission-aidl-cpp",
+        "libaudioclient",
+    ],
+    data: ["track_test_input_*.txt"],
+}
+
+cc_test {
+    name: "test_create_audiorecord",
+    defaults: ["libaudioclient_tests_defaults"],
+    srcs: [
+        "test_create_audiorecord.cpp",
+        "test_create_utils.cpp",
+    ],
+    header_libs: [
+        "libmedia_headers",
+        "libmediametrics_headers",
+    ],
+    shared_libs: [
+        "framework-permission-aidl-cpp",
+        "libaudioclient",
+    ],
+    data: ["record_test_input_*.txt"],
+}
+
+cc_defaults {
+    name: "libaudioclient_gtests_defaults",
+    defaults: [
+        "audio_aidl_conversion_test_defaults",
+    ],
+    shared_libs: [
+        "capture_state_listener-aidl-cpp",
+        "framework-permission-aidl-cpp",
+        "libaudioutils",
+        "libbase",
+        "libcgrouprc",
+        "libdl",
+        "libmedia",
+        "libmediametrics",
+        "libmediautils",
+        "libmedia_helper",
+        "libnblog",
+        "libprocessgroup",
+        "libshmemcompat",
+        "mediametricsservice-aidl-cpp",
+        "packagemanager_aidl-cpp",
+        "shared-file-region-aidl-cpp",
+    ],
+    static_libs: [
+        "android.hardware.audio.common@7.0-enums",
+        "audioclient-types-aidl-cpp",
+        "audioflinger-aidl-cpp",
+        "audiopolicy-aidl-cpp",
+        "audiopolicy-types-aidl-cpp",
+        "av-types-aidl-cpp",
+        "effect-aidl-cpp",
+        "libaudioclient",
+        "libaudiofoundation",
+        "libaudiomanager",
+        "libaudiopolicy",
+    ],
+    data: ["bbb*.raw"],
+    srcs: [
+        "audio_test_utils.cpp",
+        "test_execution_tracer.cpp",
+    ],
+    test_config_template: "audio_test_template.xml",
+}
+
+cc_test {
+    name: "audiorecord_tests",
+    defaults: ["libaudioclient_gtests_defaults"],
+    srcs: [
+        "audiorecord_tests.cpp",
+    ],
+}
+
+cc_test {
+    name: "audiotrack_tests",
+    defaults: ["libaudioclient_gtests_defaults"],
+    srcs: [
+        "audiotrack_tests.cpp",
+    ],
+}
+
+cc_test {
+    name: "audioeffect_tests",
+    defaults: ["libaudioclient_gtests_defaults"],
+    srcs: [
+        "audioeffect_tests.cpp",
+    ],
+}
+
+cc_test {
+    name: "audioeffect_analysis",
+    defaults: ["libaudioclient_gtests_defaults"],
+    // flag needed for pfft/pffft.hpp
+    cflags: [
+        "-Wno-error=unused-parameter",
+    ],
+    srcs: [
+        "audioeffect_analyser.cpp",
+    ],
+    static_libs: [
+        "libpffft",
+    ],
+}
+
+cc_test {
+    name: "audiorouting_tests",
+    defaults: ["libaudioclient_gtests_defaults"],
+    srcs: [
+        "audiorouting_tests.cpp",
+    ],
+}
+
+cc_test {
+    name: "audioclient_serialization_tests",
+    defaults: ["libaudioclient_gtests_defaults"],
+    srcs: [
+        "audioclient_serialization_tests.cpp",
+    ],
+}
+
+cc_test {
+    name: "trackplayerbase_tests",
+    defaults: ["libaudioclient_gtests_defaults"],
+    srcs: [
+        "trackplayerbase_tests.cpp",
+    ],
+}
+
+cc_test {
+    name: "audiosystem_tests",
+    defaults: ["libaudioclient_gtests_defaults"],
+    srcs: [
+        "audiosystem_tests.cpp",
+    ],
+}

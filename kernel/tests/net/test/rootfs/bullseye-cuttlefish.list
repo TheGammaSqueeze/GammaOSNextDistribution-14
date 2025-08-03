@@ -1,0 +1,13 @@
+#include "bullseye.list"
+libegl1-mesa
+libgles1
+libgles2
+libpam-systemd
+locales
+lsof
+lzop
+ntpdate
+openssh-server
+resolvconf
+sudo
+vim

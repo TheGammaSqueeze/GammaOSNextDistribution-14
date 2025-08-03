@@ -1,0 +1,304 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_defaults {
+    name: "vhal_v2_0_defaults",
+    shared_libs: [
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "android.hardware.automotive.vehicle@2.0",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+}
+
+cc_defaults {
+    name: "vhal_v2_0_target_defaults",
+    defaults: ["vhal_v2_0_defaults"],
+    shared_libs: [
+        "libbinder_ndk",
+        "android.automotive.watchdog-V2-ndk",
+    ],
+}
+
+cc_library_headers {
+    name: "vhal_v2_0_common_headers",
+    visibility: ["//visibility:public"],
+    vendor: true,
+    export_include_dirs: ["common/include/vhal_v2_0"],
+}
+
+// Vehicle reference implementation lib
+cc_library {
+    name: "android.hardware.automotive.vehicle@2.0-manager-lib",
+    vendor: true,
+    defaults: ["vhal_v2_0_target_defaults"],
+    srcs: [
+        "common/src/Obd2SensorStore.cpp",
+        "common/src/ProtoMessageConverter.cpp",
+        "common/src/SubscriptionManager.cpp",
+        "common/src/VehicleHalManager.cpp",
+        "common/src/VehicleObjectPool.cpp",
+        "common/src/VehiclePropertyStore.cpp",
+        "common/src/VehicleUtils.cpp",
+        "common/src/VmsUtils.cpp",
+        "common/src/WatchdogClient.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libprotobuf-cpp-lite",
+    ],
+    local_include_dirs: ["common/include/vhal_v2_0"],
+    export_include_dirs: ["common/include"],
+    static_libs: [
+        "android.hardware.automotive.vehicle@2.0-libproto-native",
+    ],
+}
+
+// Vehicle default VehicleHAL implementation
+cc_library_static {
+    name: "android.hardware.automotive.vehicle@2.0-default-impl-lib",
+    vendor: true,
+    defaults: ["vhal_v2_0_target_defaults"],
+    cflags: [
+        "-DENABLE_VENDOR_CLUSTER_PROPERTY_FOR_TESTING",
+        "-DENABLE_GET_PROP_CONFIGS_BY_MULTIPLE_REQUESTS",
+    ],
+    srcs: [
+        "impl/vhal_v2_0/DefaultVehicleHal.cpp",
+        "impl/vhal_v2_0/VehicleHalClient.cpp",
+        "impl/vhal_v2_0/DefaultVehicleHalServer.cpp",
+        "impl/vhal_v2_0/LinearFakeValueGenerator.cpp",
+        "impl/vhal_v2_0/JsonFakeValueGenerator.cpp",
+        "impl/vhal_v2_0/GeneratorHub.cpp",
+        "impl/vhal_v2_0/FakeObd2Frame.cpp",
+    ],
+    local_include_dirs: ["common/include/vhal_v2_0"],
+    export_include_dirs: ["impl"],
+    whole_static_libs: [
+        "android.hardware.automotive.vehicle@2.0-fake-user-hal-lib",
+        "android.hardware.automotive.vehicle@2.0-manager-lib",
+    ],
+    shared_libs: [
+        "libbase",
+        "libjsoncpp",
+        "libprotobuf-cpp-lite",
+    ],
+    static_libs: [
+        "android.hardware.automotive.vehicle@2.0-libproto-native",
+    ],
+}
+
+// Vehicle HAL Server reference impl lib
+cc_library_static {
+    name: "android.hardware.automotive.vehicle@2.0-server-common-lib",
+    vendor: true,
+    host_supported: true,
+    defaults: ["vhal_v2_0_defaults"],
+    local_include_dirs: ["common/include/vhal_v2_0"],
+    export_include_dirs: ["common/include"],
+    srcs: [
+        "common/src/Obd2SensorStore.cpp",
+        "common/src/ProtoMessageConverter.cpp",
+        "common/src/VehicleObjectPool.cpp",
+        "common/src/VehiclePropertyStore.cpp",
+        "common/src/VehicleUtils.cpp",
+    ],
+    static_libs: [
+        "android.hardware.automotive.vehicle@2.0-libproto-native",
+    ],
+}
+
+// Vehicle HAL Server default implementation
+cc_library_static {
+    name: "android.hardware.automotive.vehicle@2.0-server-impl-lib",
+    vendor: true,
+    host_supported: true,
+    defaults: ["vhal_v2_0_defaults"],
+    local_include_dirs: ["common/include/vhal_v2_0"],
+    export_include_dirs: ["impl"],
+    srcs: [
+        "impl/vhal_v2_0/GeneratorHub.cpp",
+        "impl/vhal_v2_0/JsonFakeValueGenerator.cpp",
+        "impl/vhal_v2_0/LinearFakeValueGenerator.cpp",
+        "impl/vhal_v2_0/DefaultVehicleHalServer.cpp",
+        "impl/vhal_v2_0/FakeObd2Frame.cpp",
+    ],
+    whole_static_libs: [
+        "android.hardware.automotive.vehicle@2.0-server-common-lib",
+    ],
+    static_libs: [
+        "android.hardware.automotive.vehicle@2.0-libproto-native",
+    ],
+    shared_libs: [
+        "libbase",
+        "libjsoncpp",
+    ],
+}
+
+cc_test {
+    name: "android.hardware.automotive.vehicle@2.0-manager-unit-tests",
+    vendor: true,
+    defaults: ["vhal_v2_0_target_defaults"],
+    whole_static_libs: ["android.hardware.automotive.vehicle@2.0-manager-lib"],
+    tidy_timeout_srcs: [
+        "tests/VmsUtils_test.cpp",
+    ],
+    srcs: [
+        "tests/RecurrentTimer_test.cpp",
+        "tests/SubscriptionManager_test.cpp",
+        "tests/VehicleHalManager_test.cpp",
+        "tests/VehicleObjectPool_test.cpp",
+        "tests/VehiclePropConfigIndex_test.cpp",
+        "tests/VmsUtils_test.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+    ],
+    // Exclude share libraries from default because they might be missing on
+    // some test platforms and we are using static libraries instead.
+    exclude_shared_libs: [
+        "android.automotive.watchdog-V2-ndk",
+        "android.hardware.automotive.vehicle@2.0",
+    ],
+    static_libs: [
+        "android.automotive.watchdog-V2-ndk",
+        "android.hardware.automotive.vehicle@2.0",
+    ],
+    header_libs: ["libbase_headers"],
+    test_suites: ["general-tests"],
+}
+
+cc_test {
+    name: "android.hardware.automotive.vehicle@2.0-default-impl-unit-tests",
+    vendor: true,
+    defaults: ["vhal_v2_0_target_defaults"],
+    srcs: [
+        "impl/vhal_v2_0/tests/ProtoMessageConverter_test.cpp",
+        "impl/vhal_v2_0/tests/DefaultVhalImpl_test.cpp",
+    ],
+    static_libs: [
+        "libbase",
+        "libcutils",
+        "libgmock",
+        "libjsoncpp",
+        "libprotobuf-cpp-lite",
+    ],
+    // Exclude share libraries from default because they might be missing on
+    // some test platforms and we are using static libraries instead.
+    exclude_shared_libs: [
+        "android.automotive.watchdog-V2-ndk",
+        "android.hardware.automotive.vehicle@2.0",
+    ],
+    whole_static_libs: [
+        "android.automotive.watchdog-V2-ndk",
+        "android.hardware.automotive.vehicle@2.0",
+        "android.hardware.automotive.vehicle@2.0-default-impl-lib",
+        "android.hardware.automotive.vehicle@2.0-libproto-native",
+    ],
+    data: [
+        ":vhal_test_json",
+        ":vhal_test_override_json",
+    ],
+    test_suites: ["general-tests"],
+}
+
+cc_test {
+    name: "android.hardware.automotive.vehicle@2.0-default-config-test",
+    vendor: true,
+    defaults: ["vhal_v2_0_target_defaults"],
+    srcs: [
+        "impl/vhal_v2_0/tests/DefaultConfigSupportedPropertyIds_test.cpp",
+    ],
+    cflags: [
+        "-DENABLE_VENDOR_CLUSTER_PROPERTY_FOR_TESTING",
+        "-DENABLE_GET_PROP_CONFIGS_BY_MULTIPLE_REQUESTS",
+    ],
+    static_libs: [
+        "android.hardware.automotive.vehicle@2.0-default-impl-lib",
+        "libgtest",
+        "libgmock",
+    ],
+    test_suites: ["general-tests"],
+}
+
+cc_binary {
+    name: "android.hardware.automotive.vehicle@2.0-default-service",
+    defaults: ["vhal_v2_0_target_defaults"],
+    vintf_fragments: [
+        "android.hardware.automotive.vehicle@2.0-default-service.xml",
+    ],
+    init_rc: ["android.hardware.automotive.vehicle@2.0-default-service.rc"],
+    vendor: true,
+    relative_install_path: "hw",
+    srcs: ["VehicleService.cpp"],
+    shared_libs: [
+        "libbase",
+        "libjsoncpp",
+        "libprotobuf-cpp-lite",
+    ],
+    static_libs: [
+        "android.hardware.automotive.vehicle@2.0-manager-lib",
+        "android.hardware.automotive.vehicle@2.0-libproto-native",
+        "android.hardware.automotive.vehicle@2.0-default-impl-lib",
+    ],
+}
+
+cc_fuzz {
+    name: "vehicleManager_fuzzer",
+    vendor: true,
+    defaults: ["vhal_v2_0_target_defaults"],
+    whole_static_libs: ["android.hardware.automotive.vehicle@2.0-manager-lib"],
+    srcs: [
+        "tests/fuzzer/VehicleManager_fuzzer.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "libbinder_ndk",
+    ],
+    header_libs: ["libbase_headers"],
+    local_include_dirs: [
+        "common/include",
+        "tests",
+    ],
+    fuzz_config: {
+        cc: [
+            "android-media-fuzzing-reports@google.com",
+        ],
+        componentid: 533764,
+        hotlists: [
+            "4593311",
+        ],
+        description: "The fuzzer targets the APIs of android.hardware.automotive.vehicle@2.0-manager-lib",
+        vector: "local_no_privileges_required",
+        service_privilege: "privileged",
+        users: "multi_user",
+        fuzzed_code_usage: "shipped",
+    },
+}

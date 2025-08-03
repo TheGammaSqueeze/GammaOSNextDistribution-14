@@ -1,0 +1,141 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.permissioncontroller;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+// This file contains extension atoms for permission controller.
+option java_package = "com.android.os.permissioncontroller";
+option java_multiple_files = true;
+
+extend Atom {
+    optional PermissionRationaleDialogViewed permission_rationale_dialog_viewed =
+        645 [(module) = "permissioncontroller"];
+    optional PermissionRationaleDialogActionReported permission_rationale_dialog_action_reported =
+        646 [(module) = "permissioncontroller"];
+    optional AppDataSharingUpdatesNotificationInteraction app_data_sharing_updates_notification_interaction =
+        647 [(module) = "permissioncontroller"];
+    optional AppDataSharingUpdatesFragmentViewed app_data_sharing_updates_fragment_viewed =
+        648 [(module) = "permissioncontroller"];
+    optional AppDataSharingUpdatesFragmentActionReported app_data_sharing_updates_fragment_action_reported =
+        649 [(module) = "permissioncontroller"];
+}
+
+/**
+* Information about a Permission Rationale dialog viewed by user.
+* Logged from ui/model/v34/PermissionRationaleViewModel.java
+*/
+message PermissionRationaleDialogViewed {
+    // id which identifies single session of user interacting with permission controller
+    optional int64 session_id = 1;
+
+    // UID of package for which permissions are viewed
+    optional int32 uid = 2 [(is_uid) = true];
+
+    // Permission group viewed
+    optional string permission_group_name = 3;
+
+    // Data usage purposes shown to user for this permission group in the dialog - bit flags,
+    // bit numbers are in accordance with PURPOSE_ constants in DataPurposeConstants.java
+    optional int32 purposes_presented = 4;
+}
+
+/**
+ * Information about a button clicks made by user inside PermissionRationaleActivity
+ */
+message PermissionRationaleDialogActionReported {
+    // id which identifies single session of user interacting with permission controller
+    optional int64 session_id = 1;
+
+    // UID of package the permission belongs to
+    optional int32 uid = 2 [(is_uid) = true];
+
+    // The permission group currently presented
+    optional string permission_group_name = 3;
+
+    enum Button {
+        UNDEFINED = 0;
+        // Dialog canceled or back clicked
+        CANCEL = 1;
+        // Link to install source (app store)
+        INSTALL_SOURCE = 2;
+        // Link to help center article
+        HELP_CENTER = 3;
+        // Link to permission settings
+        PERMISSION_SETTINGS = 4;
+    }
+
+    // Button pressed in the dialog
+    optional Button button_pressed = 4;
+}
+
+/**
+ * Information about AppDataSharingUpdates notification and interaction
+ */
+message AppDataSharingUpdatesNotificationInteraction {
+    // Session Id to link the notification with the issue card.
+    optional int64 session_id = 1; // to map the notification and issue card interaction
+
+    enum Action {
+        UNKNOWN = 0;
+        NOTIFICATION_SHOWN = 1;
+        NOTIFICATION_CLICKED = 2;
+        DISMISSED = 3;
+    }
+
+    // Action taken on the notification.
+    optional Action action = 2;
+
+    // Number app data sharing updates represented by the notification
+    optional int32 number_of_app_updates = 3;
+}
+
+/**
+* Information about AppDataSharingUpdatesFragment viewed by user.
+* Logged from ui/model/v34/AppDataSharingUpdatesViewModel.java
+*/
+message AppDataSharingUpdatesFragmentViewed {
+    // id which identifies single session of user interacting with permission controller
+    optional int64 session_id = 1;
+
+    // Number of app data sharing updates displayed when viewed
+    optional int32 number_of_app_updates = 2;
+}
+
+/**
+ * Information about a button clicks made by user inside AppDataSharingUpdatesFragment
+ */
+message AppDataSharingUpdatesFragmentActionReported {
+    // id which identifies single session of user interacting with permission controller
+    optional int64 session_id = 1;
+
+    // UID of package the interacted data sharing update belongs to
+    optional int32 uid = 2 [(is_uid) = true];
+
+    enum DataSharingChange {
+        UNKNOWN = 0;
+        ADDS_ADVERTISING_PURPOSE = 1;
+        ADDS_SHARING_WITHOUT_ADVERTISING_PURPOSE = 2;
+        ADDS_SHARING_WITH_ADVERTISING_PURPOSE = 3;
+    }
+
+    // Data sharing change associated with this data sharing update
+    optional DataSharingChange data_sharing_change = 3;
+}

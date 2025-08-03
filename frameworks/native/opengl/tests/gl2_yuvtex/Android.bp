@@ -1,0 +1,35 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+cc_test {
+    name: "test-opengl-gl2_yuvtex",
+
+    srcs: ["gl2_yuvtex.cpp"],
+
+    shared_libs: [
+        "libcutils",
+        "libEGL",
+        "libGLESv2",
+        "libutils",
+        "libui",
+        "libgui",
+        "libutils",
+    ],
+
+    gtest: false,
+
+    static_libs: ["libglTest"],
+
+    cflags: [
+        "-DGL_GLEXT_PROTOTYPES",
+        "-DEGL_EGLEXT_PROTOTYPES",
+        "-Wall",
+        "-Werror",
+    ],
+}

@@ -1,0 +1,92 @@
+{
+  "symbols": {
+    "AChoreographer_postFrameCallback": {
+      "call_method": "custom_trampoline",
+      "header": "android/choreographer.h"
+    },
+    "AChoreographer_postFrameCallbackDelayed": {
+      "call_method": "custom_trampoline",
+      "header": "android/choreographer.h"
+    },
+    "AInputQueue_attachLooper": {
+      "call_method": "custom_trampoline",
+      "header": "android/input.h"
+    },
+    "ALooper_addFd": {
+      "call_method": "custom_trampoline",
+      "header": "android/looper.h"
+    },
+    "ANativeActivity_finish": {
+      "call_method": "custom_trampoline",
+      "header": "android/native_activity.h"
+    },
+    "ANativeActivity_hideSoftInput": {
+      "call_method": "custom_trampoline",
+      "header": "android/native_activity.h"
+    },
+    "ANativeActivity_setWindowFlags": {
+      "call_method": "custom_trampoline",
+      "header": "android/native_activity.h"
+    },
+    "ANativeActivity_setWindowFormat": {
+      "call_method": "custom_trampoline",
+      "header": "android/native_activity.h"
+    },
+    "ANativeActivity_showSoftInput": {
+      "call_method": "custom_trampoline",
+      "header": "android/native_activity.h"
+    },
+    "ASensorManager_createEventQueue": {
+      "call_method": "custom_trampoline",
+      "header": "android/sensor.h"
+    },
+    "AStorageManager_mountObb": {
+      "call_method": "custom_trampoline",
+      "header": "android/storage_manager.h"
+    },
+    "AStorageManager_unmountObb": {
+      "call_method": "custom_trampoline",
+      "header": "android/storage_manager.h"
+    },
+    "_ZN7android13IMountService10descriptorE": {
+      "call_method": "ignore",
+      "reason": "This variable is no part of public API"
+    },
+    "_ZN7android18IObbActionListener10descriptorE": {
+      "call_method": "ignore",
+      "reason": "This variable is no part of public API"
+    }
+  },
+  "types": {
+    "struct AInputEvent": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct APerformanceHintSession": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct ASurfaceControlStats": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct ASurfaceTransactionStats": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "It's opaque structure in public API"
+      ]
+    },
+    "struct _JNIEnv*": {
+      "force_compatible": true,
+      "reason_for_compatible": [
+        "_JNIEnv is made on x86 side is passed to x86 libandroid_runtime without changes"
+      ]
+    }
+  }
+}

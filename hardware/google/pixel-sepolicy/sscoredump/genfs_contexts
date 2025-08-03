@@ -1,0 +1,1 @@
+genfscon sysfs /class/sscoredump/level u:object_r:sysfs_sscoredump_level:s0

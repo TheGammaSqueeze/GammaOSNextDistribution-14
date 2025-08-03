@@ -1,0 +1,51 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.nfc;
+
+option java_outer_classname = "NfcProtoEnums";
+option java_multiple_files = true;
+
+// RF Technology Type
+// values according to frameworks/base/core/java/android/nfc/tech/TagTechnology.java
+enum RFTechnologyType {
+    RF_UNKNOWN = 0;
+    RF_NFC_A = 1;
+    RF_NFC_B = 2;
+    RF_ISO_DEP = 3;
+    RF_NFC_F = 4;
+    RF_NFC_V = 5;
+    RF_NDEF = 6;
+    RF_NDEF_FORMATABLE = 7;
+    RF_MIFARE_CLASSIC = 8;
+    RF_MIFARE_ULTRALIGHT = 9;
+    RF_NFC_BARCODE = 10;
+}
+
+// Nfc Tag Type, used in Reader mode
+enum NfcTagType {
+    TAG_UNKNOWN = 0;
+    TAG_TYPE_1 = 1;
+    TAG_TYPE_2 = 2;
+    TAG_TYPE_3 = 3;
+    TAG_TYPE_4A = 4;
+    TAG_TYPE_4B = 5;
+    TAG_TYPE_5 = 6;
+    TAG_MIFARE_CLASSIC = 7;
+    TAG_KOVIO_BARCODE = 8;
+}

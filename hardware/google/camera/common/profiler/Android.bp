@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_static {
+    name: "lib_profiler_proto",
+    srcs: [
+        "profiler.proto",
+    ],
+    rtti: false,
+    proto: {
+        type: "lite",
+        canonical_path_from_root: true,
+        export_proto_headers: true,
+    },
+
+    owner: "google",
+    vendor: true,
+    host_supported: true,
+}
+
+cc_defaults {
+    name: "lib_profiler_defaults",
+
+    srcs: [
+        "profiler.cc",
+    ],
+
+    include_dirs: ["."],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libprotobuf-cpp-full",
+        "libutils",
+    ],
+
+    whole_static_libs: [
+        "lib_profiler_proto",
+    ],
+    export_static_lib_headers: [
+        "lib_profiler_proto",
+    ],
+    export_include_dirs: ["."],
+
+    owner: "google",
+    vendor: true,
+    host_supported: true,
+    rtti: true,
+}
+
+cc_library_shared {
+    name: "lib_profiler",
+    defaults: ["lib_profiler_defaults"],
+}
+
+cc_test_library {
+    name: "lib_profiler_for_test",
+    defaults: ["lib_profiler_defaults"],
+    shared: {
+        enabled: false,
+    },
+}

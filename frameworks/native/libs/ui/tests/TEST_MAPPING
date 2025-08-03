@@ -1,0 +1,10 @@
+{
+  "presubmit": [
+    {
+      "name": "Size_test"
+    },
+    {
+      "name": "Rect_test"
+    }
+  ]
+}

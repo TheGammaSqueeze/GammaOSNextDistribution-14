@@ -1,0 +1,25 @@
+BasedOnStyle: Google
+
+AccessModifierOffset: -4
+AlignOperands: false
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakBeforeMultilineStrings: false
+ColumnLimit: 100
+CommentPragmas: NOLINT:.*
+ConstructorInitializerIndentWidth: 6
+ContinuationIndentWidth: 8
+IndentWidth: 4
+JavaImportGroups:
+- android
+- androidx
+- com.android
+- dalvik
+- libcore
+- com
+- junit
+- net
+- org
+- java
+- javax
+PenaltyBreakBeforeFirstCallParameter: 100000
+SpacesBeforeTrailingComments: 1

@@ -1,0 +1,26 @@
+type twoshay, domain;
+type twoshay_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(twoshay)
+
+allow twoshay touch_offload_device:chr_file rw_file_perms;
+allow twoshay twoshay:capability sys_nice;
+
+binder_use(twoshay)
+add_service(twoshay, screen_protector_detector_service)
+add_service(twoshay, touch_context_service)
+add_service(twoshay, gril_antenna_tuning_service)
+binder_call(twoshay, platform_app)
+
+allow twoshay fwk_stats_service:service_manager find;
+binder_call(twoshay, stats_service_server)
+
+# Allow dumpsys output in bugreports.
+allow twoshay dumpstate:fd use;
+allow twoshay dumpstate:fifo_file write;
+
+# b/198755236
+dontaudit twoshay twoshay:capability dac_override;
+
+# b/226830650
+dontaudit twoshay boot_status_prop:file read;

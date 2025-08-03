@@ -1,0 +1,36 @@
+These scripts help generate the libcore TEST_MAPPING smoke tests, i.e. a set of
+tests to run on every change, chosen to run as many as possible in less than
+some time limit.
+
+The process is as follows.
+1. Do `source build/envsetup.sh` and `lunch <whatever>` as normal.
+2. Run the CtsLibcoreTestCases tests to generate logs to extract timings from.
+   This can be done with `atest CtsLibcoreTestCases` as normal. Make sure to use
+   an appropriate device (virtual or physical).
+3. Do that two more times. We'll use best-of-three timings, since sometimes a
+   test takes an unusual amount of time (perhaps because of GC pause or other
+   jank) and it should not be excluded for that.
+4. Run the save_logs.py script to copy the logs from out/ to libcore/smoketest.
+   (Empty that directory if it exists already). This is interactive and allows
+   you to pick the runs you want. (If you prefer, you can run this after each
+   run, rather than once after all three runs.)
+5. Run the gen_smoke_tests.py script to generate libcore/TEST_MAPPING.
+6. Check stdout from the script looks okay (not too many warnings, sensible
+   numbers, etc.).
+7. Check the generated TEST_MAPPING looks okay.
+8. Do e.g. `time atest --test-mapping libcore` to check it runs okay.
+9. Delete libcore/smoketest/ once you're happy.
+10. Submit the new TEST_MAPPING.
+
+The scripts take no options. There are some constants at the start you can
+adjust. (These could be converted to command-line options if convenient.)
+
+See comments in the scripts for more on how they work.
+
+At time of writing, with the current configuration, this generates a sensible
+number of classes to exclude, so the TEST_MAPPING looks reasonable. If this list
+becomes too long, we'll have to find a way to simplify it, by rolling up to a
+higher granularity. Given the way that atest et al are configured, that will
+probably mean excluding more things.
+
+TODO(peteg): What about PTS?

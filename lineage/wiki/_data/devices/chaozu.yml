@@ -1,0 +1,36 @@
+architecture: arm
+battery: {capacity: 3050, removable: False, tech: 'Li-Po'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: 'Dual LED', info: '13 MP'}
+  - {flash: None, info: '5 MP'}
+codename: chaozu
+cpu: Cortex-A53
+cpu_cores: '8'
+cpu_freq: 1.4 GHz
+current_branch: 14.1
+dimensions: {depth: 8.7, height: 143, width: 72.2}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+gpu: Qualcomm Adreno 505
+image: chaozu.png
+install_method: fastboot_nexus
+kernel: {repo: android_kernel_bq_msm8937, version: '3.18'}
+maintainers: []
+name: Aquaris U
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, Dual SIM, FM radio, GPS, Gyroscope, Hall effect sensor, Light sensor, Proximity sensor, USB OTG]
+ram: 2 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+release: 2016
+screen: {resolution: '1280x720', size: 5, technology: 'IPS LCD'}
+sdcard: {size_max: '32 GB'}
+soc: Qualcomm MSM8937 Snapdragon 430
+storage: 16/32 GB
+tree: android_device_bq_tenshi
+type: phone
+uses_twrp: true
+vendor: BQ
+vendor_short: bq
+versions: [14.1]
+wifi: 802.11 b/g/n

@@ -1,0 +1,46 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_static {
+    name: "libGoldfishAddressSpace",
+    host_supported: true,
+    vendor: true,
+    srcs: [
+        "AddressSpaceStream.cpp",
+        "VirtioGpuAddressSpaceStream.cpp",
+    ],
+    header_libs: [
+        "libgfxstream_guest_iostream",
+    ],
+    shared_libs: [
+        "libdrm",
+        "liblog",
+    ],
+    static_libs: [
+        "libgfxstream_androidemu_static",
+        "libplatform",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"goldfish-address-space\"",
+    ],
+    include_dirs: [
+        "hardware/google/gfxstream/guest/include",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libbase",
+                "libcutils",
+            ],
+            srcs: [
+                "goldfish_address_space.cpp",
+                "GoldfishAddressSpaceStream.cpp",
+            ],
+        },
+    },
+}

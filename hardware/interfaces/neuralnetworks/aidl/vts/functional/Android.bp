@@ -1,0 +1,104 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_test {
+    name: "VtsHalNeuralnetworksTargetTest",
+    defaults: [
+        "neuralnetworks_use_latest_utils_hal_aidl",
+        "neuralnetworks_vts_functional_defaults",
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    host_supported: true,
+    tidy_timeout_srcs: [
+        "CompilationCachingTests.cpp",
+        "MemoryDomainTests.cpp",
+    ],
+    srcs: [
+        "BasicTests.cpp",
+        "Callbacks.cpp",
+        "CompilationCachingTests.cpp",
+        "GeneratedTestHarness.cpp",
+        "MemoryDomainTests.cpp",
+        "QualityOfServiceTests.cpp",
+        "TestAssertions.cpp",
+        "TestMain.cpp",
+        "Utils.cpp",
+        "ValidateModel.cpp",
+        "ValidateRequest.cpp",
+        "VtsHalNeuralnetworks.cpp",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+    ],
+    static_libs: [
+        "libaidlcommonsupport",
+        "libneuralnetworks_common",
+        "libneuralnetworks_generated_test_harness",
+    ],
+    whole_static_libs: [
+        "neuralnetworks_generated_AIDL_V3_example",
+        "neuralnetworks_generated_AIDL_V2_example",
+        "neuralnetworks_generated_V1_0_example",
+        "neuralnetworks_generated_V1_1_example",
+        "neuralnetworks_generated_V1_2_example",
+        "neuralnetworks_generated_V1_3_example",
+    ],
+    header_libs: [
+        "libbase_headers",
+        "libneuralnetworks_headers",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    target: {
+        android: {
+            shared_libs: [
+                "libnativewindow",
+                "libvndksupport",
+            ],
+            static_libs: [
+                "libsync",
+            ],
+            test_suites: [
+                "vts",
+            ],
+            test_config: "AndroidTestDevice.xml",
+        },
+        host: {
+            shared_libs: [
+                "libtextclassifier_hash",
+            ],
+            static_libs: [
+                "neuralnetworks_canonical_sample_driver",
+                "neuralnetworks_utils_hal_adapter_aidl",
+            ],
+            exclude_static_libs: [
+                "VtsHalHidlTestUtils",
+                "libaidlvintf_gtest_helper",
+            ],
+            test_config: "AndroidTestHost.xml",
+        },
+    },
+}

@@ -1,0 +1,94 @@
+// service library
+package {
+    default_applicable_licenses: [
+        "frameworks_av_services_mediatranscoding_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_services_mediatranscoding_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "libmediatranscodingservice",
+
+    srcs: [
+        "MediaTranscodingService.cpp",
+        "SimulatedTranscoder.cpp",
+    ],
+
+    export_include_dirs: [
+        ".",
+    ],
+
+    min_sdk_version: "29",
+    apex_available: [
+        "com.android.media",
+        "test_com.android.media",
+    ],
+
+    shared_libs: [
+        "libandroid#31",
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "liblog",
+        "libmediatranscoding",
+        "libutils",
+    ],
+
+    export_shared_lib_headers: [
+        "libmediatranscoding",
+    ],
+
+    static_libs: [
+        "mediatranscoding_aidl_interface-ndk",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+}
+
+cc_binary {
+    name: "mediatranscoding",
+
+    srcs: [
+        "main_mediatranscodingservice.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libutils",
+        "liblog",
+        "libbase",
+        "libmediatranscoding",
+        "libmediatranscodingservice",
+    ],
+
+    min_sdk_version: "29",
+    apex_available: [
+        "com.android.media",
+        "test_com.android.media",
+    ],
+
+    static_libs: [
+        "mediatranscoding_aidl_interface-ndk",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+}

@@ -1,0 +1,50 @@
+// audio preprocessing unit test
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_media_libeffects_preprocessing_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: [
+        "frameworks_av_media_libeffects_preprocessing_license",
+    ],
+}
+
+cc_test {
+    name: "EffectPreprocessingTest",
+    defaults: ["libaudiopreprocessing-defaults"],
+    gtest: true,
+    test_suites: ["device-tests"],
+    srcs: [
+        "EffectPreprocessingTest.cpp",
+        "EffectTestHelper.cpp",
+    ],
+    static_libs: [
+        "libaudiopreprocessing",
+        "libaudioutils",
+    ],
+}
+
+cc_test {
+    name: "AudioPreProcessingTest",
+    defaults: ["libaudiopreprocessing-defaults"],
+    gtest: false,
+    srcs: ["PreProcessingTest.cpp"],
+    static_libs: [
+        "libaudiopreprocessing",
+        "libaudioutils",
+    ],
+}
+
+cc_test {
+    name: "correlation",
+    host_supported: true,
+    srcs: ["correlation.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    gtest: false,
+}

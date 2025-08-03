@@ -1,0 +1,11 @@
+{
+  "symbols": {
+    "AImageDecoder_setCrop": {
+      "call_method": "custom_trampoline"
+    },
+    "AImageDecoderFrameInfo_getFrameRect": {
+      "call_method": "custom_trampoline"
+    }
+  },
+  "types": {}
+}

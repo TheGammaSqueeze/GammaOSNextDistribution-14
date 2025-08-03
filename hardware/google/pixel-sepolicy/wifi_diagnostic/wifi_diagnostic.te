@@ -1,0 +1,29 @@
+type wifi_diagnostic, domain;
+type wifi_diagnostic_exec, exec_type, vendor_file_type, file_type;
+
+# make transition from init to its domain
+userdebug_or_eng(`
+init_daemon_domain(wifi_diagnostic)
+net_domain(wifi_diagnostic)
+
+# daemon
+allow wifi_diagnostic wifi_logging_data_file:dir create_dir_perms;
+allow wifi_diagnostic wifi_logging_data_file:file create_file_perms;
+allow wifi_diagnostic vendor_shell_exec:file execute_no_trans;
+allow wifi_diagnostic wifi_diagnostic_exec:file execute_no_trans;
+allow wifi_diagnostic self:capability net_admin;
+allow wifi_diagnostic self:udp_socket ioctl;
+allowxperm wifi_diagnostic self:udp_socket ioctl { SIOCETHTOOL SIOCDEVPRIVATE };
+
+# wpa_cli
+allow wifi_diagnostic self:capability { setgid setuid };
+allow wifi_diagnostic wpa_data_file:dir w_dir_perms;
+allow wifi_diagnostic wpa_data_file:sock_file { create setattr write unlink };
+allow wifi_diagnostic hal_wifi_supplicant_default:unix_dgram_socket sendto;
+allow wifi_diagnostic vendor_file:file execute_no_trans;
+allow wifi_diagnostic vendor_file:dir r_dir_perms;
+
+# property
+get_prop(wifi_diagnostic, vendor_wifi_diagnostic_prop)
+set_prop(wifi_diagnostic, vendor_wifi_diagnostic_prop)
+')

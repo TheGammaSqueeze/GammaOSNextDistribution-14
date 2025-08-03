@@ -1,0 +1,4 @@
+^(?:(?!\bCopyright\b).)*$
+Copyright \([Cc]\) \d\d\d\d(-\d\d\d\d)? World Wide Web Consortium.*
+^(?:(?!\bdetails\b).)*$
+http://www\.w3\.org/Consortium/Legal/ for more details\.

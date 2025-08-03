@@ -1,0 +1,54 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+    default_team: "trendy_team_android_core_graphics_stack",
+}
+
+cc_library {
+    name: "liblayers_proto",
+    export_include_dirs: ["include"],
+
+    srcs: [
+        "LayerProtoParser.cpp",
+    ],
+
+    static_libs: [
+        "libperfetto_client_experimental",
+    ],
+
+    whole_static_libs: [
+        // TODO(b/169779783): move  into "static_libs" when the soong issue is fixed
+        "perfetto_trace_protos",
+    ],
+
+    export_static_lib_headers: [
+        "libperfetto_client_experimental",
+        "perfetto_trace_protos",
+    ],
+
+    shared_libs: [
+        "android.hardware.graphics.common@1.1",
+        "libgui",
+        "libui",
+        "libprotobuf-cpp-lite",
+        "libbase",
+    ],
+
+    cppflags: [
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wno-format",
+        "-Wno-c++98-compat-pedantic",
+        "-Wno-float-conversion",
+        "-Wno-disabled-macro-expansion",
+        "-Wno-float-equal",
+        "-Wno-sign-conversion",
+        "-Wno-padded",
+        "-Wno-old-style-cast",
+        "-Wno-undef",
+    ],
+}

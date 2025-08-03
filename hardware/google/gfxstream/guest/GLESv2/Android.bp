@@ -1,0 +1,74 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_defaults {
+    name: "libgfxstream_guest_glesv2_defaults",
+    host_supported: true,
+    vendor: true,
+    defaults: [
+        "libgfxstream_guest_cc_defaults",
+    ],
+    shared_libs: [
+        "liblog",
+        "lib_renderControl_enc",
+        "libGLESv2_enc",
+    ],
+    cflags: [
+        "-DGL_GLEXT_PROTOTYPES",
+        "-DLOG_TAG=\"GLESv2_emulation\"",
+    ],
+    srcs: [
+        "gl2.cpp",
+    ],
+    target: {
+        android: {
+            relative_install_path: "egl",
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libGLESv2_emulation",
+    defaults: [
+        "libgfxstream_guest_glesv2_defaults",
+    ],
+    shared_libs: [
+        "libOpenglSystemCommon",
+    ],
+}
+
+cc_library_shared {
+    name: "libGLESv2_emulation_with_host",
+    defaults: [
+        "libgfxstream_guest_glesv2_defaults",
+    ],
+    shared_libs: [
+        "libOpenglSystemCommonWithHost",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        },
+        android: {
+            compile_multilib: "64",
+        },
+    },
+}

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2015 The CyanogenMod Project
+                   2017-2023 The LineageOS Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="lineageos_system_label">Система LineageOS</string>
+    <string name="permlab_modifyProfiles">Изменение профилей системы</string>
+    <string name="permdesc_modifyProfiles">Приложение сможет изменять настройки системных профилей.</string>
+    <string name="permlab_useHardwareFramework">Взаимодействие с оборудованием</string>
+    <string name="permdesc_useHardwareFramework">Позволяет приложению использовать аппаратный фреймворк Lineage.</string>
+    <string name="permlab_writeSettings">изменить настройки системы Lineage</string>
+    <string name="permdesc_writeSettings">Приложение сможет изменять настройки системы Lineage.</string>
+    <string name="permlab_writeSecureSettings">изменение настроек системы безопасности Lineage</string>
+    <string name="permdesc_writeSecureSettings">Позволяет приложению изменять параметры безопасности системы Lineage. Не используется в обычных приложениях.</string>
+    <string name="profileNameDefault">По умолчанию</string>
+    <string name="profileNameWork">Работа</string>
+    <string name="profileNameHome">Дом</string>
+    <string name="profileNameSilent">Без звука</string>
+    <string name="profileNameNight">Ночь</string>
+    <string name="profileNameAutomobile">За рулем</string>
+    <string name="profileGroupPhone">Телефон</string>
+    <string name="profileGroupCalendar">Календарь</string>
+    <string name="profileGroupGmail">Gmail</string>
+    <string name="profileGroupEmail">Почта</string>
+    <string name="profileGroupSMS">Сообщения</string>
+    <string name="wildcardProfile">Другие</string>
+    <string name="live_display_auto">Автоматически</string>
+    <string name="live_display_auto_summary">Автоматическая подстройка цветовой температуры экрана после заката и восхода солнца</string>
+    <string name="live_display_off">Отключить</string>
+    <string name="live_display_off_summary">Отключить автоподстройку</string>
+    <string name="live_display_day">День</string>
+    <string name="live_display_day_summary">Только дневные настройки</string>
+    <string name="live_display_night">Ночь</string>
+    <string name="live_display_night_summary">Только ночные настройки</string>
+    <string name="live_display_outdoor">На улице (яркое солнце)</string>
+    <string name="live_display_outdoor_summary">Только уличный режим</string>
+    <string name="live_display_hint">Функция LiveDisplay поможет снизить зрительное напряжение и улучшить сон. Нажмите здесь, чтобы попробовать!</string>
+    <string name="accessibility_quick_settings_live_display_off">LiveDisplay выключен.</string>
+    <string name="accessibility_quick_settings_live_display_auto">LiveDisplay работает в автоматическом режиме.</string>
+    <string name="accessibility_quick_settings_live_display_day">LiveDisplay работает в дневном режиме.</string>
+    <string name="accessibility_quick_settings_live_display_night">LiveDisplay работает в ночном режиме.</string>
+    <string name="accessibility_quick_settings_live_display_outdoor">LiveDisplay работает в режиме «на улице».</string>
+    <string name="accessibility_quick_settings_live_display_changed_off">LiveDisplay выключен.</string>
+    <string name="accessibility_quick_settings_live_display_changed_auto">LiveDisplay переключен в автоматический режим.</string>
+    <string name="accessibility_quick_settings_live_display_changed_day">LiveDisplay переключен в дневной режим.</string>
+    <string name="accessibility_quick_settings_live_display_changed_night">LiveDisplay переключен в ночной режим.</string>
+    <string name="accessibility_quick_settings_live_display_changed_outdoor">LiveDisplay переключен в режим «на улице».</string>
+    <string name="permlab_manageLiveDisplay">управление настройками LiveDisplay</string>
+    <string name="permdesc_manageLiveDisplay">Приложение сможет изменять расширенные настройки экрана.</string>
+    <string name="permlab_manageRemotePrefs">управление удаленными параметрами</string>
+    <string name="permdesc_manageRemotePrefs">Приложение сможет управлять удаленными параметрами</string>
+    <string name="build_date">Дата сборки</string>
+    <string name="lineage_api_level">Версия API LineageOS</string>
+    <string name="lineage_updates">Обновления LineageOS</string>
+    <string name="lineage_version">Версия LineageOS</string>
+    <string name="lineage_vendor_security_patch">Состояние исправлений безопасности от производителя</string>
+    <string name="unknown">Неизвестно</string>
+    <string name="app_killed_message">Приложение завершено</string>
+    <string name="kilobitspersecond_short">кбит/с</string>
+    <string name="megabitspersecond_short">Мбит/с</string>
+    <string name="kilobytespersecond_short">кБ/с</string>
+    <string name="megabytespersecond_short">МБ/с</string>
+    <string name="kilobytespersecond_compact">k</string>
+    <string name="megabytespersecond_compact">M</string>
+    <string name="trust_feature_name">Trust</string>
+    <string name="permlab_trustInterface">доступ к интерфейсу Trust</string>
+    <string name="permdesc_trustInterface">Позволяет приложению отображать предупреждения и предложения Trust</string>
+    <string name="trust_notification_channel">Предупреждения Trust</string>
+    <string name="trust_notification_title_security">Trust \u2022 Безопасность системы</string>
+    <string name="trust_notification_content_selinux">SELinux не в принудительном режиме. Ваша безопасность под угрозой</string>
+    <string name="trust_notification_content_keys">Эта сборка подписана открытыми ключами</string>
+    <string name="trust_notification_title_onboarding">Откройте для себя Trust</string>
+    <string name="trust_notification_content_onboarding">Узнайте, как обеспечить безопасность вашего устройства</string>
+    <string name="trust_notification_action_manage">Управление оповещениями</string>
+    <string name="charging_control_notification_channel">Управление зарядкой</string>
+    <string name="charging_control_notification_title">Управление зарядкой</string>
+    <string name="charging_control_notification_cancel_once">Отмена</string>
+    <string name="charging_control_notification_content_limit">Батарея будет заряжена до %1$d%%</string>
+    <string name="charging_control_notification_content_limit_reached">Батарея заряжена до %1$d%%</string>
+    <string name="charging_control_notification_content_target">Батарея будет полностью заряжена в %1$s</string>
+    <string name="charging_control_notification_content_target_reached">Батарея заряжена</string>
+</resources>

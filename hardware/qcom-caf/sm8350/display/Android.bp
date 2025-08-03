@@ -1,0 +1,140 @@
+soong_config_module_type {
+    name: "qtidisplay_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "qtidisplay",
+    bool_variables: [
+        "drmpp",
+        "headless",
+        "llvmsa",
+        "gralloc4",
+        "udfps",
+        "default",
+    ],
+    properties: [
+        "cflags",
+        "srcs",
+        "header_libs",
+    ],
+}
+
+qtidisplay_cc_defaults {
+    name: "qtidisplay_common_defaults",
+    cflags: [
+        "-Wno-missing-field-initializers",
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libutils",
+    ],
+    soong_config_variables: {
+        drmpp: {
+            cflags: ["-DPP_DRM_ENABLE"],
+        },
+        headless: {
+            cflags: ["-DTARGET_HEADLESS", "-DQMAA"],
+        },
+        llvmsa: {
+            cflags: [
+                "--compile-and-analyze",
+                "--analyzer-perf",
+            ],
+        },
+        gralloc4: {
+            cflags: ["-DTARGET_USES_GRALLOC4"],
+        },
+        udfps: {
+            cflags: ["-DUDFPS_ZPOS"],
+        },
+    },
+}
+
+qtidisplay_cc_defaults {
+    name: "qtidisplay_defaults",
+    defaults: ["qtidisplay_common_defaults"],
+    soong_config_variables: {
+        default: {
+            header_libs: ["display_headers", "qti_kernel_headers"],
+        },
+        headless: {
+            header_libs: ["display_headers"],
+        },
+    },
+}
+
+qtidisplay_cc_defaults {
+    name: "qti_qmaa_display_defaults",
+    defaults: ["qtidisplay_common_defaults"],
+    header_libs: ["qmaa_display_headers"],
+}
+
+cc_library_headers {
+    name: "display_debug_headers",
+    vendor: true,
+    export_include_dirs: [
+        "libdebug",
+    ],
+}
+
+cc_library_headers {
+    name: "display_headers",
+    vendor: true,
+    export_include_dirs: [
+        "include",
+        "libcopybit",
+        "libdrmutils",
+        "libqdutils",
+        "libqservice",
+        "gpu_tonemapper",
+        "sdm/include",
+        "gralloc",
+        "libhistogram",
+        "libmemutils",
+    ],
+    header_libs: [
+        "libhardware_headers",
+        "display_intf_headers",
+        "display_debug_headers",
+    ],
+    export_header_lib_headers: [
+        "libhardware_headers",
+        "display_intf_headers",
+        "display_debug_headers",
+    ],
+}
+
+cc_library_headers {
+    name: "qmaa_display_headers",
+    vendor: true,
+    export_include_dirs: [
+
+    ],
+    header_libs: [
+        "display_debug_headers",
+    ],
+    export_header_lib_headers: [
+        "display_debug_headers",
+    ],
+}
+
+subdirs = [
+    "init",
+    "libqservice",
+    "libqdutils",
+    "libddebug",
+    "libdrmutils",
+    "libmemtrack",
+    "libhistogram",
+    "liblight",
+    "composer",
+    "gralloc",
+    "gpu_tonemapper",
+    "hdmi_cec",
+    "sde-drm",
+    "sdm/libs/utils",
+    "sdm/libs/core",
+    "qmaa",
+    "libmemutils",
+]

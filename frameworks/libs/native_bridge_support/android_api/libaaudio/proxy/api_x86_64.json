@@ -1,0 +1,1313 @@
+{
+	"symbols" : 
+	{
+		"AAudioStreamBuilder_delete" : 
+		{
+			"type" : "func AAudioStreamBuilder_delete"
+		},
+		"AAudioStreamBuilder_openStream" : 
+		{
+			"type" : "func AAudioStreamBuilder_openStream"
+		},
+		"AAudioStreamBuilder_setAllowedCapturePolicy" : 
+		{
+			"type" : "func AAudioStreamBuilder_setAllowedCapturePolicy"
+		},
+		"AAudioStreamBuilder_setAttributionTag" : 
+		{
+			"type" : "func AAudioStreamBuilder_setAttributionTag"
+		},
+		"AAudioStreamBuilder_setBufferCapacityInFrames" : 
+		{
+			"type" : "func AAudioStreamBuilder_setBufferCapacityInFrames"
+		},
+		"AAudioStreamBuilder_setChannelCount" : 
+		{
+			"type" : "func AAudioStreamBuilder_setChannelCount"
+		},
+		"AAudioStreamBuilder_setChannelMask" : 
+		{
+			"type" : "func AAudioStreamBuilder_setChannelMask"
+		},
+		"AAudioStreamBuilder_setContentType" : 
+		{
+			"type" : "func AAudioStreamBuilder_setContentType"
+		},
+		"AAudioStreamBuilder_setDataCallback" : 
+		{
+			"type" : "func AAudioStreamBuilder_setDataCallback"
+		},
+		"AAudioStreamBuilder_setDeviceId" : 
+		{
+			"type" : "func AAudioStreamBuilder_setDeviceId"
+		},
+		"AAudioStreamBuilder_setDirection" : 
+		{
+			"type" : "func AAudioStreamBuilder_setDirection"
+		},
+		"AAudioStreamBuilder_setErrorCallback" : 
+		{
+			"type" : "func AAudioStreamBuilder_setErrorCallback"
+		},
+		"AAudioStreamBuilder_setFormat" : 
+		{
+			"type" : "func AAudioStreamBuilder_setFormat"
+		},
+		"AAudioStreamBuilder_setFramesPerDataCallback" : 
+		{
+			"type" : "func AAudioStreamBuilder_setFramesPerDataCallback"
+		},
+		"AAudioStreamBuilder_setInputPreset" : 
+		{
+			"type" : "func AAudioStreamBuilder_setInputPreset"
+		},
+		"AAudioStreamBuilder_setIsContentSpatialized" : 
+		{
+			"type" : "func AAudioStreamBuilder_setIsContentSpatialized"
+		},
+		"AAudioStreamBuilder_setPackageName" : 
+		{
+			"type" : "func AAudioStreamBuilder_setPackageName"
+		},
+		"AAudioStreamBuilder_setPerformanceMode" : 
+		{
+			"type" : "func AAudioStreamBuilder_setPerformanceMode"
+		},
+		"AAudioStreamBuilder_setPrivacySensitive" : 
+		{
+			"type" : "func AAudioStreamBuilder_setPrivacySensitive"
+		},
+		"AAudioStreamBuilder_setSampleRate" : 
+		{
+			"type" : "func AAudioStreamBuilder_setSampleRate"
+		},
+		"AAudioStreamBuilder_setSamplesPerFrame" : 
+		{
+			"type" : "func AAudioStreamBuilder_setSamplesPerFrame"
+		},
+		"AAudioStreamBuilder_setSessionId" : 
+		{
+			"type" : "func AAudioStreamBuilder_setSessionId"
+		},
+		"AAudioStreamBuilder_setSharingMode" : 
+		{
+			"type" : "func AAudioStreamBuilder_setSharingMode"
+		},
+		"AAudioStreamBuilder_setSpatializationBehavior" : 
+		{
+			"type" : "func AAudioStreamBuilder_setSpatializationBehavior"
+		},
+		"AAudioStreamBuilder_setUsage" : 
+		{
+			"type" : "func AAudioStreamBuilder_setUsage"
+		},
+		"AAudioStream_close" : 
+		{
+			"type" : "func AAudioStream_close"
+		},
+		"AAudioStream_getAllowedCapturePolicy" : 
+		{
+			"type" : "func AAudioStream_getAllowedCapturePolicy"
+		},
+		"AAudioStream_getBufferCapacityInFrames" : 
+		{
+			"type" : "func AAudioStream_getBufferCapacityInFrames"
+		},
+		"AAudioStream_getBufferSizeInFrames" : 
+		{
+			"type" : "func AAudioStream_getBufferSizeInFrames"
+		},
+		"AAudioStream_getChannelCount" : 
+		{
+			"type" : "func AAudioStream_getChannelCount"
+		},
+		"AAudioStream_getChannelMask" : 
+		{
+			"type" : "func AAudioStream_getChannelMask"
+		},
+		"AAudioStream_getContentType" : 
+		{
+			"type" : "func AAudioStream_getContentType"
+		},
+		"AAudioStream_getDeviceId" : 
+		{
+			"type" : "func AAudioStream_getDeviceId"
+		},
+		"AAudioStream_getDirection" : 
+		{
+			"type" : "func AAudioStream_getDirection"
+		},
+		"AAudioStream_getFormat" : 
+		{
+			"type" : "func AAudioStream_getFormat"
+		},
+		"AAudioStream_getFramesPerBurst" : 
+		{
+			"type" : "func AAudioStream_getFramesPerBurst"
+		},
+		"AAudioStream_getFramesPerDataCallback" : 
+		{
+			"type" : "func AAudioStream_getFramesPerDataCallback"
+		},
+		"AAudioStream_getFramesRead" : 
+		{
+			"type" : "func AAudioStream_getFramesRead"
+		},
+		"AAudioStream_getFramesWritten" : 
+		{
+			"type" : "func AAudioStream_getFramesWritten"
+		},
+		"AAudioStream_getHardwareChannelCount" : 
+		{
+			"type" : "func AAudioStream_getHardwareChannelCount"
+		},
+		"AAudioStream_getHardwareFormat" : 
+		{
+			"type" : "func AAudioStream_getHardwareFormat"
+		},
+		"AAudioStream_getHardwareSampleRate" : 
+		{
+			"type" : "func AAudioStream_getHardwareSampleRate"
+		},
+		"AAudioStream_getInputPreset" : 
+		{
+			"type" : "func AAudioStream_getInputPreset"
+		},
+		"AAudioStream_getPerformanceMode" : 
+		{
+			"type" : "func AAudioStream_getPerformanceMode"
+		},
+		"AAudioStream_getSampleRate" : 
+		{
+			"type" : "func AAudioStream_getSampleRate"
+		},
+		"AAudioStream_getSamplesPerFrame" : 
+		{
+			"type" : "func AAudioStream_getSamplesPerFrame"
+		},
+		"AAudioStream_getSessionId" : 
+		{
+			"type" : "func AAudioStream_getSessionId"
+		},
+		"AAudioStream_getSharingMode" : 
+		{
+			"type" : "func AAudioStream_getSharingMode"
+		},
+		"AAudioStream_getSpatializationBehavior" : 
+		{
+			"type" : "func AAudioStream_getSpatializationBehavior"
+		},
+		"AAudioStream_getState" : 
+		{
+			"type" : "func AAudioStream_getState"
+		},
+		"AAudioStream_getTimestamp" : 
+		{
+			"type" : "func AAudioStream_getTimestamp"
+		},
+		"AAudioStream_getUsage" : 
+		{
+			"type" : "func AAudioStream_getUsage"
+		},
+		"AAudioStream_getXRunCount" : 
+		{
+			"type" : "func AAudioStream_getXRunCount"
+		},
+		"AAudioStream_isContentSpatialized" : 
+		{
+			"type" : "func AAudioStream_isContentSpatialized"
+		},
+		"AAudioStream_isMMapUsed" : 
+		{
+			"type" : "func AAudioStream_isMMapUsed"
+		},
+		"AAudioStream_isPrivacySensitive" : 
+		{
+			"type" : "func AAudioStream_isPrivacySensitive"
+		},
+		"AAudioStream_read" : 
+		{
+			"type" : "func AAudioStream_read"
+		},
+		"AAudioStream_release" : 
+		{
+			"type" : "func AAudioStream_release"
+		},
+		"AAudioStream_requestFlush" : 
+		{
+			"type" : "func AAudioStream_requestFlush"
+		},
+		"AAudioStream_requestPause" : 
+		{
+			"type" : "func AAudioStream_requestPause"
+		},
+		"AAudioStream_requestStart" : 
+		{
+			"type" : "func AAudioStream_requestStart"
+		},
+		"AAudioStream_requestStop" : 
+		{
+			"type" : "func AAudioStream_requestStop"
+		},
+		"AAudioStream_setBufferSizeInFrames" : 
+		{
+			"type" : "func AAudioStream_setBufferSizeInFrames"
+		},
+		"AAudioStream_waitForStateChange" : 
+		{
+			"type" : "func AAudioStream_waitForStateChange"
+		},
+		"AAudioStream_write" : 
+		{
+			"type" : "func AAudioStream_write"
+		},
+		"AAudio_convertResultToText" : 
+		{
+			"type" : "func AAudio_convertResultToText"
+		},
+		"AAudio_convertStreamStateToText" : 
+		{
+			"type" : "func AAudio_convertStreamStateToText"
+		},
+		"AAudio_createStreamBuilder" : 
+		{
+			"type" : "func AAudio_createStreamBuilder"
+		},
+		"AAudio_getMMapPolicy" : 
+		{
+			"type" : "func AAudio_getMMapPolicy"
+		},
+		"AAudio_setMMapPolicy" : 
+		{
+			"type" : "func AAudio_setMMapPolicy"
+		}
+	},
+	"types" : 
+	{
+		"bool" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 8
+		},
+		"char8" : 
+		{
+			"kind" : "char",
+			"signed" : true,
+			"size" : 8
+		},
+		"char8 const" : 
+		{
+			"base_type" : "char8",
+			"kind" : "const",
+			"size" : 8
+		},
+		"char8 const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "char8 const",
+			"size" : 64
+		},
+		"func #1" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*",
+				"void*",
+				"void*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func #1*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #1",
+			"size" : 64
+		},
+		"func #2" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*",
+				"void*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func #2*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "func #2",
+			"size" : 64
+		},
+		"func AAudioStreamBuilder_delete" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_openStream" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"struct AAudioStreamStruct**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setAllowedCapturePolicy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setAttributionTag" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"char8 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setBufferCapacityInFrames" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setChannelCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setChannelMask" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"unsigned int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setContentType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setDataCallback" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"func #1*",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setDeviceId" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setDirection" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setErrorCallback" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"func #2*",
+				"void*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setFramesPerDataCallback" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setInputPreset" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setIsContentSpatialized" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setPackageName" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"char8 const*"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setPerformanceMode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setPrivacySensitive" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"bool"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setSampleRate" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setSamplesPerFrame" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setSessionId" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setSharingMode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setSpatializationBehavior" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStreamBuilder_setUsage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct*",
+				"int32"
+			],
+			"return_type" : "void",
+			"size" : 0
+		},
+		"func AAudioStream_close" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getAllowedCapturePolicy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getBufferCapacityInFrames" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getBufferSizeInFrames" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getChannelCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getChannelMask" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "unsigned int32",
+			"size" : 0
+		},
+		"func AAudioStream_getContentType" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getDeviceId" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getDirection" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getFramesPerBurst" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getFramesPerDataCallback" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getFramesRead" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AAudioStream_getFramesWritten" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int64",
+			"size" : 0
+		},
+		"func AAudioStream_getHardwareChannelCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getHardwareFormat" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getHardwareSampleRate" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getInputPreset" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getPerformanceMode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getSampleRate" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getSamplesPerFrame" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getSessionId" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getSharingMode" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getSpatializationBehavior" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getState" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getTimestamp" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*",
+				"int32",
+				"int64*",
+				"int64*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getUsage" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_getXRunCount" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_isContentSpatialized" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AAudioStream_isMMapUsed" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AAudioStream_isPrivacySensitive" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "bool",
+			"size" : 0
+		},
+		"func AAudioStream_read" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*",
+				"void*",
+				"int32",
+				"int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_release" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_requestFlush" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_requestPause" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_requestStart" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_requestStop" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_setBufferSizeInFrames" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*",
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_waitForStateChange" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*",
+				"int32",
+				"int32*",
+				"int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudioStream_write" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamStruct*",
+				"void const*",
+				"int32",
+				"int64"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudio_convertResultToText" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "char8 const*",
+			"size" : 0
+		},
+		"func AAudio_convertStreamStateToText" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "char8 const*",
+			"size" : 0
+		},
+		"func AAudio_createStreamBuilder" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"struct AAudioStreamBuilderStruct**"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudio_getMMapPolicy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : [],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"func AAudio_setMMapPolicy" : 
+		{
+			"has_variadic_args" : false,
+			"is_virtual_method" : false,
+			"kind" : "function",
+			"params" : 
+			[
+				"int32"
+			],
+			"return_type" : "int32",
+			"size" : 0
+		},
+		"int32" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 32
+		},
+		"int32*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int32",
+			"size" : 64
+		},
+		"int64" : 
+		{
+			"kind" : "int",
+			"signed" : true,
+			"size" : 64
+		},
+		"int64*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "int64",
+			"size" : 64
+		},
+		"struct AAudioStreamBuilderStruct" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AAudioStreamBuilderStruct*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AAudioStreamBuilderStruct",
+			"size" : 64
+		},
+		"struct AAudioStreamBuilderStruct**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AAudioStreamBuilderStruct*",
+			"size" : 64
+		},
+		"struct AAudioStreamStruct" : 
+		{
+			"kind" : "incomplete"
+		},
+		"struct AAudioStreamStruct*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AAudioStreamStruct",
+			"size" : 64
+		},
+		"struct AAudioStreamStruct**" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "struct AAudioStreamStruct*",
+			"size" : 64
+		},
+		"unsigned int32" : 
+		{
+			"kind" : "int",
+			"signed" : false,
+			"size" : 32
+		},
+		"void" : 
+		{
+			"kind" : "incomplete"
+		},
+		"void const" : 
+		{
+			"base_type" : "void",
+			"kind" : "const",
+			"size" : 0
+		},
+		"void const*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void const",
+			"size" : 64
+		},
+		"void*" : 
+		{
+			"kind" : "pointer",
+			"pointee_type" : "void",
+			"size" : 64
+		}
+	}
+}

@@ -1,0 +1,19 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+android_test {
+    name: "SmokeTest",
+    // Include all test java files.
+    srcs: ["src/**/*.java"],
+    // Notice that we don't have to include the src files of SmokeTestApp because, by
+    // running the tests using an instrumentation targeting SmokeTestApp, we
+    // automatically get all of its classes loaded into our environment.
+    instrumentation_for: "SmokeTestApp",
+    sdk_version: "8",
+}

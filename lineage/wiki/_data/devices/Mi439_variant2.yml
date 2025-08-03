@@ -1,0 +1,42 @@
+architecture: arm64
+battery: {capacity: 5000, removable: False, tech: 'Li-Po'}
+before_install: {instructions: 'needs_specific_android_fw', lineage_version: 19.1, version: '10'}
+before_recovery_install: {instructions: 'boot_stack', partitions: [dtbo, vbmeta]}
+bluetooth: {spec: '4.2'}
+cameras:
+  - {flash: 'LED', info: '13 MP (Main)'}
+  - {flash: None, info: '2 MP (Depth)'}
+  - {flash: None, info: '8 MP (Front)'}
+codename: Mi439
+cpu: Cortex-A53 & Cortex-A53
+cpu_cores: '8'
+cpu_freq: 4 x 2.02 GHz + 4 x 1.46 GHz
+current_branch: 22.2
+dimensions: {depth: 9.4, height: 156.5, width: 75.4}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+format_on_upgrade: 21
+gpu: Qualcomm Adreno 505
+image: Mi439_variant2_4.png
+install_method: fastboot_xiaomi
+kernel: {repo: android_kernel_xiaomi_msm8937, version: '4.19'}
+maintainers: ["0xCAFEBABE"]
+models: [M1908C3IC, M1908C3IE, M1908C3IG, M1908C3IH, M1908C3II]
+name: Redmi 8
+network: [2G GSM, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, A-GPS, Accelerometer, Compass, Dual SIM, FM radio, Fingerprint reader, BeiDou, Galileo, GLONASS, GPS, Gyroscope, IR blaster, Light sensor, Pedometer, Proximity sensor, USB OTG]
+ram: 2 / 3 / 4 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>. When the screen lights up, release the buttons.
+recovery_partition_name: recovery
+recovery_reboot: fastboot_boot
+release: 2019-10
+screen: {resolution: '720x1520', size: 6.22, technology: 'IPS LCD'}
+sdcard: {size_max: '256 GB'}
+soc: Qualcomm SDM439 Snapdragon 439
+storage: 16 / 32 / 64 GB
+tree: android_device_xiaomi_Mi439
+type: phone
+variant: 2
+vendor: Xiaomi
+vendor_short: xiaomi
+versions: [19.1, 20, 21, 22.2]
+wifi: 802.11 b/g/n

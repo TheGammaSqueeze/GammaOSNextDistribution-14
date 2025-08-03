@@ -1,0 +1,11 @@
+{
+  "config": {
+    "force_incompatible": true,
+    "reason": [
+      "This library is used solely by webview.apk. Which means the guest ",
+      "copy of the library should never be called"
+    ]
+  },
+  "symbols": {},
+  "types": {}
+}

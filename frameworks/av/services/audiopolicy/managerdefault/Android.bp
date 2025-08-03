@@ -1,0 +1,63 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_library_shared {
+    name: "libaudiopolicymanagerdefault",
+
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_shared",
+    ],
+
+    srcs: [
+        "AudioPolicyManager.cpp",
+        "EngineLibrary.cpp",
+    ],
+
+    export_include_dirs: ["."],
+
+    shared_libs: [
+        "com.android.media.audio-aconfig-cc",
+        "libaudiofoundation",
+        "libaudiopolicycomponents",
+        "libcutils",
+        "libdl",
+        "libutils",
+        "liblog",
+        "libaudiopolicy",
+        "libmedia_helper",
+        "libmediametrics",
+        "libbinder",
+        "libhidlbase",
+        "libxml2",
+        // The default audio policy engine is always present in the system image.
+        // libaudiopolicyengineconfigurable can be built in addition by specifying
+        // a dependency on it in the device makefile. There will be no build time
+        // conflict with libaudiopolicyenginedefault.
+        "libaudiopolicyenginedefault",
+        "framework-permission-aidl-cpp",
+        "libaudioclient_aidl_conversion",
+        "audioclient-types-aidl-cpp",
+        // Flag support
+        "android.media.audiopolicy-aconfig-cc",
+        "com.android.media.audioserver-aconfig-cc",
+    ],
+
+    header_libs: [
+        "libaudiopolicycommon",
+        "libaudiopolicyengine_interface_headers",
+        "libaudiopolicymanager_interface_headers",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+}

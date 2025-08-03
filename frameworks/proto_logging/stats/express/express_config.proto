@@ -1,0 +1,87 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.express;
+
+option java_package = "com.android.os.express";
+option java_outer_classname = "ExpressConfigProto";
+option java_multiple_files = true;
+
+enum MetricUnit {
+    UNIT_UNKNOWN = 0;
+    UNIT_COUNT = 1;
+    UNIT_TIME_MILLIS = 2;
+    UNIT_KILOBYTE = 3;
+}
+
+enum MetricType {
+    METRIC_TYPE_UNKNOWN = 0;
+    COUNTER = 1;
+    HISTOGRAM = 2;
+    COUNTER_WITH_UID = 3;
+    HISTOGRAM_WITH_UID = 4;
+}
+
+message HistogramOptions {
+
+    message UniformBinningOptions {
+        optional int32 count = 1;
+
+        // Inclusive min value, values < min will go to underflow bin
+        optional float min = 2;
+
+        // Exclusive max value, values >= max will go to overflow bin
+        optional float max = 3;
+    }
+
+    message ScaledBinningOptions  {
+        optional int32 count = 1;
+        optional float first_bin_width = 3;
+        optional float scale = 4;
+        optional int32 min_value = 5;
+
+        reserved 2;
+    }
+
+    oneof options {
+        UniformBinningOptions uniform_bins = 1;
+        ScaledBinningOptions scaled_bins = 2;
+    }
+}
+
+message ExpressMetric {
+    optional string id = 1;
+
+    optional MetricType type = 2;
+
+    optional string display_name = 3;
+
+    optional string description = 4;
+
+    repeated string owner_email = 5;
+
+    optional MetricUnit unit = 6;
+
+    oneof options {
+        HistogramOptions histogram_options = 7;
+    }
+}
+
+message ExpressMetricConfigFile {
+    repeated ExpressMetric express_metric = 1;
+}

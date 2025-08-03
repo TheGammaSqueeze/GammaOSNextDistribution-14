@@ -1,0 +1,273 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    default_team: "trendy_team_android_developer_tools",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_google_gfxstream_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-ISC
+    //   SPDX-license-identifier-MIT
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_notice
+    //   legacy_unencumbered
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_shared {
+    name: "libgfxstream_backend",
+    defaults: ["gfxstream_defaults"],
+    vendor_available: true,
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-Wno-unused-function",
+        "-Wno-unreachable-code-loop-increment",
+    ],
+    header_libs: [
+        "gfxstream_opengl_headers",
+        "libgfxstream_host_vulkan_cereal_common",
+    ],
+    static_libs: [
+        "gfxstream_base",
+        "gfxstream_host_common",
+        "libgfxstream_common_utils",
+        "libgfxstream_etc",
+        "libgfxstream_glestranslator_egl",
+        "libgfxstream_glestranslator_glescm",
+        "libgfxstream_glestranslator_glesv2",
+        "libgfxstream_host_apigen_codec_common",
+        "libgfxstream_host_compressedtextures",
+        "libgfxstream_host_dispatch",
+        "libgfxstream_host_gl_host_common",
+        "libgfxstream_host_gl_server",
+        "libgfxstream_host_gles1_dec",
+        "libgfxstream_host_gles2_dec",
+        "libgfxstream_host_glestranslator_glcommon",
+        "libgfxstream_host_glsnapshot",
+        "libgfxstream_host_magma_dec",
+        "libgfxstream_host_magma_server",
+        "libgfxstream_host_rendercontrol_dec",
+        "libgfxstream_host_vulkan_cereal",
+        "libgfxstream_host_vulkan_emulatedtextures",
+        "libgfxstream_host_vulkan_server",
+        "libgfxstream_thirdparty_glm",
+    ],
+    export_static_lib_headers: [
+        "gfxstream_base",
+        "libgfxstream_host_gl_host_common",
+        "libgfxstream_host_gles2_dec",
+        "libgfxstream_host_glsnapshot",
+        "libgfxstream_host_magma_server",
+        "libgfxstream_host_vulkan_cereal",
+    ],
+    shared_libs: [
+        "liblog", // gfxstream_base uses this via perfetto-libperfettobase
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+    srcs: [
+        "Buffer.cpp",
+        "BlobManager.cpp",
+        "ChannelStream.cpp",
+        "ColorBuffer.cpp",
+        "DisplaySurface.cpp",
+        "DisplaySurfaceUser.cpp",
+        "Hwc2.cpp",
+        "PostWorker.cpp",
+        "PostWorkerGl.cpp",
+        "ReadBuffer.cpp",
+        "render_api.cpp",
+        "RenderChannelImpl.cpp",
+        "RenderThread.cpp",
+        "RenderThreadInfo.cpp",
+        "RenderThreadInfoGl.cpp",
+        "RenderThreadInfoMagma.cpp",
+        "RingStream.cpp",
+        "SyncThread.cpp",
+        "RenderControl.cpp",
+        "RenderWindow.cpp",
+        "RenderLibImpl.cpp",
+        "RendererImpl.cpp",
+        "FrameBuffer.cpp",
+        "GfxStreamAgents.cpp",
+        "virtio-gpu-gfxstream-renderer.cpp",
+        "virtio-gpu-gfxstream-renderer-goldfish.cpp",
+        "VirtioGpuTimelines.cpp",
+        "VsyncThread.cpp",
+    ],
+    host_ldlibs: [
+        "-lpthread",
+    ],
+    target: {
+        host: {
+            srcs: ["NativeSubWindow_x11.cpp"],
+        },
+        android: {
+            srcs: ["NativeSubWindow_android.cpp"],
+        },
+    },
+}
+
+cc_test_library {
+    name: "gfxstream_backend_test_support",
+    defaults: ["gfxstream_defaults"],
+    srcs: [
+        "tests/GLSnapshotTesting.cpp",
+        "tests/GLTestUtils.cpp",
+        "tests/GLSnapshotTestDispatch.cpp",
+        "tests/GLSnapshotTestStateUtils.cpp",
+        "tests/OpenGLTestContext.cpp",
+        "tests/SampleApplication.cpp",
+        "tests/ShaderUtils.cpp",
+    ],
+    header_libs: [
+        "gfxstream_opengl_headers",
+        "libgfxstream_host_vulkan_cereal_common",
+    ],
+    shared_libs: [
+        "libbase",
+        "libgfxstream_backend",
+    ],
+    export_static_lib_headers: [
+        "libgfxstream_oswindow_test_support",
+    ],
+    static_libs: [
+        "libgfxstream_host_apigen_codec_common",
+        "gfxstream_base",
+        "gfxstream_base_test_support",
+        "gfxstream_host_common_test_support",
+        "gfxstream_snapshot",
+        "libgfxstream_oswindow_test_support",
+        "libgmock",
+        "liblz4",
+    ],
+    export_include_dirs: ["tests"],
+}
+
+cc_library {
+    name: "libgfxstream_test_image_utils",
+    defaults: ["gfxstream_defaults"],
+    shared_libs: [
+        "libbase",
+    ],
+    static_libs: [
+        "libgfxstream_thirdparty_stb",
+    ],
+    srcs: [
+        "tests/ImageUtils.cpp",
+    ],
+}
+
+// Run with `atest --host gfxstream_compositorvk_test`
+cc_test_host {
+    name: "gfxstream_compositorvk_test",
+    defaults: ["gfxstream_defaults"],
+    header_libs: [
+        "libgfxstream_host_vulkan_cereal_common",
+    ],
+    srcs: [
+        "tests/CompositorVk_unittest.cpp",
+    ],
+    data: [
+        "tests/testdata/256x256_android.png",
+        "tests/testdata/256x256_android_with_transparency.png",
+        "tests/testdata/256x256_golden_blend_premultiplied.png",
+        "tests/testdata/256x256_golden_crop.png",
+        "tests/testdata/256x256_golden_simple_composition.png",
+        "tests/testdata/256x256_golden_multiple_layers.png",
+        "tests/testdata/256x256_golden_multiple_targets_0.png",
+        "tests/testdata/256x256_golden_multiple_targets_1.png",
+        "tests/testdata/256x256_golden_multiple_targets_2.png",
+        "tests/testdata/256x256_golden_multiple_targets_3.png",
+        "tests/testdata/256x256_golden_multiple_targets_4.png",
+        "tests/testdata/256x256_golden_multiple_targets_5.png",
+        "tests/testdata/256x256_golden_multiple_targets_6.png",
+        "tests/testdata/256x256_golden_multiple_targets_7.png",
+        "tests/testdata/256x256_golden_multiple_targets_8.png",
+        "tests/testdata/256x256_golden_multiple_targets_9.png",
+        "tests/testdata/256x256_golden_solid_color.png",
+        "tests/testdata/256x256_golden_solid_color_above.png",
+        "tests/testdata/256x256_golden_solid_color_below.png",
+        "tests/testdata/256x256_golden_transform_none.png",
+        "tests/testdata/256x256_golden_transform_fliph.png",
+        "tests/testdata/256x256_golden_transform_flipv.png",
+        "tests/testdata/256x256_golden_transform_rot90.png",
+        "tests/testdata/256x256_golden_transform_rot180.png",
+        "tests/testdata/256x256_golden_transform_rot270.png",
+        "tests/testdata/256x256_golden_transform_fliphrot90.png",
+        "tests/testdata/256x256_golden_transform_flipvrot90.png",
+    ],
+    shared_libs: [
+        "libbase",
+        "libgfxstream_backend",
+        "libgfxstream_test_image_utils",
+    ],
+    static_libs: [
+        "libgfxstream_host_vulkan_server",
+        "libgfxstream_thirdparty_glm",
+        "libc++fs",
+    ],
+    test_options: {
+        // Disabled by default as requires Vulkan.
+        unit_test: false,
+    },
+    test_suites: [
+        "general-tests",
+    ],
+}
+
+// Run with `atest --host gfxstream_framebuffer_tests`
+cc_test_host {
+    name: "gfxstream_framebuffer_tests",
+    defaults: ["gfxstream_defaults"],
+    header_libs: [
+        "libgfxstream_host_vulkan_cereal_common",
+    ],
+    srcs: [
+        "tests/FrameBuffer_unittest.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libgfxstream_backend",
+        "libgfxstream_test_image_utils",
+    ],
+    static_libs: [
+        "gfxstream_backend_test_support",
+        "gfxstream_base",
+        "gfxstream_base_test_support",
+        "libgfxstream_thirdparty_glm",
+        "gfxstream_host_common_test_support",
+        "libgfxstream_oswindow_test_support",
+        "gfxstream_snapshot",
+        "libgfxstream_host_vulkan_server",
+        "libgmock",
+        "liblz4",
+    ],
+    test_options: {
+        // Disabled by default as requires Vulkan.
+        unit_test: false,
+    },
+    test_suites: [
+        "general-tests",
+    ],
+}
+
+cc_test_host {
+    name: "gfxstream_magma_tests",
+    defaults: ["gfxstream_defaults"],
+    srcs: [
+        "tests/Magma_unittest.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libgfxstream_backend",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+}

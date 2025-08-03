@@ -1,0 +1,38 @@
+architecture: arm
+battery: {capacity: 2070, removable: False, tech: 'Li-Ion'}
+bluetooth: {profiles: [A2DP], spec: 4.0 + LE}
+cameras:
+  - {flash: 'LED', info: '8 MP'}
+  - {flash: None, info: '2 MP'}
+codename: titan
+cpu: Cortex-A7
+cpu_cores: '4'
+cpu_freq: 1.2 GHz
+current_branch: 14.1
+dimensions: {depth: 11, height: 141.5, width: 70.7}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. On the next screen use <kbd>Volume Down</kbd> to scroll and then press <kbd>Volume Up</kbd> to select.
+gpu: Qualcomm Adreno 305
+image: titan.png
+install_method: fastboot_motorola
+kernel: {repo: android_kernel_motorola_msm8226, version: '3.4'}
+maintainers: []
+models: [XT1063, XT1064, XT1068, XT1069]
+name: moto g (2014)
+network: [2G GSM, 2G CDMA, 3G UMTS, 3G CDMA2000]
+peripherals: [3.5mm jack, Accelerometer, Compass, Gyroscope, Proximity sensor]
+ram: 1 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>. On the next screen use <kbd>Volume Down</kbd> to scroll to recovery and then press <kbd>Volume Up</kbd> to select.
+recovery_partition_name: recovery
+recovery_reboot: fastboot_menu
+release: 2014-06
+screen: {resolution: '720x1280', size: 5, technology: 'IPS LCD'}
+sdcard: {size_max: '32 GB'}
+soc: Qualcomm MSM8226 Snapdragon 400
+storage: 8/16 GB
+tree: android_device_motorola_titan
+type: phone
+uses_twrp: true
+vendor: Motorola
+vendor_short: motorola
+versions: [14.1]
+wifi: 802.11 b/g/n

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# A tool to disassemble one riscv64 instruction.
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage:"
+  echo "  $ riscv64-disasm 0x60469613"
+  echo "0:   60469613                sext.b  a2,a3"
+  echo
+  echo "  The prefix \"0x\" is optional. Compressed instructions are also allowed."
+  exit
+fi
+
+TEMP="$(mktemp)"
+INSN="0x$(echo $1 | sed -e "s/^0x//")"
+
+echo ".text" > "$TEMP.S"
+echo ".word $INSN" >> "$TEMP.S"
+
+# riscv objdump only understands extensions in elf files, so we cannot
+# disassemble a pure binary.
+# Add needed extensions to march when required.
+riscv64-linux-gnu-as -march=rv64gc_zba_zbb_zbs_v -o "$TEMP.o" "$TEMP.S"
+# Assembler marks .word bytes as data pool ("$d"), and objdump doesn't
+# disassemble such instructions. Strip symbols to force instruction disassembly.
+riscv64-linux-gnu-strip "$TEMP.o"
+riscv64-linux-gnu-objdump -M numeric -d "$TEMP.o" | sed '0,/<.text>/d'
+
+rm "$TEMP.S" "$TEMP.o"

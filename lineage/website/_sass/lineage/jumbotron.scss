@@ -1,0 +1,39 @@
+@charset "UTF-8";
+.jumbotron {
+  background-color: $brand-primary;
+  color: white;
+  padding: 2.125rem 0 !important;
+  margin-bottom: 2rem;
+  border-radius: 0 !important;
+
+  p {
+    font-size: 1.125rem !important;
+    line-height: 1.75rem;
+  }
+}
+
+.welcome {
+  padding: 0 1rem 0 !important;
+  margin-bottom: 0 !important;
+  background-image: url('../img/jumbotron_hero_bg.webp');
+  background-size: cover;
+  background-position: bottom;
+
+  p {
+    margin-bottom: 1rem;
+  }
+
+  img {
+    max-height: 500px;
+    max-width: 100%;
+    margin: 0 auto;
+
+    @media(min-width:992px) {
+      margin-right:16px;
+    }
+  }
+
+  @media(max-width:992px) {
+    padding-top: 2.5rem !important;
+  }
+}

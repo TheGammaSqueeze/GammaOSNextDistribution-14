@@ -1,0 +1,30 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_compile_libbcc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-NCSA
+    default_applicable_licenses: ["frameworks_compile_libbcc_license"],
+}
+
+cc_library_static {
+    name: "libLLVMBitReader_2_7",
+    vendor_available: true,
+    defaults: ["llvm-defaults",],
+    host_supported: true,
+
+    // We don't control the source files under this dir.
+    // So, disable tidy checks.
+    tidy: false,
+
+    srcs: ["BitcodeReader.cpp"],
+
+    target: {
+        host: {
+            cflags: ["-D__HOST__"],
+        },
+        windows: {
+            enabled: true,
+        },
+    },
+}

@@ -1,0 +1,653 @@
+[
+  "Copyright (C) 2023 The Android Open Source Project",
+  "",
+  "Licensed under the Apache License, Version 2.0 (the “License”);",
+  "you may not use this file except in compliance with the License.",
+  "You may obtain a copy of the License at",
+  "",
+  "     http://www.apache.org/licenses/LICENSE-2.0",
+  "",
+  "Unless required by applicable law or agreed to in writing, software",
+  "distributed under the License is distributed on an “AS IS” BASIS,",
+  "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.",
+  "See the License for the specific language governing permissions and",
+  "limitations under the License.",
+  {
+    "name": "Adduw",
+    "insn": "Adduw",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Bclr",
+    "insn": "BtrqRegReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Bext",
+    "insn": "Bext",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Binv",
+    "insn": "BtcqRegReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Bset",
+    "insn": "BtsqRegReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "CanonicalizeNan<Float32>",
+    "insn": "CanonicalizeNanFloat32",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "CanonicalizeNan<Float32>",
+    "insn": "CanonicalizeNanFloat32AVX",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "CanonicalizeNan<Float64>",
+    "insn": "CanonicalizeNanFloat64",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "CanonicalizeNan<Float64>",
+    "insn": "CanonicalizeNanFloat64AVX",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Clz<int32_t>",
+    "insn": "ClzInt32",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Clz<int32_t>",
+    "insn": "LzcntlRegReg",
+    "feature": "LZCNT",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Clz<int64_t>",
+    "insn": "ClzInt64",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Clz<int64_t>",
+    "insn": "LzcntqRegReg",
+    "feature": "LZCNT",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Cpop<int32_t>",
+    "insn": "PopcntlRegReg",
+    "feature": "POPCNT",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Cpop<int64_t>",
+    "insn": "PopcntqRegReg",
+    "feature": "POPCNT",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Ctz<int32_t>",
+    "insn": "CtzInt32",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Ctz<int32_t>",
+    "insn": "TzcntlRegReg",
+    "feature": "BMI",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Ctz<int64_t>",
+    "insn": "CtzInt64",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Ctz<int64_t>",
+    "insn": "TzcntqRegReg",
+    "feature": "BMI",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FAddHostRounding<Float32>",
+    "insn": "AddssXRegXReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FAddHostRounding<Float32>",
+    "insn": "VaddssXRegXRegXReg",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FAddHostRounding<Float64>",
+    "insn": "AddsdXRegXReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FAddHostRounding<Float64>",
+    "insn": "VaddsdXRegXRegXReg",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FCvtFloatToIntegerHostRounding<int32_t, Float32>",
+    "insn": "MacroFCvtFloat32ToInt32",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FCvtFloatToIntegerHostRounding<int32_t, Float64>",
+    "insn": "MacroFCvtFloat64ToInt32",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FCvtFloatToIntegerHostRounding<int64_t, Float32>",
+    "insn": "MacroFCvtFloat32ToInt64",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FCvtFloatToIntegerHostRounding<int64_t, Float64>",
+    "insn": "MacroFCvtFloat64ToInt64",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FDivHostRounding<Float32>",
+    "insn": "DivssXRegXReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FDivHostRounding<Float32>",
+    "insn": "VdivssXRegXRegXReg",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FDivHostRounding<Float64>",
+    "insn": "DivsdXRegXReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FDivHostRounding<Float64>",
+    "insn": "VdivsdXRegXRegXReg",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FeGetExceptions",
+    "insn": "MacroFeGetExceptionsTranslate",
+    "usage": "translate-only",
+    "in": [],
+    "out": [ 1 ]
+  },
+  {
+    "name": "FeSetExceptions",
+    "insn": "MacroFeSetExceptionsTranslate",
+    "usage": "translate-only",
+    "in": [ 0 ],
+    "out": []
+  },
+  {
+    "name": "FeSetExceptionsAndRound",
+    "insn": "MacroFeSetExceptionsAndRoundTranslate",
+    "usage": "translate-only",
+    "in": [ 0, 3 ],
+    "out": []
+  },
+  {
+    "name": "FeSetExceptionsImm",
+    "insn": "MacroFeSetExceptionsImmTranslate",
+    "usage": "translate-only",
+    "in": [ 1 ],
+    "out": []
+  },
+  {
+    "name": "FeSetExceptionsAndRoundImm",
+    "insn": "MacroFeSetExceptionsAndRoundImmTranslate",
+    "usage": "translate-only",
+    "in": [ 1 ],
+    "out": []
+  },
+  {
+    "name": "FeSetRound",
+    "insn": "MacroFeSetRound",
+    "in": [ 3 ],
+    "out": []
+  },
+  {
+    "name": "FeSetRoundImm",
+    "insn": "MacroFeSetRound",
+    "usage": "interpret-only",
+    "in": [ 3 ],
+    "out": []
+  },
+  {
+    "name": "FeSetRoundImm",
+    "insn": "MacroFeSetRoundImmTranslate",
+    "usage": "translate-only",
+    "in": [ 2 ],
+    "out": []
+  },
+  {
+    "name": "FMAddHostRounding<Float32>",
+    "insn": "Vfmadd231ssXRegXRegXReg",
+    "feature": "FMA",
+    "in": [ 1, 2, 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FMAddHostRounding<Float64>",
+    "insn": "Vfmadd231sdXRegXRegXReg",
+    "feature": "FMA",
+    "in": [ 1, 2, 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FMSubHostRounding<Float32>",
+    "insn": "Vfmsub231ssXRegXRegXReg",
+    "feature": "FMA",
+    "in": [ 1, 2, 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FMSubHostRounding<Float64>",
+    "insn": "Vfmsub231sdXRegXRegXReg",
+    "feature": "FMA",
+    "in": [ 1, 2, 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FMulHostRounding<Float32>",
+    "insn": "MulssXRegXReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FMulHostRounding<Float32>",
+    "insn": "VmulssXRegXRegXReg",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FMulHostRounding<Float64>",
+    "insn": "MulsdXRegXReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FMulHostRounding<Float64>",
+    "insn": "VmulsdXRegXRegXReg",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FNMAddHostRounding<Float32>",
+    "insn": "Vfnmadd231ssXRegXRegXReg",
+    "feature": "FMA",
+    "in": [ 1, 2, 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FNMAddHostRounding<Float64>",
+    "insn": "Vfnmadd231sdXRegXRegXReg",
+    "feature": "FMA",
+    "in": [ 1, 2, 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FNMSubHostRounding<Float32>",
+    "insn": "Vfnmsub231ssXRegXRegXReg",
+    "feature": "FMA",
+    "in": [ 1, 2, 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FNMSubHostRounding<Float64>",
+    "insn": "Vfnmsub231sdXRegXRegXReg",
+    "feature": "FMA",
+    "in": [ 1, 2, 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FSubHostRounding<Float32>",
+    "insn": "SubssXRegXReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FSubHostRounding<Float32>",
+    "insn": "VsubssXRegXRegXReg",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FSubHostRounding<Float64>",
+    "insn": "SubsdXRegXReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FSubHostRounding<Float64>",
+    "insn": "VsubsdXRegXRegXReg",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Feq<Float32>",
+    "insn": "MacroFeqFloat32",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Feq<Float32>",
+    "insn": "MacroFeqFloat32AVX",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Feq<Float64>",
+    "insn": "MacroFeqFloat64",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Feq<Float64>",
+    "insn": "MacroFeqFloat64AVX",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Fle<Float32>",
+    "insn": "MacroFleFloat32",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Fle<Float32>",
+    "insn": "MacroFleFloat32AVX",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Fle<Float64>",
+    "insn": "MacroFleFloat64",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Fle<Float64>",
+    "insn": "MacroFleFloat64AVX",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Flt<Float32>",
+    "insn": "MacroFltFloat32",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Flt<Float32>",
+    "insn": "MacroFltFloat32AVX",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Flt<Float64>",
+    "insn": "MacroFltFloat64",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Flt<Float64>",
+    "insn": "MacroFltFloat64AVX",
+    "feature": "AVX",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FmvFloatToInteger<int32_t, Float32>",
+    "insn": "MovdRegXReg",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FmvFloatToInteger<int32_t, Float32>",
+    "insn": "VmovdRegXReg",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FmvFloatToInteger<int64_t, Float64>",
+    "insn": "MovqRegXReg",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FmvFloatToInteger<int64_t, Float64>",
+    "insn": "VmovqRegXReg",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FmvIntegerToFloat<Float32, int32_t>",
+    "insn": "MovdXRegReg",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FmvIntegerToFloat<Float32, int32_t>",
+    "insn": "VmovdXRegReg",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FmvIntegerToFloat<Float64, int64_t>",
+    "insn": "MovqXRegReg",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "FmvIntegerToFloat<Float64, int64_t>",
+    "insn": "VmovqXRegReg",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Max<int64_t>",
+    "insn": "MaxInt64",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Max<uint64_t>",
+    "insn": "MaxUInt64",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Min<int64_t>",
+    "insn": "MinInt64",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Min<uint64_t>",
+    "insn": "MinUInt64",
+    "in": [ 1, 2 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "NanBox<Float32>",
+    "insn": "MacroNanBoxFloat32",
+    "in": [ 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "NanBox<Float32>",
+    "insn": "MacroNanBoxFloat32AVX",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Orcb",
+    "insn": "Orcb",
+    "in": [ 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Orcb",
+    "insn": "OrcbAVX",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Rev8",
+    "insn": "BswapqReg",
+    "in": [ 0 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Rol<int32_t>",
+    "insn": "RollRegReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Rol<int64_t>",
+    "insn": "RolqRegReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Ror<int32_t>",
+    "insn": "RorlRegReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Ror<int64_t>",
+    "insn": "RorqRegReg",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Sext<int16_t>",
+    "insn": "MovsxwqRegReg",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Sext<int8_t>",
+    "insn": "MovsxbqRegReg",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Sh1add",
+    "insn": "Sh1add",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Sh1adduw",
+    "insn": "Sh1adduw",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Sh2add",
+    "insn": "Sh2add",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Sh2adduw",
+    "insn": "Sh2adduw",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Sh3add",
+    "insn": "Sh3add",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Sh3adduw",
+    "insn": "Sh3adduw",
+    "in": [ 0, 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "UnboxNan<Float32>",
+    "insn": "MacroUnboxNanFloat32",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "UnboxNan<Float32>",
+    "insn": "MacroUnboxNanFloat32AVX",
+    "feature": "AVX",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  },
+  {
+    "name": "Zexth",
+    "insn": "MovzxwqRegReg",
+    "in": [ 1 ],
+    "out": [ 0 ]
+  }
+]

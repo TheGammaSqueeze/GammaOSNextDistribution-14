@@ -1,0 +1,3 @@
+# Ignore LineageOS SDK access to private resources
+-dontwarn lineageos.**
+-dontnote lineageos.**

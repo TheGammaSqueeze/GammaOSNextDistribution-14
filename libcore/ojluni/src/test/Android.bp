@@ -1,0 +1,181 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_visibility: ["//visibility:private"],
+    default_applicable_licenses: ["libcore_ojluni_src_test_license"],
+}
+
+license {
+    name: "libcore_ojluni_src_test_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+// Builds the core-ojtests library that contains test code from OpenJDK.
+java_test {
+    name: "core-ojtests",
+    defaults: ["libcore_java_defaults"],
+    hostdex: true,
+
+    srcs: [
+        "java/**/*.java",
+        "javax/**/*.java",
+        "sun/**/*.java",
+    ],
+    java_resource_dirs: [
+        "resources",
+    ],
+
+    java_resources: [
+        ":core-ojtests-java-resources",
+        ":core-ojtests-javax-resources",
+    ],
+
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+    libs: [
+        "okhttp",
+        "bouncycastle",
+    ],
+
+    static_libs: [
+        "core-test-rules",
+        "junit",
+        "mockwebserver",
+        "testng",
+    ],
+
+    // ojluni/src/test/java/util/stream/{bootlib,boottest}
+    // contains tests that are in packages from java.base;
+    // By default, OpenJDK 9's javac will only compile such
+    // code if it's declared to also be in java.base at
+    // compile time.
+    //
+    // For now, we use patch_module to put all sources
+    // and dependencies from this make target into java.base;
+    // other source directories in this make target are in
+    // packages not from java.base; if this becomes a problem
+    // in future, this could be addressed eg. by splitting
+    // boot{lib,test} out into a separate make target,
+    // deleting those tests or moving them to a different
+    // package.
+    patch_module: "java.base",
+
+    errorprone: {
+        javacflags: [
+            "-Xep:AlwaysThrows:OFF",
+            "-Xep:DoNotCall:OFF",
+            "-Xep:ArrayToString:WARN",
+            "-Xep:ReturnValueIgnored:WARN",
+            "-Xep:MathRoundIntLong:WARN",
+            "-Xep:FormatString:WARN",
+            "-Xep:IdentityBinaryExpression:WARN",
+            "-Xep:RandomModInteger:WARN",
+            "-Xep:SelfEquals:WARN",
+            "-Xep:DurationTemporalUnit:WARN",
+            "-Xep:DurationFrom:WARN",
+            "-Xep:InstantTemporalUnit:WARN",
+            "-Xep:SelfComparison:WARN",
+            "-Xep:PeriodFrom:WARN",
+            "-Xep:BoxedPrimitiveEquality:WARN",
+            "-Xep:IdentityHashMapBoxing:WARN",
+            "-Xep:DoubleBraceInitialization:WARN",
+            "-Xep:ComparableType:WARN",
+            "-Xep:ModifyingCollectionWithItself:WARN",
+            "-Xep:InvalidZoneId:WARN",
+            "-Xep:HashtableContains:WARN",
+        ],
+    },
+}
+
+// Builds the core-ojtests-public library. Excludes any private API tests.
+// Like core-ojtests but smaller.
+java_test {
+    name: "core-ojtests-public",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/libcore/ojluni",
+    ],
+    defaults: ["libcore_java_defaults"],
+    srcs: [
+        "java/**/*.java",
+        "javax/**/*.java",
+        "sun/**/*.java",
+    ],
+    // Filter out the following:
+    // 1.) DeserializeMethodTest and SerializedLambdaTest, because they depends on stub classes
+    //     and won't actually run, and
+    // 2.) util/stream/boot*. Those directories contain classes in the package java.util.stream;
+    //     excluding them means we don't need patch_module: "java.base"
+    exclude_srcs: [
+        "**/DeserializeMethodTest.java",
+        "**/SerializedLambdaTest.java",
+        "java/util/stream/boot*/**/*",
+    ],
+    java_resource_dirs: [
+        "resources",
+        // Include source code as part of JAR
+        "dist",
+    ],
+
+    java_resources: [
+        ":core-ojtests-java-resources",
+        ":core-ojtests-javax-resources",
+    ],
+
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+    libs: [
+        "bouncycastle",
+        "core-test-rules",
+        "junit",
+        "okhttp",
+        "testng",
+    ],
+
+    static_libs: ["mockwebserver"],
+
+    errorprone: {
+        javacflags: [
+            "-Xep:AlwaysThrows:OFF",
+            "-Xep:DoNotCall:OFF",
+            "-Xep:ArrayToString:WARN",
+            "-Xep:ReturnValueIgnored:WARN",
+            "-Xep:MathRoundIntLong:WARN",
+            "-Xep:FormatString:WARN",
+            "-Xep:IdentityBinaryExpression:WARN",
+            "-Xep:RandomModInteger:WARN",
+            "-Xep:SelfEquals:WARN",
+            "-Xep:DurationTemporalUnit:WARN",
+            "-Xep:DurationFrom:WARN",
+            "-Xep:InstantTemporalUnit:WARN",
+            "-Xep:SelfComparison:WARN",
+            "-Xep:PeriodFrom:WARN",
+            "-Xep:BoxedPrimitiveEquality:WARN",
+            "-Xep:IdentityHashMapBoxing:WARN",
+            "-Xep:DoubleBraceInitialization:WARN",
+            "-Xep:ComparableType:WARN",
+            "-Xep:ModifyingCollectionWithItself:WARN",
+            "-Xep:InvalidZoneId:WARN",
+            "-Xep:HashtableContains:WARN",
+        ],
+    },
+}

@@ -1,0 +1,71 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_google_aemu_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-MIT
+    default_applicable_licenses: ["hardware_google_aemu_license"],
+}
+
+cc_library_static {
+    name: "gfxstream_host_common",
+    defaults: [ "gfxstream_defaults" ],
+    static_libs: [
+        "gfxstream_base",
+    ],
+    srcs: [
+        "empty-crash-handler.cpp",
+        "crash_reporter.cpp",
+        "vm_operations.cpp",
+        "feature_control.cpp",
+        "FeatureControlOverride.cpp",
+        "dma_device.cpp",
+        "sync_device.cpp",
+        "misc.cpp",
+        "window_operations.cpp",
+        "logging.cpp",
+        "GfxstreamFatalError.cpp",
+
+        "AndroidPipe.cpp",
+        "HostmemIdMapping.cpp",
+        "RefcountPipe.cpp",
+        "GraphicsAgentFactory.cpp",
+
+        "GoldfishSyncCommandQueue.cpp",
+        "goldfish_sync.cpp",
+
+        "DmaMap.cpp",
+        "GoldfishDma.cpp",
+
+        "address_space_device_control_ops.cpp",
+        "address_space_device.cpp",
+        "address_space_host_memory_allocator.cpp",
+        "address_space_shared_slots_host_memory_allocator.cpp",
+        "address_space_graphics.cpp",
+        "address_space_host_media.cpp",
+
+        "hw-config.cpp",
+    ],
+    local_include_dirs: [
+        "include/host-common",
+    ],
+}
+
+cc_test_library {
+    name: "gfxstream_host_common_test_support",
+    defaults: [ "gfxstream_defaults" ],
+    srcs: [
+        "testing/HostAddressSpace.cpp",
+        "testing/MockAndroidEmulatorWindowAgent.cpp",
+        "testing/MockAndroidMultiDisplayAgent.cpp",
+        "testing/MockAndroidVmOperations.cpp",
+        "testing/MockGraphicsAgentFactory.cpp",
+    ],
+    static_libs: [
+        "gfxstream_base",
+        "gfxstream_host_common",
+        "libgmock",
+    ],
+}

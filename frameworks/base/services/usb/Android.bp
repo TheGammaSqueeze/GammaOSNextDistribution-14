@@ -1,0 +1,54 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_base_license"],
+}
+
+filegroup {
+    name: "services.usb-sources",
+    srcs: ["java/**/*.java"],
+    path: "java",
+    visibility: ["//frameworks/base/services"],
+}
+
+java_library_static {
+    name: "services.usb",
+    defaults: ["platform_service_defaults"],
+    srcs: [":services.usb-sources"],
+
+    libs: [
+        "services.core",
+        "android.hidl.manager-V1.0-java",
+        "android.hardware.usb.gadget-V1.0-java",
+        "android.hardware.usb.gadget-V1.1-java",
+        "android.hardware.usb.gadget-V1.2-java",
+        "android.hardware.usb.gadget-V1-java",
+        "org.lineageos.platform.internal",
+    ],
+
+    static_libs: [
+        "android.hardware.usb-V1.0-java",
+        "android.hardware.usb-V1.1-java",
+        "android.hardware.usb-V1.2-java",
+        "android.hardware.usb-V1.3-java",
+        "android.hardware.usb-V3-java",
+        "usb_flags_lib",
+    ],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+aconfig_declarations {
+    name: "usb_flags",
+    package: "com.android.server.usb.flags",
+    srcs: ["**/usb_flags.aconfig"],
+}
+
+java_aconfig_library {
+    name: "usb_flags_lib",
+    aconfig_declarations: "usb_flags",
+}

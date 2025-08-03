@@ -1,0 +1,34 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "slesTest_seekTorture",
+    gtest: false,
+
+    srcs: ["seekTorture.c"],
+
+    shared_libs: ["libOpenSLES"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wno-deprecated-declarations",
+    ],
+}
+
+cc_test {
+    name: "slesTest_playMuteSolo",
+    gtest: false,
+
+    srcs: ["slesTest_playMuteSolo.cpp"],
+
+    shared_libs: ["libOpenSLES"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wno-deprecated-declarations",
+    ],
+}

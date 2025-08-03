@@ -1,0 +1,37 @@
+architecture: arm64
+battery: {capacity: 3000, removable: False, tech: 'Li-Ion'}
+bluetooth: {profiles: [A2DP], spec: '4.2'}
+cameras:
+  - {flash: 'Dual LED (dual tone)', info: '12 MP'}
+  - {flash: 'Dual LED (dual tone)', info: '5 MP'}
+codename: albus
+cpu: Cortex-A53
+cpu_cores: '8'
+cpu_freq: 8 x 2.21 GHz
+current_branch: 18.1
+dimensions: {depth: 6, height: 156.2, width: 76.2}
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+gpu: Qualcomm Adreno 506
+image: albus.png
+install_method: fastboot_motorola
+kernel: {repo: android_kernel_motorola_msm8953, version: '3.18'}
+maintainers: []
+models: [XT1710-01, XT1710-02, XT1710-07, XT1710-08, XT1710-09, XT1710-10, XT1710-11]
+name: moto z2 play
+network: [2G GSM, 2G CDMA, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, Fingerprint reader, Gyroscope, Hall effect sensor, Light sensor, Moto Mods, NFC, Proximity sensor]
+quirks: [aux_cameras]
+ram: 4 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+release: 2017-06
+screen: {resolution: '1920x1080', size: 5.5, technology: 'Super AMOLED'}
+sdcard: {size_max: '2 TB'}
+soc: Qualcomm MSM8953 Pro Snapdragon 626
+storage: 32/64 GB
+tree: android_device_motorola_albus
+type: phone
+vendor: Motorola
+vendor_short: motorola
+versions: [15.1, 18.1]
+wifi: 802.11 a/b/g/n/ac

@@ -1,0 +1,2 @@
+# for cgroup migration
+allow vendor_init cgroup:file rw_file_perms;

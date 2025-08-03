@@ -1,0 +1,18 @@
+This client can be installed on the device to test accesses of the service as
+it would be called from other clients.
+
+To install copy binary to /data/local/tmp
+
+Supported command line arguments:
+
+    -h or --help - shows help information
+    -S or --SpeakerImpedance
+    -f or --HardwareFailed
+    -p or --PhysicalDropDetected
+    -y or --ChargeCycles
+    -n or --BatteryHealthSnapshot
+    -i or --SlowIo
+    -s or --BatteryCausedShutdown
+    -u or --UsbPortOverheatEvent
+    -d or --SpeechDspStat
+    -v or --VendorAtom

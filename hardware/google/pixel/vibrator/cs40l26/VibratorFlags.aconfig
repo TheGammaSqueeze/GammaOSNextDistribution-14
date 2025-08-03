@@ -1,0 +1,8 @@
+package: "vendor.vibrator.hal.flags"
+
+flag {
+  name: "remove_capo"
+  namespace: "vibrator"
+  description: "This flag controls the removal of utilizing Capo at the HAL level"
+  bug: "290223630"
+}

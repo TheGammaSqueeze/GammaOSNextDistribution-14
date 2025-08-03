@@ -1,0 +1,51 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.remoteprovisioner;
+
+// The status of an attempt to remotely provision keys and certs.
+enum RemoteKeyProvisioningStatus {
+    REMOTE_KEY_PROVISIONING_STATUS_UNKNOWN = 0;
+    KEYS_SUCCESSFULLY_PROVISIONED = 1;  // Success: got keys and certs
+    NO_PROVISIONING_NEEDED = 2;         // Success: Noop
+    PROVISIONING_DISABLED = 3;          // Success: provisioning turned off
+    INTERNAL_ERROR = 4;                 // Indicates a code bug
+    NO_NETWORK_CONNECTIVITY = 5;        // Not connected to the internet
+    OUT_OF_ERROR_BUDGET = 6;            // Too much data has been used on
+                                        // previous errors, operation aborted
+    INTERRUPTED = 7;                    // Local processing received an
+                                        // interrupted exception
+
+    // Various local binder failures
+    GENERATE_KEYPAIR_FAILED = 10;
+    GENERATE_CSR_FAILED = 11;
+    GET_POOL_STATUS_FAILED = 12;
+    INSERT_CHAIN_INTO_POOL_FAILED = 13;  // The local provisioning of the cert
+                                         // chain into the key pool failed
+
+    // Failures to get the GEEK from the RKP service
+    FETCH_GEEK_TIMED_OUT = 20;
+    FETCH_GEEK_IO_EXCEPTION = 21;
+    FETCH_GEEK_HTTP_ERROR = 22;
+
+    // Failures to get certs from the RKP service
+    SIGN_CERTS_TIMED_OUT = 30;
+    SIGN_CERTS_IO_EXCEPTION = 31;
+    SIGN_CERTS_HTTP_ERROR = 32;
+    SIGN_CERTS_DEVICE_NOT_REGISTERED = 33;
+}

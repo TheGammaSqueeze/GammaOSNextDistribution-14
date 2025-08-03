@@ -1,0 +1,225 @@
+syntax = "proto2";
+
+package android.os.statsd.art;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.art";
+option java_multiple_files = true;
+
+extend Atom {
+    optional OdrefreshReported odrefresh_reported = 366 [(module) = "art"];
+    optional OdsignReported odsign_reported = 548 [(module) = "art"];
+}
+
+/*
+ * Logs information about on-device refresh of ART AOT artifacts for boot classpath extensions
+ * and system_server.
+ *
+ * Logged from:
+ *   art/odrefresh/odrefresh.cc
+ */
+ message OdrefreshReported {
+    optional int64 art_apex_version = 1;
+
+    // Keep in sync with the Trigger enum defined in art/odrefresh/odr_metrics.h
+    enum Trigger {
+        // A placeholder for unknown values.
+        TRIGGER_UNKNOWN = 0;
+
+        // ART APEX version has changed since time artifacts were generated.
+        TRIGGER_APEX_VERSION_MISMATCH = 1;
+
+        // Dex files on the boot classpath or system_server classpath have changed.
+        TRIGGER_DEX_FILES_CHANGED = 2;
+
+        // Missing artifacts.
+        TRIGGER_MISSING_ARTIFACTS = 3;
+    }
+
+    optional Trigger trigger = 2;
+
+    // Keep in sync with the Stage enum defined in art/odrefresh/odr_metrics.h
+    enum Stage {
+        // A placeholder for unknown values.
+        STAGE_UNKNOWN = 0;
+
+        // Checking stage.
+        STAGE_CHECK = 10;
+
+        // Preparation for compilation.
+        STAGE_PREPARATION = 20;
+
+        // Compilation of the boot classpath for the primary architecture
+        // ("primary boot classpath").
+        STAGE_PRIMARY_BOOT_CLASSPATH = 30;
+
+        // Compilation of the boot classpath for the secondary architecture
+        // ("secondary boot classpath"), if any.
+        STAGE_SECONDARY_BOOT_CLASSPATH = 40;
+
+        // Compilation of system_server classpath.
+        STAGE_SYSTEM_SERVER_CLASSPATH = 50;
+
+        // All stages completed.
+        STAGE_COMPLETE = 60;
+    }
+
+    optional Stage stage_reached = 3;
+
+    // Keep in sync with the Status enum defined in art/odrefresh/odr_metrics.h
+    enum Status {
+        // A placeholder for unknown values.
+        STATUS_UNKNOWN = 0;
+
+        // OK, no problems encountered.
+        STATUS_OK = 1;
+
+        // Insufficient space.
+        STATUS_NO_SPACE = 2;
+
+        // Storage operation failed.
+        STATUS_IO_ERROR = 3;
+
+        // Dex2oat reported an error.
+        STATUS_DEX2OAT_ERROR = 4;
+
+        reserved 5; // was STATUS_TIME_LIMIT_EXCEEDED
+
+        // Failure creating staging area.
+        STATUS_STAGING_FAILED = 6;
+
+        // Installation of artifacts failed.
+        STATUS_INSTALL_FAILED = 7;
+
+        // Failed to access the dalvik-cache directory due to lack of
+        // permission.
+        STATUS_DALVIK_CACHE_PERMISSION_DENIED = 8;
+    }
+
+    optional Status status = 4;
+
+    // Compilation time of the boot classpath for the primary architecture
+    // ("primary boot classpath"), in seconds.
+    optional int32 primary_bcp_compilation_seconds = 5;
+
+    // Compilation time of the boot classpath for the secondary architecture
+    // ("secondary boot classpath"), if any, in seconds.
+    optional int32 secondary_bcp_compilation_seconds = 6;
+
+    // Compilation time of system_server classpath, in seconds.
+    optional int32 system_server_compilation_seconds = 7;
+
+    // Cache space at start of update.
+    optional int32 cache_space_free_start_mib = 8;
+
+    // Cache space at end of update.
+    optional int32 cache_space_free_end_mib = 9;
+
+    // Compilation time of the boot classpath for the primary architecture
+    // ("primary boot classpath"), in milliseconds.
+    optional int32 primary_bcp_compilation_millis = 10;
+
+    // Compilation time of the boot classpath for the secondary architecture
+    // ("secondary boot classpath"), if any, in milliseconds.
+    optional int32 secondary_bcp_compilation_millis = 11;
+
+    // Compilation time of system_server classpath, in milliseconds.
+    optional int32 system_server_compilation_millis = 12;
+
+    // Keep in sync with the ExecResult enum defined in art/runtime/exec_utils.h
+    enum ExecResultStatus {
+        // Unable to get the status.
+        EXEC_RESULT_STATUS_UNKNOWN = 0;
+        // Process exited normally with an exit code.
+        EXEC_RESULT_STATUS_EXITED = 1;
+        // Process terminated by a signal.
+        EXEC_RESULT_STATUS_SIGNALED = 2;
+        // Process timed out and killed.
+        EXEC_RESULT_STATUS_TIMED_OUT = 3;
+        // Failed to start the process.
+        EXEC_RESULT_STATUS_START_FAILED = 4;
+        // Process was not run.
+        EXEC_RESULT_STATUS_NOT_RUN = 5;
+    }
+
+    // Status for the compilation of the boot
+    // classpath for the primary architecture.
+    optional ExecResultStatus primary_bcp_dex2oat_result_status = 13;
+
+    // Exit code for the compilation of the boot classpath for the
+    // primary architecture if status is EXEC_RESULT_STATUS_EXITED, else -1.
+    optional int32 primary_bcp_dex2oat_result_exit_code = 14;
+
+    // Signal for the compilation of the boot classpath for the
+    // primary architecture if status is EXEC_RESULT_STATUS_SIGNALED, else 0.
+    optional int32 primary_bcp_dex2oat_result_signal = 15;
+
+    // Status for the compilation of the boot
+    // classpath for the secondary architecture.
+    optional ExecResultStatus secondary_bcp_dex2oat_result_status = 16;
+
+    // Exit code for the compilation of the boot classpath for the
+    // secondary architecture if status is EXEC_RESULT_STATUS_EXITED, else -1.
+    optional int32 secondary_bcp_dex2oat_result_exit_code = 17;
+
+    // Signal for the compilation of the boot classpath for the
+    // secondary architecture if status is EXEC_RESULT_STATUS_SIGNALED, else 0.
+    optional int32 secondary_bcp_dex2oat_result_signal = 18;
+
+    // Status for the compilation of the boot classpath for the system_server.
+    optional ExecResultStatus system_server_dex2oat_result_status = 19;
+
+    // Exit code for the compilation of the boot classpath for the
+    // system_server if status is EXEC_RESULT_STATUS_EXITED, else -1.
+    optional int32 system_server_dex2oat_result_exit_code = 20;
+
+    // Signal for the compilation of the boot classpath for the
+    // system_server if status is EXEC_RESULT_STATUS_SIGNALED, else 0.
+    optional int32 system_server_dex2oat_result_signal = 21;
+
+    // Keep in sync with the BcpCompilationType enum defined in art/odrefresh/odr_metrics.h
+    enum BcpCompilationType {
+        BCP_COMPILATION_TYPE_UNKNOWN = 0;
+        // Compiles for both the primary boot image and the mainline extension.
+        BCP_COMPILATION_TYPE_PRIMARY_AND_MAINLINE = 1;
+        // Only compiles for the mainline extension.
+        BCP_COMPILATION_TYPE_MAINLINE = 2;
+    }
+
+    optional BcpCompilationType primary_bcp_compilation_type = 22;
+    optional BcpCompilationType secondary_bcp_compilation_type = 23;
+};
+
+/**
+ * Logs odsign metrics.
+ *
+ * Logged from:
+ *   frameworks/base/services/core/java/com/android/server/pm/dex/OdsignStatsLogger.java
+ */
+ message OdsignReported {
+    enum Status {
+        // Unknown value.
+        STATUS_UNSPECIFIED = 0;
+        // All artifacts are generated and signed.
+        STATUS_ALL_OK = 1;
+        // Some artifacts are generated and signed, but odrefresh failed to generate the rest. See
+        // odrefresh metrics for the odrefresh failure.
+        STATUS_PARTIAL_OK = 2;
+        // Odrefresh failed to generate any artifact. See odrefresh metrics for the odrefresh
+        // failure.
+        STATUS_ODREFRESH_FAILED = 3;
+        // Odsign failed when interacting with Keystore.
+        STATUS_KEYSTORE_FAILED = 4;
+        // Odsign failed when initializing certificate.
+        STATUS_CERT_FAILED = 5;
+        // Odsign failed when cleaning up existing artifacts. Note that odrefresh may also clean up
+        // existing artifacts, and failures about that are logged as `STATUS_ODREFRESH_FAILED`.
+        STATUS_CLEANUP_FAILED = 6;
+        // Odsign failed when signing artifacts.
+        STATUS_SIGNING_FAILED = 7;
+    }
+
+    optional Status status = 1;
+}

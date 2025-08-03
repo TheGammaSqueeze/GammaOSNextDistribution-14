@@ -1,0 +1,42 @@
+architecture: arm
+battery:
+  - Honor 4X: {capacity: 2000, removable: False, tech: 'Li-Ion'}
+  - Honor 4X: {capacity: 3000, removable: False, tech: 'Li-Ion'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: 'LED', info: '8 MP or 13 MP'}
+  - {flash: None, info: '2 MP or 5 MP'}
+codename: che10
+cpu: Cortex-A53
+cpu_cores: '4'
+cpu_freq: 1.2 GHz
+current_branch: 15.1
+custom_recovery_link: https://forum.xda-developers.com/honor-4x/development/recovery-twrp-3-0-0-0-touch-recovery-t3309504
+dimensions: None
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+gpu: Qualcomm Adreno 306
+image: cherry.png
+install_method: fastboot_huawei
+is_unlockable: false
+kernel: {repo: android_kernel_huawei_msm8916, version: '3.10'}
+maintainers: []
+name: Honor 4x (China Telecom)
+network: [2G GSM, 2G CDMA, 3G UMTS, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, Proximity sensor]
+ram: 1/2 GB
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+release: 2014-10
+screen:
+  - Honor 4X: {resolution: '1280x720', size: 5.5, technology: 'IPS+ LCD'}
+  - Honor 4X: {resolution: '1280x720', size: 5.5, technology: 'IPS+ LCD'}
+sdcard: {size_max: '32 GB'}
+soc: Qualcomm MSM8916 Snapdragon 410
+storage: 8 GB
+tree: android_device_huawei_che10
+type: phone
+uses_twrp: true
+vendor: Huawei
+vendor_short: huawei
+versions: [14.1, 15.1]
+wifi: 802.11 b/g/n

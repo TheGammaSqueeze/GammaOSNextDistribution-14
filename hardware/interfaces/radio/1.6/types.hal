@@ -1,0 +1,1196 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package android.hardware.radio@1.6;
+
+import @1.0::CdmaSignalStrength;
+import @1.0::EvdoSignalStrength;
+import @1.0::GsmSignalStrength;
+import @1.0::LteSignalStrength;
+import @1.0::RadioError;
+import @1.0::RadioResponseType;
+import @1.0::RegState;
+import @1.1::EutranBands;
+import @1.1::GeranBands;
+import @1.1::ScanStatus;
+import @1.1::UtranBands;
+import @1.1::ImsiEncryptionInfo;
+import @1.2::Call;
+import @1.2::CellInfoCdma;
+import @1.2::CellConnectionStatus;
+import @1.2::TdscdmaSignalStrength;
+import @1.2::WcdmaSignalStrength;
+import @1.4::DataCallFailCause;
+import @1.4::DataConnActiveStatus;
+import @1.4::NrSignalStrength;
+import @1.4::PdpProtocolType;
+import @1.4::RadioTechnology;
+import @1.5::CellIdentity;
+import @1.5::CellIdentityLte;
+import @1.5::CellIdentityNr;
+import @1.5::CellInfoGsm;
+import @1.5::CellInfoWcdma;
+import @1.5::CellInfoTdscdma;
+import @1.5::LinkAddress;
+import @1.5::NgranBands;
+import @1.5::RegStateResult.AccessTechnologySpecificInfo.Cdma2000RegistrationInfo;
+import @1.5::RegStateResult.AccessTechnologySpecificInfo.EutranRegistrationInfo;
+import @1.5::RegistrationFailCause;
+import @1.5::SetupDataCallResult;
+
+import android.hidl.safe_union@1.0::Monostate;
+
+struct QosBandwidth {
+    /** Maximum bit rate possible on the bearer */
+    uint32_t maxBitrateKbps;
+    /** Minimum bit rate that is guaranteed to be provided by the network */
+    uint32_t guaranteedBitrateKbps;
+};
+
+/** LTE/EPS Quality of Service parameters as per 3gpp spec 24.301 sec 9.9.4.3. */
+struct EpsQos {
+    /**
+     * Quality of Service Class Identifier (QCI), see 3GPP TS 23.203 and 29.212.
+     * The allowed values are standard values(1-9, 65-68, 69-70, 75, 79-80, 82-85)
+     * defined in the spec and operator specific values in the range 128-254.
+     */
+    uint16_t qci;
+    QosBandwidth downlink;
+    QosBandwidth uplink;
+};
+
+/** 5G Quality of Service parameters as per 3gpp spec 24.501 sec 9.11.4.12 */
+struct NrQos {
+    /**
+     * 5G QOS Identifier (5QI), see 3GPP TS 24.501 and 23.501.
+     * The allowed values are standard values(1-9, 65-68, 69-70, 75, 79-80, 82-85)
+     * defined in the spec and operator specific values in the range 128-254.
+     */
+    uint16_t fiveQi;
+    QosBandwidth downlink;
+    QosBandwidth uplink;
+    /**
+     * QOS flow identifier of the QOS flow description in the
+     * range of QosFlowIdRange::MIN to QosFlowIdRange::MAX
+     */
+    uint8_t qfi;
+    uint16_t averagingWindowMs;
+};
+
+/** Allowed values for 5G QOS flow identifier */
+enum QosFlowIdRange : uint8_t {
+    MIN = 1,
+    MAX = 63
+};
+
+/** EPS or NR QOS parameters */
+safe_union Qos {
+    Monostate noinit;
+    EpsQos eps;
+    NrQos nr;
+};
+
+/**
+ * Next header protocol numbers defined by IANA, RFC 5237
+ */
+enum QosProtocol : int8_t {
+    /** No protocol specified */
+    UNSPECIFIED = -1,
+    /** Transmission Control Protocol */
+    TCP = 6,
+    /** User Datagram Protocol */
+    UDP = 17,
+    /** Encapsulating Security Payload Protocol */
+    ESP = 50,
+    /** Authentication Header */
+    AH = 51,
+};
+
+enum QosFilterDirection : int8_t {
+    DOWNLINK = 0,
+    UPLINK = 1,
+    BIDIRECTIONAL = 2,
+};
+
+/** Allowed port numbers */
+enum QosPortRange : uint16_t {
+    MIN = 20,
+    MAX = 65535
+};
+
+enum RadioError : @1.0::RadioError {
+    /** 1X voice and SMS are not allowed simulteneously. */
+    SIMULTANEOUS_SMS_AND_CALL_NOT_ALLOWED = 67,
+
+    /** Access is barred. */
+    ACCESS_BARRED = 68,
+
+    /**
+     * SMS is blocked due to call control, e.g., resource unavailable
+     * in the SMR entity.
+     */
+    BLOCKED_DUE_TO_CALL = 69,
+
+    /**
+     * Returned from setRadioPowerResponse when detecting RF HW issues. Some RF
+     * Front-End(RFFE) components like antenna are considered critical for modem
+     * to provide telephony service. This RadioError is used when modem detect
+     * such RFFE problem.
+     */
+    RF_HARDWARE_ISSUE = 70,
+
+    /**
+     * Returned from setRadioPowerResponse when detecting no RF calibration
+     * issue. Unlike RF_HARDWARE_ISSUE, this is a SW problem and no HW repair is
+     * needed.
+     */
+    NO_RF_CALIBRATION_INFO = 71,
+};
+
+/**
+ * Overwritten from @1.0::RadioResponseInfo in order to update the RadioError to 1.6 version.
+ */
+struct RadioResponseInfo {
+    RadioResponseType type;               // Response type
+    int32_t serial;                       // Serial number of the request
+    RadioError error;                     // Response error
+};
+
+/**
+ * Defines range of ports. start and end are the first and last port numbers
+ * (inclusive) in the range. Both start and end are in QosPortRange.MIN to
+ * QosPortRange.MAX range. A single port shall be represented by the same
+ * start and end value.
+ */
+struct PortRange {
+    int32_t start;
+    int32_t end;
+};
+
+/** Port is optional, contains either single port or range of ports */
+safe_union MaybePort {
+    Monostate noinit;
+    PortRange range;
+};
+
+/** See 3gpp 24.008 10.5.6.12 and 3gpp 24.501 9.11.4.13 */
+struct QosFilter {
+    /**
+     * Local and remote IP addresses, typically one IPv4 or one IPv6
+     * or one of each. Addresses could be with optional "/" prefix
+     * length, e.g.,"192.0.1.3" or "192.0.1.11/16 2001:db8::1/64".
+     * If the prefix length is absent the addresses are assumed to be
+     * point to point with IPv4 having a prefix length of 32 and
+     * IPv6 128.
+     */
+    vec<string> localAddresses;
+    vec<string> remoteAddresses;
+
+    /** Local and remote port/ranges */
+    MaybePort localPort;
+    MaybePort remotePort;
+
+    /** QoS protocol */
+    QosProtocol protocol;
+
+    /** Type of service value or mask as defined in RFC 1349 */
+    safe_union TypeOfService {
+         Monostate noinit;
+         uint8_t value;
+    } tos;
+
+    /** IPv6 flow label as defined in RFC 6437 */
+    safe_union Ipv6FlowLabel {
+         Monostate noinit;
+         uint32_t value;
+    } flowLabel;
+
+    /** IPSec security parameter index */
+    safe_union IpsecSpi {
+         Monostate noinit;
+         uint32_t value;
+    } spi;
+
+    /** Filter direction */
+    QosFilterDirection direction;
+
+    /**
+     * Specifies the order in which the filter needs to be matched.
+     * A lower numerical(positive) value has a higher precedence.
+     * Set -1 when unspecified.
+     */
+    int32_t precedence;
+};
+
+/** QOS session associated with a dedicated bearer */
+struct QosSession {
+    /** Unique ID of the QoS session within the data call */
+    int32_t qosSessionId;
+
+    /** QOS attributes */
+    Qos qos;
+
+    /** List of QOS filters associated with this session */
+    vec<QosFilter> qosFilters;
+};
+
+/** The allowed failure modes on an IWLAN handover failure. */
+enum HandoverFailureMode : int8_t {
+    /**
+     * On data handover failure, fallback to the source data transport when the
+     * fail cause is due to a hand off preference change.
+     */
+    LEGACY = 0,
+
+    /** On data handover failure, fallback to the source data transport. */
+    DO_FALLBACK = 1,
+
+    /**
+     * On data handover failure, retry the handover instead of falling back to
+     * the source data transport.
+     */
+    NO_FALLBACK_RETRY_HANDOVER = 2,
+
+    /**
+     * On data handover failure, setup a new data connection by sending a normal
+     * request to the underlying data service.
+     */
+    NO_FALLBACK_RETRY_SETUP_NORMAL = 3
+};
+
+/**
+ * Overwritten from @1.5::SetupDataCallResult in order to change the suggestedRetryTime
+ * to 64-bit value. In the future, this must be extended instead of overwritten.
+ * Also added defaultQos, qosSessions, handoverFailureMode, pduSessionId, sliceInfo,
+ * and traffic descriptors in this version.
+ */
+struct SetupDataCallResult {
+    /** Data call fail cause. DataCallFailCause.NONE if no error. */
+    DataCallFailCause cause;
+
+    /**
+     * If cause is not DataCallFailCause.NONE, this field indicates the network suggested data
+     * retry back-off time in milliseconds. Negative value indicates network does not give any
+     * suggestion. 0 indicates retry should be performed immediately. 0x7fffffffffffffff indicates
+     * the device should not retry data setup anymore.
+     *
+     * During this time, no calls to IRadio@1.6::SetupDataCall for this APN will be made unless
+     * IRadioIndication@1.6::unthrottleApn is sent with the same APN.
+     */
+    int64_t suggestedRetryTime;
+
+    /** Context ID, uniquely identifies this data connection. */
+    int32_t cid;
+
+    /** Data connection active status. */
+    DataConnActiveStatus active;
+
+    /**
+     * PDP protocol type. If cause is DataCallFailCause.ONLY_SINGLE_BEARER_ALLOWED, this is the
+     * protocol type supported, such as "IP" or "IPV6".
+     */
+    PdpProtocolType type;
+
+    /** The network interface name. */
+    string ifname;
+
+    /**
+     * List of link address.
+     */
+    vec<LinkAddress> addresses;
+
+    /**
+     * List of DNS server addresses, e.g., "192.0.1.3" or "192.0.1.11 2001:db8::1". Empty if no dns
+     * server addresses returned.
+     */
+    vec<string> dnses;
+
+    /**
+     * List of default gateway addresses, e.g., "192.0.1.3" or "192.0.1.11 2001:db8::1".
+     * When empty, the addresses represent point to point connections.
+     */
+    vec<string> gateways;
+
+    /**
+     * List of P-CSCF(Proxy Call State Control Function) addresses via PCO(Protocol Configuration
+     * Option), e.g., "2001:db8::1 2001:db8::2 2001:db8::3". Empty if not IMS client.
+     */
+    vec<string> pcscf;
+
+    /**
+     * MTU received from network for IPv4.
+     * Value <= 0 means network has either not sent a value or sent an invalid value.
+     */
+    int32_t mtuV4;
+
+    /**
+     * MTU received from network for IPv6.
+     * Value <= 0 means network has either not sent a value or sent an invalid value.
+     */
+    int32_t mtuV6;
+
+    /** Default bearer QoS. Applicable to LTE and NR */
+    Qos defaultQos;
+
+    /**
+     * Active QOS sessions of the dedicated bearers. Applicable to
+     * PDNs that support dedicated bearers.
+     */
+    vec<QosSession> qosSessions;
+
+    /** Specifies the fallback mode on an IWLAN handover failure. */
+    HandoverFailureMode handoverFailureMode;
+
+    /**
+     * The allocated pdu session id for this data call.
+     * A value of 0 means no pdu session id was attached to this call.
+     *
+     * Reference: 3GPP TS 24.007 section 11.2.3.1b
+     */
+    int32_t pduSessionId;
+
+    /**
+     * Slice used for this data call. It is valid only when this data call is on
+     * AccessNetwork:NGRAN.
+     */
+    OptionalSliceInfo sliceInfo;
+
+    /**
+     * TrafficDescriptors for which this data call must be used. It only includes
+     * the TDs for which a data call has been requested so far; it is not an
+     * exhaustive list.
+     */
+    vec<TrafficDescriptor> trafficDescriptors;
+};
+
+/**
+ * NR Dual connectivity state
+ */
+enum NrDualConnectivityState: int8_t {
+    /**
+     * Enable NR dual connectivity. Enabled state does not mean dual connectivity
+     * is active. It means device is allowed to connect to both primary and secondary.
+     */
+    ENABLE = 1,
+    /**
+     * Disable NR dual connectivity. Disabled state does not mean secondary cell is released.
+     * Modem will release it only if current bearer is released to avoid radio link failure.
+     */
+    DISABLE = 2,
+    /**
+     * Disable NR dual connectivity and force secondary cell to be released if dual connectivity
+     * was active. This may result in radio link failure.
+     */
+    DISABLE_IMMEDIATE= 3,
+};
+
+/**
+ * Overwritten from @1.2::LinkCapacityEstimate to update LinkCapacityEstimate to 1.6 version.
+ */
+struct LinkCapacityEstimate {
+
+   /**
+    * Estimated downlink capacity in kbps. In case of a dual connected network,
+    * this includes capacity of both primary and secondary. This bandwidth estimate shall be
+    * the estimated maximum sustainable link bandwidth (as would be measured
+    * at the Upper PDCP or SNDCP SAP). If the DL Aggregate Maximum Bit Rate is known,
+    * this value shall not exceed the DL-AMBR for the Internet PDN connection.
+    * This must be filled with 0 if network is not connected.
+    */
+   uint32_t downlinkCapacityKbps;
+
+   /**
+    * Estimated uplink capacity in kbps. In case of a dual connected network,
+    * this includes capacity of both primary and secondary. This bandwidth estimate shall be the
+    * estimated maximum sustainable link bandwidth (as would be measured at the
+    * Upper PDCP or SNDCP SAP). If the UL Aggregate Maximum Bit Rate is known,
+    * this value shall not exceed the UL-AMBR for the Internet PDN connection.
+    * This must be filled with 0 if network is not connected.
+    */
+   uint32_t uplinkCapacityKbps;
+
+   /**
+    * Estimated downlink capacity of secondary carrier in a dual connected NR mode in kbps.
+    * This bandwidth estimate shall be the estimated maximum sustainable link bandwidth
+    * (as would be measured at the Upper PDCP or SNDCP SAP). This is valid only
+    * in if device is connected to both primary and secodary in dual connected
+    * mode. This must be filled with 0 if secondary is not connected or if
+    * modem does not support this feature.
+    */
+   uint32_t secondaryDownlinkCapacityKbps;
+
+   /**
+    * Estimated uplink capacity secondary carrier in a dual connected NR mode in kbps.
+    * This bandwidth estimate shall be the estimated
+    * maximum sustainable link bandwidth (as would be measured at the Upper PDCP or SNDCP SAP).
+    * This is valid only in if device is connected to both primary and secodary in dual connected
+    * mode.This must be filled with 0 if secondary is not connected or if modem
+    * does not support this feature.
+    */
+   uint32_t secondaryUplinkCapacityKbps;
+};
+
+enum DataThrottlingAction : int8_t {
+    /* Clear all existing data throttling. */
+    NO_DATA_THROTTLING = 0,
+
+    /**
+     * Enact secondary carrier data throttling and remove any existing data
+     * throttling on anchor carrier.
+     */
+    THROTTLE_SECONDARY_CARRIER = 1,
+
+    /**
+     * Enact anchor carrier data throttling and disable data on secondary
+     * carrier if currently enabled.
+     */
+    THROTTLE_ANCHOR_CARRIER = 2,
+
+    /**
+     * Immediately hold on to current level of throttling.
+     */
+    HOLD = 3
+};
+
+/**
+ * Defines the values for VoPS indicator of NR as per 3gpp spec 24.501 sec 9.10.3.5
+ */
+enum VopsIndicator : uint8_t {
+    /** IMS voice over PS session not supported */
+    VOPS_NOT_SUPPORTED = 0,
+    /** IMS voice over PS session supported over 3GPP access */
+    VOPS_OVER_3GPP = 1,
+    /** IMS voice over PS session supported over non-3GPP access */
+    VOPS_OVER_NON_3GPP = 2,
+};
+
+/**
+ * Defines the values for emergency service indicator of NR
+ * as per 3gpp spec 24.501 sec 9.10.3.5
+ */
+enum EmcIndicator : uint8_t {
+    /** Emergency services not supported */
+    EMC_NOT_SUPPORTED = 0,
+    /** Emergency services supported in NR connected to 5GCN only */
+    EMC_NR_CONNECTED_TO_5GCN = 1,
+    /** Emergency services supported in E-UTRA connected to 5GCN only */
+    EMC_EUTRA_CONNECTED_TO_5GCN = 2,
+    /** Emergency services supported in NR connected to 5GCN and E-UTRA connected to 5GCN */
+    EMC_BOTH_NR_EUTRA_CONNECTED_TO_5GCN = 3
+};
+
+/**
+ * Defines the values for emergency service fallback indicator of NR
+ * as per 3gpp spec 24.501 sec 9.10.3.5
+ */
+enum EmfIndicator : uint8_t {
+    /** Emergency services fallback not supported */
+    EMF_NOT_SUPPORTED = 0,
+    /** Emergency services fallback supported in NR connected to 5GCN only */
+    EMF_NR_CONNECTED_TO_5GCN = 1,
+    /** Emergency services fallback supported in E-UTRA connected to 5GCN only */
+    EMF_EUTRA_CONNECTED_TO_5GCN = 2,
+    /**
+     * Emergency services fallback supported in NR connected to 5GCN and E-UTRA
+     * connected to 5GCN.
+     */
+    EMF_BOTH_NR_EUTRA_CONNECTED_TO_5GCN = 3
+};
+
+/**
+ * Type to define the NR specific network capabilities for voice over PS including
+ * emergency and normal voice calls.
+ */
+struct NrVopsInfo {
+    /**
+     * This indicates if the camped network supports VoNR services, and what kind of services
+     * it supports. This information is received from NR network during NR NAS registration
+     * procedure through NR REGISTRATION ACCEPT.
+     * Refer 3GPP 24.501 EPS 5GS network feature support -> IMS VoPS
+     */
+    VopsIndicator vopsSupported;
+
+    /**
+     * This indicates if the camped network supports VoNR emergency service. This information
+     * is received from NR network through two sources:
+     * a. During NR NAS registration procedure through NR REGISTRATION ACCEPT.
+     *    Refer 3GPP 24.501 EPS 5GS network feature support -> EMC
+     * b. In case the device is not registered on the network.
+     *    Refer 3GPP 38.331 SIB1 : ims-EmergencySupport
+     *    If device is registered on NR, then this field indicates whether the cell
+     *    supports IMS emergency bearer services for UEs in limited service mode.
+     */
+    EmcIndicator emcSupported;
+
+    /**
+     * This indicates if the camped network supports VoNR emergency service fallback. This
+     * information is received from NR network during NR NAS registration procedure through
+     * NR REGISTRATION ACCEPT.
+     * Refer 3GPP 24.501 EPS 5GS network feature support -> EMF
+     */
+    EmfIndicator emfSupported;
+};
+
+struct LteSignalStrength {
+    @1.0::LteSignalStrength base;
+
+    /**
+     * CSI channel quality indicator (CQI) table index. There are multiple CQI tables.
+     * The definition of CQI in each table is different.
+     *
+     * Reference: 3GPP TS 136.213 section 7.2.3.
+     *
+     * Range [1, 6], INT_MAX means invalid/unreported.
+     */
+    uint32_t cqiTableIndex;
+};
+
+struct NrSignalStrength {
+    @1.4::NrSignalStrength base;
+
+    /**
+     * CSI channel quality indicator (CQI) table index. There are multiple CQI tables.
+     * The definition of CQI in each table is different.
+     *
+     * Reference: 3GPP TS 138.214 section 5.2.2.1.
+     *
+     * Range [1, 3], INT_MAX means invalid/unreported.
+     */
+    uint32_t csiCqiTableIndex;
+
+    /**
+     * CSI channel quality indicator (CQI) for all subbands.
+     *
+     * If the CQI report is for the entire wideband, a single CQI index is provided.
+     * If the CQI report is for all subbands, one CQI index is provided for each subband,
+     * in ascending order of subband index.
+     * If CQI is not available, the CQI report is empty.
+     *
+     * Reference: 3GPP TS 138.214 section 5.2.2.1.
+     *
+     * Range [0, 15], 0xFF means invalid/unreported.
+     */
+    vec<uint8_t> csiCqiReport;
+};
+
+/**
+ * Overwritten from @1.4::SignalStrength in order to update LteSignalStrength and NrSignalStrength.
+ */
+struct SignalStrength {
+    /**
+     * If GSM measurements are provided, this structure must contain valid measurements; otherwise
+     * all fields should be set to INT_MAX to mark them as invalid.
+     */
+    GsmSignalStrength gsm;
+
+    /**
+     * If CDMA measurements are provided, this structure must contain valid measurements; otherwise
+     * all fields should be set to INT_MAX to mark them as invalid.
+     */
+    CdmaSignalStrength cdma;
+
+    /**
+     * If EvDO measurements are provided, this structure must contain valid measurements; otherwise
+     * all fields should be set to INT_MAX to mark them as invalid.
+     */
+    EvdoSignalStrength evdo;
+
+    /**
+     * If LTE measurements are provided, this structure must contain valid measurements; otherwise
+     * all fields should be set to INT_MAX to mark them as invalid.
+     */
+    LteSignalStrength lte;
+
+    /**
+     * If TD-SCDMA measurements are provided, this structure must contain valid measurements;
+     * otherwise all fields should be set to INT_MAX to mark them as invalid.
+     */
+    TdscdmaSignalStrength tdscdma;
+
+    /**
+     * If WCDMA measurements are provided, this structure must contain valid measurements; otherwise
+     * all fields should be set to INT_MAX to mark them as invalid.
+     */
+    WcdmaSignalStrength wcdma;
+
+    /**
+     * If NR 5G measurements are provided, this structure must contain valid measurements; otherwise
+     * all fields should be set to INT_MAX to mark them as invalid.
+     */
+    NrSignalStrength nr;
+};
+
+/** Overwritten from @1.5::CellInfoLte in order to update LteSignalStrength. */
+struct CellInfoLte {
+    CellIdentityLte cellIdentityLte;
+    LteSignalStrength signalStrengthLte;
+};
+
+/** Overwritten from @1.5::CellInfoNr in order to update NrSignalStrength. */
+struct CellInfoNr {
+    CellIdentityNr cellIdentityNr;
+    NrSignalStrength signalStrengthNr;
+};
+
+/** Overwritten from @1.5::CellInfo in order to update LteSignalStrength and NrSignalStrength. */
+struct CellInfo {
+    /**
+     * True if this cell is registered false if not registered.
+     */
+    bool registered;
+    /**
+     * Connection status for the cell.
+     */
+    CellConnectionStatus connectionStatus;
+
+    safe_union CellInfoRatSpecificInfo {
+        /**
+         * 3gpp CellInfo types.
+         */
+        CellInfoGsm gsm;
+        CellInfoWcdma wcdma;
+        CellInfoTdscdma tdscdma;
+        CellInfoLte lte;
+        CellInfoNr nr;
+
+        /**
+         * 3gpp2 CellInfo types;
+         */
+        CellInfoCdma cdma;
+    } ratSpecificInfo;
+};
+
+/** Overwritten from @1.5::NetworkScanResult in order to update the CellInfo to 1.6 version. */
+struct NetworkScanResult {
+    /**
+     * The status of the scan.
+     */
+    ScanStatus status;
+
+    /**
+     * The error code of the incremental result.
+     */
+    RadioError error;
+
+    /**
+     * List of network information as CellInfo.
+     */
+    vec<CellInfo> networkInfos;
+};
+
+/**
+ * Overwritten from @1.5::RegStateResult to 1.6 to support NrRegistrationInfo
+ * version.
+ */
+struct RegStateResult {
+    /**
+     * Registration state
+     *
+     * If the RAT is indicated as a GERAN, UTRAN, or CDMA2000 technology, this value reports
+     * registration in the Circuit-switched domain.
+     * If the RAT is indicated as an EUTRAN, NGRAN, or another technology that does not support
+     * circuit-switched services, this value reports registration in the Packet-switched domain.
+     */
+    RegState regState;
+
+    /**
+     * Indicates the available voice radio technology, valid values as defined by RadioTechnology,
+     * except LTE_CA, which is no longer a valid value on 1.5 or above. When the device is on
+     * carrier aggregation, vendor RIL service should properly report multiple PhysicalChannelConfig
+     * elements through IRadio::currentPhysicalChannelConfigs_1_6.
+     */
+    RadioTechnology rat;
+
+    /**
+     * Cause code reported by the network in case registration fails. This will be a mobility
+     * management cause code defined for MM, GMM, MME or equivalent as appropriate for the RAT.
+     */
+    RegistrationFailCause reasonForDenial;
+
+    /** CellIdentity */
+    CellIdentity cellIdentity;
+
+    /**
+     * The most-recent PLMN-ID upon which the UE registered (or attempted to register if a failure
+     * is reported in the reasonForDenial field). This PLMN shall be in standard format consisting
+     * of a 3 digit MCC concatenated with a 2 or 3 digit MNC.
+     */
+    string registeredPlmn;
+
+    /**
+     * Access-technology-specific registration information, such as for CDMA2000.
+     */
+    safe_union AccessTechnologySpecificInfo {
+        Monostate noinit;
+
+        Cdma2000RegistrationInfo cdmaInfo;
+
+        EutranRegistrationInfo eutranInfo;
+
+        /**
+         * Network capabilities for voice over PS services. This info is valid only on NR
+         * network and must be present when the device is camped on NR. VopsInfo must be
+         * empty when the device is not camped on NR.
+         */
+        NrVopsInfo ngranNrVopsInfo;
+
+        /**
+         * True if the dual transfer mode is supported.
+         * Refer to 3GPP TS 44.108 section 3.4.25.3
+         */
+        bool geranDtmSupported;
+
+    } accessTechnologySpecificInfo;
+};
+
+struct Call {
+    @1.2::Call base;
+    /**
+     * Forwarded number. It can set only one forwarded number based on 3GPP rule of the CS.
+     * Reference: 3GPP TS 24.008 section 10.5.4.21b
+     */
+    string forwardedNumber;
+};
+
+/**
+ * This safe_union represents an optional slice info
+ */
+safe_union OptionalSliceInfo {
+    Monostate noinit;
+    SliceInfo value;
+};
+
+/**
+ * This struct represents a S-NSSAI as defined in 3GPP TS 24.501.
+ */
+struct SliceInfo {
+    /**
+     * The type of service provided by the slice.
+     *
+     * see: 3GPP TS 24.501 Section 9.11.2.8.
+     */
+    SliceServiceType sst;
+
+    /**
+     * Slice differentiator is the identifier of a slice that has
+     * SliceServiceType as SST. A value of -1 indicates that there is
+     * no corresponding SliceInfo of the HPLMN.
+     *
+     * see: 3GPP TS 24.501 Section 9.11.2.8.
+     */
+    int32_t sliceDifferentiator;
+
+    /**
+     * This SST corresponds to a SliceInfo (S-NSSAI) of the HPLMN; the SST is
+     * mapped to this value.
+     *
+     * see: 3GPP TS 24.501 Section 9.11.2.8.
+     */
+    SliceServiceType mappedHplmnSst;
+
+    /**
+     * Present only if both sliceDifferentiator and mappedHplmnSst are also
+     * present. This SD corresponds to a SliceInfo (S-NSSAI) of the HPLMN;
+     * sliceDifferentiator is mapped to this value. A value of -1 indicates that
+     * there is no corresponding SliceInfo of the HPLMN.
+     *
+     * see: 3GPP TS 24.501 Section 9.11.2.8.
+     */
+    int32_t mappedHplmnSD;
+
+    /**
+     * Field to indicate the current status of the slice.
+     */
+    SliceStatus status;
+};
+
+/**
+ * Slice/Service Type as defined in 3GPP TS 23.501.
+ */
+enum SliceServiceType : uint8_t {
+    /* Not specified */
+    NONE = 0,
+
+    /* Slice suitable for the handling of 5G enhanced Mobile Broadband */
+    EMBB = 1,
+
+    /**
+     * Slice suitable for the handling of ultra-reliable low latency
+     * communications
+     */
+    URLLC = 2,
+
+    /* Slice suitable for the handling of massive IoT */
+    MIOT = 3,
+};
+
+/**
+ * Expose more setup data call failures.
+ */
+enum DataCallFailCause : @1.4::DataCallFailCause {
+    /**
+     * Data call fail due to the slice not being allowed for the data call.
+     */
+    SLICE_REJECTED = 0x8CC,
+
+    /**
+     * No matching rule available for the request, and match-all rule is not allowed for it.
+     */
+    MATCH_ALL_RULE_NOT_ALLOWED = 0x8CD,
+
+    /**
+     * If connection failed for all matching URSP rules.
+     */
+    ALL_MATCHING_RULES_FAILED = 0x8CE,
+};
+
+struct PhysicalChannelConfig {
+    /** Connection status for cell. Valid values are PRIMARY_SERVING and SECONDARY_SERVING */
+    CellConnectionStatus status;
+
+    /** The radio technology for this physical channel */
+    RadioTechnology rat;
+
+    /** Downlink Absolute Radio Frequency Channel Number */
+    int32_t downlinkChannelNumber;
+
+    /** Uplink Absolute Radio Frequency Channel Number */
+    int32_t uplinkChannelNumber;
+
+    /** Downlink cell bandwidth, in kHz */
+    int32_t cellBandwidthDownlinkKhz;
+
+    /** Uplink cell bandwidth, in kHz */
+    int32_t cellBandwidthUplinkKhz;
+
+    /**
+     * A list of data calls mapped to this physical channel. The context id must match the cid of
+     * @1.5::SetupDataCallResult. An empty list means the physical channel has no data call mapped
+     * to it.
+     */
+    vec<int32_t> contextIds;
+
+    /**
+     * The physical cell identifier for this cell.
+     *
+     * In UTRAN, this value is primary scrambling code. The range is [0, 511].
+     * Reference: 3GPP TS 25.213 section 5.2.2.
+     *
+     * In EUTRAN, this value is physical layer cell identity. The range is [0, 503].
+     * Reference: 3GPP TS 36.211 section 6.11.
+     *
+     * In 5G RAN, this value is physical layer cell identity. The range is [0, 1007].
+     * Reference: 3GPP TS 38.211 section 7.4.2.1.
+     */
+    uint32_t physicalCellId;
+
+    /**
+     * The frequency band to scan.
+     */
+    safe_union Band {
+        /** Valid only if radioAccessNetwork = GERAN. */
+        GeranBands geranBand;
+        /** Valid only if radioAccessNetwork = UTRAN. */
+        UtranBands utranBand;
+        /** Valid only if radioAccessNetwork = EUTRAN. */
+        EutranBands eutranBand;
+        /** Valid only if radioAccessNetwork = NGRAN. */
+        NgranBands ngranBand;
+    } band;
+};
+
+/**
+ * Extended from @1.5 NgranBands
+ * IRadio 1.6 supports NGRAN bands up to V16.5.0
+ */
+enum NgranBands  : @1.5::NgranBands {
+    /** 3GPP TS 38.101-1, Table 5.2-1: FR1 bands */
+    BAND_26 = 26,
+    BAND_46 = 46,
+    BAND_53 = 53,
+    BAND_96 = 96,
+};
+
+/**
+ * This safe_union represents an optional DNN. DNN stands for Data Network Name
+ * and represents an APN as defined in 3GPP TS 23.003.
+ */
+safe_union OptionalDnn {
+    Monostate noinit;
+    string value;
+};
+
+/**
+ * This safe_union represents an optional OsAppId.
+ */
+safe_union OptionalOsAppId {
+    Monostate noinit;
+    OsAppId value;
+};
+
+/**
+ * This safe_union represents an optional TrafficDescriptor.
+ */
+safe_union OptionalTrafficDescriptor {
+    Monostate noinit;
+    TrafficDescriptor value;
+};
+
+/**
+ * This struct represents a traffic descriptor. A valid struct must have at least
+ * one of the optional values present. This is based on the definition of traffic
+ * descriptor in TS 24.526 Section 5.2.
+ */
+struct TrafficDescriptor {
+    /**
+     * DNN stands for Data Network Name and represents an APN as defined in
+     * 3GPP TS 23.003.
+     */
+    OptionalDnn dnn;
+    /**
+     * Indicates the OsId + OsAppId (used as category in Android).
+     */
+    OptionalOsAppId osAppId;
+};
+
+/**
+ * This struct represents the OsId + OsAppId as defined in TS 24.526 Section 5.2
+ */
+struct OsAppId {
+    /**
+     * Byte array representing OsId + OsAppId. The minimum length of the array is
+     * 18 and maximum length is 272 (16 bytes for OsId + 1 byte for OsAppId length
+     * + up to 255 bytes for OsAppId).
+     */
+    vec<uint8_t> osAppId;
+};
+
+/**
+ * This struct represents the current slicing configuration.
+ */
+struct SlicingConfig {
+    /**
+     * This vector contains the current URSP rules. Empty vector represents that no
+     * rules are configured.
+     */
+    vec<UrspRule> urspRules;
+    /**
+     * List of all slices.
+     */
+    vec<SliceInfo> sliceInfo;
+};
+
+/**
+ * This struct represents a single URSP rule as defined in 3GPP TS 24.526.
+ */
+struct UrspRule {
+    /**
+     * Precedence value in the range of 0 to 255. Higher value has lower
+     * precedence.
+     */
+    uint8_t precedence;
+    /**
+     * Used as a matcher for network requests.
+     */
+    vec<TrafficDescriptor> trafficDescriptors;
+    /**
+     * List of routes (connection parameters) that must be used for requests
+     * matching a trafficDescriptor.
+     */
+    vec<RouteSelectionDescriptor> routeSelectionDescriptor;
+};
+
+/**
+ * This struct represents a single route selection descriptor as defined in
+ * 3GPP TS 24.526.
+ */
+struct RouteSelectionDescriptor {
+    /**
+     * Precedence value in the range of 0 to 255. Higher value has lower
+     * precedence.
+     */
+    uint8_t precedence;
+    /**
+     * Valid values are IP, IPV6 and IPV4V6.
+     */
+    OptionalPdpProtocolType sessionType;
+    OptionalSscMode sscMode;
+    /**
+     * There can be 0 or more SliceInfo specified in a route descriptor.
+     */
+    vec<SliceInfo> sliceInfo;
+    /**
+     * DNN stands for Data Network Name and represents an APN as defined in
+     * 3GPP TS 23.003. There can be 0 or more DNNs specified in a route
+     * descriptor.
+     */
+    vec<string> dnn;
+};
+
+/**
+ * This safe_union represents an optional PdpProtocolType.
+ */
+safe_union OptionalPdpProtocolType {
+    Monostate noinit;
+    PdpProtocolType value;
+};
+
+/**
+ * This safe_union represents an optional SscMode.
+ */
+safe_union OptionalSscMode {
+    Monostate noinit;
+    SscMode value;
+};
+
+enum SliceStatus : int8_t {
+    UNKNOWN,
+    CONFIGURED, // Configured but not allowed or rejected yet
+    ALLOWED,    // Allowed to be used
+    REJECTED_NOT_AVAILABLE_IN_PLMN,     // Rejected because not available in PLMN
+    REJECTED_NOT_AVAILABLE_IN_REG_AREA, // Rejected because not available in reg area
+    DEFAULT_CONFIGURED,     // Considered valid when configured/allowed slices are not available
+};
+
+/**
+ * Enum representing session and service continuity mode as defined in
+ * 3GPP TS 23.501.
+ */
+enum SscMode : int8_t {
+    MODE_1 = 1,
+    MODE_2 = 2,
+    MODE_3 = 3,
+};
+
+/**
+ * Public key type from carrier certificate.
+ */
+enum PublicKeyType : int8_t {
+    EPDG    = 1,                   // Key type to be used for ePDG
+    WLAN    = 2,                   // Key type to be used for WLAN
+};
+
+/**
+ * Carrier specific Information sent by the carrier,
+ * which will be used to encrypt the IMSI and IMPI.
+ */
+struct ImsiEncryptionInfo {
+    @1.1::ImsiEncryptionInfo base;
+    PublicKeyType keyType;         // Public key type
+};
+
+/**
+ * Phonebook-record-information specified by EF_ADN(Abbreviated dialing numbers)
+ * record of SIM as per 3GPP spec 31.102 v15 Section-4.4.2.3.
+ */
+struct PhonebookRecordInfo {
+    /** Record index. 0 is used to insert a record */
+    uint32_t recordId;
+
+    /** Alpha identifier, empty string if no value */
+    string name;
+
+    /** Dialling number, empty string if no value */
+    string number;
+
+    /** Email addresses */
+    vec<string> emails;
+
+    /** Additional numbers */
+    vec<string> additionalNumbers;
+};
+
+struct PhonebookCapacity {
+    /**
+     * Maximum number of ADN records possible in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t maxAdnRecords;
+
+    /**
+     * Used ADN records in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t usedAdnRecords;
+
+    /**
+     * Maximum email records possible in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t maxEmailRecords;
+
+    /**
+     * Used email records in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t usedEmailRecords;
+
+    /**
+     * Maximum additional number records possible in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t maxAdditionalNumberRecords;
+
+    /**
+     * Used additional number records in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t usedAdditionalNumberRecords;
+
+    /**
+     * Maximum name length possible in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t maxNameLen;
+
+    /**
+     * Maximum number length possible in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t maxNumberLen;
+
+    /**
+     * Maximum email length possible in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t maxEmailLen;
+
+    /**
+     * Maximum additional number length possible in the SIM phonebook
+     * Needs to be non-negative
+     */
+    int32_t maxAdditionalNumberLen;
+};
+
+/**
+ * Enum representing the status of the received PB indication,
+ * PB_RECEIVED_OK indicates this retrieval is fine
+ * PB_RECEIVED_ERROR indicates one error happens, in general, the process
+ *   can't be restored soon.
+ * PB_RECEIVED_ABORT indicates the process is interrupted, in this case,
+ *   modem might need resources and interrupt the current process, or it is
+ *   timed out to receive all indications, and client can retry soon.
+ * PB_RECEIVED_FINAL indicates the whole process is finished with a full
+ *   chunk of phonebook data, means this is a last indication with the left
+ *   data.
+ */
+enum PbReceivedStatus : int8_t {
+    PB_RECEIVED_OK = 1,
+    PB_RECEIVED_ERROR = 2,
+    PB_RECEIVED_ABORT = 3,
+    PB_RECEIVED_FINAL = 4,
+};
+

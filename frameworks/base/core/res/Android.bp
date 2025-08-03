@@ -1,0 +1,200 @@
+//
+// Copyright (C) 2008 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["frameworks_base_core_res_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_base_core_res_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+genrule {
+    name: "remote-color-resources-compile-public",
+    tools: ["aapt2"],
+    srcs: [
+        "remote_color_resources_res/values/public.xml",
+    ],
+    out: ["values_public.arsc.flat"],
+    cmd: "$(location aapt2) compile $(in) -o $(genDir)",
+}
+
+genrule {
+    name: "remote-color-resources-compile-colors",
+    tools: ["aapt2"],
+    srcs: [
+        "remote_color_resources_res/values/colors.xml",
+    ],
+    out: ["values_colors.arsc.flat"],
+    cmd: "$(location aapt2) compile $(in) -o $(genDir)",
+}
+
+genrule {
+    name: "remote-color-resources-apk",
+    tools: ["aapt2"],
+    // The first input file in the list must be the manifest
+    srcs: [
+        "RemoteThemeColorsAndroidManifest.xml",
+        ":remote-color-resources-compile-public",
+        ":remote-color-resources-compile-colors",
+    ],
+    out: ["remote-color-resources.apk"],
+    cmd: "$(location aapt2) link -o $(out) --manifest $(in)",
+}
+
+genrule {
+    name: "remote-color-resources-arsc",
+    srcs: [":remote-color-resources-apk"],
+    out: ["res/raw/remote_views_color_resources.arsc"],
+    cmd: "mkdir -p $(genDir)/remote-color-resources-arsc && " +
+        "unzip -x $(in) resources.arsc -d $(genDir)/remote-color-resources-arsc && " +
+        "mkdir -p $$(dirname $(out)) && " +
+        "mv $(genDir)/remote-color-resources-arsc/resources.arsc $(out) && " +
+        "echo 'Created $(out)'",
+}
+
+genrule {
+    name: "remote-color-resources-arsc-zip",
+    tools: ["soong_zip"],
+    srcs: [
+        ":remote-color-resources-arsc",
+        "remote_color_resources_res/symbols.xml",
+    ],
+    out: ["remote_views_color_resources.zip"],
+    cmd: "INPUTS=($(in)) && " +
+        "RES_DIR=$$(dirname $$(dirname $${INPUTS[0]})) && " +
+        "mkdir -p $$RES_DIR/values && " +
+        "cp $${INPUTS[1]} $$RES_DIR/values && " +
+        "$(location soong_zip) -o $(out) -C $$RES_DIR -D $$RES_DIR",
+}
+
+android_app {
+    name: "framework-res",
+    use_resource_processor: false,
+    sdk_version: "core_platform",
+    certificate: "platform",
+
+    srcs: [
+        ":remote-color-resources-arsc",
+    ],
+
+    // Disable dexpreopt and verify_uses_libraries check as the app
+    // contains no Java code to be dexpreopted.
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+
+    // Soong special-cases framework-res to install this alongside
+    // the libraries at /system/framework/framework-res.apk.
+
+    // Generate private symbols into the com.android.internal.R class
+    // so they are not accessible to 3rd party apps.
+    aaptflags: [
+        "--private-symbols",
+        "com.android.internal",
+
+        // Framework doesn't need versioning since it IS the platform.
+        "--no-auto-version",
+
+        // Allow overlay to add resource
+        "--auto-add-overlay",
+
+        // Framework resources benefit tremendously from enabling sparse encoding, saving tens
+        // of MBs in size and RAM use.
+        "--enable-sparse-encoding",
+    ],
+
+    resource_zips: [
+        ":remote-color-resources-arsc-zip",
+    ],
+
+    // Create package-export.apk, which other packages can use to get
+    // PRODUCT-agnostic resource data like IDs and type definitions.
+    export_package_resources: true,
+
+    dist: {
+        targets: [
+            "simulated_device_launcher",
+        ],
+    },
+
+    generate_product_characteristics_rro: true,
+
+    flags_packages: [
+        "android.content.pm.flags-aconfig",
+        "android.provider.flags-aconfig",
+        "camera_platform_flags",
+        "android.net.platform.flags-aconfig",
+        "com.android.window.flags.window-aconfig",
+    ],
+}
+
+java_genrule {
+    name: "framework-res-package-jar",
+    srcs: [":framework-res{.export-package.apk}"],
+    out: ["framework-res-package.jar"],
+    cmd: "cp $(in) $(out)",
+}
+
+// Generate a text file containing a list of permissions that non-system apps
+// are allowed to obtain.
+genrule {
+    name: "permission-list-normal",
+    out: ["permission-list-normal.txt"],
+    srcs: ["AndroidManifest.xml"],
+    cmd: "cat $(in) " +
+        // xmllint has trouble accessing attributes under the android namespace.
+        // Strip these prefixes prior to processing with xmllint.
+        " | sed -r 's/android:(name|protectionLevel)/\\1/g' " +
+        " | $(location xmllint) /dev/stdin --xpath " +
+        " '//permission[not(contains(@protectionLevel, \"signature\"))]/@name'" +
+        // The result of xmllint is name="value" pairs. Format these to just the
+        // permission name, one per-line.
+        " | sed -r 's/\\s*name=\\s*//g' | tr -d '\"'" +
+        " > $(out)",
+    tools: ["xmllint"],
+}
+
+filegroup {
+    name: "frameworks-base-core-AndroidManifest.xml",
+    srcs: ["AndroidManifest.xml"],
+    visibility: [
+        "//frameworks/base",
+        "//frameworks/base/api",
+    ],
+}

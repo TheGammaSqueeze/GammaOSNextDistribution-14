@@ -1,0 +1,93 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_library_headers {
+    name: "libaudiofoundation_headers",
+    vendor_available: true,
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media",
+    ],
+
+    export_include_dirs: ["include"],
+    header_libs: [
+        "libaudio_aidl_conversion_common_util_cpp",
+        "libaudio_system_headers",
+        "libmedia_helper_headers",
+    ],
+    export_header_lib_headers: [
+        "libaudio_aidl_conversion_common_util_cpp",
+        "libaudio_system_headers",
+        "libmedia_helper_headers",
+    ],
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_export_static",
+    ],
+    static_libs: [
+        "audioclient-types-aidl-cpp",
+    ],
+    export_static_lib_headers: [
+        "audioclient-types-aidl-cpp",
+    ],
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_library {
+    name: "libaudiofoundation",
+    vendor_available: true,
+    double_loadable: true,
+
+    srcs: [
+        "AudioContainers.cpp",
+        "AudioDeviceTypeAddr.cpp",
+        "AudioGain.cpp",
+        "AudioPort.cpp",
+        "AudioProfile.cpp",
+        "DeviceDescriptorBase.cpp",
+    ],
+
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_export_shared",
+    ],
+
+    shared_libs: [
+        "audioclient-types-aidl-cpp",
+        "libaudioclient_aidl_conversion",
+        "libaudioutils",
+        "libbase",
+        "libbinder",
+        "liblog",
+        "libmedia_helper",
+        "libutils",
+    ],
+
+    export_shared_lib_headers: [
+        "audioclient-types-aidl-cpp",
+        "libaudioclient_aidl_conversion",
+    ],
+
+    header_libs: [
+        "libaudiofoundation_headers",
+    ],
+
+    export_header_lib_headers: [
+        "libaudiofoundation_headers",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+}

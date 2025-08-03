@@ -1,0 +1,88 @@
+package {
+    default_applicable_licenses: [
+        "frameworks_av_media_extractors_mpeg2_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_extractors_mpeg2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "libmpeg2extractor",
+
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        android: {
+            shared_libs: ["libvndksupport#29"],
+        },
+    },
+
+    defaults: ["extractor-defaults"],
+
+    srcs: [
+        "ExtractorBundle.cpp",
+        "MPEG2PSExtractor.cpp",
+        "MPEG2TSExtractor.cpp",
+    ],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libcgrouprc#29",
+    ],
+
+    header_libs: [
+        "libaudioclient_headers",
+        "libbase_headers",
+        "libstagefright_headers",
+        "libmedia_datasource_headers",
+    ],
+
+    static_libs: [
+        "android.hardware.cas@1.0",
+        "android.hardware.cas.native@1.0",
+        "android.hidl.allocator@1.0",
+        "android.hidl.memory@1.0",
+        "android.hidl.token@1.0",
+        "android.hidl.token@1.0-utils",
+        "libcutils",
+        "libhidlbase",
+        "libhidlmemory",
+        "libjsoncpp",
+        "libmedia_helper",
+        "libprocessgroup",
+        "libstagefright_esds",
+        "libstagefright_foundation_without_imemory",
+        "libstagefright_mpeg2extractor",
+        "libstagefright_mpeg2support_nocrypto",
+        "libutils",
+    ],
+
+    apex_available: [
+        "com.android.media",
+        "test_com.android.media",
+    ],
+
+    static: {
+        apex_available: [
+            // Needed for unit tests
+            "//apex_available:platform",
+        ],
+    },
+}

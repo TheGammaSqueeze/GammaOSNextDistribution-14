@@ -1,0 +1,5 @@
+(/.*)?                                                             u:object_r:vendor_file:s0
+# Configs (e.g. vintf, permissions)
+/etc(/.*)?                                                         u:object_r:vendor_configs_file:s0
+# Service binary
+/bin/hw/android\.hardware\.camera\.provider@2\.7-service-google    u:object_r:hal_camera_default_exec:s0

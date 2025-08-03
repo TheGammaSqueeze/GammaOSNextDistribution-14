@@ -1,0 +1,36 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_headers {
+    name: "libgfxstream_etc_headers",
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: [
+        "include",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}
+
+cc_library_static {
+    name: "libgfxstream_etc",
+    vendor_available: true,
+    host_supported: true,
+    header_libs: [
+        "libgfxstream_etc_headers",
+    ],
+    export_header_lib_headers: [
+        "libgfxstream_etc_headers",
+    ],
+    srcs: [
+        "etc.cpp",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}

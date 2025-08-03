@@ -1,0 +1,386 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+aidl_interface_defaults {
+    name: "android.hardware.audio_defaults",
+    host_supported: true,
+    vendor_available: true,
+    stability: "vintf",
+}
+
+aidl_interface {
+    name: "android.hardware.audio.common",
+    defaults: [
+        "android.hardware.audio_defaults",
+        "latest_android_media_audio_common_types_import_interface",
+    ],
+    srcs: [
+        "android/hardware/audio/common/AudioOffloadMetadata.aidl",
+        "android/hardware/audio/common/PlaybackTrackMetadata.aidl",
+        "android/hardware/audio/common/RecordTrackMetadata.aidl",
+        "android/hardware/audio/common/SinkMetadata.aidl",
+        "android/hardware/audio/common/SourceMetadata.aidl",
+    ],
+    frozen: true,
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            sdk_version: "module_current",
+            min_sdk_version: "31",
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.car.framework",
+            ],
+        },
+        ndk: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.btservices",
+            ],
+            min_sdk_version: "31",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.media.audio.common.types-V2"],
+        },
+        {
+            version: "2",
+            imports: ["android.media.audio.common.types-V2"],
+        },
+        {
+            version: "3",
+            imports: ["android.media.audio.common.types-V3"],
+        },
+
+        // IMPORTANT: Update latest_android_hardware_audio_common every time you
+        // add the latest frozen version to versions_with_info
+    ],
+
+}
+
+// Note: This should always be one version ahead of the last frozen version
+latest_android_hardware_audio_common = "android.hardware.audio.common-V3"
+
+// Modules that depend on android.hardware.audio.common directly can include
+// the following cc_defaults to avoid explicitly managing dependency versions
+// across many scattered files.
+cc_defaults {
+    name: "latest_android_hardware_audio_common_cpp_static",
+    static_libs: [
+        latest_android_hardware_audio_common + "-cpp",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_hardware_audio_common_ndk_static",
+    static_libs: [
+        latest_android_hardware_audio_common + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_hardware_audio_common_ndk_shared",
+    shared_libs: [
+        latest_android_hardware_audio_common + "-ndk",
+    ],
+}
+
+aidl_interface_defaults {
+    name: "latest_android_hardware_audio_common_import_interface",
+    imports: [
+        latest_android_hardware_audio_common,
+    ],
+}
+
+aidl_interface {
+    name: "android.hardware.audio.core",
+    defaults: [
+        "android.hardware.audio_defaults",
+        "latest_android_hardware_audio_common_import_interface",
+        "latest_android_hardware_audio_core_sounddose_import_interface",
+        "latest_android_hardware_audio_effect_import_interface",
+        "latest_android_media_audio_common_types_import_interface",
+    ],
+    srcs: [
+        "android/hardware/audio/core/AudioPatch.aidl",
+        "android/hardware/audio/core/AudioRoute.aidl",
+        "android/hardware/audio/core/IBluetooth.aidl",
+        "android/hardware/audio/core/IBluetoothA2dp.aidl",
+        "android/hardware/audio/core/IBluetoothLe.aidl",
+        "android/hardware/audio/core/IConfig.aidl",
+        "android/hardware/audio/core/IModule.aidl",
+        "android/hardware/audio/core/IStreamCallback.aidl",
+        "android/hardware/audio/core/IStreamCommon.aidl",
+        "android/hardware/audio/core/IStreamIn.aidl",
+        "android/hardware/audio/core/IStreamOut.aidl",
+        "android/hardware/audio/core/IStreamOutEventCallback.aidl",
+        "android/hardware/audio/core/ITelephony.aidl",
+        "android/hardware/audio/core/MmapBufferDescriptor.aidl",
+        "android/hardware/audio/core/ModuleDebug.aidl",
+        "android/hardware/audio/core/StreamDescriptor.aidl",
+        "android/hardware/audio/core/SurroundSoundConfig.aidl",
+        "android/hardware/audio/core/VendorParameter.aidl",
+    ],
+    imports: [
+        "android.hardware.common-V2",
+        "android.hardware.common.fmq-V1",
+    ],
+    backend: {
+        // The C++ backend is disabled transitively due to use of FMQ.
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.common.fmq-V1",
+                "android.hardware.audio.common-V2",
+                "android.hardware.audio.core.sounddose-V1",
+                "android.hardware.audio.effect-V1",
+                "android.media.audio.common.types-V2",
+            ],
+        },
+        {
+            version: "2",
+            imports: [
+                "android.media.audio.common.types-V3",
+                "android.hardware.audio.effect-V2",
+                "android.hardware.audio.core.sounddose-V2",
+                "android.hardware.audio.common-V3",
+                "android.hardware.common-V2",
+                "android.hardware.common.fmq-V1",
+            ],
+        },
+
+        // IMPORTANT: Update latest_android_hardware_audio_core every time you
+        // add the latest frozen version to versions_with_info
+    ],
+    frozen: true,
+}
+
+// Note: This should always be one version ahead of the last frozen version
+latest_android_hardware_audio_core = "android.hardware.audio.core-V2"
+
+// Modules that depend on android.hardware.audio.core directly can include
+// the following cc_defaults to avoid explicitly managing dependency versions
+// across many scattered files.
+cc_defaults {
+    name: "latest_android_hardware_audio_core_ndk_shared",
+    shared_libs: [
+        latest_android_hardware_audio_core + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_hardware_audio_core_ndk_static",
+    static_libs: [
+        latest_android_hardware_audio_core + "-ndk",
+    ],
+}
+
+aidl_interface_defaults {
+    name: "latest_android_hardware_audio_core_import_interface",
+    imports: [
+        latest_android_hardware_audio_core,
+    ],
+}
+
+// Used for the standalone sounddose HAL
+aidl_interface {
+    name: "android.hardware.audio.core.sounddose",
+    defaults: [
+        "android.hardware.audio_defaults",
+        "latest_android_media_audio_common_types_import_interface",
+    ],
+    srcs: [
+        "android/hardware/audio/core/sounddose/ISoundDose.aidl",
+    ],
+    backend: {
+        // The C++ backend is disabled transitively due to use of FMQ by the core HAL.
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.media.audio.common.types-V2"],
+        },
+        {
+            version: "2",
+            imports: ["android.media.audio.common.types-V3"],
+        },
+
+        // IMPORTANT: Update latest_android_hardware_audio_core_sounddose every time you
+        // add the latest frozen version to versions_with_info
+    ],
+    frozen: true,
+}
+
+// Note: This should always be one version ahead of the last frozen version
+latest_android_hardware_audio_core_sounddose = "android.hardware.audio.core.sounddose-V2"
+
+// Modules that depend on android.hardware.audio.core.sounddose directly can include
+// the following cc_defaults to avoid explicitly managing dependency versions
+// across many scattered files.
+cc_defaults {
+    name: "latest_android_hardware_audio_core_sounddose_ndk_shared",
+    shared_libs: [
+        latest_android_hardware_audio_core_sounddose + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_hardware_audio_core_sounddose_ndk_export_shared_lib_header",
+    export_shared_lib_headers: [
+        latest_android_hardware_audio_core_sounddose + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_hardware_audio_core_sounddose_ndk_static",
+    static_libs: [
+        latest_android_hardware_audio_core_sounddose + "-ndk",
+    ],
+}
+
+aidl_interface_defaults {
+    name: "latest_android_hardware_audio_core_sounddose_import_interface",
+    imports: [
+        latest_android_hardware_audio_core_sounddose,
+    ],
+}
+
+aidl_interface {
+    name: "android.hardware.audio.effect",
+    defaults: [
+        "android.hardware.audio_defaults",
+        "latest_android_hardware_audio_common_import_interface",
+        "latest_android_media_audio_common_types_import_interface",
+    ],
+    srcs: [
+        "android/hardware/audio/effect/AcousticEchoCanceler.aidl",
+        "android/hardware/audio/effect/AutomaticGainControlV1.aidl",
+        "android/hardware/audio/effect/AutomaticGainControlV2.aidl",
+        "android/hardware/audio/effect/BassBoost.aidl",
+        "android/hardware/audio/effect/Capability.aidl",
+        "android/hardware/audio/effect/CommandId.aidl",
+        "android/hardware/audio/effect/DefaultExtension.aidl",
+        "android/hardware/audio/effect/Descriptor.aidl",
+        "android/hardware/audio/effect/Downmix.aidl",
+        "android/hardware/audio/effect/DynamicsProcessing.aidl",
+        "android/hardware/audio/effect/EnvironmentalReverb.aidl",
+        "android/hardware/audio/effect/Equalizer.aidl",
+        "android/hardware/audio/effect/Flags.aidl",
+        "android/hardware/audio/effect/HapticGenerator.aidl",
+        "android/hardware/audio/effect/IEffect.aidl",
+        "android/hardware/audio/effect/IFactory.aidl",
+        "android/hardware/audio/effect/LoudnessEnhancer.aidl",
+        "android/hardware/audio/effect/NoiseSuppression.aidl",
+        "android/hardware/audio/effect/Parameter.aidl",
+        "android/hardware/audio/effect/PresetReverb.aidl",
+        "android/hardware/audio/effect/Processing.aidl",
+        "android/hardware/audio/effect/Range.aidl",
+        "android/hardware/audio/effect/Spatializer.aidl",
+        "android/hardware/audio/effect/State.aidl",
+        "android/hardware/audio/effect/VendorExtension.aidl",
+        "android/hardware/audio/effect/Virtualizer.aidl",
+        "android/hardware/audio/effect/Visualizer.aidl",
+        "android/hardware/audio/effect/Volume.aidl",
+    ],
+    imports: [
+        "android.hardware.common-V2",
+        "android.hardware.common.fmq-V1",
+    ],
+    backend: {
+        // The C++ backend is disabled transitively due to use of FMQ.
+        cpp: {
+            enabled: false,
+        },
+        java: {
+            sdk_version: "module_current",
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.common.fmq-V1",
+                "android.hardware.audio.common-V2",
+                "android.media.audio.common.types-V2",
+            ],
+        },
+        {
+            version: "2",
+            imports: [
+                "android.media.audio.common.types-V3",
+                "android.hardware.audio.common-V3",
+                "android.hardware.common-V2",
+                "android.hardware.common.fmq-V1",
+            ],
+        },
+
+    ],
+    frozen: true,
+
+}
+
+latest_android_hardware_audio_effect = "android.hardware.audio.effect-V2"
+
+cc_defaults {
+    name: "latest_android_hardware_audio_effect_ndk_shared",
+    shared_libs: [
+        latest_android_hardware_audio_effect + "-ndk",
+    ],
+}
+
+cc_defaults {
+    name: "latest_android_hardware_audio_effect_ndk_static",
+    static_libs: [
+        latest_android_hardware_audio_effect + "-ndk",
+    ],
+}
+
+aidl_interface_defaults {
+    name: "latest_android_hardware_audio_effect_import_interface",
+    imports: [
+        latest_android_hardware_audio_effect,
+    ],
+}

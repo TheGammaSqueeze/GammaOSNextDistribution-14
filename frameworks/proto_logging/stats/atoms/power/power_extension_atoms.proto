@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.power;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.power";
+option java_multiple_files = true;
+
+extend Atom {
+  optional ScreenOffReported screen_off_reported = 776 [(module) = "framework"];
+  optional LastScreenOnFragmentReported last_screen_on_fragment_reported
+      = 801 [(module) = "framework"];
+}
+
+/**
+ * Logs when the screen is turned off.
+ *
+ * Logged from:
+ *   frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java
+ */
+message ScreenOffReported {
+  enum Reason {
+    UNKNOWN = 0;
+    POWER_BUTTON = 1;
+    TIMEOUT = 2;
+  }
+  enum TimeoutReason {
+    UNKNOWN_REASON = 0;
+    DEFAULT = 1;
+    FACE_DOWN = 2;
+    ENCLOSED = 3;
+  }
+  optional Reason screen_off_reason = 1;
+  optional TimeoutReason timeout_reason = 2;
+  optional int64 millis_until_normal_timeout = 3;
+}
+
+/**
+ * Logs For Last Screen On Fragment.
+ *
+ * Logged from:
+ *   frameworks/base/services/core/java/com/android/server/power/AttentionDetector.java
+ */
+message LastScreenOnFragmentReported {
+  enum ScreenOffReason {
+    UNKNOWN = 0;
+    TIMEOUT = 1;
+    POWER_BTN = 2;
+  }
+  enum UserActivity {
+    UNSET = 0;
+    BUTTON = 1;
+    TOUCH = 2;
+    ACCESSBILITY = 3;
+    ATTENTION = 4;
+    FACE_DOWN = 5;
+    DEVICE_STATE = 6;
+  }
+  // Log the reason to off the screen this time
+  optional ScreenOffReason screen_off_reason = 1;
+  // Total time for this screen on to off
+  optional int64 screen_on_duration_millis = 2;
+  // Log the last user activity on this time
+  optional UserActivity last_user_activity = 3;
+  // Duration of last screen on fragment
+  optional int64 last_screen_on_fragment_millis = 4;
+}

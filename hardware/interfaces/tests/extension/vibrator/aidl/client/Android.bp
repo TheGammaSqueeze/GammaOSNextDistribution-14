@@ -1,0 +1,33 @@
+// This example client is written as a test, but it is executing from a system
+// context. All this code would look the same if it was running in system
+// server for example.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_test {
+    name: "android.hardware.tests.extension.vibrator-client",
+    srcs: [
+        // system code has the option to use the unstable C++ libbinder API
+        // or the NDK one. For maximum code portability, using the ndk client
+        // makes the most sense, but both are provided here as an example.
+        "test-cpp-client.cpp",
+        "test-ndk-client.cpp",
+    ],
+    shared_libs: [
+        "libbinder",
+        "libutils",
+        "android.hardware.vibrator-V2-cpp",
+        "android.hardware.tests.extension.vibrator-V1-cpp",
+
+        "libbinder_ndk",
+        "android.hardware.vibrator-V2-ndk",
+        "android.hardware.tests.extension.vibrator-V1-ndk",
+    ],
+}

@@ -1,0 +1,11 @@
+name: "thales_se_hal"
+description:
+    "Android Secure Element HAL for Thales Embedded Secure Element."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/gemalto/Thales_secure_element_hal/"
+  }
+  version: "1.0"
+  last_upgrade_date { year: 2020 month: 1 day: 10 }
+}

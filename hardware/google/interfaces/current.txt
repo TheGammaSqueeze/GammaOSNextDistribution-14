@@ -1,0 +1,32 @@
+# HALs released in Android T
+
+5cac13157224d961fdfa4f27a03ba0de63d76997ef5e4705c4168f36cf5afe85 hardware.google.bluetooth.ccc@1.1::types
+4f61c104c6daff2fca7b4b946a6b7aefb5a5d7ae77f9ecf12170d498ac380cf7 hardware.google.bluetooth.ccc@1.1::IBluetoothCcc
+7d6b8268118c242880aee862de5baac357cb56698e374b1560b0ef6ef1099986 hardware.google.bluetooth.ccc@1.1::IBluetoothCccCallback
+55be275674153f9e967c37b57c50654ee8e7c6fc3591139b57216817a3fde27b hardware.google.bluetooth.ewp@1.0::IBluetoothEwp
+7e406108cc0a5e73a85b6b1da7a97494667ecd265c566e2b8ddf65abc44bb733 hardware.google.bluetooth.ext@1.0::IBluetoothExt
+
+# HALs released in Android S
+
+c34fdd31d56ca97aec45eb3eb9b47d62294335e1c880a7998013f2096825397d hardware.google.bluetooth.bt_channel_avoidance@1.0::IBTChannelAvoidance
+8490e311ba249523d0cb6e2dd8b8a863241b428cdf8c98d88689332951e398c8 hardware.google.bluetooth.ccc@1.0::types
+a8a5ea77cf0e11f83a6751186325efb7f18ea1dc2e9f9ad33032980b0e1e3ecd hardware.google.bluetooth.ccc@1.0::IBluetoothCcc
+5287fd8c6f65a1533a9c65bb8036ce0653093cf7f802636732c265b57588f2a8 hardware.google.bluetooth.ccc@1.0::IBluetoothCccCallback
+ffb48792d6e067f012f66b28b526afe46be1aaaacbcf71891969cb0a55a7165c hardware.google.bluetooth.sar@1.0::IBluetoothSar
+a0632be7cbb7e64f8254363b6d000ec0bb03096f7a10a1390701b9ace2ff2c84 hardware.google.bluetooth.sar@1.1::IBluetoothSar
+
+# HALs released in Android P MAR20 QPR
+
+bcaa8ef72b0ebbcbd0873f600a8d2bc45f76a6fb119ad6aeae4c5347a790aedb hardware.google.light@1.1::ILight
+
+# HALs released in Android P
+
+b5f3bf3382d7bddf9c22a5f132ff265168e68c4e5373db702cb260d8b20f27d8 hardware.google.light@1.0::ILight
+18d5a8fc92f66988a917ab8154f03a19ae8c172ed4000962e230d3c54c9f6ac3 hardware.google.media.c2@1.0::types
+5efedcb7df51c465bc0363debbddfb6818ce2e9a813920e7ba0353f855a08d34 hardware.google.media.c2@1.0::IComponent
+b2932a158633c93cff94f3c9b8728f9cb64db8894c9e7b818e5615f7f004b9f1 hardware.google.media.c2@1.0::IComponentInterface
+7c16826b025b82033ba0d7fcf18a3b0a258cfeb17d75b066ff8083cde829e97e hardware.google.media.c2@1.0::IComponentListener
+f05fa15eae2f47d54a69ec85d4c4b4cbaa262d34ba936d85a57406ae78876512 hardware.google.media.c2@1.0::IComponentStore
+822b5ce551c0cebb9f5a454e164638ec18f0613e248c6cd042aed5deb37fdcbf hardware.google.media.c2@1.0::IConfigurable
+de8c507e59f9563c880ecea1a04d036e281b83109371543afd5421688bfda301 hardware.google.media.c2@1.0::IInputSurface
+843fb9aab0dd6b331ce4fcede131531b23242518749cf87dd5a0ad1feab9070d hardware.google.media.c2@1.0::IInputSurfaceConnection

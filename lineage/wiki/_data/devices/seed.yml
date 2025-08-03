@@ -1,0 +1,36 @@
+architecture: arm
+battery: {capacity: 2500, removable: False, tech: 'Li-Po'}
+bluetooth: {spec: '4.0'}
+cameras:
+  - {flash: 'LED', info: '13 MP'}
+  - {flash: None, info: '5 MP'}
+codename: seed
+cpu: Cortex-A53
+cpu_cores: '4'
+cpu_freq: 1.2 GHz
+current_branch: 14.1
+dimensions: None
+download_boot: With the device powered off, hold <kbd>Volume Down</kbd> + <kbd>Power</kbd>.
+gpu: Qualcomm Adreno 306
+image: seed.png
+install_method: fastboot_nexus
+kernel: {repo: android_kernel_google_seed, version: '3.10'}
+maintainers: []
+name: Android One 2nd Gen
+network: [2G GSM, 2G CDMA, 4G LTE]
+peripherals: [3.5mm jack, Accelerometer, Compass, Gyroscope, Proximity sensor]
+ram: 2 GB / 1 GB for IQ II
+recovery_boot: With the device powered off, hold <kbd>Volume Up</kbd> + <kbd>Power</kbd>.
+recovery_partition_name: recovery
+release: 2015-07
+screen: {resolution: '720x1280', size: 5, technology: 'IPS LCD'}
+sdcard: {size_max: '128 GB'}
+soc: Qualcomm MSM8916 Snapdragon 410
+storage: 16 GB
+tree: android_device_google_seed
+type: phone
+uses_twrp: true
+vendor: Google
+vendor_short: google
+versions: [14.1]
+wifi: 802.11 b/g/n

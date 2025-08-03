@@ -1,0 +1,50 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_library_static {
+    name: "libaidlcommonsupport",
+    vendor_available: true,
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    srcs: ["NativeHandle.cpp"],
+    export_include_dirs: ["include"],
+    shared_libs: [
+        "android.hardware.common-V2-ndk",
+        "libcutils",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.neuralnetworks",
+        "com.android.media.swcodec",
+    ],
+    min_sdk_version: "29",
+}
+
+cc_test {
+    name: "libaidlcommonsupport_test",
+    host_supported: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    srcs: ["test.cpp"],
+    static_libs: [
+        "android.hardware.common-V2-ndk",
+        "libaidlcommonsupport",
+    ],
+    shared_libs: [
+        "libcutils",
+    ],
+    test_suites: ["general-tests"],
+}

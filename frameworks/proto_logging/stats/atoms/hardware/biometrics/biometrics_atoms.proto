@@ -1,0 +1,117 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.hardware.biometrics;
+
+option java_package = "com.android.os.hardware.biometrics";
+option java_multiple_files = true;
+
+import "frameworks/proto_logging/stats/enums/hardware/biometrics/enums.proto";
+
+/**
+ * Dogfood only.
+ * Reported once per touch event during fingerprint authentication and enrollment.
+ * Used for finger placement analysis and tuning of the finger detection algorithms.
+ */
+message BiometricTouchReported {
+
+// Type of triggering touch event.
+optional android.hardware.biometrics.TouchTypeEnum touch_type = 1;
+
+// Opaque identifier of the touch processor configuration.
+optional int32 touch_config_id = 2;
+
+// Android T+ sessionization ID.
+optional int32 session_id = 3;
+
+// X coordinate of the touch. In pixels. In the coordinate space of the display in its natural
+// orientation and native resolution.
+optional float x = 4;
+
+// Y coordinate of the touch. In pixels. In the coordinate space of the display in its natural
+// orientation and native resolution.
+optional float y = 5;
+
+// The length of the minor axis of an ellipse that describes the touch area at the point of contact.
+// In pixels in the coordinate space of the display in its native resolution.
+optional float minor = 6;
+
+// The length of the major axis of an ellipse that describes the touch area at the point of contact.
+// In pixels in the coordinate space of the display in its native resolution.
+optional float major = 7;
+
+// Orientation of the touch area in radians clockwise from vertical.
+// Relative to the natural orientation of the display.
+optional float orientation = 8;
+
+// The time when this touch was detected, in milliseconds since the system was booted.
+optional int64 time = 9;
+
+// The time when the first touch in this gesture was detected, in milliseconds since the system was
+// booted.
+optional int64 gesture_start = 10;
+
+// Whether the Always-On Display (AOD) mode was active when the touch was detected.
+optional bool is_aod = 11;
+}
+
+/**
+ * Logs biometric sensor properties when boot completed.
+ *
+ * Pushed from:
+ *   frameworks/base/services/core/java/com/android/server/BinaryTransparencyService.java
+ */
+message BiometricPropertiesCollected {
+    // The ID of the biometric sensor whose properties are being collected.
+    optional int32 sensor_id = 1;
+
+    // The biometric modality of the sensor (i.e. face, fingerprint, iris).
+    optional android.hardware.biometrics.ModalityEnum modality = 2;
+
+    // The specific type of the sensor.
+    optional android.hardware.biometrics.SensorTypeEnum sensor_type = 3;
+
+    // The biometric strength of the sensor.
+    optional android.hardware.biometrics.StrengthEnum sensor_strength = 4;
+
+    // The following is a list of component information for the subsystems that
+    // pertain to the sensor. None of the component info is a device identifier
+    // since every device of a given model and build share the same info.
+    // An identifier uniquely identifying a subsystem. It must not be an empty
+    // string.
+    optional string component_info_component_id = 5;
+
+    // The hardware version of a biometric subsystem. For example,
+    // <vendor>/<model>/<revision>. If there is no hardware version for this
+    // component, it must be empty.
+    optional string component_info_hardware_version = 6;
+
+    // The firmware version of a biometric subsystem. If there's no firmware
+    // version for this component, it must be empty.
+    optional string component_info_firmware_version = 7;
+
+    // The serial number of a biometric subsystem. If there's no serial number
+    // for this component, it must be empty.
+    optional string component_info_serial_number = 8;
+
+    // The software version of a biometric subsystem. For example,
+    // <vendor>/<version>/<revision>. If there's no software version for this
+    // component, it must be empty.
+    optional string component_info_software_version = 9;
+}
+

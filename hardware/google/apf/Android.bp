@@ -1,0 +1,130 @@
+// Copyright 2016 The Android Open Source Project
+
+package {
+    default_team: "trendy_team_fwk_core_networking",
+    default_applicable_licenses: ["hardware_google_apf_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "hardware_google_apf_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "apf_defaults",
+
+    cflags: [
+        "-DAPF_FRAME_HEADER_SIZE=14",
+        "-Wall",
+        "-Werror",
+        "-Werror=implicit-fallthrough",
+        "-Wnullable-to-nonnull-conversion",
+        "-Wsign-compare",
+        "-Wthread-safety",
+        "-Wunused-parameter",
+        "-Wuninitialized",
+    ],
+}
+
+cc_library_static {
+    name: "libapf",
+    defaults: ["apf_defaults"],
+    srcs: ["apf_interpreter.c"],
+    sdk_version: "24",
+}
+
+cc_library_static {
+    name: "libapfdisassembler",
+    defaults: ["apf_defaults"],
+    srcs: [
+        "disassembler.c",
+    ],
+    sdk_version: "24",
+}
+
+cc_binary_host {
+    name: "apf_disassembler",
+    defaults: ["apf_defaults"],
+    srcs: [
+        "apf_disassembler.c",
+        "disassembler.c",
+    ],
+}
+
+cc_binary_host {
+    name: "apf_run",
+    defaults: ["apf_defaults"],
+    static_libs: [
+        "libpcap",
+    ],
+    srcs: [
+        "apf_run.c",
+        "apf_interpreter.c",
+        "disassembler.c",
+        "v5/apf_interpreter.c",
+        "v5/test_buf_allocator.c",
+    ],
+    cflags: [
+        "-DAPF_TRACE_HOOK=apf_trace_hook",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+sh_test_host {
+    name: "apf_run_test",
+    src: "apf_run_test.sh",
+    filename: "apf_run_test.sh",
+    test_config: "apf_run_test.xml",
+    data: ["testdata/*"],
+    data_bins: ["apf_run"],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        windows: {
+            enabled: false,
+        },
+    },
+    data_libs: [
+        "libc++",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}
+
+cc_test_host {
+    name: "apf_checksum_test",
+    srcs: [
+        "apf_checksum_test.cc",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wno-unused-function",
+    ],
+    stl: "c++_static",
+}
+
+cc_test_host {
+    name: "apf_dns_test",
+    srcs: [
+        "apf_dns_test.cc",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wno-unused-function",
+    ],
+    stl: "c++_static",
+}

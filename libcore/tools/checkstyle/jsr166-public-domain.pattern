@@ -1,0 +1,4 @@
+/\*
+ \* Written by Doug Lea .*$
+^(?:(?!\bpublicdomain\b).)*$
+ \* .*http://creativecommons\.org/publicdomain/zero/1\.0/

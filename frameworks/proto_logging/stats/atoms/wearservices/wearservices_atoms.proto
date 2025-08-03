@@ -1,0 +1,160 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.wearservices;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/app/wearservices/wearservices_enums.proto";
+
+option java_package = "com.android.os.wearservices";
+option java_multiple_files = true;
+
+/**
+ * Logged during a backup session in Wear Services.
+ *
+ * Logged from :
+ * vendor/google_clockwork_partners/packages/WearServices/src/com/google/wear/services/backup/WearServicesBackupAgent.java
+ */
+message WsBackupActionReported {
+  // Depicts the action being performed for backup.
+  // Values : (BACKUP_STARTED, BACKUP_SUCCEEDED, BACKUP_FAILED)
+  optional android.app.wearservices.BackupAction action = 1;
+}
+
+/**
+ * Logged during a restore session in Wear Services.
+ *
+ * Logged from package :
+ * vendor/google_clockwork_partners/packages/WearServices
+ */
+message WsRestoreActionReported {
+  // Depicts the action being performed for restore.
+  // Values : (RESTORE_STARTED, RESTORE_SUCCEEDED, RESTORE_FAILED)
+  optional android.app.wearservices.RestoreAction action = 1;
+}
+
+/** Logged when a notification is updated in the WearServices application. */
+message WsNotificationUpdated {
+  // Package name of the application that created the notification event.
+  optional string package_name = 1;
+
+  // Notification action that this event represents.
+  optional android.app.wearservices.NotificationUpdateAction update_action = 2;
+
+  // Device on which the notification event was created.
+  optional android.app.wearservices.RequestSource source_device = 3;
+
+  // Importance of the notification after this update.
+  optional android.app.wearservices.NotificationImportance importance = 4;
+
+  // The transport channel this notification is coming from.
+  optional android.app.wearservices.NotificationTransportChannel
+      transport_channel = 5;
+
+  // The alerting effect of the notification.
+  optional android.app.wearservices.NotificationAlertingEffect alerting_effect =
+      6;
+
+  // The group alert behavior of the notification.
+  optional android.app.wearservices.NotificationGroupAlertBehavior
+      group_alert_behavior = 7;
+
+  // The alert behavior controlled by the ALERT_ONLY_ONCE flag.
+  optional android.app.wearservices.NotificationAlertOnlyOnce alert_only_once =
+      8;
+
+  // The group type of the notification.
+  optional android.app.wearservices.NotificationGroupType group_type = 9;
+
+  // The style of the notification.
+  optional android.app.wearservices.NotificationStyle style = 10;
+
+  // The hidden reason of the notification.
+  optional android.app.wearservices.NotificationHiddenReason hidden_reason = 11;
+
+  // The categories for the notification.
+  optional android.app.wearservices.NotificationCategory category = 12;
+
+  // Whether this notification has set FLAG_ONGOING_EVENT. Which means there may
+  // be many updates for this notification. (eg. app download progress updates).
+  optional bool is_ongoing_notification = 13;
+
+  // Whether this notification is an emergency cell broadcast message.
+  optional bool is_emergency = 14;
+
+  // Whether this notification comes from apps running in the work profile.
+  optional bool is_work_profile = 15;
+
+  // The content intent actions for the notification.
+  optional android.app.wearservices.NotificationContentIntent content_intent =
+      16;
+
+  // Whether actions contain remote input (e.g. Reply).
+  optional bool has_remote_input = 17;
+
+  // Number value for all actions, including actions with remote input. Count
+  // wearable actions if they exist, otherwise counting the standard actions.
+  // Can be 0 or above, cap to 10 as we have this same limit in SysUI.
+  optional int32 action_count = 18;
+
+  // Whether this notification contains bigPicture image, largeIcon image, or
+  // message images.
+  optional bool has_big_images = 19;
+
+  // Whether this notification has set a dismissal-id.
+  optional bool has_dismissal_id = 20;
+
+  // Whether this notification has set FLAG_FOREGROUND_SERVICE. Which means the
+  // notification may be frequently updated.
+  optional bool is_foreground_service = 21;
+}
+
+/** Logged when a notification is blocked/unblocked in the WearServices application. */
+message WsNotificationBlocking {
+  // Package name of the application that created the notification event.
+  optional string package_name = 1;
+
+  // Device on which the notification event was created.
+  optional android.app.wearservices.RequestSource source_device = 2;
+
+  // Defines on which device the blocked state is changed.
+  optional android.app.wearservices.DeviceLocation device_location = 3;
+
+  // Defines in which profile the application is installed.
+  optional android.app.wearservices.Profile profile= 4;
+
+  // Blocking status of the notifications for the application.
+  optional android.app.wearservices.NotificationBlockingStatus notification_blocking_status = 5;
+}
+
+/** Logged when a complication is tapped by the user. */
+message WsComplicationTapped {
+  // UID of the package name hosting the complication, calculated by
+  // PackageManager#getPackageUid.
+  optional int32 wf_component_package_uid = 1 [(is_uid) = true];
+
+  // Package uid for the provider component for complication.
+  optional int32 provider_component_package_uid = 2 [(is_uid) = true];
+
+  // Class name for the provider component.
+  optional string provider_class_name = 3;
+
+  // Type of the complication. Valid values are listed in
+  // androidx.wear.watchface.complications.data.ComplicationType.
+  optional int32 type = 4;
+}

@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.corenetworking.connectivity;
+
+option java_package = "com.android.os.corenetworking.connectivity";
+option java_multiple_files = true;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/corenetworking/connectivity/enums.proto";
+
+extend Atom {
+    optional DailykeepaliveInfoReported daily_keepalive_info_reported = 650 [(module) = "connectivity"];
+    optional NetworkRequestStateChanged network_request_state_changed = 779 [(module) = "connectivity"];
+}
+
+/**
+ *  Logs DailykeepaliveInfoReported
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/connectivity/AutomaticOnOffKeepaliveTracker.
+ */
+message DailykeepaliveInfoReported{
+    // Daily duration per number of concurrent keepalive
+    optional DurationPerNumOfKeepalive duration_per_num_of_keepalive = 1[(log_mode) = MODE_BYTES];
+
+    // Daily keepalive registered/active duration on each list of keepalive session, in
+    // milli-seconds
+    optional KeepaliveLifetimePerCarrier keepalive_lifetime_per_carrier = 2[(log_mode) = MODE_BYTES];
+
+    // Daily number of keepalive requests
+    optional int32 keepalive_requests = 3;
+
+    // Daily number of automatic keepalive requests
+    optional int32 automatic_keepalive_requests = 4;
+
+    // Daily number of distinct apps that requested keepalives
+    optional int32 distinct_user_count = 5;
+
+    // Daily distinct apps uid list that requested keepalives
+    repeated int32 uid = 6 [(is_uid) = true];
+}
+
+/**
+ * Daily duration per number of concurrent keepalive
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/connectivity/AutomaticOnOffKeepaliveTracker.
+ */
+message DurationPerNumOfKeepalive {
+    repeated DurationForNumOfKeepalive duration_for_num_of_keepalive = 1;
+}
+
+message DurationForNumOfKeepalive {
+    // The number of concurrent keepalives is in the device
+    optional int32 num_of_keepalive = 1;
+
+    // How many milliseconds the device has keepalive registration number is num_of_keepalive
+    optional int32 keepalive_registered_durations_msec = 2;
+
+    // How many milliseconds the device has keepalive active(not paused) number is num_of_keepalive
+    optional int32 keepalive_active_durations_msec = 3;
+}
+
+/**
+ * Daily keepalive registered/active duration on each list of Keepalive session, in milli-seconds
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/connectivity/AutomaticOnOffKeepaliveTracker.
+ */
+message KeepaliveLifetimePerCarrier {
+    // The number of network count on each list of carriers
+    repeated KeepaliveLifetimeForCarrier keepalive_lifetime_for_carrier = 1;
+}
+
+/**
+ * Logs the keepalive registered/active duration in milli-seconds and carrier
+ * info(carrier id, transport, keepalive interval).
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/connectivity/AutomaticOnOffKeepaliveTracker.
+ */
+message KeepaliveLifetimeForCarrier {
+    // The carrier ID for each keepalive, or TelephonyManager.UNKNOWN_CARRIER_ID(-1) if not cell
+    optional int32 carrier_id = 1;
+
+    // The transport types of the underlying network for each keepalive. A network may include
+    // multiple transport types. Each transfer type is represented by a different bit, defined in
+    // packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java
+    optional int32 transport_types = 2;
+
+    // The keepalive interval for each keepalive
+    optional int32 intervals_msec = 3;
+
+    // The lifetime of the keepalive registered today
+    optional int32 lifetime_msec = 4;
+
+    // The duration for which the keepalive was active (not suspended)
+    optional int32 active_lifetime_msec = 5;
+}
+
+/**
+ * Logs when network request is received and removed, app uid which sent the
+ * request, request capabilities and duration since the request was received.
+ *
+ * For the moment only Wear non Listen network requests are logged.
+ *
+ * Logs from: packages/modules/Connectivity/service/src/com/android/
+ *            server/ConnectivityService.java
+ */
+message NetworkRequestStateChanged {
+    // Uid of the app that sent the request
+    optional int32 uid = 1 [(is_uid) = true];
+
+    // Network request capabilities transport types bitmask
+    optional int32 transport_types = 2;
+
+    // Network request NET_CAPABILITY_NOT_METERED capability
+    optional bool net_capability_not_metered = 3;
+
+    // Network request NET_CAPABILITY_INTERNET capability
+    optional bool net_capability_internet = 4;
+
+    // State of the network request at the point of time the atom was pushed
+    optional android.corenetworking.connectivity.NetworkRequestState state = 5;
+
+    // Duration in millis of the network request since it was received
+    optional int32 duration_ms = 6;
+}

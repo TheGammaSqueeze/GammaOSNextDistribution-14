@@ -1,0 +1,75 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.stats.accessibility;
+option java_multiple_files = true;
+
+// The entry point of the accessibility shortcut.
+enum ShortcutType {
+  UNKNOWN_TYPE = 0;
+  A11Y_BUTTON = 1;
+  VOLUME_KEY = 2;
+  TRIPLE_TAP = 3;
+  A11Y_BUTTON_LONG_PRESS = 4;
+  A11Y_FLOATING_MENU = 5;
+  A11Y_GESTURE = 6;
+  A11Y_WEAR_TRIPLE_PRESS_GESTURE = 7;
+  TWO_FINGER_TRIPLE_TAP = 8;
+}
+
+// The service status code.
+enum ServiceStatus {
+  UNKNOWN = 0;
+  ENABLED = 1;
+  DISABLED = 2;
+}
+
+// The magnification mode.
+enum MagnificationMode {
+  MAGNIFICATION_UNKNOWN_MODE = 0;
+  MAGNIFICATION_FULL_SCREEN = 1;
+  MAGNIFICATION_WINDOW = 2;
+  MAGNIFICATION_ALL = 3;
+}
+
+// The wraning status on UI.
+enum WarningStatus {
+  WARNING_UNKNOWN = 0;
+  WARNING_SHOWN = 1;
+  WARNING_CLICKED = 2;
+  WARNING_SERVICE_DISABLED = 3;
+}
+
+// The settings item of the "Text and reading options".
+enum TextReadingOption {
+  TEXT_READING_UNKNOWN_ITEM = 0;
+  TEXT_READING_FONT_SIZE = 1;
+  TEXT_READING_DISPLAY_SIZE = 2;
+  TEXT_READING_BOLD_TEXT = 3;
+  TEXT_READING_HIGH_CONTRAST_TEXT = 4;
+  TEXT_READING_RESET = 5;
+}
+
+// The entry point of the "Text and reading options".
+enum TextReadingEntry {
+  TEXT_READING_UNKNOWN_ENTRY = 0;
+  TEXT_READING_SUW_VISION_SETTINGS = 1;
+  TEXT_READING_SUW_ANYTHING_ELSE = 2;
+  TEXT_READING_DISPLAY_SETTINGS = 3;
+  TEXT_READING_ACCESSIBILITY_SETTINGS = 4;
+}
+

@@ -1,0 +1,2 @@
+vendor.wifi.diagnostic.start                              u:object_r:vendor_wifi_diagnostic_prop:s0
+vendor.wifi.diagnostic.reassocBssid                       u:object_r:vendor_wifi_diagnostic_prop:s0

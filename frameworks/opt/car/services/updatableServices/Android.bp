@@ -1,0 +1,36 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "car-frameworks-updatable-service-sources",
+    srcs: [
+        "src/**/*.java",
+    ],
+    visibility: [
+        ":__subpackages__",
+    ],
+}
+
+java_library {
+    name: "car-frameworks-service-module",
+    installable: true,
+    libs: [
+            "android.car",
+            "android.car.builtin",
+            "car-frameworks-service",
+            "framework-annotations-lib",
+    ],
+    srcs: [
+        ":car-frameworks-updatable-service-sources",
+    ],
+
+    sdk_version: "module_current",
+    // TODO(b/288271411): enable it when car mainline module is supported
+    // min_sdk_version: "33",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework"
+    ],
+}
+

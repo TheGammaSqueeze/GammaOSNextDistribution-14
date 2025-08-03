@@ -1,0 +1,113 @@
+// Build the unit tests.
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+cc_test {
+    name: "libinput_tests",
+    cpp_std: "c++20",
+    host_supported: true,
+    srcs: [
+        "IdGenerator_test.cpp",
+        "InputChannel_test.cpp",
+        "InputDevice_test.cpp",
+        "InputEvent_test.cpp",
+        "InputPublisherAndConsumer_test.cpp",
+        "InputVerifier_test.cpp",
+        "MotionPredictor_test.cpp",
+        "MotionPredictorMetricsManager_test.cpp",
+        "RingBuffer_test.cpp",
+        "TfLiteMotionPredictor_test.cpp",
+        "TouchResampling_test.cpp",
+        "TouchVideoFrame_test.cpp",
+        "VelocityControl_test.cpp",
+        "VelocityTracker_test.cpp",
+        "VerifiedInputEvent_test.cpp",
+    ],
+    header_libs: [
+        "flatbuffer_headers",
+        "tensorflow_headers",
+    ],
+    static_libs: [
+        "libgmock",
+        "libgui_window_info_static",
+        "libinput",
+        "libkernelconfigs",
+        "libtflite_static",
+        "libui-types",
+        "libz", // needed by libkernelconfigs
+    ],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    sanitize: {
+        hwaddress: true,
+        undefined: true,
+        all_undefined: true,
+        diag: {
+            undefined: true,
+        },
+    },
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "liblog",
+        "libPlatformProperties",
+        "libtinyxml2",
+        "libutils",
+        "server_configurable_flags",
+    ],
+    data: [
+        "data/*",
+        ":motion_predictor_model",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    test_suites: ["device-tests"],
+    target: {
+        host: {
+            sanitize: {
+                address: true,
+            },
+        },
+        android: {
+            static_libs: [
+                // Stats logging library and its dependencies.
+                "libstatslog_libinput",
+                "libstatsbootstrap",
+                "android.os.statsbootstrap_aidl-cpp",
+            ],
+        },
+    },
+}
+
+// NOTE: This is a compile time test, and does not need to be
+// run. All assertions are static_asserts and will fail during
+// buildtime if something's wrong.
+cc_library_static {
+    name: "StructLayout_test",
+    srcs: ["StructLayout_test.cpp"],
+    compile_multilib: "both",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+    shared_libs: [
+        "libinput",
+        "libcutils",
+        "libutils",
+        "libbinder",
+        "libbase",
+    ],
+}

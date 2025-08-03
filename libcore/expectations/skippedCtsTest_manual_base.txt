@@ -1,0 +1,30 @@
+/*
+ * Manual entries for skippedCtsTest.txt.
+ * tools/non-cts-json-generator/update_skippedCtsTest.sh reads this file and merges the entries
+ * with the @NonCts tests into skippedCtsTest.txt.
+ * It's useful for tests deleted from aosp/main, but the test needs to be skipped on the older
+ * CTS branches, e.g. aosp/android12-tests-dev. skippedCtsTest.txt can later be sync-ed to those
+ * CTS branches.
+ */
+[
+  {
+     "bug": 310050493,
+     "description": "The test asserts buggy or non-breaking behaviors, but the behavior has been fixed in a new mainline module version.",
+     "name": "com.android.org.conscrypt.javax.crypto.CipherTest#test_PBKDF2WITHHMACSHA1_SKFactory_and_PBEAESCBC_Cipher_noIV"
+  },
+  {
+    "bug": 310050493,
+    "description": "The test asserts buggy or non-breaking behaviors, but the behavior has been fixed in a new mainline module version.",
+    "name": "com.android.org.conscrypt.NativeCryptoArgTest#evpMethods"
+  },
+  {
+    "bug": 316502724,
+    "description": "The test was removed and its no longer throws CME",
+    "name": "org.apache.harmony.tests.java.util.PriorityQueueTest#test_spliterator_CME"
+  },
+  {
+    "bug": 316502724,
+    "description": "SharedSecrets class is at different location in newer ART versions",
+    "name": "libcore.sun.misc.SharedSecretsTest#testGetJavaIOFileDescriptorAccess_notNull"
+  }
+]

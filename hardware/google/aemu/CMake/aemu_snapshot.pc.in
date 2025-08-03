@@ -1,0 +1,10 @@
+prefix="@CMAKE_INSTALL_PREFIX@"
+libdir="${prefix}/lib"
+includedir="${prefix}/include/aemu/snapshot"
+
+Name: @PROJECT_NAME@ snapshots
+Description: @CMAKE_PROJECT_DESCRIPTION@ snapshots
+Version: @VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@
+
+Libs: -L${libdir} -laemu-snapshot
+Cflags: -I${includedir}

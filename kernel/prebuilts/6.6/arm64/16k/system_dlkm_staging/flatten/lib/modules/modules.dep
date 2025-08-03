@@ -1,0 +1,66 @@
+/system/lib/modules/gzvm.ko:
+/system/lib/modules/kheaders.ko:
+/system/lib/modules/zsmalloc.ko:
+/system/lib/modules/libarc4.ko:
+/system/lib/modules/zram.ko: /system/lib/modules/zsmalloc.ko
+/system/lib/modules/macsec.ko:
+/system/lib/modules/mii.ko:
+/system/lib/modules/can-dev.ko:
+/system/lib/modules/vcan.ko: /system/lib/modules/can-dev.ko
+/system/lib/modules/slcan.ko: /system/lib/modules/can-dev.ko
+/system/lib/modules/ppp_generic.ko: /system/lib/modules/slhc.ko
+/system/lib/modules/bsd_comp.ko: /system/lib/modules/ppp_generic.ko /system/lib/modules/slhc.ko
+/system/lib/modules/ppp_deflate.ko: /system/lib/modules/ppp_generic.ko /system/lib/modules/slhc.ko
+/system/lib/modules/ppp_mppe.ko: /system/lib/modules/libarc4.ko /system/lib/modules/ppp_generic.ko /system/lib/modules/slhc.ko
+/system/lib/modules/pppox.ko: /system/lib/modules/ppp_generic.ko /system/lib/modules/slhc.ko
+/system/lib/modules/pptp.ko: /system/lib/modules/pppox.ko /system/lib/modules/ppp_generic.ko /system/lib/modules/slhc.ko
+/system/lib/modules/slhc.ko:
+/system/lib/modules/wwan.ko:
+/system/lib/modules/rtl8150.ko:
+/system/lib/modules/r8152.ko: /system/lib/modules/mii.ko
+/system/lib/modules/asix.ko: /system/lib/modules/usbnet.ko /system/lib/modules/mii.ko
+/system/lib/modules/ax88179_178a.ko: /system/lib/modules/usbnet.ko /system/lib/modules/mii.ko
+/system/lib/modules/cdc_ether.ko: /system/lib/modules/usbnet.ko /system/lib/modules/mii.ko
+/system/lib/modules/cdc_eem.ko: /system/lib/modules/usbnet.ko /system/lib/modules/mii.ko
+/system/lib/modules/usbnet.ko: /system/lib/modules/mii.ko
+/system/lib/modules/cdc_ncm.ko: /system/lib/modules/cdc_ether.ko /system/lib/modules/usbnet.ko /system/lib/modules/mii.ko
+/system/lib/modules/aqc111.ko: /system/lib/modules/usbnet.ko /system/lib/modules/mii.ko
+/system/lib/modules/r8153_ecm.ko: /system/lib/modules/r8152.ko /system/lib/modules/cdc_ether.ko /system/lib/modules/usbnet.ko /system/lib/modules/mii.ko
+/system/lib/modules/cdc-acm.ko:
+/system/lib/modules/usbserial.ko:
+/system/lib/modules/ftdi_sio.ko: /system/lib/modules/usbserial.ko
+/system/lib/modules/ptp.ko: /system/lib/modules/pps_core.ko
+/system/lib/modules/ptp_kvm.ko: /system/lib/modules/ptp.ko /system/lib/modules/pps_core.ko
+/system/lib/modules/pps_core.ko:
+/system/lib/modules/hci_uart.ko: /system/lib/modules/btqca.ko /system/lib/modules/btbcm.ko /system/lib/modules/bluetooth.ko /system/lib/modules/rfkill.ko
+/system/lib/modules/btsdio.ko: /system/lib/modules/bluetooth.ko /system/lib/modules/rfkill.ko
+/system/lib/modules/btbcm.ko: /system/lib/modules/bluetooth.ko /system/lib/modules/rfkill.ko
+/system/lib/modules/btqca.ko: /system/lib/modules/bluetooth.ko /system/lib/modules/rfkill.ko
+/system/lib/modules/8021q.ko:
+/system/lib/modules/cfg80211.ko: /system/lib/modules/rfkill.ko
+/system/lib/modules/can.ko:
+/system/lib/modules/can-raw.ko: /system/lib/modules/can.ko
+/system/lib/modules/can-bcm.ko: /system/lib/modules/can.ko
+/system/lib/modules/can-gw.ko: /system/lib/modules/can.ko
+/system/lib/modules/bluetooth.ko: /system/lib/modules/rfkill.ko
+/system/lib/modules/rfcomm.ko: /system/lib/modules/bluetooth.ko /system/lib/modules/rfkill.ko
+/system/lib/modules/hidp.ko: /system/lib/modules/bluetooth.ko /system/lib/modules/rfkill.ko
+/system/lib/modules/l2tp_core.ko:
+/system/lib/modules/l2tp_ppp.ko: /system/lib/modules/l2tp_core.ko /system/lib/modules/pppox.ko /system/lib/modules/ppp_generic.ko /system/lib/modules/slhc.ko
+/system/lib/modules/mac80211.ko: /system/lib/modules/cfg80211.ko /system/lib/modules/rfkill.ko /system/lib/modules/libarc4.ko
+/system/lib/modules/tipc.ko:
+/system/lib/modules/diag.ko: /system/lib/modules/tipc.ko
+/system/lib/modules/rfkill.ko:
+/system/lib/modules/6lowpan.ko:
+/system/lib/modules/nhc_dest.ko: /system/lib/modules/6lowpan.ko
+/system/lib/modules/nhc_fragment.ko: /system/lib/modules/6lowpan.ko
+/system/lib/modules/nhc_hop.ko: /system/lib/modules/6lowpan.ko
+/system/lib/modules/nhc_ipv6.ko: /system/lib/modules/6lowpan.ko
+/system/lib/modules/nhc_mobility.ko: /system/lib/modules/6lowpan.ko
+/system/lib/modules/nhc_routing.ko: /system/lib/modules/6lowpan.ko
+/system/lib/modules/nhc_udp.ko: /system/lib/modules/6lowpan.ko
+/system/lib/modules/ieee802154_6lowpan.ko: /system/lib/modules/ieee802154.ko /system/lib/modules/6lowpan.ko
+/system/lib/modules/ieee802154.ko:
+/system/lib/modules/ieee802154_socket.ko: /system/lib/modules/ieee802154.ko
+/system/lib/modules/mac802154.ko: /system/lib/modules/ieee802154.ko
+/system/lib/modules/nfc.ko: /system/lib/modules/rfkill.ko

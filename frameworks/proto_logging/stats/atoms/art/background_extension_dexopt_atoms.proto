@@ -1,0 +1,116 @@
+syntax = "proto2";
+
+package android.os.statsd.art;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/app/job/enums.proto";
+
+option java_package = "com.android.os.art";
+option java_multiple_files = true;
+
+extend Atom {
+    optional BackgroundDexoptJobEnded background_dexopt_job_ended = 467 [(module) = "art"];
+}
+
+/**
+ * Logs when a background dexopt job is ended.
+ *
+ * Logged from:
+ *   frameworks/base/services/core/java/com/android/server/pm/BackgroundDexOptService.java
+ */
+ message BackgroundDexoptJobEnded {
+    // Corresponds to `BackgroundDexOptService.Status`, except for
+    // `STATUS_JOB_FINISHED`.
+    enum Status {
+        STATUS_UNKNOWN = 0;
+
+        // The job has finished. This value is used even if some packages have
+        // failed compilation during the job. (Corresponds to either
+        // `BackgroundDexOptService.Status.STATUS_OK` or
+        // `BackgroundDexOptService.Status.STATUS_DEX_OPT_FAILED`.)
+        STATUS_JOB_FINISHED = 1;
+
+        // The job is aborted by the job scheduler. The reason is logged in
+        // `cancellation_reason`.
+        STATUS_ABORT_BY_CANCELLATION = 2;
+
+        // The job is aborted by itself because there is no space left. Note
+        // that this does NOT include cases where the job is aborted by the job
+        // scheduler due to no space left, which are logged as
+        // `STATUS_ABORT_BY_CANCELLATION` with `cancellation_reason` being
+        // `STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW`.
+        STATUS_ABORT_NO_SPACE_LEFT = 3;
+
+        // The job is aborted by itself because of thermal issues. Note that
+        // this does NOT include cases where the job is aborted by the job
+        // scheduler due to thermal issues, which are logged as
+        // `STATUS_ABORT_BY_CANCELLATION` with `cancellation_reason` being
+        // `STOP_REASON_DEVICE_STATE`.
+        //
+        // Only applies to the legacy dexopt job.
+        STATUS_ABORT_THERMAL = 4;
+
+        // The job is aborted by itself because of unsatisfied battery level.
+        // Note that this does NOT include cases where the job is aborted by the
+        // job scheduler due to unsatisfied battery level, which are logged as
+        // `STATUS_ABORT_BY_CANCELLATION` with `cancellation_reason` being
+        // `STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW`.
+        //
+        // Only applies to the legacy dexopt job.
+        STATUS_ABORT_BATTERY = 5;
+
+        // The job is aborted by the API
+        // `ArtManagerLocal.cancelBackgroundDexoptJob`.
+        //
+        // Only applies to the background dexopt job in ART Service.
+        STATUS_ABORT_BY_API = 6;
+
+        // The job encountered a fatal error, such as a runtime exception. Note
+        // that this does NOT include cases where the job finishes normally with
+        // some dexopt failures on some apps, which are expected and logged as
+        // `STATUS_JOB_FINISHED`.
+        STATUS_FATAL_ERROR = 7;
+    }
+
+    optional Status status = 1;
+
+    // If `status` is `STATUS_ABORT_BY_CANCELLATION`, the reason of the
+    // cancellation.
+    optional android.app.job.StopReasonEnum cancellation_reason = 2;
+
+    // The duration of the job run, in milliseconds.
+    optional int64 duration_ms = 3;
+
+    // The duration of the job run, in milliseconds, including time spent in
+    // sleep. Deprecated as the job scheduler holds a wake lock, hence this
+    // duration is always going to be the same as above.
+    optional int64 duration_including_sleep_ms = 4 [deprecated = true];
+
+    // The number of packages successfully optimized in this run.
+    optional int32 optimized_package_count = 5;
+    // The number of packages depending on the boot classpath.
+    optional int32 packages_depending_on_boot_classpath_count = 6;
+    // The total number of packages scanned in this run. This is usually the
+    // total number of packages on device, but may vary due to
+    // OEM customizations.
+    optional int32 total_package_count = 7;
+
+    // Background dexopt runs in multiple passes, each of which reports a
+    // separate atom. This enum indicates which pass this atom is about.
+    enum Pass {
+        PASS_UNKNOWN = 0;
+
+        // The downgrade pass, run before the main pass.
+        PASS_DOWNGRADE = 1;
+
+        // The main pass. This is converted to JOB_TYPE_INCREMENTAL_RUN or
+        // JOB_TYPE_FULL_RUN on Pitot.
+        PASS_MAIN = 2;
+
+        // The supplementary pass, run after the main pass.
+        PASS_SUPPLEMENTARY = 3;
+    }
+
+    optional Pass pass = 8;
+}

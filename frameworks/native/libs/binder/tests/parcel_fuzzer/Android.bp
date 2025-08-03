@@ -1,0 +1,165 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_native_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_native_license"],
+}
+
+aidl_interface {
+    name: "binderReadParcelIface",
+    host_supported: true,
+    unstable: true,
+    srcs: [
+        "parcelables/EmptyParcelable.aidl",
+        "parcelables/SingleDataParcelable.aidl",
+        "parcelables/GenericDataParcelable.aidl",
+    ],
+    flags: [
+        "-Werror",
+    ],
+    backend: {
+        java: {
+            enabled: true,
+            platform_apis: true,
+        },
+        rust: {
+            enabled: true,
+        },
+    },
+}
+
+cc_fuzz {
+    name: "binder_parcel_fuzzer",
+    host_supported: true,
+
+    fuzz_config: {
+        cc: [
+            "smoreland@google.com",
+            "waghpawan@google.com",
+        ],
+        use_for_presubmit: true,
+    },
+
+    srcs: [
+        "binder.cpp",
+        "binder_ndk.cpp",
+        "hwbinder.cpp",
+        "main.cpp",
+        "random_fd.cpp",
+        "random_parcel.cpp",
+    ],
+    static_libs: [
+        "libbase",
+        "libbinder_random_parcel",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "binderReadParcelIface-cpp",
+        "binderReadParcelIface-ndk",
+    ],
+
+    target: {
+        android: {
+            shared_libs: [
+                "libbinder_ndk",
+                "libbinder",
+                "libutils",
+            ],
+        },
+        host: {
+            static_libs: [
+                "libbinder_ndk",
+                "libbinder",
+                "libutils",
+            ],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+    // This flag enables verbose output in the fuzz target, and is very useful
+    // for debugging a failure. If you are trying to diagnose how a crash was
+    // produced, you may find uncommenting the below line very useful.
+    // cflags: ["-DENABLE_LOG_FUZZ"],
+}
+
+cc_library_static {
+    name: "libbinder_random_parcel",
+    host_supported: true,
+    vendor_available: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    srcs: [
+        "random_binder.cpp",
+        "random_fd.cpp",
+        "random_parcel.cpp",
+        "libbinder_driver.cpp",
+        "libbinder_ndk_driver.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libcutils",
+        "libutils",
+    ],
+    local_include_dirs: ["include_random_parcel"],
+    export_include_dirs: ["include_random_parcel"],
+}
+
+cc_library {
+    name: "libbinder_random_parcel_seeds",
+    host_supported: true,
+    vendor_available: true,
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    srcs: [
+        "random_parcel_seeds.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libcutils",
+        "libutils",
+    ],
+    static_libs: [
+        "libbinder_random_parcel",
+    ],
+    include_dirs: [
+        "bionic/libc/kernel/android/uapi/",
+        "bionic/libc/kernel/uapi/",
+    ],
+    local_include_dirs: [
+        "include_random_parcel_seeds",
+    ],
+    export_include_dirs: ["include_random_parcel_seeds"],
+}
+
+cc_binary_host {
+    name: "binder2corpus",
+    static_libs: [
+        "libbinder_random_parcel",
+        "libbinder_random_parcel_seeds",
+    ],
+    cflags: [
+        "-DBINDER_WITH_KERNEL_IPC",
+    ],
+    srcs: [
+        "binder2corpus/binder2corpus.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libutils",
+        "libcutils",
+    ],
+}

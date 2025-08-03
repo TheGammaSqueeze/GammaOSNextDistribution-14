@@ -1,0 +1,224 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.federatedcompute;
+
+option java_outer_classname = "FederatedComputeProtoEnums";
+option java_multiple_files = true;
+
+// Enum used to track federated computation job stages.
+// Next Tag: 49
+enum TrainingEventKind {
+  // Undefined value.
+  TRAIN_UNDEFINED = 0;
+
+  // Indicates that training was scheduled but did not start due to runtime
+  // checks (e.g. insufficient battery levels).
+  TRAIN_NOT_STARTED = 1;
+
+  // Client started downloading train phase info from the server
+  TRAIN_DOWNLOAD_STARTED = 2;
+
+  // Client is about to issue an eligibility eval checkin request to the
+  // server.
+  TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_STARTED = 3;
+
+  // Client received eligibility eval plan & checkpoint URIs from the server,
+  // but hasn't downloaded them yet. Also logged when the plan/checkpoint
+  // resources were actually supplied inline in the protocol response message
+  // and no actual HTTP fetch needs to happen anymore. This ensures that this
+  // event can always be compared against
+  // TRAIN_ELIGIBILITY_EVAL_PLAN_RECEIVED.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_PLAN_URI_RECEIVED = 4;
+
+  // Client received an eligibility eval plan from the server.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_PLAN_URI_RECEIVED.
+  TRAIN_ELIGIBILITY_EVAL_PLAN_RECEIVED = 5;
+
+  // Client was told by the server that there is no eligibility eval plan for
+  // the given population.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_NOT_CONFIGURED = 6;
+
+  // Client was rejected from an eligibility eval checkin request.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_TURNED_AWAY = 7;
+
+  // Client issued an eligibility eval checkin request, but an IO error was
+  // encountered.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_ERROR_IO = 8;
+
+  // Client issued an eligibility eval checkin request, but an invalid payload
+  // was received.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_ERROR_INVALID_PAYLOAD = 9;
+
+  // Client issued an eligibility eval checkin request, but got interrupted on
+  // the client. Always preceded by TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_CLIENT_INTERRUPTED = 10;
+
+  // Client issued an eligibility eval checkin request, but server aborted.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_DOWNLOAD_SERVER_ABORTED = 11;
+
+  // Client issued a regular checkin request, but got an IO error.
+  // Always preceded by TRAIN_DOWNLOAD_STARTED.
+  TRAIN_DOWNLOAD_ERROR_IO = 12;
+
+  // Client issued a regular checkin request, but the server returned an
+  // invalid payload.
+  // Always preceded by TRAIN_DOWNLOAD_STARTED.
+  TRAIN_DOWNLOAD_ERROR_INVALID_PAYLOAD = 13;
+
+  // Client issued a regular checin request, but got interrupted on the
+  // client. Always preceded by TRAIN_DOWNLOAD_STARTED.
+  TRAIN_DOWNLOAD_CLIENT_INTERRUPTED = 14;
+
+  // Client issued a regular checin request, but got aborted by the server.
+  // Always preceded by TRAIN_DOWNLOAD_STARTED.
+  TRAIN_DOWNLOAD_SERVER_ABORTED = 15;
+
+  // Client received plan and checkpoint URIs from the server, but hasn't
+  // actually downloaded them yet. Also logged when the plan/checkpoint
+  // resources were actually supplied inline in the protocol response message
+  // and no actual HTTP fetch needs to happen anymore. This ensures that this
+  // event can always be compared against TRAIN_DOWNLOAD_PLAN_RECEIVED.
+  // Always preceded by TRAIN_DOWNLOAD_STARTED.
+  TRAIN_DOWNLOAD_PLAN_URI_RECEIVED = 16;
+
+  // Client received a plan from the server.
+  // Always preceded by TRAIN_DOWNLOADED_PLAN_URI_RECEIVED.
+  TRAIN_DOWNLOAD_PLAN_RECEIVED = 17;
+
+  // Client was rejected from a checkin request.
+  // Always preceded by TRAIN_DOWNLOAD_STARTED.
+  TRAIN_DOWNLOAD_TURNED_AWAY = 18;
+
+  // Client started eligibility eval computation.
+  TRAIN_ELIGIBILITY_EVAL_COMPUTATION_STARTED = 19;
+
+  // Client encountered a TensorFlow error during eligibility eval task
+  // computation.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_COMPUTATION_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_COMPUTATION_ERROR_TENSORFLOW = 20;
+
+  // Reading from disk failed during eligibility eval task computation.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_COMPUTATION_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_COMPUTATION_ERROR_IO = 21;
+
+  // Input parameters are invalid for eligibility eval task computation.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_COMPUTATION_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_COMPUTATION_ERROR_INVALID_ARGUMENT = 22;
+
+  // Client encountered an example selector error during eligibility eval task
+  // computation.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_COMPUTATION_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_COMPUTATION_ERROR_EXAMPLE_ITERATOR = 23;
+
+  // Eligibility eval computation was interrupted by the client.
+  TRAIN_ELIGIBILITY_EVAL_COMPUTATION_CLIENT_INTERRUPTED = 24;
+
+  // Client finished eligibility eval computation.
+  // Always preceded by TRAIN_ELIGIBILITY_EVAL_COMPUTATION_STARTED.
+  TRAIN_ELIGIBILITY_EVAL_COMPUTATION_COMPLETED = 25;
+
+  // Client started computation.
+  TRAIN_COMPUTATION_STARTED = 26;
+
+  // A TensorFlow error was encountered during computation, or the output from
+  // the computation was missing or of an unexpected type. Always preceded by
+  // TRAIN_COMPUTATION_STARTED.
+  TRAIN_COMPUTATION_ERROR_TENSORFLOW = 27;
+
+  // Reading from disk failed during computation.
+  // Always preceded by TRAIN_COMPUTATION_STARTED.
+  TRAIN_COMPUTATION_ERROR_IO = 28;
+
+  // Input parameters are invalid for the given computation.
+  // Always preceded by TRAIN_COMPUTATION_STARTED.
+  TRAIN_COMPUTATION_ERROR_INVALID_ARGUMENT = 29;
+
+  // An error occurred when processing the example selector.
+  // Always preceded by TRAIN_COMPUTATION_STARTED.
+  TRAIN_COMPUTATION_ERROR_EXAMPLE_ITERATOR = 30;
+
+  // Client got interrupted during computation.
+  // Always preceded by TRAIN_COMPUTATION_STARTED.
+  TRAIN_COMPUTATION_CLIENT_INTERRUPTED = 31;
+
+  // Client finished computation.
+  // Always preceded by TRAIN_COMPUTATION_STARTED.
+  TRAIN_COMPUTATION_COMPLETED = 32;
+
+  // Client starts to upload successfully computed results.
+  TRAIN_RESULT_UPLOAD_STARTED = 33;
+
+  // An error occurred during upload.
+  // Always preceded by TRAIN_RESULT_UPLOAD_STARTED.
+  TRAIN_RESULT_UPLOAD_ERROR_IO = 34;
+
+  // Upload was interrupted by the client.
+  // Always preceded by TRAIN_RESULT_UPLOAD_STARTED.
+  TRAIN_RESULT_UPLOAD_CLIENT_INTERRUPTED = 35;
+
+  // Upload was aborted by the server.
+  // Always preceded by TRAIN_RESULT_UPLOAD_STARTED.
+  TRAIN_RESULT_UPLOAD_SERVER_ABORTED = 36;
+
+  // Client uploaded training results to the server
+  // Always preceded by TRAIN_RESULT_UPLOAD_STARTED.
+  TRAIN_RESULT_UPLOADED = 37;
+
+  // Client starts to upload failure report.
+  TRAIN_FAILURE_UPLOAD_STARTED = 38;
+
+  // An error occurred during upload.
+  // Always preceded by TRAIN_FAILURE_UPLOAD_STARTED.
+  TRAIN_FAILURE_UPLOAD_ERROR_IO = 39;
+
+  // Upload was interrupted.
+  // Always preceded by TRAIN_FAILURE_UPLOAD_STARTED.
+  TRAIN_FAILURE_UPLOAD_CLIENT_INTERRUPTED = 40;
+
+  // Upload was interrupted.
+  // Always preceded by TRAIN_FAILURE_UPLOAD_STARTED.
+  TRAIN_FAILURE_UPLOAD_SERVER_ABORTED = 41;
+
+  // Client uploaded failure report to the server
+  // Always preceded by TRAIN_FAILURE_UPLOAD_STARTED.
+  TRAIN_FAILURE_UPLOADED = 42;
+
+  // Client failed to initialize a component, but execution was not halted.
+  TRAIN_INITIALIZATION_ERROR_NONFATAL = 43;
+
+  // Client failed to initialize a component, and execution was halted.
+  TRAIN_INITIALIZATION_ERROR_FATAL = 44;
+
+  // Client receives http status = 403 UNAUTHORIZED when creating task assignment.
+  TRAIN_TASK_ASSIGNMENT_UNAUTHORIZED= 45;
+
+  // Client is authorized to create task assignment.
+  TRAIN_TASK_ASSIGNMENT_AUTH_SUCCEEDED = 46;
+
+  // Client receives http status = 403 UNAUTHORIZED when reporting result.
+  TRAIN_REPORT_RESULT_UNAUTHORIZED= 47;
+
+  // Client is authorized to report result.
+  TRAIN_INITIATE_REPORT_RESULT_AUTH_SUCCEEDED = 48;
+}

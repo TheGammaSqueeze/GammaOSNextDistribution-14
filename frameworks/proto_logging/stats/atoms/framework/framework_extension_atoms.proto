@@ -1,0 +1,446 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.framework;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/hardware/biometrics/enums.proto";
+
+option java_package = "com.android.os.framework";
+
+extend Atom {
+    optional FullScreenIntentLaunched full_screen_intent_launched = 631 [(module) = "framework"];
+    optional BalAllowed bal_allowed = 632 [(module) = "framework"];
+    optional InTaskActivityStarted in_task_activity_started = 685 [(module) = "framework"];
+    optional CachedAppsHighWaterMark cached_apps_high_watermark = 10189 [(module) = "framework"];
+    optional StylusPredictionMetricsReported stylus_prediction_metrics_reported = 718 [(module) = "libinput"];
+    optional UserRiskEventReported user_risk_event_reported = 725 [(module) = "framework"];
+    optional MediaProjectionStateChanged media_projection_state_changed = 729 [(module) = "framework"];
+    optional MediaProjectionTargetChanged media_projection_target_changed = 730 [(module) = "framework"];
+    optional ProxyBytesTransferByFgBg proxy_bytes_transfer_by_fg_bg = 10200 [(module) = "framework"];
+    optional MobileBytesTransferByProcState mobile_bytes_transfer_by_proc_state = 10204
+            [(module) = "framework", (truncate_timestamp) = true];
+    optional BiometricFRRNotification biometric_frr_notification = 817 [(module) = "framework"];
+
+}
+
+/**
+ * Logs when a full screen intent is launched.
+ *
+ * Logged from:
+ *   frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarNotificationActivityStarter.java
+ */
+message FullScreenIntentLaunched {
+    optional int32 creator_uid = 1 [(is_uid) = true];
+    optional string activity = 2;
+}
+
+message BalAllowed {
+    optional string target_activity = 1;
+    optional Status allowed_reason = 2;
+
+    optional int32 calling_uid = 3 [(is_uid) = true];
+    optional int32 real_calling_uid = 4 [(is_uid) = true];
+
+    // caller and real caller details are only provided if available.
+    optional Status caller_allowed_reason = 5;
+    optional bool caller_opt_in = 6;
+    optional bool caller_opt_in_explicit = 7;
+
+    optional Status real_caller_allowed_reason = 8;
+    optional bool real_caller_opt_in = 9;
+    optional bool real_caller_opt_in_explicit = 10;
+
+    enum Status {
+        BAL_STATUS_UNKNOWN = 0;
+        BAL_ALLOW_DEFAULT = 1;
+        BAL_ALLOW_ALLOWLISTED_UID = 2;
+        BAL_ALLOW_ALLOWLISTED_COMPONENT = 3;
+        BAL_ALLOW_VISIBLE_WINDOW = 4;
+        BAL_ALLOW_PENDING_INTENT = 5;
+        BAL_ALLOW_BAL_PERMISSION = 6;
+        BAL_ALLOW_SAW_PERMISSION = 7;
+        BAL_ALLOW_GRACE_PERIOD = 8;
+        BAL_ALLOW_FOREGROUND = 9;
+        BAL_ALLOW_SDK_SANDBOX = 10;
+        BAL_ALLOW_NON_APP_VISIBLE_WINDOW = 11;
+    }
+
+}
+
+/**
+ * Logs when an activity is started in a task with existing visible activities.
+ *
+ * Logged from: com.android.server.wm.ActivityMetricsLogger
+ */
+message InTaskActivityStarted {
+    // The uid of the started activity.
+    optional int32 uid = 1 [(is_uid) = true];
+
+    enum TransitionType {
+        UNKNOWN = 0;
+        WARM = 1;
+        HOT = 2;
+        COLD = 3;
+        RELAUNCH = 4;
+    }
+    optional TransitionType type = 2;
+
+    // Whether the activity is opaque or translucent.
+    optional bool is_opaque = 3;
+
+    // The delay to start transition.
+    optional int32 transition_delay_millis = 4;
+
+    // How long the activity took to be drawn.
+    optional int32 windows_drawn_delay_millis = 5;
+
+    // The timestamp(SystemClock#elapsedRealtime()) when starting activity.
+    optional int64 activity_start_timestamp_millis = 6;
+}
+
+/**
+ * Logs the cached apps high water mark.
+ */
+message CachedAppsHighWaterMark {
+  // The high water mark of the number of cached apps.
+  optional int32 cached_app_high_watermark = 1;
+
+  // The uptime (in seconds) at the high watermark.
+  // Note this is going to be pull metrics, so we'll need the timestamp here.
+  optional int32 uptime_in_seconds = 2;
+
+  // The number of binder proxy at that high water mark.
+  optional int32 binder_proxy_snapshot = 3;
+
+  // Free physical memory (in kb) on device.
+  optional int32 free_in_kb = 4;
+
+  // Cched physical memory (in kb) on device.
+  optional int32 cached_in_kb = 5;
+
+  // zram (in kb) on device.
+  optional int32 zram_in_kb = 6;
+
+  // Kernel memory (in kb) on device.
+  optional int32 kernel_in_kb = 7;
+
+  // The number of apps in frozen state.
+  optional int32 num_frozen_apps = 8;
+
+  // The longest frozen time (now - last_frozen) in current frozen apps.
+  optional int32 longest_frozen_time_in_seconds = 9;
+
+  // The shortest frozen time (now - last_frozen) in current frozen apps.
+  optional int32 shortest_frozen_time_in_seconds = 10;
+
+  // The mean frozen time (now - last_frozen) in current frozen apps.
+  optional int32 mean_frozen_time_in_seconds = 11;
+
+  // The average frozen time (now - last_frozen) in current frozen apps.
+  optional int32 average_frozen_time_in_seconds = 12;
+}
+
+/**
+ * [Pushed] Log stylus prediction error metrics (go/stylus-prediction-metrics).
+ * Logged once for each time bucket per touch event.
+ *
+ * Logged from: frameworks/native/libs/input/MotionPredictorMetricsManager.cpp.
+ */
+message StylusPredictionMetricsReported {
+    // Allow data to be sliced by stylus hardware information.
+    optional int32 stylus_vendor_id = 1;
+    optional int32 stylus_product_id = 2;
+
+    // Allow data to be sliced by time bucket.
+    optional int32 delta_time_bucket_milliseconds = 3;
+
+    // General errors.
+    optional int32 along_trajectory_error_mean_millipixels = 4;
+
+    // Standard deviation of the along-trajectory error.
+    optional int32 along_trajectory_error_std_millipixels = 5;
+
+    optional int32 off_trajectory_rmse_millipixels = 6;
+
+    optional int32 pressure_rmse_milliunits = 7;
+
+    // High-velocity errors.
+    optional int32 high_velocity_along_trajectory_rmse_millipixels = 8;
+
+    optional int32 high_velocity_off_trajectory_rmse_millipixels = 9;
+
+    // Scale-invariant errors.
+    optional int32 scale_invariant_along_trajectory_rmse_millipixels = 10;
+
+    optional int32 scale_invariant_off_trajectory_rmse_millipixels = 11;
+}
+
+/**
+ * Logs user risk events sent to UserRiskManager
+ */
+message UserRiskEventReported {
+  optional EventType event_type = 1;
+
+  // Call Details
+
+  // time that an active call was connected (picked up), -1 if a call is not active
+  optional int64 call_connected_timestamp_millis = 2;
+  optional CallDirection call_direction = 3;
+  optional NumberVerificationStatus call_number_verification_status = 4;
+  // time of the last update to the contact associated with the call, -1 if there is no contact
+  optional int64 call_contact_last_updated_timestamp_millis = 5;
+  optional int32 call_log_previous_incoming_count = 6;
+  optional int32 call_log_previous_outgoing_count = 7;
+
+  // Media Projection Details
+
+  // time of MP start, -1 if MP is not active
+  optional int64 mp_start_timestamp_millis = 8;
+  optional int32 mp_app_uid = 9 [(is_uid) = true];
+  optional int32 mp_installing_app_uid = 10 [(is_uid) = true];
+  // time that the MP app was installed
+  optional int64 mp_app_first_install_timestamp_millis = 11;
+
+  // A11y details
+
+  // time of A11y grant, -1 if not granted
+  optional int64 a11y_capability_granted_timestamp_millis = 12;
+  optional int32 a11y_app_uid = 13 [(is_uid) = true];
+  optional int32 a11y_installing_app_uid = 14 [(is_uid) = true];
+  // time that the A11y app was installed
+  optional int64 a11y_app_first_install_timestamp_mills = 15;
+
+  enum EventType {
+    UNKNOWN = 0;
+    A11Y_CONSENT_DIALOG_SHOWN = 1;
+    A11Y_GRANTED = 2;
+    A11Y_DENIED = 3;
+    A11Y_APP_UNINSTALLED = 4;
+    MEDIA_PROJECTION_CONSENT_DIALOG_SHOWN = 5;
+    MEDIA_PROJECTION_GRANTED = 6;
+    MEDIA_PROJECTION_DENIED = 7;
+    MEDIA_PROJECTION_STARTED = 8;
+    ACTIVE_CALL_STARTED = 9;
+    ACTIVE_CALL_CHANGED = 10;
+    ACTIVE_CALL_ENDED = 11;
+  }
+
+  enum CallDirection {
+    UNKNOWN_DIRECTION = 0;
+    INCOMING = 1;
+    OUTGOING = 2;
+  }
+
+  enum NumberVerificationStatus {
+    UNKNOWN_STATUS = 0;
+    NOT_VERIFIED = 1;
+    PASSED = 2;
+    FAILED = 3;
+  }
+}
+
+/**
+ * Logs when MediaProjection goes through state changes.
+ *
+ * MediaProjection API allows apps to capture the contents of a display
+ * or a single app.
+ *
+ * Logged from:
+ * frameworks/base/services/core/java/com/android/server/media/projection/MediaProjectionMetricsLogger.java
+ */
+message MediaProjectionStateChanged {
+  // Unique session identifier, to identify which events belong to which session.
+  // An incrementing integer that persists across device reboots.
+  optional int32 session_id = 1 [(state_field_option).primary_field = true];
+
+  // The current state that is entered.
+  optional MediaProjectionState state = 2 [
+    (state_field_option).exclusive_state = true,
+    (state_field_option).nested = false
+  ];
+
+  // Previous state.
+  optional MediaProjectionState previous_state = 3;
+
+  // UID of the package that initiates MediaProjection.
+  // -2 - if can't report (e.g. side loaded app)
+  optional int32 host_uid = 4 [(is_uid) = true];
+
+  // UID of the package that is captured if selected.
+  // -1 - full screen sharing (app is not selected)
+  // -2 - can't report (e.g. side loaded app)
+  optional int32 target_uid = 5 [(is_uid) = true];
+
+  // Time since last active session ended in seconds. May not be set if there
+  // was no known last session. Only set when in state MEDIA_PROJECTION_STATE_INITIATED.
+  optional int32 time_since_last_active_session_seconds = 6;
+
+  // Where this session started.
+  // Only present when in state MEDIA_PROJECTION_STATE_INITIATED.
+  optional SessionCreationSource creation_source = 7;
+
+  // Possible states for a MediaProjection session.
+  enum MediaProjectionState {
+    MEDIA_PROJECTION_STATE_UNKNOWN = 0;
+    // Media projection session first initiated by the app requesting the
+    // user's consent to capture.
+    // Should be sent even if the permission dialog is not shown.
+    MEDIA_PROJECTION_STATE_INITIATED = 1;
+    // The user entered the setup flow and permission dialog is displayed.
+    // This state is not sent when the permission is already granted and
+    // we skipped showing the permission dialog.
+    MEDIA_PROJECTION_STATE_PERMISSION_REQUEST_DISPLAYED = 2;
+    // The app selector dialog is shown for the user.
+    MEDIA_PROJECTION_STATE_APP_SELECTOR_DISPLAYED = 3;
+    // The VirtualDisplay is created and capturing the selected region begins.
+    MEDIA_PROJECTION_STATE_CAPTURING_IN_PROGRESS = 4;
+    // The capturing is paused.
+    MEDIA_PROJECTION_STATE_CAPTURING_PAUSED = 5;
+    // The capturing has resumed after being in paused state.
+    MEDIA_PROJECTION_STATE_CAPTURING_IN_PROGRESS_RESUMED = 6;
+    // Capturing stopped, either normally or because of error.
+    MEDIA_PROJECTION_STATE_STOPPED = 7;
+    // Media projection setup cancelled, user dismissed the dialog
+    MEDIA_PROJECTION_STATE_CANCELLED = 8;
+  }
+
+  // The possible entry points for the session.
+  enum SessionCreationSource {
+    CREATION_SOURCE_UNKNOWN = 0;
+    // Created through public MediaProjection API, used by 1P/3P apps.
+    CREATION_SOURCE_APP = 1;
+    // Created using a SystemUI screen recorder, accessible from screen
+    // recorder quick settings tile.
+    CREATION_SOURCE_SYSTEM_UI_SCREEN_RECORDER = 2;
+    // Created through Cast SDK, e.g. screencast quick settings tile.
+    CREATION_SOURCE_CAST = 3;
+  }
+}
+
+/**
+ * Logs when the region captured in the MediaProjection session changes.
+ *
+ * This may be due to a the user changing the region, or the captured app changing
+ * windowing mode.
+ *
+ * It should be reported only after a MediaProjection session enters
+ * MEDIA_PROJECTION_STATE_CAPTURING_IN_PROGRESS state.
+ *
+ * Logged from:
+ * frameworks/base/services/core/java/com/android/server/media/projection/MediaProjectionMetricsLogger.java
+ */
+message MediaProjectionTargetChanged {
+  // Unique session identifier, to identify which events belong to which session.
+  // An incrementing integer that persists across device reboots.
+  optional int32 session_id = 1 [(state_field_option).primary_field = true];
+
+  // The area that is being captured.
+  optional TargetType target_type = 2;
+
+  // UID of the package that initiates MediaProjection.
+  // -2 - can't report (e.g. side loaded app)
+  optional int32 host_uid = 3 [(is_uid) = true];
+
+  // UID of the package that is captured by MediaProjection.
+  // Not filled if not known, for example if the user chose
+  // display capture.
+  // -2 - can't report (e.g. side loaded app)
+  optional int32 target_uid = 4 [(is_uid) = true];
+
+  // The current windowing mode of the target app.
+  optional WindowingMode target_windowing_mode = 5 [
+    (state_field_option).exclusive_state = true,
+    (state_field_option).nested = false
+  ];
+
+  // Enum that represents the type of area that is being captured.
+  enum TargetType {
+    TARGET_TYPE_UNKNOWN = 0;
+    // Capturing a single display.
+    TARGET_TYPE_DISPLAY = 1;
+    // Capturing one task of an app.
+    TARGET_TYPE_APP_TASK = 2;
+  }
+
+  // Windowing mode of the captured task, if the user chose to capture
+  // a single app instance.
+  enum WindowingMode {
+    WINDOWING_MODE_UNKNOWN = 0;
+    // The app is not visible (e.g. another app is in full-screen foreground)
+    WINDOWING_MODE_HIDDEN = 1;
+    // The app is in fullscreen mode.
+    WINDOWING_MODE_FULLSCREEN = 2;
+    // The app is in a split screen.
+    WINDOWING_MODE_SPLIT_SCREEN = 3;
+    // The app is in freeform mode
+    WINDOWING_MODE_FREEFORM = 4;
+  }
+}
+
+/**
+ * Pulls bytes transferred via network with TYPE_PROXY from NetworkStats. Each pull produces atoms
+ * that record stats of all processes that used sysproxy since device boot.
+ * Network with TYPE_PROXY is used on Wear OS to enable internet access via Bluetooth when the
+ * companion phone is connected to the watch.
+ */
+message ProxyBytesTransferByFgBg {
+  optional int32 uid = 1 [(is_uid) = true];
+
+  optional bool is_foreground = 2;
+
+  optional int64 rx_bytes = 3;
+
+  optional int64 rx_packets = 4;
+
+  optional int64 tx_bytes = 5;
+
+  optional int64 tx_packets = 6;
+}
+
+/**
+ * Pulls bytes transferred via mobile networks (separated by proc state).
+ *
+ * Pulled from:
+ *   StatsCompanionService (using BatteryStats to get which interfaces are mobile data)
+ */
+ message MobileBytesTransferByProcState {
+    optional int32 uid = 1 [(is_uid) = true];
+
+    optional int32 proc_state = 2;
+
+    optional int64 rx_bytes = 3;
+
+    optional int64 rx_packets = 4;
+
+    optional int64 tx_bytes = 5;
+
+    optional int64 tx_packets = 6;
+}
+
+/**
+ * Logs when an FRR notification action has been presented to the user.
+ *
+ * Logged from:
+ *   frameworks/base/services/core/java/com/android/server/biometrics
+ */
+message BiometricFRRNotification {
+    optional android.hardware.biometrics.FRRNotificationAction action = 1;
+    optional android.hardware.biometrics.ModalityEnum modality = 2;
+}

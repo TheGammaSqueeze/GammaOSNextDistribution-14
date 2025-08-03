@@ -1,0 +1,55 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+// Run with `atest --host GfxstreamEnd2EndTests`
+cc_test_host {
+    name: "GfxstreamEnd2EndTests",
+    defaults: ["gfxstream_cc_defaults"],
+    srcs: [
+        "GfxstreamEnd2EndTests.cpp",
+        "GfxstreamEnd2EndGlTests.cpp",
+        "GfxstreamEnd2EndVkTests.cpp",
+        "GfxstreamEnd2EndVkSnapshotBasicTests.cpp",
+        "GfxstreamEnd2EndVkSnapshotImageTests.cpp",
+    ],
+    header_libs: [
+        "gfxstream_headers",
+    ],
+    data_libs: [
+        "libGLESv1_CM_emulation_with_host",
+        "libGLESv2_emulation_with_host",
+        "libEGL_emulation_with_host",
+        "libgfxstream_guest_vulkan_with_host",
+        "libgfxstream_platform_rutabaga_server",
+    ],
+    shared_libs: [
+        "libandroidemu",
+        "libOpenglSystemCommonWithHost",
+        "libbase",
+        "liblog",
+        "libgfxstream_platform_rutabaga_server",
+    ],
+    static_libs: [
+        "libc++fs",
+        "libgfxstream_guest_android_with_host",
+        "libgmock",
+        "libgfxstream_platform_rutabaga",
+    ],
+    cflags: [
+        // TODO: remove
+        "-DVK_USE_PLATFORM_ANDROID_KHR",
+        "-Wno-macro-redefined",
+        "-Wno-unused-parameter",
+        "-Wno-extern-c-compat",
+    ],
+    test_options: {
+        // Disabled by default as requires host OpenGL and Vulkan.
+        unit_test: false,
+    },
+    test_suites: [
+        "general-tests",
+    ],
+    compile_multilib: "64",
+}

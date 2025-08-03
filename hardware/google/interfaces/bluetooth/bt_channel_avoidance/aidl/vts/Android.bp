@@ -1,0 +1,28 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_test {
+    name: "VtsHalBTChannelAvoidanceTargetTest",
+    defaults: [
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    srcs: ["VtsHalBTChannelAvoidanceTargetTest.cpp"],
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "libbinder_ndk",
+        "liblog",
+        "libutils",
+        "//hardware/google/interfaces:hardware.google.bluetooth.bt_channel_avoidance-V1-ndk",
+    ],
+    static_libs: [
+        "libbluetooth-types",
+    ],
+    test_config: "VtsHalBTChannelAvoidanceTargetTest.xml",
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+}

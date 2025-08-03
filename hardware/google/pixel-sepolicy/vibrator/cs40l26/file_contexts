@@ -1,0 +1,8 @@
+/vendor/bin/hw/android\.hardware\.vibrator-service\.cs40l26        u:object_r:hal_vibrator_default_exec:s0
+/vendor/bin/hw/android\.hardware\.vibrator-service\.cs40l26-dual   u:object_r:hal_vibrator_default_exec:s0
+
+/dev/snd/pcmC0D24p                      u:object_r:vibrator_snd_device:s0
+/dev/snd/pcmC1D24p                      u:object_r:vibrator_snd_device:s0
+
+/sys/module/cs40l26_core/version        u:object_r:sysfs_vibrator:s0
+/sys/module/cl_dsp_core/version         u:object_r:sysfs_vibrator:s0

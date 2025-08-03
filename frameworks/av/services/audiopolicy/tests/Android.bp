@@ -1,0 +1,110 @@
+package {
+    default_team: "trendy_team_android_media_audio_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_test {
+    name: "audiopolicy_tests",
+
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_static",
+    ],
+
+    include_dirs: [
+        "frameworks/av/services/audiopolicy",
+    ],
+
+    shared_libs: [
+        "framework-permission-aidl-cpp",
+        "libaudioclient",
+        "libaudiofoundation",
+        "libaudiopolicy",
+        "libaudiopolicymanagerdefault",
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libmedia_helper",
+        "libutils",
+        "libcutils",
+        "libxml2",
+        "server_configurable_flags",
+    ],
+
+    static_libs: [
+        "android.media.audiopolicy-aconfig-cc",
+        "audioclient-types-aidl-cpp",
+        "libaudiopolicycomponents",
+        "libflagtest",
+        "libgmock",
+    ],
+
+    header_libs: [
+        "libaudiopolicycommon",
+        "libaudiopolicyengine_interface_headers",
+        "libaudiopolicymanager_interface_headers",
+    ],
+
+    srcs: ["audiopolicymanager_tests.cpp"],
+
+    data: [":audiopolicytest_configuration_files"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    test_suites: [
+        "device-tests",
+        "automotive-tests",
+    ],
+
+}
+
+cc_test {
+    name: "audio_health_tests",
+
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_shared",
+    ],
+
+    require_root: true,
+
+    shared_libs: [
+        "audioclient-types-aidl-cpp",
+        "libaudioclient",
+        "libaudioclient_aidl_conversion",
+        "libaudiofoundation",
+        "libaudiopolicycomponents",
+        "libaudiopolicymanagerdefault",
+        "libcutils",
+        "liblog",
+        "libmedia_helper",
+        "libshmemcompat",
+        "libshmemutil",
+        "libstagefright_foundation",
+        "libutils",
+        "libxml2",
+    ],
+
+    header_libs: [
+        "libaudiopolicyengine_interface_headers",
+        "libaudiopolicymanager_interface_headers",
+    ],
+
+    srcs: ["audio_health_tests.cpp"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    test_suites: ["device-tests"],
+
+}

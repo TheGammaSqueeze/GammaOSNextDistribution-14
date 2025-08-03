@@ -1,0 +1,2 @@
+genfscon debugfs /page_owner                          u:object_r:debugfs_page_owner:s0
+genfscon sysfs /kernel/fastrpc/total_dma_kb            u:object_r:sysfs_fastrpc:s0

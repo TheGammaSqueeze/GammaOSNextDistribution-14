@@ -1,0 +1,1 @@
+BOARD_KERNEL_VERSION := 6.6.15-android15-0-gfbb9dbf62c4a-ab11424760

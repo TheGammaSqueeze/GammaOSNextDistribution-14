@@ -1,0 +1,30 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "telephony-common-testing",
+
+    srcs: ["**/*.java"],
+
+    libs: [
+        "telephony-common",
+    ],
+
+    static_libs: [
+        "androidx.annotation_annotation",
+        "guava",
+        "junit",
+        "mockito-target-minus-junit4",
+        "truth",
+    ],
+
+    sdk_version: "test_current",
+
+    visibility: [
+        "//cts/tests/tests/simphonebookprovider",
+        "//cts/tests/tests/simphonebookprovider/nosim",
+        "//frameworks/opt/telephony/tests",
+        "//packages/services/Telephony/tests",
+    ],
+}

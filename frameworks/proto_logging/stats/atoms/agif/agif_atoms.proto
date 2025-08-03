@@ -1,0 +1,121 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.agif;
+
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+import "frameworks/proto_logging/stats/enums/app/enums.proto";
+
+option java_package = "com.android.os.agif";
+option java_multiple_files = true;
+
+/**
+ * Logs information related to Android Game Intervention Framework (AGIF).
+ */
+
+/*
+ * Logs changes to game mode.
+ *  Logged from:
+ *   frameworks/base/services/core/java/com/android/server/app/GameManagerService.java
+ */
+message GameModeChanged {
+  // UID of the game package.
+  optional int32 game_uid = 1 [(is_uid) = true];
+
+  // UID the caller package who made the game mode change.
+  optional int32 caller_uid = 2 [(is_uid) = true];
+
+  // Game mode previously set to.
+  optional android.app.GameMode game_mode_from = 3;
+
+  // Game mode currently set to.
+  optional android.app.GameMode game_mode_to = 4;
+}
+
+/*
+ * Logs changes to game mode configuration.
+ *  Logged from:
+ *   frameworks/base/services/core/java/com/android/server/app/GameManagerService.java
+ */
+message GameModeConfigurationChanged {
+  // UID of the game package.
+  optional int32 game_uid = 1 [(is_uid) = true];
+
+  // UID the caller package who made the game mode config change.
+  optional int32 caller_uid = 2 [(is_uid) = true];
+
+  // Game mode of the configuration.
+  optional android.app.GameMode game_mode = 3;
+
+  // Scaling factor previously set for this game mode.
+  optional float scaling_factor_from = 4;
+
+  // Scaling factor currently set to for this game mode.
+  optional float scaling_factor_to = 5;
+
+  // FPS override previously set for this game mode.
+  optional int32 fps_override_from = 6;
+
+  // FPS override currently set for this game mode.
+  optional int32 fps_override_to = 7;
+}
+
+/*
+ * Logs the current available game modes' information for a game.
+ *  Logged from:
+ *   frameworks/base/services/core/java/com/android/server/app/GameManagerService.java
+ */
+message GameModeInfo {
+  // UID of the game package.
+  optional int32 game_uid = 1 [(is_uid) = true];
+
+  // Game modes currently overridden by the game.
+  repeated android.app.GameMode overridden_game_modes = 2;
+
+  // Game modes available to user for the game.
+  repeated android.app.GameMode available_game_modes = 3;
+}
+
+/*
+ * Logs the current game mode configuration for a game's specific game mode.
+ *  Logged from:
+ *   frameworks/base/services/core/java/com/android/server/app/GameManagerService.java
+ */
+message GameModeConfiguration {
+  // UID of the game package.
+  optional int32 game_uid = 1 [(is_uid) = true];
+
+  // Game mode of the configuration.
+  optional android.app.GameMode game_mode = 2;
+
+  // FPS override previously set for this game mode.
+  optional int32 fps_override = 3;
+
+  // Scaling factor currently set to for this game mode.
+  optional float scaling_factor = 4;
+}
+
+/*
+ * Logs the current registered game mode listener information.
+ *  Logged from:
+ *   frameworks/base/services/core/java/com/android/server/app/GameManagerService.java
+ */
+message GameModeListener {
+  // Number of listeners currently registered in GameManagerService.
+  optional int32 count = 1;
+}

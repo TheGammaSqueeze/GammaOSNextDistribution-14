@@ -1,0 +1,127 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+filegroup {
+    name: "resourcemanager_aidl",
+    srcs: [
+        "aidl/android/media/IResourceManagerClient.aidl",
+        "aidl/android/media/IResourceManagerService.aidl",
+        "aidl/android/media/MediaResourceType.aidl",
+        "aidl/android/media/MediaResourceSubType.aidl",
+        "aidl/android/media/MediaResourceParcel.aidl",
+        "aidl/android/media/MediaResourcePolicyParcel.aidl",
+        "aidl/android/media/ClientInfoParcel.aidl",
+        "aidl/android/media/ClientConfigParcel.aidl",
+    ],
+    path: "aidl",
+}
+
+filegroup {
+    name: "resourceobserver_aidl",
+    srcs: [
+        "aidl/android/media/IResourceObserver.aidl",
+        "aidl/android/media/IResourceObserverService.aidl",
+        "aidl/android/media/MediaObservableEvent.aidl",
+        "aidl/android/media/MediaObservableFilter.aidl",
+        "aidl/android/media/MediaObservableType.aidl",
+        "aidl/android/media/MediaObservableParcel.aidl",
+    ],
+    path: "aidl",
+}
+
+aidl_interface {
+    name: "resourcemanager_aidl_interface",
+    unstable: true,
+    local_include_dir: "aidl",
+    srcs: [
+        ":resourcemanager_aidl",
+    ],
+}
+
+aidl_interface {
+    name: "resourceobserver_aidl_interface",
+    local_include_dir: "aidl",
+    srcs: [
+        ":resourceobserver_aidl",
+    ],
+    backend: {
+        java: {
+            enabled: false,
+        },
+        cpp: {
+            enabled: false,
+        },
+        ndk: {
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.media",
+                "test_com.android.media",
+            ],
+            min_sdk_version: "29",
+            enabled: true,
+        },
+    },
+    versions: ["1"],
+}
+
+cc_library {
+    name: "libresourcemanagerservice",
+
+    srcs: [
+        "ClientImportanceReclaimPolicy.cpp",
+        "DefaultResourceModel.cpp",
+        "ProcessPriorityReclaimPolicy.cpp",
+        "ResourceManagerMetrics.cpp",
+        "ResourceManagerService.cpp",
+        "ResourceManagerServiceNew.cpp",
+        "ResourceObserverService.cpp",
+        "ResourceManagerServiceUtils.cpp",
+        "ResourceTracker.cpp",
+        "ServiceLog.cpp",
+        "UidObserver.cpp",
+
+        // TODO: convert to AIDL?
+        "IMediaResourceMonitor.cpp",
+    ],
+
+    shared_libs: [
+        "libmedia",
+        "libmediautils",
+        "libbinder",
+        "libbinder_ndk",
+        "libutils",
+        "liblog",
+        "libstats_media_metrics",
+        "libstatspull",
+        "libstatssocket",
+        "libprotobuf-cpp-lite",
+        "libactivitymanager_aidl",
+        "aconfig_mediacodec_flags_c_lib",
+    ],
+
+    static_libs: [
+        "resourceobserver_aidl_interface-V1-ndk",
+        "libplatformprotos",
+    ],
+
+    include_dirs: ["frameworks/av/include"],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    export_include_dirs: ["."],
+
+    export_shared_lib_headers: [
+        "libstats_media_metrics",
+        "libstatspull",
+        "libstatssocket",
+    ],
+}

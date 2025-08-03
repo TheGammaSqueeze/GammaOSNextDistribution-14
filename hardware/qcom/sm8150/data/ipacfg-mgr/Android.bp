@@ -1,0 +1,21 @@
+soong_namespace {
+}
+
+package {
+    default_applicable_licenses: [
+        "hardware_qcom_sm8150_data_ipacfg-mgr_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// http://go/android-license-faq
+license {
+    name: "hardware_qcom_sm8150_data_ipacfg-mgr_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}

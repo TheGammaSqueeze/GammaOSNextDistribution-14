@@ -1,0 +1,1 @@
+genfscon sysfs /bus/iio/devices                       u:object_r:sysfs_iio_devices:s0

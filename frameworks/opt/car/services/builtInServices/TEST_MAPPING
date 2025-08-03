@@ -1,0 +1,10 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "CarServiceCrashDumpTest"
+    },
+    {
+      "name": "FrameworkOptCarServicesTest"
+    }
+  ]
+}

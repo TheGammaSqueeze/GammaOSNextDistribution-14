@@ -1,0 +1,3 @@
+com.google.input.algos.gril.IGrilAntennaTuningService/default              u:object_r:gril_antenna_tuning_service:s0
+com.google.input.ITouchContextService/default              u:object_r:touch_context_service:s0
+com.google.input.algos.spd.IScreenProtectorDetectorService/default u:object_r:screen_protector_detector_service:s0

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.frameworks.wmtests">
+
+    <!-- Uses API introduced in P (28) -->
+    <uses-sdk
+        android:minSdkVersion="1"
+        android:targetSdkVersion="28" />
+
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS" />
+    <uses-permission android:name="android.permission.GET_TOP_ACTIVITY_INFO" />
+    <uses-permission android:name="android.permission.MANAGE_USERS" />
+    <uses-permission android:name="android.permission.STORAGE_INTERNAL" />
+    <uses-permission android:name="android.permission.ACCESS_KEYGUARD_SECURE_STORAGE" />
+    <uses-permission android:name="android.permission.STATUS_BAR_SERVICE" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.ACCESS_SURFACE_FLINGER" />
+    <uses-permission android:name="android.permission.READ_FRAME_BUFFER" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
+    <uses-permission android:name="android.permission.READ_DEVICE_CONFIG" />
+    <uses-permission android:name="android.permission.STATUS_BAR" />
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" />
+    <uses-permission android:name="android.permission.READ_COMPAT_CHANGE_CONFIG" />
+    <uses-permission android:name="android.permission.LOG_COMPAT_CHANGE" />
+    <uses-permission android:name="android.permission.CAPTURE_BLACKOUT_CONTENT"/>
+    <uses-permission android:name="android.permission.WRITE_ALLOWLISTED_DEVICE_CONFIG" />
+    <uses-permission android:name="android.permission.READ_WRITE_SYNC_DISABLED_MODE_CONFIG" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_MEDIA_PROJECTION"/>
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW"/>
+    <uses-permission android:name="android.permission.MONITOR_INPUT"/>
+    <uses-permission android:name="android.permission.OBSERVE_ROLE_HOLDERS"/>
+    <uses-permission android:name="android.permission.MANAGE_DEFAULT_APPLICATIONS"/>
+
+    <!-- TODO: Remove largeHeap hack when memory leak is fixed (b/123984854) -->
+    <application android:debuggable="true"
+                 android:testOnly="true"
+                 android:largeHeap="true">
+        <uses-library android:name="android.test.mock" android:required="true" />
+        <uses-library android:name="android.test.runner" />
+
+        <activity android:name="com.android.server.wm.TaskStackChangedListenerTest$ActivityA" />
+        <activity android:name="com.android.server.wm.TaskStackChangedListenerTest$ActivityB" />
+        <activity android:name="com.android.server.wm.TaskStackChangedListenerTest$ActivityRequestedOrientationChange" />
+        <activity android:name="com.android.server.wm.TaskStackChangedListenerTest$ActivityTaskChangeCallbacks"
+                  android:showWhenLocked="true"
+                  android:turnScreenOn="true" />
+        <activity android:name="com.android.server.wm.TaskStackChangedListenerTest$ActivityTaskDescriptionChange" />
+        <activity android:name="com.android.server.wm.TaskStackChangedListenerTest$ActivityInVirtualDisplay"
+                  android:resizeableActivity="true" />
+        <activity android:name="com.android.server.wm.TaskStackChangedListenerTest$LandscapeActivity"
+                  android:configChanges="screenLayout|screenSize|smallestScreenSize|orientation"
+                  android:screenOrientation="sensorLandscape"
+                  android:showWhenLocked="true"
+                  android:turnScreenOn="true" />
+        <activity android:name="com.android.server.wm.TaskStackChangedListenerTest$ResumeWhilePausingActivity"
+                  android:resumeWhilePausing="true"/>
+        <activity android:name="com.android.server.wm.ActivityLeakTests$DetectLeakActivity" />
+        <!--
+            Simulate the common trampoline task that uses floating/translucent theme to avoid double
+            starting windows and animations of task open.
+        -->
+        <activity android:name="com.android.server.wm.ActivityOptionsTest$TrampolineActivity"
+                  android:taskAffinity="com.android.frameworks.wmtests.trampoline"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                  android:turnScreenOn="true"
+                  android:showWhenLocked="true" />
+        <activity android:name="com.android.server.wm.ActivityOptionsTest$MainActivity"
+                  android:configChanges="screenLayout|screenSize|smallestScreenSize|orientation"
+                  android:turnScreenOn="true"
+                  android:showWhenLocked="true" />
+        <activity android:name="com.android.server.wm.ScreenshotTests$ScreenshotActivity"
+                  android:theme="@style/WhiteBackgroundTheme"
+                  android:turnScreenOn="true"
+                  android:showWhenLocked="true"/>
+        <activity android:name="android.view.cts.surfacevalidator.CapturedActivity"/>
+
+        <activity android:name="com.android.server.wm.SurfaceSyncGroupTests$TestActivity"
+            android:screenOrientation="locked"
+            android:turnScreenOn="true"
+            android:theme="@style/WhiteBackgroundTheme"
+            android:exported="true"/>
+
+        <activity android:name="android.app.Activity"
+            android:exported="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
+
+        <activity
+            android:name="androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="com.android.server.wm.ActivityRecordInputSinkTests$TestActivity"
+                  android:exported="true">
+        </activity>
+
+        <activity android:name="com.android.server.wm.utils.TestActivity"
+            android:screenOrientation="locked"
+            android:turnScreenOn="true"
+            android:showWhenLocked="true"
+            android:theme="@style/WhiteBackgroundTheme"
+            android:exported="true" />
+    </application>
+
+    <instrumentation
+        android:name="androidx.test.runner.AndroidJUnitRunner"
+        android:label="Window Manager Tests"
+        android:targetPackage="com.android.frameworks.wmtests" />
+</manifest>

@@ -1,0 +1,36 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_google_gfxstream_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_google_gfxstream_license"],
+}
+
+cc_library_static {
+    name: "libgfxstream_host_dispatch",
+    defaults: ["gfxstream_defaults"],
+    header_libs: [
+        "gfxstream_opengl_headers",
+    ],
+    static_libs: [
+        "gfxstream_base",
+        "libgfxstream_thirdparty_glm",
+        "libgfxstream_host_gles1_dec",
+        "libgfxstream_host_gles2_dec",
+        "libgfxstream_host_apigen_codec_common",
+        "libgfxstream_glestranslator_egl",
+    ],
+    cflags: [
+        "-fvisibility=default",
+    ],
+    srcs: [
+        "EGLDispatch.cpp",
+        "gles1_stubbed_in_translator_namespace.cpp",
+        "gles2_stubbed_in_translator_namespace.cpp",
+        "GLESv1Dispatch.cpp",
+        "GLESv2Dispatch.cpp",
+        "OpenGLDispatchLoader.cpp",
+        "StaticDispatch.cpp",
+    ],
+}

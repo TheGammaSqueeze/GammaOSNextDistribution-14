@@ -1,0 +1,58 @@
+{
+  "presubmit": [
+    {
+      "name": "audio_aidl_conversion_tests"
+    },
+    {
+      "name": "audio_aidl_status_tests"
+    },
+    {
+      "name": "audiorecord_tests"
+    },
+    {
+      "name": "audioeffect_tests"
+    },
+    {
+      "name": "audiorouting_tests"
+    },
+    {
+      "name": "audioclient_serialization_tests"
+    },
+    {
+      "name": "trackplayerbase_tests"
+    },
+    {
+      "name": "audiosystem_tests"
+    },
+    {
+      "name": "CtsNativeMediaAAudioTestCases",
+      "options" : [
+        {
+          "include-filter": "android.nativemedia.aaudio.AAudioTests#AAudioBasic_TestAAudioBasic_TestBasic_DEFAULT__INPUT"
+        },
+        {
+          "include-filter": "android.nativemedia.aaudio.AAudioTests#AAudioBasic_TestAAudioBasic_TestBasic_DEFAULT__OUTPUT"
+        },
+        {
+          "include-filter": "android.nativemedia.aaudio.AAudioTests#AAudioBasic_TestAAudioBasic_TestBasic_LOW_LATENCY__INPUT"
+        },
+        {
+          "include-filter": "android.nativemedia.aaudio.AAudioTests#AAudioBasic_TestAAudioBasic_TestBasic_LOW_LATENCY__OUTPUT"
+        }
+      ]
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "audioeffect_analysis"
+    },
+    {
+      "name": "CtsVirtualDevicesTestCases",
+      "options" : [
+        {
+          "include-filter": "android.virtualdevice.cts.VirtualAudioTest"
+        }
+      ]
+    }
+  ]
+}

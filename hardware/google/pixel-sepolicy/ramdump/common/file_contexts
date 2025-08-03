@@ -1,0 +1,2 @@
+/data/vendor/ramdump(/.*)?                u:object_r:ramdump_vendor_data_file:s0
+/mnt/vendor/ramdump(/.*)?                 u:object_r:ramdump_vendor_mnt_file:s0

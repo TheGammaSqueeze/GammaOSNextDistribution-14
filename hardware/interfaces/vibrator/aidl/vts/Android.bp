@@ -1,0 +1,48 @@
+package {
+    default_team: "trendy_team_haptics_framework",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "hardware_interfaces_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["hardware_interfaces_license"],
+}
+
+cc_test {
+    name: "VtsHalVibratorTargetTest",
+    defaults: [
+        "VtsHalTargetTestDefaults",
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    tidy_timeout_srcs: ["VtsHalVibratorTargetTest.cpp"],
+    srcs: ["VtsHalVibratorTargetTest.cpp"],
+    shared_libs: [
+        "libbinder",
+    ],
+    static_libs: [
+        "android.hardware.vibrator-V2-cpp",
+    ],
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+}
+
+cc_test {
+    name: "VtsHalVibratorManagerTargetTest",
+    defaults: [
+        "VtsHalTargetTestDefaults",
+        "use_libaidlvintf_gtest_helper_static",
+    ],
+    srcs: ["VtsHalVibratorManagerTargetTest.cpp"],
+    shared_libs: [
+        "libbinder",
+    ],
+    static_libs: [
+        "android.hardware.vibrator-V2-cpp",
+    ],
+    test_suites: [
+        "general-tests",
+        "vts",
+    ],
+}

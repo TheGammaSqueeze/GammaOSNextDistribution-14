@@ -1,0 +1,32 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_library_shared {
+    name: "android.hardware.graphics.allocator-aidl-impl",
+    proprietary: true,
+    relative_install_path: "hw",
+    defaults: [
+        "arm_gralloc_api_4x_defaults",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.allocator-V1-ndk",
+        "android.hardware.graphics.allocator@4.0",
+        "libbinder_ndk",
+    ],
+    static_libs: [
+        "libaidlcommonsupport",
+    ],
+    srcs: [
+        "GrallocAllocator.cpp",
+        ":libgralloc_hidl_common_allocator",
+        ":libgralloc_hidl_common_shared_metadata",
+    ],
+    include_dirs: [
+        "hardware/google/gchips/include",
+    ],
+    cflags: [
+        "-DGRALLOC_MAPPER_4",
+    ],
+}
+

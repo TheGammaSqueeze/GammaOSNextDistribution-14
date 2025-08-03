@@ -1,0 +1,154 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "framework-annotations",
+    srcs: [
+        ":framework-metalava-annotations",
+        "com/android/internal/annotations/*.java",
+    ],
+
+    // TODO: Prune this list
+    visibility: [
+        "//frameworks/base",
+        "//frameworks/base/services/net",
+        "//frameworks/base/tools/processors/intdef_mappings",
+        "//frameworks/libs/net/common",
+        "//packages/apps/CellBroadcastReceiver",
+        "//packages/apps/CellBroadcastReceiver/legacy",
+        "//packages/modules/CellBroadcastService",
+        "//packages/modules/NetworkStack/common/netlinkclient",
+        "//packages/modules/NetworkStack/common/networkstackclient",
+        "//packages/services/Iwlan",
+    ],
+}
+
+filegroup {
+    name: "framework-metalava-annotations",
+    srcs: ["android/annotation/*.java"],
+    visibility: [
+        // This group of files is needed by any metalava invocation that enabled enhancement of
+        // documentation (via javadoc tags like @paramDoc and @returnDoc). They are public for
+        // this purpose. However, java compilation should generally depend (dynamically) on
+        // framework-annotations-lib instead.
+        "//visibility:public",
+    ],
+}
+
+java_library {
+    name: "framework-annotations-lib",
+    srcs: [":framework-annotations"],
+    sdk_version: "core_current",
+    host_supported: true,
+    visibility: [
+        "//visibility:public",
+    ],
+}
+
+java_library {
+    name: "aconfig-annotations-lib",
+    srcs: [
+        "com/android/aconfig/annotations/*.java",
+    ],
+    sdk_version: "core_current",
+    host_supported: true,
+    optimize: {
+        proguard_flags_files: ["aconfig_proguard.flags"],
+        export_proguard_flags_files: true,
+    },
+    visibility: [
+        "//visibility:public",
+    ],
+}
+
+// Identical to aconfig-annotations-lib, but sdk_version is none.
+// Used for core modules where setting sdk_version of the dependencies as
+// core_current leads to circular dependencies
+java_library {
+    name: "aconfig-annotations-lib-sdk-none",
+    srcs: [
+        "com/android/aconfig/annotations/*.java",
+    ],
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+    host_supported: true,
+    visibility: [
+        "//visibility:public",
+    ],
+    patch_module: "java.base",
+}
+
+filegroup {
+    name: "framework-api-annotations",
+    srcs: [
+        "android/annotation/Discouraged.java",
+        "android/annotation/FlaggedApi.java",
+        "android/annotation/IntDef.java",
+        "android/annotation/SystemApi.java",
+        "android/annotation/TestApi.java",
+        // aconfig annotations
+        "com/android/aconfig/annotations/*.java",
+    ],
+
+    visibility: [
+        "//art",
+        "//libcore",
+    ],
+}
+
+// TODO(b/183183152) This build rule should really be alongside the source in
+// com/android/modules/utils/ but cannot be due to b/183183152
+filegroup {
+    name: "module-utils-os-aidls",
+    srcs: [
+        "com/android/modules/utils/ParceledListSlice.aidl",
+        "com/android/modules/utils/StringParceledListSlice.aidl",
+    ],
+    visibility: [
+        "//frameworks/base/wifi",
+        "//packages/modules/Wifi/framework",
+        "//frameworks/libs/modules-utils/java/com/android/modules/utils",
+    ],
+}
+
+filegroup {
+    name: "modules-utils-synchronous-result-receiver-aidl",
+    srcs: [
+        "com/android/modules/utils/ISynchronousResultReceiver.aidl",
+        "com/android/modules/utils/SynchronousResultReceiver.aidl",
+    ],
+    visibility: [
+        "//frameworks/libs/modules-utils/java/com/android/modules/utils",
+        "//packages/modules/Bluetooth/system/binder",
+        "//packages/modules/Bluetooth/android/app/aidl",
+    ],
+}
+
+// This file group is deprecated; new users should use modules-utils-preconditions
+filegroup {
+    name: "modules-utils-preconditions-srcs",
+    srcs: [
+        "com/android/internal/util/Preconditions.java",
+    ],
+    visibility: [
+        // TODO: Prune this list
+        "//frameworks/base",
+        "//frameworks/base/core/java",
+    ],
+}

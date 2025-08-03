@@ -1,0 +1,59 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+apex {
+    name: "com.android.vibrator.drv2624",
+    manifest: "apex_manifest.json",
+    key: "com.android.vibrator.drv2624.key",
+    certificate: ":com.android.vibrator.drv2624.certificate",
+    file_contexts: "file_contexts",
+    use_vndk_as_stable: true,
+    updatable: false,
+
+    // install the apex in /vendor/apex
+    proprietary: true,
+
+    // BEGIN of apex payloads
+    // /bin
+    binaries: [
+        "android.hardware.vibrator-service.drv2624",
+    ],
+    // /etc
+    prebuilts: [
+        "com.android.vibrator.drv2624.rc",
+    ],
+    // END of apex payloads
+
+    // BEGIN of companion files to be installed if this module is installed
+    // init script, which is installed in /vendor/etc.
+    // Note that init scripts in an apex can contain only "service" sections.
+    // The following init script contains "on" section to enable the service.
+    init_rc: [
+        "com.android.vibrator.drv2624.enable.rc",
+    ],
+
+    // vintf manifest fragments, which is installed in /vendor/etc/vintf.
+    // TODO(b/130058564): should we put vintf framgments within the apex?
+    vintf_fragments: [
+        "com.android.vibrator.drv2624.xml",
+    ],
+    // END of companion filse
+}
+
+apex_key {
+    name: "com.android.vibrator.drv2624.key",
+    public_key: "com.android.vibrator.drv2624.pubkey",
+    private_key: "com.android.vibrator.drv2624.pem",
+}
+
+android_app_certificate {
+    name: "com.android.vibrator.drv2624.certificate",
+    certificate: "com.android.vibrator.drv2624",
+}
+
+prebuilt_etc {
+    name: "com.android.vibrator.drv2624.rc",
+    src: "com.android.vibrator.drv2624.rc",
+    installable: false,
+}

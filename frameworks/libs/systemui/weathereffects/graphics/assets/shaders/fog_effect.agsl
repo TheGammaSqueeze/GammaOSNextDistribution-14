@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+uniform shader foreground;
+uniform shader background;
+uniform float2 uvOffsetFgd;
+uniform float2 uvScaleFgd;
+uniform float2 uvOffsetBgd;
+uniform float2 uvScaleBgd;
+uniform half timeForeground;
+uniform half timeBackground;
+uniform half screenAspectRatio;
+uniform half2 screenSize;
+uniform half pixelDensity;
+uniform half intensity;
+
+#include "shaders/constants.agsl"
+#include "shaders/utils.agsl"
+#include "shaders/simplex2d.agsl"
+
+const int numOctaves = 2;
+
+float fbm(vec2 p, half time) {
+    float a = 0.5;
+    float result = 0.0;
+    float rot = 1.2;
+
+    for (int i = 0; i < numOctaves; i++) {
+        result += a * simplex2d_flow(p, rot, time);
+        rot *= 1.25;
+        p *= 2.0152;
+        a *= 0.5;
+    }
+
+    return result;
+}
+
+vec4 main(float2 fragCoord) {
+    float2 uv = fragCoord / screenSize;
+    uv.y /= screenAspectRatio;
+
+    vec4 colorForeground = foreground.eval(fragCoord * uvScaleFgd + uvOffsetFgd);
+    vec4 color = background.eval(fragCoord * uvScaleBgd + uvOffsetBgd);
+
+    float frontFog = smoothstep(-0.616, 0.552, fbm(uv * 0.8, timeForeground));
+    float bgdFog = smoothstep(-0.744, 0.28, fbm(uv * 1.2, timeBackground));
+
+    float dither = 1. - triangleNoise(fragCoord * pixelDensity) * 0.161;
+
+    color.rgb = normalBlendWithWhiteSrc(color.rgb, 0.8 * dither * bgdFog * intensity);
+    // Add the foreground. Any effect from here will be in front of the subject.
+    color.rgb = normalBlend(color.rgb, colorForeground.rgb, colorForeground.a);
+    // foreground fog.
+    color.rgb = normalBlendWithWhiteSrc(color.rgb, 0.5 * frontFog * intensity);
+
+    return color;
+}

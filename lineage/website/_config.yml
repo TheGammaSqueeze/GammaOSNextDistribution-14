@@ -1,0 +1,75 @@
+# Name of your site (displayed in the header)
+title: LineageOS
+
+# Short bio or description (displayed in the header)
+description: LineageOS Android Distribution
+
+repository: LineageOS/www
+
+github: [metadata]
+#
+# Flags below are optional
+#
+
+# Includes an icon in the footer for each username you enter
+footer-links:
+  email:
+  facebook:
+  reddit: lineageos
+  github: lineageos
+  rss: true
+  twitter:
+  mastodon: https://fosstodon.org/@LineageOS
+
+
+# Enter your Disqus shortname (not your username) to enable commenting on posts
+# You can find your shortname on the Settings page of your Disqus account
+disqus:
+
+# Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
+# Used for Sitemap.xml and your RSS feed
+url: https://lineageos.org
+
+# If you're hosting your site at a Project repository on GitHub pages
+# (http://yourusername.github.io/repository-name)
+# and NOT your User repository (http://yourusername.github.io)
+# then add in the baseurl here, like this: "/repository-name"
+baseurl: ""
+
+permalink: /:title/
+
+# Jekyll 3 now only supports Kramdown for Markdown
+kramdown:
+  # Use GitHub flavored markdown, including triple backtick fenced code blocks
+  input: GFM
+  # Jekyll 3 and GitHub Pages now only support rouge for syntax highlighting
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    # Use existing pygments syntax highlighting css
+    css_class: 'highlight'
+
+# Set the Sass partials directory, as we're using @imports
+sass:
+  style: :compressed # You might prefer to minify using :compressed
+  sourcemap: true
+# Use the following plug-ins
+plugins:
+  - jekyll-redirect-from
+  - jekyll-sitemap # Create a sitemap using the official Jekyll sitemap gem
+
+# Exclude these files from your production _site
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE
+  - README.md
+  - CNAME
+  - Dockerfile
+include:
+  - _redirects
+  - _headers
+
+collections:
+  engineering:
+    output: true
+    permalink: /engineering/:path/

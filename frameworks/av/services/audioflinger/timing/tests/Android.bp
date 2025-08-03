@@ -1,0 +1,80 @@
+package {
+    default_team: "trendy_team_media_framework_audio",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_base_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_services_audioflinger_license"],
+}
+
+cc_test {
+    name: "mediasyncevent_tests",
+
+    host_supported: true,
+
+    srcs: [
+        "mediasyncevent_tests.cpp",
+    ],
+
+    header_libs: [
+        "libaudioclient_headers",
+    ],
+
+    static_libs: [
+        "liblog",
+        "libutils", // RefBase
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
+    name: "monotonicframecounter_tests",
+
+    host_supported: true,
+
+    srcs: [
+        "monotonicframecounter_tests.cpp",
+    ],
+
+    static_libs: [
+        "libaudioflinger_timing",
+        "liblog",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
+    name: "synchronizedrecordstate_tests",
+
+    host_supported: true,
+
+    srcs: [
+        "synchronizedrecordstate_tests.cpp",
+    ],
+
+    header_libs: [
+        "libaudioclient_headers",
+    ],
+
+    static_libs: [
+        "liblog",
+        "libutils", // RefBase
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}

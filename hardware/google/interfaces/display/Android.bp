@@ -1,0 +1,104 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+aidl_interface {
+    name: "com.google.hardware.pixel.display",
+    owner: "google",
+    vendor_available: true,
+    srcs: [
+        "com/google/hardware/pixel/display/*.aidl",
+    ],
+
+    stability: "vintf",
+
+    imports: [
+        "android.hardware.common-V2",
+        "android.hardware.graphics.common-V5",
+    ],
+
+    backend: {
+        java: {
+            platform_apis: true,
+        },
+        cpp: {
+            enabled: false,
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "2",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "3",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "4",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "5",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "6",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "7",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "8",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "9",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+        {
+            version: "10",
+            imports: [
+                "android.hardware.common-V2",
+                "android.hardware.graphics.common-V5",
+            ],
+        },
+
+    ],
+    frozen: true,
+
+}

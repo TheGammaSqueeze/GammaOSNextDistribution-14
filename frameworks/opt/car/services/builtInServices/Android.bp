@@ -1,0 +1,50 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_sdk_library {
+    name: "car-frameworks-service",
+    libs: [
+        "services",
+        "android.car",
+        "android.car.builtin",  // Will remove once split is complete
+        "android.hardware.automotive.vehicle-V2.0-java",
+    ],
+    srcs: [
+        "src/**/*.java",
+    ],
+    static_libs: [
+        "android.car.watchdoglib",
+        "android.automotive.watchdog.internal-V3-java",
+    ],
+    api_lint: {
+        enabled: true,
+    },
+
+    stub_only_libs: [
+        "framework-annotations-lib",
+    ],
+
+    droiddoc_options: [
+       "--include-annotations --pass-through-annotation android.annotation.RequiresApi"
+    ],
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework"
+    ],
+
+    unsafe_ignore_missing_latest_api: true,
+
+    test: {
+        enabled: false,
+    },
+    system: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+    module_lib: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
+}

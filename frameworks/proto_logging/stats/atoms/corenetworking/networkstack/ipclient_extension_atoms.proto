@@ -1,0 +1,57 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.os.statsd.corenetworking.networkstack;
+
+import "frameworks/proto_logging/stats/atoms.proto";
+import "frameworks/proto_logging/stats/atom_field_options.proto";
+
+option java_package = "com.android.os.corenetworking.networkstack";
+option java_multiple_files = true;
+
+extend Atom {
+    optional IpClientRaInfoReported ip_client_ra_info_reported = 778 [(module) = "network_stack"];
+}
+
+/**
+ * Logs Ip client RA(Router Advertisement) info
+ * Logged from:
+ * packages/modules/NetworkStack/src/android/net/ip/IpClient.java
+ */
+message IpClientRaInfoReported {
+    // The maximum number of distinct RAs (Router Advertisements).
+    optional int32 max_number_of_distinct_ras = 1;
+
+    // The number of zero lifetime RAs (Router Advertisements).
+    optional int32 number_of_zero_lifetime_ras = 2;
+
+    // The number of parsing error for RAs (Router Advertisements).
+    optional int32 number_of_parsing_error_ras = 3;
+
+    // The lowest router lifetime in seconds, excluding 0.
+    optional int32 lowest_router_lifetime_seconds = 4;
+
+    // The lowest valid lifetime of PIO (Prefix Information Option) in seconds, excluding 0.
+    optional int64 lowest_pio_valid_lifetime_seconds = 5;
+
+    // The lowest route lifetime of RIO (Route Information Option) in seconds, excluding 0.
+    optional int64 lowest_rio_route_lifetime_seconds = 6;
+
+    // The lowest lifetime of RDNSS (Recursive DNS Server Option) in seconds, excluding 0.
+    optional int64 lowest_rdnss_lifetime_seconds = 7;
+}

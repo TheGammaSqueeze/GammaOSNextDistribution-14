@@ -1,0 +1,46 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "frameworks_av_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["frameworks_av_license"],
+}
+
+cc_test {
+    name: "mediametrics_tests",
+    test_suites: ["device-tests"],
+
+    // not all shared libraries are populated in the 2nd architecture in
+    // particular, libmediametricsservice we use to have a tame copy of the service
+    compile_multilib: "first",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+
+    include_dirs: [
+        "frameworks/av/services/mediametrics",
+    ],
+
+    shared_libs: [
+        "libbinder",
+        "liblog",
+        "libmediametrics",
+        "libmediametricsservice",
+        "libmediautils",
+        "libutils",
+        "mediametricsservice-aidl-cpp",
+        "packagemanager_aidl-cpp",
+    ],
+
+    header_libs: [
+        "libaudioutils_headers",
+    ],
+
+    srcs: [
+        "mediametrics_tests.cpp",
+    ],
+}

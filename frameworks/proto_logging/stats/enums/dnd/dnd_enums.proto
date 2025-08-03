@@ -1,0 +1,89 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package android.stats.dnd;
+
+option java_package = "com.android.os.dnd";
+option java_multiple_files = true;
+option java_outer_classname = "DNDProtoEnums";
+
+// Enum used in DNDModeProto.
+enum ZenMode {
+  ROOT_CONFIG = -1;  // Used to distinguish the config (one per user) from the rules.
+  ZEN_MODE_OFF = 0;
+  ZEN_MODE_IMPORTANT_INTERRUPTIONS = 1;
+  ZEN_MODE_NO_INTERRUPTIONS = 2;
+  ZEN_MODE_ALARMS = 3;
+}
+
+// Enum used in DNDPolicyProto for a particular policy parameter's state.
+enum State {
+  STATE_UNSET = 0;
+  STATE_ALLOW = 1;
+  STATE_DISALLOW = 2;
+}
+
+// Enum used in DNDPolicyProto for which people are allowed to break through.
+enum PeopleType {
+  PEOPLE_UNSET = 0;
+  PEOPLE_ANYONE = 1;
+  PEOPLE_CONTACTS = 2;
+  PEOPLE_STARRED = 3;
+  PEOPLE_NONE = 4;
+}
+
+// Enum used in DNDPolicyProto for conversation types allowed to break through.
+enum ConversationType {
+  CONV_UNSET = 0;
+  CONV_ANYONE = 1;
+  CONV_IMPORTANT = 2;
+  CONV_NONE = 3;
+}
+
+// Enum used in DNDPolicyProto to indicate the type of channels permitted to
+// break through DND. Mirrors values in ZenPolicy.
+enum ChannelPolicy {
+  CHANNEL_POLICY_UNSET = 0;
+  CHANNEL_POLICY_PRIORITY = 1;
+  CHANNEL_POLICY_NONE = 2;
+}
+
+// Enum used in DNDStateChanged to identify the type of rule that changed.
+enum RuleType {
+  UNKNOWN_RULE = 0;
+  MANUAL_RULE = 1;
+  AUTOMATIC_RULE = 2;
+}
+
+// Enum used in DNDModeProto and DNDStateChanged to identify the category
+// of automatic zen rule that the log pertains to.
+// Mirrors values in AutomaticZenRule, with one additional value for
+// the manual rule (which is used in logging only).
+enum ActiveRuleType {
+  TYPE_UNKNOWN = -1;
+  TYPE_OTHER = 0;
+  TYPE_SCHEDULE_TIME = 1;
+  TYPE_SCHEDULE_CALENDAR = 2;
+  TYPE_BEDTIME = 3;
+  TYPE_DRIVING = 4;
+  TYPE_IMMERSIVE = 5;
+  TYPE_THEATER = 6;
+  TYPE_MANAGED = 7;
+  // Intentional gap for future automatic rule types.
+  TYPE_MANUAL = 999;
+}

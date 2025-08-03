@@ -1,0 +1,66 @@
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: [
+        "frameworks_opt_telephony_tests_telephonytests_license",
+        "Android-Apache-2.0",
+    ],
+}
+
+license {
+    name: "frameworks_opt_telephony_tests_telephonytests_license",
+    package_name: "Android Telephone Tests",
+    license_kinds: ["SPDX-license-identifier-BSD"],
+    license_text: ["LICENSE_BSD"],
+}
+
+android_test {
+    name: "FrameworksTelephonyTests",
+    // For access hidden connectivity methods in tests
+    defaults: ["framework-connectivity-test-defaults"],
+    srcs: ["**/*.java"],
+
+    libs: [
+        "android.test.base",
+        "android.test.mock",
+        "android.test.runner",
+        "ims-common",
+        "unsupportedappusage",
+        "telephony-common",
+    ],
+
+    static_libs: [
+        "androidx.test.rules",
+        "frameworks-base-testutils",
+        "guava",
+        "libphonenumber-nogeocoder",
+        "mockito-target-minus-junit4",
+        "net-tests-utils",
+        "platform-test-annotations",
+        "services.core",
+        "services.net",
+        "truth",
+        "testables",
+        "platform-compat-test-rules",
+        "flag-junit",
+        "telephony_flags_core_java_lib",
+    ],
+
+    jarjar_rules: ":jarjar-rules-telephony-tests",
+
+    test_suites: [
+        "device-tests",
+    ],
+    min_sdk_version: "29",
+}
+
+genrule {
+    name: "jarjar-rules-telephony-tests",
+    srcs: [
+        // Order matters: test rules override the base ones
+        "jarjar-rules-tests.txt",
+        ":jarjar-rules-shared",
+    ],
+    out: ["jarjar-rules-telephony-tests-combined.txt"],
+    cmd: "cat $(in) > $(out)",
+    visibility: ["//visibility:private"],
+}

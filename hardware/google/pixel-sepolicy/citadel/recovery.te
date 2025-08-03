@@ -1,0 +1,4 @@
+recovery_only(`
+  allow recovery citadel_device:chr_file rw_file_perms;
+  allow fastbootd citadel_device:chr_file rw_file_perms;
+')

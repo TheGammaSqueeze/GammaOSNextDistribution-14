@@ -1,0 +1,146 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "android.hardware.vibrator-defaults.cs40l26",
+    cflags: [
+        "-DATRACE_TAG=(ATRACE_TAG_VIBRATOR | ATRACE_TAG_HAL)",
+        "-DLOG_TAG=\"Vibrator\"",
+    ],
+}
+
+cc_defaults {
+    name: "VibratorHalCs40l26BinaryDefaults",
+    defaults: [
+        "PixelVibratorBinaryDefaults",
+        "android.hardware.vibrator-defaults.cs40l26",
+    ],
+    include_dirs: [
+        "external/tinyalsa/include",
+    ],
+    shared_libs: [
+        "libcutils",
+        "libtinyalsa",
+        "libbase",
+        "libutils",
+    ],
+}
+
+cc_defaults {
+    name: "VibratorHalCs40l26TestDefaults",
+    defaults: [
+        "PixelVibratorTestDefaults",
+        "VibratorCapoDefaults",
+        "android.hardware.vibrator-defaults.cs40l26",
+    ],
+    static_libs: [
+        "libtinyalsa",
+        "android.hardware.vibrator-impl.cs40l26",
+    ],
+}
+
+cc_library {
+    name: "android.hardware.vibrator-impl.cs40l26",
+    defaults: [
+        "VibratorHalCs40l26BinaryDefaults",
+        "VibratorCapoDefaults",
+        "haptics_feature_defaults",
+    ],
+    srcs: [
+        "Vibrator.cpp",
+        "DspMemChunk.cpp",
+    ],
+    shared_libs: [
+        "PixelVibratorFlagsL26",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    vendor_available: true,
+    visibility: [":__subpackages__"],
+}
+
+cc_binary {
+    name: "android.hardware.vibrator-service.cs40l26",
+    defaults: [
+        "VibratorHalCs40l26BinaryDefaults",
+        "VibratorCapoDefaults",
+    ],
+    init_rc: ["android.hardware.vibrator-service.cs40l26.rc"],
+    vintf_fragments: ["android.hardware.vibrator-service.cs40l26.xml"],
+    srcs: ["service.cpp"],
+    shared_libs: [
+        "android.hardware.vibrator-impl.cs40l26",
+        "PixelVibratorStats",
+    ],
+    proprietary: true,
+}
+
+cc_binary {
+    name: "android.hardware.vibrator-service.cs40l26-dual",
+    defaults: [
+        "VibratorHalCs40l26BinaryDefaults",
+        "VibratorCapoDefaults",
+    ],
+    init_rc: ["android.hardware.vibrator-service.cs40l26-dual.rc"],
+    vintf_fragments: ["android.hardware.vibrator-service.cs40l26-dual.xml"],
+    srcs: ["service.cpp"],
+    shared_libs: [
+        "android.hardware.vibrator-impl.cs40l26",
+        "PixelVibratorStats",
+    ],
+    cflags: ["-DVIBRATOR_NAME=\"dual\""],
+    proprietary: true,
+}
+
+aconfig_declarations {
+    name: "VibratorFlagsL26",
+    package: "vendor.vibrator.hal.flags",
+    srcs: ["VibratorFlags.aconfig"],
+}
+
+cc_aconfig_library {
+    name: "PixelVibratorFlagsL26",
+    aconfig_declarations: "VibratorFlagsL26",
+    vendor_available: true,
+}
+
+java_aconfig_library {
+    name: "PixelVibratorFlagsL26_java",
+    aconfig_declarations: "VibratorFlagsL26",
+    visibility: ["//vendor:__subpackages__"],
+}
+
+filegroup {
+    name: "haptics_srcs",
+    srcs: [
+        "service.cpp",
+        "Vibrator.cpp",
+    ],
+}
+
+filegroup {
+    name: "android.hardware.vibrator-service.cs40l26.xml",
+    srcs: ["android.hardware.vibrator-service.cs40l26.xml"],
+}
+
+filegroup {
+    name: "android.hardware.vibrator-service.cs40l26.rc",
+    srcs: ["android.hardware.vibrator-service.cs40l26.rc"],
+}

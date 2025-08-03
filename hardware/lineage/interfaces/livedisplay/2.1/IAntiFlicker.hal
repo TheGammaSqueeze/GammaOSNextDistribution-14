@@ -1,0 +1,12 @@
+//
+// Copyright (C) 2020-2021 The LineageOS Project
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+
+package vendor.lineage.livedisplay@2.1;
+
+interface IAntiFlicker {
+    isEnabled() generates (bool rc);
+    setEnabled(bool enabled) generates (bool rc);
+};

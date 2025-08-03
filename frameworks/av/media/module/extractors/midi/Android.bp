@@ -1,0 +1,52 @@
+package {
+    default_applicable_licenses: [
+        "frameworks_av_media_extractors_midi_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "frameworks_av_media_extractors_midi_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "libmidiextractor",
+    defaults: ["extractor-defaults"],
+
+    srcs: ["MidiExtractor.cpp"],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    header_libs: [
+        "libmedia_datasource_headers",
+    ],
+
+    static_libs: [
+        "libmedia_midiiowrapper",
+        "libsonivoxwithoutjet",
+        "libstagefright_foundation",
+        "libwatchdog",
+    ],
+
+    shared_libs: [
+        "libbase",
+    ],
+
+    host_supported: true,
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}

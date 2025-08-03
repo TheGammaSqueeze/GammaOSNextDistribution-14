@@ -1,0 +1,3 @@
+userdebug_or_eng(`
+allow hal_wifi_supplicant_default wifi_diagnostic:unix_dgram_socket sendto;
+')

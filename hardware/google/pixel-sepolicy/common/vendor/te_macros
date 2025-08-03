@@ -1,0 +1,18 @@
+#####################################
+# pixel_bugreport(domain_name)
+# Defines a new domain for executables under /vendor/bin/dump
+# Grants permissions to interact with dumpstate and write to bugreport.
+# See go/pixel-defrag for more details.
+define(`pixel_bugreport', `
+type $1, domain;
+type $1_exec, exec_type, vendor_file_type, file_type;
+typeattribute $1 hal_dumpstate;
+domain_auto_trans(hal_dumpstate_default, $1_exec, $1)
+
+allow $1 dumpstate:fd use;
+allow $1 dumpstate:fifo_file { write getattr };
+allow $1 hal_dumpstate_default:fd use;
+allow hal_dumpstate_default $1:process { sigkill signal };
+allow $1 shell_data_file:file { write getattr };
+')
+

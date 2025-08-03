@@ -1,0 +1,19 @@
+{
+  "symbols": {
+    "glDebugMessageCallbackKHR": {
+      "call_method": "custom_trampoline",
+      "header": "gl2ext.h"
+    },
+    "glGetPointervKHR": {
+      "call_method": "custom_trampoline",
+      "header": "gl2ext.h"
+    },
+    "glGetVkProcAddrNV": {
+      "is_custom_compatible": false,
+      "reason_for_incompatible": [
+        "Prototype hides the actual complexity"
+      ]
+    }
+  },
+  "types": {}
+}

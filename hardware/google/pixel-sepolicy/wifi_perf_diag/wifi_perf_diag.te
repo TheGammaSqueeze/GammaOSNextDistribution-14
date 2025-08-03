@@ -1,0 +1,40 @@
+type wifi_perf_diag, domain;
+type wifi_perf_diag_exec, exec_type, vendor_file_type, file_type;
+
+# make transition from init to its domain
+userdebug_or_eng(`
+init_daemon_domain(wifi_perf_diag)
+net_domain(wifi_perf_diag)
+
+#vendor
+allow wifi_perf_diag wifi_logging_data_file:dir create_dir_perms;
+allow wifi_perf_diag wifi_logging_data_file:file create_file_perms;
+allow wifi_perf_diag vendor_shell_exec:file execute_no_trans;
+allow wifi_perf_diag wifi_perf_diag_exec:file execute_no_trans;
+allow wifi_perf_diag self:capability net_admin;
+allow wifi_perf_diag self:udp_socket ioctl;
+allowxperm wifi_perf_diag self:udp_socket ioctl { SIOCETHTOOL SIOCDEVPRIVATE };
+
+#factors
+allow wifi_perf_diag device:dir rw_dir_perms;
+allow wifi_perf_diag device:file rw_file_perms;
+allow wifi_perf_diag init:dir search;
+allow wifi_perf_diag init:file r_file_perms;
+allow wifi_perf_diag kernel:dir search;
+allow wifi_perf_diag kernel:file r_file_perms;
+allow wifi_perf_diag logd:dir search;
+allow wifi_perf_diag logd:file r_file_perms;
+allow wifi_perf_diag netd:dir search;
+allow wifi_perf_diag netd:file r_file_perms;
+allow wifi_perf_diag proc_interrupts:file r_file_perms;
+allow wifi_perf_diag proc_net:file r_file_perms;
+allow wifi_perf_diag proc_stat:file r_file_perms;
+allow wifi_perf_diag proc_timer:file r_file_perms;
+allow wifi_perf_diag properties_device:dir r_file_perms;
+allow wifi_perf_diag vendor_file:file execute_no_trans;
+allow wifi_perf_diag vendor_file:dir r_dir_perms;
+allow wifi_perf_diag vendor_toolbox_exec:file execute_no_trans;
+#property
+get_prop(wifi_perf_diag, vendor_wifi_perf_diag_prop)
+set_prop(wifi_perf_diag, vendor_wifi_perf_diag_prop)
+')

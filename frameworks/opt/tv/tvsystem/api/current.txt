@@ -1,0 +1,69 @@
+// Signature format: 2.0
+package com.android.libraries.tv.tvsystem.display {
+
+  public final class DeviceProductInfo {
+    ctor @Deprecated public DeviceProductInfo(String, String, String, Integer, com.android.libraries.tv.tvsystem.display.DeviceProductInfo.ManufactureDate, int[]);
+    method public int getConnectionToSinkType();
+    method public com.android.libraries.tv.tvsystem.display.DeviceProductInfo.ManufactureDate getManufactureDate();
+    method public String getManufacturerPnpId();
+    method public Integer getModelYear();
+    method public String getName();
+    method public String getProductId();
+    method @Deprecated public int[] getRelativeAddress();
+    field public static final int CONNECTION_TO_SINK_BUILT_IN = 1; // 0x1
+    field public static final int CONNECTION_TO_SINK_DIRECT = 2; // 0x2
+    field public static final int CONNECTION_TO_SINK_TRANSITIVE = 3; // 0x3
+    field public static final int CONNECTION_TO_SINK_UNKNOWN = 0; // 0x0
+  }
+
+  public static class DeviceProductInfo.ManufactureDate {
+    ctor public DeviceProductInfo.ManufactureDate(Integer, Integer);
+    method public Integer getWeek();
+    method public Integer getYear();
+  }
+
+  public final class DisplayCompatUtil {
+    method public static com.android.libraries.tv.tvsystem.display.DeviceProductInfo getDeviceProductInfo(android.view.Display);
+    method public static boolean isMinimalPostProcessingSupported(android.view.Display);
+  }
+
+  public final class WindowCompatUtil {
+    method public static void setPreferMinimalPostProcessing(android.view.Window, boolean);
+  }
+
+}
+
+package com.android.libraries.tv.tvsystem.pm {
+
+  public final class TvPackageInstaller {
+    ctor public TvPackageInstaller(android.content.pm.PackageManager);
+    method @RequiresPermission(android.Manifest.permission.DELETE_PACKAGES) public void uninstallExistingPackage(@NonNull String, android.content.IntentSender);
+  }
+
+}
+
+package com.android.libraries.tv.tvsystem.user {
+
+  public interface ITvUserManager {
+    method @Nullable public android.os.UserHandle createManagedProfile(@NonNull String, @Nullable String[]) throws android.os.UserManager.UserOperationException;
+    method @Nullable public android.graphics.Bitmap getUserIcon();
+    method @NonNull public String getUserName();
+    method @NonNull public java.util.List<android.os.UserHandle> getUserProfiles(boolean);
+    method public boolean isManagedProfile();
+    method public void setUserIcon(@NonNull android.graphics.Bitmap);
+    method public void setUserName(@Nullable String);
+  }
+
+  public final class TvUserManager implements com.android.libraries.tv.tvsystem.user.ITvUserManager {
+    ctor public TvUserManager(android.content.Context);
+    method public android.os.UserHandle createManagedProfile(@NonNull String, @Nullable String[]);
+    method @Nullable public android.graphics.Bitmap getUserIcon();
+    method @NonNull public String getUserName();
+    method @NonNull public java.util.List<android.os.UserHandle> getUserProfiles(boolean);
+    method public boolean isManagedProfile();
+    method public void setUserIcon(@NonNull android.graphics.Bitmap);
+    method public void setUserName(@Nullable String);
+  }
+
+}
+

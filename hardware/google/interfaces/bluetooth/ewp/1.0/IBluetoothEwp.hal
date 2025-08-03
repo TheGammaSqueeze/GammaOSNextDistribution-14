@@ -1,0 +1,37 @@
+/*
+ * Copyright 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This is pixel only extension for Bluetooth HAL.
+ */
+package hardware.google.bluetooth.ewp@1.0;
+
+interface IBluetoothEwp {
+    /**
+     * API to enable Bluetooth Le Audio offload debugging mechanism.
+     *
+     * This API must be invoked whenever maximum Bluetooth Tx power need to
+     * changed for optimising performance purpose in SAR scenarios.
+     *
+     * @param event_mask The event mask for the EWP mechanism
+     */
+    oneway EnableEwp(uint16_t event_mask);
+
+    /**
+     * API to disable Bluetooth Le Audio offload debugging mechanism.
+     */
+    oneway DisableEwp();
+};

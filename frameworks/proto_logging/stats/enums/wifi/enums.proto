@@ -1,0 +1,376 @@
+/*
+ * Copyright (C) 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+package android.net.wifi;
+
+option java_outer_classname = "WifiProtoEnums";
+option java_multiple_files = true;
+
+/**
+ * Wifi Lock modes, primarily used in
+ * frameworks/opt/net/wifi/service/java/com/android/server/wifi/WifiLockManager.java.
+ */
+enum WifiModeEnum {
+    /**
+     * Deprecated.
+     * Wi-Fi will be kept active, and will behave normally.
+     */
+    WIFI_MODE_FULL = 1 [deprecated=true];
+
+    /**
+     * Deprecated.
+     * Wi-Fi will be kept active, but the only operation that will be supported is initiation of
+     * scans, and the subsequent reporting of scan results.
+     */
+    WIFI_MODE_SCAN_ONLY = 2 [deprecated=true];
+
+    /**
+     * Deprecated. Refer {@link com.android.server.wifi.WifiManager#WIFI_MODE_FULL_HIGH_PERF}.
+     * Wi-Fi will not go to power save.
+     */
+    WIFI_MODE_FULL_HIGH_PERF = 3 [deprecated=true];
+
+    /**
+     * Wi-Fi will operate with a priority to achieve low latency.
+     */
+    WIFI_MODE_FULL_LOW_LATENCY = 4;
+}
+
+/**
+ * What permission model the caller has.
+ * Calculated with WifiPermissionsUtil#getWifiCallerType
+ */
+enum WifiCallerType {
+    UNKNOWN = 0;
+    SETTINGS = 1; // caller is SETTINGS or SETUP_WIZARD
+    ADMIN = 2; // caller is a device admin(DO/PO/DA)
+    AUTOMOTIVE = 3; // caller has automotive related permissions
+    SIGNATURE = 4;  // Caller uid must be signed with platform key
+    SYSTEM = 5; // caller is a system app
+    OTHERS = 6;  // caller is none of the above
+}
+
+/**
+ * Wifi authentication type.
+ */
+enum WifiAuthType {
+    AUTH_TYPE_NONE = 0;
+
+    // WPA pre-shared key.
+    AUTH_TYPE_WPA_PSK = 1;
+    // WPA using EAP authentication. Generally used with an external authentication server.
+    AUTH_TYPE_WPA_EAP = 2;
+    // IEEE 802.1X using EAP authentication and (optionally) dynamically generated WEP keys.
+    AUTH_TYPE_IEEE8021X = 3;
+    // WPA2 pre-shared key for use with soft access point.
+    AUTH_TYPE_WPA2_PSK = 4;
+    // Hotspot 2.0 r2 OSEN.
+    AUTH_TYPE_OSEN = 5;
+    // IEEE 802.11r Fast BSS Transition with PSK authentication.
+    AUTH_TYPE_FT_PSK = 6;
+    // IEEE 802.11r Fast BSS Transition with EAP authentication.
+    AUTH_TYPE_FT_EAP = 7;
+    // Simultaneous Authentication of Equals.
+    AUTH_TYPE_SAE = 8;
+    // Opportunistic Wireless Encryption.
+    AUTH_TYPE_OWE = 9;
+    // SUITE_B_192 192 bit level
+    AUTH_TYPE_SUITE_B_192 = 10;
+    // WPA pre-shared key with stronger SHA256-based algorithms.
+    AUTH_TYPE_WPA_PSK_SHA256 = 11;
+    // WPA using EAP authentication with stronger SHA256-based algorithms.
+    AUTH_TYPE_WPA_EAP_SHA256 = 12;
+    // WAPI pre-shared key.
+    AUTH_TYPE_WAPI_PSK = 13;
+    // WAPI certificate to be specified.
+    AUTH_TYPE_WAPI_CERT = 14;
+    // IEEE 802.11ai FILS SK with SHA256.
+    AUTH_TYPE_FILS_SHA256 = 15;
+    // IEEE 802.11ai FILS SK with SHA384.
+    AUTH_TYPE_FILS_SHA384 = 16;
+    // Simultaneous Authentication of Equals transition mode.
+    AUTH_TYPE_SAE_TRANSITION = 17;
+    // Opportunistic Wireless Encryption transition mode.
+    AUTH_TYPE_OWE_TRANSITION = 18;
+}
+
+/**
+ * Bucketed wifi band.
+ */
+enum WifiBandBucket {
+    BAND_UNKNOWN = 0;
+
+    // All of 2.4GHz band
+    BAND_2G = 1;
+    // Frequencies in the range of [5150, 5250) GHz
+    BAND_5G_LOW = 2;
+    // Frequencies in the range of [5250, 5725) GHz
+    BAND_5G_MIDDLE = 3;
+    // Frequencies in the range of [5725, 5850) GHz
+    BAND_5G_HIGH = 4;
+    // Frequencies in the range of [5925, 6425) GHz
+    BAND_6G_LOW = 5;
+    // Frequencies in the range of [6425, 6875) GHz
+    BAND_6G_MIDDLE = 6;
+    // Frequencies in the range of [6875, 7125) GHz
+    BAND_6G_HIGH = 7;
+}
+
+// Status of various Aware operations
+enum AwareStatus {
+    // unknown status
+    ST_UNKNOWN = 0;
+    // NAN operation succeeded
+    ST_SUCCESS = 1;
+    // NAN Discovery Engine/Host driver failures
+    ST_INTERNAL_FAILURE = 2;
+    // NAN OTA failures
+    ST_PROTOCOL_FAILURE = 3;
+    // The publish/subscribe discovery session id is invalid
+    ST_INVALID_SESSION_ID = 4;
+    // Out of resources to fufill request
+    ST_NO_RESOURCES_AVAILABLE = 5;
+    // Invalid arguments passed
+    ST_INVALID_ARGS = 6;
+    // Invalid peer id
+    ST_INVALID_PEER_ID = 7;
+    // Invalid NAN data-path (ndp) id
+    ST_INVALID_NDP_ID = 8;
+    // Attempting to enable NAN when not available, e.g. wifi is disabled
+    ST_NAN_NOT_ALLOWED = 9;
+    // Over the air ACK not received
+    ST_NO_OTA_ACK = 10;
+    // Attempting to enable NAN when already enabled
+    ST_ALREADY_ENABLED = 11;
+    // Can't queue tx followup message foor transmission
+    ST_FOLLOWUP_TX_QUEUE_FULL = 12;
+    // Unsupported concurrency of NAN and another feature - NAN disabled
+    ST_UNSUPPORTED_CONCURRENCY = 13;
+    // Other failures
+    ST_GENERIC_FAILURE = 14;
+}
+
+/**
+ * Soft AP Role
+ */
+enum SoftApRole {
+    // Unknown
+    ROLE_UNKNOWN = 0;
+    // Tethering AP
+    ROLE_TETHERING = 1;
+    // Local-only AP
+    ROLE_LOCAL_ONLY = 2;
+}
+
+/**
+ * Device support for STA + AP concurrency
+ */
+enum StaApConcurrency {
+    // Unknown
+    STA_AP_CONCURRENCY_UNKNOWN = 0;
+    // STA + AP concurrency unsupported
+    STA_AP_CONCURRENCY_UNSUPPORTED = 1;
+    // STA + Single AP concurrency supported
+    STA_AP_CONCURRENCY_SINGLE = 2;
+    // STA + Bridged AP concurrency supported
+    STA_AP_CONCURRENCY_DBS = 3;
+}
+
+/**
+ * Connection status of the existing primary STA
+ */
+enum StaStatus {
+    // Unknown
+    STA_STATUS_UNKNOWN = 0;
+    // STA is disconnected
+    STA_STATUS_DISCONNECTED = 1;
+    // STA is connected via 2.4GHz band
+    STA_STATUS_CONNECTED_2_GHZ = 2;
+    // STA is connected via 5GHz band
+    STA_STATUS_CONNECTED_5_GHZ = 3;
+    // STA is connected via 6GHz band
+    STA_STATUS_CONNECTED_6_GHZ = 4;
+}
+
+enum EapType {
+    // Unknown Type
+    TYPE_UNKNOWN = 0;
+    // EAP_TLS (13)
+    TYPE_EAP_TLS = 1;
+    // EAP_TTLS (21)
+    TYPE_EAP_TTLS = 2;
+    // EAP_SIM (18)
+    TYPE_EAP_SIM = 3;
+    // EAP_AKA (23)
+    TYPE_EAP_AKA = 4;
+    // EAP_AKA_PRIME (50)
+    TYPE_EAP_AKA_PRIME = 5;
+    TYPE_EAP_WAPI_CERT = 6;
+    TYPE_EAP_UNAUTH_TLS = 7;
+    TYPE_EAP_PEAP = 8;
+    TYPE_EAP_PWD = 9;
+    TYPE_EAP_OTHERS = 10;
+}
+
+enum EapInnerMethod {
+    METHOD_UNKNOWN = 0;
+    METHOD_PAP = 1;
+    METHOD_MSCHAP = 2;
+    METHOD_MSCHAP_V2 = 3;
+    METHOD_OTHERS = 4;
+    // Generic Token Card
+    METHOD_GTC = 5;
+    // EAP-Subscriber Identity Module [RFC-4186]
+    METHOD_SIM = 6;
+    // EAP-Authentication and Key Agreement [RFC-4187]
+    METHOD_AKA = 7;
+    // EAP-Authentication and Key Agreement Prime [RFC-5448]
+    METHOD_AKA_PRIME = 8;
+}
+
+enum RoamingType {
+    ROAMING_UNKNOWN = 0;
+    // Not a Passpoint network
+    ROAMING_NOT_PASSPOINT = 1;
+    // Non-Roaming
+    ROAMING_NONE = 2;
+    // Other RCOI Roaming
+    ROAMING_RCOI_OTHERS = 3;
+    // Free OpenRoaming
+    ROAMING_RCOI_OPENROAMING_FREE = 4;
+    // Settled OpenRoaming
+    ROAMING_RCOI_OPENROAMING_SETTLED = 5;
+    // Not RCOI roaming
+    ROAMING_NOT_RCOI = 6;
+}
+
+/**
+ * Wi-Fi Standards
+ */
+enum WifiStandard {
+    // Unknown
+    WIFI_STANDARD_UNKNOWN = 0;
+    // Wi-Fi 802.11a/b/g
+    WIFI_STANDARD_LEGACY = 1;
+    // Wi-Fi 802.11n
+    WIFI_STANDARD_11N = 2;
+    // Wi-Fi 802.11ac
+    WIFI_STANDARD_11AC = 3;
+    // Wi-Fi 802.11ax
+    WIFI_STANDARD_11AX = 4;
+    // Wi-Fi 802.11ad
+    WIFI_STANDARD_11AD = 5;
+    // Wi-Fi 802.11be
+    WIFI_STANDARD_11BE = 6;
+}
+
+/**
+ * Role of the client mode manager
+ */
+enum ClientModeRole {
+    ROLE_UNSPECIFIED = 0;
+    ROLE_CLIENT_PRIMARY = 1;
+    ROLE_CLIENT_SECONDARY_LONG_LIVED = 2;
+    ROLE_CLIENT_SECONDARY_TRANSIENT = 3;
+    ROLE_CLIENT_SECONDARY_INTERNET = 4;
+    ROLE_CLIENT_LOCAL_ONLY = 5;
+    ROLE_CLIENT_OTHERS = 6;
+}
+
+/**
+ * Aware HAL API
+ */
+enum AwareHalApi {
+    AWARE_API_UNKNOWN = 0;
+    AWARE_CONFIG_REQUEST = 1;
+    AWARE_CREATE_DATA_INTERFACE_REQUEST = 2;
+    AWARE_DELETE_DATA_INTERFACE_REQUEST = 3;
+    AWARE_DISABLE_REQUEST = 4;
+    AWARE_ENABLE_REQUEST = 5;
+    AWARE_GET_CAPABILITIES_REQUEST = 6;
+    AWARE_INITIATE_DATA_PATH_REQUEST = 7;
+    AWARE_REGISTER_EVENT_CALLBACK = 8;
+    AWARE_RESPOND_TO_DATA_PATH_INDICATION_REQUEST = 9;
+    AWARE_START_PUBLISH_REQUEST = 10;
+    AWARE_START_SUBSCRIBE_REQUEST = 11;
+    AWARE_STOP_PUBLISH_REQUEST = 12;
+    AWARE_STOP_SUBSCRIBE_REQUEST = 13;
+    AWARE_TERMINATE_DATA_PATH_REQUEST = 14;
+    AWARE_SUSPEND_REQUEST = 15;
+    AWARE_RESUME_REQUEST = 16;
+    AWARE_TRANSMIT_FOLLOW_UP_REQUEST = 17;
+    AWARE_INITIATE_PAIRING_REQUEST = 18;
+    AWARE_RESPOND_TO_PAIRING_INDICATION_REQUEST = 19;
+    AWARE_INITIATE_BOOTSTRAPPING_REQUEST = 20;
+    AWARE_RESPOND_TO_BOOTSTRAPPING_INDICATION_REQUEST = 21;
+    AWARE_TERMINATE_PAIRING_REQUEST = 22;
+}
+
+/**
+ * Wi-Fi Security modes defined by the combinations of cipher suite, AKM and PMF
+ */
+enum SecurityMode {
+    SECURITY_MODE_UNKNOWN = 0;
+    SECURITY_MODE_INVALID = 1;
+    SECURITY_MODE_WPA3_ENTERPRISE_192_BIT = 2;
+    SECURITY_MODE_WPA3_ENTERPRISE = 3;
+    SECURITY_MODE_WPA3_PERSONAL = 4;
+    SECURITY_MODE_WPA3_WPA2_PERSONAL_TRANSITION = 5;
+    SECURITY_MODE_DPP = 6;
+    SECURITY_MODE_WPA2_PERSONAL = 7;
+    SECURITY_MODE_WPA2_WPA_PERSONAL_TRANSITION = 8;
+    SECURITY_MODE_WAPI_CERT = 9;
+    SECURITY_MODE_WAPI_PSK = 10;
+    SECURITY_MODE_WPA_ENTERPRISE_LEGACY = 11;
+    SECURITY_MODE_WPA_PERSONAL_LEGACY = 12;
+    SECURITY_MODE_OWE = 13;
+    SECURITY_MODE_OWE_TRANSITION = 14;
+    SECURITY_MODE_WEP = 15;
+    SECURITY_MODE_NONE = 16;
+}
+
+enum TofuConfiguration {
+    // Default value.
+    TOFU_CONFIGURATION_UNSPECIFIED = 0;
+    // TOFU is not enabled on the enterprise config.
+    TOFU_CONFIGURATION_NOT_ENABLED = 1;
+    // TOFU is enabled pre-connection.
+    TOFU_CONFIGURATION_ENABLED_PRE_CONNECTION = 2;
+    // Root CA was configured post-TOFU connection.
+    TOFU_CONFIGURATION_CONFIGURE_ROOT_CA = 3;
+    // Certificate pinning was used post-TOFU connection.
+    TOFU_CONFIGURATION_CERT_PINNING = 4;
+}
+
+/**
+ * Passpoint release versions
+ */
+enum PasspointRelease {
+  PASSPOINT_RELEASE_UNKNOWN = 0;
+  PASSPOINT_RELEASE_1 = 1;
+  PASSPOINT_RELEASE_2 = 2;
+  PASSPOINT_RELEASE_3 = 3;
+}
+
+/**
+ * Wi-Fi usability state as predicted by the network scorer
+ */
+enum WifiPredictedUsabilityState {
+   WIFI_USABILITY_PREDICTED_UNKNOWN = 0;
+   WIFI_USABILITY_PREDICTED_USABLE = 1;
+   WIFI_USABILITY_PREDICTED_UNUSABLE = 2;
+ }

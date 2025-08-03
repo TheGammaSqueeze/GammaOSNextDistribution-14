@@ -1,0 +1,47 @@
+{
+  "imports": [
+    {
+      "path": "frameworks/native/libs/gui"
+    },
+    {
+      "path": "frameworks/native/services/inputflinger"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "libsurfaceflinger_unittest"
+    },
+    {
+      "name": "libcompositionengine_test"
+    },
+    {
+      "name": "libscheduler_test"
+    },
+    {
+      "name": "CtsGraphicsTestCases",
+      // flaky on mixed gsi builds
+      "options": [
+        {
+          "exclude-filter": "android.graphics.cts.CameraGpuTest#testCameraImageCaptureAndRendering"
+        },
+        {
+          "exclude-filter": "android.graphics.cts.AnimatorLeakTest#testPauseResume"
+        }
+      ]
+    },
+    {
+      "name": "CtsSurfaceControlTests"
+    },
+    {
+      "name": "CtsSurfaceControlTestsStaging"
+    }
+  ],
+  "hwasan-presubmit": [
+    {
+      "name": "libscheduler_test"
+    },
+    {
+      "name": "libsurfaceflinger_unittest"
+    }
+  ]
+}

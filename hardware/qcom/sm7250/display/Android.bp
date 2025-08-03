@@ -1,0 +1,99 @@
+soong_namespace {
+    imports: [
+        "vendor/qcom/opensource/commonsys-intf/display",
+        "vendor/qcom/opensource/display"
+    ],
+}
+
+package {
+    default_applicable_licenses: ["hardware_qcom_sm7250_display_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "hardware_qcom_sm7250_display_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "legacy_not_a_contribution",
+    ],
+    // large-scale-change unable to identify any license_text files
+}
+
+display_go_defaults_sm7250 {
+    name: "display_go_defaults",
+}
+
+cc_defaults {
+    name: "display_defaults",
+    defaults: ["display_go_defaults"],
+    cflags: [
+        "-Wno-missing-field-initializers",
+        "-Wconversion",
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: [
+        "liblog",
+        "libcutils",
+        "libutils",
+    ],
+    header_libs: ["display_headers"],
+
+}
+
+cc_library_headers {
+    name: "debug_headers",
+    defaults: ["display_go_defaults"],
+    vendor: true,
+    export_include_dirs: [
+        "libdebug",
+    ],
+}
+
+cc_library_headers {
+    name: "display_headers",
+    defaults: ["display_go_defaults"],
+    vendor: true,
+    export_include_dirs: [
+        "include",
+        "libcopybit",
+        "libdrmutils",
+        "libqdutils",
+        "libqservice",
+        "gpu_tonemapper",
+        "sdm/include",
+        "gralloc",
+        "libdebug",
+        "libhistogram",
+    ],
+    header_libs: [
+        "libhardware_headers",
+        "display_intf_headers",
+        "debug_headers",
+    ],
+    export_header_lib_headers: [
+        "libhardware_headers",
+        "display_intf_headers",
+        "debug_headers",
+    ],
+}
+
+subdirs = [
+    "libqservice",
+    "libqdutils",
+]
