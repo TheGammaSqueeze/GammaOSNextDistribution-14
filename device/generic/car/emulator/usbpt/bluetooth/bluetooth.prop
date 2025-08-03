@@ -1,0 +1,44 @@
+# The default Bluetooth Class of Device
+#
+# Bluetooth uses "format 1" for class of device, which consists of 4 fields:
+#   * Major Service Class
+#   * Major Device Class
+#   * Minor Device Class
+#   * Format indicator (Fixed: 0b00)
+#
+# Class of device is represented by a 3-tuple. However, each value in the tuple does
+# *NOT* correspond to a field. Instead, class of device is stored internally as 24 bits,
+# and each value in the tuple corresponds to an octet.
+#
+# Format (24 Bits):
+#        Service           Major      Minor     fmt
+#       (11 bits)        (5 bits)    (6 bits)  0b00
+# |23                 13|12      8|7         2|1 0|
+# |<------------------->|<------->|<--------->|<->|
+# |0|0|1|0|0|1|1|0|0|0|0|0|0|1|0|0|0|0|1|0|0|0|0|0|
+# |<------------->|<------------->|<------------->|
+# |23           16|15            8|7             0|
+# | octet[0] = 38 | octet[1] = 4  | octet[2] = 32 |
+#
+# Major Service Class:
+#  - Bit 21: Audio
+#  - Bit 18: Rendering
+#  - Bit 17: Networking
+# Major Device Class:
+#  - Bit 10: Audio / Video
+# Minor Device Class:
+#  - Bit 5: Car Audio
+# Format Bits (Fixed): 0b00 -> "Format 1"
+bluetooth.device.class_of_device=38,4,32
+bluetooth.device.default_name=gCar Emulator
+
+# The Bluetooth profiles that cars expect to have enabled. All other profiles
+# are disabled by default.
+bluetooth.profile.a2dp.sink.enabled=true
+bluetooth.profile.avrcp.controller.enabled=true
+bluetooth.profile.gatt.enabled=true
+bluetooth.profile.hfp.hf.enabled=true
+bluetooth.profile.map.client.enabled=true
+bluetooth.profile.pan.nap.enabled=true
+bluetooth.profile.pan.panu.enabled=true
+bluetooth.profile.pbap.client.enabled=true

@@ -1,0 +1,5 @@
+ #  Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ #  SPDX-License-Identifier: BSD-3-Clause-Clear
+
+dontaudit fsck_untrusted vendor_sysfs_usb_node:dir rw_dir_perms;
+dontaudit fsck_untrusted vendor_sysfs_usb_node:file rw_file_perms;

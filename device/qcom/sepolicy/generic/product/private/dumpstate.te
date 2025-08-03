@@ -1,0 +1,4 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+allow dumpstate vendor_vm_qti_system_file:dir getattr;

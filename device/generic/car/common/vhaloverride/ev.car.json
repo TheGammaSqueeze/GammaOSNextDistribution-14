@@ -1,0 +1,22 @@
+{
+    "apiVersion": 1,
+    "properties": [
+        {
+            "property": "VehicleProperty::INFO_FUEL_TYPE",
+            "defaultValue": {
+                "int32Values": [
+                    "FuelType::FUEL_TYPE_ELECTRIC"
+                ]
+            }
+        },
+        {
+            "property": "VehicleProperty::INFO_EV_CONNECTOR_TYPE",
+            "defaultValue": {
+                "int32Values": [
+                    "EvConnectorType::IEC_TYPE_1_AC",
+                    "EvConnectorType::IEC_TYPE_1_CCS_DC"
+                ]
+            }
+        }
+    ]
+}

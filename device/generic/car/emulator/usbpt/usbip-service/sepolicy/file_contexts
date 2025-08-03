@@ -1,0 +1,4 @@
+/product/bin/usbip_service u:object_r:usbip_service_exec:s0
+/sys/devices/platform/vhci_hcd.0/status u:object_r:sysfs_usbip:s0
+/sys/devices/platform/vhci_hcd.0/attach u:object_r:sysfs_usbip:s0
+

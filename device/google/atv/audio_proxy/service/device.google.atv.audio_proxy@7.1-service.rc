@@ -1,0 +1,7 @@
+service audio_proxy_service /vendor/bin/hw/device.google.atv.audio_proxy@7.1-service \
+  --name mediashell \
+  --stream MEDIASHELL_AUDIO_DEVICE_ADDR:40:600 \
+  --stream MEDIASHELL_MIXER_DEVICE_ADDR:40:40
+    class hal
+    user system
+    group system

@@ -1,0 +1,3 @@
+on property:vendor.qemu.preferred.bt.service=passthrough
+    stop vendor.bluetooth-1-1
+    restart btlinux-1.1

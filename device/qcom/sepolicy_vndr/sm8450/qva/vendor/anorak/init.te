@@ -1,0 +1,6 @@
+#Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+#SPDX-License-Identifier: BSD-3-Clause-Clear
+
+# allow init to mount calib partition
+allow init vendor_calib_file:dir mounton;
+allow init vendor_calib_file:filesystem { relabelfrom mount unmount relabelto };

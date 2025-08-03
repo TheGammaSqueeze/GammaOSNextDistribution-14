@@ -1,0 +1,4 @@
+# Vendor aware available type
+vendor_restricted_prop(vendor_aware_available_prop)
+
+vendor_restricted_prop(vendor_radio_prop)

@@ -1,0 +1,7 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_trustedui_app, domain;
+app_domain(vendor_trustedui_app);
+
+hal_client_domain(vendor_trustedui_app, vendor_hal_trustedui);

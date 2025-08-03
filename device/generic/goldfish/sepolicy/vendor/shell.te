@@ -1,0 +1,7 @@
+allow shell serial_device:chr_file rw_file_perms;
+allow shell aac_drc_prop:file { getattr map open };
+allow shell device_config_runtime_native_boot_prop:file { getattr map open read };
+allow shell adbd:{ socket vsock_socket } rw_socket_perms_no_ioctl;
+
+# Allow shell to read qemu.sf.lcd_density for CTS.
+get_prop(shell, qemu_sf_lcd_density_prop)

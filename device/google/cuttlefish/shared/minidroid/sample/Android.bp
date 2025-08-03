@@ -1,0 +1,61 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_google_cuttlefish_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_google_cuttlefish_license"],
+}
+
+cc_binary {
+    name: "server_minidroid",
+    srcs: ["server.cpp"],
+    shared_libs: [
+        "libbinder_ndk",
+        "minidroid_sd",
+        "liblog",
+    ],
+    static_libs: [
+        "com.android.minidroid.testservice-ndk",
+    ],
+
+    apex_available: [
+        "//apex_available:platform",
+    ],
+}
+
+cc_binary {
+    name: "client_minidroid",
+    srcs: ["client.cpp"],
+    shared_libs: [
+        "libbinder_ndk",
+        "minidroid_sd",
+        "liblog",
+    ],
+    static_libs: [
+        "com.android.minidroid.testservice-ndk",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+    ],
+}
+
+cc_binary {
+    name: "vsock-test",
+    srcs: ["vsock-test.c"],
+}
+
+// https://google.github.io/comprehensive-rust/android/aidl/client.html
+rust_binary {
+    name: "client_minidroid_rust",
+    srcs: ["client.rs"],
+    rustlibs: [
+        "com.android.minidroid.testservice-rust",
+        "liblog_rust",
+        "liblogger",
+        "librpcbinder_rs",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+    ],
+}

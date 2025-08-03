@@ -1,0 +1,67 @@
+#Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+#SPDX-License-Identifier: BSD-3-Clause-Clear
+
+typeattribute hal_camera_default mlstrustedsubject;
+
+hal_server_domain(hal_camera_default, vendor_hal_qvrservice_qti)
+
+hal_server_domain(hal_camera_default, vendor_hal_qvrcamservice_qti)
+
+
+allow hal_camera_default vendor_hal_qvrservice_qti_socket_client:unix_stream_socket { getopt read setopt shutdown write };
+
+allow vendor_hal_qvrservice_qti_socket_fd_use_client hal_camera_default: fd use;
+allow hal_camera_default vendor_hal_qvrservice_qti_socket_fd_use_client:process setsched;
+
+# Allow access to qvrd_vndr socket
+allow hal_camera_default vendor_qvrd_vndr_socket:sock_file rw_file_perms;
+
+# Allow access to qvrd_vndr directory
+allow hal_camera_default vendor_qvrd_vndr_data_file:dir create_dir_perms;
+allow hal_camera_default vendor_qvrd_vndr_data_file:file create_file_perms;
+
+# Allow hal_camera to call sensor native service
+binder_call(hal_camera_default, system_server);
+
+
+hal_client_domain(hal_camera_default, hal_sensors)
+
+
+#
+# Display
+#
+
+# Allow access to /dev/graphics/fb0 for configuring vsync interrupts
+allow hal_camera_default graphics_device:dir r_dir_perms;
+allow hal_camera_default graphics_device:chr_file rw_file_perms;
+
+#
+# Scheduler
+#
+
+userdebug_or_eng(`
+  allow hal_camera_default su:process setsched;
+')
+allow hal_camera_default appdomain:process setsched;
+
+# Allows hal_camera to read the qvr properties
+get_prop(hal_camera_default, vendor_qvr_prop)
+get_prop(hal_camera_default, vendor_qvr_persist_prop)
+get_prop(hal_camera_default, vendor_qvrd_persist_prop)
+
+allow hal_camera_default vendor_qvrd_vndr:unix_stream_socket { connectto };
+allow hal_camera_default vendor_qvrd_vndr:fd use;
+
+# Allow access to thermal
+binder_call(hal_camera_default, hal_thermal);
+hal_client_domain(hal_camera_default, hal_thermal);
+unix_socket_connect(hal_camera_default, vendor_thermal, vendor_thermal-engine)
+
+crash_dump_fallback(hal_camera_default);
+unix_socket_connect(hal_camera_default, logdr, logd)
+
+allow hal_camera_default mnt_vendor_file:dir r_dir_perms;
+allow hal_camera_default vendor_calib_file:dir r_dir_perms;
+allow hal_camera_default vendor_calib_file:file rw_file_perms;
+
+

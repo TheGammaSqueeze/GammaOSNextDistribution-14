@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"អ្នកបានចុចប៊ូតុង​ថយក្រោយ និងចុះក្រោមឱ្យជាប់​រយៈពេលបីវិនាទី ដើម្បីប្រើ <xliff:g id="SERVICE_0">%1$s</xliff:g>។\n\n ដើម្បីបើក <xliff:g id="SERVICE_1">%1$s</xliff:g> ឥឡូវនេះ សូមចុចប៊ូតុង​ថយក្រោយ និងចុះក្រោមឱ្យ​ជាប់រយៈពេលបី​វិនាទីម្ដងទៀត។ សូមប្រើផ្លូវកាត់នេះ​គ្រប់ពេល ដើម្បីបើក ឬបិទ <xliff:g id="SERVICE_2">%1$s</xliff:g>។\n\n អ្នកអាចកែតម្រូវ​ចំណូលចិត្តរបស់អ្នក​នៅក្នុងការកំណត់ &gt; ប្រព័ន្ធ &gt; ភាពងាយស្រួល។"</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"នៅពេលបើក​ផ្លូវកាត់ ការចុច​ប៊ូតុង​ថយក្រោយ និងប៊ូតុង​ចុះក្រោម​រយៈពេល 3 វិនាទីនឹង​ចាប់ផ្ដើម​មុខងារ​ភាពងាយស្រួល​។\n\n មុខងារ​ភាពងាយស្រួល​បច្ចុប្បន្ន៖\n <xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n អ្នក​អាចប្ដូរ​មុខងារនេះបាន​នៅក្នុង​ការកំណត់ &gt; ភាពងាយស្រួល​។"</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"បានចុចប៊ូតុងថយក្រោយ និងចុះក្រោមឱ្យជាប់។ បាន​បើក <xliff:g id="SERVICE_NAME">%1$s</xliff:g>។"</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"បានចុចប៊ូតុងថយក្រោយ និងចុះក្រោមឱ្យជាប់។ បាន​បិទ <xliff:g id="SERVICE_NAME">%1$s</xliff:g>។"</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"អ្នកបានចុចប៊ូតុង​ថយក្រោយ និងចុះក្រោមឱ្យជាប់​រយៈពេលបីវិនាទី ដើម្បីប្រើ <xliff:g id="SERVICE_0">%1$s</xliff:g>។ ដើម្បីបើក <xliff:g id="SERVICE_1">%1$s</xliff:g> ឥឡូវនេះ សូមចុចប៊ូតុង​ថយក្រោយ និងចុះក្រោមឱ្យ​ជាប់រយៈពេលបី​វិនាទីម្ដងទៀត។ សូមប្រើផ្លូវកាត់នេះ​គ្រប់ពេល ដើម្បីបើក ឬបិទ <xliff:g id="SERVICE_2">%1$s</xliff:g>។"</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"អ្នកបានចុចប៊ូតុង​ថយក្រោយ និងចុះក្រោមឱ្យជាប់​រយៈពេលបីវិនាទី ដើម្បីប្រើ <xliff:g id="SERVICE_0">%1$s</xliff:g>។\n\n ដើម្បីបើក <xliff:g id="SERVICE_1">%1$s</xliff:g> ឥឡូវនេះ សូមចុចប៊ូតុង​ថយក្រោយ និងចុះក្រោមឱ្យ​ជាប់រយៈពេលបី​វិនាទីម្ដងទៀត។\n សូមប្រើផ្លូវកាត់នេះ​គ្រប់ពេល ដើម្បីបើក ឬបិទ <xliff:g id="SERVICE_2">%1$s</xliff:g>។\n\n អ្នកអាចកែតម្រូវ​ចំណូលចិត្តរបស់អ្នក​នៅក្នុងការកំណត់ &gt; ប្រព័ន្ធ &gt; ភាពងាយស្រួល។"</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"កុំទាន់"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"បើក​ឥឡូវនេះ"</string>
+</resources>

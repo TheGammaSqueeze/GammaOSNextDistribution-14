@@ -1,0 +1,16 @@
+# goldfish-system-setup service: runs init.qemu-adb-keys.sh script
+type goldfish_system_setup, domain, coredomain;
+type goldfish_system_setup_exec, system_file_type, exec_type, file_type;
+
+init_daemon_domain(goldfish_system_setup)
+
+allow goldfish_system_setup shell_exec:file { rx_file_perms };
+
+# Allow write to /dev/kmsg
+allow goldfish_system_setup kmsg_debug_device:chr_file { getattr write };
+
+# Allow read/write /data/misc/adb/adb_keys
+allow goldfish_system_setup adb_keys_file:file { create setattr rw_file_perms };
+allow goldfish_system_setup adb_keys_file:dir { search add_name write };
+
+allow goldfish_system_setup toolbox_exec:file { getattr execute read open execute_no_trans map };

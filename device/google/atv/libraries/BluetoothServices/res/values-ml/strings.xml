@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"N/A"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"ബാറ്ററി നില ക്രിട്ടിക്കലാണ്"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"ബാറ്ററി നില കുറവാണ്"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"ബാറ്ററി നില മികച്ചതാണ്"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"റിമോട്ട് അപ്‌ഡേറ്റ് സ്ഥിരീകരിക്കുക"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"അപ്‌ഡേറ്റ് ചെയ്യുന്ന സമയത്ത്, നിങ്ങളുടെ റിമോട്ട് കുറച്ച് സമയത്തേക്ക് വിച്‌ഛേദിക്കപ്പെടാം."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"തുടരുക"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"റദ്ദാക്കുക"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"റിമോട്ട് അപ്‌ഡേറ്റ്"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"പുതിയ സോഫ്റ്റ്‌വെയർ ലഭ്യമാണ്"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"അപ്‌ഡേറ്റ് ലഭ്യമാണ്"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"റിമോട്ട് അപ് ടു ഡേറ്റ് ആണ്"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"റിമോട്ട് അപ്ഡേറ്റ് ചെയ്യാനായില്ല"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"നിങ്ങളുടെ റിമോട്ട് അപ്‌ഡേറ്റ് ചെയ്യുമ്പോൾ ഒരു പ്രശ്‌നം നേരിട്ടു. വീണ്ടും ശ്രമിക്കുക."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"കാത്തിരിക്കുക"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"റിമോട്ട് വീണ്ടും ജോടിയാക്കുക"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"പ്രവർത്തനക്ഷമമാക്കി"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"പ്രവർത്തനരഹിതമാക്കി"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"ബാറ്ററി നില"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"ഫേംവെയര്‍"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Bluetooth വിലാസം"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"ബാറ്ററി മാറ്റി മറ്റൊന്നു വയ്ക്കുക"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"ബാറ്ററി ചാർജ് കുറവാണ്"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"കണക്‌റ്റ് ചെയ്‌ത ഉപകരണങ്ങൾ"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"റിമോട്ടുകളും ആക്‌സസറികളും"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"നിങ്ങളുടെ റിമോട്ട് അപ്‌ഡേറ്റ് ചെയ്യുക"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"ഇൻസ്‌റ്റാൾ ചെയ്യാൻ തയ്യാറാണ്"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"അപ്‌ഡേറ്റ് ചെയ്യുക"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"ഡിസ്‌മിസ് ചെയ്യുക"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"റിമോട്ട് ബാറ്ററിയിൽ ചാർജ് കുറവാണ്"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"ബാറ്ററി മാറ്റി ഉടനെ മറ്റൊന്ന് വയ്ക്കുക"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"റിമോട്ട് ബാറ്ററി ഏതാണ്ട് തീർന്നു"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"ബാറ്ററി മാറ്റി ഉടനെ മറ്റൊന്ന് വയ്ക്കുക"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"റിമോട്ട് ബാറ്ററി തീർന്നു"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"റിമോട്ട് ഉപയോഗിക്കാൻ ബാറ്ററി മാറ്റി മറ്റൊന്ന് വയ്ക്കുക"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"ഉവ്വ്"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"ഇല്ല"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s എന്നതിൽ നിന്ന് വിച്ഛേദിക്കുക"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"%1$s എന്നതിലേക്ക് കണക്‌റ്റ് ചെയ്യുക"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$s മറന്നു"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"കണക്റ്റ് ചെയ്‌ത ഉപകരണത്തിന്റെ പേര് മാറ്റുക"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CEC പ്രവർത്തനക്ഷമമാക്കുക"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC പ്രവര്‍ത്തനക്ഷമമാക്കിയ മറ്റ് ഉപകരണങ്ങള്‍ ഒരു റിമോട്ട് കണ്‍ട്രോള്‍ ഉപയോഗിച്ച് നിയന്ത്രിക്കാനും സ്വയമേവ ഓണാക്കാനും/ഓഫാക്കാനും HDMI-CEC നിങ്ങളെ അനുവദിക്കുന്നു. \n\nകുറിപ്പ്: നിങ്ങളുടെ ടിവിയിലും മറ്റ് HDMI ഉപകരണങ്ങളിലും HDMI-CEC പ്രവര്‍ത്തനക്ഷമമാക്കിയിട്ടുണ്ടെന്ന് ഉറപ്പാക്കുക. HDMI-CEC-ക്ക് നിര്‍മ്മാതാക്കള്‍ പലപ്പോഴും വ്യത്യസ്‌ത പേരുകള്‍ നല്‍കാറുണ്ട്, ഉദാഹരണത്തിന്:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"റിമോട്ട് ബട്ടണുകൾ സജ്ജീകരിക്കുക"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"ശബ്‌ദം, പവർ, ടിവികളിലെ ഇൻപുട്ട്, റിസീവറുകൾ, സൗണ്ട് ബാറുകൾ എന്നിവ നിയന്ത്രിക്കുക"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"എന്റെ റിമോട്ട് കണ്ടെത്തൂ"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"നിങ്ങളുടെ Google TV റിമോട്ട് എവിടെയെങ്കിലും വച്ച് മറന്നെങ്കിൽ അത് കണ്ടെത്താൻ ഒരു ശബ്ദം പ്ലേ ചെയ്യുക"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"നിങ്ങളുടെ റിമോട്ടിൽ 30 സെക്കൻഡ് നേരത്തേക്ക് ഒരു ശബ്ദം പ്ലേ ചെയ്യാൻ Google TV Streamer-ന്റെ പിൻഭാഗത്തുള്ള ബട്ടൺ അമർത്തുക. ഇത് Google TV Streamer Voice Remote-ൽ മാത്രമേ പ്രവർത്തിക്കൂ.\n\nശബ്ദം നിർത്താൻ, നിങ്ങളുടെ റിമോട്ടിലെ ഏതെങ്കിലും ബട്ടൺ അമർത്തുക."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"\'എന്റെ റിമോട്ട് കണ്ടെത്തുക\' പ്രവർത്തനക്ഷമമാക്കിയിരിക്കുമ്പോൾ, Google TV റിമോട്ട് എവിടെയെങ്കിലും വച്ച് മറന്നെങ്കിൽ അത് കണ്ടെത്താൻ ഒരു ശബ്ദം പ്ലേ ചെയ്യാം."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"ശബ്‌ദം പ്ലേ ചെയ്യുക"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"ബാറ്ററി നില: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"ആക്‌സസറികൾ"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"റിമോട്ട് കൺട്രോൾ"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"കണക്‌റ്റ് ചെയ്‌തു"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"മുമ്പ് കണക്‌റ്റ് ചെയ്‌തവ"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"റിമോട്ടോ ആക്‌സസറിയോ ജോടിയാക്കുക"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"വിച്ഛേദിക്കുക"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"കണക്‌റ്റ് ചെയ്യുക"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"പേര് മാറ്റുക"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"മറന്നു"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"ടിവി ഓഡിയോയ്ക്കായി ഉപയോഗിക്കുക"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"കണക്റ്റ് ചെയ്തു"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"വിച്ഛേദിച്ചു"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"ഉപകരണ നിയന്ത്രണം"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"പുതിയ ഉപകരണം കണക്റ്റ് ചെയ്യുക"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"പുതിയ Bluetooth ഉപകരണങ്ങൾ കണക്റ്റ് ചെയ്യുന്നതിന് മുമ്പ്, അവ ജോടിയാക്കൽ മോഡിലാണെന്ന് ഉറപ്പാക്കുക. %1$s കണക്റ്റ് ചെയ്യാൻ, %2$s + %3$s എന്നത് 3 സെക്കൻഡ് അമർത്തിപ്പിടിക്കുക."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV റിമോട്ട്"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"ലഭ്യമായ ഉപകരണങ്ങൾ"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"ഉപകരണങ്ങൾ തിരയുന്നു…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"പിശക്"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"കണക്റ്റ് ചെയ്യുന്നു…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"കണക്‌റ്റ് ചെയ്‌തു"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"റദ്ദാക്കി"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s കണക്റ്റ് ചെയ്യാനായില്ല"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s കണക്റ്റ് ചെയ്തു"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s വിച്ഛേദിച്ചു"</string>
+</resources>

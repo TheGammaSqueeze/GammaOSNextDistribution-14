@@ -1,0 +1,4 @@
+#############################
+# Vendor files
+#
+/vendor/bin/cuttlefish_sensor_injection   u:object_r:cuttlefish_sensor_injection_exec:s0

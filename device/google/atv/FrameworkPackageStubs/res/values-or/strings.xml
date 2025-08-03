@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="1051886861071228918">"ଷ୍ଟବ୍ କାର୍ଯ୍ୟକଳାପ"</string>
+    <string name="message_not_supported" msgid="5269947674108844893">"ଏହା କରିପାରିବା ଭଳି ଏକ ଆପ ଆପଣଙ୍କ ପାଖରେ ନାହିଁ"</string>
+    <string name="stub_name" msgid="2907730040872891281">"କିଛି ନାହିଁ"</string>
+</resources>

@@ -1,0 +1,78 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "android.hardware.oemlock-service.remote",
+    defaults: ["cuttlefish_guest_only"],
+    vendor: true,
+    relative_install_path: "hw",
+
+    srcs: [
+        "remote_oemlock.cpp",
+        "service.cpp",
+    ],
+
+    static_libs: [
+        "android.hardware.oemlock-V1-ndk",
+        "libbase",
+        "libcuttlefish_fs",
+        "libcuttlefish_utils",
+        "libcuttlefish_security",
+        "libcuttlefish_transport",
+    ],
+
+    stl: "c++_static",
+
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+
+    installable: false, // install in APEX
+}
+
+apex {
+    name: "com.google.cf.oemlock",
+    manifest: "apex_manifest.json",
+    file_contexts: "apex_file_contexts",
+    key: "com.google.cf.apex.key",
+    certificate: ":com.google.cf.apex.certificate",
+    updatable: false,
+    vendor: true,
+
+    binaries: ["android.hardware.oemlock-service.remote"],
+    prebuilts: [
+        "android.hardware.oemlock-service.remote.rc",
+        "android.hardware.oemlock-service.remote.xml",
+    ],
+}
+
+prebuilt_etc {
+    name: "android.hardware.oemlock-service.remote.rc",
+    src: "android.hardware.oemlock-service.remote.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "android.hardware.oemlock-service.remote.xml",
+    src: "android.hardware.oemlock-service.remote.xml",
+    sub_dir: "vintf",
+    installable: false,
+}

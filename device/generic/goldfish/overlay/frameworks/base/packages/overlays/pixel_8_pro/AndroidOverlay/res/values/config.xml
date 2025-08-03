@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2023, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Whether the display cutout region of the main built-in display should be forced to
+        black in software (to avoid aliasing or emulate a cutout that is not physically existent).
+    -->
+     <!-- The stable device width and height in pixels. If these aren't set to a positive number
+          then the device will use the width and height of the default display the first time it's
+          booted.  -->
+    <integer name="config_stableDeviceDisplayWidth">1344</integer>
+    <integer name="config_stableDeviceDisplayHeight">2992</integer>
+
+
+    <!-- Whether the display cutout region of the main built-in display should be forced to
+        black in software (to avoid aliasing or emulate a cutout that is not physically existent).
+    -->
+    <bool name="config_fillMainBuiltInDisplayCutout">true</bool>
+
+    <!-- Display cutout configuration -->
+    <string translatable="false" name="config_mainBuiltInDisplayCutout">
+        M 628.75,75
+        a 43.25,43.25 0 1 0 86.5,0
+        a 43.25,43.25 0 1 0 -86.5,0
+        Z
+        @left
+    </string>
+
+    <string translatable="false" name="config_mainBuiltInDisplayCutoutRectApproximation">
+        M 615.5,0
+        h 110
+        v 151
+        h -110
+        Z
+        @left
+    </string>
+
+    <!-- A string config in svg path format for the main display shape.
+         (@see https://www.w3.org/TR/SVG/paths.html#PathData).
+
+         This config must be set unless:
+         1. {@link Configuration#isScreenRound} is true which means the display shape is circular
+            and the system will auto-generate a circular shape.
+         2. The display has no rounded corner and the system will auto-generate a rectangular shape.
+         (@see DisplayShape#createDefaultDisplayShape)
+
+         Note: If the display supports multiple resolutions, please define the path config based on
+         the highest resolution so that it can be scaled correctly in each resolution.
+    -->
+    <string name="config_mainDisplayShape" translatable="false">M 119.9999 -3.7795276e-05 C 113.32402 0.34316186 102.8311 1.9200038 98.695215 2.8066029 C 73.98156 8.0987976 62.561448 13.566009 49.605371 22.5859 C 34.411306 33.163789 20.551075 49.59161 12.962793 65.706994 C 7.8660073 76.530983 2.8411097 93.439401 1.4120111 104.32809 C 0.066002501 114.58638 0.28550144 114.76397 -9.8267718e-05 119.99996 L -9.8267718e-05 2877 L 1.9803705 2891.3164 C 8.0676544 2919.9453 16.781085 2937.4625 33.785058 2955.2598 C 51.142521 2973.4268 70.876659 2983.6798 100.6835 2990.0176 L 114.9999 2992 L 1228.9999 2992 L 1243.3163 2990.0176 C 1273.1232 2983.6798 1292.8573 2973.4268 1310.2148 2955.2598 C 1327.2186 2937.4625 1335.9323 2919.9453 1342.0194 2891.3164 L 1343.9999 2877 L 1343.9999 119.99996 C 1343.7143 114.76397 1343.9338 114.58638 1342.5878 104.32809 C 1341.1587 93.439401 1336.1338 76.530983 1331.037 65.706994 C 1323.4487 49.59161 1309.5885 33.163789 1294.3944 22.5859 C 1281.4385 13.566009 1270.0183 8.0987976 1245.3046 2.8066029 C 1241.1687 1.9200038 1230.6758 0.34316186 1223.9999 -3.7795276e-05 L 119.9999 -3.7795276e-05 z</string>
+
+</resources>

@@ -1,0 +1,5 @@
+vndbinder_use(hal_drm_default);
+hal_client_domain(hal_drm_default, hal_graphics_composer)
+
+allow hal_drm_default mediadrm_vendor_data_file:dir create_dir_perms;
+allow hal_drm_default mediadrm_vendor_data_file:file create_file_perms;

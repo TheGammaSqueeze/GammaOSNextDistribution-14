@@ -1,0 +1,2 @@
+# Audio HAL
+/vendor/bin/hw/android\.hardware\.audio\.service-caremu u:object_r:hal_audio_caremu_exec:s0

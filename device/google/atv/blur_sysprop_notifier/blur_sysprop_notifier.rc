@@ -1,0 +1,9 @@
+service blur_sysprop_notifier /system_ext/bin/blur_sysprop_notifier
+    class core
+    user shell
+    group shell
+    oneshot
+    disabled
+
+on property:vendor.media.gpu.readable=*
+    start blur_sysprop_notifier

@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<manifest>
+  <remote fetch=".." name="aosp" review="https://android-review.googlesource.com/"/>
+  <default remote="aosp" revision="main" sync-j="4"/>
+  <manifest-server url="http://android-smartsync.corp.google.com/android.googlesource.com/manifestserver"/>
+
+  <!-- Crosvm Dependencies -->
+  <project groups="crosvm" name="platform/external/crosvm" path="platform/crosvm" revision="345c5a3c4c90cbddc5a901e3ddd7f013e4cb7611"/>
+  <project groups="crosvm" name="platform/external/libdrm" path="external/libdrm" revision="061d95fa324fb69af15c28d39464cd1297f2f1ba"/>
+  <project groups="crosvm" name="platform/external/libepoxy" path="third_party/libepoxy" revision="d2758901de61a18f099696d04e5b33bb790cc456"/>
+  <project groups="crosvm" name="platform/external/libffi" path="third_party/libffi" revision="479bc8d487cc34eac90a0fd1ca16ce1f23285ea1"/>
+  <project groups="crosvm" name="platform/external/minigbm" path="platform/minigbm" revision="b198c6e2337f78dd291f2d4ff78b04c8a3b897b1"/>
+  <project groups="crosvm" name="platform/external/minijail" path="platform/minijail" revision="916b5cd78488cf9deb09f58cea6ed3557134c1ea"/>
+  <project groups="crosvm" name="platform/external/virglrenderer" path="third_party/virglrenderer" revision="e94347008e35f09bdf3ca54ee392c377dfa34896"/>
+  <project groups="crosvm" name="platform/external/wayland" path="third_party/wayland" revision="ed5af8bd00d3f791cde20cee8ea15ffb7d6cfabd"/>
+
+  <!-- Gfxstream Dependencies -->
+  <project groups="gfxstream" name="platform/external/angle" path="external/angle" revision="2662abb218d15807856f25b93e100bdb10e0db45"/>
+  <project groups="gfxstream" name="platform/external/flatbuffers" path="external/flatbuffers" revision="ecd19dd48a97b9e89fc9f387de5dce7e679e8077"/>
+  <project groups="gfxstream" name="platform/external/lz4" path="external/lz4" revision="99b28c87054679e66517c9c3c89fe99654e15cfc"/>
+  <project groups="gfxstream" name="platform/hardware/google/aemu" path="hardware/google/aemu" revision="2a5ed0c0c3191176558f5b30b537708704f198ae"/>
+  <project groups="gfxstream" name="platform/hardware/google/gfxstream" path="hardware/google/gfxstream" revision="fc49c32b345f00f7ccd6bdead28f5a64428a4ecb"/>
+
+</manifest>

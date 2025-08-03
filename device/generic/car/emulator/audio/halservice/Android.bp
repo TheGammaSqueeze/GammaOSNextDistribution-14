@@ -1,0 +1,86 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//       http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_generic_car_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_generic_car_license"],
+}
+
+cc_binary {
+    name: "android.hardware.audio.service-caremu",
+
+    init_rc: ["android.hardware.audio.service-caremu.rc"],
+
+    relative_install_path: "hw",
+    vendor: true,
+    // Prefer 32 bit as the binary must always be installed at the same
+    // location for init to start it and the build system does not support
+    // having two binaries installable to the same location even if they are
+    // not installed in the same build.
+    compile_multilib: "prefer32",
+    srcs: [
+        "service.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "android.hardware.audio@6.0",
+        "android.hardware.audio.common@6.0",
+        "android.hardware.audio.effect@6.0",
+        "android.hardware.automotive.audiocontrol-V1-ndk",
+        "audiocontrol-caremu",
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libhardware",
+        "libhidlbase",
+        "liblog",
+    ],
+
+    header_libs: [
+        "libhardware_headers",
+    ],
+}
+
+cc_library {
+    name: "audiocontrol-caremu",
+    vendor: true,
+    vintf_fragments: ["audiocontrol-caremu.xml"],
+
+    shared_libs: [
+        "android.hardware.audio.common@7.0-enums",
+        "android.hardware.automotive.audiocontrol-V1-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "liblog",
+        "audio.primary.caremu",
+    ],
+
+    srcs: [
+        "AudioControl.cpp",
+    ],
+
+    include_dirs: [
+        "device/generic/car/emulator/audio/driver/include"
+    ],
+}

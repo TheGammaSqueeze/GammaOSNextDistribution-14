@@ -1,0 +1,3 @@
+# Allow debug dump
+allow hal_ivn_default shell:fd use;
+allow hal_ivn_default shell:fifo_file write;

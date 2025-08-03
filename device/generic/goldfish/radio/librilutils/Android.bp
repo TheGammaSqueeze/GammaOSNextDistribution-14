@@ -1,0 +1,46 @@
+// Copyright 2013 The Android Open Source Project
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_generic_goldfish_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_generic_goldfish_license"],
+}
+
+cc_library {
+    name: "librilutils-goldfish-fork",
+
+    srcs: [
+        "librilutils.c",
+        "record_stream.c",
+        "proto/sap-api.proto",
+    ],
+
+    header_libs: ["goldfish_ril_headers"],
+    export_header_lib_headers: ["goldfish_ril_headers"],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-DPB_FIELD_32BIT"
+    ],
+
+    proto: {
+        type: "nanopb-c-enable_malloc-32bit",
+        export_proto_headers: true,
+    },
+
+    vendor: true,
+}
+
+// Create java protobuf code
+java_library {
+    name: "goldfish-fork-sap-api-java-static",
+    srcs: ["proto/sap-api.proto"],
+    proto: {
+        type: "micro",
+    },
+}

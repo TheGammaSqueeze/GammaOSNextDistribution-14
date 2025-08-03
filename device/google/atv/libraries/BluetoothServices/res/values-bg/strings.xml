@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Няма информация"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Критичнo"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Ниско"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Добро"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Потвърждаване на актуализацията на дистанционното управление"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"По време на актуализацията връзката с дистанционно ви управление може да бъде прекратена за кратко."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Напред"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Отказ"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Актуализация на дистанционното управление"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Налице е нов софтуер"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Налице е актуализация"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Дистанционното управление е актуално"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Актуализирането на дистанционното управление не бе успешно"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Срещнахме проблем при актуализирането на дистанционното ви управление. Моля, опитайте отново."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Моля, изчакайте"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Повторно сдвояване на дистанционното ви управление"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Активирано"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Деактивирано"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Ниво на батерията"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Фърмуер"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Адрес на Bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Моля, подменете батерията"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Изтощена батерия"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Свързани устройства"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Дистанционни управления и аксесоари"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Актуализиране на дистанционното ви управление"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"В готовност за инсталиране"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"АКТУАЛИЗИРАНЕ"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"ОТХВЪРЛЯНЕ"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Батерията на дистанционното управление е изтощена"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Подменете батерията скоро"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Батерията на дистанционното управление е почти изтощена"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Подменете батерията скоро"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Батерията на дистанционното управление е изтощена"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Подменете батерията, за да използвате дистанционното управление"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Да"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Не"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Прекратяване на връзката с(ъс) %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Установяване на връзка с(ъс) %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Забравяне на %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Преименуване на свързаното ви устройство"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"CEC за HDMI"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Активиране на CEC за HDMI"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"CEC за HDMI ви позволява да управлявате и автоматично да включвате/изключвате други активирани за CEC за HDMI устройства посредством едно дистанционно управление.\n\nЗабележка: Уверете се, че сте активирали CEC за HDMI на телевизора си и другите HDMI устройства. Производителите често имат различни имена за тази функция, като например:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Настройване на бутоните на дистанционното управление"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Управление на бутоните за силата на звука, включване/изключване и избор на вход на телевизори, приемници и звукови панели"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Намиране на дистанционното ми управление"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Възпроизвеждане на звук, чрез който да намерите дистанционното си управление за Google TV"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Натиснете бутона на гърба на устройството си Google TV Streamer, за да се възпроизведе звук на дистанционното ви управление, който продължава 30 секунди. Това работи само на гласово дистанционно управление за Google TV Streamer.\n\nЗа да спрете звука, натиснете някой от бутоните на дистанционното управление."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Когато функцията „Намиране на дистанционното ми управление“ е активирана, може да се възпроизведе звук, за да откриете дистанционното управление на Google TV, ако не можете да го намерите."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Възпроизвеждане на звук"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Ниво на батерията: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Аксесоари"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Дистанционно управление"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Установена е връзка"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"По-рано свързвани"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Сдвояване на дистанционно управление или аксесоар"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Прекратяване на връзката"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Свързване"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Преименуване"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Забравяне"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Използване за аудио за телевизора"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Установена е връзка"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Връзката е прекратена"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Контролиране на устройството"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Свързване на ново устройство"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Преди да свържете нови устройства с Bluetooth, уверете се, че са в режим за сдвояване. За да свържете %1$s, натиснете и задръжте %2$s + %3$s за 3 секунди."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"дистанционно управление за Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Налични устройства"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Търсят се устройства…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Грешка"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Свързва се…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Установена е връзка"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Анулирано"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s – свързването не бе успешно"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"Установена е връзка с(ъс) %1$s"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s – връзката е прекратена"</string>
+</resources>

@@ -1,0 +1,64 @@
+package {
+    default_team: "trendy_team_pixel_system_sw_security",
+    default_applicable_licenses: ["external_usbip-service_license"],
+}
+
+license {
+    name: "external_usbip-service_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-GPL-2.0"],
+    license_text: ["COPYING"],
+}
+
+cc_defaults {
+    name: "usbip_defaults",
+    host_supported: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: [
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libbase",
+        "libc++",
+    ],
+    product_specific: true,
+    stl: "none",
+}
+
+cc_binary {
+    name: "usbip_service",
+    init_rc: ["usbip-service.rc"],
+    defaults: ["usbip_defaults"],
+    srcs: [
+        "UsbIpService.cpp",
+    ],
+    static_libs: [
+        "usbip_utils",
+    ],
+}
+
+cc_library {
+    name: "usbip_utils",
+    defaults: ["usbip_defaults"],
+    srcs: [
+        "UsbIpUtils.cpp",
+    ],
+    export_include_dirs: ["./"],
+}
+
+cc_test {
+    name: "usbip_test",
+    defaults: ["usbip_defaults"],
+    srcs: ["UsbIpTest.cpp"],
+    test_suites: ["general-tests"],
+
+    test_options: {
+        unit_test: false,
+    },
+    shared_libs: [
+        "usbip_utils",
+    ],
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"你已按住返回和向下按鈕三秒以使用 <xliff:g id="SERVICE_0">%1$s</xliff:g>。\n\n如要立即啟用 <xliff:g id="SERVICE_1">%1$s</xliff:g>，請再次按住返回和向下按鈕三秒。你可隨時使用此捷徑啟用或停用 <xliff:g id="SERVICE_2">%1$s</xliff:g>。\n\n你可以在 [設定] &gt; [系統] &gt; [無障礙功能] 中調整偏好設定。"</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"啟用快速鍵後，同時按下返回和向下按鈕 3 秒便可啟動無障礙功能。\n\n目前的無障礙功能：\n<xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n你可在「設定」&gt;「無障礙功能」中變更此功能。"</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"已按住返回和向下按鈕。<xliff:g id="SERVICE_NAME">%1$s</xliff:g> 已開啟。"</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"已按住返回和向下按鈕。<xliff:g id="SERVICE_NAME">%1$s</xliff:g> 已關閉。"</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"你㩒住咗返回同埋向下按鈕三秒嚟使用 <xliff:g id="SERVICE_0">%1$s</xliff:g>。如果宜家想啟用 <xliff:g id="SERVICE_1">%1$s</xliff:g>，麻煩你再㩒住返回同埋向下按鈕三秒。你可以隨時用呢個捷徑嚟啟用或者停用 <xliff:g id="SERVICE_2">%1$s</xliff:g>。"</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"你已按住返回和向下按鈕三秒以使用 <xliff:g id="SERVICE_0">%1$s</xliff:g>。\n\n如要立即啟用 <xliff:g id="SERVICE_1">%1$s</xliff:g>，請再次按住返回和向下按鈕三秒。\n你可隨時使用此捷徑啟用或停用 <xliff:g id="SERVICE_2">%1$s</xliff:g>。\n\n你可以在 [設定] &gt; [系統] &gt; [無障礙功能] 中調整偏好設定。"</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"暫時不要"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"立即開啟"</string>
+</resources>

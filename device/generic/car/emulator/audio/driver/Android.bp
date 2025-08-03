@@ -1,0 +1,76 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Derived from device/generic/goldfish/audio/Android.mk
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_generic_car_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_generic_car_license"],
+}
+
+soong_config_module_type {
+    name: "audio_extn_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "audio_extn_config",
+    bool_variables: ["isHFPEnabled"],
+    properties: ["srcs", "cflags"],
+}
+
+audio_extn_cc_defaults {
+    name: "audio_extn_hfp",
+    soong_config_variables: {
+        isHFPEnabled: {
+            cflags: ["-DHFP_ENABLED"],
+	    srcs: ["audio_extn/hfp.c"],
+        },
+    },
+}
+
+cc_library_shared {
+
+    vendor: true,
+    vintf_fragments: ["android.hardware.audio@6.0-impl.xml"],
+    name: "audio.primary.caremu",
+    relative_install_path: "hw",
+    defaults: ["audio_extn_hfp"],
+    srcs: [
+        "audio_hw.c",
+        "audio_vbuffer.c",
+        "ext_pcm.c",
+    ],
+
+    include_dirs: ["external/tinyalsa/include"],
+    local_include_dirs: ["audio_extn"],
+    export_include_dirs: [
+        "include"
+    ],
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libdl",
+        "libtinyalsa",
+    ],
+
+    cflags: ["-Wno-unused-parameter"],
+    header_libs: [
+        "libhardware_headers",
+        "libcutils_headers",
+    ],
+
+}

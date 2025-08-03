@@ -1,0 +1,12 @@
+# CryptfsHW HAL
+/(vendor|system/vendor)/bin/hw/vendor\.qti\.hardware\.cryptfshw@1\.0-service-qti\.qsee   u:object_r:hal_keymaster_qti_exec:s0
+
+# LiveDisplay HAL
+/(vendor|system/vendor)/bin/hw/vendor\.lineage\.livedisplay@2\.0-service-legacymm u:object_r:hal_lineage_livedisplay_qti_exec:s0
+/(vendor|system/vendor)/bin/hw/vendor\.lineage\.livedisplay@2\.0-service-sdm      u:object_r:hal_lineage_livedisplay_qti_exec:s0
+
+# Power
+/(vendor|system/vendor)/bin/hw/android\.hardware\.power-service-qti               u:object_r:hal_power_default_exec:s0
+/sys/devices(/platform)?/soc/[a-f0-9]+.qcom,mdss_mdp/idle_state                   u:object_r:sysfs_graphics:s0
+/sys/devices(/platform)?/soc/[a-f0-9]+.ufshc/clkgate_enable                       u:object_r:sysfs_scsi_host:s0
+/sys/devices/virtual/graphics/fb([0-3])+/idle_state                               u:object_r:sysfs_graphics:s0

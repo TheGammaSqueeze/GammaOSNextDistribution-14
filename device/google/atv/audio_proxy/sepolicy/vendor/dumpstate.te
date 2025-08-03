@@ -1,0 +1,1 @@
+binder_call(dumpstate, hal_audio_proxy_default);

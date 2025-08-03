@@ -1,0 +1,16 @@
+type usbip_service, domain;
+type sysfs_usbip, sysfs_type, fs_type;
+type usbip_service_exec, exec_type, system_file_type, file_type;
+
+net_domain(usbip_service);
+
+allow usbip_service netd:tcp_socket { read write };
+
+allow kernel su:tcp_socket { read write };
+allow kernel shell:tcp_socket { read write };
+
+allow init sysfs_usbip:file setattr;
+
+allow shell sysfs_usbip:dir { r_dir_perms };
+allow shell sysfs_usbip:file { rw_file_perms };
+allow shell usbip_service_exec:file { execute execute_no_trans getattr map open read };

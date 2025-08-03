@@ -1,0 +1,37 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_generic_goldfish-opengl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["device_generic_goldfish-opengl_license"],
+}
+
+cc_binary {
+    name: "android.hardware.media.c2@1.0-service-goldfish",
+
+    defaults: [
+        "hidl_defaults",
+        "libcodec2-hidl-defaults",
+    ],
+    vendor: true,
+    relative_install_path: "hw",
+
+    srcs: [
+        "service.cpp",
+    ],
+
+    init_rc: ["android.hardware.media.c2@1.0-service-goldfish.rc"],
+    vintf_fragments: ["android.hardware.media.c2@1.0-service-goldfish.xml"],
+
+    shared_libs: [
+        "libgoldfish_codec2_store",
+        "libavservices_minijail",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+
+    required: ["android.hardware.media.c2-default-seccomp_policy"],
+}

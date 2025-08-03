@@ -1,0 +1,58 @@
+# Copyright (c) 2021, NVIDIA CORPORATION.  All rights reserved.
+#
+# NVIDIA Corporation and its licensors retain all intellectual property and
+# proprietary rights in and to this software and related documentation.  Any
+# use, reproduction, disclosure or distribution of this software and related
+# documentation without an express license agreement from NVIDIA Corporation
+# is strictly prohibited.
+
+#
+# Google Stadia Controller - USB
+#
+# Reports itself as vid:pid 18d1:9400
+# Official website - https://support.google.com/stadia/answer/9565956?hl=en&ref_topic=9495415
+#
+
+# Adapted for Nvidia normalized layout
+
+key 304   BUTTON_A
+key 305   BUTTON_B
+key 307   BUTTON_X
+key 308   BUTTON_Y
+
+key 310   BUTTON_L1
+key 311   BUTTON_R1
+
+# Three dots
+key 314   BUTTON_SELECT
+# Hamburger - 3 parallel lines
+key 315   BUTTON_START
+# Stadia logo key
+key 316   BUTTON_MODE
+
+key 317   BUTTON_THUMBL
+key 318   BUTTON_THUMBR
+
+# Left and right sticks (min=-1.000, max=1.000, flat=0.118)
+# no flat value mentioned explicitly for now, since some controllers handle it internally
+# if drift is observed in games we can adjust the flat value
+axis 0x00 X
+axis 0x01 Y
+axis 0x02 Z
+axis 0x05 RZ
+
+# Triggers (0x0a, 0x09) (min=0.000, max=1.000, flat=0.059)
+# no flat value mentioned explicitly for now, since some controllers handle it internally
+# if drift is observed in games we can adjust the flat value
+axis 0x0a LTRIGGER
+axis 0x09 RTRIGGER
+
+# Hat / D-pad (min=-1.000, max=1.000, flat=0.000)
+axis 0x10 HAT_X
+axis 0x11 HAT_Y
+
+# Google Assistant
+key 704 ASSIST
+
+# Capture - Looks like a square (unmapped for now)
+# key 705

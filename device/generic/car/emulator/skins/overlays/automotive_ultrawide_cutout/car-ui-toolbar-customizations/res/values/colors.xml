@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2017, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources>
+    <!-- The Switch track's background color. -->
+    <color name="car_ui_seekbar_track_background">@color/car_surface_variant</color>
+    <!-- The Switch track's progress color. -->
+    <color name="car_ui_seekbar_track_progress">@color/car_primary</color>
+    <!-- The Switch track's secondary progress color. -->
+    <color name="car_ui_seekbar_track_progress_secondary">@color/car_secondary</color>
+    <!-- Color of the outer ring when the SeekBar is selected. -->
+    <color name="car_ui_seekbar_thumb_selected_stroke_color">@color/car_rotary_focus_stroke_color</color>
+    <!-- Color of the background of the ring when the SeekBar is selected. -->
+    <color name="car_ui_seekbar_thumb_selected_background_color">@color/car_rotary_focus_fill_color</color>
+    <!-- The SeekBar thumb color. -->
+    <color name="car_ui_seekbar_thumb">@color/car_inverse_surface</color>
+    <!-- The SeekBar thumb color when disabled. -->
+    <color name="car_ui_seekbar_thumb_disabled_on_dark">@color/car_neutral_40</color>
+    <!-- The preference category icon color-->
+    <color name="car_ui_preference_icon_color">@color/car_ui_text_color_primary</color>
+    <!-- The text color for selected toolbar tabs -->
+    <color name="car_ui_toolbar_tab_selected_color">@color/car_on_secondary_container</color>
+    <!-- The text color for unselected toolbar tabs -->
+    <color name="car_ui_toolbar_tab_unselected_color">@color/car_on_surface_variant</color>
+</resources>

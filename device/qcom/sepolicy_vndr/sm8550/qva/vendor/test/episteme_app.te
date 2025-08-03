@@ -1,0 +1,11 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_episteme_app, domain;
+app_domain(vendor_episteme_app)
+net_domain(vendor_episteme_app)
+allow vendor_episteme_app app_api_service:service_manager find;
+hal_client_domain(vendor_episteme_app, vendor_hal_qms_qti)
+hal_client_domain(vendor_episteme_app, vendor_hal_qesdhal)
+get_prop(vendor_episteme_app, vendor_episteme_prop)
+dontaudit vendor_episteme_app vendor_hal_perf_hwservice:hwservice_manager find;

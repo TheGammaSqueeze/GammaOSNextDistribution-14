@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Noaniq"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Juda kam"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Past"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Yaxshi"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Pult mikrodasturi yangilanishini tasdiqlang"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Yangilash paytida pult qisqa vaqt uzilishi mumkin."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Davom etish"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Bekor qilish"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Pult uchun yangilanish"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Yangi dastur mavjud"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Yangilanish chiqdi"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Pult mikrodasturi allaqachon yangilangan"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Pult yangilanmadi"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Pult mikrodasturi yangilanayotganda muammo yuz berdi. Qayta urining."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Kutib turing"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Pultni qayta ulang"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Yoqilgan"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Oʻchiq"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Batareya quvvati darajasi"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Mikrodastur"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Bluetooth manzili"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Batareyani almashtiring"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Batareya quvvati kam"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Ulangan qurilmalar"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Pultlar va aksessuarlar"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Pult dasturini yangilang"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Oʻrnatish uchun tayyor"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"YANGILASH"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"YOPISH"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Pult batareyasi quvvati kam"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Batareyani tezroq almashtiring"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Pult batareyasi quvvati deyarli qolmadi"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Batareyani tezroq almashtiring"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Pult batareyasi quvvatsiz"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Pultni ishlatish uchun batareyasini almashtiring"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Ha"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Yo‘q"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s bilan aloqani uzish"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"%1$s bilan ulash"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$s qurilmasini olib tashlash"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Ulangan qurilmani qayta nomlash"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CEC xususiyatini yoqish"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC bilan boshqa HDMI-CEC xususiyatli qurilmalarni bir pult orqali boshqarish va avtomatik yoqish/oʻchirib qoʻyish mumkin.\n\nEslatma: TV va boshqa HDMI qurilmalaringizda HDMI-CEC yoniqligini tekshiring. Odatda ishlab chiqaruvchilar HDMI-CEC uchun boshqa nomlar ishlatadi, masalan:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Pult tugmalarini sozlash"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Televizor, resiver va saundbarlardagi tovush balandligi, quvvat va manbalarni boshqarish"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Pultimni top"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Google TV pulti joyida boʻlmasa, uni topish uchun jiringlating"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Pultingizni 30 soniya jiringlatish uchun Google TV Streamer orqasidagi tugmani bosing. Bu faqat Google TV Streamer ovozli boshqaruv pultida ishlaydi.\n\nSignalni toʻxtatish uchun pultdagi biror tugmani bosing."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Pultimni top funksiyasi yoniq boʻlsa, yoʻqolgan Google TV pultini ovozli signal orqali topish mumkin."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Signalni ijro etish"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Batareya quvvati: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Aksessuarlar"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Masofaviy boshqaruv"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Ulandi"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Avval ulangan qurilmalar"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Pult yoki aksessuarni ulash"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Uzish"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Ulash"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Qayta nomlash"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Olib tashlash"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"TV audiosi uchun foydalanish"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Ulandi"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Uzildi"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Qurilma boshqaruvi"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Yangi qurilmani ulash"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Bluetooth qurilmalarni ulashdan avval ularning ulanish rejimida ekanligini tekshiring %1$s qurilmasini ulash uchun %2$s + %3$s tugmalarini 3 soniya bosib turing."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV pulti"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Mavjud qurilmalar"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Qurilmalar qidirilmoqda…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Xato"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Ulanmoqda…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Ulandi"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Bekor qilindi"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s ulanmadi"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s ulandi"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s uzildi"</string>
+</resources>

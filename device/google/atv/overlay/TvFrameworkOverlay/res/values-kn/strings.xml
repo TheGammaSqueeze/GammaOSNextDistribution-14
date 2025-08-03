@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"<xliff:g id="SERVICE_0">%1$s</xliff:g> ಅನ್ನು ಬಳಸಲು ನೀವು ಮೂರು ಸೆಕೆಂಡ್‌ಗಳ ಕಾಲ ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳೆರಡನ್ನೂ ಹಿಡಿದಿದ್ದೀರಿ.\n\n <xliff:g id="SERVICE_1">%1$s</xliff:g> ಅನ್ನು ಈಗ ಸಕ್ರಿಯಗೊಳಿಸಲು, ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳನ್ನು ಮತ್ತೊಮ್ಮೆ ಮೂರು ಸೆಕೆಂಡ್‌ಗಳ ಕಾಲ ಹಿಡಿದಿಟ್ಟುಕೊಳ್ಳಿ. <xliff:g id="SERVICE_2">%1$s</xliff:g> ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು ಅಥವಾ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು ಯಾವಾಗ ಬೇಕಾದರೂ ಈ ಶಾರ್ಟ್‌ಕಟ್ ಅನ್ನು ಬಳಸಿ.\n\n ನಿಮ್ಮ ಆದ್ಯತೆಗಳನ್ನು ನೀವು ಸೆಟ್ಟಿಂಗ್‌ಗಳು &gt; ಸಿಸ್ಟಂ &gt; ಪ್ರವೇಶಿಸುವಿಕೆಯಲ್ಲಿ ಹೊಂದಿಸಬಹುದು."</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"ಶಾರ್ಟ್‌ಕಟ್ ಆನ್ ಆಗಿರುವಾಗ, 3 ಸೆಕೆಂಡ್‌ಗಳ ಕಾಲ ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳನ್ನು ಒತ್ತುವುದರಿಂದ ಆ್ಯಕ್ಸೆಸಿಬಿಲಿಟಿ ವೈಶಿಷ್ಟ್ಯ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ.\n\n ಪ್ರಸ್ತುತ ಆ್ಯಕ್ಸೆಸಿಬಿಲಿಟಿ ವೈಶಿಷ್ಟ್ಯ:\n <xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n ನೀವು ಈ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಮತ್ತು ಆ್ಯಕ್ಸೆಸಿಬಿಲಿಟಿ ಎಂಬಲ್ಲಿ ಬದಲಾಯಿಸಬಹುದು."</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳನ್ನು ಹಿಡಿದಿಟ್ಟುಕೊಂಡಿದ್ದೀರಿ. <xliff:g id="SERVICE_NAME">%1$s</xliff:g> ಅನ್ನು ಆನ್ ಮಾಡಲಾಗಿದೆ."</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳನ್ನು ಹಿಡಿದಿಟ್ಟುಕೊಂಡಿದ್ದೀರಿ. <xliff:g id="SERVICE_NAME">%1$s</xliff:g> ಅನ್ನು ಆಫ್ ಮಾಡಲಾಗಿದೆ."</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"<xliff:g id="SERVICE_0">%1$s</xliff:g> ಅನ್ನು ಬಳಸಲು ನೀವು ಮೂರು ಸೆಕೆಂಡ್‌ಗಳ ಕಾಲ ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳೆರಡನ್ನೂ ಹಿಡಿದಿದ್ದೀರಿ. <xliff:g id="SERVICE_1">%1$s</xliff:g> ಅನ್ನು ಈಗ ಸಕ್ರಿಯಗೊಳಿಸಲು, ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳನ್ನು ಮತ್ತೊಮ್ಮೆ ಮೂರು ಸೆಕೆಂಡ್‌ಗಳ ಕಾಲ ಹಿಡಿದಿಟ್ಟುಕೊಳ್ಳಿ. <xliff:g id="SERVICE_2">%1$s</xliff:g> ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು ಅಥವಾ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು ಯಾವಾಗ ಬೇಕಾದರೂ ಈ ಶಾರ್ಟ್‌ಕಟ್ ಅನ್ನು ಬಳಸಿ."</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"<xliff:g id="SERVICE_0">%1$s</xliff:g> ಅನ್ನು ಬಳಸಲು ನೀವು ಮೂರು ಸೆಕೆಂಡ್‌ಗಳ ಕಾಲ ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳೆರಡನ್ನೂ ಹಿಡಿದಿದ್ದೀರಿ.\n\n <xliff:g id="SERVICE_1">%1$s</xliff:g> ಅನ್ನು ಈಗ ಸಕ್ರಿಯಗೊಳಿಸಲು, ಹಿಂದಿನ ಮತ್ತು ಕೆಳಗಿನ ಬಟನ್‌ಗಳನ್ನು ಮತ್ತೊಮ್ಮೆ ಮೂರು ಸೆಕೆಂಡ್‌ಗಳ ಕಾಲ ಹಿಡಿದಿಟ್ಟುಕೊಳ್ಳಿ.\n <xliff:g id="SERVICE_2">%1$s</xliff:g> ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು ಅಥವಾ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲು ಯಾವಾಗ ಬೇಕಾದರೂ ಈ ಶಾರ್ಟ್‌ಕಟ್ ಅನ್ನು ಬಳಸಿ.\n\n ನಿಮ್ಮ ಆದ್ಯತೆಗಳನ್ನು ನೀವು ಸೆಟ್ಟಿಂಗ್‌ಗಳು &gt; ಸಿಸ್ಟಂ &gt; ಪ್ರವೇಶಿಸುವಿಕೆಯಲ್ಲಿ ಹೊಂದಿಸಬಹುದು."</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"ಈಗ ಬೇಡ"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"ಈಗ ಆನ್ ಮಾಡಿ"</string>
+</resources>

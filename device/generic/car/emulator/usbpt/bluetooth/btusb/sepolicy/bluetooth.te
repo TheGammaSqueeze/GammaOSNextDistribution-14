@@ -1,0 +1,2 @@
+allow kernel vendor_fw_file:file {open read};
+allow kernel vendor_fw_file:dir search;

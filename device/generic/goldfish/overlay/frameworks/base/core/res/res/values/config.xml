@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2017, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Make this 'true' to allow the Emulator to control
+         the state of the headphone/microphone jack -->
+    <bool name="config_useDevInputEventForAudioJack">true</bool>
+
+    <!--  Maximum number of supported users -->
+    <integer name="config_multiuserMaximumUsers">4</integer>
+    <!--  Whether Multiuser UI should be shown -->
+    <bool name="config_enableMultiUserUI">true</bool>
+
+        <!-- Map of System DeviceState supplied by DeviceStateManager to WM Jetpack posture. -->
+    <string-array name="config_device_state_postures" translatable="false">
+        <item>0:1</item> <!-- CLOSED -->
+        <item>1:2</item> <!-- HALF_OPENED -->
+        <item>2:3</item> <!-- OPENED -->
+        <item>3:1</item> <!-- FLIPPED -->
+    </string-array>
+
+    <!-- The device states (supplied by DeviceStateManager) that should be treated as open by the
+         display fold controller. -->
+    <integer-array name="config_openDeviceStates" translatable="false">
+        <item>2</item> <!-- OPEN -->
+    </integer-array>
+
+    <!-- The device states (supplied by DeviceStateManager) that should be treated as folded by the
+         display fold controller. This also controls the folded bit in CameraServiceProxy. -->
+    <integer-array name="config_foldedDeviceStates" translatable="false">
+        <item>0</item> <!-- CLOSED -->
+    </integer-array>
+
+    <!-- The device states (supplied by DeviceStateManager) that should be treated as half folded by
+         the display fold controller. This also controls the folded bit in CameraServiceProxy. -->
+    <integer-array name="config_halfFoldedDeviceStates" translatable="false">
+        <item>1</item> <!-- HALF_OPENED -->
+    </integer-array>
+
+    <!-- The device states (supplied by DeviceStateManager) that should be treated as a rear display
+         state. Default is empty. -->
+    <integer-array name="config_rearDisplayDeviceStates" translatable="false">
+        <item>3</item> <!-- REAR_DISPLAY_STATE -->
+    </integer-array>
+
+
+    <!-- Set to true to add links to Cell Broadcast app from Settings and MMS app. -->
+    <bool name="config_cellBroadcastAppLinks">true</bool>
+
+    <!-- MMS user agent string -->
+    <string name="config_mms_user_agent" translatable="false">GoldfishNexus</string>
+
+    <!-- MMS user agent prolfile url -->
+    <string name="config_mms_user_agent_profile_url" translatable="false">http://gsm.lge.com/html/gsm/Nexus5-M3.xml</string>
+
+    <!-- Indicate whether closing the lid causes the device to enter the folded state which means
+         to get a smaller screen and opening the lid causes the device to enter the unfolded state
+         which means to get a larger screen. -->
+    <bool name="config_lidControlsDisplayFold">true</bool>
+
+    <!-- Allow testing SoftAP using the simulated interfaces on the emulator. -->
+    <string-array name="config_tether_wifi_regexs">
+      <item>"wlan\\d"</item>
+    </string-array>
+
+
+
+    <!-- This device is able to support the microphone and camera global toggles. -->
+    <bool name="config_supportsMicToggle">true</bool>
+    <bool name="config_supportsCamToggle">true</bool>
+    <!-- Specifies priority of automatic time sources. Suggestions from higher entries in the list
+         take precedence over lower ones.
+         See com.android.server.timedetector.TimeDetectorStrategy for available sources. -->
+    <string-array name="config_autoTimeSourcesPriority">
+        <item>telephony</item>
+        <item>network</item>
+    </string-array>
+
+    <string-array name="config_perDeviceStateRotationLockDefaults" translatable="false">
+        <item>0:1</item> <!-- CLOSED -> LOCKED -->
+        <item>2:0:1</item> <!-- HALF_OPENED -> IGNORED and fallback to device state OPENED -->
+        <item>1:2</item> <!-- OPENED -> UNLOCKED -->
+    </string-array>
+
+    <bool name="config_supportMicNearUltrasound">true</bool>
+    <bool name="config_supportSpeakerNearUltrasound">true</bool>
+
+</resources>

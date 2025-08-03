@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["device_google_atv_license"],
+}
+
+cc_binary {
+    name: "blur_sysprop_notifier",
+    system_ext_specific: true,
+
+    srcs: ["blur_sysprop_notifier.cpp"],
+
+    init_rc: ["blur_sysprop_notifier.rc"],
+
+    shared_libs: [
+        "libcutils",
+        "libutils",
+        "libbinder",
+    ],
+
+    cflags: [
+        "-DXP_UNIX",
+        "-Wall",
+        "-Werror",
+    ],
+}

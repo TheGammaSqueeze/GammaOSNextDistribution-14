@@ -1,0 +1,95 @@
+{
+  "presubmit": [
+    {
+      "name": "netd_integration_test"
+    },
+    {
+      "name": "OverlayDeviceTests"
+    },
+    {
+      "name": "CtsNativeVerifiedBootTestCases"
+    },
+    {
+      "name": "CtsBionicTestCases"
+    },
+    {
+      "name": "CtsGraphicsTestCases"
+    },
+    {
+        "name": "MediaProviderTests"
+    },
+    {
+        "name": "CtsProviderTestCases",
+        "options": [
+            {
+                "include-filter": "android.provider.cts.media."
+            }
+        ]
+    },
+    {
+        "name": "CtsIncrementalInstallHostTestCases",
+        "options": [
+            {
+                "exclude-annotation": "androidx.test.filters.FlakyTest"
+            },
+            {
+                "exclude-annotation": "androidx.test.filters.LargeTest"
+            },
+            {
+                "exclude-annotation": "org.junit.Ignore"
+            },
+            {
+                "exclude-annotation": "android.platform.test.annotations.LargeTest"
+            },
+            {
+                "include-filter": "android.incrementalinstall.cts"
+            }
+        ]
+    },
+    {
+      "name": "CtsOsTestCases",
+      "options": [
+        {
+          "include-annotation": "android.platform.test.annotations.Presubmit"
+        },
+        {
+          "exclude-annotation": "android.platform.test.annotations.LargeTest"
+        },
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        },
+        {
+          "exclude-filter": "android.os.cts.BuildTest#testSdkInt"
+        },
+        {
+          "exclude-filter": "android.os.cts.StrictModeTest#testNonSdkApiUsage"
+        },
+        {
+          "exclude-filter": "android.os.cts.UsbDebuggingTest#testUsbDebugging"
+        }
+      ]
+    },
+    {
+      "name": "minikin_tests"
+    },
+    {
+      "name": "toybox-tests"
+    },
+    {
+      "name": "CtsPerfettoTestCases"
+    }
+  ],
+  "presubmit-large": [
+    {
+      "name": "RollbackTest"
+    },
+    {
+      "name": "StagedRollbackTest"
+    }
+  ],
+  "imports": [
+    {
+      "path": "packages/modules/Virtualization"
+    }
+  ]
+}

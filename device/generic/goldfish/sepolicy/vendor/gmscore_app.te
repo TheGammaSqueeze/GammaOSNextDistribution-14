@@ -1,0 +1,3 @@
+# b/149481633: dontaudit directory traversal
+dontaudit gmscore_app varrun_file:dir search;
+allow gmscore_app self:vsock_socket create_socket_perms_no_ioctl;

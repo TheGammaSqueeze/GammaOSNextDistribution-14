@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"–"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Kritisch"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Niedrig"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Gut"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Update der Fernbedienung bestätigen"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Während des Updates wird die Verbindung zu deiner Fernbedienung eventuell für kurze Zeit unterbrochen."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Weiter"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Abbrechen"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Update der Fernbedienung"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Neue Software verfügbar"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Update verfügbar"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Die Fernbedienung ist auf dem neuesten Stand"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Update der Fernbedienung fehlgeschlagen"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Beim Aktualisieren deiner Fernbedienung ist ein Problem aufgetreten. Bitte versuche es noch einmal."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Bitte warten"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Fernbedienung wieder koppeln"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Aktiviert"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Deaktiviert"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Akkustand"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Firmware"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Bluetooth-Adresse"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Bitte Akku wechseln"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Akkustand niedrig"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Verbundene Geräte"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Fernbedienungen &amp; Zubehör"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Fernbedienung aktualisieren"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Zur Installation bereit"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"AKTUALISIEREN"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"SCHLIEẞEN"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Akku der Fernbedienung fast leer"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Akku demnächst austauschen"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Akku der Fernbedienung fast leer"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Akku demnächst austauschen"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Akku der Fernbedienung leer"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Akku austauschen, um Fernbedienung zu verwenden"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Ja"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Nein"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Verbindung zu %1$s trennen"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Mit %1$s verbinden"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$s entfernen"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Verbundenes Gerät umbenennen"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CEC aktivieren"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"Mit HDMI-CEC kannst du andere HDMI-CEC-fähige Geräte verwalten und automatisch mit einer einzigen Fernbedienung aktivieren/deaktivieren.\n\nHinweis: Beachte, dass hierfür HDMI-CEC auf deinem Fernseher und anderen HDMI-Geräten aktiviert sein muss. Hersteller haben häufig unterschiedliche Namen für HDMI-CEC. Zum Beispiel:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Tasten der Fernbedienung einrichten"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Lautstärke, Ein/Aus und Eingang auf Fernsehern, Receivern und Soundbars steuern"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Fernbedienung finden"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Du kannst auf deiner Google TV-Fernbedienung einen Ton wiedergeben lassen, wenn du sie verlegt hast"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Drück die Taste auf der Rückseite deines Google TV Streamers, um 30 Sekunden lang einen Ton auf deiner Fernbedienung wiedergeben zu lassen. Dafür ist eine Google TV Streamer-Sprachfernbedienung erforderlich.\n\nDrücke zum Beenden der Wiedergabe eine beliebige Taste auf deiner Fernbedienung."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Wenn die Funktion „Fernbedienung finden“ aktiviert ist, kannst du einen Ton abspielen, um deine Google TV-Fernbedienung wiederzufinden, wenn du sie verlegt hast."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Ton abspielen"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Akkustand: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Zubehör"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Fernbedienung"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Verbunden"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Zuletzt verbundene Geräte"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Fernbedienung oder Zubehör koppeln"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Verbindung aufheben"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Verbinden"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Umbenennen"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Entfernen"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Für TV-Audio verwenden"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Verbunden"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Nicht verbunden"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Gerätesteuerung"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Neues Gerät verbinden"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Damit du neue Bluetooth-Geräte verbinden kannst, müssen sie sich im Kopplungsmodus befinden. Wenn du %1$s verbinden möchtest, musst du %2$s und %3$s 3 Sekunden lang gedrückt halten."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"eine Android TV-Fernbedienung"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Verfügbare Geräte"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Suche nach Geräten läuft…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Fehler"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Wird verbunden…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Verbunden"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Abgebrochen"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s konnte keine Verbindung herstellen"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s verbunden"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"Verbindung mit %1$s getrennt"</string>
+</resources>

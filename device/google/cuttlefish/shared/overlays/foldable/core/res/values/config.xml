@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2021, The Android Open Source Project.
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- WindowsManager JetPack display features -->
+  <string name="config_display_features" translatable="false">fold-[884,0,884,2208]</string>
+  <!-- Map of System DeviceState supplied by DeviceStateManager to WM Jetpack posture. -->
+  <string-array name="config_device_state_postures" translatable="false">
+      <item>0:1</item> <!-- CLOSED : STATE_FLAT -->
+      <item>1:2</item> <!-- HALF_OPENED : STATE_HALF_OPENED -->
+      <item>2:3</item> <!-- OPENED : STATE_FLIPPED -->
+      <item>3:1</item> <!-- REAR_DISPLAY: STATE_FLAT -->
+  </string-array>
+
+  <!-- Map of DeviceState to rotation lock setting. Each entry must be in the format "key:value",
+     or "key:value:fallback_key" for example: "0:1" or "2:0:1". The keys are device states, and
+     the values are one of Settings.Secure.DeviceStateRotationLockSetting.
+     The fallback is a key to a device state that can be specified when the value is
+     Settings.Secure.DEVICE_STATE_ROTATION_LOCK_IGNORED.
+ -->
+  <string-array name="config_perDeviceStateRotationLockDefaults" translatable="false">
+    <item>0:1</item> <!-- CLOSED -> LOCKED -->
+    <item>1:0:2</item> <!-- HALF_OPENED -> IGNORED and fallback to device state OPENED -->
+    <item>2:2</item> <!-- OPENED -> UNLOCKED -->
+    <item>3:0:0</item> <!-- REAR_DISPLAY -> IGNORED and fallback to device state CLOSED -->
+  </string-array>
+
+  <!-- The device states (supplied by DeviceStateManager) that should be treated as open by the
+       display fold controller. -->
+  <integer-array name="config_openDeviceStates" translatable="false">
+    <item>2</item> <!-- OPEN -->
+  </integer-array>
+
+  <!-- The device states (supplied by DeviceStateManager) that should be treated as folded by the
+       display fold controller. This also controls the folded bit in CameraServiceProxy. -->
+  <integer-array name="config_foldedDeviceStates" translatable="false">
+    <item>0</item> <!-- CLOSED -->
+  </integer-array>
+
+  <!-- The device states (supplied by DeviceStateManager) that should be treated as half folded by
+       the display fold controller. This also controls the folded bit in CameraServiceProxy. -->
+  <integer-array name="config_halfFoldedDeviceStates" translatable="false">
+    <item>1</item> <!-- HALF_OPENED -->
+  </integer-array>
+
+  <!-- The device states (supplied by DeviceStateManager) that should be treated as a rear display
+       state. Default is empty. -->
+  <integer-array name="config_rearDisplayDeviceStates" translatable="false">
+    <item>3</item> <!-- REAR_DISPLAY_STATE -->
+  </integer-array>
+
+  <!-- Indicates whether to enable an animation when unfolding a device or not -->
+  <bool name="config_unfoldTransitionEnabled">true</bool>
+  <!-- Indicates whether to enable hinge angle sensor when using unfold animation -->
+  <bool name="config_unfoldTransitionHingeAngle">true</bool>
+  <bool name="config_supportsConcurrentInternalDisplays">false</bool>
+  <!-- Controls whether the device support multi window modes like split-screen. -->
+  <bool name="config_supportsMultiWindow">true</bool>
+  <!-- Controls whether device supports split-screen mode. -->
+  <bool name="config_supportsSplitScreenMultiWindow">true</bool>
+  <!-- Radius of the software rounded corners. -->
+  <dimen name="rounded_corner_radius">34px</dimen>
+  <!-- Whether to show Fold lock behavior setting feature in Settings App -->
+  <bool name="config_fold_lock_behavior">true</bool>
+
+  <!-- List of the labels of requestable device state config values -->
+  <string-array name="config_deviceStatesAvailableForAppRequests">
+    <item>config_deviceStateRearDisplay</item>
+  </string-array>
+
+  <!-- Device state that corresponds to rear display mode, feature provided
+         through Jetpack WindowManager -->
+  <integer name="config_deviceStateRearDisplay">3</integer>
+</resources>

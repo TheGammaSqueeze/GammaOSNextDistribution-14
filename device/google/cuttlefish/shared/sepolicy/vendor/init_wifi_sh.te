@@ -1,0 +1,14 @@
+# cuttlefish-setup service: runs init.cuttlefish.sh script
+type init_wifi_sh, domain;
+type init_wifi_sh_exec, vendor_file_type, exec_type, file_type;
+
+init_daemon_domain(init_wifi_sh)
+
+allow init_wifi_sh self:capability { fowner chown net_admin net_raw };
+allow init_wifi_sh vendor_toolbox_exec:file execute_no_trans;
+allow init_wifi_sh mac80211_create_radios_exec:file execute_no_trans;
+
+vendor_internal_prop(vendor_wifi_mac_prefix);
+get_prop(init_wifi_sh, vendor_wifi_mac_prefix);
+
+allow init_wifi_sh self:netlink_generic_socket create_socket_perms_no_ioctl;

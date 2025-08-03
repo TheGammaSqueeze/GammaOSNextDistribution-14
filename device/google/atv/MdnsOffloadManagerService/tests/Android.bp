@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_test {
+    name: "MdnsOffloadManagerTest",
+    srcs: ["src/**/*.java"],
+    sdk_version: "system_current",
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+    ],
+    static_libs: [
+        "androidx.test.rules",
+        "androidx.test.core",
+        "junit",
+        "mockito-target-minus-junit4",
+        "MdnsOffloadManagerService",
+        "frameworks-base-testutils",
+    ],
+    test_suites: ["general-tests"],
+    certificate: "platform",
+}

@@ -1,0 +1,2 @@
+# Vendor Firmwares
+/(vendor|system/vendor)/firmware(/.*)?                        u:object_r:vendor_fw_file:s0

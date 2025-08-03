@@ -1,0 +1,40 @@
+Intersil ISL29034 ambient light sensor device driver for Google nanohub.
+
+- Supported features:
+
+A. Report ambient light data
+B. Data rates: 10 Hz
+C. I2C protocol
+
+The device doesn't have an interrupt line, so a timer callback is used to
+read the data.
+
+- Platform/variant porting:
+
+The driver requires that following macros are defined in the variant.h
+file of the specific variant:
+
+  ISL29034_I2C_BUS_ID    /* specify I2C Bus ID */
+  ISL29034_I2C_SPEED     /* specify I2C Bus speed in Hz */
+
+If these macros are not defined in the current variant the driver forces a
+compile-time error.
+
+An optional macro is available to specify the I2C address of ISL29034 device.
+If the macro is not defined, the default value 0x44 would be used.
+
+  ISL29034_I2C_ADDR      /* specify device I2C address */
+
+An optional macro is available to enable debug information:
+
+  ISL29034_DBG_ENABLED   /* Enable debug messages */
+
+Example:
+
+  /*
+   * Define platform/variant dependent ISL29034 device macros
+   */
+
+  #define ISL29034_I2C_BUS_ID      0
+  #define ISL29034_I2C_SPEED       400000
+  #define ISL29034_I2C_ADDR        0x44

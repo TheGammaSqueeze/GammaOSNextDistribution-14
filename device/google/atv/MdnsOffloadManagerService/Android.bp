@@ -1,0 +1,42 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_etc {
+    name: "privapp_permissions_MdnsOffloadManagerService",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "privapp-permissions-com.android.tv.mdnsoffloadmanager.xml",
+    filename_from_src: true,
+}
+
+prebuilt_etc {
+    name: "com.google.android.tv.mdns_offload.xml",
+    soc_specific: true,
+    sub_dir: "permissions",
+    src: "com.google.android.tv.mdns_offload.xml",
+    filename_from_src: true,
+}
+
+android_app {
+    name: "MdnsOffloadManagerService",
+    srcs: [
+        "src/**/*.java",
+    ],
+    use_embedded_native_libs: true,
+    sdk_version: "system_current",
+    system_ext_specific: true,
+    dex_preopt: {
+        enabled: false,
+    },
+    static_libs: [
+        "androidx.annotation_annotation",
+        "device.google.atv.mdns_offload-aidl-V1-java",
+        "device.google.atv.mdns_offload_manager-aidl-V1-java",
+    ],
+    certificate: "platform",
+    required: [
+        "privapp_permissions_MdnsOffloadManagerService",
+        "com.google.android.tv.mdns_offload.xml"
+    ],
+}

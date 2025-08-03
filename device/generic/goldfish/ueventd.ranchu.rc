@@ -1,0 +1,18 @@
+# These settings are specific to running under the Android emulator
+/dev/ion                  0664   system     system
+/dev/goldfish_pipe        0666   system     system
+/dev/goldfish_pipe_dprctd 0666   system     system
+/dev/ttyS*                0666   system     system
+/dev/goldfish_sync        0666   system     system
+/dev/vport*               0666   system     system
+/dev/goldfish_address_space 0666 system     system
+/dev/dri/card0 0660 system graphics
+/dev/dri/controlD64 0660 system graphics
+/dev/dri/renderD128 0666 system graphics
+
+# logcat virtconsole
+/dev/hvc1                 0660   system     logd
+
+# bluetooth
+/dev/vhci                 0660   system  bluetooth
+

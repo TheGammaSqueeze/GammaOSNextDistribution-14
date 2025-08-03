@@ -1,0 +1,80 @@
+//
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+rust_binary {
+    name: "android.hardware.nfc-service.cuttlefish",
+    relative_install_path: "hw",
+    vendor: true,
+    prefer_rlib: true,
+    rustlibs: [
+        "libandroid_logger",
+        "liblog_rust",
+        "libbinder_rs",
+        "libbinder_tokio_rs",
+        "libtokio",
+        "liblibc",
+        "libnix",
+        "libclap",
+        "android.hardware.nfc-V1-rust",
+        "libanyhow",
+        "libthiserror",
+        "libbytes",
+        "libpdl_runtime",
+    ],
+    proc_macros: [
+        "libasync_trait",
+    ],
+    features: ["rt"],
+    srcs: [
+        "src/main.rs",
+        ":casimir_nci_packets_rust_gen",
+    ],
+}
+
+prebuilt_etc {
+    name: "nfc-service-cuttlefish.rc",
+    src: "nfc-service-cuttlefish.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "nfc-service-cuttlefish.xml",
+    src: "nfc-service-cuttlefish.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+apex {
+    name: "com.google.cf.nfc",
+    manifest: "apex_manifest.json",
+    file_contexts: "file_contexts",
+    key: "com.google.cf.apex.key",
+    certificate: ":com.google.cf.apex.certificate",
+    updatable: false,
+    vendor: true,
+
+    binaries: ["android.hardware.nfc-service.cuttlefish"],
+    prebuilts: [
+        "nfc-service-cuttlefish.rc", // init_rc
+        "nfc-service-cuttlefish.xml", // vintf_fragments
+        "android.hardware.nfc.prebuilt.xml", // permission
+        "android.hardware.nfc.hce.prebuilt.xml", // permission
+        "libnfc-hal-cf.conf-default", // conf
+    ],
+}

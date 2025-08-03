@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"<xliff:g id="SERVICE_0">%1$s</xliff:g> کا استعمال کرنے کے لیے آپ نے \'ییچھے جائیں\' اور \'نیچے جائیں\' دونوں بٹنز کو تین سیکنڈ تک دبا کر رکھا ہے۔\n\n <xliff:g id="SERVICE_1">%1$s</xliff:g> کو ابھی فعال کرنے کے لیے، \'ییچھے جائیں\' اور \'نیچے جائیں\' دونوں بٹنز کو تین سیکنڈ تک دوبارہ دبا کر رکھیں۔ کسی بھی وقت اس شارٹ کٹ کا استعمال کر کے <xliff:g id="SERVICE_2">%1$s</xliff:g> کو فعال یا غیر فعال کریں۔\n\n آپ اپنی ترجیحات کو ترتیبات ‎&gt;‎ سسٹم ‎&gt;‎ ایکسیسبیلٹی میں ایڈجسٹ کر سکتے ہیں۔"</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"شارٹ کٹ آن ہونے پر، پیچھے اور نیچے کے دونوں بٹنز کو 3 سیکنڈ تک دبانے سے ایک ایکسیسبیلٹی خصوصیت شروع ہو جائے گی۔\n\n موجودہ ایکسیسبیلٹی خصوصیت:\n <xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n آپ ترتیبات ‎&amp;gt‎;‎ ایکسیسبیلٹی میں خصوصیت تبدیل کر سکتے ہيں۔"</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"\"پیچھے جائیں\" اور \"نیچے جائیں\" بٹنز کو دبا کر رکھا۔ <xliff:g id="SERVICE_NAME">%1$s</xliff:g> آن کر دی گئی۔"</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"\"پیچھے جائیں\" اور \"نیچے جائیں\" بٹنز کو دبا کر رکھا۔ <xliff:g id="SERVICE_NAME">%1$s</xliff:g> آف کر دی گئی۔"</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"<xliff:g id="SERVICE_0">%1$s</xliff:g> کا استعمال کرنے کے لیے آپ نے \'ییچھے جائیں\' اور \'نیچے جائیں\' دونوں بٹنز کو تین سیکنڈ تک دبا کر رکھا ہے۔ <xliff:g id="SERVICE_1">%1$s</xliff:g> کو ابھی فعال کرنے کے لیے، \'ییچھے جائیں\' اور \'نیچے جائیں\' دونوں بٹنز کو تین سیکنڈ تک دوبارہ دبا کر رکھیں۔ کسی بھی وقت اس شارٹ کٹ کا استعمال کر کے <xliff:g id="SERVICE_2">%1$s</xliff:g> کو فعال یا غیر فعال کریں۔"</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"<xliff:g id="SERVICE_0">%1$s</xliff:g> کا استعمال کرنے کے لیے آپ نے \'ییچھے جائیں\' اور \'نیچے جائیں\' دونوں بٹنز کو تین سیکنڈ تک دبا کر رکھا ہے۔\n\n <xliff:g id="SERVICE_1">%1$s</xliff:g> کو ابھی فعال کرنے کے لیے، \'ییچھے جائیں\' اور \'نیچے جائیں\' دونوں بٹنز کو تین سیکنڈ تک دوبارہ دبا کر رکھیں۔\n کسی بھی وقت اس شارٹ کٹ کا استعمال کر کے <xliff:g id="SERVICE_2">%1$s</xliff:g> کو فعال یا غیر فعال کریں۔\n\n آپ اپنی ترجیحات کو ترتیبات ‎&gt;‎ سسٹم ‎&gt;‎ ایکسیسبیلٹی میں ایڈجسٹ کر سکتے ہیں۔"</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"ابھی نہیں"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"ابھی آن کریں"</string>
+</resources>

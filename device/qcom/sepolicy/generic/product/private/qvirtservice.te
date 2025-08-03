@@ -1,0 +1,29 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+# Policy for qvirtservice
+typeattribute vendor_hal_qvirtservice_qti coredomain;
+type vendor_hal_qvirtservice_qti_exec, system_file_type, exec_type, file_type;
+
+init_daemon_domain(vendor_hal_qvirtservice_qti);
+
+binder_use(vendor_hal_qvirtservice_qti);
+
+hal_server_domain(vendor_hal_qvirtservice_qti,vendor_hal_qvirtservice);
+
+hal_attribute_service(vendor_hal_qvirtservice,vendor_hal_qvirt_service);
+
+binder_call(vendor_hal_qvirtservice_server, vendor_hal_qvirtservice_client);
+binder_call(vendor_hal_qvirtservice_client, vendor_hal_qvirtservice_server);
+
+binder_use(vendor_hal_qvirtservice_client);
+
+domain_auto_trans(vendor_hal_qvirtservice_qti, vendor_qcrosvm_exec, vendor_qvirtmgr)
+
+allow vendor_qvirtmgr vendor_hal_qvirtservice_qti:fd use;
+
+set_prop(vendor_hal_qvirtservice_qti, vendor_qvirtmgr_prop)
+
+allow vendor_hal_qvirtservice_qti vendor_qcrosvm_exec:file {r_file_perms getattr execute map };
+
+allow vendor_hal_qvirtservice_qti self:netlink_kobject_uevent_socket create_socket_perms_no_ioctl;

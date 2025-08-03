@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2023, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- this is important so guest knows we have two displays-->
+    <string-array name="config_displayUniqueIdArray" translatable="false">
+        <item>"local:4619827259835644672"</item>
+        <item>"local:4619827551948147201"</item>
+    </string-array>
+    <bool name="config_fillMainBuiltInDisplayCutout">true</bool>
+    <!-- Whether the display cutout region of the secondary built-in display should be forced to
+        black in software (to avoid aliasing or emulate a cutout that is not physically existent).
+    -->
+    <bool name="config_fillSecondaryBuiltInDisplayCutout">true</bool>
+    <!-- Display cutout configuration -->
+    <string translatable="false" name="config_mainBuiltInDisplayCutout">
+        m 2027,80 a 39.5,39.5 0 0 0 -79,0 39.5,39.5 0 0 0 79,0 z
+        @left
+    </string>
+
+    <string translatable="false" name="config_mainBuiltInDisplayCutoutRectApproximation">
+        m 0,0
+        V 136
+        h -136
+        V 0
+        z
+        @right
+    </string>
+    <string translatable="false" name="config_secondaryBuiltInDisplayCutout">
+      m 581.5,86 a 41.5,41.5 0 0 0 -83,0 41.5,41.5 0 0 0 83,0 z
+      @left
+    </string>
+
+    <string translatable="false" name="config_secondaryBuiltInDisplayCutoutRectApproximation">
+        m 484,20 h 112 v 132 h -112 z
+        @left
+    </string>
+
+    <!-- Decouple status bar and cutout from configuration to avoid letterbox. -->
+    <bool name="config_decoupleStatusBarAndDisplayCutoutFromScreenSize">true</bool>
+
+    <!-- Radius of the software rounded corners. -->
+    <dimen name="rounded_corner_radius">25px</dimen>
+
+    <!-- This is the default launcher package with an activity to use on secondary displays that
+         support system decorations.
+         This launcher package must have an activity that supports multiple instances and has
+         corresponding launch mode set in AndroidManifest.
+         {@see android.view.Display#FLAG_SHOULD_SHOW_SYSTEM_DECORATIONS} -->
+
+    <integer-array name="config_openDeviceStates" translatable="false">
+        <item>2</item> <!-- OPEN -->
+    </integer-array>
+
+    <!-- The device states (supplied by DeviceStateManager) that should be treated as folded by the
+         display fold controller. This also controls the folded bit in CameraServiceProxy. -->
+    <integer-array name="config_foldedDeviceStates" translatable="false">
+        <item>0</item> <!-- CLOSED -->
+    </integer-array>
+
+    <!-- The device states (supplied by DeviceStateManager) that should be treated as half folded by
+         the display fold controller. This also controls the folded bit in CameraServiceProxy. -->
+    <integer-array name="config_halfFoldedDeviceStates" translatable="false">
+        <item>1</item> <!-- HALF_OPENED -->
+    </integer-array>
+
+    <!-- The device states (supplied by DeviceStateManager) that should be treated as a rear display
+         state. Default is empty. -->
+    <integer-array name="config_rearDisplayDeviceStates" translatable="false">
+        <item>3</item> <!-- REAR_DISPLAY_STATE -->
+    </integer-array>
+
+    <!-- The device states (supplied by DeviceStateManager) that should be treated as concurrent
+     display state. Default is empty. -->
+    <integer-array name="config_concurrentDisplayDeviceStates" translatable="false">
+        <item>4</item> <!-- CONCURRENT_DISPLAY_STATE -->
+    </integer-array>
+
+    <!-- Whether to override disabled auto-rotate for half-folded states. -->
+    <bool name="config_windowManagerHalfFoldAutoRotateOverride" translatable="false">false</bool>
+
+    <!-- Indicates whether the window manager pauses autorotation when folding or unfolding
+     a foldable device based on hinge angle sensor events and physical display switch events. -->
+    <bool name="config_windowManagerPauseRotationWhenUnfolding">true</bool>
+
+    <!-- Amount of time during which autorotation will be disabled since last hinge angle event
+     in milliseconds -->
+    <integer name="config_pauseRotationWhenUnfolding_hingeEventTimeout">400</integer>
+
+    <!-- Maximum hinge angle event to be considered to disable autorotation when folding or
+     unfolding -->
+    <integer name="config_pauseRotationWhenUnfolding_maxHingeAngle">165</integer>
+
+    <!-- Amount of time during which autorotation will be disabled since last display switch
+     in milliseconds -->
+    <integer name="config_pauseRotationWhenUnfolding_displaySwitchTimeout">1000</integer>
+
+    <!-- When a device enters any of these states, it should be woken up. States are defined in
+         device_state_configuration.xml. -->
+    <integer-array name="config_deviceStatesOnWhichToWakeUp">
+        <item>1</item> <!-- HALF_OPENED -->
+        <item>2</item> <!-- OPENED -->
+    </integer-array>
+
+    <!-- When a device enters any of these states, it should go to sleep. States are defined in
+         device_state_configuration.xml. -->
+    <integer-array name="config_deviceStatesOnWhichToSleep">
+        <item>0</item> <!-- CLOSED -->
+    </integer-array>
+
+    <!-- WindowsManager JetPack display features -->
+    <string name="config_display_features" translatable="false">fold-[1038,0,1038,2152]</string>
+
+    <!-- Map of System DeviceState supplied by DeviceStateManager to WM Jetpack posture. -->
+    <string-array name="config_device_state_postures" translatable="false">
+        <item>0:1</item>    <!-- CLOSED       : COMMON_STATE_NO_FOLDING_FEATURES -->
+        <item>1:2</item>    <!-- HALF_OPENED  : COMMON_STATE_HALF_OPENED -->
+        <item>2:3</item>    <!-- OPENED       : COMMON_STATE_FLAT -->
+        <item>3:1</item>    <!-- REAR_DISPLAY : COMMON_STATE_NO_FOLDING_FEATURES -->
+        <item>4:1000</item> <!-- CONCURRENT   : COMMON_STATE_USE_BASE_STATE -->
+    </string-array>
+
+    <!-- Map of DeviceState to rotation lock setting. Each entry must be in the format "key:value",
+         or "key:value:fallback_key" for example: "0:1" or "2:0:1". The keys are device states, and
+         the values are one of Settings.Secure.DeviceStateRotationLockSetting.
+         The fallback is a key to a device state that can be specified when the value is
+         Settings.Secure.DEVICE_STATE_ROTATION_LOCK_IGNORED.
+     -->
+    <string-array name="config_perDeviceStateRotationLockDefaults" translatable="false">
+        <item>0:1</item> <!-- CLOSED -> LOCKED -->
+        <item>1:0:2</item> <!-- HALF_OPENED -> IGNORED and fallback to device state OPENED -->
+        <item>2:2</item> <!-- OPENED -> UNLOCKED -->
+        <item>3:0:0</item> <!-- REAR_DISPLAY -> IGNORED and fallback to device state CLOSED -->
+    </string-array>
+    <!-- Set to true to enable the user switcher on the keyguard. -->
+    <bool name="config_keyguardUserSwitcher">false</bool>
+
+    <!-- If true, show multiuser switcher by default unless the user specifically disables it. -->
+    <bool name="config_showUserSwitcherByDefault">false</bool>
+
+    <string-array name="config_deviceStatesAvailableForAppRequests">
+        <item>config_deviceStateRearDisplay</item>
+        <item>config_deviceStateConcurrentRearDisplay</item>
+    </string-array>
+
+    <integer name="config_deviceStateRearDisplay">3</integer>
+
+    <integer name="config_deviceStateConcurrentRearDisplay">4</integer>
+
+    <string name="config_rearDisplayPhysicalAddress">4619827677550801153</string>
+
+    <!-- Boolean indicating whether secondary built-in displays should have their orientation
+         match the active default display. This config assumes that the secondary display only
+         requires swapping ROTATION_90 and ROTATION_270. -->
+    <bool name="config_matchSecondaryInternalDisplaysOrientationToReverseDefaultDisplay">true</bool>
+
+    <!-- Whether using display aspect ratio as a default aspect ratio for all letterboxed apps. -->
+    <bool name="config_letterboxIsDisplayAspectRatioForFixedOrientationLetterboxEnabled">true</bool>
+
+    <integer-array name="config_deviceTabletopRotations">
+        <item>90</item><!-- Surface.ROTATION_90 -->
+        <item>270</item><!-- Surface.ROTATION_270 -->
+    </integer-array>
+
+    <!-- Whether to enable left-right split in portrait on this device -->
+    <bool name="config_leftRightSplitInPortrait">true</bool>
+
+</resources>

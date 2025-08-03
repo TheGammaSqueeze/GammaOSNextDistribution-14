@@ -1,0 +1,10 @@
+# List of sub-device specific modules to not load automatically
+blocklist btusb.ko
+blocklist mt76x2u.ko
+blocklist mt76x2_common.ko
+blocklist mt76x0u.ko
+blocklist mt76x02_usb.ko
+blocklist mt76x0_common.ko
+blocklist mt76x02_lib.ko
+blocklist mt76_usb.ko
+blocklist mt76.ko

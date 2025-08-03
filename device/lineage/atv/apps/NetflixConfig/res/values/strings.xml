@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nrdp_platform_capabilities"></string>
+    <string name="nrdp_audio_platform_capabilities"></string>
+    <string name="nrdp_video_platform_capabilities"></string>
+</resources>

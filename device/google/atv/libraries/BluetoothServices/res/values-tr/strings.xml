@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Yok"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Kritik düzeyde"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Düşük"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"İyi"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Uzaktan kumanda güncellemesini onaylayın"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Güncelleme sırasında uzaktan kumandanızın bağlantısı kısa süreliğine kesilebilir."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Devam"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"İptal"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Uzaktan kumanda güncellemesi"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Yeni yazılım mevcut"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Güncelleme mevcut"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Uzaktan kumanda güncel"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Uzaktan kumanda güncellenemedi"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Uzaktan kumandanızı güncellerken bir sorunla karşılaştık. Lütfen tekrar deneyin."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Lütfen bekleyin"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Uzaktan kumandanızı tekrar eşleyin"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Etkin"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Devre dışı"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Pil düzeyi"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%%%1$d"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Donanım Yazılımı"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Bluetooth adresi"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Lütfen pili değiştirin"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Pil seviyesi düşük"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Bağlı Cihazlar"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Uzaktan Kumandalar ve Aksesuarlar"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Uzaktan kumandanızı güncelleyin"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Yüklemeye hazır"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"GÜNCELLE"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"KAPAT"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Uzaktan kumandanın pil seviyesi düşük"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Pili yakında değiştirin"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Uzaktan kumandanın pili bitmek üzere"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Pili yakında değiştirin"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Uzaktan kumandanın pili bitti"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Uzaktan kumandayı kullanmak için pili değiştirin"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Evet"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Hayır"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s bağlantısını kes"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Şuna bağlan: %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$s cihazını unut"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Bağlı cihazınızın adını değiştirin"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CEC\'yi etkinleştir"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC, tek bir uzaktan kumanda ile HDMI-CEC özellikli diğer cihazları kontrol etmenize olanak sağlar .\n\nNot: TV\'nizde ve diğer HDMI cihazlarınızda HDMI-CEC\'nin etkin olduğundan emin olun. Üreticiler çoğunlukla HDMI-CEC için farklı adlar kullanırlar. Örneğin:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Uzaktan kumanda düğmeleri ayarlayın"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"TV\'lerde, alıcılarda ve ses çubuklarında ses düzeyini, gücü, girişi kontrol edin"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Uzaktan kumandamı bul"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Google TV uzaktan kumandanızın nerede olduğunu hatırlamıyorsanız ses çalarak yerini bulabilirsiniz"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Uzaktan kumandanızda 30 saniye boyunca ses çalmak için Google TV Streamer cihazınızın arkasındaki düğmeye basın. Bu işlem yalnızca Google TV Streamer Sesli Uzaktan Kumandası\'nda çalışır.\n\nSesi durdurmak için uzaktan kumandanızdaki herhangi bir düğmeye basın."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Uzaktan kumandamı bul özelliği etkinleştirildiğinde Google TV uzaktan kumandanızın nerede olduğunu hatırlamıyorsanız ses çalarak yerini bulabilirsiniz."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Ses çal"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Pil seviyesi: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Aksesuarlar"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Uzaktan Kumanda"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Bağlı"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Daha önce bağlanılmış cihazlar"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Uzaktan kumanda veya aksesuar eşleme"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Bağlantıyı kes"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Bağlan"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Yeniden adlandır"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Unut"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"TV sesi için kullan"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Bağlı"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Bağlantı değil"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Cihaz kontrolü"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Yeni cihaz bağla"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Yeni Bluetooth cihazları bağlamadan önce cihazların eşleme modunda olduklarından emin olun. %1$s cihazını bağlamak için %2$s + %3$s tuşlarını 3 saniye basılı tutun."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV uzaktan kumandası"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Kullanılabilir cihazlar"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Cihazlar aranıyor…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Hata"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Bağlanıyor…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Bağlı"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"İptal edildi"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s bağlantısı başarısız oldu"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s bağlandı"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s bağlantısı kesildi"</string>
+</resources>

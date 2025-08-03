@@ -1,0 +1,3 @@
+allow cameraserver system_file:dir { open read };
+allow cameraserver hal_allocator:fd use;
+allow cameraserver gpu_device:chr_file { open read write ioctl };

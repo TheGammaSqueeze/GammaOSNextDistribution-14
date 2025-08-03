@@ -1,0 +1,2 @@
+allow system_app self:vsock_socket create_socket_perms_no_ioctl;
+allow system_app hal_graphics_allocator_default:vsock_socket { read write getattr };

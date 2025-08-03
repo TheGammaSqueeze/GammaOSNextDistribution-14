@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"N/A"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"బ్యాటరీ స్థాయి క్లిష్టంగా ఉంది"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"బ్యాటరీ స్థాయి తక్కువగా ఉంది"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"బ్యాటరీ స్థాయి బాగుంది"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"రిమోట్ అప్‌డేట్‌ను నిర్ధారించండి"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"అప్‌డేట్ జరిగే సమయంలో మీ రిమోట్ కొద్ది సమయం పాటు డిస్‌కనెక్ట్ అవ్వవచ్చు."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"కొనసాగించండి"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"రద్దు చేయండి"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"రిమోట్ అప్‌డేట్"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"కొత్త సాఫ్ట్‌వేర్ అప్‌డేట్ అందుబాటులో ఉంది"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"అప్‌డేట్ లభిస్తుంది"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"రిమోట్ అప్‌డేట్ అయ్యి ఉంది"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"రిమోట్ అప్‌డేట్ విఫలమైంది"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"మీ రిమోట్‌ను మేము అప్‌డేట్ చేస్తున్నప్పుడు ఏదో సమస్య ఏర్పడింది. దయచేసి మళ్లీ ట్రై చేయండి."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"దయచేసి వేచి ఉండండి"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"మీ రిమోట్‌ను మళ్లీ పెయిర్ చేయండి"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"ప్రారంభించబడింది"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"నిలిపివేయబడింది"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"బ్యాటరీ స్థాయి"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"ఫర్మ్‌వేర్"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"బ్లూటూత్ అడ్రస్‌"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"దయచేసి బ్యాటరీని రీప్లేస్ చేయండి"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"బ్యాటరీ తక్కువగా ఉంది"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"కనెక్ట్ అయిన పరికరాలు"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"రిమోట్‌లు &amp; యాక్సెసరీలు"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"మీ రిమోట్‌ను అప్‌డేట్ చేయండి"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"ఇన్‌స్టాల్ చేయడానికి సిద్ధంగా ఉంది"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"అప్‌డేట్ చేయండి"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"విస్మరించండి"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"రిమోట్ బ్యాటరీ తక్కువగా ఉంది"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"త్వరగా బ్యాటరీని రీప్లేస్ చేయండి"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"రిమోట్ బ్యాటరీ దాదాపు ఖాళీగా ఉంది"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"త్వరగా బ్యాటరీని రీప్లేస్ చేయండి"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"రిమోట్ బ్యాటరీ ఖాళీగా ఉంది"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"రిమోట్‌ను ఉపయోగించడానికి బ్యాటరీని రీప్లేస్ చేయండి"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"అవును"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"లేదు"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s నుండి డిస్‌కనెక్ట్ చేయండి"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"%1$sకు కనెక్ట్ చేయండి"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$sని విస్మరించండి"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"మీ కనెక్ట్ చేసిన పరికరం పేరు మార్చండి"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CECని ప్రారంభించండి"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"ఒక రిమోట్ నియంత్రణతో ఇతర HDMI-CEC ప్రారంభించబడిన పరికరాలను నియంత్రించడానికి మరియు ఆటోమేటిక్‌గా ఆన్/ఆఫ్ చేయడానికి HDMI-CEC మిమ్మల్ని అనుమతిస్తుంది.\n\nగమనిక: మీ టీవీ మరియు ఇతర HDMI పరికరాలలో HDMI-CEC ప్రారంభించబడిందని నిర్థారించండి. తయారీదారులు తరచుగా HDMI-CECకి వివిధ పేర్లను కలిగి ఉంటారు, ఉదాహరణకు:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"రిమోట్ బటన్‌లను సెటప్ చేయండి"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"వాల్యూమ్, పవర్, టీవీలలోని ఇన్‌పుట్, రిసీవర్‌లు అలాగే సౌండ్‌బార్‌లను కంట్రోల్ చేయండి"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"నా రిమోట్‌ను కనుగొనండి"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"మీ Google TV రిమోట్ మిస్‌ప్లేస్ చేయబడితే దాన్ని గుర్తించడానికి సౌండ్ ప్లే చేయండి"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"మీ రిమోట్‌లో 30 సెకన్ల పాటు సౌండ్‌ను ప్లే చేయడానికి మీ Google TV స్ట్రీమర్ వెనుక ఉన్న బటన్‌ను నొక్కండి. ఇది Google TV స్ట్రీమర్ వాయిస్ రిమోట్‌లో మాత్రమే పని చేస్తుంది.\n\nసౌండ్‌ను ఆపడానికి, మీ రిమోట్‌లోని ఏదైనా బటన్‌ను నొక్కండి."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"\'నా రిమోట్‌ను కనుగొనండి\' ఫీచర్‌ను ఎనేబుల్ చేసినప్పుడు, మీ Google TV రిమోట్ మిస్‌ప్లేస్ చేయబడితే దాన్ని గుర్తించడానికి మీరు సౌండ్‌ను ప్లే చేయవచ్చు."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"సౌండ్‌ను ప్లే చేయండి"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"బ్యాటరీ స్థాయి: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"యాక్సెసరీలు"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"రిమోట్ కంట్రోల్"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"కనెక్ట్ చేయబడింది"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"ఇంతకు మునుపు కనెక్ట్ చేయబడినవి"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"రిమోట్ లేదా యాక్సెసరీని పెయిర్ చేయండి"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"డిస్‌కనెక్ట్"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"కనెక్ట్ చేయండి"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"పేరుమార్చండి"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"విస్మరించండి"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"టీవీ ఆడియో కోసం ఉపయోగించండి"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"కనెక్ట్ చేయబడింది"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"డిస్‌కనెక్ట్ అయింది"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"పరికర నియంత్రణ"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"కొత్త పరికరాన్ని కనెక్ట్ చేయండి"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"కొత్త బ్లూటూత్ పరికరాలను కనెక్ట్ చేసే ముందు, అవి పెయిరింగ్ మోడ్‌లోనే ఉన్నాయని నిర్ధారించుకోండి. \'%1$s\' ను కనెక్ట్ చేయడానికి, 3 సెకన్ల పాటు \'%2$s + %3$s\'ను నొక్కి, పట్టుకోండి."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android టీవీ రిమోట్"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"అందుబాటులో ఉన్న పరికరాలు"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"పరికరాల కోసం వెతుకుతోంది…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"ఎర్రర్"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"కనెక్ట్ అవుతోంది…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"కనెక్ట్ అయింది"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"రద్దు చేయబడింది"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$sను కనెక్ట్ చేయడం విఫలమైంది"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s కనెక్ట్ చేయబడింది"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s డిస్‌కనెక్ట్ చేయబడింది"</string>
+</resources>

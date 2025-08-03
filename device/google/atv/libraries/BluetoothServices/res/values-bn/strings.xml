@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"প্রযোজ্য নয়"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"গুরুত্বপূর্ণ"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"কম"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"ভাল"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"রিমোট সংক্রান্ত আপডেট কনফার্ম করুন"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"আপডেট করার সময় আপনার রিমোট কিছুক্ষণের জন্য ডিসকানেক্ট হতে পারে।"</string>
+    <string name="settings_continue" msgid="5640776697820481568">"চালিয়ে যান"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"বাতিল করুন"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"রিমোট সংক্রান্ত আপডেট"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"নতুন সফ্টওয়্যার উপলভ্য আছে"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"আপডেট পাওয়া যাবে"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"রিমোট আপ-টু-ডেট আছে"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"রিমোট আপডেট করা যায়নি"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"আপনার রিমোট আপডেট করার সময় কোনও সমস্যা হয়েছে। আবার চেষ্টা করুন।"</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"অপেক্ষা করুন"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"আপনার রিমোট আবার পেয়ার করুন"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"চালু আছে"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"বন্ধ করা আছে"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"ব্যাটারির চার্জ"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"ফার্মওয়্যার"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"ব্লুটুথ অ্যাড্রেস"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"ব্যাটারি পাল্টান"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"ব্যাটারির চার্জ কম আছে"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"কানেক্ট করা ডিভাইস"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"রিমোট ও অ্যাক্সেসরি"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"আপনার রিমোট আপডেট করুন"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"ইনস্টল করার জন্য রেডি"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"আপডেট করুন"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"বাতিল করুন"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"রিমোটের ব্যাটারিতে কম চার্জ আছে"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"ব্যাটারি শীঘ্রই পাল্টান"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"রিমোটের ব্যাটারিতে প্রায় চার্জ নেই"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"ব্যাটারি শীঘ্রই পাল্টান"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"রিমোটের ব্যাটারিতে কোনও চার্জ নেই"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"রিমোট ব্যবহার করতে ব্যাটারি পাল্টান"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"হ্যাঁ"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"না"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s থেকে ডিসকানেক্ট করুন"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"%1$s-এ কানেক্ট করুন"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$s ভুলে যান"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"আপনার কানেক্ট করা ডিভাইসের নাম দিন"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CEC চালু করুন"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC-এর মাধ্যমে আপনি অন্য HDMI-CEC চালু আছে এমন ডিভাইস একটি রিমোট কন্ট্রোল দিয়ে নিজে থেকে চালু/বন্ধ করতে পারবেন।\n\nদ্রষ্টব্য: আপনার টিভি এবং অন্য HDMI ডিভাইসে HDMI-CEC চালু আছে কিনা ভাল করে দেখে নিন। প্রস্তুতকারকরা HDMI-CEC কে বিভিন্ন নাম দিয়ে থাকেন, যেমন:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"রিমোটের বোতাম সেট-আপ করুন"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"ভলিউম, পাওয়ার, টিভির ইনপুট, রিসিভার ও সাউন্ডবার নিয়ন্ত্রণ করুন"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"\'আমার রিমোট খুঁজুন\'"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"আপনার Google TV-এর রিমোট হারিয়ে গেলে, সেটি খুঁজতে সাউন্ড চালান"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"আপনার রিমোটে ৩০ সেকেন্ডের জন্য সাউন্ড চালাতে আপনার Google TV স্ট্রিমারের পিছনের বোতাম প্রেস করুন। এটি শুধুমাত্র Google TV স্ট্রিমারের ভয়েস রিমোটে কাজ করে।\n\nসাউন্ড বন্ধ করতে, আপনার রিমোটে যেকোনও বোতাম প্রেস করুন।"</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"\'আমার রিমোট খুঁজুন\' সুবিধা চালু থাকাকালীন, আপনার Google TV-এর রিমোট হারিয়ে গেলে, সেটি খুঁজে পেতে সাউন্ড চালাতে পারবেন।"</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"সাউন্ড চালান"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"ব্যাটারিতে চার্জ আছে: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"অ্যাক্সেসরি"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"রিমোট কন্ট্রোল"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"কানেক্ট করা আছে"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"আগে কানেক্ট করা ছিল"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"রিমোট বা অ্যাক্সেসরি পেয়ার করুন"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"ডিসকানেক্ট"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"কানেক্ট করুন"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"নাম পরিবর্তন করুন"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"ভুলে যান"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"টিভি অডিওর জন্য ব্যবহার করুন"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"কানেক্ট করা আছে"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"ডিসকানেক্ট হয়ে গেছে"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"ডিভাইস নিয়ন্ত্রণ"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"নতুন ডিভাইস কানেক্ট করুন"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"নতুন ব্লুটুথ ডিভাইস কানেক্ট করার আগে, সেগুলি যোগ করার মোডে আছে কিনা তা দেখে নিন। %1$s কানেক্ট করতে, %2$s + %3$s ৩ সেকেন্ডের জন্য প্রেস করে ধরে থাকুন।"</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"একটি Android TV রিমোট"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"উপলভ্য ডিভাইস"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"ডিভাইস খোঁজা হচ্ছে…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"সমস্যা"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"কানেক্ট করা হচ্ছে…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"কানেক্ট করা আছে"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"বাতিল করা হয়েছে"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s কানেক্ট করা যায়নি"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s কানেক্ট করা আছে"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s কানেক্ট করা নেই"</string>
+</resources>

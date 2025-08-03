@@ -1,0 +1,2 @@
+on boot
+	chmod 222 /sys/bus/platform/devices/vhci_hcd.0/attach

@@ -1,0 +1,59 @@
+# virtio-gpu
+/dev/dri/card0 0660 system graphics
+/dev/dri/controlD64 0660 system graphics
+/dev/dri/renderD128 0666 system graphics
+
+# media.codec2
+/dev/ion 0664 system system
+
+# resume-on-reboot
+/dev/block/pmem0 0770 system system
+
+# hwcomposer
+/dev/block/pmem1 0770 system system
+
+# seriallogging
+/dev/hvc2 0660 system logd
+
+# keymaster / C++
+/dev/hvc3 0666 system system
+
+# gatekeeper
+/dev/hvc4 0660 system system
+
+# bluetooth
+/dev/hvc5 0660 bluetooth bluetooth
+/dev/vhci 0660 bluetooth bluetooth
+
+# gnss hal can access hvc6/hvc7
+/dev/hvc6 0666 system system
+/dev/hvc7 0666 system system
+# gnss0/gnss1 are symlinks of hvc6/hvc7
+/dev/gnss0 0666 system system
+/dev/gnss1 0666 system system
+
+# confirmation UI
+/dev/hvc8 0666 system system
+
+# uwb
+/dev/hvc9 0660 uwb uwb
+
+# oemlock
+/dev/hvc10 0660 hsm hsm
+
+# keymint / Rust
+/dev/hvc11 0666 system system
+
+# NFC
+/dev/hvc12 0666 nfc nfc
+
+# sensors
+/dev/hvc13 0660 system system
+
+# MCU control
+/dev/hvc14 0666 system system
+# MCU UART
+/dev/hvc15 0666 system system
+
+# Factory Reset Protection
+/dev/block/by-name/frp 0660 system system

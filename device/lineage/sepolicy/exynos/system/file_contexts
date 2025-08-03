@@ -1,0 +1,2 @@
+# LiveDisplay
+/system/bin/hw/lineage\.livedisplay@[0-9]\.[0-9]-service.samsung-exynos    u:object_r:hal_lineage_livedisplay_exynos_exec:s0

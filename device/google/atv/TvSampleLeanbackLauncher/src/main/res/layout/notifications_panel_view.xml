@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/notifications_panel_view"
+    android:layout_width="@dimen/notification_panel_width"
+    android:layout_height="match_parent"
+    android:layout_gravity="end"
+    android:animateLayoutChanges="true"
+    android:background="@color/notification_panel_background"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/defaultBrandColor"
+        android:elevation="@dimen/lb_preference_decor_title_container_elevation"
+        android:transitionGroup="false">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/lb_preference_decor_title_text_height"
+            android:layout_marginEnd="@dimen/lb_preference_decor_title_margin_end"
+            android:layout_marginStart="@dimen/lb_preference_decor_title_margin_start"
+            android:layout_marginTop="@dimen/lb_preference_decor_title_margin_top"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:text="@string/system_notifications"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="@dimen/lb_preference_decor_title_text_size" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/no_notifications_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingBottom="@dimen/notification_panel_vertical_padding"
+        android:paddingEnd="@dimen/notification_panel_horizontal_padding"
+        android:paddingStart="@dimen/notification_panel_horizontal_padding"
+        android:paddingTop="@dimen/notification_panel_title_padding"
+        android:text="@string/no_notifications_message"
+        android:textColor="@color/secondary_text_color"
+        android:visibility="gone" />
+
+    <androidx.leanback.widget.VerticalGridView
+        android:id="@+id/notifications_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
+
+        <requestFocus />
+    </androidx.leanback.widget.VerticalGridView>
+</LinearLayout>

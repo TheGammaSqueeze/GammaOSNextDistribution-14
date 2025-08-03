@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"<xliff:g id="SERVICE_0">%1$s</xliff:g>ን ለመጠቀም ሁለቱንም የተመለስ እና የታች አዝራሮችን ለሦስት ሰከንዶች ይዘዋል።\n\n አሁን <xliff:g id="SERVICE_1">%1$s</xliff:g>ን ለማንቃት የተመለስ እና የታች አዝራሮችን ለሶስት ሰከንዶች እንደገና ይያዙ። <xliff:g id="SERVICE_2">%1$s</xliff:g>ን ለማንቃት ወይም ለማሰናከል ይህንን አቋራጭ በማንኛውም ጊዜ ይጠቀሙ።\n\n ምርጫዎችዎን በቅንብሮች &gt; ስርዓት &gt; ተደራሽነት ውስጥ ማስተካከል ይችላሉ።"</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"አቋራጩ ሲበራ ሁለቱንም የተመለስ እና የታች አዝራሮች ለ3 ሰከንዶች ተጭኖ መያዝ የተደራሽነት ባህሪን ያስጀምራል።\n\n የአሁኑ የተደራሽነት ባህሪ፦\n <xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n ባህሪውን በቅንብሮች &gt; ተደራሽነት ውስጥ መለወጥ ይችላሉ።"</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"የተመለስ እና የታች አዝራሮች ተይዘዋል። <xliff:g id="SERVICE_NAME">%1$s</xliff:g> በርቷል።"</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"የተመለስ እና የታች አዝራሮች ተይዘዋል። <xliff:g id="SERVICE_NAME">%1$s</xliff:g> ጠፍተዋል።"</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"<xliff:g id="SERVICE_0">%1$s</xliff:g>ን ለመጠቀም ሁለቱንም የተመለስ እና የታች አዝራሮችን ለሦስት ሰከንዶች ይዘዋል። አሁን <xliff:g id="SERVICE_1">%1$s</xliff:g>ን ለማንቃት የተመለስ እና የታች አዝራሮችን ለሶስት ሰከንዶች እንደገና ይያዙ። <xliff:g id="SERVICE_2">%1$s</xliff:g>ን ለማንቃት ወይም ለማሰናከል ይህንን አቋራጭ በማንኛውም ጊዜ ይጠቀሙ።"</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"<xliff:g id="SERVICE_0">%1$s</xliff:g>ን ለመጠቀም ሁለቱንም የተመለስ እና የታች አዝራሮችን ለሦስት ሰከንዶች ይዘዋል።\n\n አሁን <xliff:g id="SERVICE_1">%1$s</xliff:g>ን ለማንቃት የተመለስ እና የታች አዝራሮችን ለሶስት ሰከንዶች እንደገና ይያዙ።\n <xliff:g id="SERVICE_2">%1$s</xliff:g>ን ለማንቃት ወይም ለማሰናከል ይህንን አቋራጭ በማንኛውም ጊዜ ይጠቀሙ።\n\n ምርጫዎችዎን በቅንብሮች &gt; ስርዓት &gt; ተደራሽነት ውስጥ ማስተካከል ይችላሉ።"</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"አሁን አይደለም"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"አሁን አብራ"</string>
+</resources>

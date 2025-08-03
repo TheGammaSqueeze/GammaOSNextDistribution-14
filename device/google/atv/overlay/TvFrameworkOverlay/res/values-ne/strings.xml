@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"तपाईंले <xliff:g id="SERVICE_0">%1$s</xliff:g> प्रयोग गर्न \'पछाडि जानुहोस्\' र \'तल जानुहोस्\' दुवै बटन तीन सेकेन्डसम्म होल्ड गर्नुभएको छ।\n\n <xliff:g id="SERVICE_1">%1$s</xliff:g> अहिले अन गर्न \'पछाडि जानुहोस्\' र \'तल जानुहोस्\' बटनहरू फेरि तीन सेकेन्डसम्म होल्ड गर्नुहोस्। <xliff:g id="SERVICE_2">%1$s</xliff:g> अन वा अफ गर्न जुनसुकै बेला यो सर्टकट प्रयोग गर्नुहोस्।\n\n तपाईं सेटिङ &gt; प्रणाली &gt; सर्वसुलभतामा गएर आफ्ना प्राथमिकताहरू मिलाउन गर्न सक्नुहुन्छ।"</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"यो सर्टकट अन हुँदा तपाईंले पछाडि जाने र तल जाने दुवै बटन ३ सेकेन्डसम्म थिचिराख्नुभयो भने एक्सेसिबिलिटीसम्बन्धी सुविधा कुनै सुविधा खुल्ने छ।\n\n एक्सेसिबिलिटीसम्बन्धी सुविधा हालको सुविधा:\n <xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n तपाईं \'सेटिङ &gt; सर्वसुलभता\' मा गई यो सुविधा परिवर्तन गर्न सक्नुहुन्छ।"</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"\'पछाडि जानुहोस्\' र \'तल जानुहोस्\' बटनहरू होल्ड गर्नुहोस्। <xliff:g id="SERVICE_NAME">%1$s</xliff:g> अन गरियो।"</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"\'पछाडि जानुहोस्\' र \'तल जानुहोस्\' बटनहरू होल्ड गर्नुहोस्। <xliff:g id="SERVICE_NAME">%1$s</xliff:g> अफ गरियो।"</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"तपाईंले <xliff:g id="SERVICE_0">%1$s</xliff:g> प्रयोग गर्न \'पछाडि जानुहोस्\' र \'तल जानुहोस्\' दुवै बटन तीन सेकेन्डसम्म होल्ड गर्नुभएको छ। <xliff:g id="SERVICE_1">%1$s</xliff:g> अहिले अन गर्न \'पछाडि जानुहोस्\' र \'तल जानुहोस्\' बटनहरू फेरि तीन सेकेन्डसम्म होल्ड गर्नुहोस्। <xliff:g id="SERVICE_2">%1$s</xliff:g> अन वा अफ गर्न जुनसुकै बेला यो सर्टकट प्रयोग गर्नुहोस्।"</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"तपाईंले <xliff:g id="SERVICE_0">%1$s</xliff:g> प्रयोग गर्न \'पछाडि जानुहोस्\' र \'तल जानुहोस्\' दुवै बटन तीन सेकेन्डसम्म होल्ड गर्नुभएको छ।\n\n <xliff:g id="SERVICE_1">%1$s</xliff:g> अहिले अन गर्न \'पछाडि जानुहोस्\' र \'तल जानुहोस्\' बटनहरू फेरि तीन सेकेन्डसम्म होल्ड गर्नुहोस्।\n <xliff:g id="SERVICE_2">%1$s</xliff:g> अन वा अफ गर्न जुनसुकै बेला यो सर्टकट प्रयोग गर्नुहोस्।\n\n तपाईं सेटिङ &gt; प्रणाली &gt; सर्वसुलभतामा गएर आफ्ना प्राथमिकताहरू मिलाउन गर्न सक्नुहुन्छ।"</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"अहिले होइन"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"अहिले नै अन गर्नुहोस्"</string>
+</resources>

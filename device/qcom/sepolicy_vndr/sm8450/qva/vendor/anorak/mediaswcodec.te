@@ -1,0 +1,6 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+get_prop(mediaswcodec, vendor_display_prop)
+allow mediaswcodec gpu_device:chr_file { ioctl open read write };
+

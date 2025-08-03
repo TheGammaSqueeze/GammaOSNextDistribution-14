@@ -1,0 +1,3 @@
+<manifest version="1.0" type="device" target-level="5">
+  <!-- DO NOT ADD HALS HERE - use vintf_fragments -->
+</manifest>

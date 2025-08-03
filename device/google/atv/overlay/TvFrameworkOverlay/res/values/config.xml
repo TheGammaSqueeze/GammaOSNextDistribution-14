@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!-- Flag indicating that the media framework should support playing of sounds on volume
+         key usage.  This adds noticeable additional overhead to volume key processing, so
+         is disableable for products for which it is irrelevant. -->
+    <bool name="config_useVolumeKeySounds">false</bool>
+
+    <!-- Flag indicating whether the AUDIO_BECOMING_NOISY notification should
+         be sent during a change to the audio output device. -->
+    <bool name="config_sendAudioBecomingNoisy">false</bool>
+
+    <!-- Set this to true to enable the platform's auto-power-save modes like doze and
+         app standby.  These are not enabled by default because they require a standard
+         cloud-to-device messaging service for apps to interact correctly with the modes
+         (such as to be able to deliver an instant message to the device even when it is
+         dozing).  This should be enabled if you have such services and expect apps to
+         correctly use them when installed on your device.  Otherwise, keep this disabled
+         so that applications can still use their own mechanisms. -->
+    <bool name="config_enableAutoPowerModes">true</bool>
+
+    <!-- Whether (if true) this is a kind of device that can be moved around (eg. phone/laptop),
+         or (if false) something for which movement is either not measurable or should not count
+         toward power states (eg. tv/soundbar). -->
+    <bool name="config_autoPowerModeUseMotionSensor">false</bool>
+
+    <!-- Control the default UI mode type to use when there is no other type override
+         happening.  One of the following values (See Configuration.java):
+             1  UI_MODE_TYPE_NORMAL
+             4  UI_MODE_TYPE_TELEVISION
+             5  UI_MODE_TYPE_APPLIANCE
+             6  UI_MODE_TYPE_WATCH
+             7  UI_MODE_TYPE_VR_HEADSET
+         Any other values will have surprising consequences. -->
+    <integer name="config_defaultUiModeType">4</integer>
+
+    <!--  Control whether to lock UI mode to what is selected from config_defaultUiModeType.
+          Once UI mode is locked, applications cannot change it anymore. -->
+    <bool name="config_lockUiMode">true</bool>
+
+    <!-- Control the default night mode to use when there is no other mode override set.
+         One of the following values (see UiModeManager.java):
+             0 - MODE_NIGHT_AUTO
+             1 - MODE_NIGHT_NO
+             2 - MODE_NIGHT_YES
+    -->
+    <integer name="config_defaultNightMode">2</integer>
+
+    <!-- Control the behavior when the user long presses the power button.
+            0 - Nothing
+            1 - Global actions menu
+            2 - Power off (with confirmation)
+            3 - Power off (without confirmation)
+            4 - Go to voice assist
+            5 - Go to assistant (Settings.Secure.ASSISTANT)
+    -->
+    <integer name="config_longPressOnPowerBehavior">3</integer>
+
+    <!-- If true, enables verification of the lockscreen credential in the factory reset protection
+        flow. This should be true if gatekeeper / weaver credentials can still be checked after a
+        factory reset. -->
+    <bool name="config_enableCredentialFactoryResetProtection">false</bool>
+
+    <!-- Control the behavior when the user long presses the home button.
+            0 - Nothing
+            1 - Launch all apps intent
+            2 - Launch assist intent
+            3 - Launch notification panel
+         This needs to match the constants in
+         policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+    -->
+    <integer name="config_longPressOnHomeBehavior">1</integer>
+
+    <!-- Control the behavior when the user double-taps the home button.
+            0 - Nothing
+            1 - Recent apps view in SystemUI
+            2 - Picture-in-picture menu
+         This needs to match the constants in
+         policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+    -->
+    <integer name="config_doubleTapOnHomeBehavior">2</integer>
+
+    <!-- Whether the geolocation time zone detection feature is enabled. Setting this to false means
+         the feature cannot be used. Setting this to true means system server components can be
+         tested and location time zone detection may be used if other configuration allows (see
+         location time zone provider configuration settings below). -->
+    <bool name="config_enableGeolocationTimeZoneDetection" translatable="false">false</bool>
+
+    <!-- Flag indicating whether the current device is "voice capable".
+         If true, this means that the device supports circuit-switched
+         (i.e. voice) phone calls over the telephony network, and is
+         allowed to display the in-call UI while a cellular voice call is
+         active.  This can be overridden to false for "data only" devices
+         which can't make voice calls and don't support any in-call UI.
+
+         Note: this flag is subtly different from the
+         PackageManager.FEATURE_TELEPHONY system feature, which is
+         available on *any* device with a telephony radio, even if the
+         device is data-only. -->
+    <bool name="config_voice_capable">false</bool>
+
+    <!-- Flag indicating whether the current device allows sms service.
+         If true, this means that the device supports both sending and
+         receiving sms via the telephony network.
+         This can be overridden to false for "data only" devices
+         which can't send and receive sms message.
+
+         Note: Disable SMS also disable voicemail waiting sms,
+               cell broadcasting sms, and MMS. -->
+    <bool name="config_sms_capable">false</bool>
+
+    <!-- Flag indicating whether the current device allows data.
+         If true, this means that the device supports data connectivity through
+         the telephony network.
+         This can be overridden to false for devices that support voice and/or sms . -->
+    <bool name="config_mobile_data_capable">false</bool>
+
+    <!-- The name of the package that will hold the system contacts role. -->
+    <string name="config_systemContacts" translatable="false">com.android.tv.frameworkpackagestubs</string>
+
+    <!-- ComponentName of the default dream (Settings.Secure.DEFAULT_SCREENSAVER_COMPONENT) -->
+    <string name="config_dreamsDefaultComponent" translatable="false">com.android.dreams.basic/com.android.dreams.basic.Colors</string>
+
+    <!-- Override the DPad detection behavior for configuration purposes -->
+    <bool name="config_hasPermanentDpad">true</bool>
+
+    <!-- Determines whether recent tasks are provided to the user. Default device has recents
+         property. If this is false, then the following recents config flags are ignored. -->
+    <bool name="config_hasRecents">false</bool>
+
+    <!-- Whether to start in touch mode -->
+    <bool name="config_defaultInTouchMode">false</bool>
+
+    <!-- Allow the gesture to double tap the power button twice to start the camera while the device
+         is non-interactive. -->
+    <bool name="config_cameraDoubleTapPowerGestureEnabled">false</bool>
+
+    <!-- Inactivity threshold (in milliseconds) used in JobScheduler. JobScheduler will consider
+         the device to be "idle" after being inactive for this long. -->
+    <integer name="config_jobSchedulerInactivityIdleThreshold">300000</integer>
+
+    <!-- True if the device supports split screen as a form of multi-window. -->
+    <bool name="config_supportsSplitScreenMultiWindow">false</bool>
+
+    <!-- True if the device supports system decorations on secondary displays. -->
+    <bool name="config_supportsSystemDecorsOnSecondaryDisplays">false</bool>
+
+    <!-- True if the device requires AppWidgetService even if it does not have
+         the PackageManager.FEATURE_APP_WIDGETS feature.
+         TV launcher customization requires AppWidgetService, but otherwise
+         home screen widgets are not supported on TV -->
+    <bool name="config_enableAppWidgetService">true</bool>
+
+    <!-- Maximum size, specified in pixels, to restrain the display space width to. Height and
+         density will be scaled accordingly to maintain aspect ratio. A value of 0 indicates no
+         constraint will be enforced.
+         ATV limits the UI graphics width to 1920 because higher resolution is unnecessary and causes
+         too much overhead on the GPU for Android TV devices. -->
+    <integer name="config_maxUiWidth">1920</integer>
+
+    <!-- Whether the device supports quick settings and its associated APIs -->
+    <bool name="config_quickSettingsSupported">false</bool>
+
+    <!-- Whether to keep background restricted profiles running after exiting. If set to false,
+         restricted profiles may be put into stopped state as soon as the switch back to primary
+         happens.
+         Can be overridden with android.provider.Settings.Global.KEEP_PROFILE_IN_BACKGROUND. -->
+    <bool name="config_keepRestrictedProfilesInBackground">false</bool>
+
+    <!-- Set to true to make assistant show in front of the dream/screensaver. -->
+    <bool name="config_assistantOnTopOfDream">true</bool>
+
+    <!-- If true, Views will declare they prefer to be kept clear from overlays when focused. -->
+    <bool name="config_preferKeepClearForFocus">true</bool>
+
+    <!-- Whether this device is supporting the software microphone toggle -->
+    <bool name="config_supportsMicToggle">true</bool>
+    <!-- Whether this device is supporting the camera toggle -->
+    <bool name="config_supportsCamToggle">true</bool>
+
+    <!-- Determines whether SafetyCenter feature is enabled.
+         SafetyCenter is not yet supported on TV. -->
+    <bool name="config_enableSafetyCenter">false</bool>
+
+    <!-- Flag indicating whether seamless refresh rate switching is supported by a device. -->
+    <bool name="config_supportsSeamlessRefreshRateSwitching">false</bool>
+
+    <!-- If a location should be pre-fetched when going into device idle. -->
+    <bool name="config_autoPowerModePrefetchLocation">false</bool>
+
+    <!-- Whether Low Power Standby is supported and can be enabled. -->
+    <bool name="config_lowPowerStandbySupported">true</bool>
+
+    <!-- If supported, whether Low Power Standby is enabled by default. -->
+    <bool name="config_lowPowerStandbyEnabledByDefault">true</bool>
+</resources>

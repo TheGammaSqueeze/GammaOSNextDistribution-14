@@ -1,0 +1,12 @@
+type hal_lineage_livedisplay_exynos, coredomain, domain;
+hal_server_domain(hal_lineage_livedisplay_exynos, hal_lineage_livedisplay)
+
+type hal_lineage_livedisplay_exynos_exec, exec_type, system_file_type, file_type;
+init_daemon_domain(hal_lineage_livedisplay_exynos)
+
+type hal_display_color_hwservice, hwservice_manager_type;
+allow hal_lineage_livedisplay_exynos hal_display_color_hwservice:hwservice_manager find;
+
+type hal_display_color_default, domain;
+binder_call(hal_lineage_livedisplay_exynos, hal_display_color_default)
+binder_use(hal_lineage_livedisplay_exynos)

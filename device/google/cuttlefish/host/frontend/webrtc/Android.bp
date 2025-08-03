@@ -1,0 +1,104 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary_host {
+    name: "webRTC",
+    srcs: [
+        "adb_handler.cpp",
+        "audio_handler.cpp",
+        "bluetooth_handler.cpp",
+        "sensors_handler.cpp",
+        "sensors_simulator.cpp",
+        "location_handler.cpp",
+        "gpx_locations_handler.cpp",
+        "kml_locations_handler.cpp",
+        "client_server.cpp",
+        "connection_observer.cpp",
+        "cvd_video_frame_buffer.cpp",
+        "display_handler.cpp",
+        "kernel_log_events_handler.cpp",
+        "main.cpp",
+    ],
+    cflags: [
+        // libwebrtc headers need this
+        "-Wno-unused-parameter",
+        "-D_XOPEN_SOURCE",
+        "-DWEBRTC_POSIX",
+        "-DWEBRTC_LINUX",
+    ],
+    header_libs: [
+        "webrtc_signaling_headers",
+        "libwebrtc_absl_headers",
+        "libcuttlefish_confui_host_headers",
+        "libeigen",
+    ],
+    static_libs: [
+        "libaom",
+        "libcap",
+        "libcn-cbor",
+        "libcuttlefish_audio_connector",
+        "libcuttlefish_confui",
+        "libcuttlefish_confui_host",
+        "libcuttlefish_host_config",
+        "libcuttlefish_input_connector",
+        "libcuttlefish_security",
+        "libcuttlefish_screen_connector",
+        "libcuttlefish_utils",
+        "libcuttlefish_wayland_server",
+        "libft2.nodep",
+        "libteeui",
+        "libteeui_localization",
+        "libdrm",
+        "libevent",
+        "libffi",
+        "libgflags",
+        "libopus",
+        "libsrtp2",
+        "libvpx",
+        "libwayland_crosvm_gpu_display_extension_server_protocols",
+        "libwayland_extension_server_protocols",
+        "libwayland_server",
+        "libwebrtc",
+        "libcuttlefish_webrtc_device",
+        "libcuttlefish_webrtc_common",
+        "libwebsockets",
+        "libyuv",
+        "libcvd_gnss_grpc_proxy",
+        "liblocation",
+    ],
+    shared_libs: [
+        "android.hardware.keymaster@4.0",
+        "libbase",
+        "libcrypto",
+        "libcuttlefish_fs",
+        "libcuttlefish_kernel_log_monitor_utils",
+        "libjsoncpp",
+        "libfruit",
+        "libopus",
+        "libssl",
+        "libvpx",
+        "libyuv",
+        "libwebm_mkvmuxer",
+        "libprotobuf-cpp-full",
+        "libgrpc++_unsecure",
+        "libxml2",
+    ],
+    defaults: ["cuttlefish_buildhost_only"],
+}
+

@@ -1,0 +1,2 @@
+config=slim
+gfxstream=supported

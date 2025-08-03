@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"Olet painanut takaisin- ja alas-painikkeita kolme sekuntia, jotta <xliff:g id="SERVICE_0">%1$s</xliff:g> olisi käytettävissä.\n\n Ota <xliff:g id="SERVICE_1">%1$s</xliff:g> nyt käyttöön painamalla takaisin- ja alas-painikkeita uudelleen kolme sekuntia. Käytä tätä pikanäppäinyhdistelmää milloin tahansa tai poista <xliff:g id="SERVICE_2">%1$s</xliff:g> käytöstä.\n\n Voit muuttaa valintojasi valitsemalla Asetukset &gt; Järjestelmä &gt; Esteettömyys."</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"Kun pikanäppäin on käytössä, voit käynnistää esteettömyysominaisuuden pitämällä Takaisin- ja Alas-näppäimiä painettuina kolmen sekunnin ajan.\n\nEsteettömyysominaisuus on nyt \n<xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n Voit vaihtaa sitä valitsemalla Asetukset &gt; Esteettömyys."</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"Takaisin- ja alas-painikkeita painettu. <xliff:g id="SERVICE_NAME">%1$s</xliff:g> laitettu päälle."</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"Takaisin- ja alas-painikkeita painettu. <xliff:g id="SERVICE_NAME">%1$s</xliff:g> laitettu pois päältä."</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"Olet painanut takaisin- ja alas-painikkeita kolme sekuntia, jotta <xliff:g id="SERVICE_0">%1$s</xliff:g> olisi käytettävissä. Ota <xliff:g id="SERVICE_1">%1$s</xliff:g> käyttöön nyt painamalla takaisin- ja alas-painikkeita uudelleen kolme sekuntia. Käytä tätä pikanäppäinyhdistelmää milloin tahansa tai poista <xliff:g id="SERVICE_2">%1$s</xliff:g> käytöstä."</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"Olet painanut takaisin- ja alas-painikkeita kolme sekuntia, jotta <xliff:g id="SERVICE_0">%1$s</xliff:g> olisi käytettävissä.\n\n Ota <xliff:g id="SERVICE_1">%1$s</xliff:g> nyt käyttöön painamalla takaisin- ja alas-painikkeita uudelleen kolme sekuntia.\nKäytä tätä pikanäppäinyhdistelmää milloin tahansa tai poista <xliff:g id="SERVICE_2">%1$s</xliff:g> käytöstä.\n\n Voit muuttaa valintojasi valitsemalla Asetukset &gt; Järjestelmä &gt; Esteettömyys."</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"Ei nyt"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"Laita päälle"</string>
+</resources>

@@ -1,0 +1,4 @@
+third_party {
+  license_note: "would be notice save for scripts/extract-vmlinux and scripts/extract-ikconfig"
+  license_type: RESTRICTED
+}

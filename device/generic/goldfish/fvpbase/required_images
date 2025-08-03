@@ -1,0 +1,5 @@
+bl1.bin
+boot.img
+fip.bin
+system-qemu.img
+userdata.img

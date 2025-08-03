@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Қолданылмайды"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Өте аз"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Төмен"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Жақсы"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Пульттің жаңартылуын растаңыз."</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Жаңарту кезінде пульт қысқа уақытқа ажыратылуы мүмкін."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Жалғастыру"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Бас тарту"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Пультті жаңарту"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Жаңа бағдарламалық құрал қолжетімді."</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Жаңартылған нұсқа шықты"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Пульт жаңартылған."</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Пульт жаңартылмады"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Пультті жаңарту кезінде қате шықты. Қайталап көріңіз."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Күтіңіз"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Пультті қайта жұптау"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Қосулы"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Өшірулі"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Батарея деңгейі"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Микробағдарлама"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Bluetooth мекенжайы"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Батареяны ауыстырыңыз."</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Батарея заряды аз."</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Жалғанған құрылғылар"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Пульттер және жабдықтар"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Пультті жаңартыңыз."</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Орнатуға дайын"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"Жаңарту"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"Қабылдамау"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Пульт батареясының заряды азайды."</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Батареяны тезірек ауыстырыңыз."</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Пульт батареясы отыруға жақын."</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Батареяны тезірек ауыстырыңыз."</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Пульт батареясы отырып қалды."</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Пультті қолдану үшін батареяны ауыстырыңыз."</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Иә"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Жоқ"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s құрылғысынан ажырату"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"%1$s құрылғысына жалғау"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$s құрылғысын ұмыту"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Жалғанған құрылғының атын өзгерту"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CEC функциясын қосу"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC протоколы басқа HDMI-CEC қосылған құрылғыларды бір пультпен басқаруға және автоматты түрде қосуға/өшіруге мүмкіндік береді.\n\nЕскертпе: HDMI-CEC протоколының теледидарда және басқа HDMI құрылғыларында қосулы екенін тексеріңіз. Өндірушілер HDMI-CEC үшін түрлі атауларды пайдаланады, мысалы:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Пульт түймелерін реттеу"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Теледидардағы, қабылдағыштардағы және саундбарлардағы дыбыс деңгейін, қуатты, кіріс сигналының көздерін басқару"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Пультімді табу"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Google TV пультіңіз жоғалып қалса, оны табу үшін дыбысты ойнатыңыз."</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Пультіңізде 30 секундтық дыбыс ойнату үшін Google TV Streamer-дің артқы жағындағы түймені басыңыз. Бұл әрекетті тек Google TV Streamer Voice Remote пультінде орындауға болады.\n\nДыбысты тоқтату үшін пультіңіздегі кез келген түймені басыңыз."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"\"Пультімді табу\" функциясы қосылған кезде, жоғалған Google TV пультін оңай табуға көмектесетін дыбысты ойнатуға болады."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Дыбыс ойнату"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Батарея деңгейі: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Жабдықтар"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Қашықтан басқару пульті"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Жалғанған"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Бұрын жалғанған"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Пультті не жабдықты жұптау"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Ажырату"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Жалғау"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Атын өзгерту"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Ұмыту"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Теледидар аудио шығысы ретінде пайдалану"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Қосулы"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Ажыратулы"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Құрылғыны басқару"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Жаңа құрылғы жалғау"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Жаңа Bluetooth құрылғыларын жалғамас бұрын, олардың жұптау режимінде екеніне көз жеткізіңіз. %1$s құрылғысын жалғау үшін %2$s + %3$s пернелерін 3 секунд басып тұрыңыз."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV пульті"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Қолжетімді құрылғылар"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Құрылғылар ізделіп жатыр…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Қате"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Жалғанып жатыр…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Жалғанды."</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Бас тартылды"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s жалғанбады."</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s жалғанды."</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s ажыратылды."</string>
+</resources>

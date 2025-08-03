@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"N/A"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Crítico"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Bajo"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Bueno"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Confirmar actualización del control remoto"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Durante la actualización, es posible que se desconecte el control remoto unos instantes."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Continuar"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Cancelar"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Actualización del control remoto"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Nuevo software disponible"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Actualización disponible"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"El control remoto está actualizado"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"No se pudo actualizar el control remoto"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Se produjo un problema al actualizar el control remoto. Vuelve a intentarlo."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Espera"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Vuelve a vincular el control remoto"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Habilitado"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Inhabilitado"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Nivel de la batería"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Firmware"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Dirección de Bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Reemplaza la batería"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Batería baja"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Dispositivos conectados"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Control remoto y accesorios"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Actualiza el control remoto"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Ya se puede instalar"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"ACTUALIZAR"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"DESCARTAR"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Se están agotando las baterías del control remoto"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Pronto deberás cambiar las baterías"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Las baterías del control remoto están casi agotadas"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Pronto deberás cambiar las baterías"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Se agotaron las baterías del control remoto"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Reemplaza las baterías para poder usar el control remoto"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Sí"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"No"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Desconectar de %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Conectar a %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Olvidar %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Cambia el nombre de tu dispositivo"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Habilitar HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC te permite controlar y activar/desactivar automáticamente dispositivos compatibles con HDMI-CEC con un único control remoto.\n\nNota: Asegúrate de que HDMI-CEC esté habilitado en tu TV y otros dispositivos HDMI. Con frecuencia, los fabricantes tienen diferentes nombres para HDMI-CEC, como los siguientes:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Configura botones de control remoto"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Controla el volumen, el encendido y la entrada en TVs, receptores y barras de sonido"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Buscar mi control remoto"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Reproducir un sonido para ubicar el control remoto de Google TV si se pierde"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Presiona el botón de la parte posterior de tu Google TV Streamer para reproducir un sonido en el control remoto durante 30 segundos. Solo funciona en Google TV Streamer Voice Remote.\n\nPara detener el sonido, presiona cualquier botón del control remoto."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Cuando se habilita la función Find my remote, puedes reproducir un sonido para ubicar el control remoto de Google TV."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Reproducir sonido"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Nivel de batería: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Accesorios"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Control remoto"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Conectado"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Conectados anteriormente"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Vincular control remoto o accesorio"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Desconectar"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Conectar"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Cambiar nombre"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Olvidar"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Usar para el audio de la TV"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Conectado"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Desconectado"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Control del dispositivo"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Conectar dispositivo nuevo"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Antes de conectar nuevos dispositivos Bluetooth, asegúrate de que tengan activado el modo de vinculación. Para conectar %1$s, mantén presionado %2$s y %3$s durante 3 segundos."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"un control remoto de Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Dispositivos disponibles"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Buscando dispositivos…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Error"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Conectando…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Conexión establecida"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Vinculación cancelada"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"No se pudo conectar %1$s"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"Se conectó %1$s"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"Se desconectó %1$s"</string>
+</resources>

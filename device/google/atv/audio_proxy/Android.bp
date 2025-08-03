@@ -1,0 +1,38 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_google_atv_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_google_atv_license"],
+}
+
+cc_library {
+  name: "libaudio_proxy.google",
+
+  system_ext_specific: true,
+
+  srcs: [
+    "AudioProxy.cpp",
+    "AudioProxyDevice.cpp",
+    "AudioProxyManager.cpp",
+    "AudioProxyStreamOut.cpp",
+    "OutputStreamImpl.cpp",
+    "StreamProviderImpl.cpp",
+  ],
+
+  shared_libs: [
+    "device.google.atv.audio_proxy-aidl-V3-ndk",
+    "libbase",
+    "libbinder_ndk",
+    "libcutils",
+    "libfmq",
+    "libutils",
+  ],
+
+  cflags: [
+    "-Werror",
+    "-Wthread-safety",
+    "-Wno-unused-parameter",
+  ],
+}

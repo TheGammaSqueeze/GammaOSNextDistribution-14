@@ -1,0 +1,28 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+# qva/vendor/common/qsap_location.te - sepolicy rules for qti value added location module qsap_location
+
+init_daemon_domain(vendor_qsap_location)
+
+type vendor_qsap_location, domain;
+type vendor_qsap_location_exec, exec_type, vendor_file_type, file_type;
+
+# Allow qsap_location access QESDK
+qesdk_access(vendor_qsap_location)
+
+# allows file access in /data/vendor/location
+allow vendor_qsap_location vendor_location_data_file:dir create_dir_perms;
+allow vendor_qsap_location vendor_location_data_file:file create_file_perms;
+
+# allows socket access in /dev/socket/location
+allow vendor_qsap_location vendor_qsap_location_socket:sock_file create_file_perms;
+allow vendor_qsap_location vendor_qsap_location_socket:dir rw_dir_perms;
+
+# allow socket communication with gnss hal
+allow vendor_qsap_location vendor_hal_gnss_qti:unix_dgram_socket sendto;
+
+# allows shell execute qsap_location in userdebug mode.
+userdebug_or_eng(`
+  allow shell vendor_qsap_location_exec:file rx_file_perms;
+')
+crash_dump_fallback(vendor_qsap_location)

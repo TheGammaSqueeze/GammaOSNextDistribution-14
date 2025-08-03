@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"–"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Kritická"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Nízká"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Dobré"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Potvrzení aktualizace dálkového ovládání"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Při aktualizaci může být dálkové ovládání krátce odpojeno."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Pokračovat"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Zrušit"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Aktualizace dálkového ovládání"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Je k dispozici nový software"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Dostupná aktualizace"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Dálkové ovládání je aktualizováno"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Aktualizace dálkového ovládání se nezdařila"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Při aktualizaci dálkového ovládání došlo k potížím. Zkuste to znovu."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Čekejte prosím"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Znovu spárovat dálkové ovládání"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Aktivováno"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Vypnuto"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Stav baterie"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d %%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Firmware"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Adresa Bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Vyměňte baterii"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Slabá baterie"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Připojená zařízení"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Dálkový ovladač a příslušenství"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Aktualizace dálkového ovládání"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Připraveno k instalaci"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"AKTUALIZOVAT"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"ZAVŘÍT"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Baterie v dálkovém ovládání se brzy vybije"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Brzy vyměňte baterii"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Baterie v dálkovém ovládání je skoro vybitá"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Brzy vyměňte baterii"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Baterie v dálkovém ovládání je vybitá"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Vyměňte baterii, aby bylo možné používat dálkové ovládání"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Ano"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Ne"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Odpojit od %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Připojit k zařízení %s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Zapomenout %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Přejmenovat připojené zařízení"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Aktivovat HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC umožňuje ovládat a automaticky zapínat/vypínat jiná zařízení s podporou HDMI-CEC, a to pomocí jediného dálkového ovládání.\n\nPoznámka: Zkontrolujte, zda je v televizoru a ostatních zařízeních HDMI aktivováno HDMI-CEC. Výrobci pro technologii HDMI-CEC často používají jiný název, např.:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Nastavení vzdálených tlačítek"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Ovládání hlasitosti, vstupu a napájení televizorů, přijímačů a soundbarů"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Vyhledání dálkového ovládání"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Pokud někam založíte dálkové ovládání ke Google TV, najděte ho podle zvuku"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Stiskněte tlačítko na zadní části Google TV Streamer a dálkové ovládání bude 30 sekund vydávat zvuk. Funguje to pouze na hlasovém ovládání Google TV Streamer.\n\nZvuk vypnete stisknutím libovolného tlačítka na dálkovém ovládání."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Pokud je aktivováno vyhledávání dálkového ovládání, můžete si nechat přehrát zvuk, abyste našli dálkové ovládání Google TV, když nevíte, kde je."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Přehrát zvuk"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Úroveň baterie: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Doplňky"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Dálkové ovládání"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Připojeno"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Dříve připojeno"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Spárovat dálkové ovládání nebo příslušenství"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Odpojit"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Připojit"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Přejmenovat"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Zapomenout"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Používá se pro zvuk televize"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Připojeno"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Odpojeno"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Řízení zařízení"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Připojit nové zařízení"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Než připojíte nová zařízení Bluetooth, zkontrolujte, zda jsou v režimu párování. Pokud chcete připojit zařízení %1$s, na tři sekundy podržte %2$s a %3$s."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"dálkové ovládání Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Dostupná zařízení"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Hledání zařízení…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Chyba"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Připojování…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Připojeno"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Zrušeno"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"Zařízení %1$s se nepodařilo připojit"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"Zařízení %1$s je připojeno"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"Zařízení %1$s je odpojeno"</string>
+</resources>

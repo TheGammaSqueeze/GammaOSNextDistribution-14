@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <!-- Message shown in dialog when user is in the process of enabling the multiple accessibility
+    service via the remote control buttons shortcut for the first time. [CHAR LIMIT=none] -->
+    <string name="accessibility_shortcut_multiple_service_warning">
+        You have held both the back and down buttons for three seconds to use
+        <xliff:g id="service" example="TalkBack">%1$s</xliff:g>.\n\n
+        To enable <xliff:g id="service" example="TalkBack">%1$s</xliff:g> now,
+        hold the back and down buttons for three seconds again.
+        Use this shortcut anytime to enable or disable
+        <xliff:g id="service" example="TalkBack">%1$s</xliff:g>.\n\n
+
+        You can adjust your preferences in Settings > System > Accessibility.
+    </string>
+
+    <!-- Message shown in dialog when user is in the process of enabling the accessibility
+    service on Android TV devices via the remote control buttons shortcut for the first time.
+    [CHAR LIMIT=none] -->
+    <string name="accessibility_shortcut_toogle_warning">
+        When the shortcut is on, pressing both the back and down buttons for 3 seconds will start
+        an accessibility feature.\n\n
+        Current accessibility feature:\n
+        <xliff:g id="service_name" example="TalkBack">%1$s</xliff:g>\n\n
+        You can change the feature in Settings > Accessibility.
+    </string>
+
+    <!-- Text in toast to alert the user that the accessibility shortcut turned on an accessibility service. [CHAR LIMIT=none] -->
+    <string name="accessibility_shortcut_enabling_service">
+        Held back and down buttons.
+        <xliff:g id="service_name" example="TalkBack">%1$s</xliff:g>
+        turned on.
+    </string>
+
+    <!-- Text in toast to alert the user that the accessibility shortcut turned off an accessibility service. [CHAR LIMIT=none] -->
+    <string name="accessibility_shortcut_disabling_service">
+        Held back and down buttons.
+        <xliff:g id="service_name" example="TalkBack">%1$s</xliff:g>
+        turned off.
+    </string>
+
+    <!-- Message spoken out when user is in the process of enabling the accessibility
+    service on Android TV devices via the remote control buttons shortcut for the first time.
+    [CHAR LIMIT=none] -->
+    <string name="accessibility_shortcut_spoken_feedback">
+        You have held both the back and down buttons for three seconds to use
+        <xliff:g id="service" example="TalkBack">%1$s</xliff:g>.
+
+        To enable <xliff:g id="service" example="TalkBack">%1$s</xliff:g> now,
+        hold the back and down buttons for three seconds again.
+        Use this shortcut anytime to enable or disable
+        <xliff:g id="service" example="TalkBack">%1$s</xliff:g>.
+    </string>
+
+    <!-- Message shown in dialog when user is in the process of enabling this accessibility service
+    via the remote control buttons shortcut for the first time. [CHAR LIMIT=none] -->
+    <string name="accessibility_shortcut_single_service_warning">
+        You have held both the back and down buttons for three seconds to use
+        <xliff:g id="service" example="TalkBack">%1$s</xliff:g>.\n\n
+
+        To enable <xliff:g id="service" example="TalkBack">%1$s</xliff:g> now,
+        hold the back and down buttons for three seconds again.\n
+        Use this shortcut anytime to enable or disable
+        <xliff:g id="service" example="TalkBack">%1$s</xliff:g>.\n\n
+
+        You can adjust your preferences in Settings > System > Accessibility.
+    </string>
+
+    <!-- Text in button that turns off the accessibility shortcut -->
+    <string name="disable_accessibility_shortcut">Not now</string>
+
+    <!-- Text in button that closes the warning dialog about the accessibility shortcut, leaving the
+    shortcut enabled.-->
+    <string name="leave_accessibility_shortcut_on">Turn on now</string>
+</resources>

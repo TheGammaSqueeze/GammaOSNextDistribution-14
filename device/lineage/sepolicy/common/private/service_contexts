@@ -1,0 +1,8 @@
+lineageglobalactions                      u:object_r:lineage_globalactions_service:s0
+lineagehardware                           u:object_r:lineage_hardware_service:s0
+lineagehealth                             u:object_r:lineage_health_interface_service:s0
+lineagelivedisplay                        u:object_r:lineage_livedisplay_service:s0
+lineagetrust                              u:object_r:lineage_trust_service:s0
+profile                                   u:object_r:lineage_profile_service:s0
+
+adbroot_service                           u:object_r:adbroot_service:s0

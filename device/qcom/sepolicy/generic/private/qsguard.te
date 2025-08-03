@@ -1,0 +1,43 @@
+#Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+#SPDX-License-Identifier: BSD-3-Clause-Clear
+
+typeattribute qsguard coredomain;
+typeattribute qsguard mlstrustedsubject;
+type qsguard_exec, system_file_type, exec_type, file_type;
+
+init_daemon_domain(qsguard)
+userdebug_or_eng(`
+  allow qsguard surfaceflinger_service:service_manager find;
+  allow qsguard dropbox_service:service_manager find;
+
+  allow qsguard surfaceflinger:unix_stream_socket { read write };
+  binder_call(qsguard, servicemanager)
+  binder_call(qsguard, surfaceflinger)
+  # allow use dropbox
+  binder_call(qsguard, system_server)
+
+  allow qsguard { shell_exec logcat_exec }:file rx_file_perms;
+
+  allow qsguard self:global_capability_class_set kill;
+  allow qsguard kmsg_device:chr_file w_file_perms;
+  allow qsguard domain:process { signal sigstop sigkill };
+
+  # write into sysrq
+  allow qsguard proc_sysrq:file w_file_perms;
+
+  unix_socket_connect(qsguard, logdr, logd)
+
+  allow qsguard domain:dir r_dir_perms;
+  allow qsguard domain:file r_file_perms;
+  allow qsguard domain:lnk_file read;
+
+  allow qsguard misc_user_data_file:dir create_dir_perms;
+  allow qsguard misc_user_data_file:file create_file_perms;
+  allow system_server misc_user_data_file:file r_file_perms;
+  allow system_server qsguard:fd use;
+  # reboot
+  set_prop(qsguard, powerctl_prop);
+
+  dontaudit qsguard default_prop:file read;
+
+')

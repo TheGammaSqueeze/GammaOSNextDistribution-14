@@ -1,0 +1,13 @@
+/* Copyright 2020 Google Inc. All Rights Reserved. */
+
+package device.google.atv.audio_proxy@5.1;
+
+/**
+ * Async event listener for the IAudioProxyStreamOut.
+ */
+interface IStreamEventListener {
+    /**
+     * Called when audioserver closes the IStreamOut.
+     */
+    oneway onClose();
+};

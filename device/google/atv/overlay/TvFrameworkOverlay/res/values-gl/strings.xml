@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"Mantiveches premidos os botóns Atrás e Abaixo tres segundos para usar <xliff:g id="SERVICE_0">%1$s</xliff:g>.\n\n Se queres activar <xliff:g id="SERVICE_1">%1$s</xliff:g> agora, mantén premidos os botóns Atrás e Abaixo tres segundos de novo. Usa este atallo en calquera momento para activar ou desactivar <xliff:g id="SERVICE_2">%1$s</xliff:g>.\n\n Podes axustar as preferencias en Configuración &gt; Sistema &gt; Accesibilidade."</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"Cando o atallo estea activado, ao premer simultaneamente os botóns Atrás e Abaixo durante 3 segundos iniciarase unha función de accesibilidade.\n\n Función de accesibilidade actual:\n <xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n Podes cambiar esta opción máis tarde en Configuración &gt; Accesibilidade."</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"Mantiveches premidos os botóns Atrás e Abaixo, polo que se activou <xliff:g id="SERVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"Mantiveches premidos os botóns Atrás e Abaixo, polo que se desactivou <xliff:g id="SERVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"Mantiveches premidos os botóns Atrás e Abaixo tres segundos para usar <xliff:g id="SERVICE_0">%1$s</xliff:g>. Se queres activar <xliff:g id="SERVICE_1">%1$s</xliff:g> agora, mantén premidos os botóns Atrás e Abaixo tres segundos de novo. Usa este atallo en calquera momento para activar ou desactivar <xliff:g id="SERVICE_2">%1$s</xliff:g>."</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"Mantiveches premidos os botóns Atrás e Abaixo tres segundos para usar <xliff:g id="SERVICE_0">%1$s</xliff:g>.\n\n Se queres activar <xliff:g id="SERVICE_1">%1$s</xliff:g> agora, mantén premidos os botóns Atrás e Abaixo tres segundos de novo.\n Usa este atallo en calquera momento para activar ou desactivar <xliff:g id="SERVICE_2">%1$s</xliff:g>.\n\n Podes axustar as preferencias en Configuración &gt; Sistema &gt; Accesibilidade."</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"Agora non"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"Activar agora"</string>
+</resources>

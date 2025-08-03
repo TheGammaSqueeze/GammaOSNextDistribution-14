@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<display-settings>
+    <!-- Display settings for emulator -->
+    <!-- imePolicy, Display IME Policy, the value will be: -->
+    <!--  0: DISPLAY_IME_POLICY_LOCAL, IME should appear on the local display. -->
+    <!--  1: DISPLAY_IME_POLICY_FALLBACK_DISPLAY, The IME should appear on the fallback display. -->
+    <!--  2: DISPLAY_IME_POLICY_HIDE, The IME should be hidden. -->
+    <!-- Note that Multi-display emulator limits the total number of input devices can support
+         to associate the corresponding "virtio-input-multi-touch" devices with the given
+         virtial display ID (see device/generic/goldfish/input/virtio_input_multi_touch_*.idc) -->
+    <display name="virtual:com.android.emulator.multidisplay:1234562" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234563" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234564" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234565" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234566" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234567" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234568" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234569" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234570" imePolicy="0" />
+    <display name="virtual:com.android.emulator.multidisplay:1234571" imePolicy="0" />
+</display-settings>

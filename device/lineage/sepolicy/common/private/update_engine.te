@@ -1,0 +1,13 @@
+# Allow update_engine to call the callback function provided by updater_app
+binder_call(update_engine, updater_app)
+
+# Read updates from storage data
+r_dir_file(update_engine, mnt_user_file)
+r_dir_file(update_engine, storage_file)
+
+# Allow mount and unmount of system partition
+allow update_engine labeledfs:filesystem { mount unmount };
+
+# Allow transition to backuptool domain
+allow update_engine self:process setexec;
+domain_trans(update_engine, otapreopt_chroot_exec, backuptool)

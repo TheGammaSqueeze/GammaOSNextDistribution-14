@@ -1,0 +1,10 @@
+type mini_network, domain, coredomain;
+type mini_network_exec, exec_type, system_file_type, file_type;
+
+init_daemon_domain(mini_network)
+
+allow mini_network self:capability net_admin;
+allow mini_network self:netlink_route_socket { bind create getattr nlmsg_write read setopt write };
+allow mini_network self:udp_socket { create ioctl };
+allow mini_network shell_exec:file { execute getattr map read };
+allow mini_network system_file:file execute_no_trans;

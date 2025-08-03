@@ -1,0 +1,35 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_generic_goldfish-opengl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-GPL-2.0
+    default_applicable_licenses: ["device_generic_goldfish-opengl_license"],
+}
+
+cc_library_shared {
+    name: "libgoldfish_codec2_store",
+    vendor: true,
+
+    defaults: [
+        "libcodec2-impl-defaults",
+    ],
+
+    srcs: [
+        "GoldfishComponentStore.cpp",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+    ],
+
+    cflags: [
+      "-Werror",
+      "-Wall",
+      "-Wthread-safety",  // Check thread annotation at build time.
+    ],
+}

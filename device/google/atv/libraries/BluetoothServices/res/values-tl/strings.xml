@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"N/A"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Kritikal"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Mahina"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Malakas"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Kumpirmahin ang pag-update ng remote"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Habang isinasagawa ang pag-update, posibleng saglit na madiskonekta ang iyong remote."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Magpatuloy"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Kanselahin"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Update ng remote"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"May bagong available na software"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"May available na update"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Up to date na ang remote"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Hindi na-update ang remote"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Nakaranas kami ng isyu habang ina-update ang iyong remote. Subukan ulit."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Maghintay"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Ipares ulit ang iyong remote"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Naka-enable"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Naka-disable"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Antas ng baterya"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Firmware"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Address ng bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Pakipalitan ang baterya"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Mahinang baterya"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Mga Nakakonektang Device"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Mga Remote at Accessory"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"I-update ang iyong remote"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Handa nang i-install"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"I-UPDATE"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"I-DISMISS"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Paubos na ang baterya ng remote"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Palitan na ang baterya"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Paubos na ang baterya ng remote"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Palitan na ang baterya"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Ubos na ang baterya ng remote"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Palitan ang baterya para magamit ang remote"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Oo"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Huwag"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Magdiskonekta sa %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Kumonekta sa %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Kalimutan ang %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"I-rename ang iyong nakakonektang device"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"I-enable ang HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"Nagbibigay-daan sa iyo ang HDMI-CEC na kontrolin at awtomatikong i-on/i-off ang iba pang device na may naka-enable na HDMI-CEC sa pamamagitan ng isang remote control.\n\nTandaan: Tiyaking naka-enable ang HDMI-CEC sa iyong TV at iba pang HDMI device. Madalas na magkaiba ang mga pangalan ng mga manufacturer para sa HDMI-CEC, halimbawa:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Mag-set up ng mga button ng remote"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Kontrolin ang volume, power, input sa mga TV, receiver, at soundbar"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Hanapin ang remote ko"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Mag-play ng tunog para mahanap ang iyong Google TV remote kung nawawala ito"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Pindutin ang button sa likod ng iyong Google TV Streamer para mag-play ng tunog sa iyong remote sa loob ng 30 segundo. Sa Google TV Streamer Voice Remote lang ito gumagana.\n\nPara ihinto ang tunog, pumindot ng kahit anong button sa iyong remote."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Kapag naka-enable ang Hanapin ang remote ko, puwede kang mag-play ng tunog para mahanap ang iyong Google TV remote kung nawawala ito."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Mag-play ng tunog"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Antas ng baterya: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Mga Accessory"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Remote Control"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Nakakonekta"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Dating nakakonekta"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Magpares ng remote o accessory"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Idiskonekta"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Kumonekta"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"I-rename"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Kalimutan"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Gamitin para sa audio ng TV"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Nakakonekta"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Nadiskonekta"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Kontrol sa device"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Magkonekta ng bagong device"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Bago magkonekta ng mga bagong Bluetooth device, tiyaking nasa pairing mode ang mga ito. Para ikonekta ang %1$s, pindutin nang matagal ang %2$s + %3$s nang 3 segundo."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"isang Android TV remote"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Mga available na device"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Naghahanap ng mga device…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Error"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Kumokonekta…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Nakakonekta"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Kinansela"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"Hindi nagawang kumonekta sa %1$s"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"Nakakonekta ang %1$s"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"Nadiskonekta ang %1$s"</string>
+</resources>

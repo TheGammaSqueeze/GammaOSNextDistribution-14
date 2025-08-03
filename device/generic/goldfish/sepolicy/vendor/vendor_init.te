@@ -1,0 +1,6 @@
+set_prop(vendor_init, vendor_qemu_prop)
+allow vendor_init ram_device:blk_file setattr;
+set_prop(vendor_init, vendor_build_prop);
+set_prop(vendor_init, exported_system_prop);
+set_prop(vendor_init, timezone_prop);
+

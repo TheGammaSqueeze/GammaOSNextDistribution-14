@@ -1,0 +1,20 @@
+/* Copyright 2020 Google Inc. All Rights Reserved. */
+
+package device.google.atv.audio_proxy@5.1;
+
+import android.hardware.audio@5.0::IStreamOut;
+import android.hardware.audio@5.0::Result;
+
+import IStreamEventListener;
+
+/**
+ * IStreamOut with extra APIs for audio proxy HAL.
+ */
+interface IAudioProxyStreamOut extends IStreamOut {
+    /**
+     * Set a listener on this object. It allows the audio proxy client to
+     * communicate stream events with audio proxy service.
+     * @param listener the listener to receive the event callbacks.
+     */
+    setEventListener(IStreamEventListener listener);
+};

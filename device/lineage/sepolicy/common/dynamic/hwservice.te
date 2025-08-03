@@ -1,0 +1,5 @@
+type hal_lineage_camera_motor_hwservice, hwservice_manager_type;
+type hal_lineage_fastcharge_hwservice, hwservice_manager_type;
+type hal_lineage_livedisplay_hwservice, hwservice_manager_type;
+type hal_lineage_powershare_hwservice, hwservice_manager_type;
+type hal_lineage_touch_hwservice, hwservice_manager_type;

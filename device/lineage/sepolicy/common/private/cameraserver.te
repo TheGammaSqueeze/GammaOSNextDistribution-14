@@ -1,0 +1,2 @@
+# Use HALs
+hal_client_domain(cameraserver, hal_lineage_camera_motor)

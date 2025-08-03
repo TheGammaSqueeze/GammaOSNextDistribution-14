@@ -1,0 +1,9 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_usb_qti, domain;
+type vendor_usb_qti_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(vendor_usb_qti)
+allow vendor_usb_qti vendor_sysfs_usb_device:file w_file_perms;
+unix_socket_connect(vendor_usb_qti, vendor_ssgtzd, vendor_ssgtzd)

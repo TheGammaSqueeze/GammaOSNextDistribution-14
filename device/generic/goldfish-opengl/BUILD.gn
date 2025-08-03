@@ -1,0 +1,212 @@
+shared_library("libvulkan_goldfish") {
+  sources = [
+    "android-emu/aemu/base/AlignedBuf.cpp",
+    "android-emu/aemu/base/AlignedBuf.h",
+    "android-emu/aemu/base/Allocator.h",
+    "android-emu/aemu/base/AndroidSubAllocator.cpp",
+    "android-emu/aemu/base/AndroidSubAllocator.h",
+    "android-emu/aemu/base/BumpPool.h",
+    "android-emu/aemu/base/AndroidHealthMonitor.cpp",
+    "android-emu/aemu/base/AndroidHealthMonitor.h",
+    "android-emu/aemu/base/AndroidHealthMonitorConsumer.h",
+    "android-emu/aemu/base/AndroidHealthMonitorConsumerBasic.cpp",
+    "android-emu/aemu/base/AndroidHealthMonitorConsumerBasic.h",
+    "android-emu/aemu/base/Pool.cpp",
+    "android-emu/aemu/base/Pool.h",
+    "android-emu/aemu/base/Process.cpp",
+    "android-emu/aemu/base/Process.h",
+    "android-emu/aemu/base/Tracing.cpp",
+    "android-emu/aemu/base/Tracing.h",
+    "android-emu/aemu/base/files/MemStream.cpp",
+    "android-emu/aemu/base/files/MemStream.h",
+    "android-emu/aemu/base/files/Stream.cpp",
+    "android-emu/aemu/base/files/Stream.h",
+    "android-emu/aemu/base/files/StreamSerializing.cpp",
+    "android-emu/aemu/base/files/StreamSerializing.h",
+    "android-emu/aemu/base/fit/Defer.h",
+    "android-emu/aemu/base/fit/Function.h",
+    "android-emu/aemu/base/fit/FunctionInternal.h",
+    "android-emu/aemu/base/fit/Nullable.h",
+    "android-emu/aemu/base/fit/ThreadChecker.h",
+    "android-emu/aemu/base/fit/ThreadSafety.h",
+    "android-emu/aemu/base/fit/UtilityInternal.h",
+    "android-emu/aemu/base/ring_buffer.c",
+    "android-emu/aemu/base/synchronization/AndroidConditionVariable.h",
+    "android-emu/aemu/base/synchronization/AndroidLock.h",
+    "android-emu/aemu/base/synchronization/AndroidMessageChannel.cpp",
+    "android-emu/aemu/base/synchronization/AndroidMessageChannel.h",
+    "android-emu/aemu/base/testing/TestClock.h",
+    "android-emu/aemu/base/threads/AndroidFunctorThread.cpp",
+    "android-emu/aemu/base/threads/AndroidFunctorThread.h",
+    "android-emu/aemu/base/threads/AndroidThread.h",
+    "android-emu/aemu/base/threads/AndroidThreadStore.h",
+    "android-emu/aemu/base/threads/AndroidThreadTypes.h",
+    "android-emu/aemu/base/threads/AndroidThread_pthread.cpp",
+    "android-emu/aemu/base/threads/AndroidWorkPool.cpp",
+    "android-emu/aemu/base/threads/AndroidWorkPool.h",
+    "platform/include/VirtGpu.h",
+    "platform/stub/VirtGpuBlob.cpp",
+    "platform/stub/VirtGpuBlobMapping.cpp",
+    "platform/stub/VirtGpuDevice.cpp",
+    "shared/GoldfishAddressSpace/goldfish_address_space.cpp",
+    "shared/GoldfishAddressSpace/include/goldfish_address_space.h",
+    "shared/OpenglCodecCommon/ChecksumCalculator.cpp",
+    "shared/OpenglCodecCommon/ChecksumCalculator.h",
+    "shared/OpenglCodecCommon/glUtils.cpp",
+    "shared/OpenglCodecCommon/glUtils.h",
+    "shared/OpenglCodecCommon/goldfish_dma.cpp",
+    "shared/OpenglCodecCommon/goldfish_dma.h",
+    "shared/gralloc_cb/include/gralloc_cb_bp.h",
+    "shared/qemupipe/include-types/qemu_pipe_types_bp.h",
+    "shared/qemupipe/include/qemu_pipe_bp.h",
+    "shared/qemupipe/qemu_pipe_common.cpp",
+    "shared/qemupipe/qemu_pipe_guest.cpp",
+    "system/OpenglSystemCommon/AddressSpaceStream.cpp",
+    "system/OpenglSystemCommon/HostConnection.cpp",
+    "system/OpenglSystemCommon/HostConnection.h",
+    "system/OpenglSystemCommon/ProcessPipe.cpp",
+    "system/OpenglSystemCommon/ProcessPipe.h",
+    "system/OpenglSystemCommon/QemuPipeStream.cpp",
+    "system/OpenglSystemCommon/QemuPipeStream.h",
+    "system/OpenglSystemCommon/ThreadInfo.cpp",
+    "system/OpenglSystemCommon/ThreadInfo.h",
+    "system/renderControl_enc/renderControl_enc.cpp",
+    "system/renderControl_enc/renderControl_enc.h",
+    "system/vulkan/goldfish_vulkan.cpp",
+    "system/vulkan_enc/CommandBufferStagingStream.cpp",
+    "system/vulkan_enc/CommandBufferStagingStream.h",
+    "system/vulkan_enc/DescriptorSetVirtualization.cpp",
+    "system/vulkan_enc/DescriptorSetVirtualization.h",
+    "system/vulkan_enc/HostVisibleMemoryVirtualization.cpp",
+    "system/vulkan_enc/HostVisibleMemoryVirtualization.h",
+    "system/vulkan_enc/ResourceTracker.cpp",
+    "system/vulkan_enc/ResourceTracker.h",
+    "system/vulkan_enc/Resources.cpp",
+    "system/vulkan_enc/Resources.h",
+    "system/vulkan_enc/Validation.cpp",
+    "system/vulkan_enc/Validation.h",
+    "system/vulkan_enc/VkEncoder.cpp",
+    "system/vulkan_enc/VkEncoder.h",
+    "system/vulkan_enc/VulkanHandleMapping.cpp",
+    "system/vulkan_enc/VulkanHandleMapping.h",
+    "system/vulkan_enc/VulkanStreamGuest.cpp",
+    "system/vulkan_enc/VulkanStreamGuest.h",
+    "system/vulkan_enc/func_table.cpp",
+    "system/vulkan_enc/func_table.h",
+    "system/vulkan_enc/goldfish_vk_counting_guest.cpp",
+    "system/vulkan_enc/goldfish_vk_counting_guest.h",
+    "system/vulkan_enc/goldfish_vk_deepcopy_guest.cpp",
+    "system/vulkan_enc/goldfish_vk_deepcopy_guest.h",
+    "system/vulkan_enc/goldfish_vk_extension_structs_guest.cpp",
+    "system/vulkan_enc/goldfish_vk_extension_structs_guest.h",
+    "system/vulkan_enc/goldfish_vk_marshaling_guest.cpp",
+    "system/vulkan_enc/goldfish_vk_marshaling_guest.h",
+    "system/vulkan_enc/goldfish_vk_reserved_marshaling_guest.cpp",
+    "system/vulkan_enc/goldfish_vk_reserved_marshaling_guest.h",
+    "system/vulkan_enc/goldfish_vk_transform_guest.cpp",
+    "system/vulkan_enc/goldfish_vk_transform_guest.h",
+    "system/vulkan_enc/vulkan_gfxstream.h",
+    "system/vulkan_enc/vulkan_gfxstream_structure_type.h",
+  ]
+
+  include_dirs = [
+    "android-emu",
+    "host/include/libOpenglRender",
+    "shared/GoldfishAddressSpace/include",
+    "shared/OpenglCodecCommon",
+    "shared/gralloc_cb/include",
+    "shared/qemupipe/include",
+    "shared/qemupipe/include-types",
+    "system/OpenglSystemCommon",
+    "system/renderControl_enc",
+    "system/vulkan_enc",
+    "system/include",
+  ]
+
+  defines = [
+    "LOG_TAG=\"goldfish_vulkan\"",
+    "GFXSTREAM",
+    "GOLDFISH_NO_GL",
+    "VK_GFXSTREAM_STRUCTURE_TYPE_EXT",
+    "VK_USE_PLATFORM_FUCHSIA",
+    "PLATFORM_SDK_VERSION=1",
+    "PAGE_SIZE=4096",
+  ]
+
+  cflags = [ "-Wextra-semi" ]
+
+  cflags_c = [
+    "-Wstrict-prototypes",
+    "-Wno-missing-field-initializers",
+    "-Wno-newline-eof",
+    "-Wno-sign-compare",
+    "-Wno-unused-function",
+    "-Wno-unused-value",
+    "-Wno-unused-variable",
+  ]
+
+  cflags_cc = [
+    "-Wno-conversion",
+    "-Wno-missing-field-initializers",
+    "-Wno-newline-eof",
+    "-Wno-pessimizing-move",
+    "-Wno-sign-compare",
+    "-Wno-unused-function",
+    "-Wno-unused-value",
+    "-Wno-unused-variable",
+    "-Wno-unused-but-set-parameter",
+    "-Wno-unused-but-set-variable",
+  ]
+
+  ldflags = [ "-static-libstdc++" ]
+
+  if (target_os == "fuchsia") {
+    sources -= [
+      "shared/OpenglCodecCommon/goldfish_dma.cpp",
+      "shared/OpenglCodecCommon/goldfish_dma.h",
+      "shared/qemupipe/qemu_pipe_common.cpp",
+      "shared/qemupipe/qemu_pipe_guest.cpp",
+      "system/OpenglSystemCommon/QemuPipeStream.cpp",
+    ]
+    sources += [
+      "fuchsia/fuchsia_stdio.cc",
+      "fuchsia/port.cc",
+      "fuchsia/service_connector.cc",
+      "system/OpenglSystemCommon/QemuPipeStreamFuchsia.cpp",
+      "system/OpenglSystemCommon/TraceProviderFuchsia.cpp",
+      "system/OpenglSystemCommon/TraceProviderFuchsia.h",
+    ]
+
+    include_dirs += [
+      "fuchsia/include",
+      "platform/include",
+      "//third_party/Vulkan-Headers/include",
+    ]
+
+    deps = [
+      "//sdk/fidl/fuchsia.hardware.goldfish:fuchsia.hardware.goldfish_cpp_wire",
+      "//sdk/fidl/fuchsia.logger:fuchsia.logger_cpp_wire",
+      "//sdk/fidl/fuchsia.sysmem:fuchsia.sysmem_cpp_wire",
+      "//src/zircon/lib/zircon",
+      "//zircon/system/ulib/async:async-cpp",
+      "//zircon/system/ulib/async-loop:async-loop-cpp",
+      "//zircon/system/ulib/syslog:syslog-static",
+      "//zircon/system/ulib/trace:trace-with-static-engine",
+      "//zircon/system/ulib/trace-provider:trace-provider-with-static-engine",
+      "//zircon/system/ulib/zx",
+      "//zircon/system/ulib/zxio",
+    ]
+
+    # Vulkan ICDs on Fuchsia are only allowed to depend on (parts of) libc
+    # and libzircon, and no other shared libraries.
+    assert_no_deps = [
+      "//sdk/lib/fdio",
+      "//zircon/system/ulib/async-default",
+    ]
+
+    defines += [
+      "QEMU_PIPE_PATH=\"/loader-gpu-devices/class/goldfish-pipe/000\"",
+      "GOLDFISH_ADDRESS_SPACE_DEVICE_NAME=\"/loader-gpu-devices/class/goldfish-address-space/000\"",
+    ]
+  }
+}

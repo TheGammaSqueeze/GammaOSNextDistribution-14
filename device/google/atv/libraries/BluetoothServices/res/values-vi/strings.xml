@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Không có"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Cực thấp"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Thấp"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Phù hợp"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Xác nhận cập nhật điều khiển từ xa"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Trong khi cập nhật, điều khiển từ xa của bạn có thể ngắt kết nối một lát."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Tiếp tục"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Huỷ"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Cập nhật điều khiển từ xa"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Đã có phần mềm mới"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Đã có bản cập nhật"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Điều khiển từ xa đã được cập nhật"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Không thể cập nhật điều khiển từ xa"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Chúng tôi đã gặp phải sự cố khi cập nhật điều khiển từ xa của bạn. Vui lòng thử lại."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Vui lòng đợi"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Ghép nối lại điều khiển từ xa của bạn"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Đã bật"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Đã tắt"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Mức pin"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Chương trình cơ sở"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Địa chỉ Bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Vui lòng thay pin"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Pin yếu"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Thiết bị đã kết nối"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Điều khiển từ xa và phụ kiện"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Cập nhật điều khiển từ xa"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Sẵn sàng cài đặt"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"CẬP NHẬT"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"ĐÓNG"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Điều khiển từ xa sắp hết pin"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Hãy thay pin ngay"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Điều khiển từ xa sắp hết pin"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Hãy thay pin ngay"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Điều khiển từ xa đã hết pin"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Hãy thay pin để sử dụng điều khiển từ xa"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Có"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Không"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Ngắt kết nối khỏi %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Kết nối với %1$s?"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Quên %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Đổi tên thiết bị đã kết nối của bạn"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Bật HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC cho phép bạn điều khiển và tự động bật/tắt các thiết bị hỗ trợ HDMI-CEC khác chỉ với một bộ điều khiển từ xa.\n\nLưu ý: Hãy đảm bảo là bạn đã bật HDMI-CEC trên TV và các thiết bị HDMI khác. Các nhà sản xuất thường có các tên khác nhau cho HDMI-CEC, ví dụ:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Thiết lập nút trên điều khiển từ xa"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Điều chỉnh âm lượng, điều khiển nguồn, nguồn đầu vào của TV, bộ thu và loa thanh"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Tìm điều khiển từ xa"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Phát chuông báo để tìm điều khiển từ xa Google TV khi bạn không nhớ chỗ để"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Nhấn nút ở mặt sau Google TV Streamer để phát chuông báo trên điều khiển từ xa trong 30 giây. Tính năng này chỉ hoạt động trên Điều khiển từ xa bằng giọng nói Google TV Streamer.\n\nĐể dừng chuông báo, hãy nhấn nút bất kỳ trên điều khiển từ xa."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Khi tính năng Tìm điều khiển từ xa đã bật, bạn có thể phát chuông báo để tìm điều khiển từ xa của Google TV nếu bạn không nhớ chỗ để."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Phát chuông báo"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Mức pin: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Phụ kiện"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Điều khiển từ xa"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Đã kết nối"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Đã kết nối trước đây"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Ghép nối điều khiển từ xa hoặc phụ kiện"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Ngắt kết nối"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Kết nối"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Đổi tên"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Quên"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Dùng cho âm thanh TV"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Đã kết nối"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Đã ngắt kết nối"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Điều khiển thiết bị"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Kết nối thiết bị mới"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Trước khi kết nối các thiết bị Bluetooth mới, hãy đảm bảo các thiết bị đó đang ở chế độ ghép nối. Để kết nối %1$s, hãy nhấn và giữ %2$s + %3$s trong 3 giây."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"điều khiển từ xa cho Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Thiết bị có sẵn"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Đang tìm thiết bị…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Lỗi"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Đang kết nối…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Đã kết nối"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Đã huỷ"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s không kết nối được"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"Đã kết nối %1$s"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"Đã ngắt kết nối %1$s"</string>
+</resources>

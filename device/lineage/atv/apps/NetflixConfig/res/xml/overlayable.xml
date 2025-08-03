@@ -1,0 +1,7 @@
+<overlayable name="NetflixConfigResources">
+    <policy type="public">
+        <item type="string" name="nrdp_platform_capabilities" />
+        <item type="string" name="nrdp_audio_platform_capabilities" />
+        <item type="string" name="nrdp_video_platform_capabilities" />
+    </policy>
+</overlayable>

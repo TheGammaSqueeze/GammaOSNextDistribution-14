@@ -1,0 +1,5 @@
+allow surfaceflinger self:process execmem;
+allow surfaceflinger ashmem_device:chr_file execute;
+allow surfaceflinger gpu_device:chr_file { ioctl open read write map };
+allow surfaceflinger self:vsock_socket create_socket_perms_no_ioctl;
+allow surfaceflinger hal_graphics_allocator_default:vsock_socket { read write getattr };

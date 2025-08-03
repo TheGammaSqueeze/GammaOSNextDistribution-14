@@ -1,0 +1,2 @@
+# LiveDisplay
+/system/bin/hw/lineage\.livedisplay@2\.0-service-sdm        u:object_r:hal_lineage_livedisplay_qti_exec:s0

@@ -1,0 +1,2 @@
+allow hal_sensors_default self:vsock_socket create_socket_perms_no_ioctl;
+allow hal_sensors_default system_server:binder call;

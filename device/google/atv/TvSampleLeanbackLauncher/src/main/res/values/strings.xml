@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Sample Leanback Launcher</string>
+    <string name="apps_row_title">Apps</string>
+    <string name="games_row_title">Games</string>
+    <string name="settings_row_title">Settings</string>
+
+    <string name="network_settings_disconnected">Network Settings</string>
+
+    <string name="app_unavailable">Application unavailable</string>
+
+    <string name="search_click_to_speak">Click to speak</string>
+    <string name="search_click_to_type">Click to type</string>
+
+    <string name="now_playing_state_playing">Now Playing</string>
+    <string name="now_playing_state_paused">Paused</string>
+
+    <!-- Title of dialog which allows user to select which apps will be allowed to post recommendations -->
+    <string name="rec_prefs_title">Recommendations row</string>
+
+    <!-- Description of dialog which allows user to select which apps will be allowed to post recommendations -->
+    <string name="rec_prefs_wall_of_text">Selected sources may display recommendations on the home screen. To hide these, turn off recommendations from specific sources.</string>
+
+    <!-- Recommendations missing reasons -->
+    <string name="rec_missing_empty">No recommendations</string>
+    <string name="rec_missing_disabled">Some recommendation sources disabled</string>
+    <string name="rec_missing_preparing">Preparing recommendations</string>
+
+    <!-- Notifications -->
+    <plurals name="notifications_title">
+        <item quantity="one">%d notification</item>
+        <item quantity="other">%d notifications</item>
+    </plurals>
+
+    <!-- Title displayed at the top of the notifications panel.  -->
+    <string name="system_notifications">Notifications</string>
+
+    <!-- Text displayed in the notifications panel if there are no notifications.  -->
+    <string name="no_notifications_message">No notifications</string>
+
+    <!-- Format for a content description for a notification where the first argument is the notification title and the second is the notification text -->
+    <string name="notification_content_description_format"><xliff:g id="title" example="USB debugging connected">%1$s </xliff:g><xliff:g id="text" example="Select to disable USB debugging.">%2$s</xliff:g></string>
+</resources>

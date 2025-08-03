@@ -1,0 +1,2 @@
+add_hwservice(rild, hal_lineage_backend_radio_hwservice)
+add_hwservice(rild, hal_lineage_backend_radio_config_hwservice)

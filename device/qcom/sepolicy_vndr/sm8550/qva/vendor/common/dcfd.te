@@ -1,0 +1,18 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+#sepolicy for DCF daemon
+type vendor_dcfd, domain;
+type vendor_dcfd_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(vendor_dcfd)
+
+
+#Allow access to QESDK Policies
+qesdk_access(vendor_dcfd)
+
+#allow access to QMI
+allow vendor_dcfd self:qipcrtr_socket create_socket_perms_no_ioctl;
+
+#add rules to get tombstone files
+crash_dump_fallback(vendor_dcfd)
+

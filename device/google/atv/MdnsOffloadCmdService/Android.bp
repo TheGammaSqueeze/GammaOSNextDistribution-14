@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_app {
+    name: "MdnsOffloadCmdService",
+    srcs: [
+        "src/**/*.java",
+    ],
+    sdk_version: "system_current",
+    dex_preopt: {
+        enabled: false,
+    },
+    static_libs: [
+        "androidx.core_core",
+        "device.google.atv.mdns_offload_manager-aidl-V1-java",
+    ],
+}

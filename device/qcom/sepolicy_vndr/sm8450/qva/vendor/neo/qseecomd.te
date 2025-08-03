@@ -1,0 +1,10 @@
+# Copyright (c) 2023-2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+# allow tee access register powerstate hal service
+hal_client_domain(tee, vendor_hal_powerstateservice);
+# allow tee access set vendor.gk.quickboot property
+set_prop(tee, vendor_tee_gk_quickboot)
+# allow tee access set vendor.keymint.quickboot property
+set_prop(tee, vendor_tee_keymint_quickboot)
+

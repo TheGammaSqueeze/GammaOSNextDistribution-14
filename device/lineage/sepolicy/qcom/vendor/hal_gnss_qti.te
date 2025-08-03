@@ -1,0 +1,2 @@
+# xtra-daemon control
+dontaudit hal_gnss_qti xtra_control_prop:file read;

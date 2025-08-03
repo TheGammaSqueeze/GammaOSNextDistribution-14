@@ -1,0 +1,14 @@
+type qemu_export_property, domain;
+type qemu_export_property_exec, vendor_file_type, exec_type, file_type;
+
+init_daemon_domain(qemu_export_property)
+
+# Allow qemu_export_property to read /proc/bootconfig
+allow qemu_export_property proc_cmdline:file r_file_perms;
+allow qemu_export_property proc_bootconfig:file r_file_perms;
+
+# Permission to write to /data/vendor/*
+allow qemu_export_property vendor_data_file:dir create_dir_perms;
+allow qemu_export_property vendor_data_file:file create_file_perms;
+allow qemu_export_property sysfs_dt_firmware_android:dir search;
+allow qemu_export_property sysfs_dt_firmware_android:file r_file_perms;

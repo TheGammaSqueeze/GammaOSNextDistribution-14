@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"/"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Kritična"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Nizka"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Dobra"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Potrdite posodobitev daljinskega upravljalnika"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Med posodobitvijo bo daljinski upravljalnik morda na kratko izgubil povezavo."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Naprej"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Prekliči"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Posodobitev daljinskega upravljalnika"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Na voljo je nova programska oprema"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Na voljo je posodobitev"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Daljinski upravljalnik je posodobljen"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Posodobitev daljinskega upravljalnika ni uspela"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Pri posodabljanju daljinskega upravljalnika je prišlo do težave. Poskusite znova."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Počakajte"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Znova seznanite daljinski upravljalnik"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Omogočeno"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Onemogočeno"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Raven napolnjenosti akumulatorja"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d %%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Vdelana programska oprema"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Naslov vmesnika Bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Zamenjajte baterijo"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Skoraj prazna baterija"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Povezane naprave"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Daljinsko upravljanje in dodatki"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Posodobite daljinski upravljalnik"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Pripravljeno za namestitev"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"POSODOBI"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"OPUSTI"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Nizka raven baterije v daljinskem upravljalniku"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Kmalu zamenjajte baterijo"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Baterija v daljinskem upravljalniku je skoraj prazna"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Kmalu zamenjajte baterijo"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Baterija v daljinskem upravljalniku je prazna"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Zamenjajte baterijo, če želite uporabljati daljinski upravljalnik"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Da"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Ne"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Povezava z napravo %1$s je prekinjena"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Povezava s/z: %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Pozabi napravo %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Preimenujte povezano napravo"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Omogoči HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC vam z enim samim daljinskim upravljalnikom omogoča upravljanje in samodejni vklop/izklop drugih naprav z omogočeno funkcijo HDMI-CEC.\n\nOpomba: Funkcija HDMI-CEC mora biti omogočena v televizorju in drugih napravah HDMI. Proizvajalci imajo za funkcijo HDMI-CEC pogosto drugačna imena, na primer:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Nastavitev gumbov daljinskega upravljalnika"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Nadziranje glasnosti, vklopa/izklopa in vhodov v televizorjih, sprejemnikih ter zvočniških modulih"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Poišči moj daljinski upravljalnik"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Predvajajte zvok, da poiščete daljinski upravljalnik za Google TV, če ga založite"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Pritisnite gumb na hrbtni strani naprave Google TV Streamer, če želite 30 sekund predvajati zvok prek daljinskega upravljalnika. To deluje samo z glasovnim daljinskim upravljalnikom za Google TV Streamer.\n\nČe želite zaustaviti predvajanje zvoka, pritisnite poljuben gumb na daljinskem upravljalniku."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Če je omogočena funkcija Poišči moj daljinski upravljalnik, lahko nastavite, da se predvaja zvok, da najdete založeni daljinski upravljalnik Googla TV."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Predvajaj zvok"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Raven napolnjenosti baterije: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Dodatki"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Daljinski upravljalnik"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Povezano"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Predhodno povezane naprave"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Seznanjanje daljinskega upravljalnika ali dodatka"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Prekini povezavo"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Poveži"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Preimenuj"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Pozabi"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Uporabi za zvok televizorja"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Povezava je vzpostavljena"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Povezava je prekinjena"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Upravljanje naprav"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Poveži novo napravo"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Pred povezovanjem novih naprav Bluetooth poskrbite, da so v načinu seznanjanja. Če želite povezati napravo %1$s, za tri sekunde pridržite tipki %2$s in %3$s."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"daljinski upravljalnik za Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Razpoložljive naprave"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Iskanje naprav …"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Napaka"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Povezovanje …"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Povezano"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Preklicano"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"Povezave z napravo %1$s ni bilo mogoče vzpostaviti"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s – povezava vzpostavljena"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s – povezava prekinjena"</string>
+</resources>

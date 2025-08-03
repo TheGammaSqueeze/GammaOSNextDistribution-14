@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"N/A"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Crític"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Baix"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Bo"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Confirma l\'actualització del comandament"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"És possible que el comandament es desconnecti breument durant l\'actualització."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Continua"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Cancel·la"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Actualització del comandament"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Hi ha un nou programari disponible"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Actualització disponible"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"El comandament està actualitzat"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"No s\'ha pogut actualitzar el comandament"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"S\'ha produït un error en actualitzar el comandament. Torna-ho a provar."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Espera"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Torna a vincular el comandament"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Activat"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Desactivat"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Nivell de bateria"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Microprogramari"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Adreça de Bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Canvia la pila"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Bateria baixa"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Dispositius connectats"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Comandaments i accessoris"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Actualitza el teu comandament"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"A punt per instal·lar"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"ACTUALITZA"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"IGNORA"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"La pila del comandament s\'està esgotant"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Aviat hauràs de substituir la pila"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"La pila del comandament gairebé està esgotada"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Aviat hauràs de substituir la pila"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"La pila del comandament s\'ha esgotat"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Substitueix la pila per utilitzar el comandament"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Sí"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"No"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Desconnecta del dispositiu %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Connecta\'t a %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Oblida el dispositiu %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Canvia el nom del dispositiu connectat"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Activa HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC et permet controlar i activar i desactivar automàticament els dispositius en què l\'hagis activat amb un únic comandament.\n\nNota: Comprova que HDMI-CEC està activat al televisor i en altres dispositius HDMI. El nom d\'HDMI-CEC pot variar segons el fabricant, com en els casos següents:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Configura els botons del comandament"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Controla el volum, l\'engegada i l\'entrada de televisors, receptors i barres de so"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Troba el meu comandament"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Reprodueix un so per localitzar el teu comandament de Google TV si no el trobes"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Prem el botó de la part posterior del teu Google TV Streamer per reproduir un so al comandament durant 30 segons. Això només funciona en un comandament per veu de Google TV Streamer.\n\nPer aturar el so, prem qualsevol botó del comandament."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Quan la funció Troba el meu comandament està activada, pots reproduir un so per localitzar el comandament de Google TV si no el trobes."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Reprodueix un so"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Nivell de bateria: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Accessoris"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Comandament"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Connectat"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Connectats prèviament"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Vincula un comandament o accessori"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Desconnecta"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Connecta"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Canvia el nom"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Oblida"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Utilitza per a l\'àudio del televisor"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Connectat"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Desconnectat"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Control del dispositiu"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Connecta un dispositiu nou"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Abans de connectar més dispositius Bluetooth, assegura\'t que estiguin en mode de vinculació. Per connectar %1$s, mantén premut %2$s + %3$s durant 3 segons."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"un comandament d\'Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Dispositius disponibles"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"S\'estan cercant dispositius…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Error"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"S\'està connectant…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Connectat"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Cancel·lat"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s no s\'ha pogut connectar"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s s\'ha connectat"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s s\'ha desconnectat"</string>
+</resources>

@@ -1,0 +1,10 @@
+// Signature format: 2.0
+package com.example.android.platform_library {
+
+  public final class PlatformLibrary {
+    ctor public PlatformLibrary();
+    method public int getInt(boolean);
+  }
+
+}
+

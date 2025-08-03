@@ -1,0 +1,1 @@
+allow hal_radio_config_default hal_lineage_backend_radio_config_hwservice:hwservice_manager find;

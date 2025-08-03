@@ -1,0 +1,16 @@
+###
+### MTC specific VrCore permissions
+###
+
+allow vrcore_app persist_file:dir search;
+
+# allow vrcore to access dsp
+allow vrcore_app qdsp_device:chr_file r_file_perms;
+r_dir_file(vrcore_app, adsprpcd_file)
+
+# allow vrcore to access sensor service
+allow vrcore_app fwk_sensor_hwservice:hwservice_manager find;
+allow vrcore_app sensorservice_service:service_manager find;
+
+# allow vrcore to access /persist/tango/calibration.xml
+r_dir_file(vrcore_app, tango_data_file);

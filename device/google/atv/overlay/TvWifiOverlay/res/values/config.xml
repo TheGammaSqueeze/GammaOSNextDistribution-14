@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources>
+    <!-- Don't scan for Wifi networks while we are associated to one.
+         Wifi scans can cause network latency spikes, and on Android TV we
+         believe it's rare to have multiple Wifi networks configured whose
+         quality changes over time. -->
+    <bool name="config_wifi_framework_enable_associated_network_selection">false</bool>
+
+    <!-- Enable the Software PNO feature. If Hardware PNO is not enabled, the device is in
+    standby and Wifi is disconnected, periodic scans are performed according to the
+    following schedule:
+    1) config_wifiSwPnoMobilityStateTimerIterations iterations with initial interval provided by
+    the mobility status (see config_wifiMovingPnoScanIntervalMillis and
+    config_wifiStationaryPnoScanIntervalMillis for the default values respectively for moving and
+    stationary devices). At each iteration the interval is increased proportionally to the elapsed
+    iterations. The device is awakened even if currently in doze/idle mode.
+    2) config_wifiSwPnoFastTimerIterations iterations with initial interval provided by
+    config_wifiSwPnoFastTimerMs. The device is awakened even if currently in doze/idle mode.
+    3) config_wifiSwPnoSlowTimerIterations iterations with initial provided by
+    config_wifiSwPnoSlowTimerMs and a window of config_wifiSwPnoSlowTimerMargin.
+    Inside such time window, the device is not awakened to perform the scan. If a wakeup happens for
+    other reasons, the scan might be performed as well in order to avoid subsequent awakening.
+    If no spontaneous awakening happens at the end of the time window, the device is awakened to
+    perform the scan.-->
+    <bool translatable="false" name="config_wifiSwPnoEnabled">true</bool>
+
+    <!-- Boolean indicating performing a partial initial scan is enabled -->
+    <bool translatable="false" name="config_wifiEnablePartialInitialScan">true</bool>
+
+    <!-- Integer for maximum number of channels to use in initial partial scan. If equals to 0, means add all available channels for networks -->
+    <integer translatable="false" name="config_wifiInitialPartialScanChannelMaxCount">4</integer>
+</resources>

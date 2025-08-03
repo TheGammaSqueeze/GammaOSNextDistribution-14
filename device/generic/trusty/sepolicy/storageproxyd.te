@@ -1,0 +1,8 @@
+type rpmb_virt_device, dev_type;
+
+allow tee rpmb_virt_device:chr_file { open read write };
+
+allow tee tee_data_file:dir rw_dir_perms;
+
+# Allow storageproxyd access to gsi_public_metadata_file
+read_fstab(tee)

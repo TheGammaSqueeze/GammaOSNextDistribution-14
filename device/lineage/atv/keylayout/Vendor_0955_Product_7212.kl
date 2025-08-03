@@ -1,0 +1,24 @@
+# Copyright (c) 2016-2018, NVIDIA CORPORATION.  All rights reserved.
+
+# NVIDIA Shield Remote (2015 edition)
+
+key 158   BACK
+key 172   HOME
+
+key 114   VOLUME_DOWN
+key 115   VOLUME_UP
+
+key 164   MEDIA_PLAY_PAUSE
+
+# Hat.
+# (D-pad is reported as individual buttons.)
+key 103   DPAD_UP
+key 105   DPAD_LEFT
+key 106   DPAD_RIGHT
+key 108   DPAD_DOWN
+key 353   DPAD_CENTER       WAKE
+
+key 217   ASSIST      WAKE
+
+# Double tap on volume slider
+key usage 0x000c00cd VOLUME_MUTE

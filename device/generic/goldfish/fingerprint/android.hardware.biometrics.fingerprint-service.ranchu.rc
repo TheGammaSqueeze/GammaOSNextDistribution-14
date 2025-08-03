@@ -1,0 +1,8 @@
+service vendor.biometrics.fingerprint-service.ranchu /vendor/bin/hw/android.hardware.biometrics.fingerprint-service.ranchu
+    interface aidl android.hardware.biometrics.fingerprint.IFingerprint/default
+    class hal
+    user system
+    group system input uhid
+    task_profiles ServiceCapacityLow
+    oneshot
+    disabled

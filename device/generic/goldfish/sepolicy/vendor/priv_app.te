@@ -1,0 +1,7 @@
+#TODO: b/62908025
+dontaudit priv_app firstboot_prop:file { getattr open };
+dontaudit priv_app device:dir { open read };
+dontaudit priv_app proc_interrupts:file { getattr open read };
+dontaudit priv_app proc_modules:file { getattr open read };
+allow priv_app self:vsock_socket create_socket_perms_no_ioctl;
+allow priv_app hal_graphics_allocator_default:vsock_socket { read write getattr };

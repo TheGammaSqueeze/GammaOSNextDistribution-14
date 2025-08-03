@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2023 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!--  Maximum number of supported users -->
+    <integer name="config_multiuserMaximumUsers">2</integer>
+
+    <!-- Name of the activity or service that prompts the user to reject, accept, or allowlist
+         an adb host's public key, when an unwhitelisted host connects to the local adbd.
+         Can be customized for other product types -->
+    <string name="config_customAdbPublicKeyConfirmationComponent"
+            >com.android.systemui/com.android.systemui.tv.usb.TvUsbDebuggingActivity</string>
+</resources>

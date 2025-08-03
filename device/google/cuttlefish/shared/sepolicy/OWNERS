@@ -1,0 +1,3 @@
+set noparent
+file:platform/system/sepolicy:/OWNERS
+file:device/google/cuttlefish:/OWNERS_techleads

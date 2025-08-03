@@ -1,0 +1,2 @@
+r_dir_file(logd, logbuffer_device)
+allow logd logbuffer_device:chr_file r_file_perms;

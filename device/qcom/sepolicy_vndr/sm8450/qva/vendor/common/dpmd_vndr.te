@@ -1,0 +1,90 @@
+# Copyright (c) 2021, The Linux Foundation. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+#       copyright notice, this list of conditions and the following
+#       disclaimer in the documentation and/or other materials provided
+#       with the distribution.
+#     * Neither the name of The Linux Foundation nor the names of its
+#       contributors may be used to endorse or promote products derived
+#       from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+# BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+# OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+# IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#dpmd_vndr as domain
+type vendor_dpmd_vndr, domain;
+
+type vendor_dpmd_vndr_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(vendor_dpmd_vndr)
+
+net_domain(vendor_dpmd_vndr)
+
+use_netutils(vendor_dpmd_vndr)
+set_prop(vendor_dpmd_vndr, vendor_persist_dpm_prop)
+set_prop(vendor_dpmd_vndr, vendor_persist_tcm_prop)
+
+wakelock_use(vendor_dpmd_vndr)
+
+r_dir_file(vendor_dpmd_vndr, vendor_sysfs_data)
+
+#dpmQmiHalService
+hal_client_domain(vendor_dpmd_vndr,vendor_hal_dpmqmiservice_qti)
+
+#register dpmApiHalService
+hal_server_domain_bypass(vendor_dpmd_vndr, vendor_hal_dpmapiservice_qti)
+binder_call(vendor_hal_dpmapiservice_qti_client, vendor_hal_dpmapiservice_qti_server)
+binder_call(vendor_hal_dpmapiservice_qti_server, vendor_hal_dpmapiservice_qti_client)
+hal_attribute_hwservice(vendor_hal_dpmapiservice_qti,vendor_hal_dpmapi_hwservice)
+hal_attribute_service(vendor_hal_dpmapiservice_qti,vendor_hal_dpmaidl_service)
+
+allow vendor_dpmd_vndr vendor_dpm_vndr_data_file:file create_file_perms;
+allow vendor_dpmd_vndr vendor_dpm_vndr_data_file:dir create_dir_perms;
+
+#mwqemadapter client
+hal_client_domain(vendor_dpmd_vndr , vendor_hal_mwqemadapter_qti)
+
+r_dir_file(vendor_dpmd_vndr,proc_net)
+
+allow vendor_dpmd_vndr self:capability {
+    setuid
+    net_raw
+    net_admin
+};
+
+dontaudit vendor_dpmd_vndr self:capability sys_module;
+
+allow vendor_dpmd_vndr netutils_wrapper:process sigkill;
+allow vendor_dpmd_vndr self:capability2 wake_alarm;
+
+r_dir_file(vendor_dpmd_vndr, appdomain)
+
+#self kill rule to kill dpmd child process which executes iptable commands
+allow vendor_dpmd_vndr self:capability kill;
+
+allow vendor_dpmd_vndr proc_net:file write;
+
+allow vendor_dpmd_vndr self:netlink_netfilter_socket create_socket_perms_no_ioctl;
+
+#diag
+userdebug_or_eng(`
+    diag_use(vendor_dpmd_vndr)
+    hal_client_domain(vendor_dpmd_vndr, vendor_hal_diaghal)
+    hal_client_domain(vendor_dpmd_vndr, hal_allocator)
+')
+
+#allow vendor_dpmd_vndr default_prop:file read;

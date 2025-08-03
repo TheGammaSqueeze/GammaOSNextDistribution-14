@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2023, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<!-- Resources to configure car service based on each OEM's preference. -->
+<resources>
+    <!--
+    Lists all occupant zones available in the car.
+    Some examples are:
+    <item>occupantZoneId=0,occupantType=DRIVER,seatRow=1,seatSide=driver</item>
+    <item>occupantZoneId=1,occupantType=FRONT_PASSENGER,seatRow=1,seatSide=oppositeDriver</item>
+    <item>occupantZoneId=2,occupantType=REAR_PASSENGER,seatRow=2,seatSide=left</item>
+    <item>occupantZoneId=3,occupantType=REAR_PASSENGER,seatRow=2,seatSide=right</item>
+
+    occupantZoneId: Unique unsigned integer id to represent each passenger zone. Each zone
+                    should have different id.
+    occupantType: Occupant type for the display. Use * part from
+                   CarOccupantZoneManager.OCCUPANT_TYPE_* like DRIVER, FRONT_PASSENGER,
+                   REAR_PASSENGER and etc.
+    seatRow: Integer telling which row the seat is located. Row 1 is for front seats.
+    seatSide: left/center/right for known side. Or can use driver/center/oppositeDriver to
+              handle both right-hand driving and left-hand driving in one place.
+              If car's RHD / LHD is not specified, LHD will be assumed and driver side becomes
+              left.
+    -->
+    <string-array translatable="false" name="config_occupant_zones">
+        <item>occupantZoneId=0,occupantType=FRONT_PASSENGER,seatRow=1,seatSide=driver</item>
+        <item>occupantZoneId=1,occupantType=FRONT_PASSENGER,seatRow=1,seatSide=oppositeDriver</item>
+        <item>occupantZoneId=2,occupantType=REAR_PASSENGER,seatRow=2,seatSide=left</item>
+        <item>occupantZoneId=3,occupantType=REAR_PASSENGER,seatRow=2,seatSide=right</item>
+    </string-array>
+
+    <!--
+        Specifies configuration of displays in system telling its usage / type and assigned
+        occupant.
+
+        Some examples are:
+        <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS|NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
+        <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,inputTypes=DPAD_KEYS</item>
+        <item>displayPort=2,displayType=MAIN,occupantZoneId=1,inputTypes=TOUCH_SCREEN</item>
+        <item>displayPort=3,displayType=MAIN,occupantZoneId=2,inputTypes=TOUCH_SCREEN</item>
+        <item>displayPort=4,displayType=MAIN,occupantZoneId=3,inputTypes=TOUCH_SCREEN</item>
+
+        displayPort: Unique port id for the display.
+        displayType: Display type for the display. Use * part from
+                       CarOccupantZoneManager.DISPLAY_TYPE_* like MAIN, INSTRUMENT_CLUSTER and
+                       etc.
+        occupantZoneId: occupantZoneId specified from config_occupant_zones.
+
+        inputTypes: supported input types for the corresponding display.
+    -->
+    <string-array translatable="false" name="config_occupant_display_mapping">
+      <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS|NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
+      <item>displayUniqueId=virtual:com.android.car.cluster.osdouble:ClusterDisplay,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,inputTypes=DPAD_KEYS</item>
+      <item>displayPort=2,displayType=MAIN,occupantZoneId=1,inputTypes=TOUCH_SCREEN</item>
+      <item>displayPort=3,displayType=MAIN,occupantZoneId=2,inputTypes=TOUCH_SCREEN</item>
+      <item>displayPort=4,displayType=MAIN,occupantZoneId=3,inputTypes=TOUCH_SCREEN</item>
+    </string-array>
+
+    <!--
+    Specifies optional features that can be enabled by this image. Note that vhal can disable
+    them depending on product variation.
+    Feature name can be either service name defined in Car.*_SERVICE for Car*Manager or any
+    optional feature defined under @OptionalFeature annotation.
+    Note that '/' is used to have subfeature under main feature like "MAIN_FEATURE/SUB_FEATURE".
+
+    Some examples are:
+    <item>storage_monitoring</item>
+    <item>com.android.car.user.CarUserNoticeService</item>
+    <item>com.example.Feature/SubFeature</item>
+
+    The default list defined below will enable all optional features defined.
+    -->
+    <string-array translatable="false" name="config_allowed_optional_car_features">
+        <item>car_evs_service</item>
+        <item>car_navigation_service</item>
+        <item>car_occupant_connection_service</item>
+        <item>car_remote_device_service</item>
+        <item>cluster_home_service</item>
+        <item>com.android.car.user.CarUserNoticeService</item>
+        <item>diagnostic</item>
+        <item>storage_monitoring</item>
+        <item>vehicle_map_service</item>
+        <item>car_telemetry_service</item>
+    </string-array>
+
+    <!-- Enable profile user assignment per each CarOccupantZone for per display android user
+         assignments. This feature is still experimental. -->
+    <bool name="enableProfileUserAssignmentForMultiDisplay" translatable="false">true</bool>
+
+    <!-- The services that need to be started earlier in the boot sequence and in particular order.
+         Every item in this array contains a flatten component name of a service that needs to be
+         started and a list of parameters after hashtag symbol. Here's the format:
+
+         <item>com.bar.foo/.Service#bind={bind|start|startForeground},
+         user={all|system|foreground|visible|backgroundVisible},
+         trigger={asap|resume|userUnlocked|userPostUnlocked}</item>
+
+         bind: bind - start service with Context#bindService
+               start - start service with Context#startService
+               startForeground - start service with Context#startForegroundService
+               If service was bound it will be restarted unless it is constantly crashing.
+               The default value is 'start'
+         user: all - the service will be bound/started for system and all visible users
+               system - the service will be started/bound only for system user (u0)
+               foreground - the service will be bound/started only for foreground users
+               visible - the service will be bound/started only for visible users (as defined by
+                         `UserManager#isUserVisible()`).
+               backgroundVisible - the service will be bound/started only for background users that
+                                   are visible.
+               The default value is 'all'
+         trigger: indicates when the service needs to be started/bound
+               asap - the service might be bound when user is not fully loaded, be careful with
+                      this value, the service also needs to have directBootAware flag set to true
+               resume - start service when the device resumes from suspend (suspend-to-RAM, or
+                        suspend-to-disk).
+               userUnlocked - start service when user unlocked the device
+               userPostUnlocked - start service later after user unlocked. This is used when the
+                                  service is not urgent and can wait to start.
+               The default value is 'userUnlocked'
+         maxRetries: the maximum number of attempts to rebind/restart a disconnected service.
+               Retries start with 4 second initial delay, being doubled after each failed attempt.
+               The default value is 6.
+
+         If the service bound/started for foreground user it will be unbound/stopped when user
+         is no longer foreground.
+     -->
+    <string-array translatable="false" name="config_earlyStartupServices">
+        <item>com.google.android.companiondevicesupport/com.google.android.connecteddevice.service.ConnectedDeviceService#bind=bind,user=system,trigger=asap</item>
+        <item>com.google.android.companiondevicesupport/com.google.android.connecteddevice.service.ConnectedDeviceFgUserService#bind=bind,user=foreground,trigger=asap</item>
+        <!-- Starting Android Auto receiver service earlier for wireless projection. -->
+        <item>com.google.android.embedded.projection/com.google.android.apps.auto.aareceiver.service.PersistentService#bind=bind,user=foreground,trigger=userUnlocked</item>
+
+        <!-- eGMM Vehicle Map Service Provider -->
+        <item>com.google.android.apps.maps/com.google.android.apps.geo.autograph.vms.platform.car.CarVmsPublisherClientService#bind=bind,user=foreground,trigger=userUnlocked</item>
+
+        <!-- OEM Custom Input Reference Service -->
+        <item>com.android.car.custominput.sample/.SampleCustomInputService#bind=bind,user=foreground,trigger=userUnlocked</item>
+
+        <!-- Car Telemetry Collector Service -->
+        <item>com.android.car.cartelemetryapp/.CarMetricsCollectorService#bind=bind,user=system,trigger=asap</item>
+
+        <!-- GSR Failover service to facilitate the publishing of speed limit information when eGMM is unable to do so -->
+        <item>com.google.android.apps.geo.automotive.adas/.failover.FailoverControllerService#bind=bind,user=foreground,trigger=userUnlocked</item>
+
+        <!-- The service responsible for starting/stopping the Cast receiver. -->
+        <item>com.android.car.castreceiver/.AutomotiveCastReceiverService#bind=bind,user=foreground,trigger=userUnlocked</item>
+        <!-- Early start service for Multi-display Control Center app -->
+        <item>com.android.car.multidisplay.controlcenter/com.android.car.multidisplay.controlcenter.service.ControlCenterService#bind=bind,user=backgroundVisible,trigger=userPostUnlocked</item>
+    </string-array>
+</resources>

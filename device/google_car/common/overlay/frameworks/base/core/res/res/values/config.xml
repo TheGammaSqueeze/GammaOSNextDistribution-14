@@ -1,0 +1,15 @@
+<resources>
+<!-- Control the behavior when the user long presses the power button.
+            0 - Nothing
+            1 - Global actions menu
+            2 - Power off (with confirmation)
+            3 - Power off (without confirmation)
+            4 - Go to voice assist
+    -->
+  <integer name="config_longPressOnPowerBehavior">1</integer>
+
+  <bool name="config_single_volume">true</bool>
+
+  <!-- Disable lockscreen sound effect -->
+  <integer name="def_lockscreen_sounds_enabled">0</integer>
+</resources>

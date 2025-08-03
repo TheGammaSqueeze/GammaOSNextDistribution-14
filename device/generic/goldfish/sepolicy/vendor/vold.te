@@ -1,0 +1,3 @@
+allow vold sysfs_devices_block:file w_file_perms;
+allow vold sysfs_virtio_block:file w_file_perms;
+allow vold nsfs:file r_file_perms;

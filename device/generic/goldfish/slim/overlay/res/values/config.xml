@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2021 The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<resources>
+  <!--
+    Component name of media projection permission dialog.
+    In a full emulator image this is housed in systemui.
+    Since slim image removes systemui, point the framework
+    at the equivalent in fakesystemapp.
+  -->
+  <string name="config_mediaProjectionPermissionDialogComponent" translatable="false">com.android.fakesystemapp/.systemui.SlimMediaProjectionPermissionActivity</string>
+  <!-- appease the cts TelephonyProvider tests, which can have abscure failures if there is no default SMS app -->
+  <string name="default_sms_application" translatable="false">com.android.fakesystemapp</string>
+
+  <!-- turn off features provided by SystemUI, which slim image does not have -->
+  <bool name="config_quickSettingsSupported">false</bool>
+  <bool name="config_supportsInsecureLockScreen">false</bool>
+  <bool name="config_supportsSplitScreenMultiWindow">false</bool>
+  <bool name ="config_enableWallpaperService">false</bool>
+  <bool name="config_checkWallpaperAtBoot">false</bool>
+
+  <!-- turn off window manager snapshots, which do hardware rendering -->
+  <bool name="config_disableTaskSnapshots">true</bool>
+</resources>

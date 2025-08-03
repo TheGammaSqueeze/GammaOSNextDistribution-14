@@ -1,0 +1,17 @@
+;; new_objects - a collection of types that have been introduced that have no
+;;   analogue in older policy.  Thus, we do not need to map these types to
+;;   previous ones.  Add here to pass checkapi test
+(type new_objects)
+(typeattribute new_objects)
+(typeattributeset new_objects
+  ( new_objects
+    vendor_hal_displayconfig_service
+    vendor_hal_telephony_service
+    vendor_mm_parser_prop
+    vendor_persist_tcm_prop
+    vendor_persist_rcs_prop
+    vendor_qvirtmgr
+    vendor_qesdk_service
+    vendor_qcc_authmgr_app
+    vendor_qcc_netstat_app
+    vendor_qcc_lmtp_app))

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"မရနိုင်ပါ"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"အားကုန်ခါနီးဖြစ်သည်"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"အားနည်းသည်"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"ကောင်းသည်"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"အဝေးထိန်းခလုတ် အပ်ဒိတ်ကို အတည်ပြုရန်"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"အပ်ဒိတ်လုပ်နေစဉ်အတွင်း သင့်အဝေးထိန်းခလုတ်ကို ချိတ်ဆက်မှုခဏရပ်ထားနိုင်သည်။"</string>
+    <string name="settings_continue" msgid="5640776697820481568">"ရှေ့ဆက်ရန်"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"မလုပ်တော့"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"အဝေးထိန်းခလုတ် အပ်ဒိတ်"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"ဆော့ဖ်ဝဲအသစ် ရနိုင်ပါသည်"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"အပ်ဒိတ် ရနိုင်သည်"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"အဝေးထိန်းခလုတ် အပ်ဒိတ်ဖြစ်နေသည်"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"အဝေးထိန်းစနစ် အပ်ဒိတ်လုပ်၍ မရပါ"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"သင့်အဝေးထိန်းခလုတ်ကို အပ်ဒိတ်လုပ်နေစဉ် ပြဿနာဖြစ်သွားသည်။ ထပ်စမ်းကြည့်ပါ။"</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"ခဏစောင့်ပါ"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"သင့်အဝေးထိန်းခလုတ်ကို ထပ်မံတွဲချိတ်ရန်"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"ဖွင့်ထားသည်"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"ပိတ်ထားသည်"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"ဘက်ထရီအား"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"ဖာမ်းဝဲ"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"ဘလူးတုသ် လိပ်စာ"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"ဘက်ထရီ လဲပေးပါ"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"ဘက်ထရီ အားနည်းနေသည်"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"ချိတ်ဆက်ထားသောစက်များ"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"အဝေးထိန်းခလုတ်နှင့် ဆက်စပ်ပစ္စည်းများ"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"သင်၏အဝေးထိန်းခလုတ်ကို အပ်ဒိတ်လုပ်ပါ"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"ထည့်သွင်းရန် အသင့်ဖြစ်ပါပြီ"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"အပ်ဒိတ်လုပ်ရန်"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"ပယ်ရန်"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"အဝေးထိန်းခလုတ် ဘက်ထရီ အားနည်းနေသည်"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"ဘက်ထရီကို မကြာမီ လဲပါ"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"အဝေးထိန်းခလုတ် ဘက်ထရီ အားကုန်တော့မည်"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"ဘက်ထရီကို မကြာမီ လဲပါ"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"အဝေးထိန်းခလုတ် ဘက်ထရီ အားကုန်သွားသည်"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"အဝေးထိန်းခလုတ်ကို သုံးရန် ဘက်ထရီ လဲပါ"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Yes"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"No"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s မှ ချိတ်ဆက်မှုဖြုတ်ရန်"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"%1$s သို့ ချိတ်ဆက်ရန်"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$s ကို မေ့ပစ်ရန်"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"သင်ချိတ်ဆက်ထားသော စက်ကို အမည်ပြောင်းရန်"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CEC ဖွင့်ရန်"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC ဖြင့် အခြား HDMI-CEC ဖွင့်ထားသည့် စက်ပစ္စည်းများအား အဝေးထိန်းခလုတ်တစ်ခုတည်းနှင့် ထိန်းချုပ်ပြီး အလိုအလျောက် ဖွင့်နိုင်/ပိတ်နိုင်သည်။ \n\nမှတ်ချက်- သင်၏ တီဗီနှင့် အခြား HDMI စက်ပစ္စည်းများတွင် HDMI-CEC ဖွင့်ထားပါ။ ကုန်ထုတ်လုပ်သူများတွင် HDMI-CEC အတွက် အမည်များ ကွဲပြားခြားနားသည်၊ ဥပမာ-"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"အဝေးထိန်း ခလုတ်များကို စနစ်ထည့်သွင်းရန်"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"TV၊ ရုပ်သံဖမ်းစက်နှင့် အသံဘားများတွင် အသံအတိုးအကျယ်၊ အဖွင့်အပိတ်၊ အဝင်တို့ကို ထိန်းချုပ်နိုင်သည်"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"ကျွန်ုပ်၏ အဝေးထိန်းခလုတ်ရှာခြင်း"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"နေရာမှားထားမိပါက သင့် Google TV အဝေးထိန်းခလုတ်၏ နေရာကိုသိရန် အသံမြည်သည်"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"အဝေးထိန်းခလုတ်တွင် စက္ကန့် ၃၀ ကြာ အသံမြည်ရန် ‘Google TV ထုတ်လွှင့်သူ’ နောက်ရှိ ခလုတ်ကိုနှိပ်ပါ။ ၎င်းသည် ‘Google TV ထုတ်လွှင့်သူ Voice Remote’ တွင် လုပ်နိုင်သည်။\n\nအသံရပ်ရန် အဝေးထိန်းခလုတ်ရှိ ခလုတ်တစ်ခုခုကိုနှိပ်ပါ။"</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"‘ကျွန်ုပ်၏ အဝေးထိန်းခလုတ်ရှာခြင်း’ ဖွင့်ထားသောအခါ နေရာမှားထားမိပါက သင့် Google TV အဝေးထိန်းခလုတ်၏ နေရာကိုသိရန် အသံဖွင့်နိုင်သည်။"</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"အသံဖွင့်ရန်"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"ဘက်ထရီအား- %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"ဆက်စပ်ပစ္စည်းများ"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"အဝေးထိန်းခလုတ်"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"ချိတ်ဆက်ထားသည်"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"ယခင်က ချိတ်ဆက်ထားသည်များ"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"အဝေးထိန်းခလုတ် (သို့) ဆက်စပ်ပစ္စည်းနှင့် တွဲချိတ်ရန်"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"ချိတ်ဆက်မှု ဖြုတ်ရန်"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"ချိတ်ဆက်ရန်"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"အမည်ပြောင်းရန်"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"မေ့ပစ်ရန်"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"TV အသံအတွက် သုံးရန်"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"ချိတ်ဆက်ထားသည်"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"ချိတ်ဆက်မထားပါ"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"စက်ပစ္စည်း ထိန်းချုပ်မှု"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"စက်အသစ် ချိတ်ဆက်ရန်"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"ဘလူးတုသ်သုံးစက်အသစ်များကို မချိတ်ဆက်မီ ၎င်းတို့အနေဖြင့် တွဲချိတ်ခြင်းမုဒ်တွင် ရှိနေကြောင်း သေချာပါစေ။ %1$s ကို ချိတ်ဆက်ရန် %2$s + %3$s ကို ၃ စက္ကန့် နှိပ်ထားပါ။"</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV အဝေးထိန်း"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"ရနိုင်သည့်စက်များ"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"စက်များကို ရှာနေသည်…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"အမှား"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"ချိတ်ဆက်နေသည်…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"ချိတ်ဆက်ထားသည်"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"ပယ်ဖျက်ထားသည်"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s ကို ချိတ်ဆက်၍မရပါ"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s ကို ချိတ်ဆက်ထားသည်"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s ကို ချိတ်ဆက်မထားပါ"</string>
+</resources>

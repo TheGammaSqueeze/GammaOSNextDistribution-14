@@ -1,0 +1,50 @@
+<com.example.sampleleanbacklauncher.notifications.NotificationPanelDismissibleItemView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <include
+            layout="@layout/notification_panel_item_main_content"
+            android:layout_width="@dimen/notification_panel_item_container_width"
+            android:layout_height="@dimen/notification_panel_item_height" />
+
+        <LinearLayout
+            android:id="@+id/dismiss_button"
+            android:layout_width="@dimen/notification_panel_item_dismiss_button_width"
+            android:layout_height="@dimen/notification_panel_item_height"
+            android:background="@drawable/notification_background_left"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="@dimen/notification_panel_item_dismiss_icon_size"
+                android:layout_height="@dimen/notification_panel_item_dismiss_icon_size"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/notification_panel_item_dismiss_icon_margin_end"
+                android:layout_marginStart="@dimen/notification_panel_item_dismiss_icon_margin_start"
+                android:src="@drawable/ic_remove_circle_black"
+                android:tint="@color/notification_icon_tint" />
+
+            <TextView
+                android:id="@+id/dismiss_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:fontFamily="sans-serif-condensed"
+                android:textColor="@color/notification_dimiss_text_color"
+                android:textSize="@dimen/notification_panel_item_primary_text_size"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <include
+        layout="@layout/notification_panel_item_expanded_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</com.example.sampleleanbacklauncher.notifications.NotificationPanelDismissibleItemView>

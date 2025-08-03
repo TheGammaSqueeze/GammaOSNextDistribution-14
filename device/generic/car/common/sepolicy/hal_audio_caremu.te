@@ -1,0 +1,18 @@
+type hal_audio_caremu, domain;
+
+hal_server_domain(hal_audio_caremu, hal_audio)
+hal_server_domain(hal_audio_caremu, hal_audiocontrol)
+
+type hal_audio_caremu_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hal_audio_caremu)
+
+carwatchdog_client_domain(hal_audio_caremu)
+binder_use(hal_audio_caremu)
+
+# Enable audiocontrol to listen to power policy daemon.
+carpowerpolicy_callback_domain(hal_audio_caremu)
+
+hal_client_domain(hal_audio_caremu, hal_allocator)
+get_prop(hal_audio_caremu, vendor_caremu_audiohal_prop)
+
+allow hal_audio_caremu audioserver:fifo_file write;

@@ -1,0 +1,20 @@
+# Filesystem tools
+/system/bin/fsck\.ntfs                  u:object_r:fsck_exec:s0
+/system/bin/mkfs\.exfat                 u:object_r:mkfs_exec:s0
+/system/bin/mkfs\.f2fs                  u:object_r:mkfs_exec:s0
+/system/bin/mkfs\.ntfs                  u:object_r:mkfs_exec:s0
+
+# OTA packages
+/data/lineageos_updates(/.*)?           u:object_r:ota_package_file:s0
+
+# Postinstall
+/system/bin/backuptool_ab\.functions              u:object_r:otapreopt_chroot_exec:s0
+/system/bin/backuptool_ab\.sh                     u:object_r:otapreopt_chroot_exec:s0
+/system/bin/backuptool_postinstall\.sh            u:object_r:otapreopt_chroot_exec:s0
+
+# ADB Root
+/(system_ext|system/system_ext)/bin/adb_root      u:object_r:adbroot_exec:s0
+/data/adbroot(/.*)?        u:object_r:adbroot_data_file:s0
+
+# Bash
+/(system_ext|system/system_ext)/bin/bash          u:object_r:shell_exec:s0

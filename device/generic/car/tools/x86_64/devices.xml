@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<d:devices xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:d="http://schemas.android.com/sdk/devices/5">
+    <d:device>
+        <d:name>Automotive (10" landscape)</d:name>
+        <d:id>aosp_car_10_landscape</d:id>
+        <d:manufacturer>Android</d:manufacturer>
+        <d:hardware>
+            <d:screen>
+                <d:screen-size>large</d:screen-size>
+                <d:diagonal-length>10.3</d:diagonal-length>
+                <d:pixel-density>tvdpi</d:pixel-density>
+                <d:screen-ratio>notlong</d:screen-ratio>
+                <d:dimensions>
+                    <d:x-dimension>1920</d:x-dimension>
+                    <d:y-dimension>1080</d:y-dimension>
+                </d:dimensions>
+                <d:xdpi>213</d:xdpi>
+                <d:ydpi>213</d:ydpi>
+                <d:touch>
+                    <d:multitouch>basic</d:multitouch>
+                    <d:mechanism>finger</d:mechanism>
+                    <d:screen-type>capacitive</d:screen-type>
+                </d:touch>
+            </d:screen>
+            <d:networking>
+                Bluetooth
+                Wifi
+                NFC
+            </d:networking>
+            <d:sensors>
+                LightSensor
+                GPS
+            </d:sensors>
+            <d:mic>true</d:mic>
+            <d:keyboard>nokeys</d:keyboard>
+            <d:nav>nonav</d:nav>
+            <d:ram unit="KiB">3774492</d:ram>
+            <d:buttons>soft</d:buttons>
+            <d:internal-storage unit="KiB">10255672</d:internal-storage>
+            <d:cpu>Generic CPU</d:cpu>
+            <d:gpu>Generic GPU</d:gpu>
+            <d:abi>
+                x86_64
+            </d:abi>
+            <d:dock/>
+            <d:power-type>plugged-in</d:power-type>
+        </d:hardware>
+        <d:software>
+            <d:api-level>-</d:api-level>
+            <d:live-wallpaper-support>false</d:live-wallpaper-support>
+            <d:bluetooth-profiles/>
+            <d:gl-version>2.0</d:gl-version>
+            <d:gl-extensions/>
+            <d:status-bar>true</d:status-bar>
+        </d:software>
+        <d:state name="Landscape" default="true">
+            <d:description>The device in landscape orientation</d:description>
+            <d:screen-orientation>land</d:screen-orientation>
+            <d:keyboard-state>keyssoft</d:keyboard-state>
+            <d:nav-state>nonav</d:nav-state>
+        </d:state>
+        <d:tag-id>android-automotive</d:tag-id>
+    </d:device>
+</d:devices>

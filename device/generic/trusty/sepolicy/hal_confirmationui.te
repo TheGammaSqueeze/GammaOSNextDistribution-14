@@ -1,0 +1,5 @@
+allow hal_confirmationui ion_device:chr_file rw_file_perms;
+allow hal_confirmationui tee_device:chr_file rw_file_perms;
+
+allow hal_confirmationui input_device:dir r_dir_perms;
+allow hal_confirmationui input_device:chr_file rw_file_perms;

@@ -1,0 +1,51 @@
+<device-state-config>
+    <device-state>
+        <identifier>0</identifier>
+        <name>CLOSED</name>
+        <conditions>
+            <sensor>
+                <type>android.sensor.hinge_angle</type>
+                <name>Goldfish hinge sensor0 (in degrees)</name>
+                <value>
+                    <min-inclusive>0</min-inclusive>
+                    <max-inclusive>30</max-inclusive>
+                </value>
+            </sensor>
+        </conditions>
+    </device-state>
+    <device-state>
+        <identifier>1</identifier>
+        <name>HALF_OPENED</name>
+        <conditions>
+            <sensor>
+                <type>android.sensor.hinge_angle</type>
+                <name>Goldfish hinge sensor0 (in degrees)</name>
+                <value>
+                    <min>30</min>
+                    <max>150</max>
+                </value>
+            </sensor>
+        </conditions>
+    </device-state>
+    <device-state>
+        <identifier>2</identifier>
+        <name>OPENED</name>
+            <conditions>
+                <sensor>
+                    <type>android.sensor.hinge_angle</type>
+                    <name>Goldfish hinge sensor0 (in degrees)</name>
+                    <value>
+                        <min-inclusive>150</min-inclusive>
+                        <max-inclusive>180</max-inclusive>
+                    </value>
+                    </sensor>
+            </conditions>
+    </device-state>
+    <device-state>
+        <identifier>3</identifier>
+        <name>REAR_DISPLAY_MODE</name>
+        <flags>
+            <flag>FLAG_EMULATED_ONLY</flag>
+        </flags>
+    </device-state>
+</device-state-config>

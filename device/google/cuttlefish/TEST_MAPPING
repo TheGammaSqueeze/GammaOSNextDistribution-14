@@ -1,0 +1,50 @@
+{
+  "postsubmit" : [
+    {
+      "name": "tombstone_transmit_tests"
+    },
+    {
+      "name": "RebootRecoveryTest"
+    }
+  ],
+  "presubmit": [
+    {
+      "name": "vts_treble_vintf_framework_test"
+    },
+    {
+      "name": "vts_treble_vintf_vendor_test"
+    },
+    {
+      "name": "hal_implementation_test"
+    },
+    {
+      "name": "libbinder_ndk_unit_test"
+    },
+    {
+      "name": "vts_ibase_test"
+    },
+    {
+      "name": "OverlayDeviceTests"
+    },
+    {
+      "name": "CtsNativeVerifiedBootTestCases"
+    },
+    {
+      "name": "CtsScopedStorageDeviceOnlyTest"
+    },
+    {
+      "name": "CtsScopedStorageBypassDatabaseOperationsTest"
+    },
+    {
+      "name": "CtsScopedStorageGeneralTest"
+    },
+    {
+      "name": "CtsScopedStorageRedactUriTest"
+    }
+  ],
+  "auto-presubmit": [
+    {
+      "name": "hal_implementation_test"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+type adbroot_service,                   service_manager_type;
+type lineage_hardware_service, system_api_service, system_server_service, service_manager_type;
+type lineage_health_interface_service, system_api_service, system_server_service, service_manager_type;
+type lineage_globalactions_service, system_api_service, system_server_service, service_manager_type;
+type lineage_livedisplay_service, system_api_service, system_server_service, service_manager_type;
+type lineage_profile_service, system_api_service, system_server_service, service_manager_type;
+type lineage_trust_service, system_api_service, system_server_service, service_manager_type;

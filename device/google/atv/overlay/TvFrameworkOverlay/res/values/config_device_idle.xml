@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2022, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<!-- These resources are around just to allow their values to be customized
+     for different hardware and product builds.  Do not translate.
+
+     NOTE: The naming convention is "config_camelCaseValue". Some legacy
+     entries do not follow the convention, but all new entries should. -->
+
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Default for DeviceIdleController.Constants.LIGHT_IDLE_MAINTENANCE_MIN_BUDGET -->
+    <integer name="device_idle_light_idle_maintenance_min_budget_ms">30000</integer>
+
+    <!-- Default for DeviceIdleController.Constants.LIGHT_IDLE_MAINTENANCE_MAX_BUDGET -->
+    <integer name="device_idle_light_idle_maintenance_max_budget_ms">180000</integer>
+
+    <!-- Default for DeviceIdleController.Constants.INACTIVE_TIMEOUT -->
+    <integer name="device_idle_inactive_to_ms">600000</integer>
+
+    <!-- Default for DeviceIdleController.Constants.LOCATING_TIMEOUT -->
+    <integer name="device_idle_locating_to_ms">100</integer>
+
+    <!-- Default for DeviceIdleController.Constants.IDLE_AFTER_INACTIVE_TIMEOUT -->
+    <integer name="device_idle_idle_after_inactive_to_ms">0</integer>
+
+    <!-- Default for DeviceIdleController.Constants.IDLE_TIMEOUT -->
+    <integer name="device_idle_idle_to_ms">5400000</integer>
+
+    <!-- Default for DeviceIdleController.Constants.MIN_TIME_TO_ALARM -->
+    <integer name="device_idle_min_time_to_alarm_ms">3600</integer>
+
+    <!-- Default for DeviceIdleController.Constants.MAX_TEMP_APP_ALLOWLIST_DURATION_MS -->
+    <integer name="device_idle_max_temp_app_allowlist_duration_ms">120000</integer>
+</resources>

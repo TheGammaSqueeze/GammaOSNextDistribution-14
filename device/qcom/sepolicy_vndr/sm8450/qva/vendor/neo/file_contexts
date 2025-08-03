@@ -1,0 +1,17 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+/vendor/bin/hw/android\.hardware\.bluetooth@1\.0-service-qti-lazy                  u:object_r:hal_bluetooth_default_exec:s0
+
+###################################
+#Dev nodes
+#
+/dev/power_state                      u:object_r:vendor_power_state_device:s0
+#swap partition node
+/dev/block/by-name/swap				  u:object_r:vendor_hibernate_swap:s0
+
+###################################
+# System files
+#
+/vendor/bin/hw/vendor\.qti\.hardware\.power\.powerstateservice@1\.0-service			   u:object_r:vendor_hal_powerstateservice_qti_exec:s0
+/vendor/bin/hw/vendor\.qti\.hardware\.power\.powerstateutility@1\.0-service			   u:object_r:vendor_hal_powerstateutility_qti_exec:s0

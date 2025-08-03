@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2023 The Android Open Source Project
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!--
+    Provides a service that is able to collect and offload mDNS service records.
+    The packets will be used to respond to mDNS queries by the network interface
+    hardware without waking up the CPU.
+ -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.tv.mdnsoffloadmanager">
+    <permission
+        android:name="com.android.tv.mdnsoffloadmanager.MDNS_OFFLOAD_SERVICE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.android.tv.mdnsoffloadmanager.MDNS_OFFLOAD_SERVICE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.DEVICE_POWER" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <application android:label="MdnsOffloadManager">
+        <service
+            android:name="com.android.tv.mdnsoffloadmanager.MdnsOffloadManagerService"
+            android:exported="true" />
+    </application>
+</manifest>

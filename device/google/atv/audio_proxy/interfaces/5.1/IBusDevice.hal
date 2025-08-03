@@ -1,0 +1,13 @@
+/* Copyright 2020 Google Inc. All Rights Reserved. */
+
+package device.google.atv.audio_proxy@5.1;
+
+import @5.0::IBusDevice;
+
+/**
+ * See @5.0::IBusDevice for more details.
+ * New in 5.1:
+ * -- openOutputStream may return IAudioProxyStream, which is a subclass of
+ *    IStreamOut.
+ */
+interface IBusDevice extends @5.0::IBusDevice {};

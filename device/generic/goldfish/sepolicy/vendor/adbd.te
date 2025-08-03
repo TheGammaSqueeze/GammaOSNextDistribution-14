@@ -1,0 +1,3 @@
+set_prop(adbd, ctl_mdnsd_prop);
+
+allow adbd self:vsock_socket { create_socket_perms_no_ioctl listen accept };

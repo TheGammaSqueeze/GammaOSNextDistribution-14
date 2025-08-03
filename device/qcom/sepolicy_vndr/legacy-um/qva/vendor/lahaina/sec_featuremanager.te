@@ -1,0 +1,35 @@
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_sec_featuremanager, domain;
+type vendor_sec_featuremanager_exec, exec_type, vendor_file_type, file_type;
+type vendor_sec_oras_exec, exec_type, vendor_file_type, file_type;
+
+# Allow for transition from init domain to vendor_sec_featuremanager
+init_daemon_domain(vendor_sec_featuremanager)
+
+# Allow vendor_sec_featuremanager to use Binder IPC
+vndbinder_use(vendor_sec_featuremanager)
+
+# Allow vendor_sec_featuremanager to be registered with service manager
+add_service(vendor_sec_featuremanager, vendor_sec_featuremanager_service)
+binder_call(vendor_sec_featuremanager servicemanager);
+
+unix_socket_connect(vendor_sec_featuremanager, vendor_ssgtzd, vendor_ssgtzd)
+
+allow vendor_sec_featuremanager vendor_shell_exec:file execute_no_trans;
+allow vendor_sec_featuremanager vendor_sec_oras_exec:file execute_no_trans;
+
+allow vendor_sec_featuremanager vendor_sec_vndr_data_file:dir create_dir_perms;
+allow vendor_sec_featuremanager vendor_sec_vndr_data_file:file create_file_perms;
+
+# Allow access to find other services
+allow vendor_sec_featuremanager vendor_sec_cloudagent_service:service_manager find;
+binder_call(vendor_sec_featuremanager, vendor_sec_cloudagent);
+
+allow vendor_sec_featuremanager vendor_sec_datamanager_service:service_manager find;
+binder_call(vendor_sec_featuremanager, vendor_sec_datamanager);
+
+set_prop(vendor_sec_featuremanager, vendor_secfm_prop);
+
+net_domain(vendor_sec_featuremanager);

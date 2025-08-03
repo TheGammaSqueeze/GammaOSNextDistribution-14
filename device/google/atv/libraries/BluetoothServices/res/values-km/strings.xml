@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"គ្មាន"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"ធ្ងន់ធ្ងរ"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"ទាប"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"ល្អ"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"បញ្ជាក់អំពី​ការដំឡើងកំណែ​ឧបករណ៍​បញ្ជា​ពីចម្ងាយ"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"ឧបករណ៍​បញ្ជា​ពីចម្ងាយ​របស់អ្នក​អាចនឹងផ្ដាច់​មួយភ្លែត អំឡុងពេល​ដំឡើងកំណែ។"</string>
+    <string name="settings_continue" msgid="5640776697820481568">"បន្ត"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"បោះបង់"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"ការដំឡើងកំណែ​ឧបករណ៍បញ្ជា​ពីចម្ងាយ"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"មាន​កម្មវិធី​ថ្មី"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"មាន​កំណែថ្មី"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"ឧបករណ៍បញ្ជា​ពី​ចម្ងាយមាន​កំណែថ្មីហើយ"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"មិន​អាច​ដំឡើងជំនាន់​ឧបករណ៍​​បញ្ជា​ពី​ចម្ងាយ​បានទេ"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"យើង​បានជួបបញ្ហា ខណៈពេល​កំពុងដំឡើងកំណែ​ឧបករណ៍បញ្ជា​ពីចម្ងាយ​របស់អ្នក។ សូមព្យាយាមម្ដងទៀត។"</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"សូមរង់ចាំ"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"ផ្គូផ្គង​ឧបករណ៍​បញ្ជាពីចម្ងាយ​របស់អ្នក​ម្ដងទៀត"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"បាន​បើក"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"បាន​បិទ"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"កម្រិតថ្ម"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"កម្មវិធីបង្កប់"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"អាសយដ្ឋាន​ប៊្លូធូស"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"សូម​ប្ដូរថ្ម"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"ថ្មសល់តិច"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"ឧបករណ៍ដែលបានភ្ជាប់"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"ឧបករណ៍បញ្ជាពីចម្ងាយ និងឧបករណ៍​បន្ទាប់បន្សំ"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"ដំឡើងកំណែ​ឧបករណ៍​បញ្ជា​ពីចម្ងាយ​របស់អ្នក"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"អាច​ដំឡើង​បានហើយ"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"ដំឡើងកំណែ"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"ច្រានចោល"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"ថ្មរបស់​ឧបករណ៍បញ្ជាពីចម្ងាយ​ជិតអស់ហើយ"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"ប្ដូរ​ថ្ម​ឆាប់ៗនេះ"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"ថ្មរបស់ឧបករណ៍​បញ្ជាពីចម្ងាយ​ជិតអស់ហើយ"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"ប្ដូរ​ថ្ម​ឆាប់ៗនេះ"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"ថ្មរបស់ឧបករណ៍បញ្ជា​ពីចម្ងាយ​អស់ហើយ"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"ប្ដូរថ្ម ដើម្បីប្រើ​ឧបករណ៍បញ្ជាពីចម្ងាយ"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"បាទ/ចាស"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"ទេ"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"ផ្ដាច់ចេញពី %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"ភ្ជាប់ទៅ %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"បំភ្លេច %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"ប្ដូរ​ឈ្មោះ​ឧបករណ៍ដែលបានភ្ជាប់របស់អ្នក"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"បើក HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC អនុញ្ញាតឱ្យ​អ្នក​គ្រប់គ្រង​ និងបើក/បិទ​ឧបករណ៍​ដែល​អាច​ប្រើ HDMI-CEC ផ្សេង​ទៀត​ដោយស្វ័យប្រវត្តិ​តាមរយៈឧបករណ៍​​បញ្ជា​ពី​ចម្ងាយតែមួយ។\n\nចំណាំ៖ សូមប្រាកដ​ថា HDMI-CEC បានបើក​នៅលើ​ទូរទស្សន៍​ និងឧបករណ៍ HDMI ផ្សេងទៀត​របស់អ្នក។ ជាទូទៅ ក្រុមហ៊ុន​ផលិតឧបករណ៍ដាក់ឈ្មោះខុសៗ​គ្នាឱ្យ​ HDMI-CEC ឧទាហរណ៍៖"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung៖ Anynet+\nLG៖ SimpLink\nSony៖ BRAVIA Sync\nPhilips៖ EasyLink\nSharp៖ Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"រៀបចំ​ប៊ូតុងឧបករណ៍​បញ្ជា​ពី​ចម្ងាយ"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"គ្រប់គ្រងកម្រិតសំឡេង ថាមពល ប្រភពបញ្ចូលនៅលើទូរទស្សន៍ ឧបករណ៍ចាប់សំឡេងនិងរូបភាព និងរបារ​សំឡេង"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"ស្វែងរកឧបករណ៍​បញ្ជាពីចម្ងាយរបស់ខ្ញុំ"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"ចាក់សំឡេងណាមួយ ដើម្បីកំណត់ទីតាំងឧបករណ៍​បញ្ជាពីចម្ងាយសម្រាប់ Google TV របស់អ្នក ប្រសិនបើបាត់ឧបករណ៍នោះ"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"ចុចប៊ូតុងនៅផ្នែកខាងក្រោយនៃ Google TV Streamer របស់អ្នក ដើម្បីចាក់សំឡេងនៅលើឧបករណ៍​បញ្ជាពីចម្ងាយរយៈពេល 30 វិនាទី។ សកម្មភាពនេះដំណើរការនៅលើឧបករណ៍បញ្ជាដោយសំឡេងសម្រាប់ Google TV Streamer តែប៉ុណ្ណោះ។\n\nដើម្បីបញ្ឈប់សំឡេង សូមចុចប៊ូតុងណាមួយនៅលើឧបករណ៍​បញ្ជាពីចម្ងាយរបស់អ្នក។"</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"នៅពេលបើក \"រកឧបករណ៍​បញ្ជាពីចម្ងាយរបស់ខ្ញុំ\" អ្នកអាចចាក់សំឡេងណាមួយ ដើម្បីកំណត់ទីតាំងឧបករណ៍​បញ្ជាពីចម្ងាយសម្រាប់ Google TV របស់អ្នក ប្រសិនបើបាត់ឧបករណ៍នោះ។"</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"ចាក់​សំឡេង"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"កម្រិតថ្ម៖ %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"ឧបករណ៍​បន្ទាប់បន្សំ"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"ឧបករណ៍​បញ្ជា​ពី​ចម្ងាយ"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"បានភ្ជាប់"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"បាន​ភ្ជាប់​ពីមុន​"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"ផ្គូផ្គងឧបករណ៍បញ្ជាពីចម្ងាយ ឬឧបករណ៍​បន្ទាប់បន្សំ"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"ផ្ដាច់"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"ភ្ជាប់"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"ប្ដូរ​ឈ្មោះ"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"បំភ្លេច"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"ប្រើ​សម្រាប់​សំឡេង​ទូរទស្សន៍"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"បានភ្ជាប់"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"បាន​ដាច់"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"ការ​គ្រប់គ្រងឧបករណ៍"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"ភ្ជាប់​ឧបករណ៍ថ្មី"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"មុនពេល​ភ្ជាប់ឧបករណ៍​ប៊្លូធូសថ្មី សូមប្រាកដថា​ឧបករណ៍ទាំងនោះ​ស្ថិតក្នុង​មុខងារ​ផ្គូផ្គង។ ដើម្បីភ្ជាប់ %1$s សូមចុច %2$s + %3$s ឱ្យជាប់​រយៈពេល 3 វិនាទី។"</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"ឧបករណ៍បញ្ជា Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"ឧបករណ៍​ដែល​អាច​ប្រើបាន"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"កំពុង​ស្វែងរក​ឧបករណ៍…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"បញ្ហា"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"កំពុងភ្ជាប់…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"បានភ្ជាប់"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"បានបោះបង់"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s មិនអាច​ភ្ជាប់​បានទេ"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"បានភ្ជាប់ %1$s"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"បានផ្ដាច់ %1$s"</string>
+</resources>

@@ -1,0 +1,28 @@
+typeattribute setupwraith_app coredomain;
+
+app_domain(setupwraith_app)
+
+# Access the network.
+net_domain(setupwraith_app)
+# Access bluetooth.
+bluetooth_domain(setupwraith_app)
+
+allow setupwraith_app app_api_service:service_manager find;
+allow setupwraith_app system_api_service:service_manager find;
+
+allow setupwraith_app audioserver_service:service_manager find;
+allow setupwraith_app mediaextractor_service:service_manager find;
+allow setupwraith_app mediametrics_service:service_manager find;
+allow setupwraith_app mediaserver_service:service_manager find;
+
+allow setupwraith_app postinstall_mnt_dir:dir getattr;
+allow setupwraith_app self:process ptrace;
+allow setupwraith_app shell_data_file:file r_file_perms;
+allow setupwraith_app shell_data_file:dir r_dir_perms;
+allow setupwraith_app shell_test_data_file:dir search;
+allow setupwraith_app system_linker_exec:file execute_no_trans;
+
+# Allow running subproc of DRM.
+allow setupwraith_app privapp_data_file:file execute;
+
+allow setupwraith_app privapp_data_file:lnk_file create_file_perms;

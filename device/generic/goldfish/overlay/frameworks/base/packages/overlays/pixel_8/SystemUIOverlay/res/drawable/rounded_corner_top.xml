@@ -1,0 +1,23 @@
+<!--
+    Copyright (C) 2023 The Android Open Source Project
+
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="128px"
+        android:height="128px"
+        android:viewportWidth="21.596"
+        android:viewportHeight="21.596">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="m0,21.596C0,18.555 -0.037,15.711 0.702,12.7c0.718,-2.927 2.092,-5.593 4.247,-7.749C7.105,2.796 9.772,1.421 12.699,0.703 15.711,-0.037 18.555,0 21.596,0H0v21.595Z"/>
+</vector>
+

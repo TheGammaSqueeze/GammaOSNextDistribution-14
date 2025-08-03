@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"您已按住返回按钮和向下按钮 3 秒钟，可以选择是否要使用<xliff:g id="SERVICE_0">%1$s</xliff:g>。\n\n如要立即启用<xliff:g id="SERVICE_1">%1$s</xliff:g>，请再次按住返回按钮和向下按钮 3 秒钟。您可以随时使用这组快捷键启用或停用<xliff:g id="SERVICE_2">%1$s</xliff:g>。\n\n您可以在“设置”&gt;“系统”&gt;“无障碍”中调整自己的偏好设置。"</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"开启这组快捷键后，同时按下返回按钮和向下按钮 3 秒钟即可启动所设置的无障碍功能。\n\n当前设置的无障碍功能：\n <xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n如要更改设置的功能，请依次转到“设置”&gt;“无障碍”。"</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"已按住返回按钮和向下按钮。<xliff:g id="SERVICE_NAME">%1$s</xliff:g>已开启。"</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"已按住返回按钮和向下按钮。<xliff:g id="SERVICE_NAME">%1$s</xliff:g>已关闭。"</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"您已按住返回按钮和向下按钮 3 秒钟，可以选择是否要使用<xliff:g id="SERVICE_0">%1$s</xliff:g>。如要立即启用<xliff:g id="SERVICE_1">%1$s</xliff:g>，请再次按住返回按钮和向下按钮 3 秒钟。您可以随时使用这组快捷键启用或停用<xliff:g id="SERVICE_2">%1$s</xliff:g>。"</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"您已按住返回按钮和向下按钮 3 秒钟，可以选择是否要使用<xliff:g id="SERVICE_0">%1$s</xliff:g>。\n\n如要立即启用<xliff:g id="SERVICE_1">%1$s</xliff:g>，请再次按住返回按钮和向下按钮 3 秒钟。\n您可以随时使用这组快捷键启用或停用<xliff:g id="SERVICE_2">%1$s</xliff:g>。\n\n您可以在“设置”&gt;“系统”&gt;“无障碍”中调整自己的偏好设置。"</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"以后再说"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"立即开启"</string>
+</resources>

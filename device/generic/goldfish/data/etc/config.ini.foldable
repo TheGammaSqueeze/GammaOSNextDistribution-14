@@ -1,0 +1,49 @@
+avd.ini.encoding=UTF-8
+disk.dataPartition.size=10G
+fastboot.forceColdBoot = yes
+hw.accelerometer=yes
+hw.audioInput=yes
+hw.battery=yes
+hw.camera.back=virtualscene
+hw.camera.front=emulated
+hw.dPad=no
+hw.gps=yes
+hw.gpu.enabled=yes
+hw.keyboard=yes
+hw.mainKeys=no
+hw.ramSize=4096
+hw.sensors.orientation=yes
+hw.sensors.proximity=yes
+hw.keyboard.lid=yes
+image.sysdir.1=x86/
+skin.dynamic=no
+
+#main display
+hw.lcd.density=480
+hw.cpu.ncore = 4
+hw.lcd.height=2208
+hw.lcd.width=1768
+
+#secondary display when folded
+hw.displayRegion.0.1.height = 2208
+hw.displayRegion.0.1.width = 884
+hw.displayRegion.0.1.xOffset = 0
+hw.displayRegion.0.1.yOffset = 0
+
+#foldable parameters
+hw.keyboard.lid=yes
+hw.sensor.hinge = yes
+## x-y-width-height format
+hw.sensor.hinge.areas = 884-0-1-2208
+hw.sensor.hinge.count = 1
+## default degree
+hw.sensor.hinge.defaults = 180
+hw.sensor.hinge.ranges = 0-180
+## fold=0 or hinge=1
+hw.sensor.hinge.sub_type = 1
+## horizontal==0 or vertical==1
+hw.sensor.hinge.type = 1
+## each angle range corresponds to the posture in the posture_list
+hw.sensor.hinge_angles_posture_definitions = 0-30, 30-150, 150-180
+## list of supported postures by index. 0: unknown, 1: closed, 2: half-open, 3: open, 4: flipped, 5: tent
+hw.sensor.posture_list = 1,2,3

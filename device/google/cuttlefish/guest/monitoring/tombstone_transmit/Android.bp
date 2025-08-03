@@ -1,0 +1,74 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "tombstone_transmit_defaults",
+    static_libs: [
+        "libgflags",
+        "libbase",
+        "libcutils",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    stl: "libc++_static",
+}
+
+cc_binary {
+    name: "tombstone_transmit",
+    srcs: [
+        "tombstone_transmit.cpp",
+    ],
+    static_libs: [
+        "libcuttlefish_fs",
+        "libcuttlefish_utils",
+    ],
+    defaults: [
+        "tombstone_transmit_defaults",
+        "cuttlefish_guest_product_only"
+    ],
+}
+
+// Same as tombstone_transmit, but place the binary in /system partition
+// We are using the binary for microdroid, which does not have /product partition
+cc_binary {
+    name: "tombstone_transmit.microdroid",
+    srcs: [
+        "tombstone_transmit.cpp",
+    ],
+    static_libs: [
+        "libcuttlefish_fs",
+        "libcuttlefish_utils",
+    ],
+    defaults: [
+        "tombstone_transmit_defaults",
+        "cuttlefish_base",
+    ],
+    cflags: [
+        "-DMICRODROID",
+    ],
+}
+
+cc_binary {
+    name: "tombstone_producer",
+    srcs: [
+        "tombstone_producer.cpp",
+    ],
+    defaults: ["cuttlefish_guest_product_only"],
+}

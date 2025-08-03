@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"பொருந்தாது"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"மிகவும் குறைவு"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"குறைவு"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"நன்று"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"ரிமோட் புதுப்பிப்பை உறுதிப்படுத்தவும்"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"புதுப்பிக்கப்படும்போது ரிமோட்டின் இணைப்பு சிறிதுநேரம் துண்டிக்கப்படலாம்."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"தொடர்க"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"ரத்துசெய்"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"ரிமோட் புதுப்பிப்பு"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"புதிய மென்பொருள் உள்ளது"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"புதுப்பிப்பு உள்ளது"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"ரிமோட் புதுப்பிக்கப்பட்ட நிலையிலுள்ளது"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"ரிமோட் புதுப்பிப்பு தோல்வியடைந்தது"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"உங்கள் ரிமோட்டைப் புதுப்பிப்பதில் சிக்கல் உள்ளது. மீண்டும் முயலவும்."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"காத்திருக்கவும்"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"ரிமோட்டை மீண்டும் இணைக்கவும்"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"இயக்கப்பட்டது"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"முடக்கப்பட்டது"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"பேட்டரி நிலை"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"நிலைபொருள்"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"புளூடூத் முகவரி"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"பேட்டரியை மாற்றவும்"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"பேட்டரி குறைவு"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"இணைக்கப்பட்டுள்ள சாதனங்கள்"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"ரிமோட்களும் துணைக்கருவிகளும்"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"ரிமோட்டைப் புதுப்பியுங்கள்"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"நிறுவுவதற்குத் தயார்"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"புதுப்பி"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"நிராகரி"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"ரிமோட் பேட்டரி குறைவாக உள்ளது"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"பேட்டரியை விரைவில் மாற்றவும்"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"ரிமோட் பேட்டரி காலியாகப் போகிறது"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"பேட்டரியை விரைவில் மாற்றவும்"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"ரிமோட் பேட்டரி காலியாகிவிட்டது"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"ரிமோட்டைப் பயன்படுத்த பேட்டரியை மாற்றவும்"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"சரி"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"வேண்டாம்"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s இலிருந்து இணைப்பை நீக்கு"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"%1$s உடன் இணை"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$sஐ அகற்று"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"இணைக்கப்பட்ட சாதனத்திற்கு மறுபெயரிடு"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CECயை இயக்கு"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC இயக்கப்பட்டுள்ள வேறு சாதனங்களை ரிமோட் கன்ட்ரோல் மூலம் கட்டுப்படுத்தவும் தானாகவே ஆன்/ஆஃப் செய்யவும் HDMI-CEC அனுமதிக்கும்.\n\nகவனத்திற்கு: டிவியிலும் பிற HDMI சாதனங்களிலும் HDMI-CEC இயக்கப்பட்டிருப்பதை உறுதிசெய்யவும். HDMI-CECக்கு ஒவ்வொரு தயாரிப்பாளரும் ஒவ்வொரு பெயரை வைத்திருப்பார், உதாரணமாக:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"ரிமோட் பட்டன்களை அமைத்தல்"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"டிவிகள், ரிசீவர்கள், சவுண்ட்பார்கள் ஆகியவற்றில் ஒலியளவையும் பவரையும் உள்ளீட்டையும் கட்டுப்படுத்தலாம்"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"எனது ரிமோட்டைக் கண்டறிதல்"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"உங்கள் Google TV ரிமோட்டைத் தவறுதலாக வேறொரு இடத்தில் வைத்திருந்தால் ஒலியை இயக்குவதன் மூலம் அதைக் கண்டறியலாம்"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Google TV ஸ்ட்ரீமரின் பின்புறம் உள்ள பட்டனை அழுத்துவதன் மூலம் உங்கள் ரிமோட்டில் 30 வினாடிகளுக்கு ஒலியை இயக்கலாம். Google TV ஸ்ட்ரீமர் வாய்ஸ் ரிமோட்டில் மட்டுமே இது செயல்படும்.\n\nஒலியை நிறுத்த உங்கள் ரிமோட்டில் ஏதேனும் ஒரு பட்டனை அழுத்துங்கள்."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"எனது ரிமோட்டைக் கண்டறிதல் அம்சம் இயக்கத்தில் இருக்கும்போது உங்கள் Google TV ரிமோட்டைத் தவறுதலாக வேறொரு இடத்தில் வைத்திருந்தால் ஒலியை இயக்கி அதைக் கண்டறியலாம்."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"ஒலியை இயக்கு"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"பேட்டரி நிலை: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"துணைக்கருவிகள்"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"ரிமோட் கன்ட்ரோல்"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"இணைக்கப்பட்டது"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"ஏற்கனவே இணைத்தவை"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"ரிமோட் அல்லது துணைக்கருவியை இணை"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"வெளியேறு"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"இணை"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"பெயர் மாற்று"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"அகற்று"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"டிவி ஆடியோவிற்குப் பயன்படுத்துதல்"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"இணைக்கப்பட்டது"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"துண்டிக்கப்பட்டது"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"சாதனக் கட்டுப்பாடு"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"புதிய சாதனத்தை இணைத்தல்"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"புதிய புளூடூத் சாதனங்களை இணைப்பதற்கு முன்பாக அவை இணைத்தல் பயன்முறையில் உள்ளனவா என்பதை உறுதிசெய்துகொள்ளவும். %1$s ஐ இணைக்க 3 வினாடிகளுக்கு %2$s + %3$s ஐ அழுத்திப் பிடித்திருக்கவும்."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV ரிமோட்"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"கிடைக்கும் சாதனங்கள்"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"சாதனங்களைத் தேடுகிறது…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"பிழை"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"இணைக்கிறது…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"இணைக்கப்பட்டது"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"ரத்துசெய்யப்பட்டது"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s ஐ இணைக்க முடியவில்லை"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s இணைக்கப்பட்டது"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s துண்டிக்கப்பட்டது"</string>
+</resources>

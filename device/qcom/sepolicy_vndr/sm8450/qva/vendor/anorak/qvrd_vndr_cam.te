@@ -1,0 +1,76 @@
+#Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+#SPDX-License-Identifier: BSD-3-Clause
+
+type vendor_qvrd_vndr_cam, domain, mlstrustedsubject;
+type vendor_qvrd_vndr_cam_exec, vendor_file_type, exec_type, file_type;
+
+init_daemon_domain(vendor_qvrd_vndr_cam)
+
+binder_service(vendor_qvrd_vndr_cam)
+
+hal_server_domain(vendor_qvrd_vndr_cam, vendor_hal_qvrcamservice_qti)
+hal_attribute_service(vendor_hal_qvrcamservice_qti, vendor_hal_qvrd_camservice)
+
+allow vendor_qvrd_vndr_cam vendor_hal_qvrcamservice_qti_socket_client:unix_stream_socket { getopt read setopt shutdown write };
+allow vendor_hal_qvrcamservice_qti_socket_fd_use_client vendor_qvrd_vndr_cam: fd use;
+
+binder_use(vendor_qvrd_vndr_cam);
+
+# Allow access to our socket
+allow vendor_qvrd_vndr_cam vendor_qvrd_vndr_camera_socket:sock_file rw_file_perms;
+allow vendor_qvrd_vndr_cam vendor_qvrd_vndr_socket:sock_file rw_file_perms;
+allow vendor_qvrd_vndr_cam vendor_qvrd_vndr:unix_stream_socket connectto;
+allow vendor_qvrd_vndr_cam vendor_qvrd_vndr:fd use;
+allow vendor_qvrd_vndr_cam self:capability sys_nice;
+
+# qvrcam properties
+get_prop(vendor_qvrd_vndr_cam, vendor_qvr_prop)
+get_prop(vendor_qvrd_vndr_cam, vendor_sxr_prop)
+get_prop(vendor_qvrd_vndr_cam, vendor_qvrd_prop)
+get_prop(vendor_qvrd_vndr_cam, vendor_qvr_persist_prop)
+get_prop(vendor_qvrd_vndr_cam, vendor_qvrd_persist_prop)
+
+# Allow access with qvrd_vndr directory
+allow vendor_qvrd_vndr_cam vendor_qvrd_vndr_data_file:dir rw_dir_perms;
+allow vendor_qvrd_vndr_cam vendor_qvrd_vndr_data_file:file { rw_file_perms create };
+
+#
+# Camera
+#
+get_prop(vendor_qvrd_vndr_cam, vendor_camera_prop)
+allow vendor_qvrd_vndr_cam vendor_camera_data_file:dir create_dir_perms;
+allow vendor_qvrd_vndr_cam vendor_camera_data_file:file create_file_perms;
+
+# Allow access to ADSP & SLPI
+allow vendor_qvrd_vndr_cam vendor_xdsp_device:chr_file r_file_perms;
+allow vendor_qvrd_vndr_cam dmabuf_system_heap_device:chr_file r_file_perms;
+
+#
+# Sensors
+#
+allow vendor_qvrd_vndr_cam self:qipcrtr_socket { create getattr write read setopt };
+
+#
+# Perfd
+#
+hal_client_domain(vendor_qvrd_vndr_cam, vendor_hal_perf)
+
+# Allow access thermal
+unix_socket_connect(vendor_qvrd_vndr_cam, vendor_thermal, vendor_thermal-engine)
+
+#Allow hal graphics mapper permissions
+hal_client_domain(vendor_qvrd_vndr_cam, hal_graphics_composer);
+
+#Allow hal graphics allocator permissions
+hal_client_domain(vendor_qvrd_vndr_cam, hal_graphics_allocator);
+
+get_prop(vendor_qvrd_vndr_cam, aac_drc_prop)
+get_prop(vendor_qvrd_vndr_cam, ab_update_gki_prop)
+
+allow vendor_qvrd_vndr_cam { gpu_device sensors_device }:chr_file r_file_perms;
+allow vendor_qvrd_vndr_cam video_device:chr_file rw_file_perms;
+
+allow vendor_qvrd_vndr_cam proc_uptime:file r_file_perms;
+crash_dump_fallback(vendor_qvrd_vndr_cam);
+
+allow vendor_qvrd_vndr_cam appdomain:process setsched;

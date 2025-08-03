@@ -1,0 +1,6 @@
+service android-hardware-media-c2-goldfish-hal-1-0 /vendor/bin/hw/android.hardware.media.c2@1.0-service-goldfish
+    class hal
+    user media
+    group mediadrm drmrpc
+    ioprio rt 4
+    task_profiles ProcessCapacityHigh

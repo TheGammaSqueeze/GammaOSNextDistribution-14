@@ -1,0 +1,5 @@
+#  Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
+#  SPDX-License-Identifier: BSD-3-Clause-Clear
+
+#Add new domain for nordic service app
+user=_app seinfo=platform name=com.kineticsxr.service.nordic.bridge domain=vendor_nordic_app type=app_data_file levelFrom=all

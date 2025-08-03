@@ -1,0 +1,2 @@
+config=minidroid
+gfxstream=supported

@@ -1,0 +1,28 @@
+#####################################
+# rw_dir_file(domain, type)
+# Allow the specified domain to read directories and read/write files
+# and symbolic links of the specified type.
+define(`rw_dir_file', `
+allow $1 $2:dir r_dir_perms;
+allow $1 $2:{ file lnk_file } rw_file_perms;
+')
+
+#####################################
+# create_dir_file(domain, type)
+# Allow the specified domain to read directories and create files
+# and symbolic links of the specified type.
+define(`create_dir_file', `
+allow $1 $2:dir r_dir_perms;
+allow $1 $2:{ file lnk_file } create_file_perms;
+')
+
+#####################################
+# hal_attribute_lineage(hal_name)
+define(`hal_attribute_lineage', `
+attribute hal_$1;
+expandattribute hal_$1 true;
+attribute hal_$1_client;
+expandattribute hal_$1_client true;
+attribute hal_$1_server;
+expandattribute hal_$1_server false;
+')

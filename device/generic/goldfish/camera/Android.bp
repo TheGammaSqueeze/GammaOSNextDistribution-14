@@ -1,0 +1,88 @@
+/*
+ * Copyright (C) 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "android.hardware.camera.provider.ranchu",
+    vendor: true,
+    relative_install_path: "hw",
+    init_rc: ["android.hardware.camera.provider.ranchu.rc"],
+    vintf_fragments: ["android.hardware.camera.provider.ranchu.xml"],
+    srcs: [
+        "abc3d.cpp",
+        "acircles_pattern_512_512.cpp",
+        "AFStateMachine.cpp",
+        "AutoNativeHandle.cpp",
+        "CachedStreamBuffer.cpp",
+        "CameraDevice.cpp",
+        "CameraDeviceSession.cpp",
+        "CameraProvider.cpp",
+        "converters.cpp",
+        "exif.cpp",
+        "FakeRotatingCamera.cpp",
+        "HwCamera.cpp",
+        "jpeg.cpp",
+        "list_fake_rotating_cameras.cpp",
+        "list_qemu_cameras.cpp",
+        "main.cpp",
+        "metadata_utils.cpp",
+        "QemuCamera.cpp",
+        "qemu_channel.cpp",
+        "StreamBufferCache.cpp",
+        "service_entry.cpp",
+        "utils.cpp",
+        "yuv.cpp",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder",
+        "libbinder_ndk",
+        "libcamera_metadata",
+        "libcutils",
+        "libEGL",
+        "libexif",
+        "libfmq",
+        "libGLESv2",
+        "libgralloctypes",
+        "libjpeg",
+        "liblog",
+        "libprocessgroup",
+        "libsync",
+        "libui",
+        "libutils",
+    ],
+    static_libs: [
+        "android.hardware.common-V2-ndk",
+        "android.hardware.common.fmq-V1-ndk",
+        "android.hardware.camera.common-V1-ndk",
+        "android.hardware.camera.device-V1-ndk",
+        "android.hardware.camera.provider-V1-ndk",
+        "libaidlcommonsupport",
+        "libqemud.ranchu",
+        "libqemupipe.ranchu",
+        "libyuv_static",
+    ],
+    header_libs: [
+        "libdebug.ranchu",
+        "libgralloc_cb.ranchu",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"camera.provider.ranchu\"",
+    ],
+}

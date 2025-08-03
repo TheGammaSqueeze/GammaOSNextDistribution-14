@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <add-resource name="numeric_to_operator" type="array"/>
+    <string-array name="numeric_to_operator">
+        <item numeric="310260">T-Mobile=TMOBILE</item>
+    </string-array>
+</resources>

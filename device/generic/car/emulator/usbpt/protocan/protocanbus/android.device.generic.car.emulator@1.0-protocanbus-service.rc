@@ -1,0 +1,4 @@
+service vendor.vehiclebus-hal-1.0-protocanbus /vendor/bin/hw/android.device.generic.car.emulator@1.0-protocanbus-service
+    class hal
+    user vehicle_network
+    group system inet

@@ -1,0 +1,42 @@
+{
+    "apiVersion": 1,
+    "properties": [
+        {
+            "property": "VehicleProperty::PERF_VEHICLE_SPEED",
+            "defaultValue": {
+                "floatValues": [
+                    50.0
+                ]
+            },
+            "maxSampleRate": 10.0,
+            "minSampleRate": 1.0
+        },
+        {
+            "property": "VehicleProperty::GEAR_SELECTION",
+            "defaultValue": {
+                "int32Values": [
+                    "VehicleGear::GEAR_DRIVE"
+                ]
+            },
+            "configArray": [
+                "VehicleGear::GEAR_PARK",
+                "VehicleGear::GEAR_NEUTRAL",
+                "VehicleGear::GEAR_REVERSE",
+                "VehicleGear::GEAR_DRIVE",
+                "VehicleGear::GEAR_1",
+                "VehicleGear::GEAR_2",
+                "VehicleGear::GEAR_3",
+                "VehicleGear::GEAR_4",
+                "VehicleGear::GEAR_5"
+            ]
+        },
+        {
+            "property": "VehicleProperty::PARKING_BRAKE_ON",
+            "defaultValue": {
+                "int32Values": [
+                    0
+                ]
+            }
+        }
+    ]
+}

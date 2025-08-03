@@ -1,0 +1,92 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_google_contexthub_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_google_contexthub_license"],
+}
+
+cc_defaults {
+    name: "contexthub_libs_default",
+    relative_install_path: "hw",
+    srcs: [
+        "nanohubhal.cpp",
+        "nanohubhal_default.cpp",
+        "system_comms.cpp",
+    ],
+    cflags: ["-Wall", "-Werror", "-Wextra"],
+    shared_libs: [
+        "libcutils",
+        "libjsoncpp",
+        "liblog",
+        "libstagefright_foundation",
+        "libutils",
+    ],
+    static_libs: [
+        "libhubutilcommon",
+    ],
+    header_libs: [
+        "libnanohub_common_headers",
+        "libhardware_headers",
+    ],
+    vendor: true,
+}
+
+cc_defaults {
+    name: "contexthub_hidl_libs_default",
+    srcs: [
+        "NanohubHidlAdapter.cpp",
+    ],
+    shared_libs: [
+        "libhidlbase",
+        "android.hardware.contexthub@1.0",
+    ],
+}
+
+cc_library_shared {
+    name: "context_hub.default",
+    srcs: [
+        "legacyhal.cpp",
+    ],
+    defaults: [
+        "contexthub_libs_default",
+    ],
+}
+
+cc_library_shared {
+    name: "android.hardware.contexthub@1.0-impl.nanohub",
+    shared_libs: [
+        "libbase",
+    ],
+    defaults: [
+        "contexthub_libs_default",
+        "contexthub_hidl_libs_default",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.contexthub@1.0-service.nanohub",
+    init_rc: ["android.hardware.contexthub@1.0-service.nanohub.rc"],
+    srcs: [
+        "service.cpp",
+    ],
+    defaults: [
+        "contexthub_libs_default",
+        "contexthub_hidl_libs_default",
+    ],
+}

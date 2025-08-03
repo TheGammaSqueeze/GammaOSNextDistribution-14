@@ -1,0 +1,5 @@
+service vendor.light-cuttlefish /apex/com.google.cf.light/bin/hw/android.hardware.light-service.cuttlefish
+    class hal
+    user nobody
+    group nobody
+    shutdown critical

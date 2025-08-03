@@ -1,0 +1,54 @@
+STMicroelectronics acc44 accelerometer sensor device driver for Google nanohub.
+The driver uses the device in high-resolution mode  with FS=8g.
+
+This drivers support following devices:
+    - LIS2DW12
+
+- Supported features:
+
+A. Reports accelerometer data
+B. Different data rates:
+C. I2C protocol
+D. Data ready reported by interrupt
+
+
+- Platform/variant porting:
+
+The driver requires that following macros are defined in the variant.h
+file of the specific variant:
+
+  ST_ACC44_I2C_BUS_ID    /* specify I2C Bus ID */
+  ST_ACC44_I2C_SPEED     /* specify I2C Bus speed in hz */
+  ST_ACC44_I2C_ADDR      /* specify device I2C address */
+
+  ST_ACC44_INT_PIN       /* specify the gpio used for the DRDY irq */
+  ST_ACC44_INT_IRQ       /* specify the exti interrupt of ST_ACC44_INT_PIN */
+
+  ST_ACC44_TO_ANDROID_COORDINATE(x, y, z)
+                         /* specify how axis has to be rotated according to variant platform
+                          * orientation.
+                          */
+
+Example:
+
+  /*
+   * Define platform/variant dependent ST_ACC44 device macros
+   */
+  #define ST_ACC44_DBG_ENABLED 1
+
+  /* I2C defs to be used when device is plugged to I2C bus */
+  #define ST_ACC44_I2C_BUS_ID      0
+  #define ST_ACC44_I2C_SPEED       400000
+  #define ST_ACC44_I2C_ADDR        0x19
+
+  #define ST_ACC44_INT_PIN         GPIO_PC(5)
+  #define ST_ACC44_INT_IRQ         EXTI9_5_IRQn
+
+#define ST_ACC44_TO_ANDROID_COORDINATE(x, y, z)   \
+    do {                                        \
+        float xi = x, yi = y, zi = z;           \
+        x = xi; y = yi; z = zi;                 \
+    } while (0)
+
+If these macros are not defined in the current variant the driver forces a compilation
+error.

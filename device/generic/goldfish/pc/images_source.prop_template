@@ -1,0 +1,11 @@
+Pkg.Desc=System Image ${TARGET_CPU_ABI}.
+Pkg.Revision=1
+Pkg.Dependencies=emulator#33.1.19
+AndroidVersion.ApiLevel=${PLATFORM_SDK_VERSION}
+AndroidVersion.CodeName=${PLATFORM_VERSION_CODENAME}
+SystemImage.Abi=${TARGET_CPU_ABI}
+SystemImage.TagId=android-desktop
+SystemImage.TagDisplay=Desktop
+SystemImage.GpuSupport=true
+Addon.VendorId=google
+Addon.VendorDisplay=Google Inc.

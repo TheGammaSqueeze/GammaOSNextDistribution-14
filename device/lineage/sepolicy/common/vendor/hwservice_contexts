@@ -1,0 +1,3 @@
+# The following hwservices are supposed to be registered by blobs through hexedit; Keep string length the same.
+lineage.hardware.radio::IRadio                                          u:object_r:hal_lineage_backend_radio_hwservice:s0
+lineage.hardware.radio.config::IRadioConfig                             u:object_r:hal_lineage_backend_radio_config_hwservice:s0

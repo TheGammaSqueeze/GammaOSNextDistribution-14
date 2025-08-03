@@ -1,0 +1,12 @@
+/* Copyright 2020 Google Inc. All Rights Reserved. */
+
+package device.google.atv.audio_proxy@5.1;
+
+import @5.0::IAudioProxyDevicesManager;
+
+/**
+ * See @5.0::IAudioProxyDevicesManager for more details.
+ * New in 5.1:
+ * -- Client may call registerDevice with @5.1::IBusDevice.
+ */
+interface IAudioProxyDevicesManager extends @5.0::IAudioProxyDevicesManager {};

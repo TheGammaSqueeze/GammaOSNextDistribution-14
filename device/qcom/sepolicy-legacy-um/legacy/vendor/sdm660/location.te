@@ -1,0 +1,10 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+# generic/vendor_location.te - sepolicy rules for generic vendor_location modules
+
+# allows location to access ssgtzd socket
+allow location ssgtzd_socket:sock_file write;
+
+# /data/vendor/wifi
+allow location wifi_vendor_data_file:dir rw_dir_perms;

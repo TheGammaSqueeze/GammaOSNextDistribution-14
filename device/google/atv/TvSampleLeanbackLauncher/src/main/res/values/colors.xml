@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2016 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+
+<resources>
+    <color name="preference_item_banner_background">#455a64</color>
+
+    <color name="primary_text_color">#e5e5e5</color>
+    <color name="secondary_text_color">#787b7f</color>
+
+    <color name="notification_text_color">#787b7f</color>
+    <color name="notification_background">#FFCCCCCC</color>
+    <color name="notification_heads_up_decorator">#1784d7</color>
+    <color name="notification_heads_up_background">#c0000000</color>
+
+    <color name="notification_panel_background">#263238</color>
+    <color name="notification_selection_color">#26eeeeee</color>
+    <color name="notification_dimiss_text_color">#b2eeeeee</color>
+    <color name="notification_icon_tint">#FFFFFF</color>
+    <color name="notification_expanded_text_background">#0aeeeeee</color>
+    <color name="notification_progress_stroke_color">#17ffff</color>
+    <color name="notification_progress_stroke_max_color">#3317ffff</color>
+</resources>

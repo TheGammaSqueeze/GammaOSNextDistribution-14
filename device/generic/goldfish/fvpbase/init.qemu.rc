@@ -1,0 +1,7 @@
+on fs
+    mount_all /vendor/etc/fstab.qemu
+
+on early-init
+    setprop ro.hardware.gralloc minigbm
+    setprop ro.hardware.hwcomposer drm_minigbm
+    setprop ro.sf.lcd_density 150

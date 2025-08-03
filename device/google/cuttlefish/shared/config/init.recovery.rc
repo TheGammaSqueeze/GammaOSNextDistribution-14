@@ -1,0 +1,11 @@
+service console /system/bin/sh
+    class core
+    console
+    disabled
+    user root
+    group root shell log readproc
+    seclabel u:r:su:s0
+    setenv HOSTNAME console
+
+on property:ro.debuggable=1
+    start console

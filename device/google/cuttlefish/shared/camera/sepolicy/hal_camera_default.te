@@ -1,0 +1,22 @@
+vndbinder_use(hal_camera_default)
+
+hal_client_domain(hal_camera_default, hal_graphics_allocator)
+
+# For camera hal to talk with sensor service
+binder_call(hal_camera_default, sensor_service_server)
+binder_call(sensor_service_server, hal_camera_default)
+
+# Allow the Camera HAL to communicate with the thermal HAL.
+hal_client_domain(hal_camera_default, hal_thermal)
+
+# Vsocket camera
+allow hal_camera_default self:vsock_socket { accept bind create getopt listen read write };
+
+set_prop(hal_camera_default, vendor_camera_prop)
+
+# For observing apex file changes
+allow hal_camera_default apex_info_file:file r_file_perms;
+
+# Allow vendor files to define their own config.
+set_prop(vendor_init, vendor_camera_config)
+get_prop(domain, vendor_camera_config)

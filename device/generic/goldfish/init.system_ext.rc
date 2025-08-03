@@ -1,0 +1,8 @@
+on property:init.svc.ranchu-adb-setup=stopped
+    start adbd
+
+on property:init.svc.qemu-device-state=stopped && property:ro.boot.qemu.device_state=*
+    mkdir /data/system/devicestate/ 0755 system system
+    copy /data/vendor/devicestate/device_state_configuration.xml /data/system/devicestate/device_state_configuration.xml
+    rm /data/vendor/devicestate/device_state_configuration.xml
+    chown system system /data/system/devicestate/device_state_configuration.xml

@@ -1,0 +1,9 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+# generic/vendor_hal_gnss_qti.te - generic sepolicy rules for vendor_location hidl
+
+#Allow Gnss HAL to access ril socket
+allow hal_gnss_qti vendor_rild_socket:dir search;
+allow hal_gnss_qti vendor_rild_socket:sock_file write;
+unix_socket_connect(hal_gnss_qti, rild, rild)

@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+runtime_resource_overlay {
+    name: "TvNetworkStackOverlay",
+    certificate: "platform",
+    resource_dirs: ["res"],
+    product_specific: true,
+    sdk_version: "current",
+}
+
+override_runtime_resource_overlay {
+    name: "TvInProcessNetworkStackOverlay",
+    base: "TvNetworkStackOverlay",
+    package_name: "com.android.tv.overlay.networkstack.inprocess",
+    target_package_name: "com.android.networkstack.inprocess",
+}

@@ -1,0 +1,5 @@
+# Aux camera allow/excludelist prop
+system_vendor_config_prop(vendor_persist_camera_prop)
+
+# xtra-daemon control
+system_restricted_prop(xtra_control_prop)

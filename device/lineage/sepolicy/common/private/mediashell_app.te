@@ -1,0 +1,36 @@
+# Domains needed by mediashell_app
+
+type mediashell_app, domain, coredomain;
+
+app_domain(mediashell_app);
+net_domain(mediashell_app);
+bluetooth_domain(mediashell_app);
+
+# Find services that expose both @SystemAPI and normal APIs.
+allow mediashell_app app_api_service:service_manager find;
+allow mediashell_app system_api_service:service_manager find;
+
+allow mediashell_app audioserver_service:service_manager find;
+allow mediashell_app cameraserver_service:service_manager find;
+allow mediashell_app drmserver_service:service_manager find;
+allow mediashell_app mediadrmserver_service:service_manager find;
+allow mediashell_app mediaextractor_service:service_manager find;
+allow mediashell_app mediametrics_service:service_manager find;
+allow mediashell_app mediaserver_service:service_manager find;
+allow mediashell_app network_watchlist_service:service_manager find;
+allow mediashell_app nfc_service:service_manager find;
+allow mediashell_app radio_service:service_manager find;
+
+# Chromium provides infrastructure to load flags from a static file path for
+# testing purposes. Allow this on debug/eng builds only.
+userdebug_or_eng(`
+   allow mediashell_app shell_data_file:file r_file_perms;
+   allow mediashell_app shell_data_file:dir r_dir_perms;
+')
+
+# MediaShell's Chromium crashpad uses the dynamic linker to load native
+# executables from an APK on Q+ and ptrace to report logs to Google Home App.
+allow mediashell_app system_linker_exec:file execute_no_trans;
+allow mediashell_app self:process ptrace;
+
+allow mediashell_app audioserver:fifo_file { write };

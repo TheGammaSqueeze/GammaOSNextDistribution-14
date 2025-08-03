@@ -1,0 +1,36 @@
+Allocation of GPIOs and EXTI interrupts
+
+PA0   WAKEUP     EXTI0_IRQn
+PA1   WIRQ1
+PA2   SW_USR     EXTI2_IRQn (connected to INT_HUM too, but Humidity driver does not use it)
+PA3   WIRQ2
+PA4   SPI1_NSS   (slave)
+PA5   SPI1_SCK   (slave)
+PA6   SPI1_MISO  (slave)
+PA7   SPI1_MOSI  (slave)
+PA8   I2C3_SCL
+PA9   UART1_TX
+PA10  UART1_RX
+PA11  EXT_GPIO0  EXTI15_10_IRQn
+PA12  EXT_GPIO1  EXTI15_10_IRQn
+PA13  SWDIO
+PA14  SWCLK
+PA15  INT_BARO   EXTI15_10_IRQn
+
+PB0   I2S5_CK
+PB1   INT_ACCG   EXTI1_IRQn
+PB2   LED1       (at reset it is used in input as BOOT1)
+PB3   INT_ALS    EXTI3_IRQn
+PB4   I2C3_SDA
+PB5   INT_HALL   EXTI9_5_IRQn
+PB6   I2C1_SCL   (slave)
+PB7   I2C1_SDA   (slave)
+PB8   I2S5_SD
+PB9   I2C2_SDA
+PB10  I2C2_SCL
+PB12  SPI2_NSS
+PB13  SPI2_SCK
+PB14  SPI2_MISO
+PB15  SPI2_MOSI
+
+PC13  LED0

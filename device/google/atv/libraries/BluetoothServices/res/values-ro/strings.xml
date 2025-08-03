@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Nu este cazul"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Critic"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Scăzut"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Bun"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Confirmă actualizarea telecomenzii"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"În timpul actualizării, este posibil ca telecomanda să se deconecteze temporar."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Continuă"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Anulează"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Actualizarea telecomenzii"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Software nou disponibil"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Actualizare disponibilă"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Telecomanda este actualizată"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Nu s-a putut actualiza telecomanda"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Am întâmpinat o problemă la actualizarea telecomenzii. Încearcă din nou."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Așteaptă"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Asociază din nou telecomanda"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Activat"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Dezactivat"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Nivelul bateriei"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Firmware"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Adresă Bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Înlocuiește bateria"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Nivel scăzut al bateriei"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Dispozitive conectate"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Telecomenzi și accesorii"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Actualizează telecomanda"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Gata de instalare"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"ACTUALIZEAZĂ"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"ÎNCHIDE"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Nivel scăzut al bateriei telecomenzii"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Înlocuiește bateria în curând"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Bateria telecomenzii este aproape descărcată"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Înlocuiește bateria în curând"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Bateria telecomenzii este descărcată"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Înlocuiește bateria pentru a folosi telecomanda"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Da"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Nu"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Deconectează de la %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Conectează-te la %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Elimină %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Redenumește dispozitivul conectat"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Activează HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC îți permite să controlezi și să pornești/oprești alte dispozitive compatibile HDMI-CEC cu o singură telecomandă.\n\nNotă: Asigură-te că HDMI-CEC este activat pe televizor și pe alte dispozitive HDMI. Producătorii au adesea nume diferite pentru HDMI-CEC, de exemplu:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Configurează butoanele telecomenzii"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Controlează volumul, alimentarea și intrarea pentru televizoare, receivere și bare de sunet"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Găsește-mi telecomanda"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Redă un sunet ca să-ți găsești telecomanda Google TV dacă ai pierdut-o"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Apasă butonul din spatele dispozitivului Google TV Streamer ca să redai un sunet pe telecomandă timp de 30 de secunde. Acest lucru funcționează doar cu o telecomandă vocală Google TV Streamer.\n\nCa să oprești sunetul, apasă orice buton de pe telecomandă."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Când se activează funcția Găsește-mi telecomanda, poți reda un sunet ca să-ți găsești telecomanda Google TV dacă ai pierdut-o."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Redă un sunet"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Nivelul bateriei: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Accesorii"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Telecomandă"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Conectat"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Conectat anterior"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Asociază telecomanda sau accesoriul"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Deconectează"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Conectează"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Redenumește"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Elimină"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Folosește pentru conținut audio de la TV"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Conectat"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Deconectat"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Controlul dispozitivului"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Conectează un nou dispozitiv"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Înainte de a conecta noi dispozitive prin Bluetooth, verifică dacă acestea se află în modul de conectare. Pentru a conecta %1$s, apasă lung %2$s + %3$s timp de trei secunde."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"o telecomandă pentru Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Dispozitive disponibile"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Se caută dispozitive…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Eroare"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Se conectează…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Conectată"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Anulată"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s nu s-a putut conecta"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s s-a conectat"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s s-a deconectat"</string>
+</resources>

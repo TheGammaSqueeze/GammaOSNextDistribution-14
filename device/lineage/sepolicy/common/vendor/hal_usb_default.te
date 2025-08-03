@@ -1,0 +1,7 @@
+allow hal_usb_default configfs:dir create_dir_perms;
+allow hal_usb_default configfs:file create_file_perms;
+
+allow hal_usb_default proc_deny_new_usb:file w_file_perms;
+allow hal_usb_default sysfs_usb_data_enabled:file w_file_perms;
+
+allow hal_usb_default self:capability sys_admin;

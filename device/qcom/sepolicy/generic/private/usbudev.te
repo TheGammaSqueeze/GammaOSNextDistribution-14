@@ -1,0 +1,16 @@
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+#============= vendor_usbudev_qti ==============
+type vendor_usbudev_qti, domain, coredomain;
+type vendor_usbudev_qti_exec, system_file_type, exec_type, file_type;
+
+init_daemon_domain(vendor_usbudev_qti)
+allow vendor_usbudev_qti self:netlink_kobject_uevent_socket { bind create getopt read setopt };
+allow vendor_usbudev_qti toolbox_exec:file  rx_file_perms;
+allow vendor_usbudev_qti self:capability net_admin;
+allow vendor_usbudev_qti self:netlink_route_socket { bind create getattr setopt nlmsg_write read write };
+allow vendor_usbudev_qti self:udp_socket {create_socket_perms};
+allowxperm vendor_usbudev_qti self:udp_socket ioctl { SIOCSIFFLAGS  SIOCSIFADDR SIOCSIFNETMASK };
+allow vendor_usbudev_qti shell_exec:file { rx_file_perms };
+allow vendor_usbudev_qti system_file:file execute_no_trans;

@@ -1,0 +1,112 @@
+//
+// Copyright (C) 2011 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["device_generic_goldfish_audio_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "device_generic_goldfish_audio_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "android.hardware.audio@7.x-impl.ranchu_default",
+    vendor: true,
+    relative_install_path: "hw",
+    defaults: ["hidl_defaults"],
+    srcs: [
+        "entry.cpp",
+        "device_factory.cpp",
+        "primary_device.cpp",
+        "stream_common.cpp",
+        "stream_in.cpp",
+        "stream_out.cpp",
+        "io_thread.cpp",
+        "device_port_source.cpp",
+        "device_port_sink.cpp",
+        "talsa.cpp",
+        "ring_buffer.cpp",
+        "audio_ops.cpp",
+        "util.cpp",
+    ],
+    shared_libs: [
+        "android.hardware.audio@7.0",
+        "android.hardware.audio@7.0-util",
+        "android.hardware.audio.common@7.0",
+        "android.hardware.audio.common@7.0-util",
+        "libaudioutils",
+        "libbase",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libtinyalsav2",
+        "libutils",
+        "libfmq",
+        "libprocessgroup",
+    ],
+    header_libs: [
+        "android.hardware.audio.common.util@all-versions",
+        "libaudio_system_headers",
+        "libdebug.ranchu",
+    ],
+    cflags: [
+        "-include common/all-versions/VersionMacro.h",
+    ],
+}
+
+cc_library_shared {
+    name: "android.hardware.audio.legacy@7.1-impl.ranchu",
+    defaults: ["android.hardware.audio@7.1-impl_default"],
+    relative_install_path: "hw",
+    vendor: true,
+}
+
+cc_library_shared {
+    name: "android.hardware.audio@7.1-impl.ranchu",
+    defaults: ["android.hardware.audio@7.x-impl.ranchu_default"],
+    vintf_fragments: ["android.hardware.audio@7.1-impl.ranchu.xml"],
+    shared_libs: [
+        "android.hardware.audio@7.1",
+        "android.hardware.audio.common@7.1-enums",
+    ],
+    cflags: [
+        "-DLOG_TAG=\"android.hardware.audio@7.1-impl.ranchu\"",
+        "-DMAJOR_VERSION=7",
+        "-DMINOR_VERSION=1",
+        "-DCOMMON_TYPES_MINOR_VERSION=0",
+        "-DCORE_TYPES_MINOR_VERSION=0",
+    ],
+    // a.h.audio@X.Y-impl.ranchu (see above) loads a.h.audio.legacy@X.Y-impl
+    // which loads:
+    //  - audio.r_submix.default which provides the r_submix device (b/161485545)
+    //  - audio.bluetooth.default which provides the bluetooth device (b/228804498)
+    // This should be retired once we don't need to load the
+    // deprecated libhardware modules listed above.
+    //
+    required: [
+        "android.hardware.audio.legacy@7.1-impl.ranchu",
+        "audio.r_submix.default",
+        "audio.bluetooth.default",
+    ],
+}

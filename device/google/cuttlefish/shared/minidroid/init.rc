@@ -1,0 +1,203 @@
+# Copyright (C) 2021 The Android Open Source Project
+#
+# init.rc for minidroid.
+#
+# IMPORTANT: Do not create world writable files or directories.
+# This is a common source of Android security bugs.
+#
+
+import /init.environ.rc
+import /system/etc/init/mdnsd.rc
+import /system/etc/init/servicemanager.rc
+import /system/etc/init/logd.rc
+# TODO(b/267320398): this file does not exist in -user builds, but init can
+# continue despite that. Remove the import once we can rely on .rc files from
+# /system/etc/init getting loaded automatically.
+import /system/etc/init/logcatd.rc
+import /vendor/etc/init/seriallogging.rc
+
+# Cgroups are mounted right before early-init using list from /etc/cgroups.json
+on early-init
+    # set RLIMIT_NICE to allow priorities from 19 to -20
+    setrlimit nice 40 40
+
+    start ueventd
+
+on init
+    mkdir /mnt/apk 0755 system system
+    mkdir /mnt/extra-apk 0755 root root
+
+    # Mount binderfs
+    mkdir /dev/binderfs
+    mount binder binder /dev/binderfs stats=global
+    chmod 0755 /dev/binderfs
+
+    symlink /dev/binderfs/binder /dev/binder
+    symlink /dev/binderfs/hwbinder /dev/hwbinder
+    symlink /dev/binderfs/vndbinder /dev/vndbinder
+
+    chmod 0666 /dev/binderfs/hwbinder
+    chmod 0666 /dev/binderfs/binder
+    chmod 0666 /dev/binderfs/vndbinder
+
+    # create an empty ld.config.txt before running any non-static exectuables
+    # (apexd and linkerconfig) to suppress "ld.config.txt not found" warnings.
+    write /linkerconfig/ld.config.txt \#
+    chmod 644 /linkerconfig/ld.config.txt
+
+    # Start logd before any other services run to ensure we capture all of their logs.
+    start logd
+
+    # TODO: minidroid does not use microdroid_manager. If/when this is fixed
+    # align this change and others related to microdroid_manager back to the
+    # microdroid init.rc
+    start apexd-vm
+
+    # restorecon so microdroid_manager can create subdirectories
+    restorecon /mnt/extra-apk
+
+    # Wait for apexd to finish activating APEXes before starting more processes.
+    # Note that minidroid starts apexd in VM mode in which apexd doesn't wait for init after setting
+    # apexd.status to activated, but immediately transitions to ready. Therefore, it's not safe to
+    # wait for the activated status, by the time this line is reached it may be already be ready.
+    wait_for_prop apexd.status ready
+    perform_apex_config --bootstrap
+
+    # Notify to microdroid_manager that perform_apex_config is done.
+    # Microdroid_manager shouldn't execute payload before this, because app
+    # payloads are not designed to run with bootstrap bionic
+    setprop apex_config.done true
+
+    setprop ro.debuggable ${ro.boot.microdroid.debuggable:-0}
+    start servicemanager
+
+on property:dev.bootcomplete=1
+    # Stop ueventd to save memory
+    stop ueventd
+
+on init && property:ro.boot.microdroid.debuggable=1
+    # Mount tracefs (with GID=AID_READTRACEFS)
+    mount tracefs tracefs /sys/kernel/tracing gid=3012
+
+on init && property:ro.boot.adb.enabled=1
+    start adbd
+
+# Mount filesystems and start core system services.
+on late-init
+    trigger early-fs
+
+    # Mount fstab in init.{$device}.rc by mount_all command. Optional parameter
+    # '--early' can be specified to skip entries with 'latemount'.
+    # /system and /vendor must be mounted by the end of the fs stage,
+    # while /data is optional.
+    trigger fs
+    trigger post-fs
+
+    # Mount fstab in init.{$device}.rc by mount_all with '--late' parameter
+    # to only mount entries with 'latemount'. This is needed if '--early' is
+    # specified in the previous mount_all command on the fs stage.
+    # With /system mounted and properties form /system + /factory available,
+    # some services can be started.
+    trigger late-fs
+
+    trigger post-fs-data
+
+    # Load persist properties and override properties (if enabled) from /data.
+    trigger load_persist_props_action
+
+    trigger early-boot
+    trigger boot
+
+on post-fs
+    # Once everything is setup, no need to modify /.
+    # The bind+remount combination allows this to work in containers.
+    mount rootfs rootfs / remount bind ro nodev
+
+    # TODO(b/185767624): change the hard-coded size?
+    mount tmpfs tmpfs /data noatime nosuid nodev rw size=128M
+
+    # We chown/chmod /data again so because mount is run as root + defaults
+    chown system system /data
+    chmod 0771 /data
+
+    # We restorecon /data in case the userdata partition has been reset.
+    restorecon /data
+
+    # set up misc directory structure first so that we can end early boot
+    # and start apexd
+    mkdir /data/misc 01771 system misc
+    # work around b/183668221
+    restorecon /data/misc
+
+    mkdir /data/misc/authfs 0700 root root
+
+    start seriallogging
+
+on late-fs && property:ro.debuggable=1
+    # Ensure that tracefs has the correct permissions.
+    # This does not work correctly if it is called in post-fs.
+    chmod 0755 /sys/kernel/tracing
+    chmod 0755 /sys/kernel/debug/tracing
+
+on post-fs-data
+    mark_post_data
+
+    mkdir /data/vendor 0771 root root
+    mkdir /data/vendor_ce 0771 root root
+    mkdir /data/vendor_de 0771 root root
+    mkdir /data/vendor/hardware 0771 root root
+
+    # Start tombstoned early to be able to store tombstones.
+    # microdroid doesn't have anr, but tombstoned requires it
+    mkdir /data/anr 0775 system system
+    mkdir /data/tombstones 0771 system system
+    mkdir /data/vendor/tombstones 0771 root root
+
+    start tombstoned
+
+    # For security reasons, /data/local/tmp should always be empty.
+    # Do not place files or directories in /data/local/tmp
+    mkdir /data/local 0751 root root
+    mkdir /data/local/tmp 0771 shell shell
+
+on boot
+    ifup lo
+    hostname localhost
+    domainname localdomain
+    ifup eth1
+
+    setprop sys.boot_completed 1
+    setprop dev.bootcomplete 1
+    write /dev/kmsg "VIRTUAL_DEVICE_BOOT_COMPLETED"
+    write /dev/kmsg "GUEST_BUILD_FINGERPRINT: ${ro.build.fingerprint}"
+
+service tombstone_transmit /system/bin/tombstone_transmit.microdroid -cid 2 -port 2000 -remove_tombstones_after_transmitting
+    user system
+    group system
+    shutdown critical
+
+service apexd-vm /system/bin/apexd --vm
+    user root
+    group system
+    oneshot
+    disabled
+    capabilities CHOWN DAC_OVERRIDE DAC_READ_SEARCH FOWNER SYS_ADMIN
+
+service ueventd /system/bin/ueventd
+    class core
+    critical
+    seclabel u:r:ueventd:s0
+    shutdown critical
+    user root
+    group root
+    capabilities CHOWN DAC_OVERRIDE DAC_READ_SEARCH FOWNER FSETID MKNOD NET_ADMIN SETGID SETUID SYS_MODULE SYS_RAWIO SYS_ADMIN
+
+service console /system/bin/sh
+    class core
+    console
+    disabled
+    user shell
+    group shell log readproc
+    seclabel u:r:shell:s0
+    setenv HOSTNAME console
+

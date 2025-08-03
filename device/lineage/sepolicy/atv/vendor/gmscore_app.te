@@ -1,0 +1,2 @@
+get_prop(gmscore_app, apexd_prop)
+get_prop(gmscore_app, apk_verity_prop)

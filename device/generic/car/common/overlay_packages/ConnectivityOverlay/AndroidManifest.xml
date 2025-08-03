@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.connectivity.resources.car.overlay"
+    android:versionCode="1"
+    android:versionName="1.0">
+    <application android:hasCode="false" />
+    <overlay
+      android:targetPackage="com.android.connectivity.resources"
+      android:targetName="ServiceConnectivityResourcesConfig"
+      android:isStatic="true"
+      android:priority="0"/>
+</manifest>

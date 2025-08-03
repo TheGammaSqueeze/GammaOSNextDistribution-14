@@ -1,0 +1,7 @@
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+vendor.qti.sec.featuremanager.IFeatureManager/default   u:object_r:vendor_sec_featuremanager_service:s0
+vendor.qti.sec.cloudagent.ICloudAgent/default           u:object_r:vendor_sec_cloudagent_service:s0
+vendor.qti.sec.provisioningmanager.IProvisioningManager/default   u:object_r:vendor_sec_provisioningmanager_service:s0
+vendor.qti.sec.datamanager.IDataManager/default         u:object_r:vendor_sec_datamanager_service:s0

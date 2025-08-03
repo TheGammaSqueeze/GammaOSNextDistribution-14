@@ -1,0 +1,39 @@
+package {
+    default_applicable_licenses: [
+        "device_generic_goldfish_radio_RadioConfig_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "device_generic_goldfish_radio_RadioConfig_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+prebuilt_etc {
+    name: "privapp_whitelist_com.android.emulator.radio.config",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "com.android.emulator.radio.config.xml",
+    filename_from_src: true,
+}
+
+android_app {
+    name: "EmulatorRadioConfig",
+    privileged: true,
+    srcs: ["**/*.java"],
+    platform_apis: true,
+    certificate: "platform",
+    system_ext_specific: true,
+    required: ["privapp_whitelist_com.android.emulator.radio.config"],
+    optimize: {
+        enabled: false,
+    },
+}

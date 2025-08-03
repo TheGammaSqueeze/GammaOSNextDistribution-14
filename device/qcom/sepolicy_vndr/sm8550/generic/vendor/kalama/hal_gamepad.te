@@ -1,0 +1,43 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+##############################################################################
+# Define domain
+##############################################################################
+type hal_gamepad_default, domain;
+type hal_gamepad_default_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(hal_gamepad_default);
+
+hal_server_domain(hal_gamepad_default, hal_gamepad);
+
+##############################################################################
+# Allow hwbinder call form hal client to server
+##############################################################################
+binder_call(hal_gamepad_client, hal_gamepad_server);
+binder_call(hal_gamepad_server, hal_gamepad_client);
+
+##############################################################################
+# Add hwservice related rules
+##############################################################################
+hal_attribute_hwservice(hal_gamepad, hal_gamepad_hwservice);
+
+##############################################################################
+# Rule for vndbinder usage
+##############################################################################
+allow hal_gamepad_default vendor_aksgamepad_service:service_manager find;
+vndbinder_use(hal_gamepad_default);
+
+##############################################################################
+# Allow HAL module to open/read/write/ /sys/class/leds bucause the gamepad
+# HAL service should provide API to apk to control the gamepad related LEDs:
+# such as: gamepad mode switch led , backlight of gamepad's button
+##############################################################################
+#r_dir_file(hal_gamepad_default, sysfs_leds)
+allow hal_gamepad_default sysfs_leds:file rw_file_perms;
+allow hal_gamepad_default sysfs_leds:dir r_dir_perms;
+
+allow hal_gamepad_default input_device:dir r_dir_perms;
+allow hal_gamepad_default input_device:chr_file rw_file_perms;
+
+allow hal_gamepad_default vendor_aks_chr_device:chr_file rw_file_perms;

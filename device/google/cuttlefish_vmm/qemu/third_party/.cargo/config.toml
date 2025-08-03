@@ -1,0 +1,26 @@
+[patch.crates-io]
+anyhow = { path = "rust/crates/anyhow" }
+autocfg = { path = "rust/crates/autocfg" }
+bitflags = { path = "rust/crates/bitflags" }
+byteorder = { path = "rust/crates/byteorder" }
+cfg-if = { path = "rust/crates/cfg-if" }
+libc = { path = "rust/crates/libc" }
+log = { path = "rust/crates/log" }
+memoffset = { path = "rust/crates/memoffset" }
+nix = { path = "rust/crates/nix" }
+once_cell = { path = "rust/crates/once_cell" }
+pin-utils = { path = "rust/crates/pin-utils" }
+pkg-config = { path = "rust/crates/pkg-config" }
+proc-macro2 = { path = "rust/crates/proc-macro2" }
+quote = { path = "rust/crates/quote" }
+remain = { path = "rust/crates/remain" }
+serde = { path = "rust/crates/serde" }
+serde_derive = { path = "rust/crates/serde_derive" }
+static_assertions = { path = "rust/crates/static_assertions" }
+syn = { path = "rust/crates/syn" }
+thiserror = { path = "rust/crates/thiserror" }
+thiserror-impl = { path = "rust/crates/thiserror-impl" }
+unicode-ident = { path = "rust/crates/unicode-ident" }
+winapi = { path = "rust/crates/winapi" }
+zerocopy = { path = "rust/crates/zerocopy" }
+zerocopy-derive = { path = "rust/crates/zerocopy-derive" }

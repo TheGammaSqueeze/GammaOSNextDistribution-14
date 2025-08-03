@@ -1,0 +1,21 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_SRC_FILES := su
+LOCAL_MODULE := phh-su
+LOCAL_MODULE_CLASS := EXECUTABLES
+
+LOCAL_INIT_RC := su.rc
+
+include $(BUILD_PREBUILT)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := me.phh.superuser
+LOCAL_MODULE_TAGS := optional
+LOCAL_SRC_FILES := Superuser.apk
+LOCAL_MODULE_CLASS := APPS
+LOCAL_CERTIFICATE := PRESIGNED
+
+include $(BUILD_PREBUILT)

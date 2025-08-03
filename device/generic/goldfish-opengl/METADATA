@@ -1,0 +1,11 @@
+third_party {
+  license_note: "would be NOTICE save for:\n"
+  "   android-emu/android/base/containers/Lookup.h\n"
+  "   system/codecs/c2/store/include/goldfish_codec2/store/GoldfishComponentStore.h\n"
+  "   system/codecs/c2/store/GoldfishComponentStore.cpp\n"
+  " and RESTRICTED save for:\n"
+  "  system/include/GLES/\n"
+  "  system/include/GLES2/\n"
+  "  system/include/GLES3/\n"
+  license_type: BY_EXCEPTION_ONLY
+}

@@ -1,0 +1,8 @@
+type hal_lineage_livedisplay_sysfs, domain;
+hal_server_domain(hal_lineage_livedisplay_sysfs, hal_lineage_livedisplay)
+
+type hal_lineage_livedisplay_sysfs_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(hal_lineage_livedisplay_sysfs)
+
+# Grant access over LiveDisplay tuneables
+allow hal_lineage_livedisplay_sysfs sysfs_livedisplay_tuneable:file rw_file_perms;

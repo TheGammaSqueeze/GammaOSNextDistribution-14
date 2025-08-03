@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Inte tillämpligt"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Kritisk"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Låg"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Bra"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Bekräfta uppdateringen av fjärrkontrollen"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Fjärrkontrollen kan tillfälligt kopplas från under uppdateringen."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Fortsätt"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Avbryt"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Uppdatering av fjärrkontroll"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Ny programvara är tillgänglig"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Det finns en uppdatering"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Fjärrkontrollen är uppdaterad"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Det gick inte att uppdatera fjärrkontrollen"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Ett problem uppstod när fjärrkontrollen skulle uppdateras. Försök igen."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Vänta"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Koppla fjärrkontrollen igen"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Aktiverad"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Inaktiverad"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Batterinivå"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d %%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Inbyggd programvara"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Bluetooth-adress"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Byt batteriet"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Låg batterinivå"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Anslutna enheter"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Fjärrkontroller och tillbehör"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Uppdatera fjärrkontrollen"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Klar att installera"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"UPPDATERA"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"AVVISA"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Fjärrkontrollens batterinivå är låg"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Byt batteriet snart"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Fjärrkontrollens batteri är nästan tomt"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Byt batteriet snart"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Fjärrkontrollens batteri är tomt"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Byt batteriet för att använda fjärrkontrollen"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Ja"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Nej"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Koppla från %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Anslut till %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Glöm %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Byt namn på din anslutna enhet"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Aktivera HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"Med HDMI-CEC kan du styra andra HDMI-CEC-kompatibla enheter och slå på eller av dem automatiskt med en enda fjärrkontroll.\n\nObs! Kontrollera att HDMI-CEC har aktiverats på tv:n och övriga HDMI-enheter. Olika tillverkare kan använda olika namn på HDMI-CEC. Några exempel:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Konfigurera fjärrkontrollsknappar"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Styr volymen, av/på-knappen och val av ingångskälla på tv:ar, mottagare och soundbar-högtalare"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Hitta min fjärrkontroll"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Spela upp ett ljud för att hitta Google TV-fjärrkontrollen om den kommer bort"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Tryck på knappen på baksidan av Google TV Streamer för att spela upp ett ljud på din fjärrkontroll under 30 sekunder. Detta fungerar endast på en Google TV Streamer Voice Remote.\n\nStäng av ljudet genom att trycka på valfri knapp på fjärrkontrollen."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"När Hitta min fjärrkontroll är aktiverat kan du spela upp ett ljud för att hitta Google TV-fjärrkontrollen om den kommer bort."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Spela upp ljud"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Batterinivå: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Tillbehör"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Fjärrkontroll"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Ansluten"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Tidigare anslutna enheter"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Parkoppla en fjärrkontroll eller ett tillbehör"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Koppla från"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Anslut"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Byt namn"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Glöm"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Använd för tv-ljud"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Ansluten"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Frånkopplad"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Enhetskontroll"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Anslut ny enhet"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Innan du ansluter nya Bluetooth-enheter kontrollerar du att de är i parkopplingsläge. Anslut %1$s genom att trycka och hålla ned %2$s + %3$s i tre sekunder."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"en fjärrkontroll till Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Tillgängliga enheter"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Söker efter enheter …"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Fel"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Ansluter …"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Ansluten"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Avslutad"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s kunde inte anslutas"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s är ansluten"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s är frånkopplad"</string>
+</resources>

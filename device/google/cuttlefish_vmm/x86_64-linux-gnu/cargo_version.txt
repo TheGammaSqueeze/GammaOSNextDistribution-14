@@ -1,0 +1,8 @@
+cargo 1.68.2 (6feb7c9cf 2023-03-26)
+release: 1.68.2
+commit-hash: 6feb7c9cfc0c5604732dba75e4c3b2dbea38e8d8
+commit-date: 2023-03-26
+host: x86_64-unknown-linux-gnu
+libgit2: 1.5.0 (sys:0.16.0 vendored)
+libcurl: 7.86.0-DEV (sys:0.4.59+curl-7.86.0 vendored ssl:OpenSSL/1.1.1q)
+os: Debian 10 (buster) [64-bit]

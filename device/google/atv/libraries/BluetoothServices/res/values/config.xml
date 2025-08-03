@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+  <string-array name="dfu_binary_md5s" translatable="false">
+  </string-array>
+  <string-array name="known_remote_labels" translatable="false">
+  </string-array>
+  <string-array name="known_bluetooth_device_labels" translatable="false">
+    <item>b06</item>
+    <item>remote</item>
+    <item>google storm</item>
+    <item>b21</item>
+    <item>g10</item>
+    <item>g20</item>
+    <item>Onn</item>
+  </string-array>
+
+  <!--
+    List of BluetoothDeviceService updatable remotes. This list to used to provide update button in
+    settings page and can be overlaid.
+  -->
+  <string-array name="bt_device_service_updatable_labels" translatable="false">
+  </string-array>
+
+  <!-- Upgrades from certain version would erase the connection information saved on the remote. For
+       this case, we would need to forget the connection on the host side and ask the user go
+       through pairing again.
+       Version format: [major version] [minor version] [Vendor ID] [Product ID]
+       Example: 1 23 AB 1F
+  -->
+  <string-array name="manual_reconnection_remote_versions" translatable="false">
+  </string-array>
+
+  <!--
+    List of official bluetooth device labels. This list is used to identify official
+    devices and can be overlaid.
+  -->
+  <string-array name="official_bt_device_labels" translatable="false">
+  </string-array>
+
+  <!--
+    List of official bluetooth device manufacturer names. This list is used to identify official
+    devices and can be overlaid.
+  -->
+  <string-array name="official_bt_device_manufacturer_names" translatable="false">
+  </string-array>
+
+  <!--
+    List of official bluetooth device model names. This list is used to identify official devices
+    and can be overlaid.
+  -->
+  <string-array name="official_bt_device_model_names" translatable="false">
+  </string-array>
+
+  <!--
+    List of bluetooth device model names whose "connect/disconnect" buttons should be hidden. This
+    can be overlaid for specific device.
+  -->
+  <string-array name="disconnect_button_hidden_device_model_names" translatable="false">
+  </string-array>
+
+  <bool name="cec_settings_enabled">true</bool>
+  <bool name="axel_settings_enabled">false</bool>
+
+  <string name="custom_bluetooth_slice_provider_uri" translatable="false" />
+
+  <!--
+    Whether the ATV integrates the Find My Remote functionality with the on-device button.
+    If it does, the integration should respect the value of
+    Settings.Global.fmr_on_physical_button_enabled setting.
+  -->
+  <bool name="find_my_remote_integration_enabled">false</bool>
+
+  <!--
+    Whether to show the HDMI-CEC settings in ConnectedDevicesSlice. This is different from
+    cec_settings_enabled that controls cec settings' overall availability. For example, we may set
+    cec_settings_enabled to [true] and show_cec_in_connected_settings to [false] to surface the
+    HDMI-CEC settings Slice somewhere else other than in ConnectedDevicesSlice.
+  -->
+  <bool name="show_cec_in_connected_settings">true</bool>
+
+  <!-- Whether to show the remote control icon on remote control update screen. -->
+  <bool name="show_remote_icon_in_dfu">true</bool>
+</resources>

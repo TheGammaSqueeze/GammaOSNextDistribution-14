@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"لا ينطبق"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"حرج"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"منخفض"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"جيد"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"تأكيد تحديث جهاز التحكّم عن بُعد"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"أثناء عملية التحديث، قد يتم فصل جهاز التحكّم عن بُعد لفترة وجيزة."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"متابعة"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"إلغاء"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"تحديث جهاز التحكّم عن بُعد"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"يتوفر برنامج جديد."</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"يوجد تحديث."</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"جهاز التحكّم عن بُعد محدّث."</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"تعذَّر تحديث جهاز التحكم عن بُعد."</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"لقد واجهنا مشكلة أثناء تحديث جهاز التحكّم عن بُعد. يُرجى إعادة المحاولة."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"يُرجى الانتظار."</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"إقران جهاز التحكّم عن بُعد مرة أخرى"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"مفعّل"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"غير مفعّل"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"مستوى شحن البطارية"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"البرامج الثابتة"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"عنوان البلوتوث"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"يُرجى استبدال البطارية."</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"مستوى شحن البطارية منخفض"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"الأجهزة المتصلة"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"أجهزة التحكّم عن بُعد والأجهزة الملحقة"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"تحديث جهاز التحكّم عن بُعد"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"جاهز للتثبيت"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"تحديث"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"إغلاق"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"طاقة بطارية جهاز التحكّم عن بُعد منخفضة"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"يُرجى استبدال البطارية قريبًا."</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"بطارية جهاز التحكّم عن بُعد فارغة تقريبًا"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"يُرجى استبدال البطارية قريبًا."</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"بطارية جهاز التحكّم عن بُعد فارغة"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"استبدِل البطارية لاستخدام جهاز التحكّم عن بُعد."</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"نعم"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"لا"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"إلغاء الربط بـ %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"التوصيل بـ %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"حذف بيانات %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"إعادة تسمية الجهاز المتصل"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"تفعيل HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"تسمح لك ميزة HDMI-CEC بالتحكم في الأجهزة الأخرى التي تم تفعيل ميزة HDMI-CEC عليها وتفعيلها/إيقافها تلقائيًا باستخدام وحدة تحكم واحدة عن بُعد.\n\nملاحظة: احرص على تفعيل ميزة HDMI-CEC على التلفزيون وغيره من أجهزة HDMI. وتوفر الشركات المصنِّعة ميزة HDMI-CEC غالبًا بأسماء مختلفة مثل:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"إعداد أزرار جهاز التحكّم عن بُعد"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"التحكّم في مستوى الصوت وإمكانية الإيقاف أو التشغيل والإدخال في أجهزة التلفزيون وأجهزة الاستقبال ومكبّرات الصوت العمودي"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"العثور على جهاز التحكّم عن بُعد"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"يمكنك تشغيل صوت لتحديد موقع جهاز التحكّم في Google TV عن بُعد إذا لم يكن في مكانه."</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"اضغط على الزرّ المتوفّر في الجزء الخلفي من Google TV Streamer لتشغيل صوت على جهاز التحكّم عن بُعد لمدة 30 ثانية. لا تعمل هذه الميزة إلا على جهاز التحكّم الصوتي في Google TV Streamer.\n\nلإيقاف الصوت، اضغط على أي زرّ في جهاز التحكّم عن بُعد."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"عندما تكون ميزة \"العثور على جهاز التحكّم عن بُعد\" مفعَّلة، يمكنك تشغيل صوت لتحديد موقع جهاز التحكّم في Google TV عن بُعد إذا لم يكن في مكانه."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"تشغيل الصوت"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"مستوى البطارية: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"الأجهزة الملحقة"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"جهاز التحكّم عن بُعد"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"متصل"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"الأجهزة المتصلة سابقًا"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"إقران جهاز تحكّم عن بُعد أو جهاز ملحق"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"قطع الاتصال"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"توصيل"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"إعادة التسمية"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"حذف"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"استخدام البلوتوث لصوت التلفزيون"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"متّصل"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"غير متّصل"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"التحكم في الجهاز"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"توصيل جهاز جديد"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"قبل توصيل أجهزة بلوتوث جديدة، تأكّد من أنّها في وضع الإقران. لتوصيل %1$s، اضغط على %2$s ‏+ %3$s مع الاستمرار لمدة 3 ثوانٍ."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"جهاز التحكّم بـ Android TV عن بُعد"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"الأجهزة المتاحة"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"جارٍ البحث عن أجهزة…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"خطأ"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"جارٍ التوصيل…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"متّصل"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"مُلغى"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"تعذّر توصيل %1$s."</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"تم توصيل %1$s."</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"تم فصل %1$s."</string>
+</resources>

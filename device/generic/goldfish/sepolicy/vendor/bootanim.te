@@ -1,0 +1,9 @@
+allow bootanim self:process execmem;
+allow bootanim ashmem_device:chr_file execute;
+#TODO: This can safely be ignored until b/62954877 is fixed
+dontaudit bootanim system_data_file:dir read;
+
+allow bootanim graphics_device:chr_file { read ioctl open };
+allow bootanim gpu_device:chr_file { read ioctl open };
+allow bootanim self:vsock_socket create_socket_perms_no_ioctl;
+allow bootanim hal_graphics_allocator_default:vsock_socket { read write getattr };

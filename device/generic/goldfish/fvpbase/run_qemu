@@ -1,0 +1,38 @@
+#!/bin/sh -eu
+#
+# Copyright 2021 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+"$QEMU_BIN" \
+  -kernel "$ANDROID_PRODUCT_OUT/kernel" \
+  -initrd "$ANDROID_PRODUCT_OUT/combined-ramdisk.img" \
+  -machine virt,mte=on \
+  -cpu max \
+  -drive "driver=raw,file=$ANDROID_PRODUCT_OUT/system-qemu.img,if=none,id=system" \
+  -device virtio-blk-device,drive=system \
+  -drive "driver=raw,file=$ANDROID_PRODUCT_OUT/userdata.img,if=none,id=userdata" \
+  -device virtio-blk-device,drive=userdata \
+  -append "console=ttyAMA0 earlyprintk=ttyAMA0 androidboot.hardware=qemu androidboot.boot_devices=a003e00.virtio_mmio loglevel=9" \
+  -m 4096 \
+  -no-reboot \
+  -nic user,model=virtio-net-pci-non-transitional,hostfwd=tcp:127.0.0.1:5555-172.20.51.1:5555,host=172.20.51.254,net=172.20.51.0/24,dhcpstart=172.20.51.1 \
+  -device virtio-gpu-pci \
+  -smp 8 \
+  -usb \
+  -device qemu-xhci \
+  -device usb-kbd \
+  -device usb-mouse \
+  -serial mon:stdio \
+  "$@"

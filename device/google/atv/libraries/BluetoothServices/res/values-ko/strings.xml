@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"해당 사항 없음"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"매우 부족"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"부족"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"양호"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"리모컨 업데이트 확인"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"업데이트하는 동안 리모컨 연결이 잠시 해제될 수 있습니다."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"계속"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"취소"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"리모컨 업데이트"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"새 소프트웨어 사용 가능"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"업데이트 가능"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"리모컨이 최신 버전임"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"리모컨을 업데이트하지 못했습니다."</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"리모컨을 업데이트하는 중에 문제가 발생했습니다. 다시 시도해 주세요."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"잠시 기다려 주세요"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"리모컨 다시 페어링"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"사용"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"사용 안함"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"배터리 수준"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"펌웨어"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"블루투스 주소"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"배터리 교체 필요"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"배터리 전원 부족"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"연결된 기기"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"리모컨 및 액세서리"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"리모컨 업데이트"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"설치 준비 완료"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"업데이트"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"닫기"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"리모컨 배터리 부족"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"곧 배터리 교체 필요"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"리모컨 배터리 거의 소진"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"곧 배터리 교체 필요"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"리모컨 배터리 소진"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"리모컨을 사용하려면 배터리 교체 필요"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"예"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"아니요"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"%1$s에서 연결 해제"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"%1$s에 연결"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"%1$s 삭제"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"연결된 기기에서 이름 변경"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"HDMI-CEC 사용"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC를 사용하면 다른 단일 리모컨과 사용 설정된 HDMI-CEC 기기를 자동으로 사용/사용 중지할 수 있습니다.\n\n참고: HDMI-CEC가 TV 및 다른 HDMI 기기에서 사용 설정되었는지 확인하세요. 제조업체에서 HDMI-CEC에 다른 이름을 사용하는 경우도 있습니다. 예:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"삼성: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"리모컨 버튼 설정"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"TV, 수신기 및 사운드바의 볼륨, 전원, 입력을 제어합니다."</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"내 리모컨 찾기"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Google TV 리모컨을 잃어버린 경우 소리를 재생하여 위치 찾기"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Google TV Streamer 뒷면에 있는 버튼을 누르면 리모컨에서 30초 동안 소리가 재생됩니다. 이 기능은 Google TV Streamer 보이스 리모컨에서만 작동합니다.\n\n소리를 중지하려면 리모컨에 있는 아무 버튼이나 누르세요"</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"내 리모컨 찾기를 사용 설정하면 리모컨을 어디 두었는지 찾을 수 없을 때 소리를 재생하여 Google TV 리모컨을 찾을 수 있습니다."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"소리 재생"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"배터리 잔량: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"액세서리"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"리모컨"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"연결됨"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"이전에 연결됨"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"리모컨 또는 액세서리 페어링"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"연결 해제"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"연결"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"이름 바꾸기"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"삭제"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"TV 오디오에 사용"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"연결됨"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"연결 끊김"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"기기 제어"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"새 기기 연결"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"새 블루투스 기기를 연결하기 전에 페어링 모드인지 확인하세요. %1$s을(를) 연결하려면 %2$s + %3$s을(를) 3초간 길게 누릅니다."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV 리모컨"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"사용 가능한 기기"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"기기 검색 중…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"오류"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"연결 중…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"연결됨"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"취소됨"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s 연결 실패"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s 연결됨"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s 연결 해제됨"</string>
+</resources>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"NVT"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Kritiek"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Laag"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Goed"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Bevestig opdatering van afstandbeheerder"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Jou afstandbeheer sal tydens die opdatering dalk tydelik ontkoppel word."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Gaan voort"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Kanselleer"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Opdatering van afstandbeheerder"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Nuwe sagteware is beskikbaar"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Opdatering is beskikbaar"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Afstandbeheerder is op datum"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Kon nie afstandbeheer opdateer nie"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Ons het \'n kwessie ervaar terwyl ons jou afstandbeheerder opgedateer het. Probeer weer."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Wag asseblief"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Bind jou afstandbeheerder weer saam"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Geaktiveer"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Gedeaktiveer"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Batteryvlak"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Fermware"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Bluetooth-adres"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Vervang asseblief battery"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Battery is amper pap"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Gekoppelde toestelle"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Afstandbeheerders en bykomstighede"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Dateer jou afstandbeheerder op"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Gereed om te installeer"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"DATEER OP"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"MAAK TOE"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Afstandbeheerder se battery is pap"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Vervang battery binnekort"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Afstandbeheerder se battery is amper pap"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Vervang battery binnekort"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Afstandbeheerder se battery is heeltemal pap"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Vervang battery om afstandbeheerder te gebruik"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Ja"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Nee"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Ontkoppel van %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Koppel aan %1$s"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Vergeet %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Hernoem jou gekoppelde toestel"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Aktiveer HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC maak dit vir jou moontlik om ander HDMI-CEC-geaktiveerde toestelle met \'n enkele afstandbeheer te beheer en outomaties aan of af te skakel.\n\nLet wel: Maak seker dat HDMI-CEC op jou TV en ander HDMI-toestelle geaktiveer is. Vervaardigers het dikwels ander name vir HDMI-CEC, byvoorbeeld:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Stel afstandbeheerknoppies op"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Beheer volume, krag, invoer op TV\'s, ontvangers en klankbalke"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Soek my afstandbeheerder"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Speel ’n klank om jou Google TV-afstandbeheerder op te spoor as jy dit nie kan kry nie."</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Druk die knoppie aan die agterkant van jou Google TV-stromer om 30 sekondes lank ’n klank op jou afstandbeheerder te speel. Dit werk net op ’n Google TV-stromerstemafstandbeheerder.\n\nDruk enige knoppie op jou afstandbeheerder om die klank te stop."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"As Soek My Afstandbeheerder geaktiveer is, kan jy ’n klank speel om jou Google TV se afstandbeheerder op te spoor as jy dit nie kan kry nie."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Speel klank"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Batteryvlak: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Bykomstighede"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Afstandbeheer"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Gekoppel"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Voorheen gekoppel"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Bind afstandbeheerder of bykomstigheid saam"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Ontkoppel"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Koppel"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Hernoem"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Vergeet"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Gebruik vir TV-oudio"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Gekoppel"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Ontkoppel"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Toestelbeheer"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Koppel nuwe toestel"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Voordat jy nuwe Bluetooth-toestelle koppel, moet jy seker maak hulle is in saambindmodus. Druk en hou %2$s + %3$s vir 3 sekondes om %1$s te koppel."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"’n Android TV-afstandbeheerder"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Beskikbare toestelle"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Soek tans na toestelle …"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Fout"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Koppel tans …"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Gekoppel"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Gekanselleer"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"%1$s kon nie koppel nie"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"%1$s is gekoppel"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"%1$s is ontkoppel"</string>
+</resources>

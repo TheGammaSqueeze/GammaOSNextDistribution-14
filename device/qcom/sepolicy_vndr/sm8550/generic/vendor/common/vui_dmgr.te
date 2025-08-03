@@ -1,0 +1,19 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_vui_dmgr, domain;
+type vendor_vui_dmgr_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(vendor_vui_dmgr)
+
+#allow access to vendor audio dsp folder
+allow vendor_vui_dmgr vendor_audio_dsp_data_file:dir rw_dir_perms;
+allow vendor_vui_dmgr vendor_audio_dsp_data_file:file create_file_perms;
+
+#allow access to tombstone
+crash_dump_fallback(vendor_vui_dmgr);
+
+#allow access to qesdk
+qesdk_access(vendor_vui_dmgr);
+
+allow vendor_vui_dmgr vendor_vuidmgr_socket:sock_file rw_file_perms;

@@ -1,0 +1,6 @@
+{
+    "name": "com.google.cf.input.config",
+    "version": 1,
+    // This apex doesn't have any code
+    "noCode": true
+}

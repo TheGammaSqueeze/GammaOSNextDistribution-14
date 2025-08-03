@@ -1,0 +1,51 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_hal_weaver_spu_qti, domain;
+hal_server_domain(vendor_hal_weaver_spu_qti, hal_weaver)
+type vendor_hal_weaver_spu_qti_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(vendor_hal_weaver_spu_qti)
+
+# Read security level android property
+get_prop(vendor_hal_weaver_spu_qti, vendor_security_patch_level_prop);
+
+# Allow access to spss_utils device
+allow vendor_hal_weaver_spu_qti vendor_spss_utils_device:chr_file rw_file_perms;
+
+# Allow access to spcom devices
+allow vendor_hal_weaver_spu_qti vendor_spcom_device:chr_file rw_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_skp_device:chr_file rw_file_perms;
+
+# Allow read sysfs
+allow vendor_hal_weaver_spu_qti vendor_sysfs_data:file r_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_sysfs_spdaemon:file r_file_perms;
+r_dir_file(vendor_hal_weaver_spu_qti, vendor_sysfs_spss);
+
+# Allow set / get spcomlib prop
+set_prop(vendor_hal_weaver_spu_qti, vendor_spcomlib_prop)
+
+# Allow access to HLOS<=>SPU share buffers
+allow vendor_hal_weaver_spu_qti vendor_dmabuf_sp_hlos_heap_device:chr_file r_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_dmabuf_system_heap_device:chr_file r_file_perms;
+
+# Allow access to QSEE<=>SPU share buffers
+allow vendor_hal_weaver_spu_qti vendor_dmabuf_secure_sp_tz_heap_device:chr_file r_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_dmabuf_qseecom_heap_device:chr_file r_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_dmabuf_qseecom_ta_heap_device:chr_file r_file_perms;
+
+# Allow to access IAR-DB at /mnt/vendor/persist/iar_db
+allow vendor_hal_weaver_spu_qti vendor_persist_iar_db_file:dir rw_dir_perms;
+allow vendor_hal_weaver_spu_qti vendor_persist_iar_db_file:file create_file_perms;
+
+# Allow hyp_assign() for HLOS-SP share buffers (r_file_perms includes ioctl)
+allow vendor_hal_weaver_spu_qti vendor_vm_hlos_device:chr_file r_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_vm_cp_spss_sp_device:chr_file r_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_vm_cp_spss_sp_shared_device:chr_file r_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_vm_cp_spss_hlos_shared_device:chr_file r_file_perms;
+allow vendor_hal_weaver_spu_qti vendor_membuf_dev:chr_file r_file_perms;
+
+# Allow to access /dev/smcinvoke
+allow vendor_hal_weaver_spu_qti tee_device:chr_file rw_file_perms;
+
+# Allow read vendor TEE listener ready property
+get_prop(vendor_hal_weaver_spu_qti, vendor_tee_listener_prop)

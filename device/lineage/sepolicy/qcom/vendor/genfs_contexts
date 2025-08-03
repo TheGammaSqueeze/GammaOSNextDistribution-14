@@ -1,0 +1,2 @@
+genfscon proc /sys/kernel/sched_energy_aware             u:object_r:proc_sched:s0
+genfscon sysfs /devices/soc0/serial_number               u:object_r:sysfs_socinfo_sensitive:s0

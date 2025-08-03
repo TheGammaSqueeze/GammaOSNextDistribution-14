@@ -1,0 +1,54 @@
+# Copyright (c) 2016-2018, NVIDIA CORPORATION.  All rights reserved.
+
+# NVIDIA Shield controller (rev. 2017)
+
+key 304   BUTTON_A
+key 305   BUTTON_B
+key 307   BUTTON_X
+key 308   BUTTON_Y
+
+key 310   BUTTON_L1
+key 311   BUTTON_R1
+
+key 158   BACK
+key 315   BUTTON_START
+key 172   HOME
+
+# These two keycodes are for click (press from above) on analog control sticks.
+key 317   BUTTON_THUMBL
+key 318   BUTTON_THUMBR
+
+key 115   VOLUME_UP
+key 114   VOLUME_DOWN
+
+key 164   MEDIA_PLAY_PAUSE
+
+# Vendor-specific codes
+key 217   BUTTON_16
+
+# Vendor-specific codes
+key 715   BUTTON_13
+key 716   BUTTON_14
+key 717   BUTTON_15
+
+# NVIDIA gamepad generates 16-bit values for the 6 axes (?)
+# Flat value of 2 is expected because this gamepad's axes
+# get correctly clipped before they reach the frameworks/base code.
+
+# Left (0x00, 0x01) and right (0x02, 0x05) analog control stick.
+axis 0x00 X flat 2
+axis 0x01 Y flat 2
+axis 0x02 Z flat 2
+axis 0x05 RZ flat 2
+
+# Triggers (0x0a, 0x09).
+axis 0x0a LTRIGGER flat 2
+axis 0x09 RTRIGGER flat 2
+
+# Hat.
+# (D-pad is reported as analog. Each axis has range from -1 to 1.)
+axis 0x10 HAT_X
+axis 0x11 HAT_Y
+
+# Double tap on volume slider
+key usage 0x000c00cd VOLUME_MUTE

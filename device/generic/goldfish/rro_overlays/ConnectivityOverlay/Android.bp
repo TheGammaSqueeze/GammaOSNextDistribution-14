@@ -1,0 +1,46 @@
+//
+// Copyright (C) 2022 The Android Open-Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_generic_goldfish_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["device_generic_goldfish_license"],
+}
+
+// To keep compatibility with GSI mixed-build on sdk_phone products, create a overlay apk
+// with "com.android.xxx" package name, which should be the right package name for the
+// connectivity module in GSI system image.
+// TODO(b/161415429,b/119899133): once the feature that supports the same overlay with
+// multiple targets is ready, then cleanup this redundant overlay.
+runtime_resource_overlay {
+    name: "goldfish_overlay_connectivity_gsi",
+    resource_dirs: ["res"],
+    vendor: true,
+    sdk_version: "current",
+}
+
+// Runtime Resource Overlay for Connectivity module, to be installed in the google specific
+// product targets.
+override_runtime_resource_overlay {
+    name: "goldfish_overlay_connectivity_google",
+    base: "goldfish_overlay_connectivity_gsi",
+    package_name: "com.google.android.connectivity.resources.goldfish.overlay",
+    target_package_name: "com.google.android.connectivity.resources",
+}

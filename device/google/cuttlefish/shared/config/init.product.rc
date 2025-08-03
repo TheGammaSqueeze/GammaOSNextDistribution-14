@@ -1,0 +1,5 @@
+service tombstone_transmit /product/bin/tombstone_transmit
+    # Start tombstone_transmit after /data is mounted.
+    class late_start
+    group system
+    user root

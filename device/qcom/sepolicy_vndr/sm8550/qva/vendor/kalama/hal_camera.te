@@ -1,0 +1,6 @@
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+#Allow camera to read vendor_umd_prop and binder call vendor_hal_umd_qti
+get_prop(hal_camera_default, vendor_umd_prop)
+allow hal_camera_default vendor_hal_umd_qti:binder call;

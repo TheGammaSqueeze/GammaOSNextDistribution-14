@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2023, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<UxRestrictions xmlns:car="http://schemas.android.com/apk/res-auto">
+    <!-- Map the driving states to UX restrictions here -->
+    <!-- Note - The platform takes a fully restricted approach when there is no information or if
+    the information is malformed.  As a result,
+    1. Default values for requiresDistractionOptimization is true, and uxr is fully_restricted.
+    2. If uxr != baseline, then requiresDistractionOptimization is automatically promoted to true,
+    even if it is declared as false.  Because it doesn't make sense to have an non baseline UX
+    restriction without requiresDistractionOptimization set to true.
+    So if we don't want any restrictions, requiresDistractionOptimization should be explicitly
+    marked as false and uxr should be explicitly set to baseline. -->
+
+    <!--Setting baseline restrictions for all displays as this is a passenger only system-->
+    <RestrictionMapping physicalPort="0">
+        <DrivingState state="parked">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+        <DrivingState state="idling">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+        <DrivingState state="moving">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+    </RestrictionMapping>
+
+    <RestrictionMapping physicalPort="2">
+        <DrivingState state="parked">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+        <DrivingState state="idling">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+        <DrivingState state="moving">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+    </RestrictionMapping>
+
+    <RestrictionMapping physicalPort="3">
+        <DrivingState state="parked">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+        <DrivingState state="idling">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+        <DrivingState state="moving">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+    </RestrictionMapping>
+
+    <RestrictionMapping physicalPort="4">
+        <DrivingState state="parked">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+        <DrivingState state="idling">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+        <DrivingState state="moving">
+            <Restrictions requiresDistractionOptimization="false" uxr="baseline"/>
+        </DrivingState>
+
+    </RestrictionMapping>
+
+    <!-- Configure restriction parameters here-->
+    <RestrictionParameters>
+        <!-- Parameters to express displayed String related restrictions -->
+        <!-- Max allowed length of general purpose strings when limit_string_length is imposed-->
+        <StringRestrictions maxLength="120"/>
+        <!-- Parameters to express content related restrictions -->
+        <!-- Max number of cumulative content items allowed to be displayed when
+        limit_content is imposed. -->
+        <!-- Maximum levels deep that the user can navigate to when limit_content is imposed. -->
+        <ContentRestrictions maxCumulativeItems="21" maxDepth="3"/>
+    </RestrictionParameters>
+
+</UxRestrictions>

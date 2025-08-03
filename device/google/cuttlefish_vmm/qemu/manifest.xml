@@ -1,0 +1,57 @@
+<manifest>
+  <remote name="aosp" fetch="sso://android.googlesource.com" review="sso://android/" />
+  <remote name="experimental-qemu-build-internal" fetch="sso://experimental-qemu-build-internal" />
+  <default sync-j="16" revision="main" remote="aosp" />
+  <project path="." name="device/google/cuttlefish_vmm" revision="main" />
+  <project path="qemu/prebuilts/build-tools" name="platform/prebuilts/build-tools" revision="86f778561ed3cc3c46ca5c7fd9f2c591d054cc70" clone-depth="1" />
+  <project path="qemu/prebuilts/clang" name="platform/prebuilts/clang/host/linux-x86" revision="12cd8a5633acf5e7f2c22e26a282574cfcfac37b" clone-depth="1" />
+  <project path="qemu/prebuilts/cmake" name="platform/prebuilts/cmake/linux-x86" revision="001ed46e3703c78cbc3838adfe4c14ba279f9ff7" clone-depth="1" />
+  <project path="qemu/prebuilts/gcc" name="platform/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.17-4.8" revision="f7b0d5b0ee369864d5ac3e96ae24ec9e2b6a52da" clone-depth="1" />
+  <project path="qemu/prebuilts/ninja" name="platform/prebuilts/ninja/linux-x86" revision="8a10824f74fe0e22af9bf314a837f5b70e2bb67f" clone-depth="1" />
+  <project path="qemu/prebuilts/rust" name="platform/prebuilts/rust" revision="ed6633c7a96144bebd982e15da76295d7d6e2de9" clone-depth="1" />
+  <project path="qemu/third_party/aemu" name="platform/hardware/google/aemu" revision="dc4b530a0db8472170feef17106c8ade5f3e1459" />
+  <project path="qemu/third_party/bzip2" name="platform/external/bzip2" revision="af971b5524a392944a8fd1423b1860f3ab2919ec" />
+  <project path="qemu/third_party/crosvm" name="platform/external/crosvm" revision="9feae6a4a8f9c79c124a852bfa578b6ed5cdeb34" />
+  <project path="qemu/third_party/egl" name="platform/external/egl-registry" revision="9ab603608d6b165f79f17eee9ee1ced861625893" />
+  <project path="qemu/third_party/flatbuffers" name="platform/external/flatbuffers" revision="baf9b3a15e291a0c76850a50f994c5947c3f5e5e" />
+  <project path="qemu/third_party/gfxstream" name="platform/hardware/google/gfxstream" revision="1cbeb3cf962b5c6d9844945d5e69f5c4735cd145" />
+  <project path="qemu/third_party/glib" name="platform/external/bluetooth/glib" revision="180713772f4e7bcdddf2c793f2f34a498184ed15" />
+  <project path="qemu/third_party/glib/subprojects/gvdb" name="platform/external/gvdb" revision="0854af0fdb6d527a8d1999835ac2c5059976c210" />
+  <project path="qemu/third_party/googletest" name="platform/external/googletest" revision="276e32ec333e05bff6dc7d20218a8d9152623222" />
+  <project path="qemu/third_party/libdrm" name="platform/external/libdrm" revision="ed0a0cde4ea44f6295786900a9f42afd78713677" />
+  <project path="qemu/third_party/libepoxy" name="platform/external/libepoxy" revision="2df68f811fc1a5f0a6d372ecdb887333ad3f540f" />
+  <project path="qemu/third_party/libffi" name="platform/external/libffi" revision="a8011b453bea48ac68b8c37545b4f04aaf6a9ffc" />
+  <project path="qemu/third_party/libpciaccess" name="platform/external/libpciaccess" revision="c716a921b7b970ff1fcd4ad34974877c29d103f0" />
+  <project path="qemu/third_party/libslirp" name="trusty/external/qemu-libslirp" revision="3ad1710a96678fe79066b1469cead4058713a1d9" />
+  <project path="qemu/third_party/meson" name="trusty/external/qemu-meson" revision="f341097c7e7914c250133bd58feb4985d1fbdcd6" />
+  <project path="qemu/third_party/patchelf" name="platform/external/patchelf" revision="519766900c63f3cf227c9a38fc7aa8a53fc4f90c" />
+  <project path="qemu/third_party/pcre" name="platform/external/pcre" revision="2113dcc6cb9e262c9a204203bc6bf1129a6fdc7c" />
+  <project path="qemu/third_party/pixman" name="platform/external/pixman" revision="37216a32839f59e8dcaa4c3951b3fcfc3f07852c" />
+  <project path="qemu/third_party/pkg-config" name="platform/external/pkg-config" revision="d97db4fae4c1cd099b506970b285dc2afd818ea2" />
+  <project path="qemu/third_party/python" name="platform/prebuilts/python/linux-x86" revision="008e82161a393ca8f7ac80f0683d6650ca03b347" />
+  <project path="qemu/third_party/qemu" name="platform/external/qemu" revision="039afc5ef7367fbc8fb475580c291c2655e856cb" />
+  <project path="qemu/third_party/rust/crates/anyhow" name="platform/external/rust/crates/anyhow" revision="bb04cc54d8262ffe33cba59fa600bfbfe7e1d4ef" />
+  <project path="qemu/third_party/rust/crates/bitflags" name="platform/external/rust/crates/bitflags" revision="a28a75e883a06f4d384b555e6a6f9c73bb8e875a" />
+  <project path="qemu/third_party/rust/crates/byteorder" name="platform/external/rust/crates/byteorder" revision="3717e50a4895f69a726d1489254d9c4ad612c28b" />
+  <project path="qemu/third_party/rust/crates/cfg-if" name="platform/external/rust/crates/cfg-if" revision="6370d7a0025c7ae60eb5b427fc4d10a3c72e04bb" />
+  <project path="qemu/third_party/rust/crates/libc" name="platform/external/rust/crates/libc" revision="e39862cf04bdca7a6dbb67a1843ee90504e13145" />
+  <project path="qemu/third_party/rust/crates/log" name="platform/external/rust/crates/log" revision="eeec3f50acc9f32074dbfb3751dcf96115c95b8d" />
+  <project path="qemu/third_party/rust/crates/memoffset" name="platform/external/rust/crates/memoffset" revision="7020a4bf607d53aad1c7c81e45fa2c51f46b0c02" />
+  <project path="qemu/third_party/rust/crates/nix" name="platform/external/rust/crates/nix" revision="368805870d33a494270a4d171a170c8e5dab4361" />
+  <project path="qemu/third_party/rust/crates/once_cell" name="platform/external/rust/crates/once_cell" revision="4a9d8e8ee32e8ff0c1fea38c19cc50f33068910e" />
+  <project path="qemu/third_party/rust/crates/pin-utils" name="platform/external/rust/crates/pin-utils" revision="c8ba00eb24a92081deb6ae0a43aaea058726a996" />
+  <project path="qemu/third_party/rust/crates/proc-macro2" name="platform/external/rust/crates/proc-macro2" revision="3def4a0b2b2acf4fb092dd4318d17f6674bd8e4c" />
+  <project path="qemu/third_party/rust/crates/quote" name="platform/external/rust/crates/quote" revision="5a4e5901d4cdbf6b15dd63feeed7a484bcd21771" />
+  <project path="qemu/third_party/rust/crates/remain" name="platform/external/rust/crates/remain" revision="d48df9431a87ec2081e39dc7c3cfc3ec3981d281" />
+  <project path="qemu/third_party/rust/crates/serde" name="platform/external/rust/crates/serde" revision="70c714b4b2b3411fd213f9910fc506d540af1dac" />
+  <project path="qemu/third_party/rust/crates/serde_derive" name="platform/external/rust/crates/serde_derive" revision="d535ca65fe5ee5fd73b8866046f50eb843ece831" />
+  <project path="qemu/third_party/rust/crates/static_assertions" name="platform/external/rust/crates/static_assertions" revision="fe7b4bbcd8a77faca169e2b04ee4982f4ada6a13" />
+  <project path="qemu/third_party/rust/crates/syn" name="platform/external/rust/crates/syn" revision="2c9458570a080f1e59c8f152d0c010a22daf4e92" />
+  <project path="qemu/third_party/rust/crates/thiserror" name="platform/external/rust/crates/thiserror" revision="91e199e0b9ecc10c272914ab0b7c06036cc29646" />
+  <project path="qemu/third_party/rust/crates/thiserror-impl" name="platform/external/rust/crates/thiserror-impl" revision="9c2299da7571846c6e139e16f17406f788bd1071" />
+  <project path="qemu/third_party/rust/crates/unicode-ident" name="platform/external/rust/crates/unicode-ident" revision="2114a5cf0e82708cff6885a24be1995903c94738" />
+  <project path="qemu/third_party/rust/crates/zerocopy" name="platform/external/rust/crates/zerocopy" revision="738d78f6696da049502fc4436a70ca8799e1569e" />
+  <project path="qemu/third_party/rust/crates/zerocopy-derive" name="platform/external/rust/crates/zerocopy-derive" revision="e31ff4fde30f2bef09ae8f20b93d57b9040c7c1c" />
+  <project path="qemu/third_party/virglrenderer" name="platform/external/virglrenderer" revision="1b9067d7ba66296ce910441f66918edb50b00380" />
+  <project path="qemu/third_party/zlib" name="platform/external/zlib" revision="81774276a9cbf47177a1b7555bb6e3ec73bdcd25" />
+</manifest>

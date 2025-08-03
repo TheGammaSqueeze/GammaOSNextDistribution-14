@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+    <!-- Paddings -->
+    <dimen name="car_ui_padding_0">4dp</dimen>
+    <dimen name="car_ui_padding_1">8dp</dimen>
+    <dimen name="car_ui_padding_2">12dp</dimen>
+    <dimen name="car_ui_padding_3">16dp</dimen>
+    <dimen name="car_ui_padding_4">24dp</dimen>
+    <dimen name="car_ui_padding_5">32dp</dimen>
+    <dimen name="car_ui_padding_6">48dp</dimen>
+    <dimen name="car_ui_padding_7">64dp</dimen>
+    <dimen name="car_ui_padding_8">96dp</dimen>
+
+    <dimen name="car_ui_toolbar_logo_size">44dp</dimen>
+    <dimen name="car_ui_toolbar_nav_icon_size">44dp</dimen>
+    <dimen name="car_ui_toolbar_margin">76dp</dimen>
+        <dimen name="car_ui_toolbar_logo_margin">17dp</dimen>
+
+            <!-- SeekBar dimensions. -->
+    <!-- Allows thumb to extend out of the range of the track. -->
+    <!-- For more information see android.widget.SeekBar#attr_android:thumbOffset. -->
+    <dimen name="car_ui_seekbar_thumb_offset">24dp</dimen>
+    <!-- Horizontal padding for the SeekBar.-->
+    <dimen name="car_ui_seekbar_horizontal_padding">24dp</dimen>
+    <!-- The SeekBar track height.-->
+    <dimen name="car_ui_seekbar_track_height">24dp</dimen>
+    <!-- Vertical padding that extends the touch area for the SeekBar. -->
+    <dimen name="car_ui_seekbar_track_vertical_padding">26dp</dimen>
+    <!-- The stroke with of the ring around the SeekBar thumb when selected. -->
+    <dimen name="car_ui_seekbar_thumb_selected_stroke_width">8dp</dimen>
+    <!-- The size of the SeekBar thumb. -->
+    <dimen name="car_ui_seekbar_thumb_size">68dp</dimen>
+    <!-- Should be the half of car_switch_track_height. -->
+    <dimen name="car_ui_seekbar_thumb_outer_radius">24dp</dimen>
+    <dimen name="car_ui_toolbar_title_logo_padding">0dp</dimen>
+
+    <!-- Height of the top toolbar row. This can be customized independently. -->
+    <dimen name="car_ui_toolbar_first_row_height">@dimen/car_ui_toolbar_row_height</dimen>
+    <!-- Margin at the start of the title when there is no logo present -->
+    <dimen name="car_ui_toolbar_title_no_logo_margin_start">17dp</dimen>
+    <!-- Margin at the start of the title -->
+    <dimen name="car_ui_toolbar_title_margin_start">17dp</dimen>
+    <!-- Height of the search box -->
+    <dimen name="car_ui_toolbar_search_height">0dp</dimen>
+    <!-- Padding on the toolbar start (e.g.: distance between the container start and the start of
+    nav icon or logo) -->
+    <dimen name="car_ui_toolbar_start_inset">0dp</dimen>
+    <!-- Top padding -->
+    <dimen name="car_ui_toolbar_top_inset">0dp</dimen>
+    <!-- End padding (e.g.: distance between the container end and the end of the menu items) -->
+    <dimen name="car_ui_toolbar_end_inset">0dp</dimen>
+    <!-- Bottom padding -->
+    <dimen name="car_ui_toolbar_bottom_inset">0dp</dimen>
+    <dimen name="car_ui_toolbar_row_height">96dp</dimen>
+
+</resources>

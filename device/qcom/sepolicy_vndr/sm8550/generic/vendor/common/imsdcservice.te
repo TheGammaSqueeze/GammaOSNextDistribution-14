@@ -1,0 +1,26 @@
+# Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_ims_dcservice, domain;
+type vendor_ims_dcservice_exec, exec_type, vendor_file_type, file_type;
+
+init_daemon_domain(vendor_ims_dcservice)
+net_domain(vendor_ims_dcservice)
+
+get_prop(vendor_ims_dcservice, vendor_ims_prop)
+
+hal_server_domain_bypass(vendor_ims_dcservice, vendor_hal_dcservice_qti)
+hal_attribute_service(vendor_hal_dcservice_qti, vendor_hal_imsdc_service)
+binder_call(vendor_hal_dcservice_qti_server, servicemanager)
+binder_call(vendor_hal_dcservice_qti_client, vendor_hal_dcservice_qti_server)
+binder_call(vendor_hal_dcservice_qti_server, vendor_hal_dcservice_qti_client)
+
+#allow ims_dataservice_daemon to connect to server socket hosted in imsdaemon
+unix_socket_connect(vendor_ims_dcservice, vendor_ims_service, vendor_ims_service)
+
+allowxperm vendor_ims_dcservice self:udp_socket ioctl RMNET_IOCTL_EXTENDED;
+
+#diag
+userdebug_or_eng(`
+    diag_use(vendor_ims_dcservice)
+')

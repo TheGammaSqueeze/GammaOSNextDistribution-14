@@ -1,0 +1,139 @@
+# Copyright 2021 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Copyright 2021 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Rules from common_device.policy with some rules removed because they block certain flags needed
+# for gpu.
+brk: 1
+clock_gettime: 1
+clone3: 1
+close: 1
+dup2: 1
+dup: 1
+epoll_create1: 1
+epoll_ctl: 1
+epoll_pwait: 1
+epoll_wait: 1
+eventfd2: 1
+exit: 1
+exit_group: 1
+ftruncate: 1
+futex: 1
+getcwd: 1
+getpid: 1
+gettid: 1
+gettimeofday: 1
+io_uring_setup: 1
+io_uring_register: 1
+io_uring_enter: 1
+kill: 1
+madvise: arg2 == MADV_DONTNEED || arg2 == MADV_DONTDUMP || arg2 == MADV_REMOVE || arg2 == MADV_MERGEABLE || arg2 == MADV_FREE
+membarrier: 1
+# memfd_create is used for sharing memory with wayland.
+# For normal use case, we allow arg1 == MFD_CLOEXEC|MFD_ALLOW_SEALING, with or without MFD_NOEXEC_SEAL.
+# or simply MFD_CLOEXEC.
+# However, we allow all the arguments here for backtrace when it panics.
+memfd_create: 1
+mremap: 1
+munmap: 1
+nanosleep: 1
+clock_nanosleep: 1
+pipe2: 1
+poll: 1
+ppoll: 1
+read: 1
+readlink: 1
+readlinkat: 1
+readv: 1
+recvfrom: 1
+recvmsg: 1
+restart_syscall: 1
+rseq: 1
+rt_sigaction: 1
+rt_sigprocmask: 1
+rt_sigreturn: 1
+sched_getaffinity: 1
+sched_yield: 1
+sendmsg: 1
+sendto: 1
+set_robust_list: 1
+sigaltstack: 1
+tgkill: arg2 == SIGABRT
+write: 1
+writev: 1
+uname: 1
+
+# Rules specific to gpu
+connect: 1
+# 1033 is F_ADD_SEALS, 1034 is F_GET_SEALS
+fcntl: arg1 == F_DUPFD_CLOEXEC || arg1 == F_GETFD || arg1 == F_SETFD || \
+       arg1 == F_GETFL || arg1 == F_SETFL || arg1 == 1033 || arg1 == 1034
+fstat: 1
+getdents: 1
+getdents64: 1
+geteuid: 1
+getrandom: 1
+getuid: 1
+# 0x40086200 = DMA_BUF_IOCTL_SYNC, 0x6400 == DRM_IOCTL_BASE, 0x40087543 == UDMABUF_CREATE_LIST
+ioctl: arg1 == FIONBIO || arg1 == FIOCLEX || arg1 == 0x40086200 || arg1 & 0x6400 || arg1 == 0x40087543 || arg1 == 0x5421 || arg1 == 0xc0383e04 || arg1 == 0xc018aa3f || arg1 == 0xaa00
+lseek: 1
+lstat: 1
+# mmap/mprotect/open/openat differ from the common_device.policy
+mmap: arg2 == PROT_READ|PROT_WRITE || arg2 == PROT_NONE || arg2 == PROT_READ|PROT_EXEC || arg2 == PROT_WRITE || arg2 == PROT_READ
+mprotect: arg2 == PROT_READ|PROT_WRITE || arg2 == PROT_NONE || arg2 == PROT_READ
+open: 1
+openat: 1
+stat: 1
+statx: 1
+sysinfo: 1
+fstatfs: 1
+prctl: arg0 == PR_SET_NAME || arg0 == PR_GET_NAME
+
+# Required for perfetto tracing
+# fcntl: arg1 == F_SETFD || arg1 == F_GETFL || arg1 == F_SETFL (merged above)
+getsockopt: 1
+shutdown: 1
+
+# Rules for Mesa's shader binary cache.
+fallocate: 1
+flock: 1
+inotify_add_watch: 1
+inotify_init1: 1
+inotify_rm_watch: 1
+mkdir: 1
+newfstatat: 1
+rename: 1
+setpriority: 1
+unlink: 1
+
+# Rules specific to AMD gpus.
+sched_setscheduler: 1
+sched_setaffinity: 1
+kcmp: 1
+
+# Rules for Vulkan loader / layers
+access: 1
+getgid: 1
+getegid: 1
+
+## Rules for vmm-swap
+userfaultfd: 1
+# 0xc018aa3f == UFFDIO_API, 0xaa00 == USERFAULTFD_IOC_NEW
+# ioctl: arg1 == 0xc018aa3f || arg1 == 0xaa00
+
+# allow fork() and waitid()
+clone: 1
+waitid: 1
+
+# allow SOCK_STREAM and SOCK_DGRAM (syslog)
+socket: arg0 == AF_UNIX && arg2 == 0
+
+# allow socketpair(AF_UNIX, SOCK_SEQPACKET | SOCK_CLOEXEC)
+socketpair: arg0 == AF_UNIX && arg1 == SOCK_SEQPACKET|SOCK_CLOEXEC && arg2 == 0
+
+# allow signalfd()
+signalfd4: 1

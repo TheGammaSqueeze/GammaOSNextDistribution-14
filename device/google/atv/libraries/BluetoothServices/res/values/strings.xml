@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+
+  <string name="battery_not_available">N/A</string>
+  <string name="battery_level_critical">Critical</string>
+  <string name="battery_level_low">Low</string>
+  <string name="battery_level_good">Good</string>
+
+  <string name="settings_bt_confirm_update">Confirm remote update</string>
+  <string name="settings_bt_update_summary">During the update your remote may briefly disconnect.</string>
+
+  <string name="settings_continue">Continue</string>
+  <string name="settings_cancel">Cancel</string>
+
+  <string name="settings_bt_update">Remote update</string>
+  <string name="settings_bt_update_software_available">New software available</string>
+  <string name="settings_bt_update_available">Update available</string>
+  <string name="settings_bt_update_not_necessary">Remote is up to date</string>
+  <string name="settings_bt_update_failed">Remote update failed</string>
+  <string name="settings_bt_update_error">We experienced an issue while updating your remote. Please try again.</string>
+  <string name="settings_bt_update_please_wait">Please wait</string>
+  <string name="settings_bt_update_needs_repair">Pair your remote again</string>
+
+  <string name="settings_enabled">Enabled</string>
+  <string name="settings_disabled">Disabled</string>
+
+  <string name="settings_remote_battery_level_label">Battery level</string>
+  <string translatable="false" name="settings_remote_battery_level_with_warning_label">%1$s (%2$s)</string>
+  <string name="settings_remote_battery_level_percentage_label">%1$d%%</string>
+  <string name="settings_remote_firmware_label">Firmware</string>
+  <string name="settings_remote_serial_number_label">Bluetooth address</string>
+
+  <string name="settings_bt_battery_low">Please replace battery</string>
+  <string name="settings_bt_battery_low_warning">Low battery</string>
+
+  <!-- This string is picked up by Settings. Do not change its *name* -->
+  <string name="connected_devices_pref_title">Connected Devices</string>
+  <!-- This string is picked up by Settings. Do not change its *name* -->
+  <string name="connected_devices_slice_pref_title">Remotes &amp; Accessories</string>
+
+  <string name="settings_notif_update_title">Update your remote</string>
+  <string name="settings_notif_update_text">Ready to install</string>
+  <string name="settings_notif_update_action">UPDATE</string>
+  <string name="settings_notif_update_dismiss">DISMISS</string>
+  <string translatable="false" name="settings_notif_update_channel_name">Remote Update</string>
+  <string translatable="false" name="settings_notif_update_channel_description">Notifications for remote update</string>
+
+  <string name="settings_notif_low_battery_title">Remote battery low</string>
+  <string name="settings_notif_low_battery_text">Replace battery soon</string>
+  <string name="settings_notif_critical_battery_title">Remote battery almost empty</string>
+  <string name="settings_notif_critical_battery_text">Replace battery soon</string>
+  <string name="settings_notif_depleted_battery_title">Remote battery empty</string>
+  <string name="settings_notif_depleted_battery_text">Replace battery to use remote</string>
+  <string translatable="false" name="settings_notif_battery_channel_name">Remote Low Battery</string>
+  <string translatable="false" name="settings_notif_battery_channel_description">Notifications for remote low battery</string>
+
+  <string name="settings_choices_yes">Yes</string>
+  <string name="settings_choices_no">No</string>
+
+  <string name="settings_bt_disconnect">Disconnect from %1$s</string>
+  <string name="settings_bt_connect">Connect to %1$s</string>
+  <string name="settings_bt_forget">Forget %1$s</string>
+  <string name="settings_bt_rename">Rename your connected device</string>
+
+  <string name="settings_hdmi_cec">HDMI-CEC</string>
+  <string name="settings_enable_hdmi_cec">Enable HDMI-CEC</string>
+  <string name="settings_cec_explain">HDMI-CEC allows you to control and automatically turn on/off other HDMI-CEC enabled devices with a single remote control.\n\nNote: Ensure HDMI-CEC is enabled on your TV and other HDMI devices. Manufacturers often have different names for HDMI-CEC, for example:</string>
+  <string name="settings_cec_feature_names">Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link</string>
+
+  <string name="settings_axel">Set up remote buttons</string>
+  <string name="settings_axel_description">Control volume, power, input on TVs, receivers and soundbars</string>
+
+  <string name="settings_find_my_remote_title">Find my remote</string>
+  <string name="settings_find_my_remote_description">Play a sound to locate your Google TV remote if it\'s misplaced</string>
+  <string name="find_my_remote_slice_description">Press the button at the back of your Google TV Streamer to play a sound on your remote for 30 seconds. This only works on a Google TV Streamer Voice Remote.\n\nTo stop the sound, press any button on your remote.</string>
+  <string name="find_my_remote_integration_title" translatable="false">@string/settings_find_my_remote_title</string>
+  <string name="find_my_remote_integration_hint">When Find my remote is enabled, you can play a sound to locate your Google TV remote if it\'s misplaced.</string>
+  <string name="find_my_remote_play_sound">Play sound</string>
+
+  <string name="settings_remote_battery_level">Battery level: %1$s</string>
+  <string name="settings_known_devices_category">Accessories</string>
+  <!-- Category for listing official remote control devices. Can be overlaid for different devices such as "Foobar Remote". -->
+  <string name="settings_official_remote_category">Remote Control</string>
+  <string name="settings_devices_connected">Connected</string>
+  <string name="settings_devices_paired">Previously connected</string>
+
+  <string name="settings_pair_remote">Pair remote or accessory</string>
+
+  <string name="bluetooth_disconnect">Disconnect</string>
+  <string name="bluetooth_connect">Connect</string>
+  <string name="bluetooth_rename">Rename</string>
+  <string name="bluetooth_forget">Forget</string>
+  <string name="bluetooth_toggle_active_audio_output">Use for TV audio</string>
+
+  <!-- Subtitle showing connected connection status of Bluetooth device. [CHAR LIMIT=40] -->
+  <string name="bluetooth_connected_status">Connected</string>
+  <!-- Subtitle showing disconnected connection status of Bluetooth device. [CHAR LIMIT=40] -->
+  <string name="bluetooth_disconnected_status">Disconnected</string>
+
+  <string name="settings_devices_control">Device control</string>
+
+  <string name="settings_bt_pair_title">Connect new device</string>
+  <string name="pair_device_description">Before connecting new Bluetooth devices, make sure they\'re in pairing mode. To connect %1$s, press and hold %2$s + %3$s for 3 seconds.</string>
+  <string name="pair_device_device_name">an Android TV remote</string>
+  <string name="settings_bt_available_devices">Available devices</string>
+  <string name="settings_bt_empty_text">Looking for devices&#8230;</string>
+  <string name="settings_bt_pair_status_error">Error</string>
+  <string name="settings_bt_pair_status_connecting">Connecting&#8230;</string>
+  <string name="settings_bt_pair_status_done">Connected</string>
+  <string name="settings_bt_pair_status_cancelled">Cancelled</string>
+
+  <string name="settings_bt_pair_toast_fail">%1$s failed to connect</string>
+  <string name="settings_bt_pair_toast_connected">%1$s connected</string>
+  <string name="settings_bt_pair_toast_disconnected">%1$s disconnected</string>
+
+  <!-- For activities to bind to a service, we need to have its name, but BluetoothDeviceService is
+       designed to be abstract. Users of BluetoothServices must override the following with the
+       correct class name of their implementation of BluetoothDeviceService -->
+  <string translatable="false" name="bluetooth_device_service_class">com.google.android.tv.btservices.BluetoothDeviceService</string>
+</resources>

@@ -1,0 +1,186 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["device_google_cuttlefish_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "device_google_cuttlefish_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-MIT",
+    ],
+    // large-scale-change unable to identify any license_text files
+}
+
+cc_library_headers {
+    name: "cuttlefish_common_headers",
+    vendor_available: true,
+    product_available: true,
+    export_include_dirs: ["."],
+    host_supported: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+cc_defaults {
+    name: "cuttlefish_base",
+    gnu_extensions: false,
+    header_libs: [
+        "cuttlefish_common_headers",
+    ],
+    target: {
+        host: {
+            cflags: ["-DCUTTLEFISH_HOST"],
+            compile_multilib: "64",
+            strip: {
+                keep_symbols_and_debug_frame: true,
+            },
+        },
+        linux: {
+            host_ldlibs: ["-lrt"],
+        },
+        // We don't need Darwin host-side builds
+        darwin: {
+            enabled: false,
+        },
+    },
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-D_FILE_OFFSET_BITS=64",
+        "-DNODISCARD_EXPECTED=true",
+        "-Wno-error=unused-result", // TODO(b/314526051): Fix Result<> uses
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}
+
+soong_config_module_type {
+    name: "cf_cc_defaults",
+    module_type: "cc_defaults",
+    config_namespace: "cvdhost",
+    bool_variables: ["enforce_mac80211_hwsim"],
+    value_variables: [
+        "default_userdata_fs_type",
+        "board_f2fs_blocksize",
+    ],
+    properties: ["cflags"],
+}
+
+// This is the customization layer driven by soong config variables.
+cf_cc_defaults {
+    name: "cvd_cc_defaults",
+    soong_config_variables: {
+        // PRODUCT_ENFORCE_MAC80211_HWSIM sets this
+        enforce_mac80211_hwsim: {
+            cflags: ["-DENFORCE_MAC80211_HWSIM=true"],
+            conditions_default: {
+                cflags: [],
+            },
+        },
+        // TARGET_USERDATAIMAGE_FILE_SYSTEM_TYPE sets this from BoardConfig.mk
+        // The only user is the page agnostic cf target
+        default_userdata_fs_type: {
+            cflags: ["-DUSERDATA_FILE_SYSTEM_TYPE=\"%s\""],
+            conditions_default: {
+                cflags: ["-DUSERDATA_FILE_SYSTEM_TYPE=\"f2fs\""],
+            },
+        },
+        // PRODUCT_F2FS_BLOCKSIZE sets this
+        board_f2fs_blocksize: {
+            cflags: ["-DF2FS_BLOCKSIZE=\"%s\""],
+            conditions_default: {
+                cflags: ["-DF2FS_BLOCKSIZE=\"4096\""],
+            },
+        },
+    },
+}
+
+// Defaults for cuttlefish modules that are available only in the guest OS (i.e. cuttlefish running
+// in a guest VM).
+cc_defaults {
+    name: "cuttlefish_guest_only",
+    vendor: true,
+    defaults: ["cuttlefish_base"],
+}
+
+// Same as cuttlefish_guest_only, but modules are placed in /product partition.
+cc_defaults {
+    name: "cuttlefish_guest_product_only",
+    product_specific: true,
+    defaults: ["cuttlefish_base"],
+}
+
+// Defaults for cuttlefish modules that are available only in the host-side OS. Here "host" includes
+// both (1) non-Android OS like gLinux or Ubuntu, and (2) Android OS that is capable of running
+// guest VM(s) in it. Note that, in the context of the Android build systm - Soong - (1) is called
+// as "host" and (2) is called as "target". But here, the term "host" is in the context of VMs. If a
+// module is for the host-side VM (either Android or non-Android), "cuttlefish_host" shall be used.
+cc_defaults {
+    name: "cuttlefish_host",
+    host_supported: true, // this "host" means (1)
+    device_supported: true, // this is for (2)
+    vendor_available: true,
+    defaults: [
+        "cuttlefish_base",
+        "cvd_cc_defaults",
+    ],
+}
+
+// Same as "cuttlefish_host", but only for non-Android OS.
+cc_defaults {
+    name: "cuttlefish_buildhost_only",
+    host_supported: true,
+    device_supported: false,
+    defaults: ["cuttlefish_base"],
+}
+
+java_test_host {
+    name: "tombstone_transmit_tests",
+
+    libs: ["tradefed"],
+
+    srcs: ["tests/src/**/TombstoneTransmitTest.java"],
+
+    test_config: "tests/tombstone-transmit-tests.xml",
+
+    test_suites: ["general-tests"],
+}

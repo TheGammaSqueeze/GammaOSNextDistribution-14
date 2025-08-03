@@ -1,0 +1,3 @@
+This special file tells the host side to keep the data partition empty.
+
+See b/326479561 for more details.

@@ -1,0 +1,138 @@
+//
+// Copyright 2022 The Android Open-Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: [
+        "device_generic_goldfish-opengl_license",
+    ],
+}
+
+cc_binary {
+    name: "android.hardware.graphics.composer3-service.ranchu",
+
+    relative_install_path: "hw",
+    vendor: true,
+
+    shared_libs: [
+        "android.hardware.graphics.composer@2.1-resources",
+        "android.hardware.graphics.composer@2.2-resources",
+        "android.hardware.graphics.composer3-V3-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "libdrm",
+        "libgralloctypes",
+        "libhidlbase",
+        "libjsoncpp",
+        "liblog",
+        "libsync",
+        "libui",
+        "libutils",
+        "libOpenglSystemCommon",
+        "libui",
+    ],
+
+    static_libs: [
+        "libaidlcommonsupport",
+        "libyuv_static",
+    ],
+
+    header_libs: [
+        "libminigbm_gralloc_headers",
+    ],
+
+    srcs: [
+        "AlternatingImageStorage.cpp",
+        "ClientFrameComposer.cpp",
+        "Common.cpp",
+        "Composer.cpp",
+        "ComposerClient.cpp",
+        "ComposerResources.cpp",
+        "Device.cpp",
+        "Display.cpp",
+        "DisplayConfig.cpp",
+        "DisplayFinder.cpp",
+        "Drm.cpp",
+        "DrmSwapchain.cpp",
+        "DrmAtomicRequest.cpp",
+        "DrmBuffer.cpp",
+        "DrmClient.cpp",
+        "DrmConnector.cpp",
+        "DrmCrtc.cpp",
+        "DrmDisplay.cpp",
+        "DrmEventListener.cpp",
+        "DrmMode.cpp",
+        "DrmPlane.cpp",
+        "Gralloc.cpp",
+        "GuestFrameComposer.cpp",
+        "HostFrameComposer.cpp",
+        "HostUtils.cpp",
+        "Layer.cpp",
+        "Main.cpp",
+        "NoOpFrameComposer.cpp",
+        "VsyncThread.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror=conversion",
+        "-Wthread-safety",
+    ],
+
+    vintf_fragments: ["hwc3.xml"],
+    init_rc: ["hwc3.rc"],
+
+}
+
+apex {
+    name: "com.android.hardware.graphics.composer.ranchu",
+    key: "com.android.hardware.key",
+    certificate: ":com.android.hardware.certificate",
+    file_contexts: "apex_file_contexts",
+    manifest: "apex_manifest.json",
+    vendor: true,
+    updatable: false,
+
+    binaries: [
+        "android.hardware.graphics.composer3-service.ranchu",
+    ],
+    prebuilts: [
+        "hwc3.xml",
+        "hwc3-apex.rc",
+    ],
+}
+
+prebuilt_etc {
+    name: "hwc3.xml",
+    src: "hwc3.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "hwc3-apex.rc",
+    src: ":gen-hwc3-apex.rc",
+    installable: false,
+}
+
+genrule {
+    name: "gen-hwc3-apex.rc",
+    srcs: ["hwc3.rc"],
+    out: ["hwc3-apex.rc"],
+    cmd: "sed -e 's@/vendor/bin/@/apex/com.android.hardware.graphics.composer.ranchu/bin/@' $(in) > $(out)",
+}
+

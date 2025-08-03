@@ -1,0 +1,5 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+#Add new domain for AKSys shaks app
+user=_app seinfo=platform name=com.aksys.shaksapp domain=vendor_aksgamepad_app type=app_data_file levelFrom=all

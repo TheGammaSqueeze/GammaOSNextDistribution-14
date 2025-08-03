@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"不适用"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"严重不足"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"低"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"良好"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"确认遥控器更新"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"在更新过程中，您的遥控器可能会暂时断开连接。"</string>
+    <string name="settings_continue" msgid="5640776697820481568">"继续"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"取消"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"遥控器更新"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"有可用的新软件"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"有可用的更新"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"遥控器已是最新版本"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"遥控器更新失败"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"更新您的遥控器时出现问题。请重试。"</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"请稍候"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"重新配对遥控器"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"已启用"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"已停用"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"电池电量"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"固件"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"蓝牙地址"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"请更换电池"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"电池电量低"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"已连接的设备"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"遥控器和配件"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"更新您的遥控器"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"可以安装了"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"更新"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"忽略"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"遥控器电池电量低"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"请尽快更换电池"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"遥控器电池电量即将耗尽"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"请尽快更换电池"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"遥控器电池电量已耗尽"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"如要使用遥控器，请更换电池"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"是"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"否"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"断开与“%1$s”的连接"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"连接到“%1$s”"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"取消保存“%1$s”"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"重命名已连接的设备"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"启用 HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC 可让您通过一个遥控器控制及自动开启/关闭其他启用了 HDMI-CEC 的设备。\n\n注意：请确认您的电视和其他 HDMI 设备均已启用 HDMI-CEC。不同的制造商对 HDMI-CEC 通常有不同的称呼，例如："</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"三星：Anynet+\nLG：SimpLink\n索尼：BRAVIA Sync\n飞利浦：EasyLink\n夏普：Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"设置遥控器按钮"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"控制电视、接收器及条形音箱的音量、电源和输入源"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"查找我的遥控器"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"让忘记放在何处的 Google TV 遥控器响铃，以便找到它"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"按下 Google TV 流媒体播放器背面的按钮，即可让遥控器响铃 30 秒。这仅适用于 Google TV 流媒体播放器语音遥控器。\n\n若要停止响铃，请按下遥控器上的任意按钮。"</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"当“查找我的遥控器”处于启用状态时，您可让找不到的 Google TV 遥控器响铃，从而定位它。"</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"响铃"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"电池电量：%1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"配件"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"遥控器"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"已连接"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"之前连接的设备"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"与遥控器或配件配对"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"断开连接"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"连接"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"重命名"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"取消保存"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"用于播放 TV 音频"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"已连接"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"已断开连接"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"设备控制"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"连接新设备"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"在连接新蓝牙设备之前，请确保相应设备处于配对模式。如要连接“%1$s”，请同时按住“%2$s”和“%3$s”3 秒。"</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV 遥控器"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"可用的设备"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"正在搜索设备…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"错误"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"正在连接…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"已连接"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"已取消"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"无法连接“%1$s”"</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"已连接“%1$s”"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"已断开与“%1$s”的连接"</string>
+</resources>

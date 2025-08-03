@@ -1,0 +1,6 @@
+# This could be moved to attributes
+hal_attribute(audio_proxy);
+
+binder_call(hal_audio_proxy_client, hal_audio_proxy_server);
+binder_call(hal_audio_proxy_server, hal_audio_proxy_client);
+binder_call(hal_audio_proxy_server, servicemanager);

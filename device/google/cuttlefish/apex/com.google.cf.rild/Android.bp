@@ -1,0 +1,60 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+prebuilt_etc {
+    name: "com.google.cf.rild.rc",
+    src: "com.google.cf.rild.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "com.google.cf.rild.xml",
+    src: ":libril-modem-lib-manifests",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+apex {
+    name: "com.google.cf.rild",
+    manifest: "apex_manifest.json",
+    key: "com.google.cf.apex.key",
+    certificate: ":com.google.cf.apex.certificate",
+    file_contexts: "file_contexts",
+    updatable: false,
+    soc_specific: true,
+
+    binaries: [
+        "libcuttlefish-rild",
+    ],
+    native_shared_libs: [
+        "libcuttlefish-ril-2",
+    ],
+    prebuilts: [
+        "android.hardware.telephony.carrierlock.prebuilt.xml",
+        "android.hardware.telephony.gsm.prebuilt.xml",
+        "android.hardware.telephony.ims.prebuilt.xml",
+        "android.hardware.telephony.ims.singlereg.prebuilt.xml",
+        "com.google.cf.rild.rc",
+        "com.google.cf.rild.xml",
+    ],
+    overrides: [
+        "libril",
+        "libreference-ril",
+        "rild",
+    ],
+}

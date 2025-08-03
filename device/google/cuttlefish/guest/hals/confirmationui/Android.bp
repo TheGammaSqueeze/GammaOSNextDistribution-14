@@ -1,0 +1,129 @@
+// Copyright (C) 2021 The Android Open-Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// WARNING: Everything listed here will be built on ALL platforms,
+// including x86, the emulator, and the SDK.  Modules must be uniquely
+// named (liblights.panda), and must build everywhere, or limit themselves
+// to only building on ARM if they include assembly. Individual makefiles
+// are responsible for having their own logic, for fine-grained control.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "android.hardware.confirmationui-service.cuttlefish",
+    defaults: ["cuttlefish_guest_only"],
+    relative_install_path: "hw",
+    vendor: true,
+
+    stl: "c++_static",
+
+    shared_libs: [
+        "libbinder_ndk",
+        "liblog",
+    ],
+
+    static_libs: [
+        "android.hardware.confirmationui-lib.cuttlefish",
+        "android.hardware.confirmationui-V1-ndk",
+        "android.hardware.security.keymint-V3-ndk",
+        "android.hardware.security.secureclock-V1-ndk",
+        "libbase",
+        "libcutils",
+        "libcuttlefish_confui",
+        "libteeui_hal_support",
+        "libutils",
+        "libcuttlefish_fs",
+        "libcuttlefish_utils",
+    ],
+
+    srcs: [
+        "service.cpp",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-DTEEUI_USE_STD_VECTOR",
+    ],
+
+    installable: false, // installed in APEX
+}
+
+cc_library {
+    name: "android.hardware.confirmationui-lib.cuttlefish",
+    defaults: [
+        "cuttlefish_guest_only",
+        "keymint_use_latest_hal_aidl_ndk_shared",
+    ],
+    vendor: true,
+    shared_libs: [
+        "android.hardware.confirmationui-V1-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "libcutils",
+        "libdmabufheap",
+        "libteeui_hal_support",
+        "libtrusty",
+        "libutils",
+    ],
+
+    export_include_dirs: ["include"],
+
+    srcs: [
+        "TrustyConfirmationUI.cpp",
+        "guest_session.cpp",
+    ],
+    static_libs: [
+        "libcuttlefish_confui",
+        "libcuttlefish_fs",
+        "libcuttlefish_utils",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-DTEEUI_USE_STD_VECTOR",
+    ],
+}
+
+prebuilt_etc {
+    name: "android.hardware.confirmationui-service.cuttlefish.rc",
+    src: "android.hardware.confirmationui-service.cuttlefish.rc",
+    installable: false,
+}
+
+prebuilt_etc {
+    name: "android.hardware.confirmationui-service.cuttlefish.xml",
+    src: "android.hardware.confirmationui-service.cuttlefish.xml",
+    sub_dir: "vintf",
+    installable: false,
+}
+
+apex {
+    name: "com.google.cf.confirmationui",
+    vendor: true,
+    manifest: "apex_manifest.json",
+    file_contexts: "apex_file_contexts",
+    key: "com.google.cf.apex.key",
+    certificate: ":com.google.cf.apex.certificate",
+    updatable: false,
+
+    binaries: ["android.hardware.confirmationui-service.cuttlefish"],
+    prebuilts: [
+        "android.hardware.confirmationui-service.cuttlefish.rc",
+        "android.hardware.confirmationui-service.cuttlefish.xml",
+    ],
+}

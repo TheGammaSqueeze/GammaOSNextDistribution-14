@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2017 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="accessibility_shortcut_multiple_service_warning" msgid="7133244216041378936">"<xliff:g id="SERVICE_0">%1$s</xliff:g>ను ఉపయోగించడానికి మీరు మూడు సెకన్ల పాటు \'వెనుకకు\', \'కిందికి\' బటన్‌లను ఒకేసారి నొక్కి ఉంచారు.\n\n <xliff:g id="SERVICE_1">%1$s</xliff:g>ను ఇప్పుడు ఎనేబుల్ చేయడానికి, మళ్లీ మూడు సెకన్ల పాటు \'వెనుకకు\', \'కిందికి\' బటన్‌లను ఒకేసారి నొక్కి ఉంచండి. <xliff:g id="SERVICE_2">%1$s</xliff:g>ను ఎనేబుల్ లేదా డిజేబుల్ చేయడానికి ఎప్పుడైనా ఈ షార్ట్‌కట్‌ను ఉపయోగించండి.\n\n మీరు మీ ప్రాధాన్యతలను సెట్టింగ్‌లు &gt; సిస్టమ్ &gt; యాక్సెసిబిలిటీలో సర్దుబాటు చేసుకోవచ్చు."</string>
+    <string name="accessibility_shortcut_toogle_warning" msgid="6107141001991769734">"షార్ట్‌కట్ ఆన్‌లో ఉన్నప్పుడు, \'వెనుకకు\', \'కిందికి\' బటన్‌లను 3 సెకన్ల పాటు నొక్కడం వలన యాక్సెస్ సౌలభ్య ఫీచర్ ప్రారంభమవుతుంది.\n\n ప్రస్తుత యాక్సెస్ సౌలభ్య ఫీచర్:\n <xliff:g id="SERVICE_NAME">%1$s</xliff:g>\n\n సెట్టింగ్‌లు &gt; యాక్సెసిబిలిటీలో మీరు ఫీచర్‌ను మార్చవచ్చు."</string>
+    <string name="accessibility_shortcut_enabling_service" msgid="955379455142747901">"\'వెనుకకు\', \'కిందికి\' బటన్‌లను నొక్కి ఉంచారు. <xliff:g id="SERVICE_NAME">%1$s</xliff:g> ఆన్ అయ్యింది."</string>
+    <string name="accessibility_shortcut_disabling_service" msgid="1407311966343470931">"\'వెనుకకు\', \'కిందికి\' బటన్‌లను నొక్కి ఉంచారు. <xliff:g id="SERVICE_NAME">%1$s</xliff:g> ఆఫ్ అయ్యింది."</string>
+    <string name="accessibility_shortcut_spoken_feedback" msgid="7263788823743141556">"<xliff:g id="SERVICE_0">%1$s</xliff:g>ను ఉపయోగించడానికి మీరు మూడు సెకన్ల పాటు \'వెనుకకు\', \'కిందికి\' బటన్‌లను ఒకేసారి నొక్కి ఉంచారు. <xliff:g id="SERVICE_1">%1$s</xliff:g>ను ఇప్పుడు ఎనేబుల్ చేయడానికి, మళ్లీ మూడు సెకన్ల పాటు \'వెనుకకు\', \'కిందికి\' బటన్‌లను ఒకేసారి నొక్కి ఉంచండి. <xliff:g id="SERVICE_2">%1$s</xliff:g>ను ఎనేబుల్ లేదా డిజేబుల్ చేయడానికి ఎప్పుడైనా ఈ షార్ట్‌కట్‌ను ఉపయోగించండి."</string>
+    <string name="accessibility_shortcut_single_service_warning" msgid="7941823324711523679">"<xliff:g id="SERVICE_0">%1$s</xliff:g>ను ఉపయోగించడానికి మీరు మూడు సెకన్ల పాటు \'వెనుకకు\', \'కిందికి\' బటన్‌లను ఒకేసారి నొక్కి ఉంచారు.\n\n <xliff:g id="SERVICE_1">%1$s</xliff:g>ను ఇప్పుడు ఎనేబుల్ చేయడానికి, మళ్లీ మూడు సెకన్ల పాటు \'వెనుకకు\', \'కిందికి\' బటన్‌లను ఒకేసారి నొక్కి ఉంచండి.\n <xliff:g id="SERVICE_2">%1$s</xliff:g>ను ఎనేబుల్ లేదా డిజేబుల్ చేయడానికి ఎప్పుడైనా ఈ షార్ట్‌కట్‌ను ఉపయోగించండి.\n\n మీరు మీ ప్రాధాన్యతలను సెట్టింగ్‌లు &gt; సిస్టమ్ &gt; యాక్సెసిబిలిటీలో సర్దుబాటు చేసుకోవచ్చు."</string>
+    <string name="disable_accessibility_shortcut" msgid="4559312586447750126">"ఇప్పుడు కాదు"</string>
+    <string name="leave_accessibility_shortcut_on" msgid="6807632291651241490">"ఇప్పుడే ఆన్ చేయండి"</string>
+</resources>

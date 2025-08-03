@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<display-settings>
+<!-- Use physical port number instead of local id -->
+<config identifier="1" />
+
+<!-- Display settings for cluster -->
+<display name="port:1"
+    forcedDensity="160"
+    dontMoveToTop="true"/>
+
+<!-- Display settings for 2nd Home -->
+<display name="port:2"
+    shouldShowSystemDecors="true"
+    shouldShowIme="true"
+    forcedDensity="160" />
+
+<!-- Display settings for 3rd Home -->
+<display name="port:3"
+    shouldShowSystemDecors="true"
+    shouldShowIme="true"
+    forcedDensity="160" />
+
+</display-settings>

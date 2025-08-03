@@ -1,0 +1,7 @@
+allow hal_vehicle_default self:vsock_socket { connect create read write };
+
+# For communication between VHAL and the host
+typeattribute hal_vehicle_default hal_automotive_socket_exemption;
+
+allow hal_vehicle_default self:tcp_socket { create bind listen accept };
+allow hal_vehicle_default node:tcp_socket { node_bind };

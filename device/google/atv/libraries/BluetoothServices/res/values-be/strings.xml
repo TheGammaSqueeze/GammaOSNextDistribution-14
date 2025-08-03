@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Няма інфармацыі"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Вельмі нізкі"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Нізкі"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Даволі высокі"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Пацвердзіць абнаўленне пульта"</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Падчас абнаўлення сувязь з пультам можа ненадоўга перарвацца."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Далей"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Скасаваць"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Абнаўленне пульта"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"З\'явілася новае праграмнае забеспячэнне"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"З\'явілася абнаўленне"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Пульт выкарыстоўвае апошнюю версію ПЗ"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Не ўдалося абнавіць прыладу"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Пры абнаўленні пульта ўзнікла праблема. Паўтарыце спробу."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Пачакайце"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Спалучыце пульт яшчэ раз"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Уключана"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Адключана"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Узровень зараду акумулятара"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Убудаванае праграмнае забеспячэнне"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Адрас Bluetooth"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Замяніце акумулятар"</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Нізкі зарад акумулятара"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Падключаныя прылады"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Пульты ДК і аксесуары"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Абнавіце ПЗ пульта"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Гатова да ўсталявання"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"АБНАВІЦЬ"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"АДХІЛІЦЬ"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Нізкі ўзровень зараду батарэйкі"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Трэба неўзабаве замяніць батарэйку"</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Батарэйка ў пульце амаль разрадзілася"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Трэба неўзабаве замяніць батарэйку"</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Батарэйка ў пульце разраджана"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Каб выкарыстоўваць пульт, замяніце батарэйку"</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Так"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Не"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Адключыць ад прылады \"%1$s\""</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Падключыцца да прылады \"%1$s\""</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Забыць прыладу \"%1$s\""</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Перайменаваць падключаную прыладу"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Уключыць HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC дазваляе кіраваць іншымі сумяшчальнымі з HDMI-CEC прыладамі і аўтаматычна ўключаць/выключаць іх, карыстаючыся адным пультам аддаленага кіравання.\n\nЗаўвага. Праверце, ці ўключаны HDMI-CEC на вашым тэлевізары і іншых HDMI-прыладах. Вытворцы часта па-рознаму называюць HDMI-CEC, напрыклад:"</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Наладзіць кнопкі дыстанцыйнага пульта кіравання"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Кіраванне гучнасцю, сілкаваннем, уваходнымі сігналамі на тэлевізарах, рэсіверах і гукавых панэлях"</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Пошук пульта"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Каб знайсці згублены пульт Google TV, вы можаце прайграць на ім гукавы сігнал"</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Націсніце кнопку на задняй панэлі прылады для трансляцыі Google TV, каб пульт прайграў 30-секундны гукавы сігнал. Функцыя падтрымліваецца толькі на галасавых пультах ад прылад для трансляцыі Google TV.\n\nКаб выключыць сігнал, націсніце любую кнопку на пульце."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Функцыя \"Пошук пульта\" дазваляе знайсці згублены пульт Google TV з дапамогай гукавога сігналу."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Прайграць гукавы сігнал"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Узровень зараду акумулятара: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Аксесуары"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Пульт дыстанцыйнага кіравання"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Падключана"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Раней падключаныя"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Спалучыць пульт або аксесуар"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Адключыць"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Падключыцца"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Перайменаваць"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Забыць"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Выкарыстоўваць для вываду гуку з тэлевізара"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Падключана"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Адключана"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Кіраванне прыладай"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Падключыць новую прыладу"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Перад падключэннем новых прылад з Bluetooth пераканайцеся, што на іх уключаны рэжым спалучэння. Каб падключыць прыладу \"%1$s\", утрымлівайце клавішы \"%2$s + %3$s\" націснутымі на працягу 3 секунд."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"пульт Android TV"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Даступныя прылады"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Ідзе пошук прылад…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Памылка"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Падключэнне…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Падключана"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Скасавана"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"Не ўдалося падключыцца да прылады \"%1$s\""</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"Прылада \"%1$s\" падключана"</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"Прылада \"%1$s\" адключана"</string>
+</resources>

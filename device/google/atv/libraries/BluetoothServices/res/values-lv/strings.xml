@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="battery_not_available" msgid="5120583262792310269">"Nav pieejams"</string>
+    <string name="battery_level_critical" msgid="1217236822824234202">"Kritisks"</string>
+    <string name="battery_level_low" msgid="8156936236696805171">"Zems"</string>
+    <string name="battery_level_good" msgid="529772292250195778">"Labs"</string>
+    <string name="settings_bt_confirm_update" msgid="7490528407190318108">"Apstipriniet tālvadības ierīces atjaunināšanu."</string>
+    <string name="settings_bt_update_summary" msgid="137113561617823800">"Atjaunināšanas laikā tālvadības ierīces savienojums uz īsu brīdi var tikt pārtraukts."</string>
+    <string name="settings_continue" msgid="5640776697820481568">"Turpināt"</string>
+    <string name="settings_cancel" msgid="1284029950430684039">"Atcelt"</string>
+    <string name="settings_bt_update" msgid="8210371540974244481">"Tālvadības ierīces atjauninājums"</string>
+    <string name="settings_bt_update_software_available" msgid="7002004529854458452">"Pieejama jauna programmatūra"</string>
+    <string name="settings_bt_update_available" msgid="414405852666517260">"Ir pieejams atjauninājums"</string>
+    <string name="settings_bt_update_not_necessary" msgid="6906777343269759565">"Tālvadības ierīce ir atjaunināta"</string>
+    <string name="settings_bt_update_failed" msgid="2593228509570726064">"Neizdevās atjaunināt tālvadības ierīci"</string>
+    <string name="settings_bt_update_error" msgid="6267154862961568780">"Atjauninot jūsu tālvadības ierīci, radās problēma. Lūdzu, mēģiniet vēlreiz."</string>
+    <string name="settings_bt_update_please_wait" msgid="8029641271132945499">"Lūdzu, uzgaidiet!"</string>
+    <string name="settings_bt_update_needs_repair" msgid="1310917691218455907">"Vēlreiz savienojiet tālvadības ierīci pārī"</string>
+    <string name="settings_enabled" msgid="431464375814187683">"Iespējots"</string>
+    <string name="settings_disabled" msgid="1459717258643130682">"Atspējots"</string>
+    <string name="settings_remote_battery_level_label" msgid="3644348379742819020">"Akumulatora uzlādes līmenis"</string>
+    <string name="settings_remote_battery_level_percentage_label" msgid="7301487906665476276">"%1$d%%"</string>
+    <string name="settings_remote_firmware_label" msgid="2132403094910284670">"Aparātprogrammatūra"</string>
+    <string name="settings_remote_serial_number_label" msgid="7591347399882767241">"Bluetooth adrese"</string>
+    <string name="settings_bt_battery_low" msgid="3547517382697124858">"Lūdzu, nomainiet akumulatoru."</string>
+    <string name="settings_bt_battery_low_warning" msgid="721091326401791089">"Zems akumulatora uzlādes līmenis"</string>
+    <string name="connected_devices_pref_title" msgid="8985364841073196008">"Pievienotās ierīces"</string>
+    <string name="connected_devices_slice_pref_title" msgid="8637777961277201747">"Tālvadības ierīces un piederumi"</string>
+    <string name="settings_notif_update_title" msgid="4767043003900594863">"Tālvadības ierīces atjaunināšana"</string>
+    <string name="settings_notif_update_text" msgid="1092279154776177720">"Gatavs instalēšanai"</string>
+    <string name="settings_notif_update_action" msgid="7614942170621338703">"ATJAUNINĀT"</string>
+    <string name="settings_notif_update_dismiss" msgid="2492993446930472109">"NERĀDĪT"</string>
+    <string name="settings_notif_low_battery_title" msgid="4638332702264612574">"Zems tālvadības ierīces akumulatora uzlādes līmenis"</string>
+    <string name="settings_notif_low_battery_text" msgid="4371868286738256938">"Drīzumā jānomaina akumulators."</string>
+    <string name="settings_notif_critical_battery_title" msgid="2790514511512220266">"Tālvadības ierīces akumulatora uzlādes līmenis ir gandrīz tukšs"</string>
+    <string name="settings_notif_critical_battery_text" msgid="7540676820061160224">"Drīzumā jānomaina akumulators."</string>
+    <string name="settings_notif_depleted_battery_title" msgid="5564074017335214430">"Tālvadības ierīces akumulatora uzlādes līmenis ir tukšs"</string>
+    <string name="settings_notif_depleted_battery_text" msgid="5656927974233544784">"Nomainiet akumulatoru, lai varētu izmantot tālvadības ierīci."</string>
+    <string name="settings_choices_yes" msgid="791981754037655968">"Jā"</string>
+    <string name="settings_choices_no" msgid="8559979491355839764">"Nē"</string>
+    <string name="settings_bt_disconnect" msgid="887583681642627405">"Atvienot no: %1$s"</string>
+    <string name="settings_bt_connect" msgid="486902469425565740">"Izveidot savienojumu ar ierīci (%1$s)"</string>
+    <string name="settings_bt_forget" msgid="1032095001156402398">"Aizmirst: %1$s"</string>
+    <string name="settings_bt_rename" msgid="477643459806883336">"Pievienotās ierīces pārdēvēšana"</string>
+    <string name="settings_hdmi_cec" msgid="7945299353290226128">"HDMI-CEC"</string>
+    <string name="settings_enable_hdmi_cec" msgid="3955194037299390473">"Iespējot HDMI-CEC"</string>
+    <string name="settings_cec_explain" msgid="282126756909187653">"HDMI-CEC ļauj jums kontrolēt un automātiski ieslēgt/izslēgt citas ierīces ar iespējotu HDMI-CEC, izmantojot vienu tālvadības ierīci.\n\nPiezīme. Noteikti iespējojiet HDMI-CEC savā televizorā un citās HDMI ierīcēs. Ražotāji bieži izmanto atšķirīgus HDMI-CEC nosaukumus (skatiet tālāk piemērus)."</string>
+    <string name="settings_cec_feature_names" msgid="3250254903330955270">"Samsung: Anynet+\nLG: SimpLink\nSony: BRAVIA Sync\nPhilips: EasyLink\nSharp: Aquos Link"</string>
+    <string name="settings_axel" msgid="8253298947221430993">"Tālvadības ierīces pogu iestatīšana"</string>
+    <string name="settings_axel_description" msgid="5432968671905160994">"Kontrolējiet skaļumu, ieslēgšanu un izslēgšanu, kā arī televizoru, uztvērēju un skaņas joslu ieejas avotus."</string>
+    <string name="settings_find_my_remote_title" msgid="618883575610472525">"Tālvadības ierīces atrašana"</string>
+    <string name="settings_find_my_remote_description" msgid="2434088262598422577">"Atskaņojiet signālu, lai atrastu savu Google TV tālvadības ierīci, ja tā ir pazudusi."</string>
+    <string name="find_my_remote_slice_description" msgid="4802810369433859327">"Nospiediet pogu Google TV straumētāja aizmugurē, lai 30 sekundes atskaņotu tālvadības ierīces signālu. Tas darbojas tikai Google TV straumētāja balss tālvadības ierīcē.\n\nLai apturētu signāla atskaņošanu, nospiediet jebkuru tālvadības ierīces pogu."</string>
+    <string name="find_my_remote_integration_hint" msgid="3962827321568773142">"Kad ir iespējota funkcija “Atrast tālvadības ierīci”, varat atskaņot signālu, lai atrastu savu Google TV tālvadības ierīci, ja tā ir pazudusi."</string>
+    <string name="find_my_remote_play_sound" msgid="1799877650759138251">"Atskaņot signālu"</string>
+    <string name="settings_remote_battery_level" msgid="1817513765913707505">"Akumulatora uzlādes līmenis: %1$s"</string>
+    <string name="settings_known_devices_category" msgid="2307810690946536753">"Aksesuāri"</string>
+    <string name="settings_official_remote_category" msgid="1373956695709331265">"Tālvadības ierīce"</string>
+    <string name="settings_devices_connected" msgid="3256213134907921013">"Pievienotās"</string>
+    <string name="settings_devices_paired" msgid="4460141776955368574">"Ierīces, ar kurām savienojums tika izveidots iepriekš"</string>
+    <string name="settings_pair_remote" msgid="7566753084479902759">"Savienot pārī tālvadības ierīci vai piederumu"</string>
+    <string name="bluetooth_disconnect" msgid="1385608885917484057">"Pārtraukt savienojumu"</string>
+    <string name="bluetooth_connect" msgid="6283971929092004620">"Izveidot savienojumu"</string>
+    <string name="bluetooth_rename" msgid="4433577238394058486">"Pārdēvēt"</string>
+    <string name="bluetooth_forget" msgid="4933552074497360964">"Aizmirst"</string>
+    <string name="bluetooth_toggle_active_audio_output" msgid="494557568422711885">"Izmantot TV audio izvadei"</string>
+    <string name="bluetooth_connected_status" msgid="8391804274846835227">"Izveidots savienojums"</string>
+    <string name="bluetooth_disconnected_status" msgid="972515438988962457">"Savienojums pārtraukts"</string>
+    <string name="settings_devices_control" msgid="1862490057009510077">"Ierīces vadība"</string>
+    <string name="settings_bt_pair_title" msgid="1205942796805671508">"Savienojuma izveide ar jaunu ierīci"</string>
+    <string name="pair_device_description" msgid="5145574754576245361">"Pirms jaunu Bluetooth ierīču pievienošanas pārbaudiet, vai tajās ir ieslēgts režīms savienošanai pārī. Lai izveidotu savienojumu ar ierīci (%1$s), nospiediet un 3 sekundes turiet nospiestu taustiņu kombināciju %2$s+%3$s."</string>
+    <string name="pair_device_device_name" msgid="4004194247588260613">"Android TV tālvadības ierīce"</string>
+    <string name="settings_bt_available_devices" msgid="6237789711837183219">"Pieejamās ierīces"</string>
+    <string name="settings_bt_empty_text" msgid="6228875847390369960">"Notiek ierīču meklēšana…"</string>
+    <string name="settings_bt_pair_status_error" msgid="4153213506048075994">"Kļūda"</string>
+    <string name="settings_bt_pair_status_connecting" msgid="1438458595123669762">"Notiek savienojuma izveide…"</string>
+    <string name="settings_bt_pair_status_done" msgid="6151867483707947194">"Savienojums izveidots"</string>
+    <string name="settings_bt_pair_status_cancelled" msgid="5247663100749067089">"Atcelta"</string>
+    <string name="settings_bt_pair_toast_fail" msgid="8025560978364284117">"Ierīcē (%1$s) neizdevās izveidot savienojumu."</string>
+    <string name="settings_bt_pair_toast_connected" msgid="3073130641004809067">"Savienojums ar ierīci (%1$s) ir izveidots."</string>
+    <string name="settings_bt_pair_toast_disconnected" msgid="2046165143924352053">"Savienojums ar ierīci (%1$s) ir pārtraukts."</string>
+</resources>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Feature flags for PC devices. -->
+<permissions>
+    <!-- Freeform window management -->
+    <feature name="android.software.freeform_window_management" />
+
+    <!-- This is a 'PC' device controlled primarily via keyboard, mouse and
+         touchpad. Touchscreen optional. -->
+    <feature name="android.hardware.type.pc" />
+
+     <!-- For PC-like device we mainly uses hardware keyboards. -->
+    <unavailable-feature name="android.software.input_methods" />
+
+    <!-- For PC-like device we usually don't have telephony. -->
+    <!-- These features are added in handheld_core_hardware.xml. -->
+    <unavailable-feature name="android.hardware.telephony" />
+    <unavailable-feature name="android.hardware.telephony.data" />
+    <unavailable-feature name="android.hardware.telephony.gsm" />
+    <unavailable-feature name="android.hardware.telephony.ims" />
+    <unavailable-feature name="android.hardware.telephony.radio.access" />
+    <unavailable-feature name="android.hardware.telephony.subscription" />
+
+    <!-- PC-like device should not support MOTION_TRACKING capability level. -->
+    <unavailable-feature name="android.hardware.camera.ar" />
+
+    <!-- Currently, Picture-In-Picture is not enabled for PC. -->
+    <unavailable-feature name="android.software.picture_in_picture" />
+
+    <!-- Disabling voice recognizers for fixing CTS b/215277148 -->
+    <unavailable-feature name="android.software.voice_recognizers" />
+
+    <!-- For PC-like device we usually don't have GPS. b/221120472 -->
+    <unavailable-feature name="android.hardware.location.gps" />
+
+    <!-- For PC-like device we usually don't have these sensors. -->
+    <unavailable-feature name="android.hardware.sensor.accelerometer" />
+    <unavailable-feature name="android.hardware.sensor.hinge_angle" />
+    <unavailable-feature name="android.hardware.sensor.proximity" />
+    <unavailable-feature name="android.hardware.touchscreen" />
+</permissions>

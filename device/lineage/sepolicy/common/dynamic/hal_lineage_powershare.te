@@ -1,0 +1,8 @@
+# HWBinder IPC from client to server
+binder_call(hal_lineage_powershare_client, hal_lineage_powershare_server)
+
+add_hwservice(hal_lineage_powershare_server, hal_lineage_powershare_hwservice)
+allow hal_lineage_powershare_client hal_lineage_powershare_hwservice:hwservice_manager find;
+
+# Allow binder communication with platform_app
+binder_call(hal_lineage_powershare, platform_app)

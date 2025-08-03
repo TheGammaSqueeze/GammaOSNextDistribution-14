@@ -1,0 +1,5 @@
+genfscon sysfs /devices/virtual/timed_output/vibrator u:object_r:sysfs_vibrator:s0
+genfscon sysfs /module/mmcblk/parameters/perdev_minors u:object_r:sysfs_perdev_minors:s0
+
+genfscon iso9660 / u:object_r:iso9660:s0
+genfscon udf / u:object_r:udf:s0

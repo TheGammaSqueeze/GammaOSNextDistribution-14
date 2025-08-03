@@ -1,0 +1,18 @@
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_hal_qspa_default, domain;
+type vendor_hal_qspa_default_exec, vendor_file_type, exec_type, file_type;
+
+init_daemon_domain(vendor_hal_qspa_default)
+binder_use(vendor_hal_qspa_default);
+
+hal_server_domain(vendor_hal_qspa_default, vendor_hal_qspa_qti)
+hal_attribute_service(vendor_hal_qspa_qti, vendor_hal_qspa_service)
+
+binder_call(vendor_hal_qspa_qti_server, vendor_hal_qspa_qti_client);
+binder_call(vendor_hal_qspa_qti_client, vendor_hal_qspa_qti_server);
+
+binder_use(vendor_hal_qspa_qti_client);
+
+allow vendor_hal_qspa_default vendor_sysfs_devicetree_cpu:dir { open read search };

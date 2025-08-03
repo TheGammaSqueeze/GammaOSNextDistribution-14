@@ -1,0 +1,39 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_google_atv_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_google_atv_license"],
+}
+
+prebuilt_etc {
+    name: "privapp_whitelist_com.example.sampleleanbacklauncher",
+    product_specific: true,
+    sub_dir: "permissions",
+    src: "com.example.sampleleanbacklauncher.xml",
+    filename_from_src: true,
+}
+
+
+android_app {
+    name: "TvSampleLeanbackLauncher",
+    srcs: ["src/main/**/*.java"],
+    resource_dirs: ["src/main/res"],
+    privileged: true,
+    product_specific: true,
+    sdk_version: "current",
+    target_sdk_version: "current",
+    required: ["privapp_whitelist_com.example.sampleleanbacklauncher"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.appcompat_appcompat",
+        "androidx.recyclerview_recyclerview",
+        "androidx.leanback_leanback",
+        "androidx.leanback_leanback-preference",
+        "androidx.preference_preference",
+        "androidx.legacy_legacy-preference-v14",
+        "androidx.localbroadcastmanager_localbroadcastmanager",
+    ],
+    manifest: "src/main/AndroidManifest.xml",
+}

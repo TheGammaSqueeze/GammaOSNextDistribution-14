@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2021, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.fakesystemapp">
+    <uses-sdk android:targetSdkVersion="30" android:minSdkVersion="30"/>
+
+    <!-- WindowManager -->
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Screen Capturing -->
+    <uses-permission android:name="android.permission.MANAGE_MEDIA_PROJECTION" />
+
+    <!-- Application needs SMS/MMS permissions -->
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.WRITE_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_MMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+
+    <application
+        android:label="Fake System App"
+        android:supportsRtl="true"
+        >
+
+        <!--
+        FallbackHome activity is used when default launcher activity is not encryption aware.
+        Effectively replaces Settings:FallbackHome, which is needed to allow device to boot when
+        Settings is removed
+        -->
+        <activity android:name=".launcher.FallbackHome"
+                  android:excludeFromRecents="true"
+                  android:label=""
+                  android:screenOrientation="nosensor"
+                  android:directBootAware="true">
+            <intent-filter android:priority="-1000">
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.HOME"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".launcher.EmptyHomeActivity"
+                  android:excludeFromRecents="true"
+                  android:label=""
+                  android:screenOrientation="nosensor"
+                  android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.HOME"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <!-- started from MediaProjectionManager -->
+        <activity android:name=".systemui.SlimMediaProjectionPermissionActivity"
+                  android:exported="true"
+                  android:finishOnCloseSystemDialogs="true"
+                  android:launchMode="singleTop"
+                  android:excludeFromRecents="true"/>
+
+        <!-- appease the framework/CTS TelephonyProvider tests which wants a default SMS app -->
+        <!-- copy the required components from packages/apps/PermissionController/res/xml/roles.xml -->
+        <receiver android:name=".messaging.StubSmsDeliverReceiver"
+            android:permission="android.permission.BROADCAST_SMS"
+            android:enabled="true" >
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_DELIVER" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".messaging.StubMmsWapPushDeliverReceiver"
+            android:permission="android.permission.BROADCAST_WAP_PUSH"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+                <data android:mimeType="application/vnd.wap.mms-message" />
+            </intent-filter>
+        </receiver>
+        <service
+            android:name=".messaging.StubNoConfirmationSmsSendService"
+            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE"
+        android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
+                <data android:scheme="smsto" />
+            </intent-filter>
+        </service>
+        <activity android:name=".messaging.StubLaunchConversationActivity"
+                  android:configChanges="orientation|screenSize|keyboardHidden"
+                  android:screenOrientation="user"
+                  android:noHistory="true"
+                  android:documentLaunchMode="always">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.SENDTO" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="sms" />
+                <data android:scheme="smsto" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.SENDTO" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="mms" />
+                <data android:scheme="mmsto" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".browser.StubBrowserActivity"
+                  android:exported="true" >
+            <!-- Catch intents which do not specify a MIME type -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+            </intent-filter>
+            <!-- Catch intents which do specify a MIME type -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:mimeType="text/html"/>
+                <data android:mimeType="text/plain"/>
+                <data android:mimeType="application/xhtml+xml"/>
+                <data android:mimeType="application/vnd.wap.xhtml+xml"/> <!-- XHTML MP -->
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>

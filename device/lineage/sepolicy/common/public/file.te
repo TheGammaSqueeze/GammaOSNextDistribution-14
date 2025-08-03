@@ -1,0 +1,2 @@
+type iso9660, sdcard_type, fs_type, mlstrustedobject;
+type udf, sdcard_type, fs_type, mlstrustedobject;

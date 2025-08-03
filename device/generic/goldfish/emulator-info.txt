@@ -1,0 +1,3 @@
+# Emulator (stable) version
+require version-emulator=9458377
+emulator-build-target=emulator-linux_x64_internal

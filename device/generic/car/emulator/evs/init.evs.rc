@@ -1,0 +1,20 @@
+on late-init
+    start cardisplayproxyd
+    start vendor.evs-hal-cf
+    start evs_manager_cf
+
+service evs_manager_cf /system/bin/evsmanagerd --target hw/0
+    class hal
+    priority -20
+    user automotive_evs
+    group automotive_evs system
+    disabled # will not automatically start with its class; must be explicitly started.
+
+service vendor.evs-hal-cf /vendor/bin/hw/android.hardware.automotive.evs-aidl-default-service
+    class hal
+    priority -20
+    user graphics
+    group automotive_evs camera
+    onrestart restart cardisplayproxyd
+    onrestart restart evs_manager_cf
+    disabled # will not automatically start with its class; must be explicitly started.

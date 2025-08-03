@@ -1,0 +1,2 @@
+# xtra-daemon control
+get_prop(vendor_init, xtra_control_prop)

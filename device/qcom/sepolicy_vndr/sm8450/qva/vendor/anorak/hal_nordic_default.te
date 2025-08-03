@@ -1,0 +1,43 @@
+#  Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
+#  SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_hal_nordic_default, domain;
+type vendor_hal_nordic_default_exec, exec_type, vendor_file_type, file_type;
+hal_server_domain(vendor_hal_nordic_default, vendor_hal_nordic)
+init_daemon_domain(vendor_hal_nordic_default);
+add_hwservice(vendor_hal_nordic_server, vendor_hal_nordic_hwservice);
+binder_call(vendor_hal_nordic_client, vendor_hal_nordic_server)
+binder_call(vendor_hal_nordic_server, vendor_hal_nordic_client)
+hal_attribute_hwservice(vendor_hal_nordic, vendor_hal_nordic_hwservice)
+hal_client_domain(vendor_hal_nordic_default, hal_allocator)
+hal_client_domain(vendor_hal_nordic_default, vendor_hal_dspmanager)
+allow vendor_hal_nordic_client vendor_hal_nordic_hwservice:hwservice_manager find;
+allow vendor_hal_nordic_default vendor_nordic_sysfs_node:file { open read write };
+allow vendor_hal_nordic_default ion_device:chr_file rw_file_perms;
+allow vendor_hal_nordic_default vendor_qvrd_vndr_socket:sock_file write;
+allow vendor_hal_nordic_default vendor_qvr_persist_prop:file { open read getattr map };
+allow vendor_hal_nordic_default vendor_qvrd_vndr:fd use;
+allow vendor_hal_nordic_default hal_graphics_mapper_hwservice:hwservice_manager find;
+allow vendor_hal_nordic_default vendor_xdsp_device:chr_file ioctl;
+allow vendor_hal_nordic_default vendor_hal_dspmanager_hwservice:hwservice_manager find;
+allow vendor_hal_nordic_default vendor_qvrd_vndr:unix_stream_socket connectto;
+allow vendor_hal_nordic_default hal_graphics_allocator_default:fd use;
+allow vendor_hal_perf_default system_server:dir { search read };
+allow vendor_hal_perf_default system_server:file { open read getattr };
+allow vendor_hal_nordic_default vendor_qvr_prop:file { open read getattr map };
+allow vendor_hal_nordic_default vendor_qvrd_persist_prop:file { open read getattr map };
+allow vendor_hal_nordic_default vendor_xdsp_device:file open;
+allow vendor_hal_nordic_default vendor_xdsp_device:chr_file { open read };
+allow vendor_hal_nordic_default vendor_sysfs_kgsl:file { open read getattr };
+allow vendor_hal_nordic_default vendor_kx_file:file { open read getattr };
+allow vendor_hal_nordic_default dmabuf_system_heap_device:chr_file { read open ioctl };
+allow vendor_hal_nordic_default dmabuf_system_heap_device:chr_file { read open ioctl };
+allow vendor_hal_nordic_default mnt_vendor_file:dir r_dir_perms;
+allow vendor_hal_nordic_default vendor_calib_file:dir r_dir_perms;
+allow vendor_hal_nordic_default vendor_calib_file:file rw_file_perms;
+allow vendor_hal_nordic_default vendor_ttyKXR2:chr_file rw_file_perms;
+allow vendor_hal_nordic_default vendor_qvrd_vndr_cam:unix_stream_socket connectto;
+allow vendor_hal_nordic_default vendor_qvrd_vndr_cam:fd use;
+allow vendor_hal_nordic_default vendor_qvrd_vndr_camera_socket:sock_file rw_file_perms;
+allow vendor_hal_nordic_default hal_camera_default:unix_stream_socket connectto;
+allow vendor_hal_nordic_default hal_camera_default:fd use;

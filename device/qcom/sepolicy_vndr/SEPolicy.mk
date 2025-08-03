@@ -1,0 +1,1 @@
+../../../hardware/qcom-caf/common/os_pickup_sepolicy_vndr.mk

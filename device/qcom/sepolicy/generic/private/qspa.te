@@ -1,0 +1,15 @@
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
+
+type vendor_qspa, domain;
+type vendor_qspa_exec, system_file_type, exec_type, file_type;
+
+typeattribute vendor_qspa coredomain;
+
+init_daemon_domain(vendor_qspa)
+
+allow vendor_qspa shell_exec:file {map read execute getattr};
+allow vendor_qspa toolbox_exec:file {getattr execute read open execute_no_trans map};
+
+set_prop(vendor_qspa, vendor_qspa_prop)
+

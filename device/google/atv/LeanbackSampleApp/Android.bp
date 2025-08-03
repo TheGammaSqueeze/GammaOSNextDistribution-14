@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["device_google_atv_LeanbackSampleApp_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "device_google_atv_LeanbackSampleApp_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "legacy_notice",
+    ],
+}
+
+android_app_import {
+    name: "LeanbackSampleApp",
+    certificate: "platform",
+    apk: "LeanbackSampleApp.apk",
+}

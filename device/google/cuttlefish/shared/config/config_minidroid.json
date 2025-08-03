@@ -1,0 +1,15 @@
+{
+	"crosvm_use_balloon": false,
+	"crosvm_use_rng": false,
+	"enable_audio": false,
+	"enable_wifi": true,
+	"enable_host_bluetooth": false,
+	"netsim_bt": false,
+	"enable_modem_simulator": false,
+	"gpu_mode" : "none",
+	"memory_mb" : 256,
+	"start_gnss_proxy": false,
+	"start_webrtc": false,
+	"use_pmem": false,
+	"use_sdcard" : false
+}

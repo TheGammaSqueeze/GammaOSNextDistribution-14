@@ -1,0 +1,2 @@
+#logdump partition
+type logdump_partition, dev_type;

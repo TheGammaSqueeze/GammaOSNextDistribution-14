@@ -1,0 +1,9 @@
+type blur_sysprop_notifier, domain, coredomain;
+type blur_sysprop_notifier_exec, system_file_type, exec_type, file_type;
+
+init_daemon_domain(blur_sysprop_notifier)
+
+
+binder_use(blur_sysprop_notifier)
+allow blur_sysprop_notifier activity_service:service_manager find;
+allow blur_sysprop_notifier system_server:binder call;

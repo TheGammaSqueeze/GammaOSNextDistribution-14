@@ -1,0 +1,57 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_generic_goldfish-opengl_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_generic_goldfish-opengl_license"],
+}
+
+cc_library_shared {
+    name: "libcodec2_goldfish_vp9dec",
+    vendor: true,
+    defaults: [
+        "libcodec2_goldfish-defaults",
+    ],
+
+    srcs: ["C2GoldfishVpxDec.cpp",
+        "goldfish_vpx_impl.cpp",
+    ],
+
+    shared_libs: ["libvpx",
+	    "android.hardware.graphics.allocator@3.0",
+		"android.hardware.graphics.mapper@3.0",
+         "libgoldfish_codec2_store",
+    ],
+
+   header_libs: [
+    "libgralloc_cb.ranchu",
+    ],
+
+    cflags: [
+        "-DVP9",
+    ],
+}
+
+cc_library_shared {
+    name: "libcodec2_goldfish_vp8dec",
+    vendor: true,
+    defaults: [
+        "libcodec2_goldfish-defaults",
+    ],
+
+    srcs: ["C2GoldfishVpxDec.cpp",
+        "goldfish_vpx_impl.cpp",
+    ],
+
+
+   header_libs: [
+    "libgralloc_cb.ranchu",
+    ],
+
+    shared_libs: ["libvpx",
+	    "android.hardware.graphics.allocator@3.0",
+		"android.hardware.graphics.mapper@3.0",
+         "libgoldfish_codec2_store",
+    ],
+}

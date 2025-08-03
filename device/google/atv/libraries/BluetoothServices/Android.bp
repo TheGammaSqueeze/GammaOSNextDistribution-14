@@ -1,0 +1,26 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "device_google_atv_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["device_google_atv_license"],
+}
+
+android_library {
+    name: "BluetoothServices",
+
+    srcs: ["src/**/*.java"],
+    static_libs: [
+        "androidx.annotation_annotation",
+        "androidx.leanback_leanback",
+        "androidx.leanback_leanback-preference",
+        "androidx.legacy_legacy-support-core-ui",
+        "guava",
+        "TwoPanelSettingsLib",
+    ],
+
+    resource_dirs: ["res"],
+    manifest: "AndroidManifest.xml",
+    sdk_version: "system_current",
+}

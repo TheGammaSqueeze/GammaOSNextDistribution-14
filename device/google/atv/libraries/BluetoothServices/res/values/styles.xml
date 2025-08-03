@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+
+  <style name="AppTheme" parent="@style/Theme.Leanback">
+  </style>
+
+  <style name="PreferenceThemeOverlayLeanback">
+    <item name="checkBoxPreferenceStyle">@style/LeanbackPreference.CheckBoxPreference</item>
+    <item name="dialogPreferenceStyle">@style/LeanbackPreference.DialogPreference</item>
+    <item name="dropdownPreferenceStyle">@style/Preference.DropDown</item>
+    <item name="editTextPreferenceStyle">@style/LeanbackPreference.DialogPreference.EditTextPreference</item>
+    <item name="preferenceCategoryStyle">@style/LeanbackPreference.Category</item>
+    <item name="preferenceFragmentCompatStyle">@style/PreferenceFragment.Leanback</item>
+    <item name="preferenceFragmentListStyle">@style/PreferenceFragmentList.Leanback</item>
+    <item name="preferenceFragmentStyle">@style/PreferenceFragment.Leanback</item>
+    <item name="preferenceInformationStyle">@style/LeanbackPreference.Information</item>
+    <item name="preferenceScreenStyle">@style/LeanbackPreference.PreferenceScreen</item>
+    <item name="preferenceStyle">@style/LeanbackPreference</item>
+    <item name="seekBarPreferenceStyle">@style/LeanbackPreference.SeekBarPreference</item>
+    <item name="switchPreferenceCompatStyle">@style/LeanbackPreference.SwitchPreferenceCompat</item>
+    <item name="switchPreferenceStyle">@style/LeanbackPreference.SwitchPreference</item>
+  </style>
+
+  <style name="BtProgressBar">
+    <item name="android:indeterminateOnly">false</item>
+    <item name="android:mirrorForRtl">true</item>
+    <item name="android:indeterminate">false</item>
+    <item name="android:minHeight">5dp</item>
+    <item name="android:maxHeight">5dp</item>
+    <item name="android:progressDrawable">@drawable/progress_drawable</item>
+  </style>
+
+  <style name="BtIndeterminateProgressBar">
+    <item name="android:indeterminateOnly">false</item>
+    <item name="android:mirrorForRtl">true</item>
+    <item name="android:indeterminate">true</item>
+    <item name="android:minHeight">15dp</item>
+    <item name="android:maxHeight">15dp</item>
+    <item name="android:indeterminateDrawable">@drawable/indeterminate_progress_drawable</item>
+  </style>
+
+  <style name="ResponseGuidanceTitleStyle" parent="Widget.Leanback.GuidanceTitleStyle">
+    <item name="android:maxLines">3</item>
+  </style>
+</resources>

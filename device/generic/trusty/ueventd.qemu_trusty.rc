@@ -1,0 +1,5 @@
+/dev/ion                  0660   system     system
+/dev/vport3p1             0660   system     system
+/dev/vport3p2             0660   system     system
+/dev/trusty-ipc-dev0      0660   system     drmrpc
+/dev/trusty-log0          0660   system     system

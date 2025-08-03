@@ -1,0 +1,4 @@
+binder_call(hal_vehiclebus_client, hal_vehiclebus_server)
+binder_call(hal_vehiclebus_server, hal_vehiclebus_client)
+
+hal_attribute_service(hal_vehiclebus, hal_vehiclebus_service)

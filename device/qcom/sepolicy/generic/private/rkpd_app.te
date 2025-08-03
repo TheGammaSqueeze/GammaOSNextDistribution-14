@@ -1,0 +1,4 @@
+#copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+#SPDX-License-Identifier: BSD-3-Clause-Clear
+
+unix_socket_connect(rkpdapp, vendor_dpmtcm, vendor_tcmd)

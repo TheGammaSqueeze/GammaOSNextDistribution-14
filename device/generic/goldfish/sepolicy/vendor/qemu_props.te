@@ -1,0 +1,17 @@
+# qemu-props service:  Sets system properties on boot.
+type qemu_props, domain;
+type qemu_props_exec, vendor_file_type, exec_type, file_type;
+
+init_daemon_domain(qemu_props)
+
+set_prop(qemu_props, qemu_hw_prop)
+set_prop(qemu_props, qemu_sf_lcd_density_prop)
+set_prop(qemu_props, vendor_qemu_prop)
+set_prop(qemu_props, vendor_net_share_prop)
+# TODO(b/79502552): Invalid property access from emulator vendor
+allow qemu_props self:vsock_socket create_socket_perms_no_ioctl;
+allow qemu_props sysfs:dir read;
+allow qemu_props sysfs:dir open;
+allow qemu_props sysfs:file getattr;
+allow qemu_props sysfs:file read;
+allow qemu_props sysfs:file open;
