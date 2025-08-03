@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"AdServices Topics API-ի օգտագործման թույլտվություն"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Թույլ է տալիս հավելվածին օգտագործել AdServices Topics API-ը։"</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"AdServices Attribution API-ների օգտագործման թույլտվություն"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Թույլ է տալիս հավելվածին օգտագործել AdServices Attribution API-ները։"</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"AdServices Custom Audience API-ի օգտագործման թույլտվություն"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Թույլ է տալիս հավելվածին օգտագործել AdServices Custom Audience API-ը։"</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"AdId API-ի օգտագործման թույլտվություն"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Թույլ է տալիս հավելվածին օգտագործել AdId API-ը։"</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"AdServices Consent API-ի օգտագործման թույլտվություն"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Թույլ է տալիս հավելվածին օգտագործել AdServices Consent API-ը։"</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Ad ID API-ի օգտագործման թույլտվություն"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Թույլ է տալիս հավելվածին օգտագործել Ad ID API-ը։"</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"AdServices Cobalt Upload API-ի օգտագործման թույլտվություն"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Թույլ է տալիս հավելվածին օգտագործել AdServices Cobalt Upload API-ը։"</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"App Set ID API-ի օգտագործման թույլտվություն"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Թույլ է տալիս հավելվածին օգտագործել App Set ID API-ը։"</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Consent Service API-ի օգտագործման թույլտվություն"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Թույլ է տալիս հավելվածին օգտագործել Consent Service API-ը։"</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"AdService-ի ակտիվացման վիճակի փոփոխման API-ի մուտք"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Թույլ է տալիս հավելվածին օգտագործել AdService-ի ակտիվացման վիճակի փոփոխման API-ը։"</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"AdService-ի ակտիվացման վիճակի API-ի մուտք"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Թույլ է տալիս հավելվածին օգտագործել AdService-ի ակտիվացման վիճակի API-ը։"</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"AdServicesManager API-ների հասանելիություն"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Թույլ է տալիս հավելվածին օգտագործել AdServicesManager API-ները։"</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"AdServices-ի AdId API-ի թարմացումների հասանելիություն։"</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Թույլ է տալիս հավելվածին օգտագործել AdServices-ի AdId API-ի թարմացումները։"</string>
+    <string name="app_label" msgid="2639006978056689153">"Գովազդի գաղտնիություն"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Միացեք Android-ում գովազդի գաղտնիության բետա փորձարկմանը"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android-ն ավելի ապահով եղանակներ է փնտրում՝ ձեզ հավելվածներում գովազդ ցուցադրելու համար"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Իմանալ ավելին"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Android-ում գովազդի գաղտնիության բետա փորձարկում"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Ինչ նոր բան կա"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Privacy Sandbox-ի գաղտնիության նոր գործառույթները թույլ են տալիս հավելվածներին ցուցադրել ձեզ համապատասխան գովազդ, սակայն սահմանափակում են այլ մշակողների կայքերում և հավելվածներում ձեր գործողությունների վերաբերյալ տվյալների հավաքումը դրանց կողմից։"</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Ինչպես է դա աշխատում"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Ինչպես մասնակցել"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Բետա փորձարկումը միացնելով՝ դուք կարող եք փորձարկել գովազդի ցուցադրման այս նոր, ավելի պաշտպանված եղանակները։ Դուք ցանկացած ժամանակ կարող եք անջատել բետա փորձարկումը գաղտնիության կարգավորումներում։"</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Ոչ, շնորհակալություն"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Միացնել"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Ավելին"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Շնորհակալություն մասնակցության համար"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Դուք մասնակցում եք Android-ում գովազդի գաղտնիության բետա փորձարկմանը։ Privacy Sandbox տեխնոլոգիաները միացված են ձեր սարքում։\n\nԲետա փորձարկման մասին ավելին իմանալու կամ դրա մասնակցությունից հրաժարվելու համար անցեք գաղտնիության կարգավորումներ։"</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Դուք հրաժարվել եք ծրագրին մասնակցելուց"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Շնորհակալություն պատասխանելու համար։ Privacy Sandbox տեխնոլոգիաներն անջատված են ձեր սարքում։\n\nԵթե մտափոխվեք կամ ուզեք ավելին իմանալ, անցեք գաղտնիության կարգավորումներ։"</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Գաղտնիության կարգավորումներ"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Եղավ"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Դուք մասնակցում եք բետա փորձարկմանը"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privacy Sandbox տեխնոլոգիաները միացված են ձեր սարքի համար։ Հավելվածները կարող են փորձարկել գովազդի ցուցադրման այս նոր, ավելի պաշտպանված եղանակները։ Դուք ցանկացած ժամանակ կարող եք անջատել բետա փորձարկումը գաղտնիության կարգավորումներում։"</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Եղավ"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Android-ի Privacy Sandbox համակարգը տրամադրում է նոր գործառույթներ, որոնց շնորհիվ հավելվածները կարող են ցուցադրել ձեզ գովազդներ, որոնք ձեզ դուր կգան։ Այս տեխնոլոգիաները չեն օգտագործում սարքերի նույնացուցիչները։\n\nAndroid-ը և ձեր հավելվածները կարող են որոշել գովազդների տեսակները, որոնք ձեզ կհետաքրքրեն, և ժամանակավորապես պահել հետաքրքրությունները ձեր սարքում։ Սա թույլ է տալիս հավելվածներին ցուցադրել գովազդ, որը կարող է ձեզ դուր գալ՝ առանց հետագծելու ձեր գործողությունները այլ մշակողների կայքերում ու հավելվածներում։"</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Գովազդի անհատականացում Privacy Sandbox-ի միջոցով"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Հետաքրքրություններն ըստ Android-ի"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android-ը պարբերաբար վերլուծում է հավելվածները, որոնցից օգտվում եք, և ստացված տվյալների հիման վրա որոշում է ձեր հիմնական հետաքրքրությունները (օրինակ՝ «Սպորտ» կամ «Ճանապարհորդություն»)։\n\nՀետագայում հավելվածները կարող են այս տվյալներն օգտագործելու թույլտվություն հայցել Android-ից՝ ձեզ ավելի համապատասխան գովազդ ցուցադրելու նպատակով։\n\nԴուք կարող եք տեսնել ընթացիկ հետաքրքրությունների ցանկը ձեր գաղտնիության կարգավորումներում, ինչպես նաև արգելափակել դրանցից ցանկացածը։"</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Հետաքրքրություններն ըստ հավելվածների"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Հավելվածները կարող են որոշել ձեր հետաքրքրությունները և ժամանակավորապես պահել դրանք Android-ում։ Օրինակ՝ հավելվածը, որը դուք օգտագործում եք սպորտային կոշիկ գնելու համար, կարող է որոշել ձեր հետաքրքրությունը որպես «մարաթոնային վազք»։\n\nՀետագայում այս հետաքրքրության հիման վրա մեկ այլ հավելված կարող է ձեզ գովազդ ցուցադրել մարաթոնների հետ կապված։\n\nՁեր գաղտնիության կարգավորումներում դուք կարող եք կառավարել այն հավելվածների ցանկը, որոնք պահել են հետաքրքրություններ։"</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Գովազդի գաղտնիության նոր գործառույթներ"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Գովազդի թեմաների ու կառավարման նոր տարրերի շնորհիվ ավելի մեծ հնարավորություն ունեք ընտրելու, թե ինչ գովազդ ձեզ ցուցադրվի"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Այժմ հասանելի են գովազդի գաղտնիության հետ կապված նոր գործառույթներ"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android-ը որոշում է ձեզ հետաքրքրող թեմաները՝ հիմնվելով վերջերս ձեր օգտագործած հավելվածների վրա։ Ձեր հետաքրքրությունները կարող են որոշվել նաև ըստ ձեր օգտագործած հավելվածների։ Հետագայում հավելվածները կարող են հայցել այս տեղեկությունները՝ ձեզ անհատականացված գովազդ ցուցադրելու համար։ Դուք կարող եք ընտրել, թե որ թեմաներն ու հավելվածներն օգտագործվեն՝ ձեզ գովազդ ցուցադրելու համար։"</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Գովազդի արդյունավետությունը գնահատելու համար հավելվածները փոխանակում են որոշակի տվյալներ։"</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Իմանալ ավելին Android սարքերում ցուցադրվող գովազդի մասին"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Ավելի օգտակար գովազդ"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Հավելվածները կարող են տեղեկություններ հայցել Android-ից՝ ձեզ ցուցադրվող գովազդն անհատականացնելու համար։"</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android-ը որոշում է ձեզ հետաքրքրող թեմաները՝ հիմնվելով վերջերս ձեր օգտագործած հավելվածների վրա։"</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Ձեր օգտագործած հավելվածները կարող են նաև որոշել ձեր հետաքրքրությունները՝ հիմք ընդունելով այն, թե ինչպես եք դուք դրանք օգտագործում։ Օրինակ՝ եթե դուք օգտագործում եք հավելված, որում վաճառվում են երկար տարածությունների վազքի մարզակոշիկներ, այդ հավելվածը կարող է որոշել, որ դուք հետաքրքրված եք մարաթոններով։"</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Հետագայում ձեր օգտագործած ցանկացած հավելված կարող է հայցել այս տեղեկությունները՝ կամ գովազդի ձեր թեմաները, կամ ձեր օգտագործած հավելվածների կողմից առաջարկվող գովազդները։"</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android-ը պարբերաբար ջնջում է թեմաները և առաջարկվող գովազդի մասին տվյալները։ Կարող եք նաև արգելափակել որոշակի թեմաներ, ինչպես նաև արգելել ընտրված հավելվածներին գովազդային առաջարկներ անել։"</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Գովազդի արդյունավետության գնահատում"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Հավելվածները, որոնք օգտագործում եք, կարող են տեղեկություններ հայցել Android-ից՝ օգնելու գնահատել իրենց գովազդի արդյունավետությունը։ Android-ը հավելվածներին թույլատրում է հավաքել միայն որոշակի տեսակի տվյալներ, օրինակ՝ տեղեկություններ, թե օրվա որ ժամին է գովազդը ձեզ ցուցադրվել։"</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Փորձեք գովազդի գաղտնիության նոր գործառույթները"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Գովազդի թեմաները թույլ են տալիս ընտրել, թե ինչ գովազդ ձեզ ցուցադրվի"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Դիտել մանրամասները"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Փորձեք գովազդի գաղտնիության նոր գործառույթները"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android-ը գործարկում է գաղտնիության նոր գործառույթներ, որոնք թույլ կտան ավելի լավ ընտրել ձեզ ցուցադրվող գովազդի թեմաները։"</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Գովազդի թեմաները օգնում են հավելվածներին ցուցադրել ձեզ համապատասխան գովազդ՝ միաժամանակ գաղտնի պահելով ձեր անձնական տվյալներն ու ձեր կողմից հավելվածների օգտագործման մասին տեղեկությունները։ Android-ը կարող է որոշել ձեզ հետաքրքրող թեմաները՝ հիմնվելով վերջերս ձեր օգտագործած հավելվածների վրա։ Հետագայում ձեր օգտագործած ցանկացած հավելված կարող է այդ թեմաների մասին տեղեկություններ հայցել Android-ից՝ ձեզ ցուցադրվող գովազդն անհատականացնելու նպատակով։"</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Սարքի կարգավորումներում դուք կարող եք տեսնել գովազդի թեմաները և արգելափակել այն թեմաները, որոնցով դուք չեք ցանկանում կիսվել հավելվածների հետ։ Android-ը նաև պարբերաբար ավտոմատ ջնջում է գովազդի թեմաները։"</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Դուք ցանկացած ժամանակ կարող եք գաղտնիության կարգավորումներում չեղարկել համաձայնությունը։"</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Իմանալ ավելին գովազդի թեմաների մասին"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Լրացուցիչ տեղեկություններ, թե ինչպես է Android-ը պաշտպանում ձեր տվյալները, կարող եք գտնել մեր "<a href="https://policies.google.com/privacy">"Գաղտնիության քաղաքականության"</a>" մեջ։"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Փորձել"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Ինչ տվյալներ են օգտագործվում"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Գովազդի ձեր թեմաները հիմնված են այս սարքում վերջերս ձեր օգտագործած հավելվածների և ձեր կողմից դրանց օգտագործման հաճախականության վրա։"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Ինչպես ենք մենք օգտագործում այս տվյալները"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android-ը որոշում է ձեզ հետաքրքրող թեմաները՝ հիմնվելով ձեր կողմից հավելվածների օգտագործման վրա։ Թեմաների պիտակները նախապես սահմանված են, օրինակ՝ «Արվեստ և զվարճանք», «Գնումներ», «Սպորտ»։ Հետագայում ձեր օգտագործած ցանկացած հավելված կարող է Android-ից հայցել որոշ թեմաների անվանումներ՝ ձեզ ցուցադրվող գովազդն անհատականացնելու համար։"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Ինչպես կարող եք կառավարել ձեր տվյալները"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android-ը պարբերաբար ջնջում է թեմաները։ Երբ դուք շարունակում եք օգտագործել հավելվածները, համապատասխան թեման կարող է նորից հայտնվել ցանկում։ Գաղտնիության կարգավորումներում կարող եք նաև ցանկացած պահի արգելափակել այն թեմաները, որոնցով չեք ուզում, որ Android-ը կիսվի հավելվածների հետ, կամ անջատել գովազդի թեմաները։"</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Դուք կարող եք փոփոխություններ կատարել գաղտնիության կարգավորումներում։"</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Այժմ հասանելի են գովազդի գաղտնիության հետ կապված այլ գործառույթներ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android-ը նաև առաջարկում է նոր եղանակներ՝ սահմանափակելու ձեր տվյալների հասանելիությունը հավելվածների համար, երբ դրանք ձեզ անհատականացված գովազդ են ցուցադրում։"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Հավելվածների կողմից առաջարկվող գովազդներն օգնում են պաշտպանել ձեր անձնական տվյալները և ձեր կողմից հավելվածների օգտագործման մասին տեղեկությունները՝ միաժամանակ հնարավորություն տալով հավելվածներին ցուցադրել համապատասխան գովազդ։ Հավելվածները կարող են միմյանց գովազդ առաջարկել՝ հիմնվելով ձեր գործողությունների վրա։ Գաղտնիության կարգավորումներում կարող եք տեսնել հավելվածների ցանկը և արգելափակել այն հավելվածները, որոնք չեք ուզում, որ գովազդ առաջարկեն։"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Գովազդի արդյունավետությունը գնահատելու համար հավելվածները փոխանակում են որոշակի տվյալներ, օրինակ՝ օրվա ժամը, երբ գովազդը ցուցադրվել է ձեզ։"</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Իմանալ ավելին հավելվածների կողմից առաջարկվող գովազդների և գովազդի արդյունավետության գնահատման մասին"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Հավելվածների առաջարկած գովազդներ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Ինչ տվյալներ են օգտագործվում"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Ձեր գործողությունները հավելվածում, որն օգտագործում եք այս սարքում։"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Ինչպես են հավելվածներն օգտագործում այս տվյալները"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Հավելվածները նաև կարող են տեղեկություններ պահել ձեր հետաքրքրությունների մասին Android-ում։ Օրինակ, եթե դուք օգտագործում եք մարաթոնյան վազքին նախապատրաստվելու հավելված, այդ հավելվածը կարող է որոշել, որ դուք հետաքրքրված եք վազքի մարզակոշիկներով։ Հետագայում մեկ այլ հավելված օգտագործելիս դուք այդ հավելվածում կարող եք տեսնել առաջին հավելվածի կողմից առաջարկվող վազքի մարզակոշիկների գովազդ։"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Ինչպես կարող եք կառավարել ձեր տվյալները"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android-ը պարբերաբար ջնջում է հավելվածների կողմից առաջարկվող տվյալները։ Եթե շարունակեք օգտագործել հավելվածը, այն կրկին կարող է հայտնվել ցանկում։"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Դուք նաև ցանկացած ժամանակ գաղտնիության կարգավորումներում կարող եք արգելել հավելվածին գովազդ առաջարկել, զրոյացնել առաջարկվող գովազդների մասին բոլոր տվյալները կամ ընդհանրապես անջատել հավելվածների կողմից առաջարկվող գովազդների ցուցադրումը։"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Հավելվածները, որոնք օգտագործում եք, կարող են Android-ից տեղեկություններ հայցել գովազդի արդյունավետությունը գնահատելու համար։ Android-ը պաշտպանում է ձեր գաղտնիությունը՝ սահմանափակելով այն տեղեկությունները, որոնցով հավելվածները կարող են միմյանց հետ կիսվել։"</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Այժմ հասանելի են գովազդի գաղտնիության հետ կապված նոր գործառույթներ"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Ստացեք ավելի մեծ հնարավորություն ընտրելու, թե ինչ գովազդ ձեզ ցուցադրվի՝ գաղտնի պահելով ձեր անձնական տվյալները"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Այժմ հասանելի են գովազդի գաղտնիության հետ կապված նոր գործառույթներ"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android-ը գործարկում է նոր եղանակներ՝ սահմանափակելու ձեր տվյալների հասանելիությունը հավելվածների համար, երբ դրանք ձեզ անհատականացված գովազդ են ցուցադրում։"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Հավելվածների կողմից գովազդների առաջարկման գործառույթի շնորհիվ գաղտնիության նոր գործառույթներն օգնում են պաշտպանել ձեր անձնական տվյալները և ձեր կողմից հավելվածների օգտագործման մասին տեղեկությունները՝ թույլ տալով հավելվածներին ցուցադրել համապատասխան գովազդ։ Հավելվածները կարող են միմյանց գովազդ առաջարկել՝ հիմնվելով ձեր գործողությունների վրա։ Գաղտնիության կարգավորումներում կարող եք տեսնել հավելվածների ցանկը և արգելափակել այն հավելվածները, որոնք չեք ուզում, որ գովազդ առաջարկեն։"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Գովազդի արդյունավետությունը հասկանալու համար հավելվածները փոխանակում են որոշակի տվյալներ, օրինակ՝ օրվա ժամը, երբ գովազդը ցուցադրվել է ձեզ։"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Ձեր գործողություններն այս սարքի հավելվածում կարող են օգտագործվել գովազդ առաջարկելու համար։"</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Միացրեք գովազդի գաղտնիության հետ կապված մեկ այլ գործառույթ"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android-ն առաջարկում է նաև գաղտնիության նոր գործառույթ, որի շնորհիվ ավելի մեծ հնարավորություն կունենաք ընտրելու, թե ինչ գովազդ ձեզ ցուցադրվի։"</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Գովազդի թեմաները թույլ են տալիս հավելվածներին համապատասխան գովազդ ցուցադրել ձեզ՝ միաժամանակ գաղտնի պահելով ձեր անձնական տվյալներն ու ձեր կողմից հավելվածների օգտագործման մասին տեղեկությունները։ Android-ը կարող է որոշել ձեզ հետաքրքրող թեմաները՝ հիմնվելով վերջերս ձեր օգտագործած հավելվածների վրա։ Ավելի ուշ, որևէ հավելված, որը կօգտագործեք, կարող է Android-ից հայցել թեմաները՝ ձեզ ավելի համապատասխան գովազդ ցուցադրելու նպատակով։"</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Գաղտնիության կարգավորումներում դուք կարող եք տեսնել գովազդի թեմաները և արգելափակել այն թեմաները, որոնց մասին տեղեկությունները չեք ուզում, որ փոխանցվեն հավելվածներին։ Android-ը նաև պարբերաբար ջնջում է գովազդի թեմաների մասին տեղեկությունները։"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Միացնել"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Այժմ հասանելի են գովազդի գաղտնիության հետ կապված նոր գործառույթներ"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Այժմ ավելի հեշտությամբ կարող եք ընտրել, թե ինչ գովազդ ձեզ ցուցադրվի՝ գաղտնի պահելով ձեր անձնական տվյալները"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Այժմ հասանելի են գովազդի գաղտնիության հետ կապված նոր գործառույթներ"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Android-ն այժմ առաջարկում է գաղտնիության նոր գործառույթներ, որոնք կօգնեն ձեզ կառավարել ձեզ ցուցադրվող գովազդը։"</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Հաջորդը"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Միացեք Android-ում գովազդի գաղտնիության բետա փորձարկման ծրագրին"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Հետաքրքրությունները՝ որոշված Android-ի կողմից"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Հավելվածներ, որոնք որոշում են հետաքրքրություններ"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Գովազդի արդյունավետության գնահատում"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Privacy Sandbox-ի շնորհիվ հավելվածները կարող են գնահատել իրենց գովազդների արդյունավետությունը։ Դրա համար գովազդատուները կարող են Android-ում ժամանակավորապես տվյալներ պահել իրենց գովազդների և հավելվածների հետ ձեր փոխազդեցությունների մասին։ Այս տվյալները սահմանափակ են և պարբերաբար ջնջվում են։\n\nԴուք ցանկացած ժամանակ կարող եք ջնջել այս տվյալները՝ անջատելով Privacy Sandbox-ը։"</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android-ը պարբերաբար վերլուծում է հավելվածները, որոնցից օգտվում եք, և ստացված տվյալների հիման վրա որոշում է ձեր հիմնական հետաքրքրությունները։ Հավելվածները կարող են այս տվյալներն օգտագործելու թույլտվություն հայցել Android-ից՝ ձեզ ավելի համապատասխան գովազդ ցուցադրելու նպատակով։\n\nԵթե դուք արգելափակեք որևէ հետաքրքրություն, այն չի հայտնվի ցանկում, մինչև չարգելաբացեք այն։ Հնարավոր է՝ դուք նախկինի պես տեսնեք այդ հետաքրքրության հետ կապված որոշ գովազդներ։"</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Արգելափակել"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Արգելահանել"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Հետաքրքրություններ, որոնք արգելափակել եք"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Զրոյացնել հետաքրքրությունները"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Այս պահին հետաքրքրություններ չկան։"</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Այս պահին թեմաներ չկան։\nԻմացեք ավելին "<a href="https://support.google.com/android?p=ad_privacy">"գովազդների թեմաների մասին"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Android-ում գովազդի գաղտնիության բետա փորձարկման ծրագիրը տրամադրում է նոր գործառույթներ, որոնց միջոցով հավելվածները կարող են ցույց տալ ձեզ գովազդներ, որոնք կարող են ձեզ դուր գալ։ Այս տեխնոլոգիաները չեն օգտագործում սարքերի նույնացուցիչները։\n\nAndroid-ը կարող է որոշել գովազդների տեսակները, որոնք կարող են հետաքրքրել ձեզ, և ժամանակավորապես պահել հետաքրքրությունները ձեր սարքում։ Սա թույլ է տալիս հավելվածներին ցուցադրել ձեզ համապատասխան գովազդ՝ առանց հետագծելու ձեր գործողությունները այլ մշակողների կայքերում ու հավելվածներում։"</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Արգելափակված հետաքրքրություններ չկան"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Արգելափակված թեմաներ չկան"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Դիտել արգելափակված թեմաները"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Հետաքրքրությունները զրոյացված են"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Թեմաները զրոյացվեցին"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Հավելվածները կարող են որոշել ձեր հետաքրքրությունները և ժամանակավորապես պահել դրանք Android-ում։ Հետագայում մեկ այլ հավելված կարող է ձեզ գովազդ ցուցադրել այս հետաքրքրությունների հիման վրա։\n\nԵթե դուք արգելափակեք որևէ հավելված, այն այլևս չի որոշի ձեր հետաքրքրությունները։ Քանի դեռ հավելվածն արգելափակված է, այն չի հայտնվի հավելվածների այս ցանկում։ Հավելվածի կողմից արդեն որոշված հետաքրքրությունները կջնջվեն, սակայն հնարավոր է, որ դուք դեռ տեսնեք այդ հետաքրքրության հետ կապված որոշ գովազդներ։"</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Ձեր արգելափակած հավելվածները"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Դիտել արգելափակված հավելվածների ցանկը"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Զրոյացնել հավելվածների կողմից որոշված հետաքրքրությունները"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Այս պահին չկան հավելվածներ, որոնք որոշում են ձեր հետաքրքրությունները"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Այս պահին հավելվածներ չկան։ \nԻմացեք ավելին "<a href="https://support.google.com/android?p=ad_privacy">"հավելվածների կողմից առաջարկվող գովազդների մասին"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Android-ում գովազդի գաղտնիության բետա փորձարկման ծրագիրը տրամադրում է նոր գործառույթներ, որոնց միջոցով հավելվածները կարող են ցույց տալ ձեզ գովազդներ, որոնք կարող են ձեզ դուր գալ։ Այս տեխնոլոգիաները չեն օգտագործում սարքերի նույնացուցիչները։\n\nՀավելվածները կարող են որոշել գովազդների տեսակները, որոնք կարող են հետաքրքրել ձեզ, և ժամանակավորապես պահել հետաքրքրությունները ձեր սարքում։ Սա թույլ է տալիս հավելվածներին ցուցադրել ձեզ համապատասխան գովազդ՝ առանց հետագծելու ձեր գործողությունները այլ մշակողների կայքերում ու հավելվածներում։"</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Արգելափակված հավելվածներ չկան"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Արգելափակված հավելվածներ չկան"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Թույլատրել գովազդի արդյունավետության գնահատումը"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Հավելվածներն ու գովազդատուները կարող են Android-ից տեղեկություններ հայցել՝ գովազդի արդյունավետությունը գնահատելու համար։\n\nԳովազդի արդյունավետության գնահատման տվյալները պարբերաբար ջնջվում են ձեր սարքից։"</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Զրոյացնել արդյունավետության գնահատման տվյալները"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android-ը պաշտպանում է ձեր գաղտնիությունը՝ սահմանափակելով այն տեղեկությունները, որոնցով հավելվածները կարող են միմյանց հետ կիսվել։ Անձնական տվյալները պաշտպանելու համար հաշվետվություններն ուղարկվում են ուշացումով։\n\nՁեր դիտարկիչը կարող է նմանատիպ գործառույթ ունենալ։ Եթե գովազդի արդյունավետության գնահատումը ձեր դիտարկիչում և Android սարքում միացված է, ընկերությունը կկարողանա գնահատել գովազդի արդյունավետությունը կայքերում, որոնք այցելում եք, և հավելվածներում, որոնք օգտագործում եք։ Այցելությունների պատմությունը պահվում է ձեր սարքում և հասանելի է միայն ձեզ։\n\nԼրացուցիչ տեղեկություններ, թե ինչպես է Android-ը պաշտպանում ձեր տվյալները, կարող եք գտնել մեր "<a href="https://policies.google.com/privacy">"Գաղտնիության քաղաքականության"</a>" մեջ։"</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Գովազդի արդյունավետության գնահատման տվյալները զրոյացվեցին"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Չեղարկել"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Անջատե՞լ Privacy Sandbox-ը"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Եթե մտափոխվեք կամ ուզեք ավելին իմանալ Android-ում գովազդի գաղտնիության բետա փորձարկման մասին, անցեք գաղտնիության կարգավորումներ"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Անջատել"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Արգելափակե՞լ «<xliff:g id="TOPIC">%1$s</xliff:g>» թեման"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Այս թեման կարգելափակվի և այլևս չի ավելացվի ձեր ցանկում, եթե ինքներդ այն նորից չավելացնեք։ Հնարավոր է՝ դուք նախկինի պես տեսնեք այս թեմային առնչվող որոշ գովազդներ։"</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Արգելափակել"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"«<xliff:g id="TOPIC">%1$s</xliff:g>» թեման արգելաբացված է"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android-ը կարող է կրկին ավելացնել այս թեման ձեր ցանկում, բայց այն կարող է անմիջապես չհայտնվել"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"Եղավ"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Զրոյացնե՞լ գովազդի բոլոր թեմաները"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Ձեր ցանկը կմաքրվի, և ժամանակի ընթացքում ցանկում կավելացվեն նոր թեմաներ։ Հնարավոր է՝ դուք նախկինի պես տեսնեք հեռացված թեմաներին առնչվող որոշ գովազդներ։"</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Զրոյացնել"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Արգելափակե՞լ <xliff:g id="APP">%1$s</xliff:g> հավելվածը"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Այս հավելվածը գովազդ չի առաջարկի և չի ավելացվի ձեր ցանկում, քանի դեռ չեք արգելաբացել այն։ Հնարավոր է՝ դուք նախկինի պես տեսնեք նմանատիպ գովազդներ։"</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"<xliff:g id="APP">%1$s</xliff:g> հավելվածն արգելաբացված է"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Այս հավելվածը կարող է նորից գովազդներ առաջարկել, սակայն այն կարող է անմիջապես չհայտնվել ձեր ցանկում։ Կարող է որոշ ժամանակ պահանջվել, որպեսզի տեսնեք այդ հետաքրքրությունների հետ կապված գովազդներ։"</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Զրոյացնե՞լ հավելվածների կողմից առաջարկվող գովազդները"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Ձեր ցանկի հավելվածների կողմից առաջարկվող գովազդների մասին տվյալները կհեռացվեն, և հավելվածները կսկսեն նոր գովազդներ ցուցադրել։ Հնարավոր է՝ դուք նախկինի պես տեսնեք հին հետաքրքրությունների հետ կապված որոշ գովազդներ։"</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Հավելվածի տվյալները զրոյացվեցին"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Գովազդների թեմաները միացված են"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android-ը կսկսի հիշել ձեզ հետաքրքրող թեմաները, սակայն կարող է որոշակի ժամանակ պահանջվել, մինչև այդ թեմաներով առաջին գովազդները ձեզ կցուցադրվեն։"</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Անջատե՞լ գովազդների թեմաները"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Թեմաների այս ցանկը կջնջվի։ Android-ն այլևս չի հիշի ձեզ հետաքրքրող թեմաները, սակայն դուք դեռ կարող եք տեսնել համապատասխան գովազդներ։"</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Հավելվածների առաջարկած գովազդները միացված են"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Հավելվածները կարող են սկսել գովազդ առաջարկել։ Դուք կտեսնեք հավելվածների ցանկը, երբ դրանք սկսեն գովազդ առաջարկել։"</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Անջատե՞լ հավելվածների կողմից առաջարկվող գովազդները"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Առաջարկվող գովազդների մասին բոլոր տվյալները կհեռացվեն։ Հավելվածներն այլևս չեն կարողանա գովազդ առաջարկել, սակայն դուք դեռ կարող եք տեսնել համապատասխան գովազդ։"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Գովազդի արդյունավետության չափումը միացված է"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android-ը կարող է միայն շատ սահմանափակ տեղեկություններով կիսվել հավելվածների հետ՝ օգնելու դրանց չափել իրենց գովազդների արդյունավետությունը։"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Անջատե՞լ գովազդի արդյունավետության չափումը"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Գովազդի արդյունավետության չափումների մասին բոլոր առկախ հաշվետվությունները կհեռացվեն, և նոր հաշվետվություններ չեն ստեղծվի կամ ուղարկվի։"</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Գովազդի գաղտնիություն"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Գովազդի թեմաներ"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Հավելվածների առաջարկած գովազդներ"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android-ը ձեզ հետաքրքրող թեմաները որոշում է՝ հիմնվելով ձեր վերջերս օգտագործած հավելվածների և ձեր կողմից դրանց օգտագործման հաճախականության վրա։"</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Ձեր օգտագործած հավելվածները կարող են նաև որոշել ձեր հետաքրքրությունները՝ հիմք ընդունելով այն, թե ինչպես եք դուք դրանք օգտագործում։"</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Հավելվածները, որոնք օգտագործում եք, կարող են Android-ից տեղեկություններ հայցել՝ գովազդի արդյունավետությունը գնահատելու համար։ Android-ը հավելվածներին թույլ է տալիս հավաքել միայն որոշակի տեսակի տվյալներ։"</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Իմացեք ավելին "<a href="https://support.google.com/android?p=ad_privacy">"Android-ում գովազդի գաղտնիության մասին"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Միացված է / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> թեմա"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Միացված է / # թեմա}one{Միացված է / # թեմա}other{Միացված է / # թեմա}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Միացված է / <xliff:g id="APPS_COUNT">%1$d</xliff:g> հավելված"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Միացված է / # հավելված}one{Միացված է / # հավելված}other{Միացված է / # հավելված}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Միացված է"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Անջատված է"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Ձեզ հետաքրքրող թեմաները հիմնված են ձեր վերջերս օգտագործած հավելվածների վրա և օգտագործվում են հավելվածների կողմից՝ ձեզ անհատականացված գովազդ ցուցադրելու համար։\n\nԴուք կարող եք արգելափակել թեմաները, որոնց մասին տեղեկությունները չեք ուզում, որ փոխանցվեն հավելվածներին։ Android-ը նաև պարբերաբար ջնջում է թեմաների մասին տեղեկությունները։\n\nԹեև այս գործառույթը կարող է միացված լինել, հնարավոր է՝ դուք չտեսնեք թեմաների ցանկը, քանի դեռ այս գործառույթն ամբողջությամբ հասանելի չէ, և հավելվածները չեն սկսել օգտագործել այն:"</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Թույլատրել գովազդի թեմաները"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Գովազդի թեմաներ, որոնք արգելափակել եք"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Զրոյացնել գովազդի բոլոր թեմաները"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android-ը որոշում է ձեզ հետաքրքրող թեմաները՝ հիմնվելով վերջին մի քանի շաբաթվա ընթացքում ձեր օգտագործած հավելվածների վրա։\n\nՀավելվածները, որոնք ավելի ուշ օգտագործեք, կարող են Android-ից թեմաների մասին տեղեկություններ հայցել՝ ձեզ ցուցադրվող գովազդն անհատականացնելու համար։ Android-ը տրամադրում է մինչև 3 թեմայի մասին տեղեկություններ՝ միաժամանակ գաղտնի պահելով ձեր անձնական տվյալներն ու ձեր կողմից հավելվածների օգտագործման մասին տեղեկությունները։\n\nAndroid-ը պարբերաբար ջնջում է թեմաները։ Սակայն դրանք կարող են նորից հայտնվել ցանկում, երբ դուք շարունակեք օգտագործել հավելվածները։ Կարող եք նաև արգելափակել այն թեմաները, որոնցով չեք ուզում, որ Android-ը կիսվի հավելվածների հետ։\n\nԳովազդները, որոնք դուք տեսնում եք հավելվածներում, կարող են անհատականացված լինել։ Դրանք ցուցադրվում են ձեզ այս պարամետրի, հավելվածների կողմից առաջարկվող գովազդի պարամետրի, գովազդային նույնացուցիչի կարգավորումների և ձեր օգտագործած հավելվածի հիման վրա։"</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Թույլատրել հավելվածների կողմից առաջարկվող գովազդները"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Հավելվածները, որոնք օգտագործում եք, կարող են որոշել, թե ինչ է ձեզ դուր գալիս, և համապատասխան գովազդ ցուցադրել այլ հավելվածներում։\n\nԴուք կարող եք արգելափակել հավելվածները, որոնք չեք ցանկանում, որ գովազդ առաջարկեն։ Android-ը նաև պարբերաբար ջնջում է հավելվածների կողմից առաջարկվող տվյալները։\n\nԹեև այս գործառույթը կարող է միացված լինել, հնարավոր է՝ դուք չտեսնեք հավելվածների ցանկը, քանի դեռ այս գործառույթն ամբողջությամբ հասանելի չէ, և հավելվածները չեն սկսել օգտագործել այն:"</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Ձեր արգելափակած հավելվածները"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Զրոյացնել հավելվածների կողմից առաջարկվող տվյալները"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Սովորաբար, ձեր օգտագործած հավելվածները մտապահում են ձեզ հետաքրքրող թեմաները, որպեսզի անհատականացված բովանդակություն առաջարկեն ձեզ։ Դրանք նաև կարող են Android-ում պահել տեղեկություններ ձեր հետաքրքրությունների մասին։\n\nՕրինակ, եթե դուք օգտագործում եք մարաթոնյան վազքին նախապատրաստվելու հավելված, հավելվածը կարող է որոշել, որ դուք հետաքրքրված եք վազքի մարզակոշիկներով։ Հետագայում մեկ այլ հավելված օգտագործելիս դուք այդ հավելվածում կարող եք տեսնել առաջին հավելվածի կողմից առաջարկվող վազքի մարզակոշիկների գովազդ։\n\nAndroid-ը պարբերաբար ջնջում է հավելվածների կողմից առաջարկվող տվյալները։ Եթե շարունակեք օգտագործել հավելվածը, դրա տվյալները կարող են նորից հայտնվել ցանկում։ Դուք նաև կարող եք արգելել հավելվածին գովազդ առաջարկել։\n\nԳովազդները, որոնք դուք տեսնում եք հավելվածներում, կարող են անհատականացված լինել։ Դրանք ցուցադրվում են ձեզ այս պարամետրի, գովազդի թեմաների, գովազդային նույնացուցիչի կարգավորումների և ձեր օգտագործած հավելվածի հիման վրա։"</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Գովազդի գաղտնիության նոր գործառույթ է հասանելի"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Հավելվածներին տրամադրվում են սահմանափակ տեղեկություններ՝ գովազդների արդյունավետությունը գնահատելու համար"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Մենք գործարկում ենք գովազդի գաղտնիության նոր գործառույթ՝ «գովազդի արդյունավետության չափում» անվանումով։ Android-ը հավելվածներին տրամադրում է շատ սահմանափակ տեղեկություններ, օրինակ՝ երբ գովազդ է ցուցադրվում ձեզ, որպեսզի օգնի հավելվածներին գնահատել գովազդների արդյունավետությունը։"</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Դուք կարող եք փոփոխություններ կատարել գովազդի գաղտնիության կարգավորումներում։"</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Հավելվածները, որոնք օգտագործում եք, կարող են Android-ից տեղեկություններ հայցել՝ գովազդի արդյունավետությունը գնահատելու համար։ Android-ը հավելվածներին թույլ է տալիս հավաքել միայն որոշակի տեսակի տվյալներ։"</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Գովազդում գաղտնիության ապահովման նոր գործառույթներ"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Ստացեք ավելի մեծ հնարավորություն ընտրելու, թե ինչ գովազդ ձեզ ցուցադրվի՝ օգնելով գաղտնի պահել ձեր անձնական տվյալները"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Փոփոխություններ գովազդում գաղտնիության ապահովման գործառույթներում"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Ստացեք ավելի մեծ հնարավորություն ընտրելու, թե ինչ գովազդ ձեզ ցուցադրվի՝ օգնելով գաղտնի պահել ձեր անձնական տվյալները"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android-ն ընդլայնում է գովազդում գաղտնիության ապահովման գործառույթները՝ սահմանափակելու տեղեկությունները, որոնք հավելվածները կարող են իմանալ ձեր մասին, երբ դրանք ձեզ անհատականացված գովազդ ցուցադրեն։"</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Հավելվածները և դրանց գովազդային գործընկերները կարող են օգտագործել այս սարքի այլ հավելվածների հետ կապված ձեր վիճակագրությունը, որպեսզի անհատականացնեն գովազդը՝ միաժամանակ օգնելով ապահովել ձեր անձնական տվյալների գաղտնիությունը։"</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Իմանալ ավելին հավելվածների կողմից առաջարկվող գովազդների մասին"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Գովազդի արդյունավետությունը հասկանալու համար հավելվածները փոխանակում են որոշակի տվյալներ, օրինակ՝ օրվա ժամը, երբ գովազդը ցուցադրվել է ձեզ։"</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Իմանալ ավելին գովազդի արդյունավետության չափման մասին"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android-ը որոշում է ձեզ հետաքրքրող թեմաները՝ հիմնվելով ձեր վերջերս օգտագործած հավելվածների վրա։ Բացի այդ՝ հավելվածները և դրանց գովազդային գործընկերները կարող են օգտագործել այս սարքի այլ հավելվածների հետ կապված ձեր վիճակագրությունը, որպեսզի անհատականացնեն գովազդը՝ միաժամանակ օգնելով ապահովել ձեր ինքնության գաղտնիությունը։"</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Ձեր օգտագործած հավելվածները կարող են նաև որոշել ձեր հետաքրքրությունները՝ հիմք ընդունելով հավելվածի օգտագործման ձեր պատմությունը։ Օրինակ՝ եթե դուք կանոնավոր կերպով օգտագործում եք խոհարարական հավելվածներ, այլ հավելվածներում կարող եք տեսնել պարենային ապրանքների առաքման ծառայությունների գովազդ կամ նմանատիպ բովանդակություն։\n\nՀավելվածները կարող են ապահով կերպով պահել այս տեղեկությունները, որոնք կարող են օգտագործվել միայն այս հավելվածների գովազդային գործընկերների կողմից՝ այլ հավելվածներում գովազդն անհատականացնելու համար։"</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Ավելի ուշ, որևէ հավելված, որը կօգտագործեք, կարող է հայցել այս տեղեկությունները (կա՛մ գովազդի ձեր թեմաները, կա՛մ ձեր օգտագործած հավելվածների կողմից առաջարկվող գովազդները)։"</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Հավելվածները, որոնք օգտագործում եք, կարող են Android-ից տեղեկություններ հայցել՝ գովազդի արդյունավետությունը գնահատելու համար։ Android-ն օգնում է պաշտպանել ձեր գաղտնիությունը՝ սահմանափակելով այն տեղեկությունները, որոնցով հավելվածները կարող են միմյանց հետ կիսվել։"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Ի՞նչ տվյալներ են օգտագործվում"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Հավելվածները, որոնք օգտագործում եք, կարող են Android-ից տեղեկություններ հայցել գովազդի արդյունավետությունը գնահատելու համար։ Android-ն օգնում է պաշտպանել ձեր գաղտնիությունը՝ սահմանափակելով այն տեղեկությունները, որոնցով հավելվածները կարող են միմյանց հետ կիսվել։"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Ինչպե՞ս են պաշտպանվում իմ անձնական տվյալները"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android-ն օգտագործում է գաղտնիության ապահովման բազմաթիվ միջոցներ, ինչպիսիք են տվյալների ագրեգացիան և աղմուկով խլացումը՝ սահմանափակելու այն տեղեկությունները, որոնցով հավելվածները կարող են կիսվել միմյանց հետ, և օգնելու պաշտպանել ձեր անձնական տվյալները։\n\nԳովազդի արդյունավետության գնահատման տվյալները նաև պարբերաբար ջնջվում են ձեր սարքից։"</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Ձեր հավելվածների օգտագործման պատմությունը կարող է օգտագործվել գովազդ առաջարկելու համար։"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Ինչպե՞ս են հավելվածներն օգտագործում այս տվյալները"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Հավելվածները կարող են ապահով կերպով պահել այս տեղեկությունները, որոնք կարող են օգտագործվել միայն այս հավելվածների գովազդային գործընկերների կողմից՝ այլ հավելվածներում գովազդն անհատականացնելու համար։ Օրինակ՝ եթե դուք կանոնավոր կերպով օգտագործում եք խոհարարական հավելվածներ, այլ հավելվածներում կարող եք տեսնել պարենային ապրանքների առաքման ծառայությունների գովազդ կամ նմանատիպ բովանդակություն։"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Ինչպե՞ս կարող եմ կառավարել այս տվյալները"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Դուք կարող եք որոշակի հավելվածների արգելել կիսվել ձեր գործողությունների մասին տվյալներով գովազդային գործընկերների հետ։ Դուք գաղտնիության կարգավորումներում կարող եք զրոյացնել բոլոր տվյալները կամ արգելել հավելվածին գովազդ առաջարկել կամ ընդհանրապես անջատել հավելվածների կողմից առաջարկվող գովազդների ցուցադրումը։ Android-ը նաև պարբերաբար ջնջում է այս տվյալները։"</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Ինչպես է Android-ն օգնում պաշտպանել ձեր գաղտնիությունը"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Հավելվածները և դրանց գովազդային գործընկերները կարող են օգտագործել այս սարքի այլ հավելվածների հետ կապված ձեր վիճակագրությունը, որպեսզի անհատականացնեն գովազդը՝ միևնույն ժամանակ գաղտնի ու ապահով պահելով ձեր մասին տեղեկությունները։\n\nՕրինակ՝ եթե դուք կանոնավոր կերպով օգտագործում եք խոհարարական հավելվածներ, այլ հավելվածներում կարող եք տեսնել պարենային ապրանքների առաքման ծառայությունների գովազդ կամ նմանատիպ բովանդակություն։\n\nAndroid-ը կանոնավոր կերպով ջնջում է ձեր գործողությունները, սակայն դուք կարող եք նաև արգելել հավելվածներին կիսվել այս տեղեկություններով իրենց գովազդային գործընկերների հետ։"</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Հավելվածները և դրանց գովազդային գործընկերները սովորաբար մտապահում են ձեզ հետաքրքրող թեմաները, որպեսզի անհատականացված բովանդակություն առաջարկեն ձեզ։ Հավելվածները կարող են ապահով կերպով պահել այս տեղեկությունները, որոնք կարող են օգտագործվել միայն այս հավելվածների գովազդային գործընկերների կողմից՝ այլ հավելվածներում գովազդ ցուցադրելու համար։\n\nԴուք կարող եք արգելել հավելվածներին կիսվել ձեր գործողությունների մասին տվյալներով գովազդային գործընկերների հետ։ Android-ը նաև պարբերաբար ջնջում է գործողությունների մասին փոխանցված տվյալները, ուստի հավելվածը, որը դուք կրկին օգտագործեք, կարող է նորից հայտնվել այս ցանկում։\n\nԳովազդները, որոնք դուք տեսնում եք հավելվածներում, կարող են անհատականացված լինել։ Դրանք ցուցադրվում են ձեզ այս պարամետրի, գովազդի թեմաների, գովազդային նույնացուցիչի կարգավորումների և ձեր օգտագործած հավելվածի հիման վրա։\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Իմանալ ավելին հավելվածների կողմից առաջարկվող գովազդների մասին"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android-ն օգտագործում է գաղտնիության ապահովման բազմաթիվ միջոցներ, ինչպիսիք են տվյալների ագրեգացիան և աղմուկով խլացումը՝ սահմանափակելու այն տեղեկությունները, որոնցով հավելվածները կարող են կիսվել միմյանց հետ, և օգնելու պաշտպանել ձեր անձնական տվյալները։\n\nՁեր դիտարկիչը կարող է նմանատիպ գործառույթ ունենալ։ Եթե գովազդի արդյունավետության գնահատումը ձեր դիտարկիչում և Android սարքում միացված է, ընկերությունը կկարողանա գնահատել գովազդի արդյունավետությունը կայքերում, որոնք այցելում եք, և հավելվածներում, որոնք օգտագործում եք։ Այցելությունների պատմությունը պահվում է ձեր սարքում և հասանելի է միայն ձեզ։\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Իմանալ ավելին գովազդի արդյունավետության չափման մասին"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android-ը որոշում է ձեզ հետաքրքրող թեմաները՝ հիմնվելով վերջին մի քանի շաբաթվա ընթացքում ձեր օգտագործած հավելվածների վրա։\n\nՀավելվածները, որոնք ավելի ուշ օգտագործեք, կարող են Android-ից թեմաների մասին տեղեկություններ հայցել՝ ձեզ ցուցադրվող գովազդն անհատականացնելու համար։ Android-ը տրամադրում է մինչև 3 թեմայի մասին տեղեկություններ՝ միաժամանակ գաղտնի պահելով ձեր անձնական տվյալներն ու ձեր կողմից հավելվածների օգտագործման մասին տեղեկությունները։\n\nAndroid-ը պարբերաբար ջնջում է թեմաները։ Սակայն դրանք կարող են նորից հայտնվել ցանկում, երբ դուք շարունակեք օգտագործել հավելվածները։ Կարող եք նաև արգելափակել այն թեմաները, որոնցով չեք ուզում, որ Android-ը կիսվի հավելվածների հետ։\n\nԳովազդները, որոնք դուք տեսնում եք հավելվածներում, կարող են անհատականացված լինել։ Դրանք ցուցադրվում են ձեզ այս պարամետրի, հավելվածների կողմից առաջարկվող գովազդի պարամետրի, գովազդային նույնացուցիչի կարգավորումների և ձեր օգտագործած հավելվածի հիման վրա։\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Իմանալ ավելին գովազդների թեմաների մասին"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Նշանների գունագեղ պատկերազարդումներ, որոնք ներկայացնում են օգտատիրոջը հետաքրքրող թեմաներ, ինչպիսիք են երաժշտությունը, նորությունները և սպորտը"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Շրջանակի ներսում գտնվող կողպեքի գունագեղ պատկերազարդում"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Քառակուսի կազմող ինը կետերի փոքրիկ սև ու սպիտակ պատկերազարդում"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Պարզ ձևապատկերների, ինչպիսիք են սիրտը, եռանկյունին և քառակուսին, փոքրիկ սև ու սպիտակ պատկերազարդում"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Արվեստ և զվարճանք"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Թատրոն և դրամատուրգիա"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Անիմե և մանգա"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Մուլտֆիլմեր"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Կոմիքսներ"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Համերգներ և երաժշտական փառատոններ"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Պար"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Ժամանցային արդյունաբերություն"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Զվարճանք և վիկտորինաներ"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Զվարճալի թեստեր և հարցումներ"</string>
+    <string name="topic10011" msgid="175945911179628507">"Հումոր"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Զվարճալի լուսանկարներ և տեսանյութեր"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Հումորային ներկայացումներ"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Սպորտային միջոցառումներ"</string>
+    <string name="topic10015" msgid="726046067079821146">"Կախարդանք"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Կինոթատրոնների և թատրոնների խաղացանկեր"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Ֆիլմեր"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Էքշն և արկածային ֆիլմեր"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Անիմացիոն ֆիլմեր"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Կատակերգական ֆիլմեր"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Կուլտային և ինդի ֆիլմեր"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Վավերագրական ֆիլմեր"</string>
+    <string name="topic10023" msgid="254151319845267278">"Դրամատիկ ֆիլմեր"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Ընտանեկան ֆիլմեր"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Սարսափ ֆիլմեր"</string>
+    <string name="topic10026" msgid="210222384439682793">"Ռոմանտիկ Ֆիլմեր"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Թրիլեր"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Երաժշտություն և աուդիո"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Բլյուզ"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Դասական երաժշտություն"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Քանթրի երաժշտություն"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Պար և էլեկտրոնային երաժշտություն"</string>
+    <string name="topic10033" msgid="895853536740398847">"Ժողովրդական և ավանդական երաժշտություն"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Ջազ"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Երաժշտության առցանց նվագարկում և ներբեռնում"</string>
+    <string name="topic10036" msgid="449833307315797283">"Երաժշտական տեսանյութեր"</string>
+    <string name="topic10037" msgid="51698216720637667">"Երաժշտական գործիքներ"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Դաշնամուրներ և այլ ստեղնաշարային գործիքներ"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Փոփ երաժշտություն"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Ռադիո"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Ռադիոյով թոք շոուներ"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Ռեփ և հիփ հոփ"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Ռոք երաժշտություն"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Դասական ռոք և հին հայտնի երգեր"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Հարդ ռոք և պրոգրեսիվ ռոք"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Ինդի և այլընտրանքային երաժշտություն"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Նմուշների և ձայների դարաններ"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Սոուլ և R&amp;B"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Սաունդթրեքներ"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Համաշխարհային երաժշտություն"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Ռեգի և կարիբյան երաժշտություն"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Առցանց պատկերասրահներ"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Առցանց տեսանյութեր"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Ուղիղ հեռարձակումներ"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Ֆիլմերի և հեռուստահաղորդումների առցանց դիտում"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Օպերա"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Հեռուստահաղորդումների ծրագրեր և տեղեկատու նյութեր"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Հեռուստատեսային ցանցեր և կայաններ"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Հեռուստահաղորդումներ և ծրագրեր"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Հեռուստատեսային կատակերգություններ"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Հեռուստավավերագրական ֆիլմեր"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Հեռուստադրամաներ"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Հեռուստասերիալներ"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Ընտանեկան հետուստահաղորդումներ"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Հեռուստատեսային ռեալիթի շոուներ"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Գիտաֆանտաստիկ և ֆենթըզի ժանրի հեռուստահաղորդումներ"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Կերպարվեստ և դիզայն"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Դիզայն"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Գեղանկարչություն"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Լուսանկարչական և թվային արվեստներ"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Ավտոմեքենաներ և փոխադրամիջոցներ"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Բեռնատարներ և կցասայլեր"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Դասական ավտոմեքենաներ"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Հատուկ և ներկայացուցչական տրանսպորտ"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Բենզինի գներ և տրանսպորտային միջոցների լիցքավորում"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Ավտոմոբիլային տրանսպորտ (ըստ տեսակի)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Ինքնավար տրանսպորտային միջոցներ"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Կաբրիոլետներ"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Կուպե"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Հեչբեք ավտոմեքենաներ"</string>
+    <string name="topic10081" msgid="577995777553561437">"Հիբրիդային և այլընտրանքային վառելիքով աշխատող տրանսպորտային միջոցներ"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Լյուքս դասի ավտոմեքենաներ"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Միկրոմեքենաներ և քիչ վառելիք ծախսող մեքենաներ"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Մոտոցիկլետներ"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Արտաճանապարհային ավտոմեքենաներ"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Պիկապ բեռնատարներ"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Սկուտերներ և մոպեդներ"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Սեդաններ"</string>
+    <string name="topic10089" msgid="5296300331452192377">"«Ունիվերսալ» թափքով ավտոմեքենաներ"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Ամենագնացներ և քրոսովերներ"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Քրոսովերներ"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Ֆուրգոններ և մինիվեններ"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Քարշակ ծառայություն և տեխնիկական օգնություն ճանապարհներին"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Ճանապարհային երթևեկության անվտանգություն"</string>
+    <string name="topic10095" msgid="84682415803421329">"Մեքենաների պահեստամասեր և աքսեսուարներ"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Տրանսպորտային միջոցների վերանորոգում և տեխսպասարկում"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Ավտոմեքենայի գնում"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Օգտագործված ավտոմեքենաներ"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Ավտոմեքենաների ցուցադրություններ"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Գեղեցկություն և ֆիթնես"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Բոդի արտ"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Դեմքի և մարմնի խնամք"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Հակաքրտինքային միջոցներ"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Մարմնի խնամքի միջոցներ"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Էկոլոգիապես մաքուր կոսմետիկա"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Դիմահարդարում և կոսմետիկա"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Եղունգների խնամքի միջոցներ"</string>
+    <string name="topic10108" msgid="577259588028933025">"Օծանելիք և պարֆյումերիա"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Ածելիներ և սափրիչներ"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Նորաձևություն և ոճ"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Ֆիթնես"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Բոդիբիլդինգ"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Ֆիթնես հրահանգիչներ և անհատական մարզումների ծրագրեր"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Ֆիթնեսի գաջեթներ"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Մազերի խնամք"</string>
+    <string name="topic10116" msgid="763642849903586689">"Գրքեր և գրականություն"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Մանկական գրականություն"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Էլեկտրոնային գրքեր"</string>
+    <string name="topic10119" msgid="894448782525835364">"Ամսագրեր"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Պոեզիա"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Բիզնես և արդյունաբերություն"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Գովազդ և մարքեթինգ"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Վաճառք"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Գյուղատնտեսություն և անտառային տնտեսություն"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Սննդի արտադրություն"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Ավտոմոբիլային արդյունաբերություն"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Ավիացիոն արդյունաբերություն"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Առևտրային գործունեություն"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Աշխատանքի ճկուն կազմակերպում"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Մարդկային ռեսուրսներ"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Առևտրական վարկ"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Շենքերի կառուցում և վերանորոգում"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Քաղաքական ինժեներիա"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Պաշտպանական արդյունաբերություն"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Էներգիա մատակարարող և կոմունալ ծառայություն"</string>
+    <string name="topic10136" msgid="455894912948558854">"Ջրամատակարարում և ջրի մաքրում"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Հյուրանոցային արդյունաբերություն"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Արտադրություն"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Մետաղներ և հանքարդյունաբերություն"</string>
+    <string name="topic10140" msgid="3210849036014636721">"Ցանցային մարքեթինգի (MLM) և բիզնես հնարավորություններ"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Դեղագործություն և կենսատեխնոլոգիաներ"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Տպագրություն և հրատարակություն"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Մանրածախ առևտուր"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Վենչուրային կապիտալ"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Համակարգիչներ և Էլեկտրոնիկա"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Համակարգչային օժանդակ սարքեր"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Տպիչներ"</string>
+    <string name="topic10148" msgid="388392714835039199">"Համակարգչային անվտանգություն"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Հակավիրուսային ծրագրեր և վնասագրեր"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Ցանցային անվտանգություն"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Կենցաղային էլեկտրոնիկա"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Ֆոտոխցիկներ և տեսախցիկներ"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS և նավիգացիա"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Տան ավտոմատացում"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Տնային կինոթատրոններ"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 և դյուրակիր մեդիա նվագարկիչներ"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Կրելի սարքեր"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Տվյալների պահուստավորում և վերականգնում"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Համակարգիչներ"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Նոթբուքներ"</string>
+    <string name="topic10161" msgid="172004201167511870">"Ցանց"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Քլաուդ քոմփյութինգ"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Ծրագրավորում"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Ծրագրեր"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Աուդիոյի և երաժշտության մշակման ծրագրեր"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Բիզնեսի համար նախատեսված և օֆիսային ծրագրեր"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Օրացույց և ժամանակի պլանավորման ծրագրեր"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Համատեղ աշխատանքի և տեսակոնֆերանսների կազմակերպման ծրագրեր"</string>
+    <string name="topic10169" msgid="827557334245484202">"Ներկայացումներ ստեղծելու և խմբագրելու ծրագրեր"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Աղյուսակներ ստեղծելու և խմբագրելու ծրագրեր"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Տեքստային խմբագրիչներ"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Համակարգչային շարվածք"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Տառատեսակներ"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Ներբեռնման կառավարիչներ"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Անվճար և ընդհանուր օգտագործման ծրագրեր"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Գրաֆիկայի և անիմացիայի ծրագրեր"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Վիրտուալ օգնականներ"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Մեդիա նվագարկիչներ"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Մոնիտորինգի ծրագրեր"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Օպերացիոն համակարգեր"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Լուսանկարների և տեսանյութերի մշակման ծրագրեր"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Լուսանկարների մշակման ծրագիր"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Տեսանյութերի մշակման ծրագիր"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Օժանդակ ծրագրեր"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Վեբ դիտարկիչներ"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Ֆինանսներ"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Հաշվապահություն և աուդիտ"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Հարկերի հաշվարկ և պլանավորում"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Բանկային ծառայություններ"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Դրամական փոխանցումների համակարգեր"</string>
+    <string name="topic10191" msgid="374364159635356705">"Վարկեր և փոխառություններ"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Վարկային քարտեր"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Հիփոթեքային վարկեր"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Սպառողական վարկեր"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Ուսանողական վարկեր և բարձրագույն կրթության ֆինանսավորում"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Ֆինանսական պլանավորում և կառավարում"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Կենսաթոշակ"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Դրամաշնորհներ"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Դրամաշնորհներ"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Ապահովագրություն"</string>
+    <string name="topic10201" msgid="447240478385298875">"Ավտոապահովագրություն"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Առողջության ապահովագրություն"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Անշարժ գույքի ապահովագրություն"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Կյանքի ապահովագրություն"</string>
+    <string name="topic10205" msgid="262581473890356377">"Ճանապարհորդական ապահովագրություն"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Ներդրումներ"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Հումքային ապրանքների և ֆյուչերսների առևտուր"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Արժույթներ և արտարժույթի փոխանակում"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Ռիսկերի ապահովագրման հիմնադրամներ"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Համատեղ ներդրումային հիմնադրամներ"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Բաժնետոմսեր և պարտատոմսեր"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Սնունդ և խմիչք"</string>
+    <string name="topic10213" msgid="805716705436663130">"Խոհարարություն և բաղադրատոմսեր"</string>
+    <string name="topic10214" msgid="726298155737413779">"Խորոված և գրիլ"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Խոհանոցներ"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Բուսակերական խոհանոց"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Վեգանական խոհանոց"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Առողջ սնունդ"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Մթերային խանութներ"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Խաղեր"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Արկադային խաղեր և մետաղադրամով շահագործվող խաղային ավտոմատներ"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Բիլիարդ"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Սեղանի խաղեր"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Շախմատ և վերացական ռազմավարական խաղեր"</string>
+    <string name="topic10225" msgid="564207834821286301">"Թղթախաղեր"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Կոլեկցիոն քարտերով խաղեր"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Համակարգչային խաղեր և տեսախաղեր"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Էքշն խաղեր և պլատֆորմերներ"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Արկածային խաղեր"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Թեթև խաղեր"</string>
+    <string name="topic10231" msgid="405082026972839048">"Կիբեռսպորտ"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Մրցարշավային խաղեր"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Մարտախաղեր"</string>
+    <string name="topic10234" msgid="693433817142162565">"Խաղերի նկարագրություններ և խաղերի մասին կարծիքներ"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Խաղային հնարքներ և հուշումներ տեսախաղերի սիրահարների համար"</string>
+    <string name="topic10236" msgid="320145832033080647">"Զանգվածային բազմախաղորդ խաղեր"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Երաժշտական և պարային խաղեր"</string>
+    <string name="topic10238" msgid="124952008622371505">"Sandbox խաղեր"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Հրաձգային խաղեր"</string>
+    <string name="topic10240" msgid="429738690314619395">"Սիմուլյատորներ"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Տնտեսական ռազմավարության խաղեր"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Քաղաքաշինական խաղեր"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Կյանքի սիմուլյատորներ"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Տրանսպորտային միջոցների սիմուլյատորներ"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Սպորտային խաղեր"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Սպորտային մենեջմենթի խաղեր"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Ռազմավարական խաղեր"</string>
+    <string name="topic10248" msgid="279151815457227293">"Տեսախաղերի մոդեր և հավելումներ"</string>
+    <string name="topic10249" msgid="631580828608894782">"Ուսուցողական խաղեր"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Ընտանեկան խաղեր և ժամանց"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Նկարչություն և գունավորում"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Նորաձևության հետ կապված խաղեր"</string>
+    <string name="topic10253" msgid="385499297969826942">"Գլուխկոտրուկներ և ուղեղի մարզման խաղեր"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Դերախաղեր"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Սեղանի թենիս"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Սալիկներով խաղեր"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Բառախաղեր"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Հոբբի և ժամանց"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Տարեդարձներ"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Ծննդյան օրեր և անվանը նվիրված օրեր"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Դայվինգ և ստորջրյա տուրիզմ"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Թելերի և կտորեղենի արվեստ"</string>
+    <string name="topic10263" msgid="361345691023794788">"Հանգստի կազմակերպում բնության գրկում"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Ձկնորսություն"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Որսորդություն և հրաձգություն"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Փեյնթբոլ"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Ռադիոկառավարում և մոդելավորում"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Հարսանեկան արարողություններ"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Տուն և այգի"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Այգեգործություն"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Տան կահավորում և ներքին հարդարանք"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Կենցաղային տեխնիկա"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Տան վերանորոգում"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Տների անվտանգություն և պահպանություն"</string>
+    <string name="topic10275" msgid="682064062059687444">"Կենցաղային ապրանքներ"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Լանդշաֆտային դիզայն"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Ինտերնետ և հեռահաղորդակցություն"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Էլփոստ և հաղորդագրում"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Էլփոստ"</string>
+    <string name="topic10280" msgid="3168053876492638177">"SMS-ներ և ակնթարթային հաղորդակցում"</string>
+    <string name="topic10281" msgid="582764575763317221">"Ձայնային զրույց և տեսազրույց"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ԻԾՄ-ներ"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Հեռախոսային կապի ծառայություններ մատուցող"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Զանգերանգներ և թեմաներ բջջային հեռախոսների համար"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Որոնողական համակարգեր"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Սմարթֆոններ"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Հեռակոնֆերանսներ"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Վեբ հավելվածներ և առցանց գործիքներ"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Վեբ ծառայություններ"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Ամպային տարածք"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Վեբ դիզայն և ծրագրավորում"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Վեբ հոսթինգ"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Աշխատանք և կրթություն"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Կրթություն"</string>
+    <string name="topic10295" msgid="331240908257602211">"Գիտական կոնֆերանսներ և հրապարակումներ"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Բուհեր և համալսարաններ"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Հեռակա ուսուցում"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Նախադպրոցական կրթություն"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Նախադպրոցական հաստատություններ"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Կրթություն տանը"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Ստանդարտացված թեստեր և ընդունելության թեստեր"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Ուսումնական նյութեր ուսուցիչների համար"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Մասնագիտական և շարունակական կրթություն"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Աշխատատեղեր"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Կարիերայի ռեսուրսներ և պլանավորում"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Թափուր աշխատատեղերի հայտարարություններ"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Օրենսդիր և պետական մարմիններ"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Հանցագործություններ և արդարադատություն"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Իրավական"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Իրավաբանական ծառայություններ"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Նորություններ"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Տնտեսական նորություններ"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Տեղական նորություններ"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Միավորումներ և ձեռքբերումներ"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Թերթեր"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Քաղաքականություն"</string>
+    <string name="topic10317" msgid="888696185673599406">"Սպորտային նորություններ"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Եղանակ"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Համաշխարհային լուրեր"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Առցանց համայնքներ"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Clipart պատկերներ և անիմացիոն GIF ֆայլեր"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Հանդիպումներ և ծանոթություններ"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Հոսքերի ագրեգացում և սոցիալական էջանշում"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Ֆայլերի փոխանակում և հոսթինգ"</string>
+    <string name="topic10325" msgid="916412844647169263">"Ֆորումների և զրույցների ծառայությունների մատակարարներ"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Միկրոբլոգինգ"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Լուսանկարների և տեսանյութերի փոխանակում"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Լուսանկարների և պատկերների փոխանակում"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Տեսանյութերի փոխանակում"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Հանդերձանքներ"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Սոցիալական ցանցերի հավելվածներ և հավելումներ"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Սոցիալական ցանցեր"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Մարդիկ և հասարակություն"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Ընտանիք և բարեկամական կապեր"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Տոհմածառ և ծագումնաբանություն"</string>
+    <string name="topic10336" msgid="360328903013424569">"Ամուսնություն"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Ծնողավարություն"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Որդեգրում"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Նորածիններ և մանկահասակ երեխաներ"</string>
+    <string name="topic10340" msgid="259457452971577855">"Երեխաների անվտանգությունը համացանցում"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Սիրավեպ"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Գիտական ֆանտաստիկա և ֆենթըզի"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Տնային և վայրի կենդանիներ"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Կենդանիների կերեր և խնամքի պարագաներ"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Տնային կենդանիներ"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Թռչուններ"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Կատուներ"</string>
+    <string name="topic10348" msgid="570783769757187957">"Շներ"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Ձկներ և ակվարիումներ"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Սողուններ և երկկենցաղներ"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Անասնաբույժներ"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Անշարժ գույք"</string>
+    <string name="topic10353" msgid="230887584509968233">"Հողամասեր և հողատարածքներ"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Թայմշեյրներ և ամառանոցներ"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Տեղեկատուներ"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Տվյալներ կազմակերպությունների և մարդկանց մասին"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Ընդհանուր տեղեկություններ"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Հաշվիչներ և չափիչ սարքավորումներ"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Բառարաններ և հանրագիտարաններ"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Ուսումնական նյութեր"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Ուղեցույցներ"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Ժամանակ և օրացույցներ"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Լեզվական ռեսուրսներ"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Օտար լեզուների ուսուցում"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Գործիքներ և ռեսուրսներ թարգմանիչների համար"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Քարտեզներ"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Գիտություն"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Լրացված և վիրտուալ իրականություն"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Կենսաբանական գիտություններ"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Գենետիկա"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Քիմիա"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Էկոլոգիա և շրջակա միջավայր"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Երկրաբանություն"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Մեքենայական ուսուցում և արհեստական բանականություն"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Մաթեմատիկա"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Ֆիզիկա"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Ռոբոտաշինություն"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Գնումներ"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Հնաոճ և կոլեկցիոն իրեր"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Հագուստ"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Մանկական հագուստ"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Կոստյումներ"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Տղամարդկանց հագուստ"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Կանանց հագուստ"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Հայտարարությունների ցուցանակներ"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Տեղեկություններ սպառողների համար"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Կուպոններ և զեղչեր"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Մշտական հաճախորդի քարտեր և հավատարմության ծրագրեր"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Տեխնիկական աջակցություն և վերանորոգում"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Ծաղիկներ"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Շնորհավորական բացիկներ"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Տոների և երեկույթների համար նախատեսված պարագաներ"</string>
+    <string name="topic10393" msgid="7537523054091079737">"էլեկտրոնային առևտրի հարթակներ"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Սպորտ"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Ամերիկյան ֆուտբոլ"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Ավստրալական Ֆուտբոլ"</string>
+    <string name="topic10397" msgid="653991203228840785">"Ավտոմրցարշավ"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Բեյսբոլ"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Բասկետբոլ"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Բոուլինգ"</string>
+    <string name="topic10401" msgid="26807857115228330">"Բռնցքամարտ"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Չիրլիդինգ"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Համալսարանական սպորտ"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Կրիկետ"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Հեծանվավազք"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Ձիասպորտ"</string>
+    <string name="topic10407" msgid="316266982792700993">"Էքստրեմալ սպորտաձևեր"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Ժայռամագլցում և լեռնագնացություն"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Երևակայական սպորտ"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Գոլֆ"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Մարմնամարզություն"</string>
+    <string name="topic10412" msgid="335770351079973128">"Հոկեյ"</string>
+    <string name="topic10413" msgid="416366556259783701">"Չմշկասահք"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Մարտարվեստ"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Մոտոմրցավազք"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Օլիմպիական խաղեր"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Ռեգբի"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Վազք և քայլք"</string>
+    <string name="topic10419" msgid="979581105119036716">"Դահուկային սպորտ և սնոուբորդինգ"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Ֆուտբոլ"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Սերֆինգ"</string>
+    <string name="topic10422" msgid="978920114358054206">"Լող"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Թենիս"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Թեթև աթլետիկա"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Վոլեյբոլ"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Ըմբշամարտ"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Ուղևորություններ և փոխադրումներ"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Արկածային ճանապարհորդություն"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Օդային ճանապարհորդություն"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Գործուղումներ"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Մեքենայի վարձույթ"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Կրուիզներ և չարտերային թռիչքներ"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Ընտանեկան ճանապարհորդություն"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Մեղրամիս և ռոմանտիկ ճանապարհորդություններ"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Հյուրանոցներ և կացարաններ"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Միջքաղաքային ավտոբուսներ և երկաթուղի"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Մատչելի և թեժ տուրեր"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Ուղեբեռ և ճամփորդական պարագաներ"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Զբոսաշրջային ուղղություններ"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Լողափեր և կղզիներ"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Տարածաշրջանային զբոսայգիներ և այգիներ"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Թեմատիկ այգիներ"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Կենդանաբանական այգիներ"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Նավիգատորներ և երթևեկության պլանավորման գործիքներ"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Տուրիստական գործակալություններ և ծառայություններ"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Տուրիստական ուղեցույցներ և գրականություն"</string>
+</resources>

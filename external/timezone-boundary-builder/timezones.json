@@ -1,0 +1,4664 @@
+{
+  "Africa/Abidjan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Côte d'Ivoire"
+    }
+  ],
+  "Africa/Accra": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Ghana"
+    }
+  ],
+  "Africa/Addis_Ababa": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Ethiopia"
+    }
+  ],
+  "Africa/Algiers": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Algeria"
+    }
+  ],
+  "Africa/Asmara": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Eritrea"
+    }
+  ],
+  "Africa/Bamako": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mali"
+    }
+  ],
+  "Africa/Bangui": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Central African Republic"
+    }
+  ],
+  "Africa/Banjul": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "The Gambia"
+    }
+  ],
+  "Africa/Bissau": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Guinea-Bissau"
+    }
+  ],
+  "Africa/Blantyre": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Malawi"
+    }
+  ],
+  "Africa/Brazzaville": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Congo-Brazzaville"
+    }
+  ],
+  "Africa/Bujumbura": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Burundi"
+    }
+  ],
+  "Africa/Cairo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Egypt"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Bir Tawil",
+      "description": "Although Bir Tawil is officially not part of Egypt, union to avoid holes. The wikipedia article on Bir Tawil suggests that Egypt retains administrative control of the area (https://en.wikipedia.org/wiki/Bir_Tawil)."
+    }
+  ],
+  "Africa/Casablanca": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Morocco"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Spain"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Western Sahara"
+    }
+  ],
+  "Africa/Ceuta": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Spain"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-5.5,35.95],[-2,35.4],[-2,33],[-5.5,35.95]]],
+      "description": "Isolate exclaves of Spain that are enclaves of Morocco."
+    }
+  ],
+  "Africa/Conakry": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Guinea"
+    }
+  ],
+  "Africa/Dakar": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Senegal"
+    }
+  ],
+  "Africa/Dar_es_Salaam": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tanzania"
+    }
+  ],
+  "Africa/Djibouti": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Djibouti"
+    }
+  ],
+  "Africa/Douala": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cameroon"
+    }
+  ],
+  "Africa/El_Aaiun": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Western Sahara"
+    }
+  ],
+  "Africa/Freetown": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sierra Leone"
+    }
+  ],
+  "Africa/Gaborone": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Botswana"
+    }
+  ],
+  "Africa/Harare": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Zimbabwe"
+    }
+  ],
+  "Africa/Johannesburg": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "South Africa"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-5.5,-86],[0,-86],[0,-68],[-5.5,-69],[-5.5,-86]]],
+      "description": "Add Antarctic Station of SANAE IV."
+    }
+  ],
+  "Africa/Juba": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "South Sudan"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[35.3,5.2],[35.9,4.6],[34,4.6],[35.3,5.2]]],
+      "description": "Initially add Ilemi Triangle to South Sudan area.  Whatever OSM thinks Kenya's border is is then used as seen in the next operation.  This avoids having holes."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Kenya"
+    }
+  ],
+  "Africa/Kampala": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Uganda"
+    }
+  ],
+  "Africa/Khartoum": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sudan"
+    }
+  ],
+  "Africa/Kigali": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Rwanda"
+    }
+  ],
+  "Africa/Kinshasa": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Congo-Kinshasa"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[20,-9],[21,-4],[24.6,-1.63],[23,13],[3,-9],[20,-9]]],
+      "description": "Grab western part of Congo-Kinshasa."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Kasai"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Sankuru"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Tshopo"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Bas-Uele"
+    }
+  ],
+  "Africa/Lagos": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Nigeria"
+    }
+  ],
+  "Africa/Libreville": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Gabon"
+    }
+  ],
+  "Africa/Lome": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Togo"
+    }
+  ],
+  "Africa/Luanda": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Angola"
+    }
+  ],
+  "Africa/Lubumbashi": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Congo-Kinshasa"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[20,-9],[21,-4],[24.6,-1.63],[23,13],[3,-9],[20,-9]]],
+      "description": "Exclude eastern part of Congo-Kinshasa."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Kasai"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Sankuru"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Tshopo"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Bas-Uele"
+    }
+  ],
+  "Africa/Lusaka": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Zambia"
+    }
+  ],
+  "Africa/Malabo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Equatorial Guinea"
+    }
+  ],
+  "Africa/Maputo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mozambique"
+    }
+  ],
+  "Africa/Maseru": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Lesotho"
+    }
+  ],
+  "Africa/Mbabane": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Swaziland"
+    }
+  ],
+  "Africa/Mogadishu": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Somalia"
+    }
+  ],
+  "Africa/Monrovia": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Liberia"
+    }
+  ],
+  "Africa/Nairobi": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kenya"
+    }
+  ],
+  "Africa/Ndjamena": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Chad"
+    }
+  ],
+  "Africa/Niamey": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Niger"
+    }
+  ],
+  "Africa/Nouakchott": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mauritania"
+    }
+  ],
+  "Africa/Ouagadougou": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Burkina Faso"
+    }
+  ],
+  "Africa/Porto-Novo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Benin"
+    }
+  ],
+  "Africa/Sao_Tome": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "São Tomé and Príncipe"
+    }
+  ],
+  "Africa/Tripoli": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Libya"
+    }
+  ],
+  "Africa/Tunis": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tunisia"
+    }
+  ],
+  "Africa/Windhoek": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Namibia"
+    }
+  ],
+  "America/Adak": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-multipolygon",
+      "data": [[[[-170.1,51],[-169.48009,52.634],[-169.329,53.1067],[-168.8,54],[-179.9999,54],[-179.9999,48],[-170.1,51]]],[[[168,54],[179.9999,54],[179.9999,48],[168,54]]]],
+      "description": "Grab western parts of Aleutian Islands."
+    }
+  ],
+  "America/Anchorage": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-162,77],[-162,48],[-141,48],[-141,77],[-162,77]]],
+      "description": "Grab part of Alaska between -162 longitude and Canadian border."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Yukon"
+    }
+  ],
+  "America/Anguilla": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Anguilla"
+    }
+  ],
+  "America/Antigua": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Antigua and Barbuda"
+    }
+  ],
+  "America/Aruba": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Aruba"
+    }
+  ],
+  "America/Araguaina": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tocantins"
+    }
+  ],
+  "America/Argentina/Buenos_Aires": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Argentina"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-58,-34],[-52,-36],[-62.3476,-42],[-62.792531,-41.0179511],[-63,-35],[-58,-34]]],
+      "description": "Grab part of Argentina near Buenos Aires.  Make an arbitrary boundary in the sea for the boundary with Rio Negro."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Buenos Aires"
+    }
+  ],
+  "America/Argentina/Catamarca": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Chubut"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Departamento Atlántico"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Catamarca"
+    }
+  ],
+  "America/Argentina/Cordoba": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Córdoba"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Santa Fe"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Entre Ríos"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Santiago del Estero"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Chaco"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Corrientes"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Misiones"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Formosa"
+    }
+  ],
+  "America/Argentina/Jujuy": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Jujuy"
+    }
+  ],
+  "America/Argentina/La_Rioja": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "La Rioja"
+    }
+  ],
+  "America/Argentina/Mendoza": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mendoza"
+    }
+  ],
+  "America/Argentina/Rio_Gallegos": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Argentina"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-59,-44],[-65,-52],[-68.3079531,-52.5782436],[-68.6,-52.5],[-80,-52],[-80,-44],[-59,-44]]],
+      "description": "Isolate most of Santa Cruz from the rest of Argentina.  Also, use arbitrary sea boundary between Santa Cruz and Tierra Del Fuego"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Chubut"
+    }
+  ],
+  "America/Argentina/Salta": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Argentina"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-66,-40.5],[-66,-43],[-61,-43],[-62.3476,-42],[-62.792531,-41.0179511],[-64,-40.5],[-66,-40.5]]],
+      "description": "intersect part of Argentina to get Territorial waters and create an arbitrary sea boundary between Rio Negro and Buenos Aires."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Chubut"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Departamento Atlántico"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Rio Negro"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Neuquén"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "La Pampa"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Salta"
+    }
+  ],
+  "America/Argentina/San_Juan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "San Juan"
+    }
+  ],
+  "America/Argentina/San_Luis": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "San Luis"
+    }
+  ],
+  "America/Argentina/Tucuman": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tucumán"
+    }
+  ],
+  "America/Argentina/Ushuaia": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Argentina"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-59,-55],[-68.3079531,-52.5782436],[-68.6,-52.5],[-78,-57],[-59,-55]]],
+      "description": "Use arbitrary sea boundary between Santa Cruz and Tierra Del Fuego"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-58,-86],[-45,-86],[-35,-86],[-35,-75],[-58,-74],[-54,-63],[-57,-61.6],[-59,-61.8],[-58.8,-62.25],[-57.3,-63.4],[-64,-64],[-63.8,-64.8],[-65.5,-65.25],[-67.5,-66],[-67.5,-86],[-60,-86],[-58,-86]]],
+      "description": "Add Antarctic areas near Stations: Belgrano II, San Martín, Vernadsky, Esperanza and Arctowski."
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-45,-60],[-47.5,-60.5],[-46,-61.5],[-43.5,-61],[-43.5,-60],[-45,-60]]],
+      "description": "Add Antarctic area near Orcadas Station."
+    }
+  ],
+  "America/Asuncion": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Paraguay"
+    }
+  ],
+  "America/Atikokan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Atikokan-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Iqaluit-tz"
+    }
+  ],
+  "America/Bahia": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bahia"
+    }
+  ],
+  "America/Bahia_Banderas": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mexico"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-105.287,20.68],[-105.3,20.8],[-105.4,20.8],[-105.3556082,20.9602092],[-105.56,21.11],[-106,21],[-105.883254,20.685482],[-105.5724898,20.62692],[-105.403923,20.6243015],[-105.330481,20.6347751],[-105.3009294,20.6475388],[-105.2808749,20.6713757],[-105.2786916,20.6724507],[-105.287,20.68]]],
+      "description": "Grab part of Mexico to get terriritorial waters near Bahía de Banderas."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Bahía de Banderas"
+    }
+  ],
+  "America/Barbados": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Barbados"
+    }
+  ],
+  "America/Belem": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Belem-tz"
+    }
+  ],
+  "America/Belize": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Belize"
+    }
+  ],
+  "America/Blanc-Sablon": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Blanc Sablon-tz"
+    }
+  ],
+  "America/Boa_Vista": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Roraima"
+    }
+  ],
+  "America/Bogota": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Colombia"
+    }
+  ],
+  "America/Boise": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Boise-tz"
+    }
+  ],
+  "America/Cambridge_Bay": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cambridge Bay-tz"
+    }
+  ],
+  "America/Campo_Grande": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mato Grosso do Sul"
+    }
+  ],
+  "America/Cancun": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cancun-tz"
+    }
+  ],
+  "America/Caracas": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Venezuela"
+    }
+  ],
+  "America/Cayenne": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-55,8],[-55,0],[-48,4],[-55,8]]],
+      "description": "Grab the part of France that represents French Guiana."
+    }
+  ],
+  "America/Cayman": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cayman Islands"
+    }
+  ],
+  "America/Chicago": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-88.154,25.404],[-84.6,29.9],[-85.3,31],[-85.7,35],[-85,36],[-84.9,36.7],[-85,37],[-85.6,37.3],[-86.3,37.5],[-86.855,38.355],[-87.908,38.358],[-87.581,40.827],[-87.082,41.219],[-86.672,41.491],[-85.583,45.151],[-90.242,50.008],[-104.194,50.416],[-104.172,48.093],[-104.0441176,47.9971054],[-104.04068,47.995995],[-104.035233,47.995213],[-104.031113,47.993931],[-104.027687,47.993095],[-104.021362,47.988647],[-104.017021,47.983223],[-104.012344,47.971817],[-104.00808,47.967781],[-103.99929,47.967541],[-103.99469,47.969959],[-103.9923665,47.9763976],[-103.9796981,47.973854],[-103.9697722,47.9669876],[-103.9659423,47.9598922],[-103.9645461,47.9454956],[-103.961357,47.8929405],[-103.9616393,47.885559],[-103.9659575,47.8780784],[-103.9671553,47.8752861],[-103.9676131,47.871128],[-103.9679106,47.8642082],[-103.9647597,47.8540992],[-103.9655761,47.848114],[-103.9286193,47.8481102],[-103.8006133,47.8489303],[-103.8002776,47.7628021],[-103.7992324,47.6757965],[-103.7387236,47.6758422],[-103.7370909,47.588871],[-103.6102523,47.5894737],[-103.6096267,47.5154762],[-103.608734,47.515419],[-103.6034621,47.5173797],[-103.60083,47.5183563],[-103.5975035,47.5188942],[-103.5927047,47.5167007],[-103.5885543,47.5140342],[-103.5851668,47.5131874],[-103.58123,47.5151176],[-103.5779494,47.516571],[-103.5725707,47.5162277],[-103.5704268,47.5135154],[-103.5662841,47.5108451],[-103.5642318,47.5099716],[-103.5615691,47.5104904],[-103.5604934,47.516037],[-103.5559768,47.5198173],[-103.5520018,47.5208244],[-103.5460128,47.5218773],[-103.540718,47.5233726],[-103.5387725,47.5247955],[-103.5369796,47.529438],[-103.5363768,47.5308303],[-103.5317458,47.5323105],[-103.5257796,47.5338249],[-103.51902,47.5325889],[-103.5142211,47.5303955],[-103.5107497,47.5277099],[-103.5059966,47.526432],[-103.4999007,47.5251846],[-103.4965285,47.5247955],[-103.4816893,47.5228157],[-103.4736327,47.5225296],[-103.469612,47.5226135],[-103.4663237,47.5240669],[-103.4629744,47.5241394],[-103.4601744,47.5214386],[-103.457405,47.5196533],[-103.4553756,47.5192375],[-103.4521331,47.5216102],[-103.4495391,47.5235061],[-103.4429015,47.5250244],[-103.4342726,47.52705],[-103.4310454,47.5298767],[-103.4305266,47.5331115],[-103.4307097,47.5372467],[-103.4348525,47.5399208],[-103.4404219,47.544403],[-103.4432296,47.5471038],[-103.4447325,47.5507545],[-103.4436187,47.5558395],[-103.4438094,47.5599784],[-103.4413527,47.5650901],[-103.4402007,47.5692558],[-103.4382552,47.5706787],[-103.435028,47.5735054],[-103.4331359,47.5763092],[-103.440277,47.585823],[-103.4385375,47.5918426],[-103.4311599,47.591999],[-103.4277648,47.5911483],[-103.4230498,47.5907859],[-103.418312,47.5899658],[-103.4129332,47.5896186],[-103.4089507,47.5906257],[-103.4056548,47.5920715],[-103.4010848,47.5949325],[-103.3951491,47.5973549],[-103.3918227,47.5978851],[-103.3871459,47.5984459],[-103.3824309,47.5980796],[-103.3770446,47.5977325],[-103.3736113,47.5959625],[-103.3695296,47.5946693],[-103.3668212,47.5942611],[-103.3595656,47.5971717],[-103.3556441,47.5995559],[-103.3489379,47.5996933],[-103.346176,47.5979118],[-103.343254,47.5924492],[-103.3403929,47.5883636],[-103.3383406,47.5874862],[-103.3302916,47.5876503],[-103.3229522,47.5887222],[-103.3175124,47.5869903],[-103.3154219,47.5851936],[-103.3112563,47.5820541],[-103.3091658,47.5802574],[-103.3057936,47.5798683],[-103.2997893,47.5809059],[-103.2925643,47.5847358],[-103.2887038,47.5884933],[-103.2875212,47.5922012],[-103.2849349,47.5945511],[-103.2796096,47.595581],[-103.2714843,47.5939026],[-103.2653655,47.5921821],[-103.258583,47.590477],[-103.2505187,47.5901756],[-103.2463607,47.5870361],[-103.2395934,47.5857925],[-103.2247084,47.5828628],[-103.2131728,47.5798683],[-103.2009734,47.576889],[-103.1941909,47.5751762],[-103.1893691,47.5720482],[-103.1832579,47.5703277],[-103.1766509,47.5727577],[-103.1726989,47.5746727],[-103.1639708,47.5743827],[-103.1606749,47.5758247],[-103.158142,47.5795555],[-103.1589202,47.5823021],[-103.1529464,47.5837974],[-103.1515654,47.582901],[-103.1460875,47.5802459],[-103.1407241,47.5803489],[-103.135475,47.58321],[-103.1335143,47.584629],[-103.1288985,47.5865554],[-103.1228255,47.5857505],[-103.1200866,47.5844192],[-103.1145781,47.5808448],[-103.1112059,47.5804481],[-103.1072005,47.5809822],[-103.1047438,47.5814056],[-103.1047435,47.5814057],[-103.1012038,47.582016],[-103.0938414,47.582611],[-103.0884627,47.5822525],[-103.0823745,47.580986],[-103.0721129,47.5761184],[-103.0694503,47.5766258],[-103.0669326,47.5808143],[-103.0676726,47.5826416],[-103.0630873,47.5854873],[-103.0584334,47.5864906],[-103.0544585,47.5879478],[-103.05381,47.5884208],[-103.0505675,47.5912399],[-103.0520858,47.5958137],[-103.0542449,47.5994529],[-103.0550917,47.604042],[-103.0458983,47.609272],[-103.0400237,47.6135215],[-103.0355605,47.6195831],[-103.0303725,47.6242828],[-103.0270919,47.6261825],[-103.0278624,47.6289291],[-103.0332488,47.6292915],[-103.0333403,47.6315918],[-103.0321273,47.6348343],[-103.0287551,47.6344375],[-103.0253218,47.6326599],[-103.0219497,47.6322593],[-103.020645,47.6332016],[-103.0215453,47.6391678],[-103.0223235,47.6419181],[-103.0278701,47.6464195],[-103.0367812,47.650856],[-103.0389861,47.6558799],[-103.0391158,47.6590995],[-103.0393447,47.6650848],[-103.038185,47.669712],[-103.0362395,47.6715889],[-103.0303649,47.674427],[-103.0300978,47.6744308],[-103.0235518,47.6736602],[-103.0040816,47.6740112],[-102.9998397,47.6685676],[-102.9991378,47.6676597],[-102.9910964,47.6682624],[-102.9883879,47.6678428],[-102.9908294,47.6613578],[-102.9814681,47.662445],[-102.9761657,47.6643791],[-102.9714659,47.664463],[-102.9687423,47.6635933],[-102.9673003,47.6608543],[-102.9683989,47.6543922],[-102.9603957,47.6559181],[-102.9549559,47.654171],[-102.9527663,47.6496086],[-102.9526824,47.6473083],[-102.9564971,47.641716],[-102.9577559,47.6393966],[-102.9549102,47.6353035],[-102.9527816,47.6321182],[-102.9514159,47.6316833],[-102.9463271,47.6391372],[-102.9443282,47.6396293],[-102.9395446,47.637413],[-102.9347991,47.636116],[-102.9299468,47.632061],[-102.924385,47.6270942],[-102.9183806,47.6281204],[-102.9111022,47.6310081],[-102.9070967,47.6315384],[-102.9037017,47.6306762],[-102.8955535,47.6280594],[-102.8921279,47.6262779],[-102.8880538,47.6249656],[-102.8846129,47.6227226],[-102.8837584,47.6176757],[-102.8829345,47.6135482],[-102.8788222,47.6113205],[-102.8734053,47.6100311],[-102.8700026,47.6087074],[-102.8677596,47.6023025],[-102.8650206,47.6009712],[-102.8576964,47.6024742],[-102.8550109,47.6025238],[-102.8523101,47.602108],[-102.849594,47.6012344],[-102.8468093,47.5985222],[-102.841133,47.5959472],[-102.8393706,47.5965957],[-102.8322295,47.5976791],[-102.8265151,47.6002426],[-102.8175048,47.6001548],[-102.8078765,47.5967407],[-102.79998,47.5920677],[-102.7897033,47.5935249],[-102.7815856,47.5931053],[-102.7686461,47.5952263],[-102.7608794,47.5929794],[-102.7498702,47.5889854],[-102.7395934,47.5816383],[-102.7333602,47.574192],[-102.7287444,47.5718727],[-102.7216185,47.5732498],[-102.7141036,47.5758476],[-102.7037734,47.5760841],[-102.6937789,47.5741882],[-102.6864241,47.5710144],[-102.6825713,47.5659408],[-102.6813582,47.5598983],[-102.6851119,47.5540504],[-102.6878279,47.5454902],[-102.6850585,47.5352325],[-102.6780013,47.5290184],[-102.6702956,47.5276756],[-102.6618575,47.5296859],[-102.6544493,47.5344047],[-102.6433638,47.537384],[-102.6325759,47.5373191],[-102.6205138,47.5387993],[-102.614334,47.5410614],[-102.6072692,47.5436439],[-102.5996474,47.5441169],[-102.5905074,47.5409774],[-102.584854,47.5356369],[-102.5769652,47.5306472],[-102.566429,47.5266266],[-102.5533141,47.5247879],[-102.5410155,47.521408],[-102.5263823,47.515953],[-102.5149611,47.5119476],[-102.505493,47.5112342],[-102.4947661,47.512371],[-102.4822005,47.5126342],[-102.4722441,47.5110244],[-102.4618758,47.5103302],[-102.4470366,47.5137787],[-102.4382933,47.5150642],[-102.4389647,47.5199051],[-102.4410781,47.526844],[-102.4382705,47.5341835],[-102.4363478,47.5412025],[-102.4402465,47.5478019],[-102.4423369,47.5541305],[-102.4441985,47.565319],[-102.436859,47.571846],[-102.426773,47.5775146],[-102.4208449,47.5855255],[-102.4147872,47.5908088],[-102.3972777,47.591465],[-102.3805541,47.5896797],[-102.3648223,47.5899925],[-102.3495406,47.5902977],[-102.3429183,47.5931587],[-102.3418349,47.5992508],[-102.3375701,47.6044922],[-102.3278044,47.6074142],[-102.3133467,47.6061821],[-102.301155,47.6052055],[-102.2872618,47.6066856],[-102.2500255,47.6152528],[-102.203,47.645],[-101.326,46.146],[-101.324,45.938],[-100.583,44.865],[-100.475,44.533],[-100.855,44.162],[-100.9013924,42.9979018],[-100.899765,42.8137272],[-100.8650084,42.8138669],[-100.8646698,42.7845595],[-100.8454182,42.7845517],[-100.8457039,42.7550128],[-100.8906658,42.7553275],[-100.8909198,42.6113639],[-100.7733146,42.6103669],[-100.775008,42.4385172],[-100.8295136,42.4385016],[-100.8295136,42.351938],[-100.8100927,42.3520397],[-100.8085263,42.2050744],[-100.7501894,42.2048549],[-100.7501474,42.0886605],[-101.415,41.75],[-101.813,40.11],[-102.225,40.126],[-102.185,39.457],[-101.838,39.456],[-101.843,37.834],[-103.975,38.445],[-105.169,32.051],[-105.177,30.918],[-107.424,25.542],[-88.154,25.404]]],
+      "description": "initial intersect of counties.  Includes anomolies in ND and SD."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Michigan"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Illinois"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "LaPorte County, IN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Porter County, IN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Jasper County, IN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Newton County, IN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Gibson County, IN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Pike County, IN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Dubois County, IN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Perry County, IN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Breckinridge County, KY"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Grayson County, KY"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Hart County, KY"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Green County, KY"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Adair County, KY"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Russell County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Wayne County, KY"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Pickett County, TN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Fentress County, TN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Cumberland County, TN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Bledsoe County, TN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Sequatchie County, TN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Marion County, TN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Alabama"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Jackson County, FL"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Calhoun County, FL"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Liberty County, FL"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Franklin County, FL"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Hudspeth County, TX"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "New Mexico"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Colorado"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Hamilton County, KS"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Greeley County, KS"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Wallace County, KS"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Sherman County, KS"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Dundy County, NE"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Chase County, NE"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Perkins County, NE"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Keith County, NE"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Arthur County, NE"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Hooker County, NE"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Thomas County, NE"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Todd County, SD"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Mellette County, SD"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Jones County, SD"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Hughes County, SD"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Sully County, SD"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Dewey County, SD"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Corson County, SD"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Grant County, ND"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Morton County, ND"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Oliver County, ND"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Mercer County, ND"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "McLean County, ND"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Montana"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-85,29],[-84,29.6],[-85.09,29.73],[-85.1095253,29.776718],[-85.1104997,29.7778629],[-85.1686443,29.8170126],[-85.1686443,29.8170126],[-85.1803417,29.8214145],[-85.1811142,29.8218427],[-85.1831956,29.8237787],[-85.1840968,29.824393],[-85.1867361,29.8256775],[-85.189075,29.8271854],[-85.1904912,29.8279486],[-85.1909633,29.8284884],[-85.1912422,29.8293447],[-85.1912208,29.8300334],[-85.1908989,29.8308897],[-85.1907058,29.8316529],[-85.1907702,29.8324347],[-85.1909633,29.8331606],[-85.1930232,29.8358969],[-85.1938815,29.8374604],[-85.1945252,29.8383724],[-85.1951475,29.8388564],[-85.1958342,29.8390983],[-85.1967354,29.8390983],[-85.1980014,29.8387633],[-85.1991172,29.8383911],[-85.2001686,29.8383352],[-85.2021213,29.8386889],[-85.2031941,29.8391728],[-85.2044601,29.8401221],[-85.2055759,29.8410341],[-85.2070994,29.8417972],[-85.2077217,29.8421694],[-85.2093954,29.8439562],[-85.2108975,29.8453335],[-85.2113695,29.8460966],[-85.2114124,29.846841],[-85.2110906,29.8477716],[-85.2102589,29.8488151],[-85.2086229,29.857449],[-85.2089233,29.8588075],[-85.2089019,29.8598682],[-85.20858,29.8636086],[-85.208108,29.8656369],[-85.2079148,29.8682792],[-85.2079363,29.8699352],[-85.2084942,29.8726891],[-85.2095885,29.8753498],[-85.2101679,29.8763917],[-85.2108545,29.8770057],[-85.2118416,29.8774337],[-85.2200384,29.8793128],[-85.2221198,29.8799826],[-85.2266259,29.8818617],[-85.2307029,29.8835362],[-85.2321835,29.8840199],[-85.2337284,29.8841873],[-85.2378054,29.8841315],[-85.2392216,29.8842617],[-85.2404876,29.884578],[-85.2426548,29.8855455],[-85.2446933,29.8864757],[-85.2476759,29.8874245],[-85.2572675,29.8901592],[-85.259263,29.8907917],[-85.2604861,29.8913126],[-85.2766652,29.9011346],[-85.2774591,29.9017113],[-85.2779527,29.9023251],[-85.2789612,29.9041852],[-85.2796478,29.9052454],[-85.2848406,29.9115508],[-85.2857418,29.912518],[-85.2877374,29.9140617],[-85.2923937,29.9169817],[-85.2930803,29.9174839],[-85.2938528,29.9185812],[-85.2956553,29.9223193],[-85.2961702,29.9237513],[-85.296535,29.9252205],[-85.2987022,29.938535],[-85.2989383,29.9397622],[-85.2993245,29.9407291],[-85.2997537,29.9414728],[-85.3006549,29.942291],[-85.3020711,29.9432578],[-85.3124352,29.9485196],[-85.3151174,29.9501],[-85.3204174,29.9537626],[-85.321147,29.9543947],[-85.3221984,29.9557705],[-85.3230352,29.9564955],[-85.3239365,29.9568859],[-85.3258891,29.957202],[-85.3319831,29.9574808],[-85.3336783,29.9577039],[-85.3355665,29.9582059],[-85.3385062,29.9594886],[-85.3403301,29.9600278],[-85.3418751,29.9602508],[-85.3443427,29.9601207],[-85.3456516,29.9598976],[-85.3486986,29.9586521],[-85.3495998,29.9583732],[-85.3509517,29.9582245],[-85.352561,29.9580943],[-85.3542991,29.9582802],[-85.3560586,29.9585963],[-85.3575606,29.9590053],[-85.3589339,29.9595816],[-85.3627963,29.9619611],[-85.3708644,29.9678168],[-85.3715081,29.9683745],[-85.3732886,29.9706206],[-85.3732886,29.9706206],[-85.3783746,29.9770365],[-85.3787823,29.9777614],[-85.3788252,29.9785235],[-85.378675,29.9793599],[-85.3780956,29.980345],[-85.3752847,29.9828913],[-85.3744693,29.9839879],[-85.3731604,29.9869615],[-85.3724952,29.9880395],[-85.3716369,29.988913],[-85.3706069,29.9896936],[-85.3694053,29.9911246],[-85.3691692,29.9921281],[-85.3691263,29.9934848],[-85.3692765,29.9948228],[-85.3695555,29.996198],[-85.3720017,30.00404],[-85.37286,30.0067158],[-85.3735037,30.008128],[-85.3750344,30.0105144],[-85.3750344,30.0105144],[-85.3786964,30.0177527],[-85.3792543,30.0189417],[-85.3794475,30.0200565],[-85.3795548,30.0215428],[-85.3795548,30.0225275],[-85.3798766,30.023345],[-85.3805418,30.0240509],[-85.3814001,30.0244597],[-85.3836317,30.0249241],[-85.3866787,30.0253886],[-85.3889961,30.0261131],[-85.3909702,30.0270792],[-85.3924294,30.0282496],[-85.446289,29.901033],[-86,29.65],[-85,29]]],
+      "description": "Omit certain section south of Searcy Creek, FL"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Bay County, FL"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-85.2,32.97],[-85.237,32.954],[-85.282,32.847],[-85.235,32.765],[-85.198,32.656],[-85.182,32.571],[-85.214,32.514],[-85.119,32.444],[-85.094,32.397],[-85.073,32.355],[-85.031,32.339],[-85.02,32.3429],[-85.011,32.358],[-84.86,32.35],[-85.2,32.97]]],
+      "description": "Omit a few towns in Alabama close to Georgia that observe eastern time"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-86.95,41.45],[-86.95,41.25],[-86.92,41.25],[-86.92,41.45],[-86.95,41.45]]],
+      "description": "patch to cover weird polygon hole that is artifact of geographic union operations Indiana"
+    }
+  ],
+  "America/Chihuahua": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Chihuahua"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Ojinaga-tz"
+    }
+  ],
+  "America/Costa_Rica": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Costa Rica"
+    }
+  ],
+  "America/Creston": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Creston-tz"
+    }
+  ],
+  "America/Cuiaba": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mato Grosso"
+    }
+  ],
+  "America/Curacao": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Curaçao"
+    }
+  ],
+  "America/Danmarkshavn": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Greenland"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-24.2,73.5],[-15,71.8],[-14,77],[-24.2,73.5]]],
+      "description": "Grab part of Greenland and make a best guess at this timezone's location."
+    }
+  ],
+  "America/Dawson": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Yukon"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-138,75],[-138,56],[-95,62],[-138,75]]],
+      "description": "Difference against a manually created polygon to create an east-west split at the 138th meridian."
+    }
+  ],
+  "America/Dawson_Creek": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Dawson Creek-tz"
+    }
+  ],
+  "America/Denver": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Denver-tz"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "West Wendover"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Boise-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Page"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Sioux County, ND"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-98,44],[-98,46.5],[-100.8,46.57],[-101.326,46.146],[-101.324,45.938],[-100.583,44.865],[-100.475,44.533],[-100.855,44.162],[-98,44]]],
+      "description": "anomalies in North Dakota"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Dewey County, SD"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Corson County, SD"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Grant County, ND"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Morton County, ND"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-111.432,36.937],[-111.423,36.933],[-111.423,36.928],[-111.488,36.875],[-111.58,36.875],[-111.45,36.97],[-111.432,36.937]]],
+      "description": "Exclude artifacts as result of mismatching City boundary of Page, AZ"
+    }
+  ],
+  "America/Detroit": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Michigan"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Gogebic County"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Iron County, MI"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Dickinson County, MI"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Menominee County, MI"
+    }
+  ],
+  "America/Dominica": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Dominica"
+    }
+  ],
+  "America/Edmonton": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Canada"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-118,55],[-123,48],[-112,48],[-118,55]]],
+      "description": "The Edmonton timezone in OSM currently does not include the British Columbia portion.  Therefore, the boundary is obtained by first intersect Canada with this polygon and then remove the Vancouver and Creston timezones."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Edmonton-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Vancouver-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Creston-tz"
+    }
+  ],
+  "America/Eirunepe": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Eirunepe-tz"
+    }
+  ],
+  "America/El_Salvador": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "El Salvador"
+    }
+  ],
+  "America/Fort_Nelson": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Northern Rockies Regional Municipality"
+    }
+  ],
+  "America/Fortaleza": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Brazil"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-28,-9],[-39,-8.5],[-44,-12],[-51,-8],[-46,2],[-28,-9]]],
+      "description": "intersect relevant part of Brazil to preserve terriritorial waters"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Pernambuco"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Bahia"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Tocantins"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Belem-tz"
+    }
+  ],
+  "America/Glace_Bay": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Glace Bay-tz"
+    }
+  ],
+  "America/Goose_Bay": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Canada"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-71,50],[-57.1077594,51.9984948],[-56.59,53.2],[-53.7,53.6],[-65,62],[-71,50]]],
+      "description": "Grab part of Canada to make timezone in northern Labrador.  Includes a slightly educated guess on timezone boundary in Labrador."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Quebec"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Pangnirtung-tz"
+    }
+  ],
+  "America/Grand_Turk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Turks and Caicos Islands"
+    }
+  ],
+  "America/Grenada": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Grenada"
+    }
+  ],
+  "America/Guadeloupe": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Guadeloupe"
+    }
+  ],
+  "America/Guatemala": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Guatemala"
+    }
+  ],
+  "America/Guayaquil": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Ecuador"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-72,0],[-83,4],[-83,-9],[-72,0]]],
+      "description": "Isolate mainlaind of Ecuador by excluding Galapagos islands."
+    }
+  ],
+  "America/Guyana": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Guyana"
+    }
+  ],
+  "America/Halifax": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Halifax-tz"
+    }
+  ],
+  "America/Havana": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cuba"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-75.0866329,19.9027428],[-75.0866372,19.9041687],[-75.0866182,19.9104153],[-75.0866276,19.9115045],[-75.0866493,19.9122056],[-75.0866007,19.9125589],[-75.0865962,19.9138869],[-75.0866447,19.9738202],[-75.1668228,19.9738244],[-75.1906065,19.9737598],[-75.1946678,19.9699988],[-75.1964374,19.9683235],[-75.2320198,19.9345907],[-75.2320369,19.9022073],[-75.2324876,19.8697408],[-75.0865627,19.8717621],[-75.0866329,19.9027428]]],
+      "description": "Exclude Guantanamo Bay US Military base from the rest of Cuba."
+    }
+  ],
+  "America/Hermosillo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mexico"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-112.6,28.5],[-112.55,28.2],[-111.5,27.6],[-110,26.3],[-109.2480469,26.316067],[-109,27],[-114,34],[-114.8069313,31.8166753],[-114.802,31.816],[-114.793,31.8198],[-114.787,31.8205],[-114.7645,31.8174],[-114.755,31.812],[-114.7455,31.804],[-114.739,31.795],[-114.732,31.777],[-114.707,31.757],[-114.658,31.729],[-114.623,31.7],[-112.88,29.4],[-112.6,28.5]]],
+      "description": "Grab part of Mexico including part of the Gulf of California.  The results in making an arbitrary boundary in the Gulf of California."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Sonora"
+    }
+  ],
+  "America/Indiana/Indianapolis": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Indianapolis-tz"
+    }
+  ],
+  "America/Indiana/Knox": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Starke County, IN"
+    }
+  ],
+  "America/Indiana/Marengo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Crawford County, IN"
+    }
+  ],
+  "America/Indiana/Petersburg": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Pike County, IN"
+    }
+  ],
+  "America/Indiana/Tell_City": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Perry County, IN"
+    }
+  ],
+  "America/Indiana/Vevay": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Switzerland County, IN"
+    }
+  ],
+  "America/Indiana/Vincennes": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Vincennes-tz"
+    }
+  ],
+  "America/Indiana/Winamac": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Pulaski County, IN"
+    }
+  ],
+  "America/Inuvik": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Northwest Territories"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-120,85],[-120,56],[-55,62],[-120,85]]],
+      "description": "Difference against a manually created polygon to create an east-west split at the 120th meridian."
+    }
+  ],
+  "America/Iqaluit": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Iqaluit-tz"
+    }
+  ],
+  "America/Jamaica": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Jamaica"
+    }
+  ],
+  "America/Juneau": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-136,58.1],[-136.431016,57.830928],[-137,57.8248],[-138.5,58.5],[-138.2781,58.719],[-137.9464,58.80181],[-137.5725,58.89509],[-137.52612,58.906375],[-136,60],[-132,60],[-132,57.5],[-136,58.1]]],
+      "description": "Isolate Juneau area from the rest of Alaska.  This operation results in an arbitrary sea boundary based off of the last known trajectories of various county boundaries."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Hoonah-Angoon"
+    }
+  ],
+  "America/Kentucky/Louisville": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Jefferson County, KY"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Clark County, IN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Floyd County, IN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Harrison County, IN"
+    }
+  ],
+  "America/Kentucky/Monticello": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Wayne County, KY"
+    }
+  ],
+  "America/Kralendijk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bonaire, Sint Eustatius and Saba"
+    }
+  ],
+  "America/La_Paz": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bolivia"
+    }
+  ],
+  "America/Lima": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Peru"
+    }
+  ],
+  "America/Los_Angeles": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Los Angeles-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "West Wendover"
+    }
+  ],
+  "America/Lower_Princes": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sint Maarten"
+    }
+  ],
+  "America/Maceio": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sergipe"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Alagoas"
+    }
+  ],
+  "America/Managua": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Nicaragua"
+    }
+  ],
+  "America/Manaus": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Manaus-tz"
+    }
+  ],
+  "America/Marigot": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saint Maarten"
+    }
+  ],
+  "America/Martinique": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Martinique"
+    }
+  ],
+  "America/Matamoros": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Matamoros-tz"
+    }
+  ],
+  "America/Mazatlan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mexico"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-112,28],[-128,28],[-109,20],[-105.56,21.11],[-105.3556082,20.9602092],[-104.22,21.22],[-107.75,25.33],[-109.2480469,26.316067],[-110,26.3],[-112,28]]],
+      "description": "Grab part of Mexico to make this timezone.  This operation results in two arbitrary sea boundaries - one near Los Mochis and another near Puerto Vallarta."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Sinaloa"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Nayarit"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Bahía de Banderas"
+    }
+  ],
+  "America/Miquelon": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saint Pierre and Miquelon"
+    }
+  ],
+  "America/Menominee": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Gogebic County"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Iron County, MI"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Dickinson County, MI"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Menominee County, MI"
+    }
+  ],
+  "America/Merida": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Merida-tz"
+    }
+  ],
+  "America/Metlakatla": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Prince of Wales-Hyder"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-131.65,55.11],[-131.674,55.04],[-131.65,54.964],[-131,54.96],[-131.3,55.4],[-131.8,55.25],[-131.65,55.11]]],
+      "description": "Intersect part of this county.  This operation results in an arbitrary sea boundary to the west of the Annette Island Airport."
+    }
+  ],
+  "America/Mexico_City": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mexico"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-120,18],[-93.64,11.17],[-89.4,15.7],[-90,17],[-91.74,17.9],[-92.7,18.2],[-92.4690272,18.6504269],[-92.5110808,18.8519806],[-95,23],[-97.574497,22.313607],[-97.7743477,22.263916],[-97.7745,22.2638],[-97.7844,22.26143],[-97.79,22.2604],[-97.797,22.256],[-98,21.7],[-102.7,24],[-103.3,21.4],[-104.3,20.4],[-105.26,20.68],[-105.2786916,20.6724507],[-105.2808749,20.6713757],[-105.3009294,20.6475388],[-105.330481,20.6347751],[-105.403923,20.6243015],[-105.5724898,20.62692],[-105.883254,20.685482],[-108,21.5],[-120,18]]],
+      "description": "Grab part of Mexico to make this timezone.  This operation results in three arbitrary sea boundaries - one near Puerto Vallarta, one near Tampico and another near Ciudad del Carmen."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Jalisco"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Zacatecas"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "San Luis Potosí"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Veracruz"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Tabasco"
+    }
+  ],
+  "America/Moncton": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "New Brunswick"
+    }
+  ],
+  "America/Monterrey": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Monterrey-tz"
+    }
+  ],
+  "America/Montevideo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Uruguay"
+    }
+  ],
+  "America/Montserrat": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Montserrat"
+    }
+  ],
+  "America/Nassau": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "The Bahamas"
+    }
+  ],
+  "America/New_York": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-85,42],[-86,38.5],[-86.7,38],[-86.3,37.5],[-85.6,37.3],[-85,37],[-84.9,36.7],[-85,36],[-85.7,35],[-85.3,31],[-84.6,29.9],[-85,29.6],[-85.1095253,29.776718],[-85.1104997,29.7778629],[-85.1686443,29.8170126],[-85.1686443,29.8170126],[-85.1803417,29.8214145],[-85.1811142,29.8218427],[-85.1831956,29.8237787],[-85.1840968,29.824393],[-85.1867361,29.8256775],[-85.189075,29.8271854],[-85.1904912,29.8279486],[-85.1909633,29.8284884],[-85.1912422,29.8293447],[-85.1912208,29.8300334],[-85.1908989,29.8308897],[-85.1907058,29.8316529],[-85.1907702,29.8324347],[-85.1909633,29.8331606],[-85.1930232,29.8358969],[-85.1938815,29.8374604],[-85.1945252,29.8383724],[-85.1951475,29.8388564],[-85.1958342,29.8390983],[-85.1967354,29.8390983],[-85.1980014,29.8387633],[-85.1991172,29.8383911],[-85.2001686,29.8383352],[-85.2021213,29.8386889],[-85.2031941,29.8391728],[-85.2044601,29.8401221],[-85.2055759,29.8410341],[-85.2070994,29.8417972],[-85.2077217,29.8421694],[-85.2093954,29.8439562],[-85.2108975,29.8453335],[-85.2113695,29.8460966],[-85.2114124,29.846841],[-85.2110906,29.8477716],[-85.2102589,29.8488151],[-85.2086229,29.857449],[-85.2089233,29.8588075],[-85.2089019,29.8598682],[-85.20858,29.8636086],[-85.208108,29.8656369],[-85.2079148,29.8682792],[-85.2079363,29.8699352],[-85.2084942,29.8726891],[-85.2095885,29.8753498],[-85.2101679,29.8763917],[-85.2108545,29.8770057],[-85.2118416,29.8774337],[-85.2200384,29.8793128],[-85.2221198,29.8799826],[-85.2266259,29.8818617],[-85.2307029,29.8835362],[-85.2321835,29.8840199],[-85.2337284,29.8841873],[-85.2378054,29.8841315],[-85.2392216,29.8842617],[-85.2404876,29.884578],[-85.2426548,29.8855455],[-85.2446933,29.8864757],[-85.2476759,29.8874245],[-85.2572675,29.8901592],[-85.259263,29.8907917],[-85.2604861,29.8913126],[-85.2766652,29.9011346],[-85.2774591,29.9017113],[-85.2779527,29.9023251],[-85.2789612,29.9041852],[-85.2796478,29.9052454],[-85.2848406,29.9115508],[-85.2857418,29.912518],[-85.2877374,29.9140617],[-85.2923937,29.9169817],[-85.2930803,29.9174839],[-85.2938528,29.9185812],[-85.2956553,29.9223193],[-85.2961702,29.9237513],[-85.296535,29.9252205],[-85.2987022,29.938535],[-85.2989383,29.9397622],[-85.2993245,29.9407291],[-85.2997537,29.9414728],[-85.3006549,29.942291],[-85.3020711,29.9432578],[-85.3124352,29.9485196],[-85.3151174,29.9501],[-85.3204174,29.9537626],[-85.321147,29.9543947],[-85.3221984,29.9557705],[-85.3230352,29.9564955],[-85.3239365,29.9568859],[-85.3258891,29.957202],[-85.3319831,29.9574808],[-85.3336783,29.9577039],[-85.3355665,29.9582059],[-85.3385062,29.9594886],[-85.3403301,29.9600278],[-85.3418751,29.9602508],[-85.3443427,29.9601207],[-85.3456516,29.9598976],[-85.3486986,29.9586521],[-85.3495998,29.9583732],[-85.3509517,29.9582245],[-85.352561,29.9580943],[-85.3542991,29.9582802],[-85.3560586,29.9585963],[-85.3575606,29.9590053],[-85.3589339,29.9595816],[-85.3627963,29.9619611],[-85.3708644,29.9678168],[-85.3715081,29.9683745],[-85.3732886,29.9706206],[-85.3732886,29.9706206],[-85.3783746,29.9770365],[-85.3787823,29.9777614],[-85.3788252,29.9785235],[-85.378675,29.9793599],[-85.3780956,29.980345],[-85.3752847,29.9828913],[-85.3744693,29.9839879],[-85.3731604,29.9869615],[-85.3724952,29.9880395],[-85.3716369,29.988913],[-85.3706069,29.9896936],[-85.3694053,29.9911246],[-85.3691692,29.9921281],[-85.3691263,29.9934848],[-85.3692765,29.9948228],[-85.3695555,29.996198],[-85.3720017,30.00404],[-85.37286,30.0067158],[-85.3735037,30.008128],[-85.3750344,30.0105144],[-85.3750344,30.0105144],[-85.3786964,30.0177527],[-85.3792543,30.0189417],[-85.3794475,30.0200565],[-85.3795548,30.0215428],[-85.3795548,30.0225275],[-85.3798766,30.023345],[-85.3805418,30.0240509],[-85.3814001,30.0244597],[-85.3836317,30.0249241],[-85.3866787,30.0253886],[-85.3889961,30.0261131],[-85.3909702,30.0270792],[-85.3924294,30.0282496],[-85.446289,29.901033],[-86,29.65],[-86,21],[-37,42],[-67,49],[-85,42]]],
+      "description": "Intersect part of USA near the edges of the following polygons.  This operation also results in creating a boundary along the Gulf Intracoastal Waterway from Lake Wimico to Wetappo Creek."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Michigan"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Indiana"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Dearborn County, IN"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Ohio County, IN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Jefferson County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Breckinridge County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Grayson County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Hart County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Green County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Adair County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Russell County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Wayne County, KY"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Pickett County, TN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Fentress County, TN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Cumberland County, TN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Bledsoe County, TN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Sequatchie County, TN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Marion County, TN"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Alabama"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Jackson County, FL"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Calhoun County, FL"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Liberty County, FL"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Franklin County, FL"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Bay County, FL"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-75.0866329,19.9027428],[-75.0866372,19.9041687],[-75.0866182,19.9104153],[-75.0866276,19.9115045],[-75.0866493,19.9122056],[-75.0866007,19.9125589],[-75.0865962,19.9138869],[-75.0866447,19.9738202],[-75.1668228,19.9738244],[-75.1906065,19.9737598],[-75.1946678,19.9699988],[-75.1964374,19.9683235],[-75.2320198,19.9345907],[-75.2320369,19.9022073],[-75.2324876,19.8697408],[-75.0865627,19.8717621],[-75.0866329,19.9027428]]],
+      "description": "Add Guantanamo Bay US Military Base to this timeonze."
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-85.2,32.97],[-85.237,32.954],[-85.282,32.847],[-85.235,32.765],[-85.198,32.656],[-85.182,32.571],[-85.214,32.514],[-85.119,32.444],[-85.094,32.397],[-85.073,32.355],[-85.031,32.339],[-85.02,32.3429],[-85.011,32.358],[-84.86,32.35],[-85.2,32.97]]],
+      "description": "Add areas in Alabama near Phenix City and Lanett that observe eastern time.  The boundaries are a speculative guess."
+    }
+  ],
+  "America/Nipigon": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Nipigon-tz"
+    }
+  ],
+  "America/Nome": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-162,78],[-162,49],[-170,49],[-169.48009,52.634],[-169.329,53.1067],[-169,55],[-179,58],[-162,78]]],
+      "description": "Intersect part of Alaska to make this timezone.  Includes an arbitrary sea boundary in the Aleutian islands between Umnak Island and Chuginadak Island."
+    }
+  ],
+  "America/Noronha": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Brazil"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-32.4,-3],[-33,-4.5],[-32,-4.5],[-32.4,-3]]],
+      "description": "Intersect the boundary of Brazil to isolate Fernando de Noronha archipelago."
+    }
+  ],
+  "America/North_Dakota/Beulah": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mercer County, ND"
+    }
+  ],
+  "America/North_Dakota/Center": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Oliver County, ND"
+    }
+  ],
+  "America/North_Dakota/New_Salem": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Morton County, ND"
+    }
+  ],
+  "America/Nuuk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Greenland"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-24,72.4],[-19,71],[-18,70],[-25,70.5],[-24,72.4]]],
+      "description": "Exclude area from Greenland used to make America/Scoresbysund"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-24.2,73.5],[-15,71.8],[-14,77],[-24.2,73.5]]],
+      "description": "Exclude area from Greenland used to make America/Danmarkshavn"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-81,82],[-60,78],[-81,60],[-81,82]]],
+      "description": "Exclude area from Greenland used to make America/Thule"
+    }
+  ],
+  "America/Ojinaga": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Ojinaga-tz"
+    }
+  ],
+  "America/Panama": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Panama"
+    }
+  ],
+  "America/Pangnirtung": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Pangnirtung-tz"
+    }
+  ],
+  "America/Paramaribo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Suriname"
+    }
+  ],
+  "America/Phoenix": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Phoenix-tz"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Page"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-111.432,36.937],[-111.423,36.933],[-111.423,36.928],[-111.488,36.875],[-111.58,36.875],[-111.45,36.97],[-111.432,36.937]]],
+      "description": "Include artifacts as result of mismatching City boundary of Page, AZ"
+    }
+  ],
+  "America/Port-au-Prince": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Haiti"
+    }
+  ],
+  "America/Port_of_Spain": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Trinidad and Tobago"
+    }
+  ],
+  "America/Porto_Velho": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Rondônia"
+    }
+  ],
+  "America/Puerto_Rico": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-65.22,18.6],[-65.108,18.43],[-65.16,18.25],[-65.145,18.23],[-65.1,18.225],[-65,18],[-66,17],[-77,18],[-65,19],[-65.22,18.6]]],
+      "description": "Intersect the part of USA that includes Puerto Rico.  This results in an arbitrary sea boundary between Isla de Culebra and the Virgin Islands."
+    }
+  ],
+  "America/Punta_Arenas": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Magallanes Region"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-64,-64],[-57.3,-63.4],[-58.8,-62.25],[-59,-61.8],[-63,-62.7],[-64,-64]]],
+      "description": "Add Antarctic Areas.  Includes stations General Bernardo O'Higgins, Great Wall, Bellinghausen and Artigas."
+    }
+  ],
+  "America/Rainy_River": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Rainy River-tz"
+    }
+  ],
+  "America/Rankin_Inlet": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Rankin Inlet-tz"
+    }
+  ],
+  "America/Recife": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Pernambuco"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-33,-5],[-34,-13],[-46,-8],[-33,-5]]],
+      "description": "Isolate mainlaind part of Pernambuco to exlude Fernando de Noronha archipelago and other islands."
+    }
+  ],
+  "America/Regina": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Regina-tz"
+    }
+  ],
+  "America/Resolute": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Resolute-tz"
+    }
+  ],
+  "America/Rio_Branco": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Acre"
+    }
+  ],
+  "America/Santarem": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Santarem-tz"
+    }
+  ],
+  "America/Santiago": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Chile"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-70,15],[-50,-60],[-100,-60],[-70,15]]],
+      "description": "Include only mainlaind Chile (Exclude Easter Island)"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Magallanes Region"
+    }
+  ],
+  "America/Santo_Domingo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Dominican Republic"
+    }
+  ],
+  "America/Sao_Paulo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Brazil"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-52,-11],[-63,-30],[-49,-40],[-34,-13],[-52,-11]]],
+      "description": "Extract parts of Brazil to preserve terriritorial waters and diff against a few Brazilian states."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Mato Grosso do Sul"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Mato Grosso"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Tocantins"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Bahia"
+    }
+  ],
+  "America/Scoresbysund": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Greenland"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-24,72.4],[-19,71],[-18,70],[-25,70.5],[-24,72.4]]],
+      "description": "Grab part of Greenland and make a best guess at this timezone's location."
+    }
+  ],
+  "America/Sitka": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Prince of Wales-Hyder"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-131.65,55.11],[-131.674,55.04],[-131.65,54.964],[-131,54.96],[-131.3,55.4],[-131.8,55.25],[-131.65,55.11]]],
+      "description": "Intersect part of this county.  This operation results in an arbitrary sea boundary to the west of the Annette Island Airport."
+    }, {
+      "op": "difference-reverse-order",
+      "source": "overpass",
+      "id": "United States of America",
+      "description": "Since this zone required the creation of a hole inside of it, this USA is diffed against the resulting geometry of the two previous operations."
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-136,58.1],[-136.431016,57.830928],[-137,57.8248],[-136,54],[-122,54],[-132,57.5],[-136,58.1]]],
+      "description": "Intersect part of Alaska.  This operation results in an arbitrary sea boundary based off of the last observed trajectory of the sea boundary of Sitka and Hoonah-Angoon counties."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Hoonah-Angoon"
+    }
+  ],
+  "America/St_Barthelemy": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saint-Barthélemy"
+    }
+  ],
+  "America/St_Johns": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Canada"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-40,40],[-53.7,53.6],[-56.59,53.2],[-57.1077594,51.9984948],[-64,51],[-60.4037717,47.7610985],[-58.9,46.8],[-40,40]]],
+      "description": "Grab part of Canada that includes Newfoundland and nearby sea area.  Also includes guesstimate of part of Labrador that observes St Johns time."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Quebec"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Glace Bay-tz"
+    }
+  ],
+  "America/St_Kitts": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saint Kitts and Nevis"
+    }
+  ],
+  "America/St_Lucia": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saint Lucia"
+    }
+  ],
+  "America/St_Thomas": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-65.22,18.6],[-65.108,18.43],[-65.16,18.25],[-65.145,18.23],[-65.1,18.225],[-65,18],[-66,17],[-62,18],[-65,19],[-65.22,18.6]]],
+      "description": "Intersect the USA to isolate the US Virgin Islands.  This operation results in an arbitrary sea boundary between Puerto Rico and the island of St Thomas."
+    }
+  ],
+  "America/St_Vincent": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saint Vincent and the Grenadines"
+    }
+  ],
+  "America/Swift_Current": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Swift Current-tz"
+    }
+  ],
+  "America/Tegucigalpa": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Honduras"
+    }
+  ],
+  "America/Thule": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Greenland"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-81,82],[-60,78],[-81,60],[-81,82]]],
+      "description": "Grab part of Greenland and make a best guess at this timezone's location."
+    }
+  ],
+  "America/Thunder_Bay": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Thunder Bay-tz"
+    }
+  ],
+  "America/Tijuana": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mexico"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-112.6,28.5],[-112.55,28.2],[-112,28],[-122,28],[-116,35],[-114,34],[-114.8069313,31.8166753],[-114.802,31.816],[-114.793,31.8198],[-114.787,31.8205],[-114.7645,31.8174],[-114.755,31.812],[-114.7455,31.804],[-114.739,31.795],[-114.732,31.777],[-114.707,31.757],[-114.658,31.729],[-114.623,31.7],[-112.88,29.4],[-112.6,28.5]]],
+      "description": "Intersect part of Mexico.  This operation creates an arbitrary sea boundary in the Gulf of California."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Sonora"
+    }
+  ],
+  "America/Toronto": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Toronto-tz"
+    }
+  ],
+  "America/Tortola": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "British Virgin Islands"
+    }
+  ],
+  "America/Vancouver": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Canada"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-121,47],[-133,61],[-143,61],[-127,47],[-121,47]]],
+      "description": "Intersect part of Canada to include terriritorial waters."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Vancouver-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Yukon"
+    }
+  ],
+  "America/Whitehorse": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Yukon"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-138,75],[-138,56],[-165,62],[-138,75]]],
+      "description": "Difference against a manually created polygon to create an east-west split at the 138th meridian."
+    }
+  ],
+  "America/Winnipeg": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Winnipeg-tz"
+    }
+  ],
+  "America/Yakutat": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-141,62],[-141,58],[-138.2781,58.719],[-137.9464,58.80181],[-137.5725,58.89509],[-137.52612,58.906375],[-134,62],[-141,62]]],
+      "description": "Intersect part of USA in Alaska to create timezone.  Includes arbitrary sea boundary along the -141st meridian and along the last observed trajectories of the sea bouandary of Yakutat and Hoonah-Angoon counties."
+    }
+  ],
+  "America/Yellowknife": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Northwest Territories"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[-120,85],[-120,56],[-165,62],[-120,85]]],
+      "description": "Difference against a manually created polygon to create an east-west split at the 120th meridian."
+    }
+  ],
+  "Antarctica/Casey": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[97,-70],[115,-70],[120,-70],[120,-65],[97,-64],[97,-70]]],
+      "description": "Best guess at extent of Casey timezone based off of map at https://en.wikipedia.org/wiki/Time_in_Antarctica, but subtracting area for Vostok and Mirny Stations."
+    }
+  ],
+  "Antarctica/Davis": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[77.5,-86],[86,-86],[86,-65],[77.5,-68],[77.5,-86]]],
+      "description": "Best guess at extent of Davis timezone."
+    }
+  ],
+  "Antarctica/DumontDUrville": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[120,-70],[135,-70],[150,-70],[160,-70],[160,-65],[150,-65],[135,-65],[120,-65],[120,-70]]],
+      "description": "Best guess at extent of DumontDUrville timezone based off of map at https://en.wikipedia.org/wiki/Time_in_Antarctica, but subtracting area for Concordia Station (Australia/Perth)."
+    }
+  ],
+  "Antarctica/Macquarie": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Australia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[159,-53],[156,-56],[162,-56],[159,-53]]],
+      "description": "Intersect part of Australia to isolate Macquarie Island."
+    }
+  ],
+  "Antarctica/Mawson": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[55,-86],[60,-86],[75,-86],[77.5,-86],[77.5,-68],[55,-64],[55,-86]]],
+      "description": "Best guess at extent of Mawson timezone.  This timezone also includes the Zhongshan and Bharati stations because apparently they also use UTC+5 https://encyclopedia.timegenie.com/time_zones/antarctica/."
+    }
+  ],
+  "Antarctica/McMurdo": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[-180,-90],[-180,-75],[-150,-75],[-150,-86],[-135,-86],[-120,-86],[-105,-86],[-90,-86],[-80,-86],[-75,-86],[-67.5,-86],[-60,-86],[-58,-86],[-45,-86],[-35,-86],[-30,-86],[-17,-86],[-15,-86],[-5.5,-86],[0,-86],[15,-86],[25,-86],[30,-86],[45,-86],[55,-86],[60,-86],[75,-86],[77.5,-86],[86,-86],[90,-86],[105,-86],[115,-86],[120,-86],[135,-86],[150,-86],[160,-86],[160,-65],[180,-70],[180,-86],[180,-90],[-180,-90]]],
+      "description": "Best guess at McMurdo timezone according to map of timezone at https://en.wikipedia.org/wiki/Time_in_Antarctica.  Includes South Pole timezone since it is linked to McMurdo in the timezone DB."
+    }
+  ],
+  "Antarctica/Palmer": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[-64,-64],[-65,-64.5],[-65.5,-65.25],[-63.8,-64.8],[-64,-64]]],
+      "description": "Best guess at Palmer timezone."
+    }
+  ],
+  "Antarctica/Rothera": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[-80,-86],[-75,-86],[-67.5,-86],[-67.5,-66],[-80,-66],[-80,-86]]],
+      "description": "Best guess at Rothera timezone partially based off of British Antarctic Claims."
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[-35,-86],[-30,-86],[-17,-86],[-17,-71],[-35,-75],[-35,-86]]],
+      "description": "Add area near Halley Station."
+    }
+  ],
+  "Antarctica/Syowa": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[25,-86],[30,-86],[45,-86],[55,-86],[55,-64],[25,-68],[25,-86]]],
+      "description": "Best guess at Syowa timezone according to map of timezone at https://en.wikipedia.org/wiki/Time_in_Antarctica.  Also, Mirny station uses the same timezone as Vostok according to https://encyclopedia.timegenie.com/time_zones/antarctica/.  Also includes Japanese Asuka Station."
+    }
+  ],
+  "Antarctica/Troll": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[0,-86],[15,-86],[25,-86],[25,-68],[0,-68],[0,-86]]],
+      "description": "Best guess at Troll timezone according to map of timezone at https://en.wikipedia.org/wiki/Time_in_Antarctica, but subtracting area to west starting with SANAE IV station.  Also includes Maitri and Novolazarevskaya Stations."
+    }
+  ],
+  "Antarctica/Vostok": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[86,-86],[90,-86],[105,-86],[115,-86],[115,-70],[97,-70],[97,-64],[86,-65],[86,-86]]],
+      "description": "Best guess at Vostok timezone according to map of timezone at https://en.wikipedia.org/wiki/Time_in_Antarctica.  Also, Mirny station uses the same timezone as Vostok according to https://encyclopedia.timegenie.com/time_zones/antarctica/."
+    }
+  ],
+  "Arctic/Longyearbyen": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Norway"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-13,69],[2,82],[35,81],[35,74],[-13,69]]],
+      "description": "Intersect part of Norway to isolate various North Atlantic islands."
+    }
+  ],
+  "Asia/Aden": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Yemen"
+    }
+  ],
+  "Asia/Almaty": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kazakhstan"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[57,52],[57,26],[23,56],[57,52]]],
+      "description": "Intersect western part of Kazakhstan"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Kostanay"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Aktobe"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Kyzylorda"
+    }
+  ],
+  "Asia/Amman": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Jordan"
+    }
+  ],
+  "Asia/Anadyr": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Chukotka"
+    }
+  ],
+  "Asia/Aqtau": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mangystau Region"
+    }
+  ],
+  "Asia/Aqtobe": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Aktobe"
+    }
+  ],
+  "Asia/Ashgabat": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Turkmenistan"
+    }
+  ],
+  "Asia/Atyrau": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Atyrau Region"
+    }
+  ],
+  "Asia/Baghdad": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Iraq"
+    }
+  ],
+  "Asia/Bahrain": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bahrain"
+    }
+  ],
+  "Asia/Baku": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Azerbaijan"
+    }
+  ],
+  "Asia/Bangkok": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Vietnam",
+      "description": "Northern Vietnam had the same timekeeping method as Thailand, so this is added before adding Thailand. See (https://github.com/evansiroky/timezone-boundary-builder/issues/66)"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[100,11],[112,21],[100,30],[100,11]]],
+      "description": "Isolate Northern Vietnam as it is a part of Asia/Bangkok. See (https://github.com/evansiroky/timezone-boundary-builder/issues/66)"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Quang Tri"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Thailand"
+    }
+  ],
+  "Asia/Barnaul": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Altai Krai"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Altai Republic"
+    }
+  ],
+  "Asia/Beirut": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Lebanon"
+    }
+  ],
+  "Asia/Bishkek": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kyrgyzstan"
+    }
+  ],
+  "Asia/Brunei": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Brunei"
+    }
+  ],
+  "Asia/Chita": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Zabaykalsk"
+    }
+  ],
+  "Asia/Choibalsan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Dornod"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Sühbaatar"
+    }
+  ],
+  "Asia/Colombo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sri Lanka"
+    }
+  ],
+  "Asia/Damascus": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Syria"
+    }
+  ],
+  "Asia/Dhaka": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bangladesh"
+    }
+  ],
+  "Asia/Dili": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "East Timor"
+    }
+  ],
+  "Asia/Dubai": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United Arab Emirates"
+    }
+  ],
+  "Asia/Dushanbe": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tajikistan"
+    }
+  ],
+  "Asia/Famagusta": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cyprus"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[32.609482,35.166161],[32.621326,35.176544],[32.6283528,35.1893165],[32.640381,35.229355],[32.659264,35.244498],[32.686043,35.244217],[32.701836,35.227672],[32.6968982,35.1834922],[32.703896,35.179982],[32.703037,35.140125],[32.764664,35.122576],[32.792988,35.118504],[32.811527,35.095614],[32.839851,35.080163],[32.866888,35.081287],[32.86397,35.101232],[32.886114,35.104181],[32.897272,35.105445],[32.906799,35.101162],[32.920532,35.090277],[32.959242,35.1006],[33.012371,35.147144],[33.122749,35.156407],[33.164978,35.189803],[33.211327,35.183349],[33.267288,35.160056],[33.307028,35.166231],[33.315933,35.172844],[33.31869,35.172116],[33.320729,35.172247],[33.321351,35.176167],[33.319076,35.176957],[33.319774,35.180561],[33.323979,35.181227],[33.325567,35.182016],[33.334258,35.181946],[33.335073,35.182508],[33.338056,35.181824],[33.348613,35.183121],[33.348312,35.179456],[33.349857,35.177421],[33.352985,35.178452],[33.353135,35.178618],[33.353725,35.178842],[33.355844,35.178176],[33.355855,35.175878],[33.355002,35.174878],[33.355168,35.17462],[33.356161,35.173813],[33.35689,35.174049],[33.358929,35.174036],[33.360474,35.174891],[33.362303,35.174808],[33.363773,35.174611],[33.365752,35.175264],[33.367361,35.175953],[33.367522,35.17601],[33.367442,35.176382],[33.367769,35.176584],[33.368048,35.177009],[33.368397,35.177119],[33.368493,35.177597],[33.368826,35.177763],[33.36933,35.178114],[33.369963,35.17782],[33.372281,35.179158],[33.372624,35.185506],[33.37198,35.186497],[33.374727,35.187734],[33.374566,35.188567],[33.373922,35.189452],[33.374491,35.190689],[33.388739,35.197799],[33.403759,35.186261],[33.412471,35.174054],[33.408952,35.15967],[33.424401,35.156267],[33.424273,35.139143],[33.459463,35.109026],[33.469849,35.048268],[33.447189,35.022968],[33.444614,35.004128],[33.458347,35.001914],[33.464913,35.004796],[33.485126,35.005886],[33.488731,35.060493],[33.576279,35.042927],[33.593616,35.032808],[33.705025,35.028591],[33.794975,35.050235],[33.821239,35.072577],[33.847847,35.063304],[33.888702,35.088591],[33.907499,35.067448],[33.931961,35.067167],[33.94136,35.070048],[33.960886,35.073525],[33.966765,35.072436],[33.977666,35.064919],[33.990326,35.064744],[33.9988932,35.069797],[33.999531,35.069626],[34.246445,35.178298],[35.134277,35.554574],[34.799194,36.160053],[32.382202,35.572449],[32.542877,35.396887],[32.5987035,35.1791626],[32.597401,35.175001],[32.609482,35.166161]]],
+      "description": "Draw a polygon with a boundary that goes through the center of the United Nations Buffer Zone.  A subsequent operation will difference the buffer zone to create the exact boundary of this timezone.  This operation also results in arbitraty sea boundaries near Famagusta and Kokkina."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "British Sovereign Base Areas"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "United Nations Buffer Zone"
+    }
+  ],
+  "Asia/Gaza": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Palestinian Territories"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[34.7,31.5],[33.8,32.5],[33.8,30],[34.7,31.5]]],
+      "description": "Intersect the Palestinian Territories to isolate Gaza."
+    }
+  ],
+  "Asia/Hebron": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Palestinian Territories"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[34.7,30],[34.7,34],[37,32],[34.7,30]]],
+      "description": "Intersect the Palestinian Territories to isolate the West Bank."
+    }
+  ],
+  "Asia/Ho_Chi_Minh": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Vietnam"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[100,11],[112,21],[100,30],[100,11]]],
+      "description": "Exclude Northern Vietnam as it is a part of Asia/Bangkok. See (https://github.com/evansiroky/timezone-boundary-builder/issues/66)"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Quang Tri"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[117.76,16.2],[116,14],[119,14],[117.76,16.2]]],
+      "description": "Exclude Scarborough Shoal because it's not claimed by Vietnam (https://en.wikipedia.org/wiki/Scarborough_Shoal)"
+    }
+  ],
+  "Asia/Hong_Kong": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Hong Kong"
+    }
+  ],
+  "Asia/Hovd": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mongolia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[96,53],[97,40],[81,50],[96,53]]],
+      "description": "Intersect the western part of Mongolia."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Zavkhan"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Govi-Altai"
+    }
+  ],
+  "Asia/Irkutsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Irkutsk"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Buryatia"
+    }
+  ],
+  "Asia/Jakarta": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Indonesia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[109,9],[114,-12],[56,14],[109,9]]],
+      "description": "Intersect the western part of Indonesia."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "West Kalimantan"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Central Kalimantan"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "East Java"
+    }
+  ],
+  "Asia/Jayapura": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Indonesia"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[90,9],[100,-12],[126,-13],[129,7],[90,9]]],
+      "description": "Exclude all parts of Indonesia to the west of Maluku and North Maluku"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Maluku"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "North Maluku"
+    }
+  ],
+  "Asia/Jerusalem": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Israel"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "שטח C"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "שטח B"
+    }
+  ],
+  "Asia/Kabul": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Afghanistan"
+    }
+  ],
+  "Asia/Kamchatka": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kamchatka"
+    }
+  ],
+  "Asia/Karachi": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Pakistan"
+    }
+  ],
+  "Asia/Kathmandu": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Nepal"
+    }
+  ],
+  "Asia/Khandyga": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tomponsky"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Ust-Maysky"
+    }
+  ],
+  "Asia/Kolkata": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "India"
+    }
+  ],
+  "Asia/Krasnoyarsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Krasnoyarsk"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Khakassia"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Tuva"
+    }
+  ],
+  "Asia/Kuala_Lumpur": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Malaysia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[106,-6],[106,13],[94,6],[106,-6]]],
+      "description": "Intersect Malaysia to include only the Malay Peninsula."
+    }
+  ],
+  "Asia/Kuching": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Malaysia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[107,18],[107,-15],[130,5],[107,18]]],
+      "description": "Intersect Malaysia to include only Malaysian Borneo."
+    }
+  ],
+  "Asia/Kuwait": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kuwait"
+    }
+  ],
+  "Asia/Macau": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Macau"
+    }
+  ],
+  "Asia/Magadan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Magadan"
+    }
+  ],
+  "Asia/Makassar": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Indonesia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[109,9],[114,-12],[126,-13],[129,7],[109,9]]],
+      "description": "Intersect Indonesia in center areas."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "West Kalimantan"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Central Kalimantan"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "East Java"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Maluku"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "North Maluku"
+    }
+  ],
+  "Asia/Manila": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Philippines"
+    }
+  ],
+  "Asia/Muscat": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Oman"
+    }
+  ],
+  "Asia/Nicosia": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cyprus"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[32.609482,35.166161],[32.621326,35.176544],[32.6283528,35.1893165],[32.640381,35.229355],[32.659264,35.244498],[32.686043,35.244217],[32.701836,35.227672],[32.6968982,35.1834922],[32.703896,35.179982],[32.703037,35.140125],[32.764664,35.122576],[32.792988,35.118504],[32.811527,35.095614],[32.839851,35.080163],[32.866888,35.081287],[32.86397,35.101232],[32.886114,35.104181],[32.897272,35.105445],[32.906799,35.101162],[32.920532,35.090277],[32.959242,35.1006],[33.012371,35.147144],[33.122749,35.156407],[33.164978,35.189803],[33.211327,35.183349],[33.267288,35.160056],[33.307028,35.166231],[33.315933,35.172844],[33.31869,35.172116],[33.320729,35.172247],[33.321351,35.176167],[33.319076,35.176957],[33.319774,35.180561],[33.323979,35.181227],[33.325567,35.182016],[33.334258,35.181946],[33.335073,35.182508],[33.338056,35.181824],[33.348613,35.183121],[33.348312,35.179456],[33.349857,35.177421],[33.352985,35.178452],[33.353135,35.178618],[33.353725,35.178842],[33.355844,35.178176],[33.355855,35.175878],[33.355002,35.174878],[33.355168,35.17462],[33.356161,35.173813],[33.35689,35.174049],[33.358929,35.174036],[33.360474,35.174891],[33.362303,35.174808],[33.363773,35.174611],[33.365752,35.175264],[33.367361,35.175953],[33.367522,35.17601],[33.367442,35.176382],[33.367769,35.176584],[33.368048,35.177009],[33.368397,35.177119],[33.368493,35.177597],[33.368826,35.177763],[33.36933,35.178114],[33.369963,35.17782],[33.372281,35.179158],[33.372624,35.185506],[33.37198,35.186497],[33.374727,35.187734],[33.374566,35.188567],[33.373922,35.189452],[33.374491,35.190689],[33.388739,35.197799],[33.403759,35.186261],[33.412471,35.174054],[33.408952,35.15967],[33.424401,35.156267],[33.424273,35.139143],[33.459463,35.109026],[33.469849,35.048268],[33.447189,35.022968],[33.444614,35.004128],[33.458347,35.001914],[33.464913,35.004796],[33.485126,35.005886],[33.488731,35.060493],[33.576279,35.042927],[33.593616,35.032808],[33.705025,35.028591],[33.794975,35.050235],[33.821239,35.072577],[33.847847,35.063304],[33.888702,35.088591],[33.907499,35.067448],[33.931961,35.067167],[33.94136,35.070048],[33.960886,35.073525],[33.966765,35.072436],[33.977666,35.064919],[33.990326,35.064744],[33.9988932,35.069797],[33.999531,35.069626],[34.246445,35.178298],[35.134277,35.554574],[34.799194,36.160053],[32.382202,35.572449],[32.542877,35.396887],[32.5987035,35.1791626],[32.597401,35.175001],[32.609482,35.166161]]],
+      "description": "Draw a polygon with a boundary that goes through the center of the United Nations Buffer Zone.  A subsequent operation will union the buffer zone to create the exact boundary of this timezone.  This operation also results in arbitraty sea boundaries near Famagusta and Kokkina."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "British Sovereign Base Areas"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "United Nations Buffer Zone"
+    }
+  ],
+  "Asia/Novokuznetsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kemerovo"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Altai Krai"
+    }
+  ],
+  "Asia/Novosibirsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Novosibirsk"
+    }
+  ],
+  "Asia/Omsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Omsk"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Yekaterinburg-tz"
+    }
+  ],
+  "Asia/Oral": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "West Kazakhstan"
+    }
+  ],
+  "Asia/Phnom_Penh": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cambodia"
+    }
+  ],
+  "Asia/Pontianak": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "West Kalimantan"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Central Kalimantan"
+    }
+  ],
+  "Asia/Pyongyang": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "North Korea"
+    }
+  ],
+  "Asia/Qatar": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Qatar"
+    }
+  ],
+  "Asia/Qostanay": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kostanay"
+    }
+  ],
+  "Asia/Qyzylorda": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kyzylorda"
+    }
+  ],
+  "Asia/Riyadh": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saudi Arabia"
+    }
+  ],
+  "Asia/Samarkand": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Samarkand"
+    }
+  ],
+  "Asia/Sakhalin": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sakhalin"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[152,52],[138,40],[140,61],[152,52]]],
+      "description": "Intersect part of the Sakhalin Oblast to include only the island of Sakhalin."
+    }
+  ],
+  "Asia/Seoul": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "South Korea"
+    }
+  ],
+  "Asia/Shanghai": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "China"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Hong Kong"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Macau"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Doklam 洞朗地区",
+      "description": "Add disputed area in Doklam.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE and https://en.wikipedia.org/wiki/Doklam"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "鲁林地区",
+      "description": "Add disputed area in Doklam.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE and https://en.wikipedia.org/wiki/Doklam"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "查马普地区",
+      "description": "Add disputed area in Doklam.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE and https://en.wikipedia.org/wiki/Doklam"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "基伍地区",
+      "description": "Add disputed area in Doklam.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE and https://en.wikipedia.org/wiki/Doklam"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "中国实控白玉地区",
+      "description": "Add disputed area along Northwest Bhutan-China border.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Republic of China",
+      "description": "All areas of Taiwain are assumed to be a part of Asia/Taipei.  See discussion at https://github.com/evansiroky/timezone-boundary-builder/issues/52"
+    }
+  ],
+  "Asia/Singapore": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Singapore"
+    }
+  ],
+  "Asia/Srednekolymsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Srednekolymsk-tz"
+    }
+  ],
+  "Asia/Taipei": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Republic of China"
+    }
+  ],
+  "Asia/Tashkent": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Uzbekistan"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Samarkand"
+    }
+  ],
+  "Asia/Tbilisi": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Georgia"
+    }
+  ],
+  "Asia/Tehran": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Iran"
+    }
+  ],
+  "Asia/Thimphu": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bhutan"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Doklam 洞朗地区",
+      "description": "Add disputed area in Doklam.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE and https://en.wikipedia.org/wiki/Doklam"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "鲁林地区",
+      "description": "Add disputed area in Doklam.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE and https://en.wikipedia.org/wiki/Doklam"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "查马普地区",
+      "description": "Add disputed area in Doklam.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE and https://en.wikipedia.org/wiki/Doklam"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "基伍地区",
+      "description": "Add disputed area in Doklam.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE and https://en.wikipedia.org/wiki/Doklam"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "中国实控白玉地区",
+      "description": "Add disputed area along Northwest Bhutan-China border.  See https://zh.wikipedia.org/wiki/%E4%B8%AD%E4%B8%8D%E8%BE%B9%E7%95%8C%E4%BA%89%E8%AE%AE"
+    }
+  ],
+  "Asia/Tokyo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Japan"
+    }
+  ],
+  "Asia/Tomsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tomsk"
+    }
+  ],
+  "Asia/Ulaanbaatar": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mongolia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[96,53],[113,55],[114,39],[97,40],[96,53]]],
+      "description": "Intersect center part of Mongolia."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Zavkhan"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Govi-Altai"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Dornod"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Sühbaatar"
+    }
+  ],
+  "Asia/Urumqi": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Xinjiang"
+    }
+  ],
+  "Asia/Ust-Nera": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sakhalin"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[140,41],[153,50],[155,43],[140,41]]],
+      "description": "Intersect part of Sakhalin that includes Kuril Islands."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Oymyakonsky"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Srednekolymsk-tz"
+    }
+  ],
+  "Asia/Vientiane": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Laos"
+    }
+  ],
+  "Asia/Vladivostok": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sakha Republic"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[141,72.1],[107,78],[174,78],[141,72.1]]],
+      "description": "Intersect part of Sakha Republic to add Anzhu Islands."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Vladivostok-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Oymyakonsky"
+    }
+  ],
+  "Asia/Yakutsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sakha Republic"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[137,35],[142,71],[112,77],[46,29],[137,35]]],
+      "description": "Grab working area, excluding unneeded parts to east and west."
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Amur"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Vladivostok-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Tomponsky"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Ust-Maysky"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Srednekolymsk-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Oymyakonsky"
+    }
+  ],
+  "Asia/Yangon": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Myanmar"
+    }
+  ],
+  "Asia/Yekaterinburg": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Yekaterinburg-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Udmurtia"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Samara"
+    }
+  ],
+  "Asia/Yerevan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Armenia"
+    }
+  ],
+  "Atlantic/Azores": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Portugal"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-21,41],[-25,33],[-35,41],[-21,41]]],
+      "description": "Intersect Portugal to isolate Azores"
+    }
+  ],
+  "Atlantic/Bermuda": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bermuda"
+    }
+  ],
+  "Atlantic/Canary": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Spain"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-24,29.5],[-12,22],[-12,31],[-15,29.5],[-24,29.5]]],
+      "description": "Intersect part of Spain to isolate Canary Islands"
+    }
+  ],
+  "Atlantic/Cape_Verde": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cape Verde"
+    }
+  ],
+  "Atlantic/Faroe": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Faroe Islands"
+    }
+  ],
+  "Atlantic/Madeira": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Portugal"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-24,35],[-10,35],[-16,29.5],[-24,35]]],
+      "description": "Intersect to isolate Maderia and Salvage Islands."
+    }
+  ],
+  "Atlantic/Reykjavik": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Iceland"
+    }
+  ],
+  "Atlantic/South_Georgia": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "South Georgia and the South Sandwich Islands"
+    }
+  ],
+  "Atlantic/St_Helena": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saint Helena, Ascension and Tristan da Cunha"
+    }
+  ],
+  "Atlantic/Stanley": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Falkland Islands"
+    }
+  ],
+  "Australia/Adelaide": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "South Australia"
+    }
+  ],
+  "Australia/Brisbane": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Queensland"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[148.8437,-20.354],[148.834,-20.32],[148.88,-20.27],[148.7,-19.7],[149.1,-19.84],[149.5,-20.25],[149.6,-20.37],[149.12,-20.57],[149.03,-20.57],[148.95,-20.45],[148.86,-20.42],[148.842,-20.38],[148.8437,-20.354]]],
+      "description": "Exclude Holiday Islands from Queensland via an arbitraty sea boundary."
+    }
+  ],
+  "Australia/Broken_Hill": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Broken_Hill-tz"
+    }
+  ],
+  "Australia/Currie": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Australia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[143,-39.2],[146,-39.2],[142.2,-41.5],[143,-39.2]]],
+      "description": "Exclude King Island from rest of Australia via an arbitraty sea boundary."
+    }
+  ],
+  "Australia/Darwin": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Northern Territory"
+    }
+  ],
+  "Australia/Eucla": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Western Australia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[131,-31.3],[125.5,-31.3],[125.5,-35],[131,-31.3]]],
+      "description": "Intersect part of Western Australia to form zone.  Boundary is based off of the boundary coded in efele.net's shapefile."
+    }
+  ],
+  "Australia/Hobart": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tasmania"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[143,-39.2],[146,-39.2],[142.2,-41.5],[143,-39.2]]],
+      "description": "Exclude King Island from rest of Tasmania via an arbitraty sea boundary."
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[159,-53],[156,-56],[162,-56],[159,-53]]],
+      "description": "Exclude Macquarie Island."
+    }
+  ],
+  "Australia/Lindeman": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Queensland"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[148.8437,-20.354],[148.834,-20.32],[148.88,-20.27],[148.7,-19.7],[149.1,-19.84],[149.5,-20.25],[149.6,-20.37],[149.12,-20.57],[149.03,-20.57],[148.95,-20.45],[148.86,-20.42],[148.842,-20.38],[148.8437,-20.354]]],
+      "description": "Exclude Holiday Islands from Queensland via an arbitraty sea boundary."
+    }
+  ],
+  "Australia/Lord_Howe": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Australia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[160,-33],[160,-31],[157,-31],[160,-33]]],
+      "description": "Intersect to include only Lord Howe Island."
+    }
+  ],
+  "Australia/Melbourne": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Victoria"
+    }
+  ],
+  "Australia/Perth": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Western Australia"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[131,-31.3],[125.5,-31.3],[125.5,-35],[131,-31.3]]],
+      "description": "Difference part of Western Australia to form zone.  Boundary is based off of the boundary coded in efele.net's shapefile."
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[115,-86],[120,-86],[135,-86],[150,-86],[160,-86],[160,-70],[150,-70],[135,-70],[120,-70],[115,-70],[115,-86]]],
+      "description": "According to chatter on the tz mailing list, the Antrarctic Concordia Station uses Australia/Perth time.  https://mm.icann.org/pipermail/tz/2013-December/020520.html"
+    }
+  ],
+  "Australia/Sydney": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "New South Wales"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Australian Capital Territory"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Broken_Hill-tz"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[160,-33],[160,-31],[157,-31],[160,-33]]],
+      "description": "Difference to exclude only Lord Howe Island."
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[150.85,-35.07],[150.45,-35.09],[150.7,-35.3],[150.85,-35.07]]],
+      "description": "Union this area to include Jervis Bay Territory"
+    }
+  ],
+  "Etc/UTC": [
+    {
+      "op": "init",
+      "source": "manual-polygon",
+      "data": [[[-17,-86],[-15,-86],[-5.5,-86],[-5.5,-69],[-17,-71],[-17,-86]]],
+      "description": "Add Antarctic Station Neumayer III Station.  See discussion at https://github.com/evansiroky/timezone-boundary-builder/issues/61"
+    }
+  ],
+  "Europe/Amsterdam": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "The Netherlands"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[9,55],[9,48],[-2,52],[9,55]]],
+      "description": "Intersect to include only European area of The Netherlands."
+    }
+  ],
+  "Europe/Andorra": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Andorra"
+    }
+  ],
+  "Europe/Astrakhan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Astrakhan"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[46.9,45.6],[47.6,46.2],[46.6,46.2],[46.9,45.6]]],
+      "description": "Union to fill in some exclaves."
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Moscow-tz"
+    }
+  ],
+  "Europe/Athens": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Greece"
+    }
+  ],
+  "Europe/Belgrade": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Republic of Kosovo"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Serbia"
+    }
+  ],
+  "Europe/Berlin": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Germany"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[8.7,47.75],[8.75,47.63],[8.6,47.7],[8.7,47.75]]],
+      "description": "Exclude area belonging to Busingen timezone."
+    }
+  ],
+  "Europe/Bratislava": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Slovakia"
+    }
+  ],
+  "Europe/Brussels": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Belgium"
+    }
+  ],
+  "Europe/Bucharest": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Romania"
+    }
+  ],
+  "Europe/Budapest": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Hungary"
+    }
+  ],
+  "Europe/Busingen": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Germany"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[8.7,47.75],[8.75,47.63],[8.6,47.7],[8.7,47.75]]],
+      "description": "Isolate area belonging to Busingen timezone."
+    }
+  ],
+  "Europe/Chisinau": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Moldova"
+    }
+  ],
+  "Europe/Copenhagen": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Denmark"
+    }
+  ],
+  "Europe/Dublin": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Ireland"
+    }
+  ],
+  "Europe/Gibraltar": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Gibraltar"
+    }
+  ],
+  "Europe/Guernsey": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Guernsey"
+    }
+  ],
+  "Europe/Helsinki": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Finland"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Åland Islands"
+    }
+  ],
+  "Europe/Isle_of_Man": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Isle of Man"
+    }
+  ],
+  "Europe/Istanbul": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Turkey"
+    }
+  ],
+  "Europe/Jersey": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Jersey"
+    }
+  ],
+  "Europe/Kaliningrad": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kaliningrad"
+    }
+  ],
+  "Europe/Kiev": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Ukraine"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Zaporizhzhia"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Crimea"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Sevastopol"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Zakarpattia"
+    }
+  ],
+  "Europe/Kirov": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kirov"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Yekaterinburg-tz"
+    }
+  ],
+  "Europe/Lisbon": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Portugal"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-3,45],[-3,28],[-17,40],[-3,45]]],
+      "description": "Intersect to include only mainlaind of Portugal"
+    }
+  ],
+  "Europe/Ljubljana": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Slovenia"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Croatia"
+    }
+  ],
+  "Europe/London": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United Kingdom"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Isle of Man"
+    }
+  ],
+  "Europe/Luxembourg": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Luxemburg"
+    }
+  ],
+  "Europe/Madrid": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Spain"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-5.3,35.95],[6,34.5],[6,56],[-21,35],[-5.3,35.95]]],
+      "description": "Intersect to include only mainlaind of Spain and Balearic Islands."
+    }
+  ],
+  "Europe/Malta": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Malta"
+    }
+  ],
+  "Europe/Mariehamn": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Åland Islands"
+    }
+  ],
+  "Europe/Minsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Belarus"
+    }
+  ],
+  "Europe/Monaco": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Monaco"
+    }
+  ],
+  "Europe/Moscow": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Moscow-tz"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Kirov"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[46.7,52.7],[46.5,52.65],[46.7,52.65],[46.7,52.7]]],
+      "description": "Union with part of Moscow timezone along a river to cover holes between the OSM boundaries of Saratov and the Moscow timezone"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Saratov"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Volgograd"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Crimea"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Sevastopol"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Yekaterinburg-tz"
+    }
+  ],
+  "Europe/Oslo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Norway"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[7,71],[0,54],[25,60],[37,73],[7,71]]],
+      "description": "Intersect to include only mainlaind part of Norway."
+    }
+  ],
+  "Europe/Paris": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[17,38],[4,58],[-19,45],[17,38]]],
+      "description": "Intersect to include only European part of France."
+    }
+  ],
+  "Europe/Podgorica": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Montenegro"
+    }
+  ],
+  "Europe/Prague": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Czech Republic"
+    }
+  ],
+  "Europe/Riga": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Latvia"
+    }
+  ],
+  "Europe/Rome": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Italy"
+    }
+  ],
+  "Europe/Samara": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Samara"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Udmurtia"
+    }, {
+      "op": "union",
+      "source": "manual-polygon",
+      "data": [[[53.05,56.185],[53.11,56.18],[53.1,56.23],[53.05,56.185]]],
+      "description": "Union this area to add some exclaves that probably don't belong to Moscow timezone"
+    }
+  ],
+  "Europe/San_Marino": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "San Marino"
+    }
+  ],
+  "Europe/Sarajevo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bosnia and Herzegovina"
+    }
+  ],
+  "Europe/Saratov": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Saratov"
+    }
+  ],
+  "Europe/Simferopol": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Crimea"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Sevastopol"
+    }
+  ],
+  "Europe/Skopje": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Macedonia"
+    }
+  ],
+  "Europe/Sofia": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Bulgaria"
+    }
+  ],
+  "Europe/Stockholm": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Sweden"
+    }
+  ],
+  "Europe/Tallinn": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Estonia"
+    }
+  ],
+  "Europe/Tirane": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Albania"
+    }
+  ],
+  "Europe/Ulyanovsk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Ulyanovsk"
+    }
+  ],
+  "Europe/Uzhgorod": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Zakarpattia"
+    }
+  ],
+  "Europe/Vaduz": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Liechtenstein"
+    }
+  ],
+  "Europe/Vatican": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Vatican City"
+    }
+  ],
+  "Europe/Vienna": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Austria"
+    }
+  ],
+  "Europe/Vilnius": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Lithuania"
+    }
+  ],
+  "Europe/Volgograd": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Volgograd"
+    }
+  ],
+  "Europe/Warsaw": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Poland"
+    }
+  ],
+  "Europe/Zagreb": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Croatia"
+    }
+  ],
+  "Europe/Zaporozhye": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Zaporizhzhia"
+    }
+  ],
+  "Europe/Zurich": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Switzerland"
+    }
+  ],
+  "Indian/Antananarivo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Madagascar"
+    }
+  ],
+  "Indian/Chagos": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "British Indian Ocean Territory"
+    }
+  ],
+  "Indian/Christmas": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Australia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[106,-10],[106,-12],[104,-10],[106,-10]]],
+      "description": "Intersect to isolate Christmas Island area."
+    }
+  ],
+  "Indian/Cocos": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Australia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[98,-11],[98,-14],[95,-11],[98,-11]]],
+      "description": "Intersect to isolate Cocos Island area."
+    }
+  ],
+  "Indian/Comoro": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Comoros"
+    }
+  ],
+  "Indian/Kerguelen": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[79,-36],[20,-52],[79,-52],[79,-36]]],
+      "description": "Intersect to include French Islands in Southern Indian Ocean."
+    }
+  ],
+  "Indian/Mahe": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Seychelles"
+    }
+  ],
+  "Indian/Maldives": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Maldives"
+    }
+  ],
+  "Indian/Mauritius": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Mauritius"
+    }
+  ],
+  "Indian/Mayotte": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[46,-11],[46,-14],[43.5,-14],[46,-11]]],
+      "description": "Intersect to grab terriritorial waters near Mayotte."
+    }
+  ],
+  "Indian/Reunion": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[57,-19],[57,-22],[53,-22],[57,-19]]],
+      "description": "Intersect to grab terriritorial waters near Reunion."
+    }
+  ],
+  "Pacific/Apia": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Samoa"
+    }
+  ],
+  "Pacific/Auckland": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "New Zealand"
+    }, {
+      "op": "intersect",
+      "source": "manual-multipolygon",
+      "data": [[[[-179.8,-27],[-179.8,-34],[-172,-32],[-179.8,-27]]],[[[179.9,-33],[179.9,-56],[161,-56],[161,-33],[179.9,-33]]]],
+      "description": "Intersect to include all areas except Chatham Islands."
+    }
+  ],
+  "Pacific/Bougainville": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Autonomous Region of Bougainville"
+    }
+  ],
+  "Pacific/Chatham": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "New Zealand"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-178,-41],[-178,-47],[-172,-44],[-178,-41]]],
+      "description": "Intersect to include Chatham Islands."
+    }
+  ],
+  "Pacific/Chuuk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Chuuk"
+    }, {
+      "op": "union",
+      "source": "overpass",
+      "id": "Yap"
+    }
+  ],
+  "Pacific/Easter": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Chile"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-108,-25],[-108,-29],[-111,-27],[-108,-25]]],
+      "description": "Intersect Chile to isolate Easter Island."
+    }
+  ],
+  "Pacific/Efate": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Vanuatu"
+    }
+  ],
+  "Pacific/Enderbury": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kiribati"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-176,0],[-176,-9],[-169,-3],[-176,0]]],
+      "description": "Intersect Kiribati to include Enderbury and some other atolls."
+    }
+  ],
+  "Pacific/Fakaofo": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tokelau"
+    }
+  ],
+  "Pacific/Fiji": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Fiji"
+    }
+  ],
+  "Pacific/Funafuti": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tuvalu"
+    }
+  ],
+  "Pacific/Galapagos": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Ecuador"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-93,4],[-93,-5],[-87,0],[-93,4]]],
+      "description": "Intersect Ecuador to isolate Galápagos Islands."
+    }
+  ],
+  "Pacific/Gambier": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-138,-21],[-135,-25],[-131,-20],[-138,-21]]],
+      "description": "Intersect France to include Gambier Islands."
+    }
+  ],
+  "Pacific/Guadalcanal": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Solomon Islands"
+    }
+  ],
+  "Pacific/Guam": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[144,14.5],[145.7,13.5],[144,12],[144,14.5]]],
+      "description": "Intersect USA to isolate Guam."
+    }
+  ],
+  "Pacific/Honolulu": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-179,18],[-169,35],[-144,10],[-179,18]]],
+      "description": "Clip US boundary to include Hawaiian Island and Jonhston Atoll"
+    }
+  ],
+  "Pacific/Kiritimati": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kiribati"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-162,7],[-153,-14],[-133,5],[-162,7]]],
+      "description": "Intersect to include Kiribati's islands that are closest to the Americas."
+    }
+  ],
+  "Pacific/Kosrae": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kosrae"
+    }
+  ],
+  "Pacific/Kwajalein": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Marshall Islands"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[168.6,9.7],[167.8,8.35],[165.7,9.7],[168.6,9.7]]],
+      "description": "Intersect Marshall Islands to isolate Kwajalein Atoll."
+    }
+  ],
+  "Pacific/Majuro": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Marshall Islands"
+    }, {
+      "op": "difference",
+      "source": "manual-polygon",
+      "data": [[[168.6,9.7],[167.8,8.35],[165.7,9.7],[168.6,9.7]]],
+      "description": "Difference Marshall Islands to exclude Kwajalein Atoll."
+    }
+  ],
+  "Pacific/Marquesas": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-141,-6],[-136,-11],[-143,-11],[-141,-6]]],
+      "description": "Intersect France to isolate the Marquesas Islands."
+    }
+  ],
+  "Pacific/Midway": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-179,29],[-176,29],[-179,26],[-179,29]]],
+      "description": "Intersect USA to isolate Midway and Kure Atolls."
+    }
+  ],
+  "Pacific/Nauru": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Nauru"
+    }
+  ],
+  "Pacific/Niue": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Niue"
+    }
+  ],
+  "Pacific/Norfolk": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Australia"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[167,-28],[169,-28],[168,-30],[167,-28]]],
+      "description": "Intersect to isolate Norfolk Island."
+    }
+  ],
+  "Pacific/Noumea": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[156,-13],[159,-27],[174,-23],[156,-13]]],
+      "description": "Intersect France to isolate New Caledonia."
+    }
+  ],
+  "Pacific/Pago_Pago": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-171.5,-10],[-170.9,-17],[-167,-12],[-171.5,-10]]],
+      "description": "Intersect USA to isoalte American Samoa."
+    }
+  ],
+  "Pacific/Palau": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Palau"
+    }
+  ],
+  "Pacific/Pitcairn": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Pitcairn Islands"
+    }
+  ],
+  "Pacific/Pohnpei": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Pohnpei"
+    }
+  ],
+  "Pacific/Port_Moresby": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Papua New Guinea"
+    }, {
+      "op": "difference",
+      "source": "overpass",
+      "id": "Autonomous Region of Bougainville"
+    }
+  ],
+  "Pacific/Rarotonga": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Cook Islands"
+    }
+  ],
+  "Pacific/Saipan": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[144,23],[143,14.55],[151,12],[144,23]]],
+      "description": "Intersect USA to isolate Northern Mariana Islands."
+    }
+  ],
+  "Pacific/Tahiti": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-137,-20],[-143,-32],[-156,-22],[-156,-14],[-139,-12],[-134,-20],[-137,-20]]],
+      "description": "Intersect France to include French Polynesia except for the Gambier Islands."
+    }
+  ],
+  "Pacific/Tarawa": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Kiribati"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[173,5],[179,-4],[167,-2],[173,5]]],
+      "description": "Intersect Kiribati to include westernmost islands."
+    }
+  ],
+  "Pacific/Tongatapu": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "Tonga"
+    }
+  ],
+  "Pacific/Wake": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "United States of America"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[165,20],[168,20],[166,18],[165,20]]],
+      "description": "Intersect USA to isolate Wake Island."
+    }
+  ],
+  "Pacific/Wallis": [
+    {
+      "op": "init",
+      "source": "overpass",
+      "id": "France"
+    }, {
+      "op": "intersect",
+      "source": "manual-polygon",
+      "data": [[[-179,-14],[-177,-17],[-175,-12],[-179,-14]]],
+      "description": "Intersect France to isolate Wallis and Futuna Islands."
+    }
+  ]
+}

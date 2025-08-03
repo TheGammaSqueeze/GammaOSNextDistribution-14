@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"เข้าถึง AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"อนุญาตให้แอปพลิเคชันเข้าถึง AdServices Topics API"</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"เข้าถึง AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"อนุญาตให้แอปพลิเคชันเข้าถึง AdServices Attribution API"</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"เข้าถึง AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"อนุญาตให้แอปพลิเคชันเข้าถึง AdServices Custom Audience API"</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"เข้าถึง AdId API"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"อนุญาตให้แอปพลิเคชันเข้าถึง AdId API"</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"สิทธิ์เข้าถึง AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"อนุญาตให้แอปพลิเคชันเข้าถึง AdServices Consent API"</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"เข้าถึง Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"อนุญาตให้แอปพลิเคชันเข้าถึง Ad ID API"</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"การเข้าถึง AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"อนุญาตให้แอปพลิเคชันเข้าถึง AdServices Cobalt Upload API"</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"เข้าถึง App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"อนุญาตให้แอปพลิเคชันเข้าถึง App Set ID API"</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"สิทธิ์เข้าถึง Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"อนุญาตให้แอปพลิเคชันเข้าถึง Consent Service API"</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"เข้าถึง API การแก้ไขสถานะการเปิดการใช้งานของ AdService"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"อนุญาตให้แอปพลิเคชันเข้าถึง API การแก้ไขสถานะการเปิดการใช้งานของ AdService"</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"เข้าถึง API สถานะการเปิดการใช้งานของ AdService"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"อนุญาตให้แอปพลิเคชันเข้าถึง API สถานะการเปิดการใช้งานของ AdService"</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"เข้าถึง API ของ AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"อนุญาตให้แอปพลิเคชันเข้าถึง API ของ AdServicesManager"</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"เข้าถึงการอัปเดต AdId API ของ AdService"</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"อนุญาตให้แอปพลิเคชันเข้าถึงการอัปเดต AdId API ของ AdService"</string>
+    <string name="app_label" msgid="2639006978056689153">"ความเป็นส่วนตัวเกี่ยวกับโฆษณา"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"เข้าร่วมโปรแกรมความเป็นส่วนตัวเกี่ยวกับโฆษณาใน Android (เบต้า)"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Android กำลังสำรวจวิธีการอื่นๆ ที่มีความเป็นส่วนตัวมากขึ้นสำหรับให้แอปแสดงโฆษณาต่อคุณ"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"ดูข้อมูลเพิ่มเติม"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"ความเป็นส่วนตัวเกี่ยวกับโฆษณาใน Android (เบต้า)"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"มีอะไรใหม่"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"ฟีเจอร์ด้านความเป็นส่วนตัวใหม่ใน Privacy Sandbox ช่วยให้แอปต่างๆ แสดงโฆษณาที่เกี่ยวข้องให้แก่คุณได้ แต่จะจำกัดสิ่งที่แอปเหล่านั้นสามารถเรียนรู้เกี่ยวกับกิจกรรมบนเว็บไซต์และแอปจากนักพัฒนารายอื่น"</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"วิธีการทำงาน"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"วิธีเข้าร่วม"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"การใช้รุ่นเบต้าช่วยให้แอปทดสอบวิธีการแสดงโฆษณาแบบใหม่ที่มีความเป็นส่วนตัวมากขึ้นเหล่านี้ได้ คุณหยุดใช้รุ่นเบต้าได้ทุกเมื่อในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"ไม่เป็นไร"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"เปิด"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"เพิ่มเติม"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"ขอขอบคุณที่เข้าร่วม"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"คุณเป็นส่วนหนึ่งของโปรแกรมความเป็นส่วนตัวเกี่ยวกับโฆษณาใน Android (เบต้า) Privacy Sandbox เปิดใช้อยู่บนอุปกรณ์ของคุณ\n\nคุณดูข้อมูลเพิ่มเติมหรือหยุดใช้รุ่นเบต้าได้ทุกเมื่อในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"คุณเลือกที่จะไม่เข้าร่วม"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"ขอขอบคุณที่ตอบกลับ Privacy Sandbox ปิดใช้อยู่บนอุปกรณ์ของคุณ\n\nหากคุณเปลี่ยนใจหรือต้องการดูข้อมูลเพิ่มเติม ให้ไปที่การตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"การตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"รับทราบ"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"คุณเป็นส่วนหนึ่งของการใช้รุ่นเบต้า"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Privacy Sandbox เปิดใช้อยู่บนอุปกรณ์ของคุณและแอปสามารถทดสอบวิธีการแสดงโฆษณาแบบใหม่ที่มีความเป็นส่วนตัวมากขึ้นเหล่านี้ได้ คุณหยุดใช้รุ่นเบต้าได้ทุกเมื่อในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"รับทราบ"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Privacy Sandbox ของ Android มีฟีเจอร์ใหม่ๆ ที่แอปสามารถใช้เพื่อแสดงโฆษณาที่คุณอาจชอบ เทคโนโลยีเหล่านี้ไม่ใช้ตัวระบุอุปกรณ์\n\nAndroid และแอปของคุณสามารถคาดการณ์ประเภทของโฆษณาที่คุณอาจสนใจ และบันทึกความสนใจไว้บนอุปกรณ์ของคุณชั่วคราว วิธีนี้ช่วยให้แอปต่างๆ แสดงโฆษณาที่คุณอาจชอบได้โดยที่ไม่ต้องติดตามกิจกรรมของคุณบนเว็บไซต์และแอปจากนักพัฒนารายอื่น"</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"การปรับโฆษณาตามโปรไฟล์ของผู้ใช้ด้วย Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  ความสนใจที่คาดการณ์โดย Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Android จะคาดการณ์สิ่งที่คุณสนใจมากที่สุดเป็นระยะๆ ตามแอปที่คุณใช้ เช่น \"กีฬา\" หรือ \"การท่องเที่ยว\"\n\nจากนั้น แอปจะขอให้ Android ใช้ความสนใจเหล่านั้นเพื่อแสดงโฆษณาที่เกี่ยวข้องมากขึ้นแก่คุณ\n\nคุณดูข้อมูลความสนใจในปัจจุบันได้ในการตั้งค่าความเป็นส่วนตัว รวมถึงบล็อกสิ่งที่ไม่ชอบได้ด้วย"</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  ความสนใจที่คาดการณ์โดยแอป"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"แอปสามารถคาดการณ์ความสนใจของคุณและบันทึกสิ่งเหล่านี้ไว้กับ Android ชั่วคราวได้ เช่น แอปที่คุณใช้ซื้อรองเท้าวิ่งอาจคาดการณ์ว่าคุณสนใจ \"การวิ่งมาราธอน\"\n\nจากนั้น แอปอื่นๆ ก็จะแสดงโฆษณาเกี่ยวกับการวิ่งมาราธอนต่อคุณ โดยอิงตามความสนใจนี้\n\nคุณจัดการรายการแอปที่บันทึกความสนใจได้ในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"ฟีเจอร์ใหม่ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณา"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"หัวข้อโฆษณาและการควบคุมแบบใหม่ช่วยให้คุณมีทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่เห็น"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"ฟีเจอร์ใหม่ๆ ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณาพร้อมใช้งานแล้ว"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Android บันทึกหัวข้อที่คุณสนใจโดยพิจารณาจากแอปที่ใช้ล่าสุด แอปที่คุณใช้ยังระบุสิ่งที่คุณชื่นชอบได้ด้วย แอปอาจขอข้อมูลนี้ในภายหลังเพื่อแสดงโฆษณาที่ปรับตามโปรไฟล์ของผู้ใช้ โดยคุณเลือกได้ว่าจะให้ใช้หัวข้อหรือแอปใดในการแสดงโฆษณาแก่คุณ"</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"มีการแชร์ข้อมูลบางประเภทระหว่างแอปต่างๆ เพื่อวัดประสิทธิภาพของโฆษณา"</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"ข้อมูลเพิ่มเติมเกี่ยวกับโฆษณาบน Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"โฆษณาที่เป็นประโยชน์มากขึ้น"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"แอปต่างๆ สามารถขอข้อมูลจาก Android เพื่อใช้ในการปรับเปลี่ยนโฆษณาที่คุณเห็นให้เหมาะกับคุณ"</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Android บันทึกหัวข้อที่คุณสนใจโดยพิจารณาจากแอปที่ใช้ล่าสุด"</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  นอกจากนี้ แอปที่คุณใช้ยังระบุสิ่งที่คุณชอบโดยอิงจากวิธีการใช้แอปได้อีกด้วย ตัวอย่างเช่น หากคุณใช้แอปที่ขายรองเท้าวิ่งระยะไกล แอปนั้นอาจเข้าใจว่าคุณสนใจการวิ่งมาราธอน"</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"แอปที่คุณใช้อาจขอข้อมูลนี้ในภายหลัง ไม่ว่าจะเป็นข้อมูลเกี่ยวกับหัวข้อโฆษณาหรือโฆษณาที่แนะนำโดยแอปที่คุณเคยใช้"</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Android จะลบหัวข้อและข้อมูลที่แอปแนะนำโดยอัตโนมัติเป็นระยะๆ นอกจากนี้ คุณยังบล็อกหัวข้อและแอปบางรายการที่ไม่ต้องการให้แนะนำได้"</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"การวัดประสิทธิภาพของโฆษณา"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"แอปที่คุณใช้สามารถขอข้อมูลจาก Android เพื่อช่วยในการวัดประสิทธิภาพของโฆษณาได้ Android อนุญาตให้แอปรวบรวมข้อมูลเพียงบางประเภทเท่านั้น เช่น ช่วงเวลาของวันที่มีการแสดงโฆษณาแก่คุณ"</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"ลองใช้ฟีเจอร์ใหม่ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณา"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"หัวข้อโฆษณาให้คุณมีทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่เห็น"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"ดูรายละเอียด"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"ลองใช้ฟีเจอร์ใหม่ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณา"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Android กำลังเปิดตัวฟีเจอร์ด้านความเป็นส่วนตัวใหม่ๆ ที่จะช่วยให้คุณมีทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่คุณเห็น"</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"หัวข้อโฆษณาช่วยให้แอปแสดงโฆษณาที่เกี่ยวข้องกับคุณ ทั้งยังปกป้องข้อมูลระบุตัวตนและข้อมูลการใช้งานแอปของคุณด้วย Android อาจบันทึกหัวข้อที่คุณสนใจตามแอปที่ใช้ล่าสุด จากนั้น แอปที่คุณใช้อาจขอหัวข้อที่เกี่ยวข้องจาก Android เพื่อปรับเปลี่ยนโฆษณาที่คุณเห็นให้เหมาะกับคุณ"</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"คุณสามารถดูหัวข้อโฆษณาและบล็อกหัวข้อที่ไม่ต้องการแชร์กับแอปได้ในการตั้งค่าอุปกรณ์ นอกจากนี้ Android จะลบหัวข้อโฆษณาโดยอัตโนมัติอยู่เป็นประจำด้วย"</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"คุณเปลี่ยนใจได้ทุกเมื่อในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"ข้อมูลเพิ่มเติมเกี่ยวกับหัวข้อโฆษณา"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"ดูข้อมูลเพิ่มเติมเกี่ยวกับวิธีที่ Android ปกป้องข้อมูลของคุณใน"<a href="https://policies.google.com/privacy">"นโยบายความเป็นส่วนตัว"</a></string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"ลองใช้งาน"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  ข้อมูลที่ใช้"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"หัวข้อโฆษณาจะอิงตามแอปที่คุณใช้ล่าสุดในอุปกรณ์นี้และความถี่ที่ใช้"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  วิธีที่เราใช้ข้อมูลนี้"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Android จะบันทึกหัวข้อที่คุณสนใจในขณะที่ใช้แอป ป้ายกำกับหัวข้อจะกําหนดไว้ล่วงหน้าโดยมีหัวข้อต่างๆ เช่น ศิลปะและความบันเทิง ช็อปปิ้ง และกีฬา จากนั้น แอปที่คุณใช้จะสามารถขอข้อมูลหัวข้อที่คุณสนใจจาก Android (ที่ไม่ใช่ข้อมูลการใช้แอปหรือข้อมูลระบุตัวตนของคุณ) เพื่อปรับเปลี่ยนโฆษณาที่คุณเห็นให้เหมาะกับคุณ"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  วิธีจัดการข้อมูลของตนเอง"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Android จะลบหัวข้อโดยอัตโนมัติเป็นระยะๆ ในขณะที่คุณใช้แอปไปเรื่อยๆ บางหัวข้ออาจกลับมาปรากฏในรายการอีก นอกจากนี้ คุณยังสามารถบล็อกหัวข้อที่ไม่ต้องการให้ Android แชร์กับแอป และปิดหัวข้อโฆษณาได้ทุกเมื่อในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"คุณทำการเปลี่ยนแปลงได้ในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"ฟีเจอร์อื่นๆ ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณาพร้อมใช้งานแล้ว"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Android ยังมีวิธีใหม่ๆ ในการจำกัดข้อมูลที่แอปสามารถเรียนรู้เกี่ยวกับคุณเมื่อแสดงโฆษณาที่ปรับตามโปรไฟล์ของผู้ใช้"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  โฆษณาที่แอปแนะนำช่วยปกป้องข้อมูลระบุตัวตนและข้อมูลการใช้แอปของคุณไปพร้อมกับช่วยให้แอปแสดงโฆษณาที่เกี่ยวข้องกับคุณได้ แอปที่คุณใช้จะช่วยแนะนำโฆษณาที่เกี่ยวข้องในแอปอื่นได้โดยอิงตามกิจกรรมของคุณ คุณสามารถดูรายการแอปและบล็อกแอปไม่ให้ส่งคำแนะนำได้ในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  เมื่อเปิดใช้การวัดผลโฆษณา ระบบจะแชร์เฉพาะข้อมูลบางประเภทระหว่างแอปเพื่อวัดประสิทธิภาพของโฆษณา เช่น ช่วงเวลาของวันที่มีการแสดงโฆษณาแก่คุณ"</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"ข้อมูลเพิ่มเติมเกี่ยวกับโฆษณาที่แอปแนะนำและการวัดผลโฆษณา"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"โฆษณาที่แอปแนะนำ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  ข้อมูลที่ใช้"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"กิจกรรมในแอปที่คุณใช้บนอุปกรณ์นี้"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  วิธีที่แอปใช้ข้อมูลนี้"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"แอปสามารถจัดเก็บข้อมูลเกี่ยวกับสิ่งที่คุณชอบไว้กับ Android ตัวอย่างเช่น หากคุณใช้แอปเกี่ยวกับการซ้อมวิ่งมาราธอน แอปนั้นอาจเข้าใจว่าคุณสนใจรองเท้าวิ่ง หากคุณใช้แอปอื่นในภายหลัง แอปนั้นก็อาจแสดงโฆษณารองเท้าวิ่งที่แนะนำโดยแอปแรก"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  วิธีที่คุณสามารถจัดการข้อมูลของตน"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Android จะลบข้อมูลที่แอปแนะนำโดยอัตโนมัติเป็นระยะๆ แอปที่คุณเข้าใช้อีกครั้งอาจกลับมาปรากฏในรายการอีก"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"คุณยังสามารถบล็อกแอปไม่ให้แนะนำโฆษณา รีเซ็ตข้อมูลคำแนะนำโฆษณาทั้งหมด หรือปิดโฆษณาที่แอปแนะนำได้ทุกเมื่อในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"แอปที่คุณใช้สามารถขอข้อมูลจาก Android เพื่อวัดประสิทธิภาพของโฆษณา Android ปกป้องความเป็นส่วนตัวของคุณด้วยการจำกัดข้อมูลที่แอปแชร์ระหว่างกันได้"</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"ฟีเจอร์ใหม่ๆ ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณาพร้อมใช้งานแล้ว"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"รับทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่เห็นอีกทั้งยังปกป้องข้อมูลประจำตัวของคุณไปพร้อมกันด้วย"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"ฟีเจอร์ใหม่ๆ ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณาพร้อมใช้งานแล้ว"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Android กำลังจะเปิดตัววิธีใหม่ๆ ในการจำกัดข้อมูลที่แอปสามารถเรียนรู้เกี่ยวกับคุณเมื่อแสดงโฆษณาที่ปรับตามโปรไฟล์ของผู้ใช้"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  เมื่อใช้โฆษณาที่แอปแนะนำ ฟีเจอร์ด้านความเป็นส่วนตัวใหม่ๆ จะช่วยปกป้องข้อมูลประจำตัวและข้อมูลเกี่ยวกับการใช้งานแอปไปพร้อมกับช่วยให้แอปแสดงโฆษณาที่เกี่ยวข้องได้ แอปที่คุณใช้ช่วยแนะนำโฆษณาที่เกี่ยวข้องในแอปอื่นได้โดยอิงตามกิจกรรมของคุณ คุณสามารถดูรายการแอปและบล็อกแอปไม่ให้ส่งคำแนะนำได้ในการตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  เมื่อเปิดใช้การวัดผลโฆษณา ระบบจะแชร์เฉพาะข้อมูลบางประเภทระหว่างแอปเพื่อให้ทราบถึงประสิทธิภาพของโฆษณา เช่น ช่วงเวลาของวันที่มีการแสดงโฆษณาแก่คุณ"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"ระบบอาจใช้กิจกรรมของคุณในแอปบนอุปกรณ์นี้เพื่อแนะนำโฆษณา"</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"เปิดฟีเจอร์ความเป็นส่วนตัวเกี่ยวกับโฆษณาอื่น"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Android ยังมีฟีเจอร์ด้านความเป็นส่วนตัวใหม่ที่จะช่วยให้คุณมีทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่เห็น"</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"หัวข้อโฆษณาช่วยให้แอปแสดงโฆษณาที่เกี่ยวข้องอีกทั้งยังปกป้องข้อมูลประจำตัวและข้อมูลเกี่ยวกับการใช้งานแอปไปพร้อมกันด้วย Android จะบันทึกหัวข้อที่คุณสนใจตามแอปที่ใช้ล่าสุดได้ จากนั้น แอปที่คุณใช้จะสามารถขอหัวข้อที่เกี่ยวข้องจาก Android เพื่อแสดงโฆษณาที่เกี่ยวข้องมากขึ้น"</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"คุณสามารถดูหัวข้อโฆษณาและบล็อกหัวข้อที่ไม่ต้องการแชร์กับแอปได้ในการตั้งค่าความเป็นส่วนตัว และ Android ยังลบหัวข้อโฆษณาโดยอัตโนมัติอยู่เป็นประจำอีกด้วย"</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"เปิด"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"ฟีเจอร์ใหม่ๆ ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณาพร้อมใช้งานแล้ว"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"ตอนนี้คุณมีทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่เห็นอีกทั้งยังปกป้องข้อมูลประจำตัวของคุณไปพร้อมกันด้วย"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"ฟีเจอร์ใหม่ๆ ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณาพร้อมใช้งานแล้ว"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"ตอนนี้ Android มีฟีเจอร์ด้านความเป็นส่วนตัวใหม่ๆ ที่จะช่วยให้คุณมีทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่เห็น"</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"ถัดไป"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"เข้าร่วมโปรแกรมความเป็นส่วนตัวเกี่ยวกับโฆษณาใน Android (เบต้า)"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"ความสนใจที่คาดการณ์โดย Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"แอปที่คาดการณ์ความสนใจ"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"การวัดผลโฆษณา"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"แอปสามารถใช้ Privacy Sandbox เพื่อวัดประสิทธิภาพโฆษณาของตนเอง โดยผู้ลงโฆษณาสามารถบันทึกข้อมูลที่คุณโต้ตอบกับโฆษณาและแอปไว้กับ Android ชั่วคราวได้ ระบบจำกัดจำนวนข้อมูลที่บันทึกและจะลบข้อมูลอยู่เป็นประจำ\n\nคุณลบข้อมูลนี้ได้ทุกเมื่อโดยการปิดใช้ Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Android จะคาดการณ์สิ่งที่คุณสนใจมากที่สุดเป็นระยะๆ ตามแอปที่คุณใช้ แอปต่างๆ สามารถขอให้ Android ใช้ความสนใจเหล่านั้นเพื่อแสดงโฆษณาที่เกี่ยวข้องมากขึ้นแก่คุณ\n\nหากคุณบล็อกความสนใจใดไป ระบบจะไม่เพิ่มความสนใจนั้นลงในรายการอีก เว้นแต่คุณจะเลิกบล็อก คุณอาจยังคงเห็นโฆษณาที่เกี่ยวข้องอยู่บ้าง"</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"บล็อก"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"เลิกบล็อก"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"ความสนใจที่คุณบล็อก"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"รีเซ็ตความสนใจทั้งหมด"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"ไม่มีความสนใจที่จะแสดงในขณะนี้"</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"ไม่มีหัวข้อที่จะแสดงในขณะนี้\nดูข้อมูลเพิ่มเติมเกี่ยวกับ"<a href="https://support.google.com/android?p=ad_privacy">"หัวข้อโฆษณา"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"โปรแกรมความเป็นส่วนตัวเกี่ยวกับโฆษณาใน Android (เบต้า) มีฟีเจอร์ใหม่ๆ ที่แอปสามารถใช้เพื่อแสดงโฆษณาที่คุณอาจชอบ เทคโนโลยีเหล่านี้ไม่ใช้ตัวระบุอุปกรณ์\n\nAndroid สามารถคาดการณ์ประเภทของโฆษณาที่คุณอาจสนใจ และบันทึกความสนใจเหล่านี้ไว้บนอุปกรณ์ของคุณชั่วคราว วิธีนี้ช่วยให้แอปต่างๆ แสดงโฆษณาที่เกี่ยวข้องได้โดยที่ไม่ต้องติดตามกิจกรรมของคุณบนเว็บไซต์และแอปจากนักพัฒนารายอื่น"</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"ไม่มีความสนใจที่คุณบล็อกไว้"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"ไม่มีหัวข้อที่บล็อก"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"ดูหัวข้อที่บล็อก"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"รีเซ็ตความสนใจแล้ว"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"รีเซ็ตหัวข้อแล้ว"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"แอปสามารถคาดการณ์ความสนใจของคุณและบันทึกสิ่งเหล่านี้ไว้กับ Android ชั่วคราวได้ จากนั้น แอปอื่นๆ ก็จะแสดงโฆษณาตามความสนใจเหล่านี้ต่อคุณได้\n\nหากบล็อกแอป แอปดังกล่าวก็จะไม่คาดการณ์ความสนใจอีก ระบบจะไม่เพิ่มความสนใจลงในรายการของแอปอีก เว้นแต่คุณจะเลิกบล็อก ระบบจะลบข้อมูลความสนใจที่แอปคาดการณ์แล้ว แต่คุณอาจยังเห็นโฆษณาที่เกี่ยวข้องอยู่บ้าง"</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"แอปที่คุณบล็อก"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"ดูแอปที่บล็อก"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"รีเซ็ตความสนใจที่คาดการณ์โดยแอป"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"ไม่มีแอปที่คาดการณ์ความสนใจของคุณในขณะนี้"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"ไม่มีแอปที่จะแสดงในขณะนี้ \nดูข้อมูลเพิ่มเติมเกี่ยวกับ"<a href="https://support.google.com/android?p=ad_privacy">"โฆษณาที่แอปแนะนำ"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"ความเป็นส่วนตัวเกี่ยวกับโฆษณาใน Android (เบต้า) มีฟีเจอร์ใหม่ๆ ที่แอปสามารถใช้เพื่อแสดงโฆษณาที่คุณอาจชอบ เทคโนโลยีเหล่านี้ไม่ใช้ตัวระบุอุปกรณ์\n\nแอปสามารถคาดการณ์ประเภทของโฆษณาที่คุณอาจสนใจ และบันทึกความสนใจเหล่านี้ไว้บนอุปกรณ์ของคุณชั่วคราว วิธีนี้ช่วยให้แอปต่างๆ แสดงโฆษณาที่เกี่ยวข้องได้โดยที่ไม่ต้องติดตามกิจกรรมของคุณบนเว็บไซต์และแอปจากนักพัฒนารายอื่น"</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"คุณไม่มีแอปที่ถูกบล็อก"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"ไม่มีแอปที่บล็อก"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"อนุญาตการวัดผลโฆษณา"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"แอปและผู้ลงโฆษณาสามารถขอข้อมูลที่จะช่วยในการวัดประสิทธิภาพของโฆษณาจาก Android ได้\n\nระบบจะลบข้อมูลการวัดผลโฆษณาออกจากอุปกรณ์ของคุณเป็นประจำ"</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"รีเซ็ตข้อมูลการวัดผล"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Android ปกป้องความเป็นส่วนตัวของคุณโดยจำกัดข้อมูลที่แอปสามารถแชร์ระหว่างกัน ระบบจะหน่วงเวลาการส่งรายงานไว้เพื่อปกป้องตัวตนของคุณ\n\nเบราว์เซอร์ของคุณอาจมีการตั้งค่าที่คล้ายกัน หากเปิดใช้การวัดผลโฆษณาทั้งใน Android และเบราว์เซอร์ บริษัทอาจสามารถวัดประสิทธิภาพของโฆษณาในแอปที่คุณใช้และเว็บไซต์ต่างๆ ที่คุณเข้าชม ระบบจะจัดเก็บประวัติการท่องเว็บไว้เป็นส่วนตัวในอุปกรณ์\n\nดูข้อมูลเพิ่มเติมเกี่ยวกับวิธีที่ Android ปกป้องข้อมูลของคุณใน"<a href="https://policies.google.com/privacy">"นโยบายความเป็นส่วนตัว"</a></string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"รีเซ็ตข้อมูลการวัดผลโฆษณาแล้ว"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"ยกเลิก"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"ปิด Privacy Sandbox ไหม"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"หากคุณเปลี่ยนใจหรือต้องการดูข้อมูลเพิ่มเติมสำหรับโปรแกรมความเป็นส่วนตัวเกี่ยวกับโฆษณาใน Android (เบต้า) ให้ไปที่การตั้งค่าความเป็นส่วนตัว"</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"ปิด"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"บล็อก \"<xliff:g id="TOPIC">%1$s</xliff:g>\" ใช่ไหม"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"ระบบจะบล็อกหัวข้อนี้และไม่เพิ่มลงในรายการอีก เว้นแต่คุณจะเพิ่มกลับเข้าไปเอง คุณอาจยังคงเห็นโฆษณาที่เกี่ยวข้องอยู่บ้าง"</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"บล็อก"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"เลิกบล็อก \"<xliff:g id="TOPIC">%1$s</xliff:g>\" แล้ว"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Android อาจเพิ่มหัวข้อนี้ลงในรายการอีกครั้ง แต่อาจไม่ปรากฏโดยทันที"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"ตกลง"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"รีเซ็ตหัวข้อโฆษณาทั้งหมดไหม"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"ระบบจะล้างรายการของคุณและจะเพิ่มหัวข้อใหม่ในอนาคต คุณอาจยังคงเห็นโฆษณาที่เกี่ยวข้องกับหัวข้อที่รีเซ็ตไปอยู่บ้าง"</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"รีเซ็ต"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"บล็อก \"<xliff:g id="APP">%1$s</xliff:g>\" ใช่ไหม"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"แอปนี้จะไม่แนะนำโฆษณาและระบบจะไม่เพิ่มแอปลงในรายการอีก เว้นแต่คุณจะเลิกบล็อก คุณอาจยังคงเห็นโฆษณาที่เกี่ยวข้องอยู่บ้าง"</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"เลิกบล็อก \"<xliff:g id="APP">%1$s</xliff:g>\" แล้ว"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"แอปนี้แนะนำโฆษณาให้คุณอีกครั้งได้ แต่อาจไม่ปรากฏในรายการโดยทันที อาจใช้เวลาสักครู่จึงจะเห็นโฆษณาที่เกี่ยวข้อง"</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"รีเซ็ตโฆษณาที่แอปแนะนำไหม"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"ระบบจะลบข้อมูลคำแนะนำโฆษณาออกจากแอปในรายการของคุณ และแอปจะแนะนำโฆษณาใหม่ในอนาคต คุณอาจยังคงเห็นโฆษณาที่เกี่ยวข้องอยู่บ้าง"</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"รีเซ็ตข้อมูลแอปแล้ว"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"หัวข้อโฆษณาเปิดอยู่"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Android จะเริ่มบันทึกหัวข้อที่คุณสนใจ แต่อาจใช้เวลาสักครู่กว่าที่หัวข้อแรกจะปรากฏ"</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"ปิดหัวข้อโฆษณาไหม"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"ระบบจะลบรายการหัวข้อนี้ Android จะไม่บันทึกหัวข้อที่สนใจอีก แต่คุณอาจยังคงเห็นโฆษณาที่เกี่ยวข้อง"</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"โฆษณาที่แอปแนะนำเปิดอยู่"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"แอปอาจเริ่มแนะนำโฆษณา คุณจะเห็นรายการแอปเมื่อแอปเริ่มแนะนำโฆษณา"</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"ปิดโฆษณาที่แอปแนะนำไหม"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"ระบบจะลบข้อมูลคำแนะนำโฆษณาทั้งหมด แอปจะไม่สามารถแนะนำโฆษณาได้อีก แต่คุณอาจยังเห็นโฆษณาที่เกี่ยวข้องอยู่"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"การวัดผลโฆษณาเปิดอยู่"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Android จะสามารถแชร์ข้อมูลกับแอปต่างๆ แบบจำกัดเพื่อช่วยแอปวัดประสิทธิภาพโฆษณา"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"ปิดการวัดผลโฆษณาไหม"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"ระบบจะลบรายงานการวัดผลโฆษณาทั้งหมดที่รอดำเนินการอยู่ และจะไม่สร้างหรือแชร์รายงานใหม่"</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"ความเป็นส่วนตัวเกี่ยวกับโฆษณา"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"หัวข้อโฆษณา"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"โฆษณาที่แอปแนะนำ"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Android บันทึกหัวข้อที่คุณสนใจตามแอปที่ใช้ล่าสุดและความถี่ที่คุณใช้"</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"แอปที่คุณใช้ยังระบุสิ่งที่คุณชอบโดยอิงตามวิธีการใช้แอปได้อีกด้วย"</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"แอปที่คุณใช้สามารถขอข้อมูลจาก Android เพื่อช่วยในการวัดประสิทธิภาพของโฆษณาได้ Android อนุญาตให้แอปรวบรวมข้อมูลเพียงบางประเภทเท่านั้น"</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"ดูข้อมูลเพิ่มเติมเรื่อง"<a href="https://support.google.com/android?p=ad_privacy">"ความเป็นส่วนตัวเกี่ยวกับโฆษณาบน Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"เปิดอยู่ / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> หัวข้อ"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{เปิดอยู่ / # หัวข้อ}other{เปิดอยู่ / # หัวข้อ}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"เปิดอยู่ / <xliff:g id="APPS_COUNT">%1$d</xliff:g> แอป"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{เปิดอยู่ / # แอป}other{เปิดอยู่ / # แอป}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"เปิด"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"ปิดอยู่"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"หัวข้อที่คุณสนใจจะอิงจากแอปที่ใช้ล่าสุด โดยแอปจะนำมาใช้เพื่อแสดงโฆษณาที่ปรับตามโปรไฟล์ของคุณ\n\nคุณบล็อกหัวข้อที่ไม่ต้องการให้แชร์กับแอปได้ นอกจากนี้ Android ยังลบหัวข้อโดยอัตโนมัติเป็นประจำ\n\nแม้จะเปิดใช้ฟีเจอร์นี้ได้ แต่คุณอาจไม่เห็นรายการหัวข้อจนกว่าฟีเจอร์จะพร้อมใช้งานอย่างเต็มรูปแบบและแอปเริ่มใช้ฟีเจอร์ดังกล่าว"</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"อนุญาตหัวข้อโฆษณา"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"หัวข้อโฆษณาที่คุณบล็อก"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"รีเซ็ตหัวข้อโฆษณาทั้งหมด"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Android บันทึกหัวข้อที่คุณสนใจจากแอปที่ใช้ในช่วง 2-3 สัปดาห์ที่ผ่านมา\n\nภายหลัง แอปที่คุณใช้อาจขอหัวข้อจาก Android เพื่อปรับเปลี่ยนโฆษณาที่คุณเห็นให้เหมาะกับคุณ Android จะแชร์หัวข้อไม่เกิน 3 หัวข้อพร้อมกับปกป้องตัวตนของคุณและข้อมูลเกี่ยวกับการใช้งานแอป\n\nรวมถึงจะลบหัวข้ออัตโนมัติเป็นระยะๆ ในขณะที่คุณใช้แอปไปเรื่อยๆ หัวข้ออาจกลับมาปรากฏในรายการอีก หรือคุณจะบล็อกหัวข้อที่ไม่ต้องการให้ Android แชร์กับแอปก็ได้\n\nในแอปจะมีการปรับโฆษณาที่แสดงให้เหมาะกับคุณหรือไม่นั้นขึ้นอยู่กับการตั้งค่านี้ รวมถึงการตั้งค่าโฆษณาที่แอปแนะนำ การตั้งค่ารหัสโฆษณา และแอปที่คุณใช้ว่ามีการปรับโฆษณาตามโปรไฟล์ของผู้ใช้ไหม"</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"อนุญาตโฆษณาที่แอปแนะนำ"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"แอปที่คุณใช้สามารถระบุสิ่งที่คุณชื่นชอบแล้วแนะนำโฆษณาในแอปอื่นๆ\n\nคุณบล็อกแอปไม่ให้แสดงคำแนะนำได้ นอกจากนี้ Android ยังลบข้อมูลที่แอปแนะนำโดยอัตโนมัติเป็นประจำด้วย\n\nแม้จะเปิดใช้ฟีเจอร์นี้ได้ แต่คุณอาจไม่เห็นรายการแอปจนกว่าฟีเจอร์จะพร้อมใช้งานอย่างเต็มรูปแบบและแอปเริ่มใช้ฟีเจอร์ดังกล่าว"</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"แอปที่คุณบล็อก"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"รีเซ็ตข้อมูลที่แอปแนะนำ"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"โดยทั่วไป แอปที่คุณใช้จะจดจำสิ่งที่คุณสนใจเพื่อปรับเปลี่ยนประสบการณ์การใช้งานให้เหมาะกับคุณ แอปยังสามารถจัดเก็บข้อมูลเกี่ยวกับหัวข้อที่คุณสนใจไว้กับ Android ได้ด้วย\n\nตัวอย่างเช่น หากคุณใช้แอปเกี่ยวกับการฝึกวิ่งมาราธอน แอปอาจเข้าใจว่าคุณสนใจรองเท้าวิ่ง ภายหลัง เมื่อคุณใช้แอปอื่น แอปนี้ก็อาจแสดงโฆษณารองเท้าวิ่งที่แนะนำโดยแอปแรก\n\nAndroid จะลบข้อมูลที่แอปแนะนำโดยอัตโนมัติเป็นประจำ แอปที่คุณเข้าใช้อีกครั้งอาจกลับมาปรากฏในรายการอีก หรือคุณจะบล็อกแอปไม่ให้แนะนำโฆษณาก็ได้\n\nในแอปจะมีการปรับโฆษณาที่แสดงให้เหมาะกับคุณหรือไม่นั้นขึ้นอยู่กับการตั้งค่านี้ รวมถึงการตั้งค่าหัวข้อโฆษณา การตั้งค่ารหัสโฆษณา และแอปที่ใช้มีการปรับโฆษณาตามโปรไฟล์ของผู้ใช้ไหม"</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"ฟีเจอร์ใหม่ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณาพร้อมใช้งานแล้ว"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"ระบบจะแชร์แค่ข้อมูลจำนวนน้อยมากระหว่างแอปต่างๆ เพื่อช่วยวัดประสิทธิภาพโฆษณา"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"เรากำลังเปิดตัวฟีเจอร์ใหม่ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณาที่เรียกว่าการวัดผลโฆษณา Android จะแชร์แค่ข้อมูลจำนวนน้อยมากระหว่างเว็บไซต์ต่างๆ เช่น ข้อมูลเวลาที่แสดงโฆษณาแก่คุณ เพื่อช่วยให้แอปวัดประสิทธิภาพโฆษณาได้"</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"คุณทำการเปลี่ยนแปลงได้ในการตั้งค่าความเป็นส่วนตัวเกี่ยวกับโฆษณา"</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"แอปที่คุณใช้สามารถขอข้อมูลจาก Android เพื่อช่วยในการวัดประสิทธิภาพโฆษณาได้ Android อนุญาตให้แอปรวบรวมข้อมูลเพียงบางประเภทเท่านั้น"</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"ฟีเจอร์ใหม่ด้านความเป็นส่วนตัวเกี่ยวกับโฆษณา"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"รับทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่เห็นอีกทั้งยังช่วยปกป้องข้อมูลประจำตัวของคุณไปพร้อมกันด้วย"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"ข้อมูลอัปเดตเรื่องฟีเจอร์ความเป็นส่วนตัวเกี่ยวกับโฆษณา"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"รับทางเลือกมากขึ้นเกี่ยวกับโฆษณาที่เห็นอีกทั้งยังช่วยปกป้องข้อมูลประจำตัวของคุณไปพร้อมกันด้วย"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Android กำลังขยายการให้บริการฟีเจอร์ความเป็นส่วนตัวเกี่ยวกับโฆษณาเพื่อจำกัดสิ่งที่แอปสามารถเรียนรู้เกี่ยวกับคุณเมื่อแสดงโฆษณาที่ปรับตามโปรไฟล์ของผู้ใช้"</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"แอปและพาร์ทเนอร์ด้านโฆษณาสามารถใช้กิจกรรมที่คุณทำในแอปอื่นๆ บนอุปกรณ์นี้เพื่อปรับโฆษณาตามโปรไฟล์ของคุณ ในขณะที่ยังช่วยรักษาข้อมูลประจำตัวให้เป็นส่วนตัวและปลอดภัย"</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"ข้อมูลเพิ่มเติมเกี่ยวกับโฆษณาที่แอปแนะนำ"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"ระบบจะแชร์เฉพาะข้อมูลบางประเภทระหว่างแอปเพื่อให้ทราบถึงประสิทธิภาพของโฆษณา เช่น ช่วงเวลาของวันที่มีการแสดงโฆษณาแก่คุณ"</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"ข้อมูลเพิ่มเติมเกี่ยวกับการวัดผลโฆษณา"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Android จะบันทึกหัวข้อที่คุณสนใจโดยพิจารณาจากแอปที่ใช้ล่าสุด นอกจากนี้ แอปและพาร์ทเนอร์ด้านโฆษณาสามารถใช้กิจกรรมที่คุณทำในแอปอื่นๆ บนอุปกรณ์นี้เพื่อปรับโฆษณาตามโปรไฟล์ของคุณ ในขณะที่ยังช่วยรักษาข้อมูลประจำตัวให้เป็นส่วนตัวและปลอดภัย"</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"• แอปที่คุณใช้ยังระบุสิ่งที่คุณชอบโดยอิงตามกิจกรรมบนแอปได้อีกด้วย ตัวอย่างเช่น หากใช้แอปสอนทำอาหารเป็นประจำ คุณอาจเห็นบริการจัดส่งของใช้ทั่วไปหรือเนื้อหาที่เกี่ยวข้องในแอปอื่นๆ\n\nแอปต่างๆ สามารถจัดเก็บข้อมูลนี้ไว้อย่างปลอดภัยเพื่อให้เฉพาะพาร์ทเนอร์ด้านโฆษณานำไปใช้ปรับโฆษณาตามโปรไฟล์ของผู้ใช้ในแอปอื่นๆ ได้"</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"แอปที่คุณใช้อาจขอข้อมูลนี้ในภายหลัง ไม่ว่าจะเป็นข้อมูลเกี่ยวกับหัวข้อโฆษณาหรือโฆษณาที่แนะนำโดยแอปที่คุณเคยใช้"</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"แอปที่คุณใช้สามารถขอข้อมูลจาก Android เพื่อช่วยในการวัดประสิทธิภาพของโฆษณาได้ Android ช่วยปกป้องความเป็นส่วนตัวของคุณโดยจำกัดข้อมูลที่แอปสามารถแชร์ระหว่างกัน"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"ข้อมูลที่ใช้"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"แอปที่คุณใช้สามารถขอข้อมูลจาก Android เพื่อวัดประสิทธิภาพของโฆษณา Android ปกป้องความเป็นส่วนตัวของคุณโดยการจำกัดข้อมูลที่แอปแชร์ระหว่างกันได้"</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"ข้อมูลประจำตัวของฉันจะได้รับการปกป้องอย่างไร"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Android ใช้มาตรการด้านความเป็นส่วนตัวหลายอย่าง เช่น การรวมข้อมูลและการทำให้ข้อมูลตีความไม่ได้ เพื่อจำกัดข้อมูลที่แอปสามารถแชร์ระหว่างกัน และช่วยปกป้องข้อมูลประจำตัวของคุณ\n\nนอกจากนี้ ระบบยังลบข้อมูลการวัดผลโฆษณาออกจากอุปกรณ์ของคุณเป็นประจำ"</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"ระบบอาจใช้กิจกรรมบนแอปเพื่อแนะนำโฆษณา"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"แอปใช้ข้อมูลนี้อย่างไร"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"แอปต่างๆ สามารถจัดเก็บข้อมูลนี้ไว้อย่างปลอดภัยเพื่อให้เฉพาะพาร์ทเนอร์ด้านโฆษณานำไปใช้ปรับโฆษณาตามโปรไฟล์ของผู้ใช้ในแอปอื่นๆ ได้ ตัวอย่างเช่น หากใช้แอปสอนทำอาหารเป็นประจำ คุณอาจเห็นโฆษณาบริการจัดส่งของใช้ทั่วไปหรือเนื้อหาที่เกี่ยวข้องในแอปอื่นๆ"</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"ฉันจะจัดการข้อมูลนี้ได้อย่างไร"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"คุณบล็อกบางแอปไม่ให้แชร์กิจกรรมกับพาร์ทเนอร์ด้านโฆษณาได้ รวมถึงยังสามารถรีเซ็ตหรือปิดโฆษณาที่แอปแนะนำได้ทุกเมื่อในการตั้งค่าความเป็นส่วนตัว นอกจากนี้ Android ยังลบข้อมูลนี้โดยอัตโนมัติเป็นประจำอีกด้วย"</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"ดูข้อมูลเพิ่มเติมเกี่ยวกับวิธีที่ Android ช่วยปกป้องความเป็นส่วนตัวของคุณ"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"แอปและพาร์ทเนอร์ด้านโฆษณาสามารถใช้กิจกรรมที่คุณทำในแอปอื่นๆ บนอุปกรณ์นี้เพื่อปรับโฆษณาตามโปรไฟล์ของคุณ ในขณะที่ยังช่วยรักษาข้อมูลเกี่ยวกับคุณให้เป็นส่วนตัวและปลอดภัย\n\nตัวอย่างเช่น หากใช้แอปสอนทำอาหารเป็นประจำ คุณอาจเห็นโฆษณาบริการจัดส่งของใช้ทั่วไปหรือเนื้อหาที่เกี่ยวข้องในแอปอื่นๆ\n\nAndroid จะลบกิจกรรมของคุณโดยอัตโนมัติเป็นประจำ แต่คุณบล็อกแอปไม่ให้แชร์ข้อมูลนี้กับพาร์ทเนอร์ด้านโฆษณาได้"</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"โดยทั่วไป แอปและพาร์ทเนอร์ด้านโฆษณาจะจดจำสิ่งที่คุณสนใจเพื่อปรับเปลี่ยนประสบการณ์การใช้งานให้เหมาะกับคุณ แอปต่างๆ สามารถจัดเก็บข้อมูลนี้ไว้อย่างปลอดภัยเพื่อให้เฉพาะพาร์ทเนอร์ด้านโฆษณานำไปใช้แสดงโฆษณาในแอปอื่นๆ ได้\n\nคุณบล็อกแอปไม่ให้แชร์ข้อมูลกิจกรรมกับพาร์ทเนอร์ด้านโฆษณาได้ Android จะลบข้อมูลกิจกรรมที่แชร์โดยอัตโนมัติเป็นประจำ แอปที่คุณเข้าใช้อีกครั้งจึงอาจกลับมาปรากฏในรายการนี้อีก\n\nโฆษณาที่คุณเห็นจะมีการปรับให้เหมาะกับคุณหรือไม่นั้นขึ้นอยู่กับปัจจัยหลายประการ เช่น การตั้งค่านี้ การตั้งค่าหัวข้อโฆษณา การตั้งค่ารหัสโฆษณา และแอปที่ใช้มีการปรับโฆษณาตามโปรไฟล์ของผู้ใช้ไหม\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ดูข้อมูลเพิ่มเติมเกี่ยวกับโฆษณาที่แอปแนะนำ"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Android ใช้มาตรการด้านความเป็นส่วนตัวหลายอย่าง เช่น การรวมข้อมูลและการทำให้ข้อมูลตีความไม่ได้ เพื่อจำกัดข้อมูลที่แอปสามารถแชร์ระหว่างกัน และช่วยปกป้องข้อมูลประจำตัวของคุณ\n\nเบราว์เซอร์อาจมีการตั้งค่าที่คล้ายกัน หากเปิดใช้การวัดผลโฆษณาทั้งใน Android และเบราว์เซอร์ บริษัทอาจสามารถวัดประสิทธิภาพของโฆษณาในแอปที่คุณใช้และเว็บไซต์ต่างๆ ที่คุณเข้าชม ระบบจะจัดเก็บประวัติการท่องเว็บไว้เป็นส่วนตัวในอุปกรณ์\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ดูข้อมูลเพิ่มเติมเกี่ยวกับการวัดผลโฆษณา"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Android บันทึกหัวข้อที่คุณสนใจโดยพิจารณาจากแอปที่ใช้ในช่วง 2-3 สัปดาห์ที่ผ่านมา\n\nภายหลัง แอปที่คุณใช้อาจขอหัวข้อจาก Android เพื่อปรับเปลี่ยนโฆษณาที่คุณเห็น Android จะแชร์หัวข้อไม่เกิน 3 หัวข้อพร้อมกับปกป้องข้อมูลประจำตัวของคุณและข้อมูลเกี่ยวกับการใช้งานแอป\n\nรวมถึงจะลบหัวข้ออัตโนมัติเป็นประจำ ในขณะที่คุณใช้แอปไปเรื่อยๆ หัวข้ออาจกลับมาปรากฏในรายการอีก หรือคุณจะบล็อกหัวข้อที่ไม่ต้องการให้ Android แชร์กับแอปก็ได้\n\nโฆษณาที่คุณเห็นจะมีการปรับให้เหมาะกับคุณหรือไม่นั้นขึ้นอยู่กับปัจจัยหลายประการ เช่น การตั้งค่านี้ การตั้งค่าโฆษณาที่แอปแนะนำ การตั้งค่ารหัสโฆษณา และแอปที่ใช้มีการปรับโฆษณาตามโปรไฟล์ของผู้ใช้ไหม\n\n"<a href="https://support.google.com/android?p=ad_privacy">"ดูข้อมูลเพิ่มเติมเกี่ยวกับหัวข้อโฆษณา"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"ภาพสัญลักษณ์สีสันสดใสแทนหัวข้อที่สนใจ เช่น เพลง ข่าว และกีฬา"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"ภาพสีสันสดใสของกุญแจที่อยู่ในวงกลม"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"ภาพจุดขนาดเล็ก 9 จุดสีขาวและสีดำซึ่งประกอบขึ้นเป็นรูปสี่เหลี่ยมจัตุรัส"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"ภาพรูปทรงง่ายๆ เช่น หัวใจ สามเหลี่ยม และสี่เหลี่ยมจัตุรัสขนาดเล็กสีขาวและสีดำ"</string>
+    <string name="topic10001" msgid="1270825507916795717">"ศิลปะและบันเทิง"</string>
+    <string name="topic10002" msgid="8657696153158750159">"การแสดงและโรงละคร"</string>
+    <string name="topic10003" msgid="8107343709605778937">"อะนิเมะและการ์ตูนญี่ปุ่น"</string>
+    <string name="topic10004" msgid="8860839733494442614">"การ์ตูน"</string>
+    <string name="topic10005" msgid="2366794377271477958">"หนังสือการ์ตูน"</string>
+    <string name="topic10006" msgid="3856192433168050494">"คอนเสิร์ตและเทศกาลดนตรี"</string>
+    <string name="topic10007" msgid="7701054618107492020">"เต้นรำ"</string>
+    <string name="topic10008" msgid="5566660187422751041">"อุตสาหกรรมบันเทิง"</string>
+    <string name="topic10009" msgid="9048499060637442408">"เรื่องสนุกและเบ็ดเตล็ด"</string>
+    <string name="topic10010" msgid="2312303716461948144">"แบบทดสอบและแบบสำรวจสนุกๆ"</string>
+    <string name="topic10011" msgid="175945911179628507">"เรื่องขำขัน"</string>
+    <string name="topic10012" msgid="7308795546139033442">"วิดีโอและภาพชวนหัวเราะ"</string>
+    <string name="topic10013" msgid="1525199586552473496">"การแสดงตลกแบบสด"</string>
+    <string name="topic10014" msgid="4310243571925250159">"การแข่งขันกีฬา"</string>
+    <string name="topic10015" msgid="726046067079821146">"มายากล"</string>
+    <string name="topic10016" msgid="2349985783026324836">"รายชื่อหนังและเวลาฉาย"</string>
+    <string name="topic10017" msgid="5137452934538259985">"ภาพยนตร์"</string>
+    <string name="topic10018" msgid="2701694124396534094">"ภาพยนตร์แอคชั่นและผจญภัย"</string>
+    <string name="topic10019" msgid="4229784972880729321">"ภาพยนตร์รูปภาพเคลื่อนไหว"</string>
+    <string name="topic10020" msgid="7406506079009096133">"ภาพยนตร์ตลก"</string>
+    <string name="topic10021" msgid="8455397230215712525">"ภาพยนตร์ศาสนาและค่ายอิสระ"</string>
+    <string name="topic10022" msgid="4121646102859453428">"ภาพยนตร์สารคดี"</string>
+    <string name="topic10023" msgid="254151319845267278">"ภาพยนตร์ดราม่า"</string>
+    <string name="topic10024" msgid="9166490951622139148">"ภาพยนตร์สำหรับครอบครัว"</string>
+    <string name="topic10025" msgid="4556814606759167730">"ภาพยนตร์สยองขวัญ"</string>
+    <string name="topic10026" msgid="210222384439682793">"ภาพยนตร์รักโรแมนติก"</string>
+    <string name="topic10027" msgid="6865151893887179263">"ระทึกขวัญ"</string>
+    <string name="topic10028" msgid="7591747452141916447">"เพลงและเสียง"</string>
+    <string name="topic10029" msgid="2603521148910221418">"บลูส์"</string>
+    <string name="topic10030" msgid="1882645896051165373">"เพลงคลาสสิก"</string>
+    <string name="topic10031" msgid="3075843490601826275">"เพลงคันทรี"</string>
+    <string name="topic10032" msgid="5492959212920168739">"เพลงแดนซ์และอิเล็กทรอนิก"</string>
+    <string name="topic10033" msgid="895853536740398847">"เพลงโฟล์กและเพลงดั้งเดิม"</string>
+    <string name="topic10034" msgid="4234814709585731313">"แจ๊ส"</string>
+    <string name="topic10035" msgid="4357756001621317728">"การสตรีมและดาวน์โหลดเพลง"</string>
+    <string name="topic10036" msgid="449833307315797283">"มิวสิกวิดีโอ"</string>
+    <string name="topic10037" msgid="51698216720637667">"เครื่องดนตรี"</string>
+    <string name="topic10038" msgid="8450729953573104572">"เปียโนและคีย์บอร์ด"</string>
+    <string name="topic10039" msgid="9069435933476958784">"เพลงป๊อป"</string>
+    <string name="topic10040" msgid="2307340564445486423">"วิทยุ"</string>
+    <string name="topic10041" msgid="7067032299296103616">"รายการวิทยุ"</string>
+    <string name="topic10042" msgid="7915590336813971860">"แร็ปและฮิปฮอป"</string>
+    <string name="topic10043" msgid="8147403254760123570">"เพลงร็อก"</string>
+    <string name="topic10044" msgid="6201404431104417585">"ร็อกคลาสสิกและเพลงเก่า"</string>
+    <string name="topic10045" msgid="3723162035372109422">"ฮาร์ดร็อกและโพรเกรสซีฟ"</string>
+    <string name="topic10046" msgid="4700537150965749092">"เพลงอินดี้และอัลเทอร์เนทีฟ"</string>
+    <string name="topic10047" msgid="6868724754947095800">"ตัวอย่างและคลังเสียง"</string>
+    <string name="topic10048" msgid="1968071881240362644">"โซลและอาร์แอนด์บี"</string>
+    <string name="topic10049" msgid="3935800983716699672">"เพลงประกอบภาพยนตร์"</string>
+    <string name="topic10050" msgid="1374275552775889532">"เวิลด์มิวสิก"</string>
+    <string name="topic10051" msgid="5719726125732251258">"เพลงเรกเก้และแคริบเบียน"</string>
+    <string name="topic10052" msgid="1284902821545612733">"แกลเลอรีภาพออนไลน์"</string>
+    <string name="topic10053" msgid="5420622301656482567">"วิดีโอออนไลน์"</string>
+    <string name="topic10054" msgid="4562235511593399260">"สตรีมมิงวิดีโอสด"</string>
+    <string name="topic10055" msgid="3752987507076288470">"สตรีมมิงภาพยนตร์และทีวี"</string>
+    <string name="topic10056" msgid="1316228709578133569">"โอเปร่า"</string>
+    <string name="topic10057" msgid="3265794667031664331">"อ้างอิงและแนะนำรายการโทรทัศน์"</string>
+    <string name="topic10058" msgid="8409884272709263707">"เครือข่ายและสถานีทีวี"</string>
+    <string name="topic10059" msgid="6770193120260554722">"รายการทีวี"</string>
+    <string name="topic10060" msgid="2410694865246432781">"รายการตลกทางทีวี"</string>
+    <string name="topic10061" msgid="7733515887806604226">"รายการให้ความรู้และสารคดีทางโทรทัศน์"</string>
+    <string name="topic10062" msgid="2539857914076699714">"ละครทีวี"</string>
+    <string name="topic10063" msgid="7645361077069015698">"ละครโทรทัศน์"</string>
+    <string name="topic10064" msgid="3322306867038013554">"รายการทีวีสำหรับครอบครัว"</string>
+    <string name="topic10065" msgid="6361928032564256523">"รายการเรียลลิตี้ทางทีวี"</string>
+    <string name="topic10066" msgid="9206067258196707389">"รายการทีวีแนววิทยาศาสตรและแฟนตาซี"</string>
+    <string name="topic10067" msgid="6479768451596254929">"ทัศนศิลป์และการออกแบบ"</string>
+    <string name="topic10068" msgid="7999222744500155387">"การออกแบบ"</string>
+    <string name="topic10069" msgid="3345227631449580699">"การวาดภาพ"</string>
+    <string name="topic10070" msgid="8921241315781663883">"ภาพถ่ายและศิลปะดิจิทัล"</string>
+    <string name="topic10071" msgid="5802889978655775195">"รถยนต์และยานพาหนะ"</string>
+    <string name="topic10072" msgid="7699714565299422080">"รถบรรทุกและรถพ่วง"</string>
+    <string name="topic10073" msgid="8309536003187424408">"ยานยนต์คลาสสิก"</string>
+    <string name="topic10074" msgid="7682849385993670574">"รถยนต์สั่งผลิตและสมรรถนะสูง"</string>
+    <string name="topic10075" msgid="6556611554556269074">"ราคาน้ำมันและเชื้อเพลิงยานพาหนะ"</string>
+    <string name="topic10076" msgid="4919696820372108489">"ยานยนต์ (ตามประเภท)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"ยานพาหนะแบบไร้คนขับ"</string>
+    <string name="topic10078" msgid="4334233882549881927">"รถเปิดประทุน"</string>
+    <string name="topic10079" msgid="3172046203487780210">"รถคูเป้"</string>
+    <string name="topic10080" msgid="8163934214927408125">"รถยนต์ห้าประตู"</string>
+    <string name="topic10081" msgid="577995777553561437">"ไฮบริดและยานพาหนะทางเลือก"</string>
+    <string name="topic10082" msgid="9109129029552185357">"ยานพาหนะหรูหรา"</string>
+    <string name="topic10083" msgid="2403537768530923605">"ไมโครคาร์และซับคอมแพ็คท์"</string>
+    <string name="topic10084" msgid="8422281545992763598">"จักรยานยนต์"</string>
+    <string name="topic10085" msgid="8083861494180925476">"รถออฟโรด"</string>
+    <string name="topic10086" msgid="7643969175312645412">"รถปิคอัพ"</string>
+    <string name="topic10087" msgid="2731154517409527341">"สกู๊ตเตอร์และโมเพ็ด"</string>
+    <string name="topic10088" msgid="3252737061574829966">"รถซีดาน"</string>
+    <string name="topic10089" msgid="5296300331452192377">"รถสเตชันแวกอน"</string>
+    <string name="topic10090" msgid="3420243367635085619">"รถเอสยูวีและครอสโอเวอร์"</string>
+    <string name="topic10091" msgid="1855954783407839458">"ครอสโอเวอร์"</string>
+    <string name="topic10092" msgid="3748598147176261608">"รถตู้และรถมินิแวน"</string>
+    <string name="topic10093" msgid="4427294934418177183">"บริการรถลากและความช่วยเหลือบนท้องถนน"</string>
+    <string name="topic10094" msgid="2377839138225502290">"ยานพาหนะและความปลอดภัยด้านจราจร"</string>
+    <string name="topic10095" msgid="84682415803421329">"อุปกรณ์และอะไหล่รถยนต์"</string>
+    <string name="topic10096" msgid="8920802377602814882">"การซ่อมแซมและบำรุงรักษายานพาหนะ"</string>
+    <string name="topic10097" msgid="1171171183482751335">"การซื้อยานพาหนะ"</string>
+    <string name="topic10098" msgid="2079957196489295765">"ยานพาหนะมือสอง"</string>
+    <string name="topic10099" msgid="8979943848539150620">"งานแสดงรถยนต์"</string>
+    <string name="topic10100" msgid="4197262693717174623">"สุขภาพและความงาม"</string>
+    <string name="topic10101" msgid="7348658588841917441">"รอยสัก"</string>
+    <string name="topic10102" msgid="3638722720071045006">"การดูแลใบหน้าและร่างกาย"</string>
+    <string name="topic10103" msgid="7505482487921433611">"ผลิตภัณฑ์ระงับเหงื่อ"</string>
+    <string name="topic10104" msgid="6370054283334591202">"ผลิตภัณฑ์ชำระล้างร่างกาย"</string>
+    <string name="topic10105" msgid="1191169056931411220">"ผลิตภัณฑ์เสริมความงามจากธรรมชาติ"</string>
+    <string name="topic10106" msgid="3928455104996075953">"อุปกรณ์แต่งหน้าและเครื่องสำอาง"</string>
+    <string name="topic10107" msgid="3798923390765338227">"ผลิตภัณฑ์ดูแลเล็บ"</string>
+    <string name="topic10108" msgid="577259588028933025">"น้ำหอมและเครื่องหอม"</string>
+    <string name="topic10109" msgid="2191558742276310934">"มีดโกนและเครื่องโกน"</string>
+    <string name="topic10110" msgid="4668859731019222824">"แฟชั่นและสไตล์"</string>
+    <string name="topic10111" msgid="8382751996496129758">"ฟิตเนส"</string>
+    <string name="topic10112" msgid="2904455776326272301">"การเพาะกาย"</string>
+    <string name="topic10113" msgid="8931680908070341060">"การฝึกสอนฟิตเนสและการฝึกตัวต่อตัว"</string>
+    <string name="topic10114" msgid="1666144425445242905">"ผลิตภัณฑ์เทคโนโลยีด้านการออกกำลังกาย"</string>
+    <string name="topic10115" msgid="3024886857586781525">"ผลิตภัณฑ์ดูแลเส้นผม"</string>
+    <string name="topic10116" msgid="763642849903586689">"หนังสือและวรรณกรรม"</string>
+    <string name="topic10117" msgid="2897295398887355445">"วรรณกรรมเด็ก"</string>
+    <string name="topic10118" msgid="8261966919146004082">"eBook"</string>
+    <string name="topic10119" msgid="894448782525835364">"นิตยสาร"</string>
+    <string name="topic10120" msgid="6413553316742475453">"บทกวี"</string>
+    <string name="topic10121" msgid="5743038898774111015">"ธุรกิจและอุตสาหกรรม"</string>
+    <string name="topic10122" msgid="9008408720895399838">"การโฆษณาและการตลาด"</string>
+    <string name="topic10123" msgid="2259134467663515137">"การขาย"</string>
+    <string name="topic10124" msgid="6342988250432534253">"การเกษตรและป่าไม้"</string>
+    <string name="topic10125" msgid="4258543381071903891">"การผลิตอาหาร"</string>
+    <string name="topic10126" msgid="7175643869342613083">"อุตสาหกรรมรถยนต์"</string>
+    <string name="topic10127" msgid="6431712570995680971">"อุตสาหกรรมการบิน"</string>
+    <string name="topic10128" msgid="4235280795901477432">"การดำเนินธุรกิจ"</string>
+    <string name="topic10129" msgid="7076722669374577677">"ความยืดหยุ่นเรื่องการทำงาน"</string>
+    <string name="topic10130" msgid="3611582433482627069">"ทรัพยากรบุคคล"</string>
+    <string name="topic10131" msgid="1372513307847962621">"สินเชื่อธุรกิจ"</string>
+    <string name="topic10132" msgid="4784716346965522438">"การก่อสร้างและบำรุงรักษา"</string>
+    <string name="topic10133" msgid="7421272318291450977">"วิศวกรรมโยธา"</string>
+    <string name="topic10134" msgid="6960637850006318075">"อุตสาหกรรมด้านการป้องกันประเทศ"</string>
+    <string name="topic10135" msgid="3682767135401089609">"พลังงานและสาธารณูปโภค"</string>
+    <string name="topic10136" msgid="455894912948558854">"การประปาและการบำบัดน้ำเสีย"</string>
+    <string name="topic10137" msgid="8298610586001250767">"อุตสาหกรรมการบริการ"</string>
+    <string name="topic10138" msgid="1297997683887620829">"อุตสาหกรรมการผลิต"</string>
+    <string name="topic10139" msgid="2881410777083033235">"โลหะและเหมืองแร่"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM และโอกาสทางธุรกิจ"</string>
+    <string name="topic10141" msgid="2209863158714894227">"เภสัชกรรมและเทคโนโลยีชีวภาพ"</string>
+    <string name="topic10142" msgid="5503134498670972397">"การพิมพ์และสิ่งพิมพ์"</string>
+    <string name="topic10143" msgid="7443122495469194311">"การขายปลีก"</string>
+    <string name="topic10144" msgid="4491152042745513902">"ธุรกิจเงินร่วมลงทุน"</string>
+    <string name="topic10145" msgid="7181389660165515306">"คอมพิวเตอร์และอิเล็กทรอนิกส์"</string>
+    <string name="topic10146" msgid="5319328674320188177">"อุปกรณ์ต่อพ่วงกับคอมพิวเตอร์"</string>
+    <string name="topic10147" msgid="3115360970477190823">"เครื่องพิมพ์"</string>
+    <string name="topic10148" msgid="388392714835039199">"การรักษาความปลอดภัยของคอมพิวเตอร์"</string>
+    <string name="topic10149" msgid="8669494095915530311">"โปรแกรมป้องกันไวรัสและมัลแวร์"</string>
+    <string name="topic10150" msgid="7287887356428407082">"การรักษาความปลอดภัยของเครือข่าย"</string>
+    <string name="topic10151" msgid="1896865948857670589">"เครื่องใช้ไฟฟ้าทั่วไป"</string>
+    <string name="topic10152" msgid="2229775287055715130">"กล้องถ่ายรูปและกล้องวิดีโอ"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS และการนำทาง"</string>
+    <string name="topic10154" msgid="6865619906648095342">"ระบบอัตโนมัติในบ้าน"</string>
+    <string name="topic10155" msgid="6083736045761149547">"ชุดโฮมเธียเตอร์"</string>
+    <string name="topic10156" msgid="5908298124114814149">"เครื่องเล่น MP3 และสื่อแบบพกพา"</string>
+    <string name="topic10157" msgid="5681638457846277732">"เทคโนโลยีที่สวมใส่ได้"</string>
+    <string name="topic10158" msgid="3203453971647354680">"การกู้คืนและสำรองข้อมูล"</string>
+    <string name="topic10159" msgid="5630430439595766824">"คอมพิวเตอร์เดสก์ท็อป"</string>
+    <string name="topic10160" msgid="4829448963240629016">"แล็ปท็อปและโน้ตบุ๊ก"</string>
+    <string name="topic10161" msgid="172004201167511870">"เครือข่าย"</string>
+    <string name="topic10162" msgid="6091195506695436179">"การประมวลผลแบบกระจายและแบบคลาวด์"</string>
+    <string name="topic10163" msgid="1151401754761855146">"การเขียนโปรแกรม"</string>
+    <string name="topic10164" msgid="9084381711034794904">"ซอฟต์แวร์"</string>
+    <string name="topic10165" msgid="7794619191364239903">"ซอฟต์แวร์ดนตรีและเสียง"</string>
+    <string name="topic10166" msgid="8763250476037582784">"ซอฟต์แวร์สำหรับธุรกิจและเพิ่มประสิทธิภาพการทำงาน"</string>
+    <string name="topic10167" msgid="2049380875864013534">"ซอฟต์แวร์ปฏิทินและกำหนดการ"</string>
+    <string name="topic10168" msgid="8902187628490964169">"ซอฟต์แวร์การทำงานร่วมกันและการประชุม"</string>
+    <string name="topic10169" msgid="827557334245484202">"ซอฟต์แวร์การนำเสนอ"</string>
+    <string name="topic10170" msgid="9004257492478793528">"ซอฟต์แวร์สเปรดชีต"</string>
+    <string name="topic10171" msgid="7993474143932045967">"ซอฟต์แวร์ประมวลผลคำ"</string>
+    <string name="topic10172" msgid="7796145013604839047">"การจัดพิมพ์ด้วยคอมพิวเตอร์เดสก์ท็อป"</string>
+    <string name="topic10173" msgid="2914187257631238849">"แบบอักษร"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Download Manager"</string>
+    <string name="topic10175" msgid="5871766754983733443">"ฟรีแวร์และแชร์แวร์"</string>
+    <string name="topic10176" msgid="4556902534984350353">"ซอฟต์แวร์กราฟิกและภาพเคลื่อนไหว"</string>
+    <string name="topic10177" msgid="5020885617411375213">"ผู้ช่วยส่วนตัวอัจฉริยะ"</string>
+    <string name="topic10178" msgid="6156514295355993755">"โปรแกรมเล่นสื่อ"</string>
+    <string name="topic10179" msgid="4166560755175055525">"ซอฟต์แวร์การตรวจสอบ"</string>
+    <string name="topic10180" msgid="1616408866159152420">"ระบบปฏิบัติการ"</string>
+    <string name="topic10181" msgid="1104637623376778918">"ซอฟต์แวร์เกี่ยวกับรูปภาพและวิดีโอ"</string>
+    <string name="topic10182" msgid="4433309778429721885">"ซอฟต์แวร์เกี่ยวกับรูปภาพ"</string>
+    <string name="topic10183" msgid="7726225846283601216">"ซอฟต์แวร์เกี่ยวกับวิดีโอ"</string>
+    <string name="topic10184" msgid="7666718573841178521">"ซอฟต์แวร์ยูทิลิตี"</string>
+    <string name="topic10185" msgid="7090504131394943791">"เว็บเบราว์เซอร์"</string>
+    <string name="topic10186" msgid="2894398454040127175">"การเงิน"</string>
+    <string name="topic10187" msgid="3321209590831212269">"การบัญชีและการตรวจสอบ"</string>
+    <string name="topic10188" msgid="6091864564976149142">"การจัดเตรียมเอกสารและวางแผนภาษี"</string>
+    <string name="topic10189" msgid="5722909809680931661">"การธนาคาร"</string>
+    <string name="topic10190" msgid="4954502185848303449">"บริการโอนเงินและชำระเงิน"</string>
+    <string name="topic10191" msgid="374364159635356705">"สินเชื่อและการกู้ยืม"</string>
+    <string name="topic10192" msgid="4780985034026130257">"บัตรเครดิต"</string>
+    <string name="topic10193" msgid="5010972379907168829">"สินเชื่อบ้าน"</string>
+    <string name="topic10194" msgid="1311944420068992723">"สินเชื่อส่วนบุคคล"</string>
+    <string name="topic10195" msgid="7554681395283728871">"สินเชื่อเพื่อการศึกษา"</string>
+    <string name="topic10196" msgid="1390058955048742733">"การวางแผนและจัดการด้านการเงิน"</string>
+    <string name="topic10197" msgid="6999203003544574270">"การเกษียณอายุและบำนาญ"</string>
+    <string name="topic10198" msgid="1172025416206301419">"เงินช่วยเหลือ"</string>
+    <string name="topic10199" msgid="2817599683028682473">"เงินช่วยเหลือ"</string>
+    <string name="topic10200" msgid="4560138974690686847">"การประกันภัย"</string>
+    <string name="topic10201" msgid="447240478385298875">"ประกันภัยรถยนต์"</string>
+    <string name="topic10202" msgid="8047136869242553756">"ประกันสุขภาพ"</string>
+    <string name="topic10203" msgid="6593194921457271151">"ประกันภัยบ้าน"</string>
+    <string name="topic10204" msgid="4634976092969827804">"ประกันชีวิต"</string>
+    <string name="topic10205" msgid="262581473890356377">"ประกันภัยการเดินทาง"</string>
+    <string name="topic10206" msgid="5534905376642807172">"การลงทุน"</string>
+    <string name="topic10207" msgid="2202788132330201137">"การค้าโภคภัณฑ์และการซื้อขายล่วงหน้า"</string>
+    <string name="topic10208" msgid="1250532081213960304">"สกุลเงินและการแลกเปลี่ยนเงินตราต่างประเทศ"</string>
+    <string name="topic10209" msgid="7384658616986998949">"กองทุนบริหารความเสี่ยง"</string>
+    <string name="topic10210" msgid="5646412565978393234">"กองทุนรวม"</string>
+    <string name="topic10211" msgid="2001835133812379482">"หุ้นและพันธบัตร"</string>
+    <string name="topic10212" msgid="2364530251853656532">"อาหารและเครื่องดื่ม"</string>
+    <string name="topic10213" msgid="805716705436663130">"การทำอาหารและสูตรอาหาร"</string>
+    <string name="topic10214" msgid="726298155737413779">"ปิ้งย่างและบาร์บีคิว"</string>
+    <string name="topic10215" msgid="1502589059550612499">"ประเภทอาหาร"</string>
+    <string name="topic10216" msgid="7699499757302291329">"อาหารมังสวิรัติ"</string>
+    <string name="topic10217" msgid="2160292055279553771">"อาหารวีแกน"</string>
+    <string name="topic10218" msgid="4090671581843003332">"การรับประทานอาหารเพื่อสุขภาพ"</string>
+    <string name="topic10219" msgid="7663946426520362378">"ร้านขายของชำและผู้จำหน่ายอาหาร"</string>
+    <string name="topic10220" msgid="4812477283307222367">"เกม"</string>
+    <string name="topic10221" msgid="2320959705105050635">"ตู้เกมหยอดเหรียญและตู้เกมอาร์เคด"</string>
+    <string name="topic10222" msgid="1659423113675232767">"บิลเลียด"</string>
+    <string name="topic10223" msgid="3526662148224862522">"เกมกระดาน"</string>
+    <string name="topic10224" msgid="8806949357679505576">"เกมการวางแผนและหมากรุก"</string>
+    <string name="topic10225" msgid="564207834821286301">"เกมไพ่"</string>
+    <string name="topic10226" msgid="6918788605930334066">"เกมไพ่หรือเกมการ์ดสะสม"</string>
+    <string name="topic10227" msgid="7011042093822468388">"วิดีโอเกมและเกมคอมพิวเตอร์"</string>
+    <string name="topic10228" msgid="6883716111007300369">"เกมแอคชั่นและแพลตฟอร์ม"</string>
+    <string name="topic10229" msgid="1448569034984381121">"เกมผจญภัย"</string>
+    <string name="topic10230" msgid="3350872631578952799">"เกมเล่นฆ่าเวลา"</string>
+    <string name="topic10231" msgid="405082026972839048">"วิดีโอเกมแบบแข่งขัน"</string>
+    <string name="topic10232" msgid="1839026948327779776">"เกมขับรถแข่ง"</string>
+    <string name="topic10233" msgid="1188186151495453281">"เกมต่อสู้"</string>
+    <string name="topic10234" msgid="693433817142162565">"คู่มือและรีวิวเกม"</string>
+    <string name="topic10235" msgid="8703923040923920090">"กลโกงและคำใบ้สำหรับวิดีโอเกม"</string>
+    <string name="topic10236" msgid="320145832033080647">"เกมแบบผู้เล่นหลายคน"</string>
+    <string name="topic10237" msgid="5441671482070243974">"เกมเพลงและเกมเต้น"</string>
+    <string name="topic10238" msgid="124952008622371505">"เกมแซนด์บ็อกซ์"</string>
+    <string name="topic10239" msgid="8116373838332949879">"เกมยิง"</string>
+    <string name="topic10240" msgid="429738690314619395">"เกมจำลองเหตุการณ์"</string>
+    <string name="topic10241" msgid="6759586807395308444">"เกมธุรกิจและผู้ประกอบการ"</string>
+    <string name="topic10242" msgid="6446465880310926504">"เกมสร้างเมือง"</string>
+    <string name="topic10243" msgid="1900180483768183189">"เกมจำลองชีวิต"</string>
+    <string name="topic10244" msgid="7177785844550764762">"เครื่องจำลองยานพาหนะ"</string>
+    <string name="topic10245" msgid="3479291573578622081">"เกมกีฬา"</string>
+    <string name="topic10246" msgid="1362878793775338590">"เกมการจัดการกีฬา"</string>
+    <string name="topic10247" msgid="7167743512938031275">"เกมยุทธศาสตร์"</string>
+    <string name="topic10248" msgid="279151815457227293">"การปรับแต่งวิดีโอเกมและส่วนเสริม"</string>
+    <string name="topic10249" msgid="631580828608894782">"เกมการศึกษา"</string>
+    <string name="topic10250" msgid="8788829601095126859">"เกมและกิจกรรมสำหรับครอบครัว"</string>
+    <string name="topic10251" msgid="4289374662760140512">"การวาดภาพและระบายสี"</string>
+    <string name="topic10252" msgid="3704663832286223948">"เกมแต่งตัวและแฟชั่น"</string>
+    <string name="topic10253" msgid="385499297969826942">"เกมไขปัญหาและเสริมสร้างปัญญา"</string>
+    <string name="topic10254" msgid="3407688580587226586">"เกมสวมบทบาท"</string>
+    <string name="topic10255" msgid="5123382868307815261">"ปิงปอง"</string>
+    <string name="topic10256" msgid="3732657908002298514">"เกมตัวต่อ"</string>
+    <string name="topic10257" msgid="1563737702727245186">"เกมเกี่ยวกับคำ"</string>
+    <string name="topic10258" msgid="3098024313656910144">"งานอดิเรกและงานยามว่าง"</string>
+    <string name="topic10259" msgid="4943419230459875946">"วันครบรอบ"</string>
+    <string name="topic10260" msgid="8082531986100775125">"วันเกิดและวันตั้งชื่อ"</string>
+    <string name="topic10261" msgid="5848226607755547256">"การดำน้ำและกิจกรรมใต้น้ำ"</string>
+    <string name="topic10262" msgid="7200864040450019529">"ศิลปะเส้นใยและสิ่งทอ"</string>
+    <string name="topic10263" msgid="361345691023794788">"กลางแจ้ง"</string>
+    <string name="topic10264" msgid="1786205972094583167">"การตกปลา"</string>
+    <string name="topic10265" msgid="2823178926106728570">"ล่าสัตว์และยิงปืน"</string>
+    <string name="topic10266" msgid="8850275614185862002">"เพนต์บอล"</string>
+    <string name="topic10267" msgid="3722262029580639019">"วิทยุบังคับและหุ่นจำลอง"</string>
+    <string name="topic10268" msgid="3854589101176380228">"การแต่งงาน"</string>
+    <string name="topic10269" msgid="6274589872519767859">"บ้านและสวน"</string>
+    <string name="topic10270" msgid="6333380157855869252">"การทำสวน"</string>
+    <string name="topic10271" msgid="7654177637864012480">"การจัดบ้านและตกแต่งภายใน"</string>
+    <string name="topic10272" msgid="3679206633003573176">"เครื่องใช้ในบ้าน"</string>
+    <string name="topic10273" msgid="7964372799408781017">"การปรับปรุงบ้าน"</string>
+    <string name="topic10274" msgid="7438404923297950713">"ความปลอดภัยและการรักษาความปลอดภัยในบ้าน"</string>
+    <string name="topic10275" msgid="682064062059687444">"อุปกรณ์เครื่องใช้ในครัวเรือน"</string>
+    <string name="topic10276" msgid="6967461678618700017">"การออกแบบภูมิทัศน์"</string>
+    <string name="topic10277" msgid="5888643119731566320">"อินเทอร์เน็ตและโทรคมนาคม"</string>
+    <string name="topic10278" msgid="1736187026108921963">"อีเมลและการรับส่งข้อความ"</string>
+    <string name="topic10279" msgid="9034205050642228743">"อีเมล"</string>
+    <string name="topic10280" msgid="3168053876492638177">"การส่ง SMS และการรับส่งข้อความโต้ตอบแบบทันที"</string>
+    <string name="topic10281" msgid="582764575763317221">"การแชทด้วยเสียงและวิดีโอ"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISP"</string>
+    <string name="topic10283" msgid="4990902662337451282">"ผู้ให้บริการโทรศัพท์"</string>
+    <string name="topic10284" msgid="8298837964949288587">"เสียงเรียกเข้าและธีมมือถือ"</string>
+    <string name="topic10285" msgid="5409600379647005862">"เครื่องมือค้นหา"</string>
+    <string name="topic10286" msgid="5120434472606081895">"สมาร์ทโฟน"</string>
+    <string name="topic10287" msgid="3350459436622898201">"การประชุมทางไกล"</string>
+    <string name="topic10288" msgid="4197272921112835157">"เว็บแอปและเครื่องมือออนไลน์"</string>
+    <string name="topic10289" msgid="5361961713593805925">"บริการผ่านเว็บ"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Cloud Storage"</string>
+    <string name="topic10291" msgid="4049265350889304495">"การออกแบบและพัฒนาเว็บ"</string>
+    <string name="topic10292" msgid="3386329227033265361">"เว็บโฮสติ้ง"</string>
+    <string name="topic10293" msgid="5737650187548034975">"งานและการศึกษา"</string>
+    <string name="topic10294" msgid="4134169605040294646">"การศึกษา"</string>
+    <string name="topic10295" msgid="331240908257602211">"การประชุมเชิงวิชาการและการเผยแพร่"</string>
+    <string name="topic10296" msgid="8588303480683748067">"วิทยาลัยและมหาวิทยาลัย"</string>
+    <string name="topic10297" msgid="6374270931732387420">"การเรียนรู้ทางไกล"</string>
+    <string name="topic10298" msgid="1588575102152049123">"การศึกษาปฐมวัย"</string>
+    <string name="topic10299" msgid="2437152839161363820">"โรงเรียนอนุบาล"</string>
+    <string name="topic10300" msgid="1716635660730089544">"การเรียนแบบโฮมสคูล"</string>
+    <string name="topic10301" msgid="7986927377838820550">"การสอบวัดระดับและรับเข้าศึกษาต่อ"</string>
+    <string name="topic10302" msgid="5998774512114172286">"ทรัพยากรที่ใช้ในการสอนและห้องเรียน"</string>
+    <string name="topic10303" msgid="4585533807035591476">"อาชีวะและการศึกษาต่อเนื่อง"</string>
+    <string name="topic10304" msgid="7882895278855442691">"งาน"</string>
+    <string name="topic10305" msgid="5595618454946980801">"การวางแผนและแหล่งข้อมูลตำแหน่งงาน"</string>
+    <string name="topic10306" msgid="2721676636117931598">"รายชื่องาน"</string>
+    <string name="topic10307" msgid="1718396745825058084">"กฎหมายและการปกครอง"</string>
+    <string name="topic10308" msgid="5324738087341048710">"อาชญากรรมและความยุติธรรม"</string>
+    <string name="topic10309" msgid="6295029954614836413">"กฎหมาย"</string>
+    <string name="topic10310" msgid="8422735354338745855">"บริการทางกฎหมาย"</string>
+    <string name="topic10311" msgid="1230675855406761762">"ข่าว"</string>
+    <string name="topic10312" msgid="6827799049548932141">"ข่าวเศรษฐกิจ"</string>
+    <string name="topic10313" msgid="2329065661493302739">"ข่าวท้องถิ่น"</string>
+    <string name="topic10314" msgid="8901835561696055036">"การควบรวมและการเข้าซื้อกิจการ"</string>
+    <string name="topic10315" msgid="5854338074460033131">"หนังสือพิมพ์"</string>
+    <string name="topic10316" msgid="5102748655058857401">"การเมือง"</string>
+    <string name="topic10317" msgid="888696185673599406">"ข่าวกีฬา"</string>
+    <string name="topic10318" msgid="8287583657423629224">"สภาพอากาศ"</string>
+    <string name="topic10319" msgid="8709805241522664825">"ข่าวรอบโลก"</string>
+    <string name="topic10320" msgid="2512907250610386132">"ชุมชนออนไลน์"</string>
+    <string name="topic10321" msgid="7457693963027299711">"คลิปอาร์ตและ GIF แบบเคลื่อนไหว"</string>
+    <string name="topic10322" msgid="3527120229469957977">"หาคู่และโฆษณาหาเพื่อน"</string>
+    <string name="topic10323" msgid="6172125921314846923">"การรวมฟีดและบุ๊กมาร์กโซเชียลมีเดีย"</string>
+    <string name="topic10324" msgid="6723820054750378285">"การแชร์ไฟล์และโฮสติ้ง"</string>
+    <string name="topic10325" msgid="916412844647169263">"ผู้ให้บริการฟอรัมและแชท"</string>
+    <string name="topic10326" msgid="9167525727089128814">"ไมโครบล็อก"</string>
+    <string name="topic10327" msgid="3594488251348215868">"การแชร์ภาพถ่ายและวิดีโอ"</string>
+    <string name="topic10328" msgid="5431605505487660527">"การแชร์ภาพถ่ายและรูปภาพ"</string>
+    <string name="topic10329" msgid="2949598007790820705">"การแชร์วิดีโอ"</string>
+    <string name="topic10330" msgid="4210169032750748349">"สกิน"</string>
+    <string name="topic10331" msgid="9148081156366912077">"แอปโซเชียลเน็ตเวิร์กและส่วนเสริม"</string>
+    <string name="topic10332" msgid="1812925257476776861">"โซเชียลเน็ตเวิร์ก"</string>
+    <string name="topic10333" msgid="5793613565022694596">"ผู้คนและสังคม"</string>
+    <string name="topic10334" msgid="2146426680680125392">"ครอบครัวและความสัมพันธ์"</string>
+    <string name="topic10335" msgid="8268284709343326034">"เชื้อสายและพันธุศาสตร์"</string>
+    <string name="topic10336" msgid="360328903013424569">"ชีวิตแต่งงาน"</string>
+    <string name="topic10337" msgid="6450553850860149046">"การเลี้ยงดูบุตร"</string>
+    <string name="topic10338" msgid="3722340462966505867">"การรับเลี้ยงบุตรบุญธรรม"</string>
+    <string name="topic10339" msgid="8126807339140404862">"ทารกและเด็กเล็ก"</string>
+    <string name="topic10340" msgid="259457452971577855">"ความปลอดภัยด้านอินเทอร์เน็ตสำหรับเด็ก"</string>
+    <string name="topic10341" msgid="9138253009638520984">"โรแมนติก"</string>
+    <string name="topic10342" msgid="3272595442607863965">"นิยายวิทยาศาสตร์และแฟนตาซี"</string>
+    <string name="topic10343" msgid="7170264926050881882">"สัตว์เลี้ยงและสัตว์"</string>
+    <string name="topic10344" msgid="6956876217624431965">"อาหารและอุปกรณ์ดูแลสัตว์เลี้ยง"</string>
+    <string name="topic10345" msgid="8114717708270133007">"สัตว์เลี้ยง"</string>
+    <string name="topic10346" msgid="3632598362312784148">"นก"</string>
+    <string name="topic10347" msgid="1650823938622414225">"แมว"</string>
+    <string name="topic10348" msgid="570783769757187957">"สุนัข"</string>
+    <string name="topic10349" msgid="6069145390145874420">"ปลาและสัตว์น้ำ"</string>
+    <string name="topic10350" msgid="7438757598978766290">"สัตว์เลื้อยคลานและสัตว์ครึ่งบกครึ่งน้ำ"</string>
+    <string name="topic10351" msgid="2065353497413573236">"สัตวแพทย์"</string>
+    <string name="topic10352" msgid="2787610393079898221">"อสังหาริมทรัพย์"</string>
+    <string name="topic10353" msgid="230887584509968233">"ที่ดินและแปลงที่ดิน"</string>
+    <string name="topic10354" msgid="2552020152740480445">"สถานที่พักผ่อนในวันหยุดและสถานที่ประเภทแบ่งเวลา"</string>
+    <string name="topic10355" msgid="3803439663410756731">"ข้อมูลอ้างอิง"</string>
+    <string name="topic10356" msgid="1282534977124646845">"ข้อมูลธุรกิจและบุคคล"</string>
+    <string name="topic10357" msgid="1506615046588912749">"ข้อมูลอ้างอิงทั่วไป"</string>
+    <string name="topic10358" msgid="4670198218200218886">"เครื่องคิดเลขและเครื่องมือที่เกี่ยวข้อง"</string>
+    <string name="topic10359" msgid="4422164571631604534">"พจนานุกรมและสารานุกรม"</string>
+    <string name="topic10360" msgid="4777419229443131291">"แหล่งข้อมูลการศึกษา"</string>
+    <string name="topic10361" msgid="2911719878674200735">"ฮาวทู"</string>
+    <string name="topic10362" msgid="8045493635242789203">"เวลาและปฏิทิน"</string>
+    <string name="topic10363" msgid="3433488479827868110">"ทรัพยากรด้านภาษา"</string>
+    <string name="topic10364" msgid="7272051128606899896">"ศึกษาภาษาต่างประเทศ"</string>
+    <string name="topic10365" msgid="1638685557205583094">"เครื่องมือและทรัพยากรการแปล"</string>
+    <string name="topic10366" msgid="5972643213789684860">"แผนที่"</string>
+    <string name="topic10367" msgid="4693720215957988260">"วิทยาศาสตร์"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Augmented และ Virtual Reality"</string>
+    <string name="topic10369" msgid="7623948477078242419">"วิทยาศาสตร์ชีวภาพ"</string>
+    <string name="topic10370" msgid="1849957115993781053">"พันธุศาสตร์"</string>
+    <string name="topic10371" msgid="5801324530787262649">"เคมี"</string>
+    <string name="topic10372" msgid="7043359432633182804">"ระบบนิเวศและสิ่งแวดล้อม"</string>
+    <string name="topic10373" msgid="1506052968197311461">"ธรณีวิทยา"</string>
+    <string name="topic10374" msgid="5081919530597944716">"แมชชีนเลิร์นนิงและปัญญาประดิษฐ์ (AI)"</string>
+    <string name="topic10375" msgid="7880740430968664319">"คณิตศาสตร์"</string>
+    <string name="topic10376" msgid="8685831276841267222">"ฟิสิกส์"</string>
+    <string name="topic10377" msgid="8162056465305020784">"วิทยาการหุ่นยนต์"</string>
+    <string name="topic10378" msgid="6048245367747141920">"ช็อปปิ้ง"</string>
+    <string name="topic10379" msgid="3561154473861357708">"วัตถุโบราณและของสะสม"</string>
+    <string name="topic10380" msgid="3001377458860648561">"เสื้อผ้า"</string>
+    <string name="topic10381" msgid="1050316146323573972">"เสื้อผ้าเด็ก"</string>
+    <string name="topic10382" msgid="1131102032733237256">"เครื่องแต่งกาย"</string>
+    <string name="topic10383" msgid="2953255538603038999">"เสื้อผ้าผู้ชาย"</string>
+    <string name="topic10384" msgid="5208244211687593882">"เสื้อผ้าผู้หญิง"</string>
+    <string name="topic10385" msgid="3335546606796359244">"โฆษณาย่อย"</string>
+    <string name="topic10386" msgid="6517746237788385147">"แหล่งข้อมูลสำหรับผู้บริโภค"</string>
+    <string name="topic10387" msgid="8607123472737800846">"คูปองและข้อเสนอส่วนลด"</string>
+    <string name="topic10388" msgid="1641030315133068943">"โปรแกรมและบัตรสะสมคะแนน"</string>
+    <string name="topic10389" msgid="8196319126164726646">"การสนับสนุนด้านเทคนิคและการซ่อมแซม"</string>
+    <string name="topic10390" msgid="1361120031667629697">"ดอกไม้"</string>
+    <string name="topic10391" msgid="9119667040520612849">"การ์ดอวยพร"</string>
+    <string name="topic10392" msgid="6877484311325584713">"ของใช้สำหรับงานเลี้ยงและวันหยุด"</string>
+    <string name="topic10393" msgid="7537523054091079737">"พอร์ทัลช็อปปิ้ง"</string>
+    <string name="topic10394" msgid="5321887056912883029">"กีฬา"</string>
+    <string name="topic10395" msgid="8799420706106672054">"อเมริกันฟุตบอล"</string>
+    <string name="topic10396" msgid="2048632371307841946">"ออสเตรเลียนฟุตบอล"</string>
+    <string name="topic10397" msgid="653991203228840785">"การแข่งรถ"</string>
+    <string name="topic10398" msgid="5412613151176189985">"เบสบอล"</string>
+    <string name="topic10399" msgid="2009283546036614639">"บาสเกตบอล"</string>
+    <string name="topic10400" msgid="5034305624605462351">"โบว์ลิ่ง"</string>
+    <string name="topic10401" msgid="26807857115228330">"ชกมวย"</string>
+    <string name="topic10402" msgid="6218088033939518718">"การนำเชียร์"</string>
+    <string name="topic10403" msgid="3030076002966858939">"กีฬาวิทยาลัย"</string>
+    <string name="topic10404" msgid="4018137098149287073">"คริกเก็ต"</string>
+    <string name="topic10405" msgid="9036991434485987285">"ปั่นจักรยาน"</string>
+    <string name="topic10406" msgid="7185471418082005024">"ขี่ม้า"</string>
+    <string name="topic10407" msgid="316266982792700993">"กีฬาผาดโผน"</string>
+    <string name="topic10408" msgid="2571246233605408148">"ปีนเขาและไต่เขา"</string>
+    <string name="topic10409" msgid="1182462921341224299">"แฟนตาซีสปอร์ต"</string>
+    <string name="topic10410" msgid="7501849152641094734">"กอล์ฟ"</string>
+    <string name="topic10411" msgid="6678464213609789748">"ยิมนาสติก"</string>
+    <string name="topic10412" msgid="335770351079973128">"ฮอกกี้"</string>
+    <string name="topic10413" msgid="416366556259783701">"สเก็ตน้ำแข็ง"</string>
+    <string name="topic10414" msgid="6909439381556710013">"ศิลปะการต่อสู้"</string>
+    <string name="topic10415" msgid="4535534983750709163">"การแข่งมอเตอร์ไซค์"</string>
+    <string name="topic10416" msgid="1687911875093638923">"โอลิมปิก"</string>
+    <string name="topic10417" msgid="2735521554483279111">"รักบี้"</string>
+    <string name="topic10418" msgid="8763139538107186007">"วิ่งและเดิน"</string>
+    <string name="topic10419" msgid="979581105119036716">"เล่นสกีและสโนว์บอร์ด"</string>
+    <string name="topic10420" msgid="5256622299392338856">"ฟุตบอล"</string>
+    <string name="topic10421" msgid="2654561933626679644">"โต้คลื่น"</string>
+    <string name="topic10422" msgid="978920114358054206">"ว่ายน้ำ"</string>
+    <string name="topic10423" msgid="4476847046369253369">"เทนนิส"</string>
+    <string name="topic10424" msgid="6170255954653344524">"ลู่และลาน"</string>
+    <string name="topic10425" msgid="3357509018485364691">"วอลเลย์บอล"</string>
+    <string name="topic10426" msgid="3761026182327229458">"มวยปล้ำ"</string>
+    <string name="topic10427" msgid="3748043578314103947">"การเดินทางและการขนส่ง"</string>
+    <string name="topic10428" msgid="7483002505617756861">"การท่องเที่ยวแบบผจญภัย"</string>
+    <string name="topic10429" msgid="8091163959414149724">"การเดินทางโดยเครื่องบิน"</string>
+    <string name="topic10430" msgid="1917556952821193760">"การเดินทางเพื่อทำงาน"</string>
+    <string name="topic10431" msgid="7980462767288577734">"การเช่ารถ"</string>
+    <string name="topic10432" msgid="4266685292456713522">"เรือสำราญและเรือเช่า"</string>
+    <string name="topic10433" msgid="5001290528529256942">"การท่องเที่ยวแบบครอบครัว"</string>
+    <string name="topic10434" msgid="6310190021663379686">"สถานที่ฮันนีมูนและสถานที่เที่ยวโรแมนติก"</string>
+    <string name="topic10435" msgid="8897799078890998992">"โรงแรมและที่พัก"</string>
+    <string name="topic10436" msgid="6778700611322666596">"รถโดยสารและรถไฟระยะทางไกล"</string>
+    <string name="topic10437" msgid="4764816005841382091">"การเดินทางท่องเที่ยวราคาถูกและการจองในนาทีสุดท้าย"</string>
+    <string name="topic10438" msgid="1305380730693546021">"กระเป๋าและอุปกรณ์สำหรับการเดินทาง"</string>
+    <string name="topic10439" msgid="7731122187851230543">"แหล่งท่องเที่ยว"</string>
+    <string name="topic10440" msgid="8071652555461175118">"ชายหาดและเกาะ"</string>
+    <string name="topic10441" msgid="7182533767302670894">"อุทยานและสวนในภูมิภาค"</string>
+    <string name="topic10442" msgid="6462141176894347324">"สวนสนุก"</string>
+    <string name="topic10443" msgid="7234914754801803285">"สวนสัตว์"</string>
+    <string name="topic10444" msgid="4322315510441782805">"โปรแกรมวางแผนเส้นทางและการจราจร"</string>
+    <string name="topic10445" msgid="1182221450749409373">"บริการและตัวแทนการท่องเที่ยว"</string>
+    <string name="topic10446" msgid="3104259094878772333">"คู่มือและสารคดีการท่องเที่ยว"</string>
+</resources>

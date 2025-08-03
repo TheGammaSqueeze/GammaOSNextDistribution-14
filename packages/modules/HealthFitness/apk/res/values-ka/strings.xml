@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright (C) 2022 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_label" msgid="4768580772453324183">"Health Connect"</string>
+    <string name="health_connect_summary" msgid="6401520186678972547">"ჯანმრთელობის მონაცემებზე აპის წვდომის მართვა"</string>
+    <string name="permissions_and_data_header" msgid="4406105506837487805">"ნებართვები და მონაცემები"</string>
+    <string name="home_subtitle" msgid="1750033322147357163">"ჯანმრთელობასა და ფიტნესთან დაკავშირებული მონაცემების გადახედვა და მართვა თქვენს ტელეფონში, ასევე, იმის განსაზღვრა, თუ რომელ აპს ჰქონდეს მასზე წვდომა"</string>
+    <string name="data_title" msgid="4456619761533380816">"მონაცემები და წვდომა"</string>
+    <string name="all_categories_title" msgid="1446410643217937926">"ყველა კატეგორია"</string>
+    <string name="see_all_categories" msgid="5599882403901010434">"ყველა კატეგორიის ნახვა"</string>
+    <string name="no_data" msgid="1906986019249068659">"მონაცემები არ არის"</string>
+    <string name="connected_apps_title" msgid="279942692804743223">"აპის ნებართვები"</string>
+    <string name="connected_apps_subtitle" msgid="8464462995533399175">"თქვენი აპების და ნებართვების მართვა"</string>
+    <string name="connected_apps_button_subtitle" msgid="8855528937028500370">"წვდომა აქვს <xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> აპს <xliff:g id="NUM_POSSIBLE_APPS">%2$s</xliff:g>-დან"</string>
+    <string name="connected_apps_all_apps_connected_subtitle" msgid="3432698291862059492">"წვდომა აქვს <xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> აპს"</string>
+    <string name="connected_apps_one_app_connected_subtitle" msgid="9095815882509754340">"წვდომა აქვს <xliff:g id="NUM_APPS_CONNECTED">%1$s</xliff:g> აპს"</string>
+    <string name="connected_apps_button_no_permissions_subtitle" msgid="1651994862419752908">"არცერთი"</string>
+    <string name="entry_details_title" msgid="590184849040247850">"შესვლის დეტალები"</string>
+    <string name="backup_title" msgid="211503191266235085">"სარეზერვო ასლის შექმნა"</string>
+    <string name="data_sources_and_priority_title" msgid="2360222350913604558">"მონაცემთა წყაროები და პრიორიტეტები"</string>
+    <string name="set_units_title" msgid="2657822539603758029">"ერთეულების დაყენება"</string>
+    <string name="recent_access_header" msgid="7623497371790225888">"ბოლო წვდომა"</string>
+    <string name="no_recent_access" msgid="4724297929902441784">"არცერთ აპს არ ჰქონდა წვდომა Health Connect-თან"</string>
+    <string name="show_recent_access_entries_button_title" msgid="3483460066767350419">"ყველა ბოლო წვდომის ნახვა"</string>
+    <string name="recent_access_screen_description" msgid="331101209889185402">"იხილეთ, რომელ აპებს ჰქონდათ თქვენს მონაცემებზე წვდომა ბოლო 24 საათის განმავლობაში"</string>
+    <string name="today_header" msgid="1006837293203834373">"დღეს"</string>
+    <string name="yesterday_header" msgid="6652176268273681505">"გუშინ"</string>
+    <string name="read_data_access_label" msgid="7145747310980361968">"წაიკითხეთ: %s"</string>
+    <string name="write_data_access_label" msgid="7955988316773000250">"ჩაწერეთ: %s"</string>
+    <string name="data_type_separator" msgid="1299848322898210658">", "</string>
+    <string name="manage_permissions" msgid="8394221950712608160">"ნებართვების მართვა"</string>
+    <string name="recent_access_time_content_descritption" msgid="1709675393952226273">"დრო: %s"</string>
+    <string name="activity_category_uppercase" msgid="136628843341377088">"აქტივობა"</string>
+    <string name="activity_category_lowercase" msgid="3007220578865400601">"აქტივობა"</string>
+    <string name="body_measurements_category_uppercase" msgid="422923782603313038">"სხეულის ზომები"</string>
+    <string name="body_measurements_category_lowercase" msgid="2259696274629666992">"სხეულის ზომები"</string>
+    <string name="sleep_category_uppercase" msgid="3422452674899706786">"ძილი"</string>
+    <string name="sleep_category_lowercase" msgid="842609634386839011">"ძილი"</string>
+    <string name="vitals_category_uppercase" msgid="8982333138032938623">"სასიცოცხლო მაჩვენებლები"</string>
+    <string name="vitals_category_lowercase" msgid="4664457787866407963">"სასიცოცხლო მაჩვენებლები"</string>
+    <string name="cycle_tracking_category_uppercase" msgid="4723200714782660489">"ციკლზე თვალის დევნება"</string>
+    <string name="cycle_tracking_category_lowercase" msgid="5245446435975317209">"ციკლზე თვალის დევნება"</string>
+    <string name="nutrition_category_uppercase" msgid="6665096097987741036">"კვება"</string>
+    <string name="nutrition_category_lowercase" msgid="7804134941649488990">"კვება"</string>
+    <string name="browse_data_category" msgid="4813955610391357638">"მონაცემთა დათვალიერება"</string>
+    <string name="manage_data_section" msgid="5859629270946511903">"მონაცემთა მართვა"</string>
+    <string name="export_data_button" msgid="7783329820434117744">"მონაცემების ექსპორტი"</string>
+    <string name="delete_all_data_button" msgid="7238755635416521487">"ყველა მონაცემის წაშლა"</string>
+    <string name="no_categories" msgid="2636778482437506241">"Health Connect-ში მონაცემები არ გაქვთ"</string>
+    <string name="permission_types_title" msgid="7698058200557389436">"თქვენი მონაცემები"</string>
+    <string name="app_priority_button" msgid="3126133977893705098">"აპის პრიორიტეტი"</string>
+    <string name="delete_category_data_button" msgid="2324773398768267043">"<xliff:g id="CATEGORY">%s</xliff:g> მონაცემების წაშლა"</string>
+    <string name="select_all_apps_title" msgid="884487568464305913">"ყველა აპი"</string>
+    <string name="can_read" msgid="4568261079308309564">"შეუძლია, წაიკითხოს <xliff:g id="PERMISSION_TYPE">%s</xliff:g>"</string>
+    <string name="can_write" msgid="5082414937218423823">"შეუძლია, ჩაიწეროს <xliff:g id="PERMISSION_TYPE">%s</xliff:g>"</string>
+    <string name="inactive_apps" msgid="8956546286760797760">"უმოქმედო აპები"</string>
+    <string name="inactive_apps_message" msgid="4666501359079362486">"ამ აპებს აღარ შეუძლიათ <xliff:g id="DATA_TYPE">%s</xliff:g>-ის ჩაწერა, მაგრამ მონაცემები მაინც ინახება Health Connect-ში"</string>
+    <string name="data_access_empty_message" msgid="9084350402254264452">"აპებს აღარ შეუძლიათ <xliff:g id="DATA_TYPE_0">%1$s</xliff:g>-ის წაკითხვა და დაწერა და არ არსებობს<xliff:g id="DATA_TYPE_2">%2$s</xliff:g> დამახსოვრებული მონაცემები ჯანმრთელობის დაკავშირებაში"</string>
+    <string name="data_access_exercise_description" msgid="6868583522699443570">"ეს მონაცემები მოიცავს ინფორმაციას, როგორიცაა აქტიური დრო, ვარჯიშის ტიპი, წრეები, გამეორებები, სესიები ან საცურაო ხაზები."</string>
+    <string name="data_access_sleep_description" msgid="74293126050011153">"ეს მონაცემები მოიცავს ინფორმაციას, როგორიცაა ძილის ეტაპები და ძილის სესიები"</string>
+    <string name="all_entries_button" msgid="5109091107239135235">"ყველა მონაცემის ნახვა"</string>
+    <string name="selected_date_view_action_description" msgid="6237240886988225664">"შეცვლა"</string>
+    <string name="delete_permission_type_data_button" msgid="2270819954943391797">"ამ მონაცემების წაშლა"</string>
+    <string name="permgrouplab_health" msgid="468961137496587966">"Health Connect"</string>
+    <string name="permgroupdesc_health" msgid="252080476917407273">"თქვენს ჯანმრთელობის მონაცემებზე წვდომა"</string>
+    <string name="permlab_readCaloriesBurned" msgid="8998140381590624692">"დამწვარი კალორიების წაკითხვა"</string>
+    <string name="permdesc_readCaloriesBurned" msgid="9012595355389868570">"საშუალებას აძლევს აპს, წაიკითხოს დამწვარი კალორიები"</string>
+    <string name="background_read_uppercase_label" msgid="5727643918930403320">"ფონურ რეჟიმში კითხვა"</string>
+    <string name="background_read_lowercase_label" msgid="2490218479761177680">"ფონურ რეჟიმში კითხვა"</string>
+    <string name="background_read_description" msgid="5263745158443722174">"წაიკითხეთ ჯანმრთელობის მონაცემები ფონურ რეჟიმში"</string>
+    <string name="active_calories_burned_uppercase_label" msgid="6231684842932528272">"დამწვარი აქტიური კალორიები"</string>
+    <string name="active_calories_burned_lowercase_label" msgid="6743090878253096737">"დამწვარი აქტიური კალორიები"</string>
+    <string name="active_calories_burned_read_content_description" msgid="6449442660408754186">"გაეცანით დამწვარი აქტიური კალორიების მონაცემებს"</string>
+    <string name="active_calories_burned_write_content_description" msgid="8794383690157452892">"დაწერეთ დამწვარი აქტიური კალორიების მონაცემები"</string>
+    <string name="exercise_uppercase_label" msgid="9174662895529523172">"ვარჯიში"</string>
+    <string name="exercise_lowercase_label" msgid="7210988327804427943">"ვარჯიში"</string>
+    <string name="exercise_read_content_description" msgid="2079728018078185556">"ვარჯიშის მონაცემების წაკითხვა"</string>
+    <string name="exercise_write_content_description" msgid="3267630937895011886">"ვარჯიშის მონაცემების დაწერა"</string>
+    <string name="exercise_route_uppercase_label" msgid="6678863538041931754">"სავარჯიშო მარშრუტი"</string>
+    <string name="exercise_route_lowercase_label" msgid="1691912731748211252">"სავარჯიშო მარშრუტი"</string>
+    <string name="exercise_route_write_content_description" msgid="257809942953352611">"დაწერეთ სავარჯიშო მარშრუტი"</string>
+    <string name="exercise_route_read_content_description" msgid="8394028537674463440">"ვარჯიშის მარშრუტის წაკითხვა"</string>
+    <string name="exercise_routes_read_content_description" msgid="9001690141308870706">"ვარჯიშის მარშრუტის დაგეგმვა"</string>
+    <string name="planned_exercise_uppercase_label" msgid="3315909901236811375">"ვარჯიშის გეგმები"</string>
+    <string name="planned_exercise_lowercase_label" msgid="7642993032791009809">"ვარჯიშის გეგმები"</string>
+    <string name="planned_exercise_read_content_description" msgid="3240286968325192534">"ვარჯიშის გეგმების წაკითხვა"</string>
+    <string name="planned_exercise_write_content_description" msgid="8146488636094126823">"სასწავლო გეგმების დაწერა"</string>
+    <string name="distance_uppercase_label" msgid="1420705424462077174">"მანძილი"</string>
+    <string name="distance_lowercase_label" msgid="2287154001209381379">"მანძილი"</string>
+    <string name="distance_read_content_description" msgid="8787235642020285789">"მანძილის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="distance_write_content_description" msgid="494549494589487562">"მანძილის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="elevation_gained_uppercase_label" msgid="7708101940695442377">"სიმაღლეზე ასვლა"</string>
+    <string name="elevation_gained_lowercase_label" msgid="7532517182346738562">"სიმაღლეზე ასვლა"</string>
+    <string name="elevation_gained_read_content_description" msgid="6018756385903843355">"სიმაღლეზე ასვლის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="elevation_gained_write_content_description" msgid="6790199544670231367">"სიმაღლეზე ასვლის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="floors_climbed_uppercase_label" msgid="3754372357767832441">"ასული სართულების რაოდენობა"</string>
+    <string name="floors_climbed_lowercase_label" msgid="5326072443481377299">"ასული სართულების რაოდენობა"</string>
+    <string name="floors_climbed_read_content_description" msgid="4730764877684911752">"ასული სართულების რაოდენობის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="floors_climbed_write_content_description" msgid="3480340610185615655">"ასული სართულების რაოდენობის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="power_uppercase_label" msgid="8027219480901448660">"ძალის მონაცემები"</string>
+    <string name="power_lowercase_label" msgid="3893286148577044369">"ძალის მონაცემები"</string>
+    <string name="power_read_content_description" msgid="6821797135406643841">"ძალის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="power_write_content_description" msgid="8091584558688087392">"ძალის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="speed_uppercase_label" msgid="3307049861007518587">"სიჩქარე"</string>
+    <string name="speed_lowercase_label" msgid="3462529886150464647">"სიჩქარე"</string>
+    <string name="speed_read_content_description" msgid="9097089387385110692">"სიჩქარის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="speed_write_content_description" msgid="5382921934987959251">"სიჩქარის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="steps_uppercase_label" msgid="2581405504646486105">"ნაბიჯები"</string>
+    <string name="steps_lowercase_label" msgid="706153549312838582">"ნაბიჯები"</string>
+    <string name="steps_read_content_description" msgid="7839297670092769964">"ნაბიჯების შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="steps_write_content_description" msgid="6360223825799711659">"ნაბიჯების შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="total_calories_burned_uppercase_label" msgid="2749855864302679314">"დამწვარი კალორიების საერთო რაოდენობა"</string>
+    <string name="total_calories_burned_lowercase_label" msgid="3185370725975873922">"დამწვარი კალორიების საერთო რაოდენობა"</string>
+    <string name="total_calories_burned_read_content_description" msgid="1569722345910293531">"დამწვარი კალორიების საერთო რაოდენობის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="total_calories_burned_write_content_description" msgid="2727752180681851608">"დამწვარი კალორიების საერთო რაოდენობის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="vo2_max_uppercase_label" msgid="6614391499711390476">"ჟანგბადის მაქსიმალური მოხმარება"</string>
+    <string name="vo2_max_lowercase_label" msgid="824972630000900033">"ჟანგბადის მაქსიმალური მოხმარება"</string>
+    <string name="vo2_max_read_content_description" msgid="8132626885797169882">"ჟანგბადის მაქსიმალური მოხმარების შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="vo2_max_write_content_description" msgid="4783300275788728546">"ჟანგბადის მაქსიმალური მოხმარების შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="wheelchair_pushes_uppercase_label" msgid="5582991294340226965">"უნარშეზღუდულის ეტლის ბიძგები"</string>
+    <string name="wheelchair_pushes_lowercase_label" msgid="8919337990806379687">"უნარშეზღუდულის ეტლის ბიძგები"</string>
+    <string name="wheelchair_pushes_read_content_description" msgid="157304610943976471">"უნარშეზღუდულის ეტლის ბიძგების შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="wheelchair_pushes_write_content_description" msgid="2745600707106818641">"უნარშეზღუდულის ეტლის ბიძგების შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="basal_metabolic_rate_uppercase_label" msgid="4802351493928086473">"ძირითადი მეტაბოლიზმის სიჩქარე"</string>
+    <string name="basal_metabolic_rate_lowercase_label" msgid="7195596626083893231">"ძირითადი მეტაბოლიზმის სიჩქარე"</string>
+    <string name="basal_metabolic_rate_read_content_description" msgid="5583222212705234907">"ძირითადი მეტაბოლიზმის სიჩქარის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="basal_metabolic_rate_write_content_description" msgid="4246137679868953443">"ძირითადი მეტაბოლიზმის სიჩქარის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="body_fat_uppercase_label" msgid="4618860235119416449">"სხეულის ცხიმი"</string>
+    <string name="body_fat_lowercase_label" msgid="4090686510477176498">"სხეულის ცხიმი"</string>
+    <string name="body_fat_read_content_description" msgid="801664410906939146">"სხეულის ცხიმის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="body_fat_write_content_description" msgid="4863558071904720577">"სხეულის ცხიმის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="body_water_mass_uppercase_label" msgid="7839393299147916863">"სხეულში წყლის მასა"</string>
+    <string name="body_water_mass_lowercase_label" msgid="9196249948631920955">"სხეულში წყლის მასა"</string>
+    <string name="body_water_mass_read_content_description" msgid="1468266374858854184">"სხეულში წყლის მასის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="body_water_mass_write_content_description" msgid="8485284654932647383">"სხეულში წყლის მასის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="bone_mass_uppercase_label" msgid="6815438946872228501">"ძვლის მასა"</string>
+    <string name="bone_mass_lowercase_label" msgid="5127378263122564055">"ძვლის მასა"</string>
+    <string name="bone_mass_read_content_description" msgid="8401070346821477225">"ძვლის მასის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="bone_mass_write_content_description" msgid="8711285422751587975">"ძვლის მასის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="height_uppercase_label" msgid="6839543632311723181">"სიმაღლე"</string>
+    <string name="height_lowercase_label" msgid="6232582306436492752">"სიმაღლე"</string>
+    <string name="height_read_content_description" msgid="7107217731605127715">"სიმაღლის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="height_write_content_description" msgid="6787078298523064040">"სიმაღლის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="hip_circumference_uppercase_label" msgid="553907293616398764">"ბარძაყის გარშემოწერილობა"</string>
+    <string name="hip_circumference_lowercase_label" msgid="5383037100089745103">"ბარძაყის გარშემოწერილობა"</string>
+    <string name="hip_circumference_read_content_description" msgid="3960843421475522701">"ბარძაყის გარშემოწერილობის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="hip_circumference_write_content_description" msgid="3828616223599649051">"ბარძაყის გარშემოწერილობის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="lean_body_mass_uppercase_label" msgid="1660166073148541008">"სხეულის მასა ცხიმის გარეშე"</string>
+    <string name="lean_body_mass_lowercase_label" msgid="9060417901080844357">"სხეულის მასა ცხიმის გარეშე"</string>
+    <string name="lean_body_mass_read_content_description" msgid="3251903339784498051">"ცხიმის გარეშე სხეულის მასის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="lean_body_mass_write_content_description" msgid="8778176250058913124">"ცხიმის გარეშე სხეულის მასის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="waist_circumference_uppercase_label" msgid="864537723631507381">"წელის გარშემოწერილობა"</string>
+    <string name="waist_circumference_lowercase_label" msgid="7389714051869012003">"წელის გარშემოწერილობა"</string>
+    <string name="waist_circumference_read_content_description" msgid="7742632529989685413">"წელის გარშემოწერილობის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="waist_circumference_write_content_description" msgid="6455311628964793644">"წელის გარშემოწერილობის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="weight_uppercase_label" msgid="2240396607601785080">"წონა"</string>
+    <string name="weight_lowercase_label" msgid="6592458247010013299">"წონა"</string>
+    <string name="weight_read_content_description" msgid="3270514859844811665">"წონის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="weight_write_content_description" msgid="555486014471042366">"წონის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="cervical_mucus_uppercase_label" msgid="7479786340673820763">"საშვილოსნოს ყელის ლორწო"</string>
+    <string name="cervical_mucus_lowercase_label" msgid="7460634889750669420">"საშვილოსნოს ყელის ლორწო"</string>
+    <string name="cervical_mucus_read_content_description" msgid="7163132301693064124">"საშვილოსნოს ყელის ლორწოს შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="cervical_mucus_write_content_description" msgid="175802615365382752">"საშვილოსნოს ყელის ლორწოს შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="intermenstrual_bleeding_uppercase_label" msgid="1681956139742028987">"ინტერმენსტრუალური სისხლდენა"</string>
+    <string name="intermenstrual_bleeding_lowercase_label" msgid="5284781275147619132">"ინტერმენსტრუალური სისხლდენა"</string>
+    <string name="intermenstrual_bleeding_read_content_description" msgid="5970939335115119015">"წაიკითხეთ ინტერმენსტრუალური სისხლდენა"</string>
+    <string name="intermenstrual_bleeding_write_content_description" msgid="1377719923165234099">"ჩაწერეთ ინტერმენსტრუალური სისხლდენა"</string>
+    <string name="menstruation_uppercase_label" msgid="9119506748428874832">"მენსტრუაცია"</string>
+    <string name="menstruation_lowercase_label" msgid="8098816978006207242">"მენსტრუაცია"</string>
+    <string name="menstruation_read_content_description" msgid="7710047469771882021">"მენსტრუაციის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="menstruation_write_content_description" msgid="5142669435897047396">"მენსტრუაციის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="ovulation_test_uppercase_label" msgid="1929868571862288837">"ოვულაციის ტესტი"</string>
+    <string name="ovulation_test_lowercase_label" msgid="93260039417722840">"ოვულაციის ტესტი"</string>
+    <string name="ovulation_test_read_content_description" msgid="8008351738285775840">"ოვულაციის ტესტის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="ovulation_test_write_content_description" msgid="7061493310852203463">"ოვულაციის ტესტის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="sexual_activity_uppercase_label" msgid="1093238473810194127">"სქესობრივი აქტივობა"</string>
+    <string name="sexual_activity_lowercase_label" msgid="8285364117437418834">"სქესობრივი აქტივობა"</string>
+    <string name="sexual_activity_read_content_description" msgid="4937721417714312007">"სქესობრივი აქტივობის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="sexual_activity_write_content_description" msgid="3063448245882840534">"სქესობრივი აქტივობის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="spotting_uppercase_label" msgid="5106739829390033240">"გამონადენი"</string>
+    <string name="spotting_lowercase_label" msgid="4361141146039580583">"გამონადენი"</string>
+    <string name="spotting_read_content_description" msgid="5422420770022357631">"გამონადენის შესახებ მონაცემების წაკითხვა"</string>
+    <string name="spotting_write_content_description" msgid="9049462631184362964">"გამონადენის შესახებ მონაცემების ჩაწერა"</string>
+    <string name="hydration_uppercase_label" msgid="1196083392597480565">"ჰიდრატაცია"</string>
+    <string name="hydration_lowercase_label" msgid="7793261552870970551">"ჰიდრატაცია"</string>
+    <string name="hydration_read_content_description" msgid="3255941233933808082">"ჰიდრატაციის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="hydration_write_content_description" msgid="7549819425875969941">"ჰიდრატაციის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="nutrition_uppercase_label" msgid="2352959651072134084">"კვება"</string>
+    <string name="nutrition_lowercase_label" msgid="4123518952030658702">"კვება"</string>
+    <string name="nutrition_read_content_description" msgid="5820331769605952082">"კვების შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="nutrition_write_content_description" msgid="6690090231218210367">"კვების შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="sleep_uppercase_label" msgid="1458084584315123727">"ძილი"</string>
+    <string name="sleep_lowercase_label" msgid="7795584924503475035">"ძილი"</string>
+    <string name="sleep_read_content_description" msgid="7064608272681424436">"ძილის მონაცემების წაკითხვა"</string>
+    <string name="sleep_write_content_description" msgid="2259414465110376554">"ძილის მონაცემების დაწერა"</string>
+    <string name="basal_body_temperature_uppercase_label" msgid="4571393253935677019">"სხეულის ბაზალური ტემპერატურა"</string>
+    <string name="basal_body_temperature_lowercase_label" msgid="3363829208971016662">"სხეულის ბაზალური ტემპერატურა"</string>
+    <string name="basal_body_temperature_read_content_description" msgid="3342604362011725500">"სხეულის ბაზალური ტემპერატურის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="basal_body_temperature_write_content_description" msgid="1081636817359407622">"სხეულის ბაზალური ტემპერატურის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="blood_glucose_uppercase_label" msgid="7462421849184720721">"გლუკოზა სისხლში"</string>
+    <string name="blood_glucose_lowercase_label" msgid="5036157221577793772">"გლუკოზა სისხლში"</string>
+    <string name="blood_glucose_read_content_description" msgid="563393834563809318">"სისხლში გლუკოზის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="blood_glucose_write_content_description" msgid="7688360165458091174">"სისხლში გლუკოზის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="blood_pressure_uppercase_label" msgid="1091450873620857062">"სისხლის წნევა"</string>
+    <string name="blood_pressure_lowercase_label" msgid="5857335698134310172">"სისხლის წნევა"</string>
+    <string name="blood_pressure_read_content_description" msgid="8573617892296408887">"სისხლის წნევის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="blood_pressure_write_content_description" msgid="2649850785684226949">"სისხლის წნევის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="body_temperature_uppercase_label" msgid="5104550330313775324">"სხეულის ტემპერატურა"</string>
+    <string name="body_temperature_lowercase_label" msgid="324124730971992259">"სხეულის ტემპერატურა"</string>
+    <string name="body_temperature_read_content_description" msgid="5966765249024688738">"სხეულის ტემპერატურის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="body_temperature_write_content_description" msgid="5498016171067859369">"სხეულის ტემპერატურის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="heart_rate_uppercase_label" msgid="4990167215137642430">"გულისცემის სიხშირე"</string>
+    <string name="heart_rate_lowercase_label" msgid="693492686337628283">"გულისცემის სიხშირე"</string>
+    <string name="heart_rate_read_content_description" msgid="4165867166260001259">"გულისცემის სიხშირის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="heart_rate_write_content_description" msgid="2876667918366409170">"გულისცემის სიხშირის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="heart_rate_variability_uppercase_label" msgid="2047887230527012536">"გულისცემის ცვალებადობა"</string>
+    <string name="heart_rate_variability_lowercase_label" msgid="2332638559415663836">"გულისცემის ცვალებადობა"</string>
+    <string name="heart_rate_variability_read_content_description" msgid="5812707457872629556">"გულისცემის ცვალებადობის მონაცემების წაკითხვა"</string>
+    <string name="heart_rate_variability_write_content_description" msgid="3628171603035566114">"გულისცემის ცვალებადობის მონაცემების დაწერა"</string>
+    <string name="oxygen_saturation_uppercase_label" msgid="1396254185616418355">"ჟანგბადით გაჯერება"</string>
+    <string name="oxygen_saturation_lowercase_label" msgid="7264179897533866327">"ჟანგბადით გაჯერება"</string>
+    <string name="oxygen_saturation_read_content_description" msgid="4756434113425028212">"ჟანგბადით გაჯერების შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="oxygen_saturation_write_content_description" msgid="7189901097196830875">"ჟანგბადით გაჯერების შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="respiratory_rate_uppercase_label" msgid="4609498171205294389">"სუნთქვის სიხშირე"</string>
+    <string name="respiratory_rate_lowercase_label" msgid="8138249029197360098">"სუნთქვის სიხშირე"</string>
+    <string name="respiratory_rate_read_content_description" msgid="8545898979648419722">"სუნთქვის სიხშირის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="respiratory_rate_write_content_description" msgid="7689533746809591931">"სუნთქვის სიხშირის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="resting_heart_rate_uppercase_label" msgid="5700827752396195453">"გულისცემის სიხშირე მოსვენებისას"</string>
+    <string name="resting_heart_rate_lowercase_label" msgid="4533866739695973169">"გულისცემის სიხშირე მოსვენებისას"</string>
+    <string name="resting_heart_rate_read_content_description" msgid="1068160055773401020">"დასვენებისას გულისცემის სიხშირის შესახებ ინფორმაციის წაკითხვა"</string>
+    <string name="resting_heart_rate_write_content_description" msgid="8848198128082739995">"დასვენებისას გულისცემის სიხშირის შესახებ ინფორმაციის ჩაწერა"</string>
+    <string name="skin_temperature_uppercase_label" msgid="4880306019368461268">"კანის ტემპერატურა"</string>
+    <string name="skin_temperature_lowercase_label" msgid="7456421703641980581">"კანის ტემპერატურა"</string>
+    <string name="skin_temperature_read_content_description" msgid="1896127631429717621">"კანის ტემპერატურის წაკითხვა"</string>
+    <string name="skin_temperature_write_content_description" msgid="6448587289116206085">"კანის ტემპერატურის დაწერა"</string>
+    <string name="read_permission_category" msgid="6002099618259628632">"ნება მიეცით „<xliff:g id="APP_NAME">%1$s</xliff:g>“-ს, წაიკითხოს"</string>
+    <string name="write_permission_category" msgid="1529702804865008111">"ნება მიეცით „<xliff:g id="APP_NAME">%1$s</xliff:g>“-ს, წეროს"</string>
+    <string name="request_permissions_cancel" msgid="1787483997235365393">"გაუქმება"</string>
+    <string name="request_permissions_allow" msgid="4201324235711040631">"დაშვება"</string>
+    <string name="request_permissions_allow_all" msgid="3419414351406638770">"ყველას დაშვება"</string>
+    <string name="request_permissions_dont_allow" msgid="6375307410951549030">"უარყოფა"</string>
+    <string name="request_permissions_header_desc" msgid="5561173070722750153">"აირჩიეთ მონაცემები, რომელთა Health Connect-ის მეშვეობით წაკითხვის და ჩაწერის ნებართვის მიცემაც გსურთ ამ აპისთვის"</string>
+    <string name="request_permissions_header_time_frame_desc" msgid="4617392728203291453">"თუ ამ აპს წაკითხვაზე წვდომის ნებართვას მისცემთ, ის შეძლებს როგორც ახალი, ისე ბოლო 30 დღის მონაცემების წაკითხვას"</string>
+    <string name="request_permissions_header_title" msgid="4264236128614363479">"გსურთ <xliff:g id="APP_NAME">%1$s</xliff:g>-ს მიანიჭოთ Health Connect-ზე წვდომა?"</string>
+    <string name="request_permissions_rationale" msgid="6154280355215802538">"თქვენ შეგიძლიათ გაიგოთ, თუ როგორ ამუშავებს <xliff:g id="APP_NAME">%1$s</xliff:g> თქვენს მონაცემებს დეველოპერებში აქ: <xliff:g id="PRIVACY_POLICY_LINK">%2$s</xliff:g>"</string>
+    <string name="request_permissions_privacy_policy" msgid="228503452643555737">"კონფიდენციალურობის დებულება"</string>
+    <string name="permissions_disconnect_dialog_title" msgid="7355211540619034695">"გსურთ ყველა ნებართვის გაუქმება?"</string>
+    <string name="permissions_disconnect_dialog_disconnect" msgid="8854787587948224752">"ყველას წაშლა"</string>
+    <string name="permissions_disconnect_dialog_message" msgid="8679363015400954541">"<xliff:g id="APP_NAME">%1$s</xliff:g> ვეღარ შეძლებს Health Connect-იდან რომელიმე მონაცემის წაკითხვას ან ჩაწერას.\n\nეს გავლენას არ მოახდენს სხვა ნებართვებზე, რომლებიც შეიძლება ჰქონდეს ამ აპს — მაგალითად, მდებარეობა, კამერა ან მიკროფონი."</string>
+    <string name="permissions_disconnect_dialog_checkbox" msgid="8646951566431872823">"წაიშალოს <xliff:g id="APP_NAME">%1$s</xliff:g> აპის მონაცემებიც Health Connect-იდან"</string>
+    <string name="navigation_next_day" msgid="8853443471183944219">"შემდეგი დღე"</string>
+    <string name="navigation_selected_day" msgid="2510843479734091348">"შერჩეული დღე"</string>
+    <string name="navigation_previous_day" msgid="718353386484938584">"წინა დღე"</string>
+    <string name="default_error" msgid="7966868260616403475">"რაღაც შეცდომა მოხდა. გთხოვთ, სცადოთ ხელახლა."</string>
+    <string name="health_permission_header_description" msgid="7497601695462373927">"ამ ნებართვის მქონე აპებს შეუძლიათ წაიკითხონ და დაწერონ მონაცემები თქვენი ჯანმრთელობის და ფიტნესის თაობაზე."</string>
+    <string name="connected_apps_text" msgid="1177626440966855831">"თვითონ მართეთ, რომელ აპებს ჰქონდეთ Health Connect-ში შენახულ მონაცემებზე წვდომა. შეეხეთ აპს იმის სანახავად, თუ რომელი მონაცემების წაკითხვა ან დაწერა შეუძლია."</string>
+    <string name="connected_apps_section_title" msgid="2415288099612126258">"ნებადართული წვდომა"</string>
+    <string name="not_connected_apps_section_title" msgid="452718769894103039">"დაუშვებელია წვდომა"</string>
+    <string name="needs_updating_apps_section_title" msgid="8561510523049921199">"საჭიროა განახლება"</string>
+    <string name="settings_and_help_header" msgid="5749710693017621168">"პარამეტრები და დახმარება"</string>
+    <string name="disconnect_all_apps" msgid="748945115977534726">"ყველასთვის წვდომის გაუქმება"</string>
+    <string name="manage_permissions_read_header" msgid="2031153753057983683">"წაკითხვა ნებადართულია"</string>
+    <string name="manage_permissions_write_header" msgid="6876806848658168370">"წერა ნებადართულია"</string>
+    <string name="no_apps_allowed" msgid="5794833581324128108">"დაშვებული აპები არ არის"</string>
+    <string name="no_apps_denied" msgid="743327680286446017">"უარყოფილი აპები არ არის"</string>
+    <string name="permissions_disconnect_all_dialog_title" msgid="27474286046207122">"გსურთ ყველა აპისთვის წვდომის გაუქმება?"</string>
+    <string name="permissions_disconnect_all_dialog_message" msgid="3151109627457270499">"ვერცერთი თქვენი აპი ვერ შეძლებს Health Connect-ზე წვდომას ან ახალი მონაცემების დამატებას. ეს არ წაშლის არსებულ მონაცემებს.\n\nეს არ იმოქმედებს სხვა ნებართვებზე, რომლებიც შეიძლება ჰქონდეს ამ აპს, როგორიცაა მდებარეობა, კამერა ან მიკროფონი."</string>
+    <string name="permissions_disconnect_all_dialog_disconnect" msgid="2134136493310257746">"ყველას წაშლა"</string>
+    <string name="manage_permissions_manage_app_header" msgid="6356348062088358761">"აპის მართვა"</string>
+    <string name="see_app_data" msgid="3951030076195119476">"აპის მონაცემების ნახვა"</string>
+    <string name="delete_app_data" msgid="6890357774873859952">"აპის მონაცემების წაშლა"</string>
+    <string name="inactive_apps_section_title" msgid="7492812973696378690">"უმოქმედო აპები"</string>
+    <string name="inactive_apps_section_message" msgid="2610789262055974739">"ამ აპებს აღარ აქვთ წვდომა, მაგრამ Health Connect-ში ჯერ კიდევ აქვთ შენახული მონაცემები"</string>
+    <string name="manage_permissions_time_frame" msgid="1299483940842401923">"<xliff:g id="APP_NAME">%1$s</xliff:g> შეძლებს მონაცემების წაკითხვას <xliff:g id="DATA_ACCESS_DATE">%2$s</xliff:g>-ის შემდეგ"</string>
+    <string name="other_android_permissions" msgid="8051485761573324702">"Android-ის იმ სხვა ნებართვების სამართავად, რომლებზე წვდომაც ამ აპს აქვს, გადადით სექციაზე პარამტრები და აპები"</string>
+    <string name="manage_permissions_rationale" msgid="9183689798847740274">"<xliff:g id="APP_NAME">%1$s</xliff:g>-თან გაზიარებულ მონაცემებზე ვრცელდება ამ აპის კონფიდენციალურობის დებულება"</string>
+    <string name="other_android_permissions_content_description" msgid="2261431010048933820">"Android-ის იმ სხვა ნებართვების სამართავად, რომლებზე წვდომაც ამ აპს აქვს, გადადით სექციაზე პარამტრები, შემდეგ შეეხეთ აპებს"</string>
+    <string name="manage_permissions_learn_more" msgid="2503189875093300767">"კონფიდენციალურობის დებულების წაკითხვა"</string>
+    <string name="app_perms_content_provider_24h" msgid="5977152673988158889">"წვდომა განხორციელდა ბოლო 24 საათში"</string>
+    <string name="app_access_title" msgid="7137018424885371763">"აპზე წვდომა"</string>
+    <string name="connected_apps_empty_list_section_title" msgid="6821215432694207342">"თქვენ ამჟამად არ გაქვთ დაინსტალირებული თავსებადი აპები"</string>
+    <string name="additional_access_label" msgid="4645249249222528341">"დამატებითი წვდომა"</string>
+    <string name="denied_apps_banner_title" msgid="1997745063608657965">"აპის ნებართვები ამოიშალა"</string>
+    <string name="denied_apps_banner_message_one_app" msgid="17659513485678315">"Health Connect-მა ამოშალა <xliff:g id="APP_DATA">%s</xliff:g> აპის ნებართვები"</string>
+    <string name="denied_apps_banner_message_two_apps" msgid="1147216810892373640">"Health Connect-მა ამოშალა <xliff:g id="APP_DATA_0">%1$s</xliff:g> და <xliff:g id="APP_DATA_TWO">%2$s</xliff:g> აპების ნებართვები"</string>
+    <string name="denied_apps_banner_message_three_apps" msgid="7978499051473471633">"Health Connect-მა ამოშალა <xliff:g id="APP_DATA_0">%1$s</xliff:g>, <xliff:g id="APP_DATA_TWO">%2$s</xliff:g> და <xliff:g id="APP_DATA_THREE">%3$s</xliff:g> აპების ნებართვები"</string>
+    <string name="denied_apps_banner_message_many_apps" msgid="7249805432604650982">"Health Connect-მა ამოშალა <xliff:g id="APP_DATA_0">%1$s</xliff:g>, <xliff:g id="APP_DATA_TWO">%2$s</xliff:g>, <xliff:g id="APP_DATA_THREE">%3$s</xliff:g> და სხვა აპების ნებართვები"</string>
+    <string name="denied_apps_banner_button" msgid="4438480389769298412">"დეტალების ნახვა"</string>
+    <string name="denied_apps_dialog_title" msgid="7470227827315635099">"რატომ შლის Health Connect აპის ნებართვებს"</string>
+    <string name="denied_apps_dialog_message" msgid="7876664965504466099">"თუ აპის მოქმედება შეჩერებულია ან ის ამოშლილია Google Play-დან, Health Connect ავტომატურად ამოშლის მის ნებართვებსაც.\n\nამის შედეგად, აპს წვდომა აღარ ექნება Health Connect-ში შენახულ მონაცემებზე. თუ ამ აპს წინასწარ ჩაწერილი მონაცემები აქვს, ის არააქტიური აპების სიაში გამოჩნდება."</string>
+    <string name="denied_apps_dialog_got_it_button" msgid="4698003516923683959">"გასაგებია"</string>
+    <string name="export_settings_screen_title" msgid="887671826359158339">"მონაცემების შენახვა"</string>
+    <string name="export_settings_screen_description" msgid="5477618165331360989">"შეინახეთ Health Connect მონაცემები და ნებართვები, რათა შეძლოთ ახალ ტელეფონზე გადასვლისას მათი იმპორტირება. შენახვამდე შეგიძლიათ აირჩიოთ ამ მონაცემების შენახვის ადგილი."</string>
+    <string name="setup_button" msgid="1407942598553043961">"დაყენება"</string>
+    <string name="export_settings_header" msgid="2435738153550683355">"პარამეტრები"</string>
+    <string name="auto_save" msgid="7146497593975616076">"ავტომატური შენახვა"</string>
+    <string name="choose_frequency" msgid="1077467424225083246">"სიხშირის არჩევა"</string>
+    <string name="choose_frequency_description" msgid="752601326653048254">"აირჩიეთ მონაცემების ერთჯერადად შენახვის ან რეგულარული ინტერვალით ავტომატურად შენახვის პარამეტრი."</string>
+    <string name="frequency_daily" msgid="3596412357416125727">"ყოველდღიურად"</string>
+    <string name="frequency_weekly" msgid="7302587625019573393">"ყოველკვირეულად"</string>
+    <string name="frequency_monthly" msgid="729674398053825938">"ყოველთვიურად"</string>
+    <string name="export_back_button" msgid="3550795479165524982">"უკან"</string>
+    <string name="export_next_button" msgid="657930567137105172">"შემდეგი"</string>
+    <string name="onboarding_title" msgid="8550656211291180188">"დაიწყეთ Health Connect"</string>
+    <string name="onboarding_description" msgid="4873129122057931161">"Health Connect ინახავს თქვენს ჯანმრთელობასა და ფიტნესთან დაკავშირებულ მონაცემებს და გაძლევთ საშუალებას, მარტივად დაასინქრონოთ სხვადასხვა აპი თქვენს ტელფონში"</string>
+    <string name="share_data" msgid="3481932156368883946">"გააზიარეთ ინფორმაცია თქვენს აპებთან"</string>
+    <string name="share_data_description" msgid="2919871301634375092">"აირჩიეთ მონაცემები, რომლებიც თითოეულ აპს შეუძლია წაიკითხოს ან ჩაწეროს Health Connect-Ში"</string>
+    <string name="manage_your_settings" msgid="7391184508015127137">"მართეთ თქვენი პარამეტრები და კონფიდენციალურობა"</string>
+    <string name="manage_your_settings_description" msgid="557943168930365334">"შეცვალეთ აპის ნებართვები და მართეთ თქვენი მონაცემები ნებისმიერ დროს"</string>
+    <string name="onboarding_go_back_button_text" msgid="5020083846511184625">"უკან დაბრუნება"</string>
+    <string name="onboarding_get_started_button_text" msgid="2348061971090731336">"დაწყება"</string>
+    <string name="delete_button_content_description" msgid="9125115327455379618">"მონაცემების წაშლა"</string>
+    <string name="time_range_title" msgid="6831605283322600165">"აირჩიეთ მონაცემები წასაშლელად"</string>
+    <string name="time_range_next_button" msgid="5849096934896557888">"შემდეგი"</string>
+    <string name="time_range_message_all" msgid="7280888587242744729">"ეს ქმედება სამუდამოდ წაშლის Health Connect-ში დროის არჩეულ მონაკვეთში დამატებულ ყველა მონაცემს"</string>
+    <string name="time_range_message_data_type" msgid="1896125004829258195">"ეს ქმედება სამუდამოდ წაშლის Health Connect-ში დროის არჩეულ მონაკვეთში დამატებულ <xliff:g id="DATA_TYPE">%s</xliff:g>-ის მონაცემებს"</string>
+    <string name="time_range_message_category" msgid="1136451418397326356">"ეს ქმედება სამუდამოდ წაშლის Health Connect-ში დროის არჩეულ მონაკვეთში დამატებულ <xliff:g id="CATEGORY">%s</xliff:g>-ის მონაცემებს"</string>
+    <string name="time_range_message_app_data" msgid="2590800457710603556">"ეს ქმედება სამუდამოდ წაშლის Health Connect-ში დროის არჩეულ მონაკვეთში დამატებულ <xliff:g id="APP_DATA">%s</xliff:g>-ის მონაცემებს"</string>
+    <string name="time_range_one_day" msgid="7162709826595446727">"ბოლო 24 საათის წაშლა"</string>
+    <string name="time_range_one_week" msgid="8754523384275645434">"ბოლო 7 დღის წაშლა"</string>
+    <string name="time_range_one_month" msgid="3034747870231999766">"ბოლო 30 დღის წაშლა"</string>
+    <string name="time_range_all" msgid="8167350212705839943">"ყველა მონაცემის წაშლა"</string>
+    <string name="confirming_question_all" msgid="1585414659784742952">"გსურთ სამუდამოდ წაიშალოს ყველა დროის ყველა მონაცემი?"</string>
+    <string name="confirming_question_one_day" msgid="8001434729335611950">"გსურთ სამუდამოდ წაიშალოს ბოლო 24 საათის ყველა მონაცემი?"</string>
+    <string name="confirming_question_one_week" msgid="5441506951423969587">"გსურთ სამუდამოდ წაიშალოს ბოლო 7 დღის ყველა მონაცემი?"</string>
+    <string name="confirming_question_one_month" msgid="4118595547587081940">"გსურთ სამუდამოდ წაიშალოს ბოლო 30 დღის ყველა მონაცემი?"</string>
+    <string name="confirming_question_data_type_all" msgid="1173934949902602037">"გსურთ სამუდამოდ წაიშალოს <xliff:g id="DATA_TYPE">%s</xliff:g>-ის ყველა დროის მონაცემი?"</string>
+    <string name="confirming_question_data_type_one_day" msgid="5386681714769751416">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="DATA_TYPE">%s</xliff:g>-ის ბოლო 24 საათის მონაცემები?"</string>
+    <string name="confirming_question_data_type_one_week" msgid="8346031951374422501">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="DATA_TYPE">%s</xliff:g>-ის ბოლო 7 დღის მონაცემები?"</string>
+    <string name="confirming_question_data_type_one_month" msgid="7110328687576360400">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="DATA_TYPE">%s</xliff:g>-ის ბოლო 30 დღის მონაცემები?"</string>
+    <string name="confirming_question_category_all" msgid="9182430869247761531">"გსურთ სამუდამოდ წაიშალოს <xliff:g id="CATEGORY">%s</xliff:g>-ის ყველა დროის მონაცემი?"</string>
+    <string name="confirming_question_category_one_day" msgid="4886776948515472679">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="CATEGORY">%s</xliff:g>-ის ბოლო 24 საათის მონაცემები?"</string>
+    <string name="confirming_question_category_one_week" msgid="1790565625674277693">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="CATEGORY">%s</xliff:g>-ის ბოლო 7 დღის მონაცემები?"</string>
+    <string name="confirming_question_category_one_month" msgid="9181788460112796273">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="CATEGORY">%s</xliff:g>-ის ბოლო 30 დღის მონაცემები?"</string>
+    <string name="confirming_question_app_data_all" msgid="4818571921949673097">"გსურთ სამუდამოდ წაიშალოს <xliff:g id="APP_DATA">%s</xliff:g>-ის ყველა დროის მონაცემი?"</string>
+    <string name="confirming_question_app_data_one_day" msgid="444028969015975031">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="APP_DATA">%s</xliff:g>-ის ბოლო 24 საათის მონაცემები?"</string>
+    <string name="confirming_question_app_data_one_week" msgid="2096555081811730496">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="APP_DATA">%s</xliff:g>-ის ბოლო 7 დღის მონაცემები?"</string>
+    <string name="confirming_question_app_data_one_month" msgid="6438241250825892892">"გსურთ, სამუდამოდ წაიშალოს <xliff:g id="APP_DATA">%s</xliff:g>-ის ბოლო 30 დღის მონაცემები?"</string>
+    <string name="confirming_question_app_remove_all_permissions" msgid="4170343072352701421">"წაშალეთ ყველა <xliff:g id="APP_WITH_PERMISSIONS">%s</xliff:g> ნებართვა Health Connect-დან"</string>
+    <string name="confirming_question_data_type_from_app_all" msgid="8361163993548510509">"გსურთ სამუდამოდ წაშალოთ <xliff:g id="APP_DATA">%2$s</xliff:g>-ს მიერ დამატებული ყველა <xliff:g id="DATA_TYPE">%1$s</xliff:g>მოაცემი?"</string>
+    <string name="confirming_question_single_entry" msgid="330919962071369305">"გსურთ ამ შენატანის სამუდამოდ წაშლა?"</string>
+    <string name="confirming_question_message" msgid="2934249835529079545">"დაკავშირებულ აპებს აღარ ექნება წვდომა Health Connect-ის ამ მონაცემებზე"</string>
+    <string name="confirming_question_message_menstruation" msgid="5286956266565962430">"ამ მოქმედებით წაიშლება მენსტრუალური ციკლის შესახებ ყველა ჩანაწერი <xliff:g id="START_DATE">%1$s</xliff:g>-დან <xliff:g id="END_DATE">%2$s</xliff:g>-მდე."</string>
+    <string name="confirming_question_delete_button" msgid="1999996759507959985">"წაშლა"</string>
+    <string name="confirming_question_go_back_button" msgid="9037523726124648221">"უკან დაბრუნება"</string>
+    <string name="delete_dialog_success_got_it_button" msgid="8047812840310612293">"მზადაა"</string>
+    <string name="delete_dialog_failure_close_button" msgid="4376647579348193224">"დახურვა"</string>
+    <string name="delete_dialog_success_title" msgid="5009733262743173477">"მონაცემები წაშლილია"</string>
+    <string name="delete_dialog_success_message" msgid="2451953113522118128">"ეს მონაცემები აღარ ინახება Health Connect-ში."</string>
+    <string name="delete_progress_indicator" msgid="5799502879065833417">"მიმდინარეობს თქვენი მონაცემების წაშლა"</string>
+    <string name="delete_dialog_failure_title" msgid="1959020721355789496">"მონაცემების წაშლა ვერ მოხერხდა"</string>
+    <string name="delete_dialog_failure_message" msgid="7473241488471319963">"მოხდა რაღაც შეცდომა და Health Connect-მა ვერ მოახერხა თქვენი მონაცემების წაშლა"</string>
+    <string name="delete_dialog_failure_try_again_button" msgid="4323865124609424838">"ხელახლა ცდა"</string>
+    <string name="delete_data_notification_title" msgid="7740230240986343347">"მიმდინარებს Health Connect მონაცემების წაშლა"</string>
+    <string name="delete_data_notification_ticker_text" msgid="2604051567679235822">"მიმდინარებს Health Connect მონაცემების წაშლა"</string>
+    <string name="delete_data_notification_channel_name" msgid="4499713830012802095">"მიმდინარეობს მონაცემების წაშლა"</string>
+    <string name="data_point_action_content_description" msgid="6881048311770784455">"მონაცემთა ჩანაწერის წაშლა: <xliff:g id="ENTRY_TO_DELETE">%s</xliff:g>"</string>
+    <string name="delete_data_point" msgid="1004049578454616738">"ჩანაწერის წაშლა: <xliff:g id="ENTRY_TO_DELETE">%s</xliff:g>"</string>
+    <string name="aggregation_total" msgid="5641333638662325184">"სულ: <xliff:g id="TOTAL_VALUE">%s</xliff:g>"</string>
+    <string name="watt_format" msgid="8500953817369623803">"{value,plural, =1{1 ვტ}other{# ვტ}}"</string>
+    <string name="watt_format_long" msgid="7107446926499116109">"{value,plural, =1{1 ვატი}other{# ვატი}}"</string>
+    <string name="steps_value" msgid="5779393974668105298">"{count,plural, =1{1 ნაბიჯი}other{# ნაბიჯი}}"</string>
+    <string name="steps_per_minute" msgid="5527133010067502098">"{value,plural, =1{1 ნაბიჯი/წთ}other{# ნაბიჯი/წთ}}"</string>
+    <string name="steps_per_minute_long" msgid="6146224261144843301">"{value,plural, =1{1 ნაბიჯი წუთში}other{# ნაბიჯი წუთში}}"</string>
+    <string name="heart_rate_value" msgid="6936476566204248578">"{count,plural, =1{1 დ/წთ}other{# დ/წთ}}"</string>
+    <string name="heart_rate_long_value" msgid="7865319425119507300">"{count,plural, =1{1 დარტყმა წუთში}other{# დარტყმა წუთში}}"</string>
+    <string name="velocity_speed_miles" msgid="616312758726506781">"{value,plural, =1{1 მილი/სთ}other{# მილი/სთ}}"</string>
+    <string name="velocity_speed_km" msgid="2807705003203399350">"{value,plural, =1{1 კმ/სთ}other{# კმ/სთ}}"</string>
+    <string name="velocity_speed_miles_long" msgid="7945167764392834498">"{value,plural, =1{1 მილი საათში}other{# მილი საათში}}"</string>
+    <string name="velocity_speed_km_long" msgid="3962310367408338322">"{value,plural, =1{1 კილომეტრი საათში}other{# კილომეტრი საათში}}"</string>
+    <string name="time_range_long" msgid="5067423945245490288">"<xliff:g id="START_TIME">%1$s</xliff:g>-დან <xliff:g id="END_TIME">%2$s</xliff:g>-მდე"</string>
+    <string name="date_range_long" msgid="6022190423982451176">"<xliff:g id="START_TIME">%1$s</xliff:g>-დან <xliff:g id="END_TIME">%2$s</xliff:g>-მდე"</string>
+    <string name="wheelchair_pushes" msgid="5807293867148465190">"{count,plural, =1{ინვალიდის სავარძლის 1 ბიძგი}other{ინვალიდის სავარძლის # ბიძგი}}"</string>
+    <string name="liter" msgid="8276522589564337053">"{count,plural, =1{1 ლ}other{# ლ}}"</string>
+    <string name="liter_long" msgid="7094280457555707835">"{count,plural, =1{1 ლიტრი}other{# ლიტრი}}"</string>
+    <string name="floors_climbed" msgid="7483572478744998930">"{count,plural, =1{1 სართული}other{# სართული}}"</string>
+    <string name="elevation_meters" msgid="5099783382361572761">"{count,plural, =1{1 წთ.}other{# წთ}}"</string>
+    <string name="elevation_meters_long" msgid="3163136353148567981">"{count,plural, =1{1 მეტრი}other{# მეტრი}}"</string>
+    <string name="cycling_rpm" msgid="2271215098150068276">"{count,plural, =1{1 ბრ/წთ}other{# ბრ/წთ}}"</string>
+    <string name="cycling_rpm_long" msgid="4914848042733587007">"{count,plural, =1{1 ბრუნი წუთში}other{# ბრუნი წუთში}}"</string>
+    <string name="cycling_cadence_series_range_long" msgid="6852892013260504985">"<xliff:g id="MIN">%1$s</xliff:g>-დან <xliff:g id="MAX">%2$s</xliff:g>-მდე"</string>
+    <string name="sexual_activity_protected" msgid="4259473257597274326">"დაცული"</string>
+    <string name="sexual_activity_unprotected" msgid="2250981470537379807">"დაუცველი"</string>
+    <string name="spotting" msgid="1637175837078770520">"გამონადენი"</string>
+    <string name="flow_spotting" msgid="832418664953780156">"გამონადენი"</string>
+    <string name="flow_light" msgid="1937543318146228793">"მსუბუქი სისხლდენა"</string>
+    <string name="flow_medium" msgid="3783688724668943154">"ზომიერი სისხლდენა"</string>
+    <string name="flow_heavy" msgid="8672261792750634294">"ძლიერი სისხლდენა"</string>
+    <string name="period_day" msgid="3821944462093965882">"პერიოდის დღე: <xliff:g id="DAY">%1$d</xliff:g>/<xliff:g id="TOTAL_LENGTH">%2$d</xliff:g>"</string>
+    <string name="ovulation_positive" msgid="6588547263126320238">"დადებითი"</string>
+    <string name="ovulation_negative" msgid="591588801112312454">"უარყოფითი"</string>
+    <string name="ovulation_high" msgid="205362931427158291">"მაღალი"</string>
+    <string name="ovulation_inconclusive" msgid="3447066667631538756">"დაუზუსტებელი"</string>
+    <string name="milliseconds" msgid="284845884516037268">"{count,plural, =1{1 მილიწამი}other{# მილიწამი}}"</string>
+    <string name="milliseconds_long" msgid="93246373745977286">"{count,plural, =1{1 მილიწამი}other{# მილიწამი}}"</string>
+    <string name="repetitions" msgid="5092687490665962229">"{count,plural, =1{1 გამეორება}other{# გამეორება}}"</string>
+    <string name="repetitions_long" msgid="9056502282298182438">"{count,plural, =1{1 გამეორება}other{# გამეორება}}"</string>
+    <string name="exercise_segments_header" msgid="2992953017179406012">"ვარჯიშის სეგმენტები"</string>
+    <string name="exercise_laps_header" msgid="117228630553856372">"წრე"</string>
+    <string name="back_extension" msgid="426518933137440577">"ზურგის კუნთების გაჭიმვა"</string>
+    <string name="badminton" msgid="8839727076522086870">"ბადმინტონი"</string>
+    <string name="barbell_shoulder_press" msgid="3800236222803424251">"მხრის ვარჯიში ჰანტელებით"</string>
+    <string name="baseball" msgid="2520520093470304570">"ბეისბოლი"</string>
+    <string name="basketball" msgid="1453863811744469210">"კალათბურთი"</string>
+    <string name="bench_press" msgid="640506654204391301">"წოლჭიმი"</string>
+    <string name="bench_sit_up" msgid="6601081870476287683">"წამოჯდომის ვარჯიში გრძელ სკამზე"</string>
+    <string name="biking" msgid="4108296097363777467">"ველოსიპედით სეირნობა"</string>
+    <string name="biking_stationary" msgid="1538524429562124202">"ვარჯიში ველოტრენაჟორზე"</string>
+    <string name="boot_camp" msgid="1554811887379786226">"სავარჯიშო ცენტრი"</string>
+    <string name="boxing" msgid="2200194516739940317">"კრივი"</string>
+    <string name="burpee" msgid="1434605818712603589">"დაყრდნობა ჩაჯდომით"</string>
+    <string name="calisthenics" msgid="9080623890020954493">"ფიზკულტურა"</string>
+    <string name="cricket" msgid="7543586707938752011">"კრიკეტი"</string>
+    <string name="crunch" msgid="4265356947720591896">"პრესის ვარჯიში"</string>
+    <string name="dancing" msgid="4099572666298130171">"ცეკვა"</string>
+    <string name="deadlift" msgid="6880561478635890617">"დედლიფტი"</string>
+    <string name="dumbbell_curl_left_arm" msgid="4453594605921193509">"ჰანტელის აწევა მარცხენა ხელის ბიცეფსისთვის"</string>
+    <string name="dumbbell_curl_right_arm" msgid="4680998443002425166">"ჰანტელის აწევა მარჯვენა ხელის ბიცეფსისთვის"</string>
+    <string name="dumbbell_front_raise" msgid="4411281746015904879">"ჰანტელების აწევა წინ"</string>
+    <string name="dumbbell_lateral_raise" msgid="5839946068429137241">"ჰანტელების აწევა გვერდებზე"</string>
+    <string name="dumbbell_triceps_extension_left_arm" msgid="6756023069611493063">"ჰანტელის გაწევა მარცხენა ხელის ტრიცეფსისთვის"</string>
+    <string name="dumbbell_triceps_extension_right_arm" msgid="1498470275564554389">"ჰანტელის გაწევა მარჯვენა ხელის ტრიცეფსისთვის"</string>
+    <string name="dumbbell_triceps_extension_two_arm" msgid="5409860665522903159">"ჰანტელების გაწევა ორივე ხელის ტრიცეფსისთვის"</string>
+    <string name="elliptical" msgid="5148914059968910839">"ელიფსური ტრენაჟორის გამოყენება"</string>
+    <string name="exercise_class" msgid="32582249527931454">"ვარჯიშის კლასი"</string>
+    <string name="fencing" msgid="410347890025055779">"ფარიკაობა"</string>
+    <string name="football_american" msgid="8564554592554502623">"ამერიკული ფეხბურთი"</string>
+    <string name="football_australian" msgid="5524598297723674661">"ავსტრალიური ფეხბურთი"</string>
+    <string name="forward_twist" msgid="2464895720533462566">"წინ დახრა და მკერდის მობრუნება"</string>
+    <string name="frisbee_disc" msgid="5167617057624738753">"ფრისბი"</string>
+    <string name="golf" msgid="2726655052150604682">"გოლფი"</string>
+    <string name="guided_breathing" msgid="8688586393796970733">"სუნთქვა ინსტრუქციისამებრ"</string>
+    <string name="gymnastics" msgid="1122967371410769598">"ტანვარჯიში"</string>
+    <string name="handball" msgid="3088985331906235361">"ხელბურთი"</string>
+    <string name="high_intensity_interval_training" msgid="8873384314130026442">"მაღალი ინტენსივობის ინტერვალური ვარჯიში"</string>
+    <string name="hiking" msgid="5477476795295322496">"ლაშქრობა"</string>
+    <string name="ice_hockey" msgid="3615167122989198051">"ყინულის ჰოკეი"</string>
+    <string name="ice_skating" msgid="8509270149324068230">"ციგურებით სრიალი"</string>
+    <string name="jumping_jack" msgid="8751015874477795657">"ჯამპინგ ჯეკი"</string>
+    <string name="jump_rope" msgid="3065249477862282277">"სახტუნაო"</string>
+    <string name="lat_pull_down" msgid="6974730398913678563">"ვერტიკალური ბლოკის ჩამოწევა დამჯდარ მდგომარეობაში"</string>
+    <string name="lunge" msgid="6557814816897990529">"წინ წაწევა"</string>
+    <string name="martial_arts" msgid="3279383109083496658">"საბრძოლო ხელოვნება"</string>
+    <string name="meditation" msgid="7578287714544679183">"მედიტაცია"</string>
+    <string name="paddling" msgid="746868067888160788">"ნიჩბის მოსმა"</string>
+    <string name="paragliding" msgid="8328649138909727690">"პარაგლაიდინგი"</string>
+    <string name="pilates" msgid="8660903049535347415">"პილატესი"</string>
+    <string name="plank" msgid="5537839085592473449">"იდაყვებზე დგომი"</string>
+    <string name="racquetball" msgid="8169482984904052538">"რაკეტბოლი"</string>
+    <string name="rock_climbing" msgid="3123024521372083233">"კლდეზე ცოცვა"</string>
+    <string name="roller_hockey" msgid="3524872164646176686">"როლერ ჰოკეი"</string>
+    <string name="rowing" msgid="615898011726585442">"ნიჩბოსნობა"</string>
+    <string name="rowing_machine" msgid="4075255566862183370">"ნიჩბოსნობის ტრენაჟორი"</string>
+    <string name="rugby" msgid="5146215118571059267">"რაგბი"</string>
+    <string name="running" msgid="5135754380339217169">"სირბილი"</string>
+    <string name="running_treadmill" msgid="2083354407217486405">"სარბენ ბილიკზე სირბილი"</string>
+    <string name="sailing" msgid="4924304145770903145">"აფროსნობა"</string>
+    <string name="scuba_diving" msgid="4548778216122159229">"წყალქვეშა ყვინთვა"</string>
+    <string name="skating" msgid="7320438805566302784">"ციგურებით სრიალი"</string>
+    <string name="skiing" msgid="6773127614153771204">"თხილამურებით სრიალი"</string>
+    <string name="snowboarding" msgid="890584874325367973">"სნოუბორდინგი"</string>
+    <string name="snowshoeing" msgid="8932096199095096139">"თოვლში სიარული"</string>
+    <string name="soccer" msgid="2631723269673549642">"ფეხბურთი"</string>
+    <string name="softball" msgid="8389418982713908334">"სოფტბოლი"</string>
+    <string name="squash" msgid="1588653991323140302">"სქვოში"</string>
+    <string name="squat" msgid="7664163620113834611">"ბუქნები"</string>
+    <string name="stair_climbing" msgid="4042085961630471238">"კიბეზე ცოცვა"</string>
+    <string name="stair_climbing_machine" msgid="4003983194733092325">"კიბეზე ცოცვის ტრენაჟორი"</string>
+    <string name="strength_training" msgid="56772956237540768">"ძალოსნური მომზადება"</string>
+    <string name="stretching" msgid="8667864173383423787">"გაჭიმვა"</string>
+    <string name="surfing" msgid="7612503593241904984">"სერფინგი"</string>
+    <string name="swimming_open_water" msgid="1030388267758027037">"ღია წყალში ცურვა"</string>
+    <string name="swimming_pool" msgid="1584809250142187550">"აუზში ცურვა"</string>
+    <string name="swimming_freestyle" msgid="5969535751316106638">"ფრისტაილი"</string>
+    <string name="swimming_backstroke" msgid="7293002996518694035">"ზურგზე ცურვა"</string>
+    <string name="swimming_breaststroke" msgid="7168282910654289593">"ბრასი"</string>
+    <string name="swimming_butterfly" msgid="8553167046220664352">"პეპელა"</string>
+    <string name="swimming_mixed" msgid="4486578691634921168">"შერეული"</string>
+    <string name="swimming_other" msgid="2561131941506955982">"სხვა"</string>
+    <string name="table_tennis" msgid="4849741231221974485">"პინგ-პონგი"</string>
+    <string name="tennis" msgid="6627063985750125504">"ჩოგბურთი"</string>
+    <string name="upper_twist" msgid="3382862516792841928">"სხეულის ზედა ნაწილის მობრუნება"</string>
+    <string name="volleyball" msgid="7469885673961163729">"ფრენბურთი"</string>
+    <string name="walking" msgid="4782496160454621769">"სიარული"</string>
+    <string name="water_polo" msgid="2527119748097860708">"წყალბურთი"</string>
+    <string name="weightlifting" msgid="7586735291662318085">"ძალოსნობა"</string>
+    <string name="wheelchair" msgid="2226734836271500057">"შშმ პირთა ეტლით გადაადგილება"</string>
+    <string name="workout" msgid="8583398837804461839">"ვარჯიში"</string>
+    <string name="yoga" msgid="138675430777247097">"იოგა"</string>
+    <string name="arm_curl" msgid="1737456878333201848">"ხელის მოხრა"</string>
+    <string name="ball_slam" msgid="5996773678701283169">"ბურთის იატაკზე დაგდება"</string>
+    <string name="double_arm_triceps_extension" msgid="4010735719203872078">"ტრიცეფსის ვარჯიშის დროს ორივე ხელის გაშლა"</string>
+    <string name="dumbbell_row" msgid="181791808359752158">"ჰანტელების აწევა"</string>
+    <string name="front_raise" msgid="1030939481482621384">"ფრონტალური აწევა"</string>
+    <string name="hip_thrust" msgid="8490916766767408053">"თეძოს გაქნევა"</string>
+    <string name="hula_hoop" msgid="1651914953207761226">"ჰულა-ჰუპი"</string>
+    <string name="kettlebell_swing" msgid="364783119882246413">"გირების ქნევა"</string>
+    <string name="lateral_raise" msgid="1037404943175363734">"ლატერალური აწევა"</string>
+    <string name="leg_curl" msgid="5327470513599472344">"ფეხის მოღუნვა"</string>
+    <string name="leg_extension" msgid="1843556289395164421">"ფეხის გაშლა"</string>
+    <string name="leg_press" msgid="4544551493384600086">"ფეხით მიწოლა"</string>
+    <string name="leg_raise" msgid="3206754140765952088">"ფეხის აწევა"</string>
+    <string name="mountain_climber" msgid="6666288676718010900">"მთამსვლელი"</string>
+    <string name="pull_up" msgid="4056233737860296184">"ძელზე აზიდვა"</string>
+    <string name="punch" msgid="7915247952566217050">"დარტყმა"</string>
+    <string name="shoulder_press" msgid="4071573271892122319">"მხრების პრესი"</string>
+    <string name="single_arm_triceps_extension" msgid="4500495528709994121">"ტრიცეფსის ვარჯიშის დროს ცალი ხელის გაშლა"</string>
+    <string name="sit_up" msgid="1872162440154479950">"დაჯდომები"</string>
+    <string name="rest" msgid="5937058337671252210">"დასვენება"</string>
+    <string name="pause" msgid="5161459047750335691">"პაუზა"</string>
+    <string name="activity_type_australian_football" msgid="431838050917315084">"ავსტრალიური ფეხბურთი"</string>
+    <string name="sleep_session_default" msgid="7376764686701487196">"ძილის <xliff:g id="DURATION"> %1$s</xliff:g>"</string>
+    <string name="sleep_stage_default" msgid="1539043695578480733">"<xliff:g id="DURATION">%1$s</xliff:g> <xliff:g id="NAME">%2$s</xliff:g>"</string>
+    <string name="sleep_stage_awake" msgid="4526767634444460862">"სიფხიზლე"</string>
+    <string name="sleep_stage_awake_in_bed" msgid="5533385496857888503">"გაღვიძება საწოლში"</string>
+    <string name="sleep_stage_sleeping" msgid="5122840110107303518">"ძილი"</string>
+    <string name="sleep_stage_out_of_bed" msgid="522297068981578046">"საწოლიდან ადგომა"</string>
+    <string name="sleep_stage_rem" msgid="1694477904067543104">"REM ძილი"</string>
+    <string name="sleep_stage_light" msgid="1070117964678317880">"მსუბუქი ძილი"</string>
+    <string name="sleep_stage_deep" msgid="3134557407657258364">"ღრმა ძილი"</string>
+    <string name="sleep_stage_unknown" msgid="8664190491902295991">"უცნობი"</string>
+    <string name="minute_duration" msgid="9035288227090160206">"<xliff:g id="MINUTE">%1$s</xliff:g> წთ"</string>
+    <string name="hour_minute_duration_short" msgid="6862483734123680444">"<xliff:g id="HOUR">%1$s</xliff:g>სთ <xliff:g id="MIN">%2$s</xliff:g>წთ"</string>
+    <string name="hour_duration" msgid="3472489613837138711">"<xliff:g id="HOUR">%1$s</xliff:g> სთ"</string>
+    <string name="hour_minute_duration_accessibility" msgid="1863356122145811614">"<xliff:g id="HOURS">%1$s</xliff:g> <xliff:g id="MINUTES">%2$s</xliff:g>"</string>
+    <string name="hour_duration_accessibility" msgid="4944782597053107276">"{count,plural, =1{1 საათი}other{# საათი}}"</string>
+    <string name="minute_duration_accessibility" msgid="399158463609534882">"{count,plural, =1{1 წუთი}other{# წუთი}}"</string>
+    <!-- no translation found for day_duration (3965793251448856729) -->
+    <skip />
+    <string name="day_hour_duration" msgid="6174865584368017275">"<xliff:g id="DAYS">%1$s</xliff:g> და <xliff:g id="HOURS">%2$s</xliff:g>"</string>
+    <string name="day_duration_accessibility" msgid="3023909370877112320">"{count,plural, =1{1 დღე}other{# დღე}}"</string>
+    <string name="vo2_max" msgid="8129489055516944647">"{value,plural, =1{1 მლ/(კგ/წთ)}other{# მლ/(კგ/წთ)}}"</string>
+    <string name="vo2_max_long" msgid="1031842712595851857">"{value,plural, =1{1 მილილიტრი ჟანგბადი სხეულის მასის კილოგრამზე წუთში}other{# მილილიტრი ჟანგბადი სხეულის მასის კილოგრამზე წუთში}}"</string>
+    <string name="vo2_metabolic_cart" msgid="4724757223373717896">"მეტაბოლიზმის მაჩვენებელი"</string>
+    <string name="vo2_heart_rate_ratio" msgid="8707274294125886148">"გულისცემის თანაფარდობა"</string>
+    <string name="vo2_cooper_test" msgid="4713211595719031518">"კუპერის ტესტი"</string>
+    <string name="vo2_multistage_fitness_test" msgid="908967547838751749">"მრავალსაფეხურიანი ფიტნეს-ტესტირება"</string>
+    <string name="vo2_rockport_fitness_test" msgid="2951465532122577281">"Rockport-ის ფიტნეს-ტესტირება"</string>
+    <string name="vo2_other" msgid="5359013487285233550">"სხვა"</string>
+    <string name="mucus_dry" msgid="1065582777971603874">"მშრალი"</string>
+    <string name="mucus_sticky" msgid="2086025099544529404">"წებოვანი"</string>
+    <string name="mucus_creamy" msgid="7525290054414941569">"სქელი"</string>
+    <string name="mucus_watery" msgid="1875540699006472048">"წყლისებრი"</string>
+    <string name="mucus_egg_white" msgid="5578512593433767787">"თეთრი"</string>
+    <string name="mucus_unusual" msgid="3987847850745292757">"უჩვეულო"</string>
+    <string name="mucus_light" msgid="5309343389013086860">"უმნიშვნელო"</string>
+    <string name="mucus_medium" msgid="7666848347740570566">"საშუალო"</string>
+    <string name="mucus_heavy" msgid="7864873650773259133">"ძლიერი"</string>
+    <string name="blood_pressure" msgid="7892828162554266437">"<xliff:g id="SYSTOLIC">%1$s</xliff:g>/<xliff:g id="DIASTOLIC">%2$s</xliff:g> მმ ვწყ. სვ."</string>
+    <string name="blood_pressure_long" msgid="6487761539434451764">"<xliff:g id="SYSTOLIC">%1$s</xliff:g>/<xliff:g id="DIASTOLIC">%2$s</xliff:g> ვერცხლისწყლის სვეტის მილიმეტრი"</string>
+    <string name="body_position_standing_up" msgid="1221924915768574594">"ფეხზე მდგარი"</string>
+    <string name="body_position_sitting_down" msgid="8053875174780552282">"დამჯდარი"</string>
+    <string name="body_position_lying_down" msgid="1472381098179371143">"მწოლიარე"</string>
+    <string name="body_position_reclining" msgid="5676889701646839079">"წამოწოლილი"</string>
+    <string name="blood_pressure_left_wrist" msgid="2047244346984766880">"მარცხენა მაჯა"</string>
+    <string name="blood_pressure_right_wrist" msgid="1488133877790549424">"მარჯვენა მაჯა"</string>
+    <string name="blood_pressure_left_arm" msgid="5150436840115504433">"მარცხენა მკლავი"</string>
+    <string name="blood_pressure_right_arm" msgid="8660682684653121430">"მარჯვენა მკლავი"</string>
+    <string name="millimoles_per_liter" msgid="3185457774991908223">"{count,plural, =1{1 მმოლ/ლ}other{# მმოლ/ლ}}"</string>
+    <string name="millimoles_per_liter_long" msgid="7248942926237335084">"{count,plural, =1{1 მილიმოლი ლიტრზე}other{# მილიმოლი ლიტრზე}}"</string>
+    <string name="specimen_source_interstitial_fluid" msgid="2201319049828128946">"უჯრედშორისი სითხე"</string>
+    <string name="specimen_source_capillary_blood" msgid="5525024815754731735">"კაპილარული სისხლი"</string>
+    <string name="specimen_source_plasma" msgid="8794064916106457747">"პლაზმა"</string>
+    <string name="specimen_source_serum" msgid="6383820057196352355">"შრატი"</string>
+    <string name="specimen_source_tears" msgid="4368541832400624080">"ცრემლი"</string>
+    <string name="specimen_source_whole_blood" msgid="8884838851343307557">"მთლიანი სისხლი"</string>
+    <string name="blood_glucose_general" msgid="7566279829618085436">"ზოგადი"</string>
+    <string name="blood_glucose_fasting" msgid="2122662399203934350">"უზმოდ"</string>
+    <string name="blood_glucose_before_meal" msgid="5125498172701953751">"ჭამამდე"</string>
+    <string name="blood_glucose_after_meal" msgid="8101398122897992346">"ჭამის შემდეგ"</string>
+    <string name="mealtype_label" msgid="5402474235944051844">"საკვების ტიპი"</string>
+    <string name="mealtype_unknown" msgid="3024645648636923591">"უცნობი"</string>
+    <string name="mealtype_breakfast" msgid="119545434987870954">"საუზმე"</string>
+    <string name="mealtype_lunch" msgid="6212310262989550906">"ლანჩი"</string>
+    <string name="mealtype_dinner" msgid="1896347121249081336">"სადილი"</string>
+    <string name="mealtype_snack" msgid="8454859872168781221">"ხემსი"</string>
+    <string name="biotin" msgid="4000818331802478073">"ბიოტინი"</string>
+    <string name="caffeine" msgid="2847006945615912643">"კოფეინი"</string>
+    <string name="calcium" msgid="4832722858820295752">"კალციუმი"</string>
+    <string name="chloride" msgid="2509193544740445654">"ქლორიდი"</string>
+    <string name="cholesterol" msgid="4261128668088502049">"ქოლესტერინი"</string>
+    <string name="chromium" msgid="807851794929222026">"ქრომი"</string>
+    <string name="copper" msgid="8603012497089601260">"სპილენძი"</string>
+    <string name="dietary_fiber" msgid="6928876454420561553">"საკვები ბოჭკო"</string>
+    <string name="energy_consumed_total" msgid="7866804137119190606">"ენერგია"</string>
+    <string name="energy_consumed_from_fat" msgid="8637734004867176038">"ცხიმის ენერგია"</string>
+    <string name="folate" msgid="7728279545427110321">"ფოლატი"</string>
+    <string name="folic_acid" msgid="6861953414423667870">"ფოლიუმის მჟავა"</string>
+    <string name="iodine" msgid="2896913103021799237">"იოდი"</string>
+    <string name="iron" msgid="6134405609706877219">"რკინა"</string>
+    <string name="magnesium" msgid="6157495455437549170">"მაგნიუმი"</string>
+    <string name="manganese" msgid="8339856079280400610">"მანგანუმი"</string>
+    <string name="molybdenum" msgid="3762866331212112454">"მოლიბდენი"</string>
+    <string name="monounsaturated_fat" msgid="1320950160552507057">"მონოუჯერი ცხიმები"</string>
+    <string name="niacin" msgid="8425099536322826837">"ნიაცინი"</string>
+    <string name="pantothenic_acid" msgid="5310842296212528685">"პანტოთენის მჟავა"</string>
+    <string name="phosphorus" msgid="3912318057064021441">"ფოსფორი"</string>
+    <string name="polyunsaturated_fat" msgid="6386374757897543025">"პოლიუჯერი ცხიმები"</string>
+    <string name="potassium" msgid="723134189945209756">"კალიუმი"</string>
+    <string name="protein" msgid="2731834509320364994">"ცილა"</string>
+    <string name="riboflavin" msgid="5329306869379867435">"რიბოფლავინი"</string>
+    <string name="saturated_fat" msgid="3174504848270051265">"ნაჯერი ცხიმები"</string>
+    <string name="selenium" msgid="8129594078116221891">"სელენი"</string>
+    <string name="sodium" msgid="7687341876185019438">"ნატრიუმი"</string>
+    <string name="sugar" msgid="656190285547502122">"შაქარი"</string>
+    <string name="thiamin" msgid="1662446837028039063">"თიამინი"</string>
+    <string name="total_carbohydrate" msgid="7034043840349284931">"მთლიანი ნახშირწყლები"</string>
+    <string name="total_fat" msgid="8193647297427112321">"მთლიანი ცხიმები"</string>
+    <string name="trans_fat" msgid="1059715899517909090">"ტრანსცხიმები"</string>
+    <string name="unsaturated_fat" msgid="5495925265449481356">"უჯერი ცხიმები"</string>
+    <string name="vitamin_a" msgid="2379293029664252095">"ვიტამინი A"</string>
+    <string name="vitamin_b12" msgid="180162813332325098">"ვიტამინი B12"</string>
+    <string name="vitamin_b6" msgid="370053149968231667">"ვიტამინი B6"</string>
+    <string name="vitamin_c" msgid="5383574357126292194">"ვიტამინი C"</string>
+    <string name="vitamin_d" msgid="2717952250555672580">"ვიტამინი D"</string>
+    <string name="vitamin_e" msgid="5214468880515744802">"ვიტამინი E"</string>
+    <string name="vitamin_k" msgid="2722297637910069736">"ვიტამინი K"</string>
+    <string name="zinc" msgid="5211975076671534013">"თუთია"</string>
+    <string name="nutrient_with_value" msgid="3327198262871257518">"<xliff:g id="NUTRIENT">%1$s</xliff:g>: <xliff:g id="AMOUNT">%2$s</xliff:g>"</string>
+    <string name="meal_name" msgid="6060648788040408308">"სახელი"</string>
+    <string name="gram_short_format" msgid="2355009811799735134">"{count,plural, =1{1 გ}other{# გ}}"</string>
+    <string name="gram_long_format" msgid="6160392101513066663">"{count,plural, =1{1 გრამი}other{# გრამი}}"</string>
+    <string name="respiratory_rate_value" msgid="4546418213418344364">"{count,plural, =1{1 ჩ/წთ}other{# ჩ/წთ}}"</string>
+    <string name="respiratory_rate_value_long" msgid="3822748008700697049">"{count,plural, =1{1 ჩასუნთქვა წუთში}other{# ჩასუნთქვა წუთში}}"</string>
+    <string name="kilograms_short_label" msgid="9098342853218050689">"{count,plural, =1{1 კგ}other{# კგ}}"</string>
+    <string name="pounds_short_label" msgid="6256277330455003180">"{count,plural, =1{1 ფუნტი}other{# ფუნტი}}"</string>
+    <string name="stone_short_label" msgid="8377585176530348612">"{count,plural, =1{1 სტ}other{# სტ}}"</string>
+    <string name="stone_pound_short_label" msgid="7157344201618366834">"{stone_part} {pound_part}"</string>
+    <string name="kilograms_long_label" msgid="7883695071156297670">"{count,plural, =1{1 კილოგრამი}other{# კილოგრამი}}"</string>
+    <string name="pounds_long_label" msgid="2916697485006416419">"{count,plural, =1{1 ფუნტი}other{# ფუნტი}}"</string>
+    <string name="stone_long_label" msgid="8951426283449456468">"{count,plural, =1{1 სტოუნი}other{# სტოუნი}}"</string>
+    <string name="stone_pound_long_label" msgid="1308941435682625204">"{stone_part} {pound_part}"</string>
+    <string name="temperature_celsius" msgid="4552465686251118136">"{value,plural, =1{1 ℃}other{# ℃}}"</string>
+    <string name="temperature_celsius_long" msgid="5789974427381333869">"{value,plural, =1{1 გრადუსი ცელსიუსი}other{# გრადუსი ცელსიუსი}}"</string>
+    <string name="temperature_kelvin" msgid="4805698375607189394">"{value,plural, =1{1 ათასი}other{# ათასი}}"</string>
+    <string name="temperature_kelvin_long" msgid="6078037481989090665">"{value,plural, =1{1 კელვინი}other{# კელვინი}}"</string>
+    <string name="temperature_fahrenheit" msgid="8288674479506567057">"{value,plural, =1{1 ℉}other{# ℉}}"</string>
+    <string name="temperature_fahrenheit_long" msgid="1668948424411289521">"{value,plural, =1{1 გრადუსი ფარენჰაიტი}other{# გრადუსი ფარენჰაიტი}}"</string>
+    <string name="temperature_location_armpit" msgid="8359661261125563155">"იღლია"</string>
+    <string name="temperature_location_finger" msgid="4915449065770967487">"თითი"</string>
+    <string name="temperature_location_forehead" msgid="8603219464757434635">"შუბლი"</string>
+    <string name="temperature_location_mouth" msgid="1535682736007063471">"პირი"</string>
+    <string name="temperature_location_rectum" msgid="1503082804377850076">"სწორი ნაწლავი"</string>
+    <string name="temperature_location_temporal_artery" msgid="2830919806910102535">"საფეთქლის არტერია"</string>
+    <string name="temperature_location_toe" msgid="36730991617372925">"ფეხის თითი"</string>
+    <string name="temperature_location_ear" msgid="7024374111156026034">"ყური"</string>
+    <string name="temperature_location_wrist" msgid="5290446688282752346">"მაჯა"</string>
+    <string name="temperature_location_vagina" msgid="1689485374825231749">"ვაგინა"</string>
+    <string name="distance_miles" msgid="5419172432458896478">"{dist,plural, =1{1 მილი}other{# მილი}}"</string>
+    <string name="distance_km" msgid="6383736895665100602">"{dist,plural, =1{1 კმ}other{# კმ}}"</string>
+    <string name="distance_miles_long" msgid="1830844568614100885">"{dist,plural, =1{1 მილი}other{# მილი}}"</string>
+    <string name="distance_km_long" msgid="6256504627418439859">"{dist,plural, =1{1 კილომეტრი}other{# კილომეტრი}}"</string>
+    <string name="height_cm" msgid="94329926270064717">"{height,plural, =1{1 სმ}other{# სმ}}"</string>
+    <string name="height_cm_long" msgid="2821030110768530948">"{height,plural, =1{1 სანტიმეტრი}other{# სანტიმეტრი}}"</string>
+    <string name="height_in_long" msgid="6502316324841498419">"{height,plural, =1{1 დუიმი}other{# დუიმი}}"</string>
+    <string name="height_ft_long" msgid="7551582478724981895">"{height,plural, =1{1 ფუტი}other{# ფუტი}}"</string>
+    <string name="height_in_compacted" msgid="6087182983411207466">"{height,plural, =1{1″}other{#″}}"</string>
+    <string name="height_ft_compacted" msgid="1024585112134314039">"{height,plural, =1{1′}other{#′}}"</string>
+    <string name="feet_inches_format" msgid="768610500549967860">"<xliff:g id="FT">%1$s</xliff:g><xliff:g id="IN">%2$s</xliff:g>"</string>
+    <string name="feet_inches_format_long" msgid="5187265716573430363">"<xliff:g id="FT">%1$s</xliff:g> <xliff:g id="IN">%2$s</xliff:g>"</string>
+    <string name="calories_long" msgid="7225535148232419419">"{count,plural, =1{1 კალორია}other{# კალორია}}"</string>
+    <string name="calories" msgid="320906359079319632">"{count,plural, =1{1 კალ}other{# კალ}}"</string>
+    <string name="kj" msgid="2742876437259085714">"{count,plural, =1{1 კჯოული}other{# კჯოული}}"</string>
+    <string name="kj_long" msgid="1837278261960345400">"{count,plural, =1{1 კილოჯოული}other{# კილოჯოული}}"</string>
+    <string name="percent" formatted="false" msgid="9199428244800776575">"{value,plural, =1{1%}other{#%}}"</string>
+    <string name="percent_long" msgid="2201022757867534235">"{value,plural, =1{1 პროცენტი}other{# პროცენტი}}"</string>
+    <string name="units_cancel" msgid="5947097690625771995">"გაუქმება"</string>
+    <string name="units_title" msgid="6504086463237869339">"ერთეულები"</string>
+    <string name="distance_unit_title" msgid="4696952932438418209">"მანძილი"</string>
+    <string name="height_unit_title" msgid="5461594609577078049">"სიმაღლე"</string>
+    <string name="weight_unit_title" msgid="7405186541678939987">"წონა"</string>
+    <string name="energy_unit_title" msgid="1714627395963766769">"ენერგია"</string>
+    <string name="temperature_unit_title" msgid="1973985121774654017">"ტემპერატურა"</string>
+    <string name="distance_unit_kilometers_label" msgid="1361363017122240294">"კილომეტრები"</string>
+    <string name="distance_unit_miles_label" msgid="848850214987608211">"მილები"</string>
+    <string name="height_unit_centimeters_label" msgid="4096031670561995574">"სანტიმეტრი"</string>
+    <string name="height_unit_feet_label" msgid="3311723678628261399">"ფუტები და ინჩები"</string>
+    <string name="weight_unit_pound_label" msgid="8210663393844989211">"ფუნტები"</string>
+    <string name="weight_unit_kilogram_label" msgid="6623938920860887238">"კილოგრამები"</string>
+    <string name="weight_unit_stone_label" msgid="3063787243474847180">"სტოუნი"</string>
+    <string name="energy_unit_calorie_label" msgid="3412965811470957296">"კალორიები"</string>
+    <string name="energy_unit_kilojoule_label" msgid="6481196724083455110">"კილოჯოულები"</string>
+    <string name="temperature_unit_celsius_label" msgid="4698347100553808449">"ცელსიუსი"</string>
+    <string name="temperature_unit_fahrenheit_label" msgid="6590261955872562854">"ფარენჰაიტი"</string>
+    <string name="temperature_unit_kelvin_label" msgid="3786210768294615821">"კელვინი"</string>
+    <string name="help_and_feedback" msgid="4772169905005369871">"დახმარება და უკუკავშირი"</string>
+    <string name="cant_see_all_your_apps_description" msgid="7344859063463536472">"თუ დაინსტალირებულ აპს ვერ ხედავთ, ის შესაძლოა ჯერ არ იყოს თავსებადი Health Connect-თან"</string>
+    <string name="things_to_try" msgid="8200374691546152703">"შეგიძლიათ ცადოთ"</string>
+    <string name="check_for_updates" msgid="3841090978657783101">"განახლებების მოძებნა"</string>
+    <string name="check_for_updates_description" msgid="1347667778199095160">"დარწმუნდით, რომ დაინსტალირებული აპები განახლებულია"</string>
+    <string name="see_all_compatible_apps" msgid="6791146164535475726">"ყველა თავსებადი აპის ნახვა"</string>
+    <string name="see_all_compatible_apps_description" msgid="2092325337403254491">"Google Play-ზე აპების პოვნა"</string>
+    <string name="send_feedback" msgid="7756927746070096780">"გამოხმაურება"</string>
+    <string name="send_feedback_description" msgid="2887207112856240778">"გვითხარით, რომელ ჯანმრთელობის და ფიტნესის აპებში მუშაობა გსურთ Health Connect-ში"</string>
+    <string name="playstore_app_title" msgid="4138464328693481809">"Play Store"</string>
+    <string name="auto_delete_button" msgid="8536451792268513619">"ავტომატური წაშლა"</string>
+    <string name="auto_delete_title" msgid="8761742828224207826">"ავტომატური წაშლა"</string>
+    <string name="auto_delete_header" msgid="4258649705159293715">"აკონტროლეთ რამდენი ხანი ინახება თქვენი მონაცემები Health Connect-ში, დაგეგმეთ მათი წაშლა გარკვეული დროის შემდეგ"</string>
+    <string name="auto_delete_learn_more" msgid="7416469042791307994">"შეიტყვეთ მეტი ავტომატური წაშლის შესახებ"</string>
+    <string name="auto_delete_section" msgid="7732381000331475082">"მონაცემების ავტომატური წაᲨლა"</string>
+    <string name="range_after_x_months" msgid="3340127072680117121">"{count,plural, =1{# თვის შემდეგ}other{# თვის Შემდეგ}}"</string>
+    <string name="range_never" msgid="4429478261788361233">"არასოდეს"</string>
+    <string name="range_off" msgid="8178520557618184215">"გამორთული"</string>
+    <string name="auto_delete_rationale" msgid="5255442126521464878">"როდესაც თქვენ შეცვლით ამ პარამეტრებს, Health Connect წაშლის არსებულ მონაცემებს თქვენი ახალი პრეფერენციების ასახვისთვის"</string>
+    <string name="confirming_question_x_months" msgid="8204363800605282103">"{count,plural, =1{გსურთ მონაცემების ავტომატური წაᲨლა # თვის Შემდეგ?}other{გსურთ მონაცემების ავტომატური წაᲨლა # თვის Შემდეგ?}}"</string>
+    <string name="confirming_message_x_months" msgid="4798474593741471977">"{count,plural, =1{Health Connect ავტომატურად წაᲨლის ახალ მონაცემებს # თვის Შემდეგ ამის დაყენება ასევე წაშლის # თვეზე მეტი ხნის არსებულ მონაცემებს}other{Health Connect ავტომატურად წაᲨლის ახალ მონაცემებს # თვის Შემდეგ ამის დაყენება ასევე წაშლის # თვეზე მეტი ხნის არსებულ მონაცემებს}}"</string>
+    <string name="set_auto_delete_button" msgid="268450418318199197">"ავტოწაშლის დაყენება"</string>
+    <string name="deletion_started_title" msgid="1177766097121885025">"არსებული მონაცემები წაიშლება"</string>
+    <string name="deletion_started_x_months" msgid="6567199107249615612">"{count,plural, =1{Health Connect წაშლის # თვეზე მეტი ხნის ყველა მონაცემს. ამ ცვლილებების თქვენს დაკავშირებულ აპებში გამოჩენას შეიძლება ერთი დღე დასჭირდეს.}other{Health Connect წაშლის # თვეზე მეტი ხნის ყველა მონაცემს. ამ ცვლილებების თქვენს დაკავშირებულ აპებში გამოჩენას შეიძლება ერთი დღე დასჭირდეს.}}"</string>
+    <string name="deletion_started_category_list_section" msgid="3052940611815658991">"მონაცემები წაიᲨლება აქედან"</string>
+    <string name="deletion_started_done_button" msgid="1232018689825054257">"მზადაა"</string>
+    <string name="priority_dialog_title" msgid="7360654442596118085">"პრიორიტეტული აპების დაყენება"</string>
+    <string name="priority_dialog_message" msgid="6971250365335018184">"თუ ერთზე მეტი აპი დაამატებს <xliff:g id="DATA_TYPE">%s</xliff:g>-ის მონაცემებს, Health Connect პრიორიტეტს მიანიჭებს სიის სათავეში მყოფ აპს. ჩავლებით გადაიტანეთ აპები მათი გადაწყობისთვის."</string>
+    <string name="priority_dialog_positive_button" msgid="2503570694373675092">"შენახვა"</string>
+    <string name="action_drag_label_move_up" msgid="4221641798253080966">"ზემოთ გადატანა"</string>
+    <string name="action_drag_label_move_down" msgid="3448000958912947588">"ქვემოთ გადატანა"</string>
+    <string name="action_drag_label_move_top" msgid="5114033774108663548">"ზემოთ ატანა"</string>
+    <string name="action_drag_label_move_bottom" msgid="3117764196696569512">"ბოლოში ჩამოტანა"</string>
+    <string name="reorder_button_content_description" msgid="2685032520710743533">"<xliff:g id="SELECTED_APP">%s</xliff:g>-ის პრიორიტეტის სიაში ჩავლების და გადაწყობის ღილაკი"</string>
+    <string name="remove_button_content_description" msgid="6170490900032612048">"ღილაკი <xliff:g id="SELECTED_APP">%s</xliff:g>-ის ამოსაშლელად პრიორიტეტების სიიდან"</string>
+    <string name="reorder_button_action_description" msgid="5197462036756192214">"გადასაწყობად ორმაგად შეეხეთ და ჩაავლეთ"</string>
+    <string name="search_keywords_home" msgid="5386515593026555327">"ფიტნესი, ველნესი"</string>
+    <string name="search_keywords_permissions" msgid="7821010295153350533">"ნებართვები"</string>
+    <string name="search_keywords_data" msgid="5359602744325490523">"ჯანმრთელობის დაკავშირება, ჯანმრთელობის მონაცემები, ჯანმრთელობის კატეგორიები, მონაცემების წვდომა, აქტივობა, სხეულის გაზომვები, ციკლის თვალყურის დევნება, კვება, ძილი, სასიცოცხლო მნიშვნელობები"</string>
+    <string name="search_breadcrumbs_permissions" msgid="2667471090347475796">"Health Connect &gt; აპის ნებართვები"</string>
+    <string name="search_breadcrumbs_data" msgid="6635428480372024040">"Health Connect &gt; მონაცემები და წვდომა"</string>
+    <string name="search_connected_apps" msgid="8180770761876928851">"აპების ძიება"</string>
+    <string name="no_results" msgid="4007426147286897998">"შედეგები არ არის"</string>
+    <string name="help" msgid="6028777453152686162">"დახმარება"</string>
+    <string name="request_route_header_title" msgid="6599707039845646714">"გსურთ <xliff:g id="APP_NAME">%1$s</xliff:g> წვდომა ამ სავარჯიშო მარშრუტზე Health Connect-ში?"</string>
+    <string name="request_route_disclaimer_notice" msgid="8060511384737662598">"ეს აპი შეძლებს წაიკითხოს თქვენი წარსული მდებარეობა მარშრუტზე"</string>
+    <string name="date_owner_format" msgid="4431196384037157320">"<xliff:g id="DATE">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g>"</string>
+    <string name="request_route_info_header_title" msgid="4149969049719763190">"სავარჯიშო მარშრუტები მოიცავენ ინფორმაციას მდებარეობის შესახებ"</string>
+    <string name="request_route_info_who_can_see_data_title" msgid="858355329937113994">"ვის შეუძლია ამ მონაცემების ნახვა?"</string>
+    <string name="request_route_info_who_can_see_data_summary" msgid="2439434359808367150">"მხოლოდ აპებს, რომელთაც წვდომას მიანიჭებთ სავარჯიშო მარშრუტზე"</string>
+    <string name="request_route_info_access_management_title" msgid="3222594923675464852">"როგორ ვმართო წვდომა?"</string>
+    <string name="request_route_info_access_management_summary" msgid="2606548838292829495">"სავარჯიშო მარშრუტებზე აპის წვდომის მართვა შეგიძლიათ Health Connect-ის პარამეტრებში"</string>
+    <string name="request_route_allow" msgid="4427372851821847274">"მარშრუტის დაშვება"</string>
+    <string name="request_route_allow_all" msgid="314830698958736916">"ყველა მარშრუტის დაშვება"</string>
+    <string name="request_route_dont_allow" msgid="1186236234664957228">"უარყოფა"</string>
+    <string name="route_permissions_always_allow" msgid="1383816362804293137">"ყოველთვის დაშვება"</string>
+    <string name="route_permissions_label" msgid="5201501195020295860">"ვარჯიშის მარშრუტის გაზიარება"</string>
+    <string name="route_permissions_summary" msgid="4670908225783213910">"ამ აპის წვდომის კონტროლი დაკავშირებული აპებიდან ვარჯიშის მარშრუტებზე"</string>
+    <string name="route_permissions_ask" msgid="3927020960754781917">"შემეკითხე ყოველთვის"</string>
+    <string name="route_permissions_deny" msgid="4263802925221258853">"უარყოფა"</string>
+    <string name="exercise_permission_dialog_enable_title" msgid="4310997044811843391">"გსურთ ორივე ტიპის მონაცემების ჩართვა?"</string>
+    <string name="exercise_permission_dialog_disable_title" msgid="1011777519918396883">"გსურთ ორივე ტიპის მონაცემების გათიშვა?"</string>
+    <string name="exercise_permission_dialog_enabled_summary" msgid="3404390796688813585">"<xliff:g id="APP_NAME">%1$s</xliff:g> საჭიროებს კითხვაზე წვდომას ვარჯიშის მარშრუტების ჩასართავად"</string>
+    <string name="exercise_permission_dialog_disable_summary" msgid="397599718182778347">"<xliff:g id="APP_NAME">%1$s</xliff:g> მოითხოვს ვარჯიშზე წვდომას ვარჯიშის მარშრუტების ჩასართავად"</string>
+    <string name="exercise_permission_dialog_positive_button" msgid="4545939654888655556">"დიახ"</string>
+    <string name="exercise_permission_dialog_negative_button" msgid="7433304732406274998">"არა"</string>
+    <string name="back_button" msgid="780519527385993407">"უკან"</string>
+    <string name="loading" msgid="2526615755685950317">"მიმდინარეობს ჩატვირთვა…"</string>
+    <string name="migration_in_progress_screen_title" msgid="6564515269988205874">"მიმდინარეობს ინტეგრაცია"</string>
+    <string name="migration_in_progress_screen_integration_details" msgid="5916989113111973466">"მიმდინარეობს Health Connect-ის ინტეგრაცია Android სისტემასთან.\n\nთქვენი მონაცემების და ნებართვების გადატანას გარკვუელი დრო დასჭირდება."</string>
+    <string name="migration_in_progress_screen_integration_dont_close" msgid="2095732208438772444">"არ დახუროთ აპი სანამ არ მიიღებთ შეტყობინებას იმის შესახებ, რომ ეს პროცესი დასრულებულია."</string>
+    <string name="migration_in_progress_notification_title" msgid="8873411008158407737">"მიმდინარეობს Health Connect-ის ინტეგრაცია"</string>
+    <string name="migration_update_needed_screen_title" msgid="3260466598312877429">"საჭიროა განახლება"</string>
+    <string name="migration_update_needed_screen_details" msgid="7984745102006782603">"მიმდინარეობს Health Connectის-ის იტეგრაცია Android სისტემასთან, ასე რომ შეგიძლიათ უშუალოდ მიწვდეთ თქვენი პარამეტრებიდან."</string>
+    <string name="update_button" msgid="4544529019832009496">"განახლება"</string>
+    <string name="migration_update_needed_notification_content" msgid="478899618719297517">"დაიწყეთ ეს განახლება რათა Health Connect-მა შეძლოს ინტეგრაცია თქვენი სისტემის პარამეტრებთან"</string>
+    <string name="migration_update_needed_notification_action" msgid="1219223694165492000">"ახლავე განახლება"</string>
+    <string name="migration_module_update_needed_notification_title" msgid="5428523284357105379">"საჭიროა სისტემის განახლება"</string>
+    <string name="migration_module_update_needed_action" msgid="7211167950758064289">"გაგრძელებამდე, განაახლეთ თქვენი ტელეფონის სისტემა."</string>
+    <string name="migration_module_update_needed_restart" msgid="1246884613546321798">"თუ თქვენ უკვე განაახლეთ თქვენი ტელეფონის სისტემა, სცადეთ ტელეფონის გადატვირთვა ინტეგრაციის გასაგრძელებლად"</string>
+    <string name="migration_app_update_needed_notification_title" msgid="8971076370900025444">"Health Connect საჭიროებს განახლებას"</string>
+    <string name="migration_app_update_needed_action" msgid="3289432528592774601">"გაგრძელებამდე, განაახლეთ Health Connect აპი ბოლო ვერსიამდე."</string>
+    <string name="migration_more_space_needed_screen_title" msgid="1535473230886051579">"საჭიროა დამატებითი სივრცე"</string>
+    <string name="migration_more_space_needed_screen_details" msgid="621140247825603412">"Health Connect საჭიროებს <xliff:g id="SPACE_NEEDED">%1$s</xliff:g> მეხსიერების საცავს თქვენს ტელეფონში ინტეგრაციის გასაგრძელებლად.\n\nგაასუფთავეთ გარკვეული სივრცე თქვენს ტელეფონში და შემდეგ ისევ სცადეთ.."</string>
+    <string name="try_again_button" msgid="8745496819992160789">"ხელახლა ცდა"</string>
+    <string name="free_up_space_button" msgid="4141013808635654695">"მეხსიერების გათავისუფლება"</string>
+    <string name="migration_more_space_needed_notification_title" msgid="8238155395120107672">"საჭიროა დამატებითი სივრცე"</string>
+    <string name="migration_more_space_needed_notification_content" msgid="4034728181940567836">"Health Connect საჭიროებს <xliff:g id="SPACE_NEEDED">%1$s</xliff:g> მეხსიერებას საცავში თქვენს ტელეფონში ინტეგრაციის გასაგრძელებლად."</string>
+    <string name="migration_paused_screen_title" msgid="8041170155372429894">"ინტეგრაცია დაპაუზებულია"</string>
+    <string name="migration_paused_screen_details" msgid="5898311710030340187">"Health Connect-ის აპი დაიხურა მისი Android სისტემასთან ინტეგრაციისას.\n\nდააწკაპუნეთ ღილაკზე „განახლება“ აპის ხელახლა გასახსნელად და გააგრძელეთ თქვენი მონაცემების და ნებართვების გადატანა."</string>
+    <string name="migration_paused_screen_details_timeout" msgid="353768000785837394">"თქვენი Health Connect-ის მონაცემების შესანახად, დაასრულეთ ეს <xliff:g id="TIME_NEEDED">%1$s</xliff:g>-ში"</string>
+    <string name="resume_button" msgid="2255148549862208047">"გაგრძელება"</string>
+    <string name="migration_paused_notification_title" msgid="4368414714202113077">"ინტეგრაცია დაპაუზებულია"</string>
+    <string name="migration_paused_notification_content" msgid="1950511270109811771">"Health Connect-ის ინტეგრაცია Android სისტემაში დაპაუზებულია. შეეხეთ გასაგრძელებლად"</string>
+    <string name="resume_migration_banner_title" msgid="4443957114824045317">"ინტეგრაციის გაგრძელება"</string>
+    <string name="resume_migration_banner_description" msgid="6236230413670826036">"შეეხეთ Health Connect-ის Android სისტემასთან ინტეგრაციის გასაგრძელებლად. თქვენი მონაცემების სისრულის შესანარჩუნებლად, დაასრულეთ ეს <xliff:g id="TIME_NEEDED">%1$s</xliff:g>-ში"</string>
+    <string name="resume_migration_banner_description_fallback" msgid="6060444898839211883">"შეეხეთ Health Connect-ის Android სისტემასთან ინტეგრაციის გასაგრძელებლად."</string>
+    <string name="resume_migration_banner_button" msgid="2112318760107756469">"გაგრძელება"</string>
+    <string name="resume_migration_notification_title" msgid="8859575633668908327">"განაახლეთ Health Connect-ის ინტეგრაცია"</string>
+    <string name="resume_migration_notification_content" msgid="46172108837648715">"თქვენი მონაცემების სისრულის შესანარჩუნებლად, დაასრულეთ ეს <xliff:g id="TIME_NEEDED">%1$s</xliff:g>-ში"</string>
+    <string name="app_update_needed_banner_title" msgid="4724335956851853802">"საჭიროა აპის განახლება"</string>
+    <string name="app_update_needed_banner_description_single" msgid="1114809360264027362">"<xliff:g id="APP_NAME">%1$s</xliff:g> საჭიროებს განახლებებს Health Connect-თან სინქრონიზაციის გასაგრძელებლად"</string>
+    <string name="app_update_needed_banner_description_multiple" msgid="4660700626698013764">"ზოგიერთ აპს Health Connect-თან სინქრონიზაციის გასაგრძელებლად სჭირდება განახლება"</string>
+    <string name="app_update_needed_banner_button" msgid="8223115764065649627">"განახლებების მოძებნა"</string>
+    <string name="app_update_needed_banner_learn_more_button" msgid="7269232067819258160">"შეიტყვეთ მეტი"</string>
+    <string name="migration_pending_permissions_dialog_title" msgid="6019552841791757048">"მიმდინარეობს Health Connect-ის ინტეგრაცია"</string>
+    <string name="migration_pending_permissions_dialog_content" msgid="6350115816948005466">"Health Connect მზადაა თქვენს Android სისტემასთან ინტეგრაციისათვის. თუ <xliff:g id="APP_NAME">%1$s</xliff:g>-ს ახლა წვდომას მიანიჭებთ, გარკვეულმა ფუნქციებმა შეიძლება ვერ იმუშავონ ინტეგრაციის დასრულებამდე."</string>
+    <string name="migration_pending_permissions_dialog_content_apps" msgid="6417173899016940664">"Health Connect მზადაა თქვენს Android სისტემასთან ინტეგრაციისათვის. თუ აპებს წვდომას ახლა მიანიჭებთ, გარკვეულმა ფუნქციებმა შეიძლება ვერ იმუშაოს ინტეგრაციის დასრულებამდე."</string>
+    <string name="migration_pending_permissions_dialog_button_continue" msgid="258571372365364506">"გაგრძელება"</string>
+    <string name="migration_pending_permissions_dialog_button_start_integration" msgid="754910196871313049">"ინტეგრაციის დაწყება"</string>
+    <string name="migration_in_progress_permissions_dialog_title" msgid="2188354144857156984">"მიმდინარეობს Health Connect-ის ინტეგრაცია"</string>
+    <string name="migration_in_progress_permissions_dialog_content" msgid="2249793103623253693">"მიმდინარეობს Health Connect-ის ინტეგრაცია Android სისტემასთან.\n\nთქვენ მიიღებთ შეტყობინებას, როდესაც ეს პროცესი დასრულ;დება და შეგიძლიათ გამოიყენოთ <xliff:g id="APP_NAME">%1$s</xliff:g> Health Connec-თან ერთად."</string>
+    <string name="migration_in_progress_permissions_dialog_content_apps" msgid="8653954808926889199">"მიმდინარეობს Health Connect-ის ინტეგრაცია Android სისტემასთან.\n\nპროცესის დასრულების შემდეგ მიიღებთ შეტყობინებას და შეგეძლებათ Health Connect-ის გამოყენება."</string>
+    <string name="migration_in_progress_permissions_dialog_button_got_it" msgid="3437208109334974656">"გასაგებია"</string>
+    <string name="migration_not_complete_dialog_title" msgid="3725576338159027149">"Health Connect-ის ინტეგრაცია არ დასრულებულა"</string>
+    <string name="migration_not_complete_dialog_content" msgid="4992771587233088606">"თქვენ მიიღებთ შეტყობინებას, როდესაც ის კვლავ ხელმისაწვდომი იქნება."</string>
+    <string name="migration_not_complete_dialog_button" msgid="3271842109680807482">"გასაგებია"</string>
+    <string name="migration_not_complete_notification_title" msgid="7392885522310227293">"Health Connect-ის ინტეგრაცია არ დასრულებულა"</string>
+    <string name="migration_not_complete_notification_action" msgid="757041885992445657">"ვრცლად"</string>
+    <string name="migration_complete_notification_title" msgid="4988631739109332404">"Health Connect-ის ინტეგრაცია დასრულდა"</string>
+    <string name="migration_complete_notification_action" msgid="5350322865206331186">"გახსნილი"</string>
+    <string name="migration_whats_new_dialog_title" msgid="2349465358457105228">"სიახლეები"</string>
+    <string name="migration_whats_new_dialog_content" msgid="1271560399054864488">"Health Connect-ზე წვდომა უკვე პირდაპირ თქვენი პარამეტრებიდან შეგიძლიათ. ნებისმიერ დროს შეგიძლიათ Health Connect აპის დეინსტალაცია საცავში მეხსიერების გასათავისუფლებლად."</string>
+    <string name="migration_whats_new_dialog_button" msgid="642575552457587805">"გასაგებია"</string>
+    <string name="data_restore_in_progress_screen_title" msgid="2516161353003274764">"მიმდინარეობს აღდგენა"</string>
+    <string name="data_restore_in_progress_content" msgid="2684897189974069361">"Health Connect აღადგენს მონაცემებსა და ნებართვებს. დასრულებას გარკვეული დრო დასჭირდება."</string>
+    <string name="data_restore_in_progress_dialog_title" msgid="9097805833675345598">"მიმდინარეობს Health Connect-ით აღდგენა"</string>
+    <string name="data_restore_in_progress_dialog_button" msgid="2096525382430589845">"გასაგებია"</string>
+    <string name="data_restore_pending_banner_title" msgid="6792157138348551175">"საჭიროა განახლება"</string>
+    <string name="data_restore_pending_banner_content" msgid="7631240781262092142">"მონაცემების აღდგენის გაგრძელებამდე განაახლეთ თქვენი ტელეფონის სისტემა."</string>
+    <string name="data_restore_pending_banner_button" msgid="2150345659341456815">"ახლავე განახლება"</string>
+    <string name="data_totals_header" msgid="8316977153276216025">"მონაცემთა ჯამი"</string>
+    <string name="app_sources_header" msgid="6343062519512947665">"აპის წყაროები"</string>
+    <string name="data_sources_footer" msgid="6414387142919741183">"დაამატეთ აპის წყაროები სიაში, რათა ნახოთ, როგორ შეიძლება შეიცვალოს მონაცემთა ჯამი. ამ სიიდან აპის ამოშლა შეაჩერებს მას, შეიტანოს წვლილი სრულ რაოდენობაში, მაგრამ მას მაინც ექნება ჩაწერის ნებართვები."</string>
+    <string name="data_sources_empty_state" msgid="1899652759274805556">"აპის წყარო არ არის"</string>
+    <string name="data_sources_empty_state_footer" msgid="8933950342291569638">"მას შემდეგ, რაც მიანიჭებთ აპს <xliff:g id="CATEGORY_NAME">%1$s</xliff:g>-ის მონაცემების ჩაწერის ნებართვას, წყაროები აქ გამოჩნდება."</string>
+    <string name="data_sources_help_link" msgid="7740264923634947915">"როგორ მუშაობს წყაროები და პრიორიტეტები"</string>
+    <string name="data_sources_add_app" msgid="319926596123692514">"დაამატეთ აპი"</string>
+    <string name="edit_data_sources" msgid="79641360876849547">"აპების წყაროების რედაქტირება"</string>
+    <string name="default_app_summary" msgid="6183876151011837062">"მოწყობილობის ნაგულისხმევი"</string>
+    <string name="app_data_title" msgid="6499967982291000837">"აპის მონაცემები"</string>
+    <string name="no_data_footer" msgid="4777297654713673100">"მონაცემები იმ აპებიდან, რომლებსაც Health Connect-ზე აქვს წვდომა, აქ გამოჩნდება"</string>
+    <string name="date_picker_day" msgid="3076687507968958991">"დღე"</string>
+    <string name="date_picker_week" msgid="1038805538316142229">"კვირა"</string>
+    <string name="date_picker_month" msgid="3560692391260778560">"თვე"</string>
+    <string name="this_week_header" msgid="1280121922548216973">"ეს კვირა"</string>
+    <string name="last_week_header" msgid="5194448963146719382">"გასული კვირა"</string>
+    <string name="this_month_header" msgid="2452395268894677189">"ეს თვე"</string>
+    <string name="last_month_header" msgid="1359164797239191253">"გასული თვე"</string>
+    <string name="tab_entries" msgid="3402700951602029493">"ჩანაწერები"</string>
+    <string name="tab_access" msgid="7818197975407243701">"წვდომა"</string>
+</resources>

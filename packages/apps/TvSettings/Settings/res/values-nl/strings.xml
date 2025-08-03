@@ -1,0 +1,1145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2014 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="settings_app_name" msgid="7931201304065140909">"Instellingen"</string>
+    <string name="launcher_settings_app_name" msgid="1459269619779675736">"Instellingen"</string>
+    <string name="launcher_network_app_name" msgid="8311763462169735002">"Netwerk"</string>
+    <string name="launcher_restricted_profile_app_name" msgid="3324091425480935205">"Beperkt profiel"</string>
+    <string name="general_action_yes" msgid="1303080504548165355">"Ja"</string>
+    <string name="general_action_no" msgid="674735073031386948">"Nee"</string>
+    <string name="action_on_title" msgid="1074972820237738324">"Aan"</string>
+    <string name="action_off_title" msgid="3598665702863436597">"Uit"</string>
+    <string name="action_on_description" msgid="9146557891514835767">"Aan"</string>
+    <string name="action_off_description" msgid="1368039592272701910">"Uit"</string>
+    <string name="agree" msgid="8155497436593889753">"Akkoord"</string>
+    <string name="disagree" msgid="7402998517682194430">"Niet akkoord"</string>
+    <string name="enabled" msgid="5127188665060746381">"Aangezet"</string>
+    <string name="disabled" msgid="4589065923272201387">"Uitgezet"</string>
+    <string name="unavailable" msgid="1610732303812180196">"Niet beschikbaar"</string>
+    <string name="allow" msgid="6982558814345894019">"Toestaan"</string>
+    <string name="deny" msgid="8291577308813053917">"Weigeren"</string>
+    <string name="header_category_suggestions" msgid="106077820663753645">"Suggesties"</string>
+    <string name="header_category_quick_settings" msgid="3785334008768367890">"Snelle instellingen"</string>
+    <string name="header_category_general_settings" msgid="3897615781153506434">"Algemene instellingen"</string>
+    <string name="dismiss_suggestion" msgid="6200814545590126814">"Deze suggestie afwijzen"</string>
+    <string name="hotwording_title" msgid="2606899304616599026">"\'Hey Google\'-detectie"</string>
+    <string name="hotwording_summary" msgid="2170375928302175449">"Praat tegen de Google Assistent wanneer je wilt"</string>
+    <string name="header_category_device" msgid="3023893663454705969">"Apparaat"</string>
+    <string name="header_category_preferences" msgid="3738388885555798797">"Voorkeuren"</string>
+    <string name="header_category_accessories" msgid="6479803330480847199">"Afstandsbediening en accessoires"</string>
+    <string name="header_category_personal" msgid="7880053929985150368">"Persoonlijk"</string>
+    <string name="connect_to_network" msgid="4133686359319492392">"Verbinding maken met netwerk"</string>
+    <string name="add_an_account" msgid="2601275122685226096">"Account toevoegen"</string>
+    <string name="accounts_category_title" msgid="7286858931427579845">"Accounts en inloggen"</string>
+    <string name="accounts_category_summary_no_account" msgid="3053606166993074648">"Geen accounts"</string>
+    <string name="accounts_category_summary" msgid="7617932110389860822">"{count,plural, =1{# account}other{# accounts}}"</string>
+    <string name="accounts_slice_summary" msgid="1571012157154521119">"Mediaservices, Assistent, betalingen"</string>
+    <string name="connectivity_network_category_title" msgid="8226264889892008114">"Netwerk en internet"</string>
+    <string name="sound_category_title" msgid="7899816751041939518">"Geluid"</string>
+    <string name="applications_category_title" msgid="7112019490898586223">"Apps"</string>
+    <string name="device_pref_category_title" msgid="8292572846154873762">"Apparaatvoorkeuren"</string>
+    <string name="accessibility_category_title" msgid="1552664829936369592">"Toegankelijkheid"</string>
+    <string name="remotes_and_accessories_category_title" msgid="4795119810430255047">"Afstandsbedieningen en accessoires"</string>
+    <string name="display_and_sound_category_title" msgid="9203309625380755860">"Weergave en geluid"</string>
+    <string name="help_and_feedback_category_title" msgid="7036505833991003031">"Hulp en feedback"</string>
+    <string name="privacy_category_title" msgid="8552430590908463601">"Privacy"</string>
+    <string name="privacy_device_settings_category" msgid="5018334603278648524">"Apparaatinstellingen"</string>
+    <string name="privacy_account_settings_category" msgid="5786591549945777400">"Accountinstellingen"</string>
+    <string name="privacy_assistant_settings_title" msgid="4524957824712623680">"Google Assistent"</string>
+    <string name="privacy_purchases_settings_title" msgid="6490965297061569673">"Betaling en aankopen"</string>
+    <string name="privacy_app_settings_category" msgid="858250971978879266">"App-instellingen"</string>
+    <string name="privacy_category_summary" msgid="3534434883380511043">"Locatie, gebruiks- en diagnostische gegevens, advertenties"</string>
+    <string name="add_account" msgid="7386223854837017129">"Account toevoegen"</string>
+    <string name="unknown_account" msgid="5159580666787047518">"Onbekend account"</string>
+    <string name="account_header_remove_account" msgid="8573697553061331373">"Account verwijderen"</string>
+    <string name="account_sync" msgid="4315295293211313989">"Gesynchroniseerde apps kiezen"</string>
+    <string name="sync_now" msgid="4335217984374620551">"Nu synchroniseren"</string>
+    <string name="sync_in_progress" msgid="8081367667406185785">"Synchroniseren…"</string>
+    <string name="last_synced" msgid="8371967816955123864">"Laatst gesynchroniseerd: <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <string name="sync_disabled" msgid="6652778349371079140">"Uitgezet"</string>
+    <string name="account_remove" msgid="8456848988853890155">"Account verwijderen"</string>
+    <string name="account_remove_failed" msgid="5654411101098531690">"Kan account niet verwijderen"</string>
+    <!-- no translation found for sync_item_title (5884138264243772176) -->
+    <skip />
+    <string name="sync_one_time_sync" msgid="1665961083810584134">"Nu synchroniseren<xliff:g id="LAST_SYNC_TIME">
+%1$s</xliff:g>"</string>
+    <string name="sync_failed" msgid="2998289556481804047">"Synchronisatie mislukt"</string>
+    <string name="sync_active" msgid="1621239982176888680">"Synchronisatie actief"</string>
+    <string name="connectivity_wifi" msgid="1138689464484009184">"Wifi"</string>
+    <string name="connectivity_ethernet" msgid="4270588618633681766">"Ethernet"</string>
+    <string name="connectivity_summary_ethernet_connected" msgid="2612843587731520061">"Ethernet verbonden"</string>
+    <string name="connectivity_summary_no_network_connected" msgid="6111160695454212460">"Geen netwerk verbonden"</string>
+    <string name="connectivity_summary_wifi_disabled" msgid="7819225159680467324">"Wifi staat uit"</string>
+    <string name="wifi_setting_always_scan" msgid="431846292711998602">"Scannen altijd beschikbaar"</string>
+    <string name="wifi_setting_always_scan_context" msgid="1092998659666221222">"De locatieservice en andere apps van Google laten scannen naar netwerken, zelfs wanneer wifi uitstaat"</string>
+    <string name="wifi_setting_always_scan_content_description" msgid="484630053450137332">"Scannen altijd beschikbaar, de locatieservice en andere apps van Google laten scannen naar netwerken, zelfs wanneer wifi uitstaat"</string>
+    <string name="wifi_setting_enable_wifi" msgid="5276730445393952969">"Wifi"</string>
+    <string name="connectivity_hint_message" msgid="5638304246522516583">"Verbinding maken met netwerk"</string>
+    <string name="connectivity_network_diagnostics" msgid="4396132865849151854">"Netwerkdiagnose"</string>
+    <string name="apps_recently_used_category_title" msgid="7877660412428813933">"Recent geopende apps"</string>
+    <string name="apps_see_all_apps" msgid="2002886135933443688">"Alle apps bekijken"</string>
+    <string name="apps_permissions_category_title" msgid="8099660060701465267">"Rechten"</string>
+    <string name="overlay_security_slice_title" msgid="4895032817538300187"></string>
+    <string name="update_slice_title" msgid="6553763903108611747"></string>
+    <string name="all_apps_title" msgid="3717294436135280133">"Alle apps"</string>
+    <string name="all_apps_show_system_apps" msgid="1260688031005374302">"Systeem-apps tonen"</string>
+    <string name="all_apps_installed" msgid="8217778476185598971">"Geïnstalleerde apps"</string>
+    <string name="all_apps_other" msgid="4420174882983813158">"Systeem-apps"</string>
+    <string name="all_apps_disabled" msgid="2776041242863791053">"Uitgezette apps"</string>
+    <string name="device_daydream" msgid="2631191946958113220">"Screensaver"</string>
+    <string name="device_display" msgid="244634591698925025">"Weergave"</string>
+    <string name="device_display_sound" msgid="7399153506435649193">"Weergave en geluid"</string>
+    <string name="device_sound" msgid="8616320533559404963">"Geluid"</string>
+    <string name="device_surround_sound" msgid="1889436002598316470">"Surround sound"</string>
+    <string name="device_sound_effects" msgid="2000295001122684957">"Systeemgeluiden"</string>
+    <string name="device_apps" msgid="2134756632245008919">"Apps"</string>
+    <string name="device_storage" msgid="8540243547121791073">"Opslag"</string>
+    <string name="device_reset" msgid="6115282675800077867">"Terugzetten op fabrieksinstellingen"</string>
+    <string name="device_backup_restore" msgid="3634531946308269398">"Back-up en herstel"</string>
+    <string name="device_factory_reset" msgid="1110189450013225971">"Terugzetten op fabrieksinstellingen"</string>
+    <string name="device_calibration" msgid="2907914144048739705">"Kalibratie"</string>
+    <string name="device_energy_saver" msgid="6611757996220443028">"Timer voor uitzetten"</string>
+    <string name="device_energy_saver_summary" msgid="5306058475316008429">"Stel timers in om de tv uit te zetten en energie te besparen"</string>
+    <string name="overlay_internal_slice_title" msgid="6427352417573831625"></string>
+    <string name="device_fastpair" msgid="1235240814051277047">"Apparaten"</string>
+    <string name="surround_sound_select_formats" msgid="6070283650131226239">"Indelingen selecteren"</string>
+    <string name="surround_sound_category_title" msgid="5688539514178173911">"Surround sound"</string>
+    <string name="surround_sound_format_ac3" msgid="4759143098751306492">"Dolby Digital"</string>
+    <string name="surround_sound_format_e_ac3" msgid="6923129088903887242">"Dolby Digital Plus"</string>
+    <string name="surround_sound_format_dts" msgid="8331816247117135587">"DTS"</string>
+    <string name="surround_sound_format_dts_hd" msgid="4268947520371740146">"DTS-HD"</string>
+    <string name="surround_sound_format_dts_uhd" msgid="4340749818133578788">"DTS:X"</string>
+    <string name="surround_sound_format_dolby_mat" msgid="3029804841912462928">"Dolby Atmos met Dolby TrueHD"</string>
+    <string name="surround_sound_format_dolby_truehd" msgid="5113046743572967088">"Dolby TrueHD"</string>
+    <string name="surround_sound_format_e_ac3_joc" msgid="3360344066462262996">"Dolby Atmos met Dolby Digital Plus"</string>
+    <string name="surround_sound_format_dra" msgid="6102878163986662443">"DRA"</string>
+    <string name="surround_sound_auto_info" msgid="4829346839183591680">"Opmerking: De optie Automatisch werkt misschien niet als je apparaat de ondersteunde indelingen niet goed rapporteert."</string>
+    <string name="surround_sound_auto_title" msgid="4892922385727913277">"Automatisch: alleen de indelingen aanzetten die worden ondersteund door je audio-uitvoerapparaat "</string>
+    <string name="surround_sound_auto_summary" msgid="7073023654150720285">"Als deze optie is geselecteerd, staat het systeem toe dat apps een geluidsindeling selecteren die wordt ondersteund door je apparaatketen. Apps kunnen een andere indeling kiezen dan die met de hoogste kwaliteit."</string>
+    <string name="surround_sound_none_title" msgid="1600095173519889326">"Geen: nooit surround sound gebruiken"</string>
+    <string name="surround_sound_manual_title" msgid="4935447605070985537">"Handmatig: selectief elke indeling aan- of uitzetten die door dit apparaat wordt ondersteund, ongeacht wat je audio-uitvoerapparaat ondersteunt."</string>
+    <string name="surround_sound_manual_summary" msgid="5155535847461070572">"Als deze optie is geselecteerd, kun je handmatig geluidsindelingen uitzetten die worden ondersteund door je apparaatketen, maar problemen met afspelen veroorzaken. Geluidsindelingen die niet worden ondersteund door je apparaatketen, kunnen worden aangezet. In sommige gevallen kunnen apps een andere indeling kiezen dan die met de hoogste kwaliteit."</string>
+    <string name="surround_sound_enable_unsupported_dialog_title" msgid="9155579373370356463">"Niet-ondersteunde geluidsindeling aanzetten?"</string>
+    <string name="surround_sound_enable_unsupported_dialog_desc" msgid="1901648758103522741">"Je aangesloten audioapparaat ondersteunt deze indeling niet. Dit kan leiden tot onverwacht gedrag, zoals plop- of harde geluiden van je apparaat."</string>
+    <string name="surround_sound_enable_unsupported_dialog_cancel" msgid="3499147437078761105">"Annuleren"</string>
+    <string name="surround_sound_enable_unsupported_dialog_ok" msgid="7466983147896640444">"Toch wijzigen"</string>
+    <string name="surround_sound_supported_title" msgid="4873195851187547020">"ONDERSTEUNDE INDELINGEN"</string>
+    <string name="surround_sound_unsupported_title" msgid="2302820271700954900">"NIET-ONDERSTEUNDE INDELINGEN"</string>
+    <string name="surround_sound_format_info" msgid="5671866505653542934">"INFORMATIE OVER INDELING"</string>
+    <string name="surround_sound_show_formats" msgid="1929849219042916469">"Indelingen tonen"</string>
+    <string name="surround_sound_hide_formats" msgid="7770931097236868238">"Indelingen verbergen"</string>
+    <string name="surround_sound_enabled_formats" msgid="5159269040069877148">"AANGEZETTE INDELINGEN"</string>
+    <string name="surround_sound_disabled_formats" msgid="2250466936859455802">"UITGEZETTE INDELINGEN"</string>
+    <string name="surround_sound_disabled_format_info_clicked" msgid="463393349034930031">"Als je de indeling wilt aanzetten, wijzig je de indelingsselectie in Handmatig."</string>
+    <string name="surround_sound_enabled_format_info_clicked" msgid="4003154853054756792">"Als je de indeling wilt uitzetten, wijzig je de indelingsselectie in Handmatig."</string>
+    <string name="display_category_title" msgid="247804007525046312">"Weergave"</string>
+    <string name="advanced_display_settings_title" msgid="6293280819870140631">"Geavanceerde weergave- instellingen"</string>
+    <string name="hdmi_cec_settings_title" msgid="7120729705063868627">"HDMI-CEC"</string>
+    <string name="advanced_sound_settings_title" msgid="319921303039469139">"Geavanceerde geluidsinstellingen"</string>
+    <string name="game_mode_title" msgid="7280816243531315755">"Gamemode toestaan"</string>
+    <string name="match_content_dynamic_range_title" msgid="2794980556561655838">"Dynamisch bereik van content matchen"</string>
+    <string name="match_content_dynamic_range_summary" msgid="2255683926227355398">"Als je deze optie aanzet, schakelt het systeem tussen verschillende indelingen voor dynamisch bereik om de content te matchen. Dit kan zorgen voor een zwart scherm terwijl de indeling wordt gewijzigd.\n\nKlik op Geavanceerde weergave-instellingen voor meer opties voor dynamisch bereik."</string>
+    <string name="preferred_dynamic_range_title" msgid="5064883672337010588">"Voorkeur voor dynamisch bereik"</string>
+    <string name="preferred_dynamic_range_selection_system_title" msgid="4505030483876080996">"Systeemvoorkeur voor conversie"</string>
+    <string name="preferred_dynamic_range_selection_system_desc" msgid="5712920601553613576">"Hiermee regelt het systeem de indelingsconversie"</string>
+    <string name="preferred_dynamic_range_selection_system_summary" msgid="4509062596428781094">"Als deze optie is geselecteerd, kiest het systeem een geschikt dynamisch bereik voor je scherm. Content wordt zo nodig naar dit dynamische bereik geconverteerd."</string>
+    <string name="preferred_dynamic_range_selection_passthrough_desc" msgid="4831260397179583737">"Hiermee wordt de indeling aangepast aan die van de content"</string>
+    <string name="preferred_dynamic_range_selection_force_title" msgid="4448836594133973103">"Conversie afdwingen"</string>
+    <string name="preferred_dynamic_range_selection_force_desc" msgid="1418542349290684513">"Conversie naar een voorkeursindeling wordt afgedwongen"</string>
+    <string name="preferred_dynamic_range_selection_force_summary" msgid="8381058061765216239">"Hiermee wordt conversie naar een voorkeursindeling afgedwongen. Dit kan gevolgen hebben voor andere instellingen in de weergavemodus of HDR-indeling."</string>
+    <string name="preferred_dynamic_range_selection_force_sdr_title" msgid="3135104063034317252">"Altijd naar SDR"</string>
+    <string name="preferred_dynamic_range_selection_force_hdr_title" msgid="1032587815433139859">"Altijd naar <xliff:g id="HDR_TYPE">%s</xliff:g>"</string>
+    <string name="preferred_dynamic_range_force_dialog_title" msgid="6865110024863661702">"Wil je HDR-uitvoer afdwingen?"</string>
+    <string name="preferred_dynamic_range_force_dialog_desc" msgid="7758323258282201656">"Conversie naar <xliff:g id="HDR_TYPE">%s</xliff:g> wordt standaard afgedwongen."</string>
+    <string name="preferred_dynamic_range_force_dialog_desc_4k30_issue" msgid="4938418395391206131">"Je scherm krijgt een resolutie van 1080p bij 60 Hz. Deze optie is niet compatibel met je scherm als het een resolutie van 4K bij 60 Hz heeft."</string>
+    <string name="selection_dolby_vision_not_supported_sidebar" msgid="8994591316574824115">"Dolby Vision wordt niet ondersteund met de huidige resolutie. Als je Dolby Vision handmatig aanzet, wordt de resolutie van je beeldscherm gewijzigd in 1080p 60 Hz."</string>
+    <string name="manual_dolby_vision_format_on_4k60_title" msgid="4172263676512376500">"Resolutie wijzigen in 1080p 60 Hz?"</string>
+    <string name="dynamic_range_selection_force_dv_title" msgid="8070148109262327094">"Conversie naar Dolby Vision altijd afdwingen"</string>
+    <string name="dynamic_range_selection_force_dv_summary" msgid="1052851029985095562">"Als Dolby Vision uitstaat in HDR-indelingen in Geavanceerde weergave-instellingen, kun je dit opnieuw aanzetten door conversie naar Dolby Vision af te dwingen."</string>
+    <string name="dynamic_range_selection_force_hdr10_title" msgid="1221688206945051384">"Conversie naar HDR10 altijd afdwingen"</string>
+    <string name="dynamic_range_selection_force_hdr10_summary" msgid="7784573527636502784">"Als HDR10 uitstaat in HDR-indelingen in Geavanceerde weergave-instellingen, kun je dit opnieuw aanzetten door conversie naar HDR10 af te dwingen."</string>
+    <string name="dynamic_range_selection_force_hlg_title" msgid="3976190987768712696">"Conversie naar HLG altijd afdwingen"</string>
+    <string name="dynamic_range_selection_force_hlg_summary" msgid="5371949016689544001">"Als HLG uitstaat in HDR-indelingen in Geavanceerde weergave-instellingen, kun je dit opnieuw aanzetten door conversie naar HLG af te dwingen."</string>
+    <string name="dynamic_range_selection_force_hdr10plus_title" msgid="1305556000063625735">"Conversie naar HDR10+ altijd afdwingen"</string>
+    <string name="dynamic_range_selection_force_hdr10plus_summary" msgid="918038386222537401">"Als HDR10+ uitstaat in HDR-indelingen in Geavanceerde weergave-instellingen, kun je dit opnieuw aanzetten door conversie naar HDR10+ af te dwingen."</string>
+    <string name="dynamic_range_selection_force_sdr_title" msgid="1063579223517652945">"Conversie naar SDR altijd afdwingen"</string>
+    <string name="dynamic_range_selection_force_sdr_summary" msgid="2874771365465898941">"Door conversie naar SDR af te dwingen, zet je alle indelingen uit in de HDR-indelingen in Geavanceerde weergave-instellingen."</string>
+    <string name="match_content_frame_rate_title" msgid="153291168560947689">"Gelijk houden met framesnelheid van content"</string>
+    <string name="match_content_frame_rate_seamless" msgid="5577846750811067585">"Alleen naadloos"</string>
+    <string name="match_content_frame_rate_seamless_summary" msgid="2737466163964133210">"Als de app hierom vraagt, laat je apparaat de uitvoer overeenkomen met de oorspronkelijke framesnelheid van de content die je bekijkt, maar ALLEEN als op je tv een naadloze overgang mogelijk is."</string>
+    <string name="match_content_frame_rate_seamless_not_supported_summary" msgid="98559950465123792">"Je verbonden scherm biedt geen ondersteuning voor naadloze overgangen voor vernieuwingssnelheden. Deze optie heeft geen effect tenzij je overschakelt naar een scherm dat dit ondersteunt."</string>
+    <string name="match_content_frame_rate_non_seamless" msgid="2702658727234710031">"Altijd"</string>
+    <string name="match_content_frame_rate_non_seamless_summary" msgid="6831699459487130055">"Als de app hierom vraagt, probeert je apparaat de uitvoer te laten overeenkomen met de oorspronkelijke framesnelheid van de content die je bekijkt. Je scherm kan een seconde leeg zijn als de videoweergave wordt afgesloten of geopend."</string>
+    <string name="match_content_frame_rate_never" msgid="1678354793095148423">"Nooit"</string>
+    <string name="match_content_frame_rate_never_summary" msgid="742977618080396095">"Zelfs als de app hierom vraagt, probeert je apparaat nooit de uitvoer te laten overeenkomen met de oorspronkelijke framesnelheid van de content die je bekijkt."</string>
+    <string name="font_scale_settings_title" msgid="4114019544800225980">"Tekstgrootte"</string>
+    <string name="font_scale_item_detail" msgid="1558315053348778805">"Schalen tot <xliff:g id="SCALE">%1$d</xliff:g>%%"</string>
+    <string name="font_scale_sample_text_title" msgid="5239266611413037261">"Voorbeeldtekst"</string>
+    <string name="font_scale_preview_text_title" msgid="8056182208511371119">"De tovenaar van Oz"</string>
+    <string name="font_scale_preview_text_subtitle" msgid="677394182922188048">"Hoofdstuk 11: De prachtige Smaragden Stad van Oz"</string>
+    <string name="font_scale_preview_text_body" msgid="7890679265084738383">"Hoewel hun ogen werden beschermd door de groene bril, werden Dorothy en haar vrienden eerst verblind door de schittering van de prachtige Stad. Langs de straten stonden schitterende huizen van groen marmer die waren versierd met glinsterende smaragden. Ze liepen over een pad dat was geplaveid met hetzelfde groene marmer. In de voegen tussen de stenen waren dichte rijen smaragden ingelegd die fonkelden in het zonlicht. De ramen waren van groen glas en zelfs de lucht boven de Stad had een groene tint, en ook de zonnestralen waren groen. \n\nEr waren veel mensen op straat: mannen, vrouwen en kinderen. Ze droegen allemaal groene kleren en hadden een groengetinte huid. Ze keken Dorothy en haar vreemde gezelschap verbaasd aan. De kinderen verstopten zich achter hun moeders toen ze de Leeuw zagen, maar niemand sprak hen aan. Er waren veel winkels in de straat en Dorothy zag dat alles wat ze verkochten, groen was. Er waren groene snoepjes en groene popcorn te koop, maar ook groene schoenen, groene hoeden en allerlei groene kleding. Een man verkocht groene limonade, en toen kinderen die kochten, zag Dorothy dat ze ervoor betaalden met groene muntjes. \n\nEr leken geen paarden of andere dieren te zijn. De mannen vervoerden dingen in kleine groene handkarren, die ze voor zich uit duwden. Iedereen leek gelukkig, tevreden en welvarend."</string>
+    <string name="hdr_format_selection_title" msgid="4042679694363850581">"Indelingsselectie"</string>
+    <string name="hdr_format_selection_auto_title" msgid="2370148695440344232">"Automatisch"</string>
+    <string name="hdr_format_selection_manual_title" msgid="2077604650196987438">"Handmatig"</string>
+    <string name="hdr_format_selection_auto_desc" msgid="1542210944552409996">"Door apparaat gerapporteerde indelingen gebruiken"</string>
+    <string name="hdr_format_selection_manual_desc" msgid="8865649615882146772">"Handmatig indelingen kiezen uit de beschikbare indelingen"</string>
+    <string name="hdr_format_supported_title" msgid="1458594819224612431">"ONDERSTEUNDE INDELINGEN"</string>
+    <string name="hdr_format_unsupported_title" msgid="715318408107924941">"NIET-ONDERSTEUNDE INDELINGEN"</string>
+    <string name="hdr_format_sdr" msgid="7211377112392255102">"SDR"</string>
+    <string name="hdr_format_hdr10" msgid="8063543267227491062">"HDR"</string>
+    <string name="hdr_format_hlg" msgid="454510079939620321">"HLG"</string>
+    <string name="hdr_format_hdr10plus" msgid="4371652089162162876">"HDR10+"</string>
+    <string name="hdr_format_dolby_vision" msgid="7367264615042999587">"Dolby Vision"</string>
+    <string name="hdr_format_selection_auto_summary" msgid="7384637194191436727">"Als deze optie is geselecteerd, staat het systeem toe dat apps een HDR-indeling selecteren die wordt ondersteund door je apparaatketen. Apps kunnen een andere indeling kiezen dan die met de hoogste kwaliteit."</string>
+    <string name="hdr_format_selection_manual_summary" msgid="7886959642083639353">"Als je dit selecteert, kun je handmatig HDR-indelingen uitzetten die je apparaatketen ondersteunt, maar afspeelproblemen veroorzaken. HDR-indelingen die je apparaatketen niet ondersteunt, kunnen niet gedwongen worden aangezet. Apps kunnen een andere indeling kiezen dan die met de hoogste kwaliteit."</string>
+    <string name="hdr_format_info" msgid="5652559220799426076">"INFORMATIE OVER INDELING"</string>
+    <string name="hdr_show_formats" msgid="171065892975445851">"Indelingen tonen"</string>
+    <string name="hdr_hide_formats" msgid="8561568998525727230">"Indelingen verbergen"</string>
+    <string name="hdr_enabled_formats" msgid="8527870623949982774">"AANGEZETTE INDELINGEN"</string>
+    <string name="hdr_disabled_formats" msgid="4758522849421497896">"UITGEZETTE INDELINGEN"</string>
+    <string name="hdr_enabled_format_info_clicked" msgid="1466675962665861040">"Als je de indeling wilt uitzetten, wijzig je de indelingsselectie in Handmatig."</string>
+    <string name="resolution_selection_title" msgid="2873993320284587853">"Resolutie"</string>
+    <string name="resolution_selection_auto_title" msgid="4738671207331027385">"Automatisch"</string>
+    <string name="resolution_selection_dialog_title" msgid="4029798035133645272">"Resolutie is gewijzigd"</string>
+    <string name="resolution_selection_with_mode_dialog_title" msgid="5011192408613100514">"Resolutie wijzigen in %1$s?"</string>
+    <string name="resolution_selection_dialog_desc" msgid="3667357611495669701">"Selecteer OK om vanaf nu %1$s te gebruiken."</string>
+    <string name="resolution_selection_disabled_dolby_vision_dialog_desc" msgid="7952404018654828187">"Dolby Vision wordt niet ondersteund op %1$s en wordt uitgezet in Geavanceerde weergave-instellingen"</string>
+    <string name="resolution_hdr_description_info" msgid="2408761621976850238">"Deze modus ondersteunt het volgende: %1$s\nOp sommige tv\'s moet je Verbeterde HDMI misschien aanzetten om meer HDR-indelingen mogelijk te maken. Check je tv-instellingen om te zien of dit wordt ondersteund."</string>
+    <string name="resolution_selection_dialog_cancel" msgid="3683616572317946129">"Annuleren"</string>
+    <string name="resolution_selection_dialog_ok" msgid="3123351228545013492">"OK"</string>
+    <string name="resolution_selection_hz" msgid="4425902505388495637">"Hz"</string>
+    <string name="resolution_display_mode" msgid="6633857172598855480">"<xliff:g id="RESOLUTION">%1$s</xliff:g> (<xliff:g id="REFRESH_RATE">%2$s</xliff:g> Hz)"</string>
+    <string name="device_storage_clear_cache_title" msgid="14370154552302965">"Gecachte gegevens wissen?"</string>
+    <string name="device_storage_clear_cache_message" msgid="4352802738505831032">"De gecachte gegevens voor alle apps wissen."</string>
+    <string name="default_audio_output_settings_title" msgid="5441937324539531999"></string>
+    <string name="accessories_add" msgid="413764175035531452">"Accessoire toevoegen"</string>
+    <string name="accessory_state_pairing" msgid="15908899628218319">"Koppelen..."</string>
+    <string name="accessory_state_connecting" msgid="6560241025917621212">"Verbinden…"</string>
+    <string name="accessory_state_error" msgid="8353621828816824428">"Kan niet koppelen"</string>
+    <string name="accessory_state_canceled" msgid="4794837663402063770">"Geannuleerd"</string>
+    <string name="accessory_state_paired" msgid="3296695242499532000">"Gekoppeld"</string>
+    <string name="accessory_options" msgid="774592782382321681">"Accessoire"</string>
+    <string name="accessory_unpair" msgid="2473411128146068804">"Koppeling ongedaan maken"</string>
+    <string name="accessory_battery" msgid="2283700366184703548">"Batterij <xliff:g id="PERCENTAGE">%1$d</xliff:g>%%"</string>
+    <string name="accessory_unpairing" msgid="2529195578082286563">"Koppeling met apparaat ongedaan maken…"</string>
+    <string name="accessory_connected" msgid="5229574480869175180">"Verbonden"</string>
+    <string name="accessory_change_name" msgid="6493717176878500683">"Naam wijzigen"</string>
+    <string name="accessory_change_name_title" msgid="451188562035392238">"Accessoire een nieuwe naam geven"</string>
+    <string name="accessories_add_accessibility_title" msgid="1300294413423909579">"Bluetooth-koppeling."</string>
+    <string name="accessories_add_title" msgid="7704824893011194433">"Zoeken naar accessoires…"</string>
+    <string name="accessories_add_bluetooth_inst" msgid="2508151218328384366">"Voordat je je bluetooth-apparaten koppelt, zorg je dat ze in de koppelingsstand staan."</string>
+    <string name="accessories_autopair_msg" msgid="2501824457418285019">"Er is een apparaat gevonden. Dit apparaat wordt automatisch over <xliff:g id="COUNTDOWN">%1$s</xliff:g> seconden gekoppeld"</string>
+    <string name="error_action_not_supported" msgid="5377532621386080296">"Deze actie wordt niet ondersteund"</string>
+    <string name="bluetooth_pairing_request" msgid="6120176967230348092">"Bluetooth-koppelingsverzoek"</string>
+    <string name="bluetooth_confirm_passkey_msg" msgid="7397401633869153520">"Als je wilt koppelen met &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;, zorg je ervoor dat deze toegangscode wordt vermeld: &lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;"</string>
+    <string name="bluetooth_incoming_pairing_msg" msgid="8587851808387685613">"Van: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;Koppelen met dit apparaat?"</string>
+    <string name="bluetooth_display_passkey_pin_msg" msgid="6934651048757228432">"Koppelen met: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;Typ het volgende: &lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt; en druk op Enter."</string>
+    <string name="bluetooth_enter_pin_msg" msgid="8905524093007140634">"Koppelen met: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;, &lt;br&gt;Typ de vereiste pincode voor het apparaat:"</string>
+    <string name="bluetooth_enter_passkey_msg" msgid="889584097447402492">"Koppelen met: &lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;, &lt;br&gt;Typ de vereiste toegangscode voor het apparaat:"</string>
+    <string name="bluetooth_pin_values_hint" msgid="6237371515577342950">"Meestal 0000 of 1234"</string>
+    <string name="bluetooth_pair" msgid="2410285813728786067">"Koppelen"</string>
+    <string name="bluetooth_cancel" msgid="4415185529332987034">"Annuleren"</string>
+    <string name="bluetooth_device_connected_toast" msgid="1896195197089204806">"%1$s gekoppeld"</string>
+    <string name="bluetooth_device_disconnected_toast" msgid="7459239447363156499">"Ontkoppeld van %1$s"</string>
+    <string name="connected_devices_slice_pref_title" msgid="6761921505544005991">"Afstandsbedieningen en accessoires"</string>
+    <string name="bluetooth_toggle_title" msgid="3808904783456336104">"Bluetooth"</string>
+    <string name="bluetooth_toggle_confirmation_dialog_title" msgid="3906746631391295717">"Bluetooth uitzetten"</string>
+    <string name="bluetooth_toggle_confirmation_dialog_summary" msgid="9017044450625172698">"Je hebt geen toegang tot de Google Assistent vanaf je afstandsbediening als bluetooth uit staat."</string>
+    <string name="bluetooth_pair_accessory" msgid="5508750142754420984">"Accessoire koppelen"</string>
+    <string name="bluetooth_known_devices_category" msgid="6895470515631452961">"Accessoires"</string>
+    <string name="bluetooth_official_remote_category" msgid="5817814488268307170">"Afstandsbediening"</string>
+    <string name="bluetooth_official_remote_entry_title" msgid="6699700335229570038">"Instellingen voor afstandsbediening"</string>
+    <string name="bluetooth_ir_entry_title" msgid="6927284710576530479">"Afstandsbedieningsknoppen instellen"</string>
+    <string name="bluetooth_ir_entry_subtitle" msgid="4606207128353416151">"Volume bedienen, aan- en uitzetten en invoer selecteren op tv\'s, ontvangers en soundbars"</string>
+    <string name="bluetooth_connect_action_title" msgid="7715342395313781643">"Koppelen"</string>
+    <string name="bluetooth_connect_confirm" msgid="4769958536295137386">"Koppelen met %1$s"</string>
+    <string name="bluetooth_disconnect_action_title" msgid="1135513009197728480">"Ontkoppelen"</string>
+    <string name="bluetooth_disconnect_confirm" msgid="1445977623973613581">"Ontkoppelen van %1$s"</string>
+    <string name="bluetooth_rename_action_title" msgid="4200419902722729907">"Naam wijzigen"</string>
+    <string name="bluetooth_rename" msgid="7791922876280337194">"Apparaatnaam wijzigen"</string>
+    <string name="bluetooth_forget_action_title" msgid="2351140076684719196">"Vergeten"</string>
+    <string name="bluetooth_forget_confirm" msgid="5175414848391021666">"%1$s vergeten"</string>
+    <string name="bluetooth_serial_number_label" msgid="6639294603220209971">"Bluetooth-adres"</string>
+    <string name="bluetooth_connected_status" msgid="8629393539370085418">"Verbonden"</string>
+    <string name="bluetooth_disconnected_status" msgid="7617866963193224775">"Verbinding verbroken"</string>
+    <string name="bluetooth_empty_list_user_restricted" msgid="1610743588460010736">"Je hebt geen rechten om de Bluetooth-instellingen te wijzigen."</string>
+    <string name="bluetooth_toggle_active_audio_output_title" msgid="3715722506642793944">"Gebruiken voor tv-audio"</string>
+    <string name="send_feedback" msgid="936698637869795473">"Feedback sturen"</string>
+    <string name="launch_help" msgid="2607478763131952469">"Helpcentrum"</string>
+    <string name="system_cast" msgid="6081391679828510058">"Google Cast"</string>
+    <string name="system_date_time" msgid="5922833592234018667">"Datum en tijd"</string>
+    <string name="system_language" msgid="5516099388471974346">"Taal"</string>
+    <string name="language_empty_list_user_restricted" msgid="5430199913998605436">"Je hebt geen rechten om de apparaattaal te wijzigen."</string>
+    <string name="system_keyboard" msgid="1514460705385401872">"Toetsenbord"</string>
+    <string name="system_keyboard_autofill" msgid="8530944165814838255">"Toetsenbord en automatisch invullen"</string>
+    <string name="system_autofill" msgid="6983989261108020046">"Automatisch invullen"</string>
+    <string name="system_home" msgid="2149349845791104094">"Startscherm"</string>
+    <string name="system_search" msgid="3170169128257586925">"Zoeken"</string>
+    <string name="system_google" msgid="945985164023885276">"Google"</string>
+    <string name="system_security" msgid="1012999639810957132">"Beveiliging en beperkingen"</string>
+    <string name="system_speech" msgid="8779582280374089518">"Spraak"</string>
+    <string name="system_inputs" msgid="5552840337357572096">"Ingangen"</string>
+    <string name="system_inputs_devices" msgid="2158421111699829399">"Ingangen en apparaten"</string>
+    <string name="system_home_theater_control" msgid="6228949628173590310">"Bediening van thuisbioscoopsysteem"</string>
+    <string name="system_developer_options" msgid="8480844257066475479">"Ontwikkelaarsopties"</string>
+    <string name="accessibility_none" msgid="6355646833528306702">"Geen"</string>
+    <string name="system_diagnostic" msgid="1654842813331919958">"Gebruiks- en diagnostische gegevens"</string>
+    <string name="no_device_admins" msgid="4628974717150185625">"Geen apparaatbeheer-apps beschikbaar"</string>
+    <string name="security_enable_widgets_disabled_summary" msgid="7678529948487939871">"Uitgezet door beheerder"</string>
+    <string name="disabled_by_administrator_summary" msgid="3420979957115426764">"Niet beschikbaar"</string>
+    <string name="manage_device_admin" msgid="5714217234035017983">"Apps voor apparaatbeheer"</string>
+    <string name="number_of_device_admins_none" msgid="2734299122299837459">"Geen actieve apps"</string>
+    <string name="unlock_set_unlock_disabled_summary" msgid="108190334043671416">"Uitgezet door beheerder, versleutelingsbeleid of opslag certificaatgegevens"</string>
+    <string name="enterprise_privacy_settings" msgid="8226765895133003202">"Informatie over beheerd apparaat"</string>
+    <string name="enterprise_privacy_settings_summary_generic" msgid="5719549523275019419">"Wijzigingen en instellingen beheerd door je organisatie"</string>
+    <string name="enterprise_privacy_settings_summary_with_name" msgid="2866704039759872293">"Wijzigingen en instellingen beheerd door <xliff:g id="ORGANIZATION_NAME">%s</xliff:g>"</string>
+    <string name="enterprise_privacy_header" msgid="9221881402582661521">"Je organisatie kan instellingen wijzigen en software installeren op je apparaat om toegang te bieden tot je werkgegevens.\n\nNeem contact op met de beheerder van je organisatie voor meer informatie."</string>
+    <string name="enterprise_privacy_exposure_category" msgid="1555735251238636669">"Typen gegevens die je organisatie kan zien"</string>
+    <string name="enterprise_privacy_exposure_changes_category" msgid="7750498604032318318">"Wijzigingen door de beheerder van je organisatie"</string>
+    <string name="enterprise_privacy_device_access_category" msgid="7397106369136259850">"Je toegang tot dit apparaat"</string>
+    <string name="enterprise_privacy_enterprise_data" msgid="8135491104894522008">"Gegevens die zijn gekoppeld aan je werkaccount, zoals e-mail en agenda"</string>
+    <string name="enterprise_privacy_installed_packages" msgid="5012554762299490994">"Lijst met apps op je apparaat"</string>
+    <string name="enterprise_privacy_usage_stats" msgid="7062422823174345793">"Tijd en data besteed aan elke app"</string>
+    <string name="enterprise_privacy_network_logs" msgid="305782312671493780">"Logboek van het meest recente netwerkverkeer"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="2393617117911211486">"Recentste bugrapport"</string>
+    <string name="enterprise_privacy_security_logs" msgid="2573545327989145361">"Recentste beveiligingslogboek"</string>
+    <string name="enterprise_privacy_none" msgid="6660670916934417519">"Geen"</string>
+    <string name="enterprise_privacy_enterprise_installed_packages" msgid="7244796629052581085">"Geïnstalleerde apps"</string>
+    <string name="enterprise_privacy_apps_count_estimation_info" msgid="3875568975752197381">"Het aantal apps is een schatting die misschien geen apps omvat die zijn geïnstalleerd buiten de Play Store om."</string>
+    <string name="enterprise_privacy_number_packages_lower_bound" msgid="4518330667109848939">"{count,plural, =1{Minimaal # app}other{Minimaal # apps}}"</string>
+    <string name="enterprise_privacy_location_access" msgid="8978502415647245748">"Toegang tot locatie"</string>
+    <string name="enterprise_privacy_microphone_access" msgid="3746238027890585248">"Toegang tot microfoon"</string>
+    <string name="enterprise_privacy_camera_access" msgid="6258493631976121930">"Toegang tot camera"</string>
+    <string name="enterprise_privacy_enterprise_set_default_apps" msgid="5538330175901952288">"Standaard-apps"</string>
+    <string name="enterprise_privacy_number_packages" msgid="6256222390430349008">"{count,plural, =1{# app}other{# apps}}"</string>
+    <string name="enterprise_privacy_input_method" msgid="5814752394251833058">"Standaardtoetsenbord"</string>
+    <string name="enterprise_privacy_input_method_name" msgid="1088874503312671318">"Ingesteld op <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
+    <string name="enterprise_privacy_always_on_vpn_device" msgid="8845550514448914237">"Always-on VPN aangezet"</string>
+    <string name="enterprise_privacy_always_on_vpn_personal" msgid="6996782365866442280">"Always-on VPN aangezet in je persoonlijke profiel"</string>
+    <string name="enterprise_privacy_always_on_vpn_work" msgid="3674119583050531071">"Always-on VPN aangezet in je werkprofiel"</string>
+    <string name="enterprise_privacy_global_http_proxy" msgid="2818848848337527780">"Algemene HTTP-proxy ingesteld"</string>
+    <string name="enterprise_privacy_ca_certs_device" msgid="975646846291012452">"Vertrouwde certificaatgegevens"</string>
+    <string name="enterprise_privacy_ca_certs_personal" msgid="7641368559306519707">"Vertrouwde certificaatgegevens in je persoonlijke profiel"</string>
+    <string name="enterprise_privacy_ca_certs_work" msgid="2905939250974399645">"Vertrouwde certificaatgegevens in je werkprofiel"</string>
+    <string name="enterprise_privacy_number_ca_certs" msgid="5918439861975410142">"{count,plural, =1{# CA-certificaat}other{# CA-certificaten}}"</string>
+    <string name="enterprise_privacy_lock_device" msgid="3140624232334033641">"Beheerder kan het apparaat vergrendelen en het wachtwoord resetten"</string>
+    <string name="enterprise_privacy_wipe_device" msgid="1714271125636510031">"Beheerder kan alle apparaatgegevens verwijderen"</string>
+    <string name="enterprise_privacy_failed_password_wipe_device" msgid="8272298134556250600">"Aantal mislukte wachtwoordpogingen voordat alle apparaatgegevens worden verwijderd"</string>
+    <string name="enterprise_privacy_failed_password_wipe_work" msgid="1184137458404844014">"Aantal mislukte wachtwoordpogingen voordat de gegevens van het werkprofiel worden verwijderd"</string>
+    <string name="enterprise_privacy_number_failed_password_wipe" msgid="277415009661470768">"{count,plural, =1{# poging}other{# pogingen}}"</string>
+    <string name="do_disclosure_generic" msgid="8390478119591845948">"Dit apparaat wordt beheerd door je organisatie."</string>
+    <string name="do_disclosure_with_name" msgid="4755509039938948975">"Dit apparaat wordt beheerd door <xliff:g id="ORGANIZATION_NAME">%s</xliff:g>."</string>
+    <string name="do_disclosure_learn_more_separator" msgid="4226390963162716446">" "</string>
+    <string name="hdr_capability" msgid="3331021013422460270">"- %1$s"</string>
+    <string name="learn_more" msgid="820336467414665686">"Meer informatie"</string>
+    <string name="default_camera_app_title" msgid="4573905807226306484">"{count,plural, =1{Camera-app}other{Camera-apps}}"</string>
+    <string name="default_calendar_app_title" msgid="1533912443930743532">"Agenda-app"</string>
+    <string name="default_contacts_app_title" msgid="7792041146751261191">"Contacten-app"</string>
+    <string name="default_email_app_title" msgid="3712283056326496555">"{count,plural, =1{E-mailclient-app}other{E-mailclient-apps}}"</string>
+    <string name="default_map_app_title" msgid="9051013257374474801">"Kaart-app"</string>
+    <string name="default_phone_app_title" msgid="4833449131501871644">"{count,plural, =1{Telefoon-app}other{Telefoon-apps}}"</string>
+    <string name="default_browser_title" msgid="3612813200586492159">"Browser-app"</string>
+    <string name="app_names_concatenation_template_2" msgid="5297284354915830297">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
+    <string name="app_names_concatenation_template_3" msgid="4932774380339466733">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>, <xliff:g id="THIRD_APP_NAME">%3$s</xliff:g>"</string>
+    <string name="tutorials" msgid="7880770425872110455">"Trainingen"</string>
+    <string name="about_system_update" msgid="7421264399111367755">"Systeemupdate"</string>
+    <string name="system_update_description" msgid="998883510488461766">"Hierdoor wordt de systeemsoftware geüpdatet naar de nieuwste versie. Het apparaat start opnieuw op."</string>
+    <string name="system_update_content_description" msgid="5702888187682876466">"Systeemupdate, hierdoor wordt de systeemsoftware geüpdatet naar de nieuwste versie. Het apparaat start opnieuw op."</string>
+    <string name="about_preference" msgid="9112690446998150670">"Over"</string>
+    <string name="device_name" msgid="566626587332817733">"Apparaatnaam"</string>
+    <string name="restart_button_label" msgid="911750765086382990">"Opnieuw opstarten"</string>
+    <string name="about_legal_info" msgid="2148797328415559733">"Juridische informatie"</string>
+    <string name="about_legal_license" msgid="4056934178111674054">"Externe bron"</string>
+    <string name="about_terms_of_service" msgid="8514826341101557623">"Juridische informatie van Google"</string>
+    <string name="about_license_activity_unavailable" msgid="4559187037375581674">"Licentiegegevens zijn niet beschikbaar"</string>
+    <string name="about_model" msgid="9164284529291439296">"Model"</string>
+    <string name="device_mode" msgid="7258350575590118152">"Apparaatmodus"</string>
+    <string name="store_demo_mode" msgid="4382231515659362796">"Winkeldemo"</string>
+    <string name="about_version" msgid="6223547403835399861">"OS-versie van Android TV"</string>
+    <string name="about_serial" msgid="3432319328808745459">"Serienummer"</string>
+    <string name="about_build" msgid="8467840394761634575">"OS-build van Android TV"</string>
+    <string name="show_dev_countdown" msgid="4064986225625409361">"{count,plural, =1{Nog # stap en je bent ontwikkelaar}other{Nog # stappen en je bent ontwikkelaar}}"</string>
+    <string name="about_ads" msgid="7662896442040086522">"Advertenties"</string>
+    <string name="ads_description" msgid="8081069475265061074">"Je advertentie-instellingen beheren, zoals je advertentie-ID resetten."</string>
+    <string name="ads_content_description" msgid="1006489792324920289">"Advertenties, je advertentie-instellingen beheren, zoals je advertentie-ID resetten."</string>
+    <string name="show_dev_on" msgid="612741433124106067">"Je bent nu ontwikkelaar!"</string>
+    <string name="show_dev_already" msgid="1522591284776449818">"Niet nodig, je bent al een ontwikkelaar"</string>
+    <string name="device_info_default" msgid="2374506935205518448">"Onbekend"</string>
+    <string name="selinux_status" msgid="1146662734953021410">"SELinux-status"</string>
+    <string name="selinux_status_disabled" msgid="4027105362332795142">"Uitgezet"</string>
+    <string name="selinux_status_permissive" msgid="8694617578567517527">"Permissive (Tolerant)"</string>
+    <string name="selinux_status_enforcing" msgid="4140979635669643342">"Enforcing (Wordt afgedwongen)"</string>
+    <string name="additional_system_update_settings_list_item_title" msgid="1839534735929143986">"Aanvullende systeemupdates"</string>
+    <string name="ssl_ca_cert_warning" msgid="7836390021162211069">"Netwerk kan worden gemonitord"</string>
+    <string name="done_button" msgid="616159688526431451">"Klaar"</string>
+    <string name="sl_ca_cert_dialog_title" msgid="5104377991202801698">"{count,plural, =1{Certificaat vertrouwen of verwijderen}other{Certificaten vertrouwen of verwijderen}}"</string>
+    <string name="device_status" msgid="8266002761193692207">"Status"</string>
+    <string name="device_status_summary" msgid="3270932829412434985">"Netwerk, serienummers en andere informatie"</string>
+    <string name="manual" msgid="5683935624321864999">"Handleiding"</string>
+    <string name="regulatory_information" msgid="9107675969694713391">"Wettelijke informatie"</string>
+    <string name="device_feedback" msgid="4871903271442960465">"Feedback sturen over dit apparaat"</string>
+    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="4641790432171693921">"Bootloader is al ontgrendeld"</string>
+    <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="2979556699380115576">"Maak eerst verbinding met internet"</string>
+    <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="1946089732305102622">"Verbind met internet of neem contact op met je provider"</string>
+    <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5634005787486307657">"Niet beschikbaar op door provider vergrendelde apparaten"</string>
+    <string name="oem_lock_info_message" msgid="2165887409937351689">"Start het apparaat opnieuw op om de functie voor apparaatbeveiliging aan te zetten."</string>
+    <string name="automatic_storage_manager_freed_bytes" msgid="1654574152815129396">"<xliff:g id="SIZE">%1$s</xliff:g> in totaal beschikbaar gemaakt\n\nLaatst uitgevoerd op <xliff:g id="DATE">%2$s</xliff:g>"</string>
+    <string name="fcc_equipment_id" msgid="6731077083927000108">"Apparatuur-ID"</string>
+    <string name="baseband_version" msgid="5618116741093274294">"Smalbandversie"</string>
+    <string name="kernel_version" msgid="7265509054070001542">"Kernel-versie"</string>
+    <string name="status_unavailable" msgid="2033933928980193334">"Niet beschikbaar"</string>
+    <string name="device_status_title" msgid="9051569510258883673">"Status"</string>
+    <string name="battery_status_title" msgid="8850166742025222210">"Batterijstatus"</string>
+    <string name="battery_level_title" msgid="2672804570916248736">"Batterijniveau"</string>
+    <string name="status_bt_address" msgid="7190052214963950844">"Bluetooth-adres"</string>
+    <string name="status_up_time" msgid="1758102680983108313">"Bedrijfstijd"</string>
+    <string name="legal_information" msgid="1087445528481370874">"Juridische informatie"</string>
+    <string name="copyright_title" msgid="5879660711078649518">"Auteursrecht"</string>
+    <string name="license_title" msgid="4032466200355435641">"Licentie"</string>
+    <string name="terms_title" msgid="192888187310800678">"Algemene voorwaarden"</string>
+    <string name="webview_license_title" msgid="5370270485188947540">"Systeemlicentie voor WebView"</string>
+    <string name="consumer_information_title" msgid="7729729568416672733">"Consumentgegevens"</string>
+    <string name="consumer_information_message" msgid="205236637689468764">"Content die je op Android TV vindt, is afkomstig van externe partners zoals app-ontwikkelaars en filmstudio\'s, en van Google zelf. Ga voor meer informatie naar "<a href="g.co/tv/androidtvinfo">"g.co/tv/androidtvinfo"</a></string>
+    <string name="consumer_information_button_ok" msgid="6979480064600038080">"OK"</string>
+  <string-array name="wifi_signal_strength">
+    <item msgid="4475363344103354364">"Slecht"</item>
+    <item msgid="2098818614362343532">"Redelijk"</item>
+    <item msgid="2713050260700175954">"Goed"</item>
+    <item msgid="6005053494500517261">"Uitstekend"</item>
+  </string-array>
+    <string name="title_mac_address" msgid="7511588678922209883">"MAC-adres van apparaat"</string>
+    <string name="title_randomized_mac_address" msgid="3359532498635833471">"Willekeurig MAC-adres"</string>
+    <string name="title_signal_strength" msgid="5047116893338315998">"Signaalsterkte"</string>
+    <string name="title_random_mac_settings" msgid="6685812569356353378">"Privacy"</string>
+  <string-array name="random_mac_settings_entries">
+    <item msgid="3457228452595715533">"Willekeurig MAC-adres gebruiken (standaard)"</item>
+    <item msgid="2490415280467390067">"MAC-adres van apparaat gebruiken"</item>
+  </string-array>
+    <string name="mac_address_not_available" msgid="2992935344891853369">"Niet beschikbaar"</string>
+    <string name="mac_address_ephemeral_summary" msgid="3284374877361772531">"Willekeurig MAC-adres"</string>
+    <string name="title_ip_address" msgid="705842159484772807">"IP-adres"</string>
+    <string name="title_ssid" msgid="255328048344188682">"Geef de naam van het wifi-netwerk op"</string>
+    <string name="title_internet_connection" msgid="7502414094881828069">"Internetverbinding"</string>
+    <string name="connected" msgid="4981532275162345997">"Verbonden"</string>
+    <string name="not_connected" msgid="475810896484271663">"Geen verbinding"</string>
+    <string name="wifi_no_internet" msgid="27421689535934864">"Geen internet"</string>
+    <string name="wifi_saved" msgid="4354792774811431829">"Opgeslagen"</string>
+    <string name="wifi_bad_password" msgid="8686375382346768922">"Onjuist wachtwoord"</string>
+    <string name="wifi_short_password" msgid="7658809378390032385">"Wifi-wachtwoord is te kort"</string>
+    <string name="wifi_captive_portal" msgid="8262150024660339529">"Inloggen vereist"</string>
+    <string name="wifi_setting_header_other_options" msgid="217382325707026836">"Andere opties"</string>
+    <string name="wifi_setting_see_all" msgid="5048103047976316675">"Alles weergeven"</string>
+    <string name="wifi_setting_see_fewer" msgid="8585364493300703467">"Minder tonen"</string>
+    <string name="wifi_setting_available_networks" msgid="2096957819727319750">"Beschikbare netwerken"</string>
+    <string name="wifi_setting_other_options_add_network" msgid="6490215784178866978">"Nieuw netwerk toevoegen"</string>
+    <string name="wifi_setting_other_options_add_network_via_easyconnect" msgid="2869989555950644533">"Snel verbinding maken"</string>
+    <string name="wifi_setting_other_options_add_network_via_easyconnect_info_summary" msgid="4564538591168691865">"Met Snel verbinding maken kun je snel verbinding met je wifi-netwerk maken door een QR-code te scannen op je telefoon."</string>
+    <string name="security_type" msgid="2297615092250075696">"Type beveiliging"</string>
+    <string name="other_network" msgid="5299289104661858596">"Ander netwerk…"</string>
+    <string name="skip_network" msgid="3095529090560000692">"Overslaan"</string>
+    <string name="wifi_security_type_none" msgid="7001835819813531253">"Geen"</string>
+    <string name="wifi_security_type_wep" msgid="6407712450924151962">"WEP"</string>
+    <string name="wifi_security_type_wpa" msgid="9205358644485448199">"WPA/WPA2 PSK"</string>
+    <string name="wifi_security_type_eap" msgid="3948280751219829163">"802.1x EAP"</string>
+    <string name="title_wifi_no_networks_available" msgid="3696700321170616981">"Scannen…"</string>
+    <string name="title_wifi_could_not_save" msgid="7549912968719395764">"Kan configuratie voor <xliff:g id="SSID">%1$s</xliff:g> niet opslaan"</string>
+    <string name="title_wifi_could_not_connect" msgid="6654031057635481872">"Kan geen verbinding maken met <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_could_not_connect_timeout" msgid="7825788623604214601">"Kan <xliff:g id="SSID">%1$s</xliff:g> niet vinden"</string>
+    <string name="title_wifi_could_not_connect_authentication_failure" msgid="6626386897327862432">"Het wifi-wachtwoord is niet geldig"</string>
+    <string name="title_wifi_could_not_connect_ap_reject" msgid="5182833781690447828">"Het wifi-netwerk heeft de verbinding niet geaccepteerd"</string>
+    <string name="title_wifi_advanced_options" msgid="371185991282743258">"Proxy en IP-instellingen voor <xliff:g id="SSID">%1$s</xliff:g> configureren?"</string>
+    <string name="title_wifi_proxy_settings" msgid="1933444342984660569">"Proxyinstellingen"</string>
+    <string name="title_wifi_proxy_hostname" msgid="1242297002220870385">"Hostnaam van proxy:"</string>
+    <string name="title_wifi_proxy_port" msgid="566244407030390328">"Proxy-poort:"</string>
+    <string name="title_wifi_proxy_bypass" msgid="8752756240663231435">"Proxy omzeilen voor:"</string>
+    <string name="title_wifi_ip_settings" msgid="296029383749112888">"IP-instellingen"</string>
+    <string name="title_wifi_ip_address" msgid="5505806431042689276">"IP-adres:"</string>
+    <string name="title_wifi_gateway" msgid="4496416267930824360">"Gateway:"</string>
+    <string name="title_wifi_network_prefix_length" msgid="3200370297772096824">"Lengte van netwerkprefix:"</string>
+    <string name="title_wifi_dns1" msgid="1585965227665007553">"DNS 1:"</string>
+    <string name="title_wifi_dns2" msgid="4563319371301555072">"DNS 2:"</string>
+    <string name="title_wifi_proxy_settings_invalid" msgid="7698883245005941665">"Proxy-instellingen niet geldig"</string>
+    <string name="title_wifi_ip_settings_invalid" msgid="7283801973512992014">"IP-instellingen niet geldig"</string>
+    <string name="title_wifi_known_network" msgid="6162483884727898697">"<xliff:g id="SSID">%1$s</xliff:g> is een opgeslagen netwerk"</string>
+    <string name="title_wifi_scan_qr_code" msgid="7485605625055717874">"Scan de QR-code om verbinding te maken"</string>
+    <string name="wifi_action_try_again" msgid="8920677153891141148">"Opnieuw proberen"</string>
+    <string name="wifi_action_view_available_networks" msgid="609561604257828342">"Beschikbare netwerken bekijken"</string>
+    <string name="wifi_connecting" msgid="4234341255109283018">"Verbinding maken met <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_saving" msgid="320653339670641708">"Configuratie voor <xliff:g id="SSID">%1$s</xliff:g> opslaan"</string>
+    <string name="wifi_connect" msgid="2206086690065242121">"Verbinding maken"</string>
+    <string name="wifi_forget_network" msgid="4634016112624305571">"Netwerk vergeten"</string>
+    <string name="wifi_forget_network_description" msgid="4146715475962713899">"Hierdoor wordt de gebruikte info voor verbinding met dit netwerk gewist, waaronder een opgeslagen ww"</string>
+    <string name="wifi_scan_qr_code_description" msgid="6620444691131671132">" Maak verbinding met een wifi-netwerk door de QR-code te scannen op een mobiele telefoon en de instructies te volgen.\n \n Ga op een "<b>"Android-telefoon"</b>" naar Instellingen -&gt; Netwerk en internet -&gt; Wifi -&gt; Een wifi-netwerk selecteren -&gt; Geavanceerd -&gt; Apparaat toevoegen en scan de QR-code."</string>
+    <string name="wifi_scan_qr_code_back_description" msgid="8830716278283379280">"Druk op de terugknop om te annuleren"</string>
+    <string name="wifi_action_ok" msgid="6257483288047397880">"OK"</string>
+    <string name="wifi_setup_action_dont_change_network" msgid="2999582059217623090">"Doorgaan"</string>
+    <string name="wifi_setup_action_change_network" msgid="1603908238711710943">"Netwerk wijzigen"</string>
+    <string name="wifi_action_change_network" msgid="3943123581726966199">"Wijzigen"</string>
+    <string name="wifi_action_dont_change_network" msgid="2685585142299769847">"Niet wijzigen"</string>
+    <string name="wifi_action_advanced_yes" msgid="6192652088198093438">"OK"</string>
+    <string name="wifi_action_advanced_no" msgid="6152107256122343959">"Nee (aanbevolen)"</string>
+    <string name="wifi_action_proxy_none" msgid="4009573120495700922">"Geen"</string>
+    <string name="wifi_action_proxy_manual" msgid="7667686394955896293">"Handmatig"</string>
+    <string name="wifi_action_dhcp" msgid="6172127495589802964">"DHCP"</string>
+    <string name="wifi_action_static" msgid="8139559358727790887">"Statisch"</string>
+    <string name="wifi_action_status_info" msgid="3947061894001350963">"Statusinfo"</string>
+    <string name="wifi_action_advanced_options_title" msgid="2863126553877147921">"Geavanceerde opties"</string>
+    <string name="wifi_ip_settings_invalid_ip_address" msgid="4051342269154914595">"Geef een geldig IP-adres op"</string>
+    <string name="wifi_ip_settings_invalid_gateway" msgid="4511579679784872130">"Geef een geldig gateway-adres op"</string>
+    <string name="wifi_ip_settings_invalid_dns" msgid="5111100342560120360">"Geef een geldig DNS-adres op"</string>
+    <string name="wifi_ip_settings_invalid_network_prefix_length" msgid="2726889303835927777">"Geef een netw.prefixleng. tussen 0 en 32 tekens op"</string>
+    <string name="wifi_ip_address_description" msgid="7109677764979198618">"Geef een geldig IP-adres op.\nVoorbeeld: <xliff:g id="ID_1">192.168.1.128</xliff:g>"</string>
+    <string name="wifi_dns1_description" msgid="2287252520192279195">"Geef een geldig IP-adres op of laat dit leeg.\nVoorbeeld: <xliff:g id="ID_1">8.8.8.8</xliff:g>"</string>
+    <string name="wifi_dns2_description" msgid="6495565714252833784">"Geef een geldig IP-adres op of laat dit leeg.\nVoorbeeld: <xliff:g id="ID_1">8.8.4.4</xliff:g>"</string>
+    <string name="wifi_gateway_description" msgid="8902481147103929271">"Geef een geldig IP-adres op of laat dit leeg.\nVoorbeeld: <xliff:g id="ID_1">192.168.1.1</xliff:g>"</string>
+    <string name="wifi_network_prefix_length_description" msgid="2670994968279018896">"Geef een geldige lengte voor de netwerkprefix op.\nVoorbeeld: <xliff:g id="ID_1">24</xliff:g>"</string>
+    <string name="proxy_error_invalid_host" msgid="5629893736174170157">"Hostnaam is niet geldig"</string>
+    <string name="proxy_error_invalid_exclusion_list" msgid="1762079966901078116">"Deze uitsluitingslijst is niet geldig. Geef een door komma\'s gescheiden lijst met uitgesloten domeinen op."</string>
+    <string name="proxy_error_empty_port" msgid="692020249267351015">"Het veld \'Poort\' mag niet leeg blijven"</string>
+    <string name="proxy_error_empty_host_set_port" msgid="5347712018244852847">"Als het veld \'Host\' leeg is, laat je het veld \'Poort\' leeg"</string>
+    <string name="proxy_error_invalid_port" msgid="5307010810664745294">"Poort is niet geldig"</string>
+    <string name="proxy_warning_limited_support" msgid="4220553563487968684">"HTTP-proxy wordt gebruikt door de browser maar mogelijk niet door andere apps"</string>
+    <string name="proxy_port_description" msgid="6486205863098427787">"Geef een geldige poort op.\nVoorbeeld: <xliff:g id="ID_1">8080</xliff:g>"</string>
+    <string name="proxy_exclusionlist_description" msgid="5105504899364188296">"Geef een door komma\'s gescheiden lijst met uitgesloten domeinen op of laat dit leeg.\nVoorbeeld: <xliff:g id="ID_1">example.com,mycomp.test.com,localhost</xliff:g>"</string>
+    <string name="proxy_hostname_description" msgid="5520200112290557199">"Geef een geldige hostnaam op.\nVoorbeeld: <xliff:g id="ID_1">proxy.example.com</xliff:g>"</string>
+    <string name="title_wifi_eap_method" msgid="4351752615786996226">"EAP-methode kiezen voor <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_phase2_authentication" msgid="1167205033305931574">"phase2-verificatie kiezen voor <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_identity" msgid="6273917200971028259">"Identiteit opgeven voor <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="title_wifi_anonymous_identity" msgid="5965175781722004334">"Anonieme identiteit opgeven voor <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_setup_summary_title_connected" msgid="2725439590655448489">"Je bent verbonden met <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_summary_title_connected" msgid="201105022065577659">"Netwerk verbonden"</string>
+    <string name="wifi_summary_title_not_connected" msgid="7991004795297065201">"Niet verbonden met netwerk"</string>
+    <string name="wifi_summary_description_connected_to_wifi_network" msgid="8796747274977762311">"Je bent reeds verbonden met <xliff:g id="SSID">%1$s</xliff:g>. Wil je verbinding maken met een ander netwerk?"</string>
+    <string name="wifi_summary_unknown_network" msgid="8044143986439139664">"een onbekend netwerk"</string>
+    <string name="wifi_empty_list_user_restricted" msgid="7326314737931342236">"Je hebt geen rechten om het wifi-netwerk te wijzigen."</string>
+    <string name="title_ok" msgid="6500452958848127145">"OK"</string>
+    <string name="title_cancel" msgid="2337143367016419016">"Annuleren"</string>
+    <string name="storage_title" msgid="6637715914885228193">"Opslag"</string>
+    <string name="storage_available" msgid="8860901789290434209">"Beschikbaar"</string>
+    <string name="storage_size" msgid="5517261387579171381">"Totale ruimte: <xliff:g id="TOTAL_SPACE">%1$s</xliff:g>"</string>
+    <string name="storage_calculating_size" msgid="5716281278843281044">"Berekenen…"</string>
+    <string name="storage_apps_usage" msgid="8659915575274468924">"Apps"</string>
+    <string name="storage_downloads_usage" msgid="8429196848359517158">"Downloads"</string>
+    <string name="storage_dcim_usage" msgid="1890098882753254745">"Foto\'s en video\'s"</string>
+    <string name="storage_music_usage" msgid="5362871290115089474">"Audio"</string>
+    <string name="storage_media_misc_usage" msgid="3404230292054880339">"Diversen"</string>
+    <string name="storage_media_cache_usage" msgid="6397941751551207630">"Gecachete gegevens"</string>
+    <string name="storage_eject" msgid="3268870873944951902">"Uitwerpen"</string>
+    <string name="storage_format" msgid="5360900929128087085">"Wissen en formatteren"</string>
+    <string name="storage_format_as_private" msgid="77945551149326052">"Wissen en formatteren als apparaatopslag"</string>
+    <string name="storage_format_as_public" msgid="6745112917895223463">"Wissen en formatteren als verwisselbare opslag"</string>
+    <string name="storage_format_for_private" msgid="5380138334184923252">"Formatteren als apparaatopslag"</string>
+    <string name="storage_not_connected" msgid="4327902652748552794">"Geen verbinding"</string>
+    <string name="storage_migrate" msgid="9137556600192167701">"Gegevens migreren naar deze opslag"</string>
+    <string name="storage_migrate_away" msgid="7880100961434638430">"Gegevens migreren naar een andere opslag"</string>
+    <string name="storage_no_apps" msgid="95566375753627272">"Geen apps om een back-up van te maken"</string>
+    <string name="storage_forget" msgid="4671975563260507003">"Deze apparaatopslag vergeten"</string>
+    <string name="storage_forget_wall_of_text" msgid="230454348256179142">"Als je de apps of gegevens op deze drive wilt gebruiken, sluit je deze weer aan. Je kunt er ook voor kiezen dit opslagapparaat te vergeten als de drive niet beschikbaar is.\n\nAls je \'Vergeten\' kiest, gaan alle gegevens op de drive definitief verloren.\n\nJe kunt de apps later opnieuw installeren, maar de op de drive opgeslagen gegevens gaan verloren."</string>
+    <string name="storage_device_storage_section" msgid="22958375769694027">"Apparaatopslag"</string>
+    <string name="storage_removable_storage_section" msgid="280332107650735088">"Verwijderbare opslag"</string>
+    <string name="storage_reset_section" msgid="3896575204828589494">"Opnieuw instellen"</string>
+    <string name="storage_free_up" msgid="5719667150891467122">"Opslag vrijmaken"</string>
+    <string name="storage_free_up_clear_cached_data" msgid="858596875459698634">"Gecachte gegevens wissen"</string>
+    <string name="storage_free_up_clear_cached_data_summary" msgid="3111860361699185304">"<xliff:g id="SPACE">%1$s</xliff:g> vrijmaken"</string>
+    <string name="storage_free_up_clear_cached_data_info" msgid="719348815620748812">"Hiermee worden tijdelijke bestanden gewist die ruimte innemen. Dit is niet van invloed op opgeslagen gegevens zoals app-voorkeuren of offline video\'s en je hoeft niet opnieuw in te loggen bij apps."</string>
+    <string name="storage_free_up_clear_cached_data_confirm_title" msgid="5047418718048910850">"Gecachte gegevens wissen?"</string>
+    <string name="storage_free_up_clear_cached_data_confirm_description" msgid="4840728913914074729">"De gecachte gegevens voor alle apps wissen."</string>
+    <string name="storage_free_up_uninstall_apps" msgid="7755671754934975908">"Apps verwijderen"</string>
+    <string name="storage_mount_success" msgid="4459298609971461753">"<xliff:g id="NAME">%1$s</xliff:g> is gekoppeld"</string>
+    <string name="storage_mount_failure" msgid="8521666906216755903">"Kan <xliff:g id="NAME">%1$s</xliff:g> niet koppelen"</string>
+    <string name="storage_mount_adopted" msgid="8880688040694403520">"USB-opslag weer verbonden"</string>
+    <string name="storage_unmount_success" msgid="8024867595129715661">"<xliff:g id="NAME">%1$s</xliff:g> is veilig uitgeworpen"</string>
+    <string name="storage_unmount_failure" msgid="2228448194484319930">"Kan <xliff:g id="NAME">%1$s</xliff:g> niet veilig uitwerpen"</string>
+    <string name="storage_unmount_failure_cant_find" msgid="2890335341404932068">"Kan drive niet vinden om uit te werpen"</string>
+    <string name="storage_format_success" msgid="5599914756144012286">"<xliff:g id="NAME">%1$s</xliff:g> is geformatteerd"</string>
+    <string name="storage_format_failure" msgid="5619442934314277332">"Kan <xliff:g id="NAME">%1$s</xliff:g> niet formatteren"</string>
+    <string name="storage_wizard_format_as_private_title" msgid="7985715762649933211">"Formatteren als apparaatopslag"</string>
+    <string name="storage_wizard_format_as_private_description" msgid="6143406934742456154">"De USB-drive moet worden geformatteerd om deze te beveiligen. Na het formatteren werkt deze drive alleen met dit apparaat. Wanneer je formatteert, worden alle gegevens gewist die momenteel op de drive zijn opgeslagen. Als je wilt voorkomen dat je gegevens kwijtraakt, kun je eerst een back-up maken."</string>
+    <string name="storage_wizard_format_as_public_title" msgid="3546915348149438389">"Wissen en formatteren"</string>
+    <string name="storage_wizard_format_as_public_description" msgid="5849129772499352597">"Na formatteren kun je deze USB-drive gebruiken in andere apparaten. Alle gegevens worden gewist. Je kunt eerst een back-up maken door apps te verplaatsen naar een andere apparaatopslag."</string>
+    <string name="storage_wizard_format_progress_title" msgid="3875906251546380271">"USB-drive formatteren…"</string>
+    <string name="storage_wizard_format_progress_description" msgid="292229747129805538">"Dit kan even duren. Verwijder de drive niet."</string>
+    <string name="storage_wizard_migrate_choose_title" msgid="8743036821605231654">"Opslag kiezen om gegevens naartoe te migreren"</string>
+    <string name="storage_wizard_migrate_confirm_title" msgid="5086390005970210697">"Gegevens verplaatsen naar <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_migrate_confirm_description" msgid="918834441157741482">"Verplaats je foto\'s, bestanden en app-gegevens naar <xliff:g id="NAME">%1$s</xliff:g>. Dit kan enkele minuten duren. Tijdens het overzetten werken sommige apps niet."</string>
+    <string name="storage_wizard_migrate_confirm_action_move_now" msgid="7512917600174814567">"Nu verplaatsen"</string>
+    <string name="storage_wizard_migrate_confirm_action_move_later" msgid="6379986754827551474">"Later verplaatsen"</string>
+    <string name="storage_wizard_migrate_toast_success" msgid="6153579567666607584">"Gegevens overgezet naar <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_migrate_toast_failure" msgid="8580347235983040966">"Kan gegevens niet overzetten naar <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_migrate_progress_title" msgid="2623480667090826800">"Gegevens verplaatsen naar <xliff:g id="NAME">%1$s</xliff:g>…"</string>
+    <string name="storage_wizard_migrate_progress_description" msgid="4023358325977284145">"Dit kan even duren. Verwijder de schijf niet.\nTijdens het overzetten werken sommige apps niet."</string>
+    <string name="storage_wizard_format_slow_title" msgid="7640229918512394316">"Deze drive is langzaam."</string>
+    <string name="storage_wizard_format_slow_summary" msgid="3674023258060474037">"Je kunt doorgaan, maar apps die naar deze locatie worden verplaatst, kunnen vastlopen en de gegevensoverdracht kan lang duren. Je kunt overwegen een snellere drive te gebruiken voor betere prestaties."</string>
+    <string name="storage_wizard_format_action" msgid="3275676687226857170">"Formatteren"</string>
+    <string name="storage_wizard_backup_apps_action" msgid="1402199004931596519">"Back-up van apps maken"</string>
+    <string name="storage_wizard_back_up_apps_title" msgid="6225663573896846937">"Apps opgeslagen op <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_back_up_apps_and_data_title" msgid="7763611380573099978">"Apps en gegevens opgeslagen op <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="storage_wizard_back_up_apps_space_available" msgid="5741521038349239359">"<xliff:g id="SIZE">%1$s</xliff:g> beschikbaar"</string>
+    <string name="storage_wizard_eject_private_title" msgid="1336088625197134497">"Apparaatopslag uitwerpen"</string>
+    <string name="storage_wizard_eject_private_description" msgid="4341905730016007385">"Apps op deze apparaatopslag werken niet meer wanneer deze wordt uitgeworpen. Deze USB-drive is geformatteerd voor gebruik in dit apparaat en werkt niet in andere apparaten."</string>
+    <string name="storage_wizard_eject_progress_title" msgid="6025569356827683446">"<xliff:g id="NAME">%1$s</xliff:g> uitwerpen…"</string>
+    <string name="storage_wizard_move_app_title" msgid="6504922588346440942">"Gebruikte opslag"</string>
+    <string name="storage_wizard_move_app_progress_title" msgid="7058465372227392453">"<xliff:g id="NAME">%1$s</xliff:g> verplaatsen…"</string>
+    <string name="storage_wizard_move_app_progress_description" msgid="7673347796805764888">"Verwijder de schijf niet tijdens het verplaatsen.\nDe app <xliff:g id="APPNAME">%1$s</xliff:g> op dit apparaat is pas weer beschikbaar zodra het verplaatsen is voltooid."</string>
+    <string name="storage_wizard_forget_confirm_title" msgid="3709482471888830896">"Apparaatopslag vergeten?"</string>
+    <string name="storage_wizard_forget_confirm_description" msgid="5896860042525566767">"Als je \'Vergeten\' kiest, gaan alle gegevens op deze drive definitief verloren. Wil je doorgaan?"</string>
+    <string name="storage_wizard_forget_action" msgid="5609631662522950596">"Vergeten"</string>
+    <string name="storage_new_title" msgid="4768955281180255038">"USB-drive aangesloten"</string>
+    <string name="storage_new_action_browse" msgid="3355241742574072658">"Browsen"</string>
+    <string name="storage_new_action_adopt" msgid="6809707961170895964">"Instellen als apparaatopslag"</string>
+    <string name="storage_new_action_format_public" msgid="1964662216574764811">"Instellen als verwisselbare opslag"</string>
+    <string name="storage_new_action_eject" msgid="919249291814300000">"Uitwerpen"</string>
+    <string name="storage_missing_title" msgid="9068915586235805818">"<xliff:g id="NAME">%1$s</xliff:g> is verwijderd"</string>
+    <string name="storage_missing_description" msgid="6835620703133204249">"Sommige apps zijn niet beschikbaar of functioneren niet correct totdat de schijf opnieuw wordt aangesloten."</string>
+    <string name="insufficient_storage" msgid="4175940286022466535">"Niet voldoende opslagruimte."</string>
+    <string name="does_not_exist" msgid="4071082040759146781">"App bestaat niet."</string>
+    <string name="invalid_location" msgid="5571789982293787489">"De installatielocatie is niet geldig."</string>
+    <string name="system_package" msgid="8276098460517049146">"Systeemupdates kunnen niet worden geïnstalleerd op externe media."</string>
+    <string name="move_error_device_admin" msgid="4144472536756635173">"Apparaatbeheerder kan niet worden geïnstalleerd op externe media."</string>
+    <string name="learn_more_action" msgid="7972102006620925604">"Meer informatie"</string>
+    <string name="system_date" msgid="2503462662633178207">"Datum"</string>
+    <string name="system_time" msgid="8434726081412227535">"Tijd"</string>
+    <string name="system_set_date" msgid="5815123588301469720">"Datum instellen"</string>
+    <string name="system_set_time" msgid="7179243042276057341">"Tijd instellen"</string>
+    <string name="system_set_time_zone" msgid="6471564469883225195">"Tijdzone instellen"</string>
+    <string name="desc_set_time_zone" msgid="4926392006501180047">"<xliff:g id="OFFSET">%1$s</xliff:g>, <xliff:g id="NAME">%2$s</xliff:g>"</string>
+    <string name="system_set_time_format" msgid="902518158066450918">"24-uurs klok gebruiken"</string>
+    <string name="desc_set_time_format" msgid="8688587526768572230">"<xliff:g id="STATE">%1$s</xliff:g> (<xliff:g id="SAMPLE">%2$s</xliff:g>)"</string>
+    <string name="system_auto_date_time" msgid="8458199433555868708">"Automatische tijd en datum"</string>
+  <string-array name="auto_date_time_entries">
+    <item msgid="8119837829162871025">"Netwerktijd gebruiken"</item>
+    <item msgid="369146066143710034">"Uit"</item>
+  </string-array>
+  <string-array name="auto_date_time_ts_entries">
+    <item msgid="1010003447137304123">"Netwerktijd gebruiken"</item>
+    <item msgid="5645263357181875427">"Transportstreamtijd gebruiken"</item>
+    <item msgid="5501503537181350884">"Uit"</item>
+  </string-array>
+    <string name="sensor_toggle_description" msgid="7415801459994303159">"Voor alle apps en services"</string>
+    <string name="recently_accessed_by_category" msgid="6841705864715653428">"Recent geopend door"</string>
+    <string name="no_recent_sensor_accesses" msgid="3498112970658050800">"Geen recente toegang"</string>
+    <string name="recently_accessed_show_all" msgid="5234849189704717855">"Alles tonen"</string>
+    <string name="microphone" msgid="7893752847683941214">"Microfoon"</string>
+    <string name="mic_toggle_title" msgid="7193417007060235665">"Microfoontoegang"</string>
+    <string name="mic_remote_toggle_title" msgid="7153283895012570080">"Toegang tot microfoon op je afstandsbediening"</string>
+    <string name="open_mic_permissions" msgid="8121871594807641073">"App-toegang tot microfoon"</string>
+    <string name="microphone_physical_privacy_enabled_title" msgid="6135130916399886772">"Microfoontoegang geblokkeerd"</string>
+    <string name="microphone_physical_privacy_enabled_text" msgid="401238365312924088">"Als je de blokkering wilt opheffen, zet je de privacyschakelaar op je apparaat op de positie Microfoon aan om microfoontoegang toe te staan."</string>
+    <string name="camera" msgid="1226671478936288283">"Camera"</string>
+    <string name="camera_toggle_title" msgid="5566469574224956142">"Cameratoegang"</string>
+    <string name="open_camera_permissions" msgid="301360297337141591">"App-toegang tot camera"</string>
+    <string name="camera_physical_privacy_enabled_title" msgid="1944155695921165511">"Cameratoegang geblokkeerd"</string>
+    <string name="camera_physical_privacy_enabled_text" msgid="6692088634676282779">"Als je de blokkering wilt opheffen, zet je de privacyschakelaar op je apparaat op de positie Camera aan om cameratoegang toe te staan."</string>
+    <string name="mic_toggle_info_title" msgid="1086545614315873599">"Microfoontoegang: <xliff:g id="SENSOR_STATE">%s</xliff:g>"</string>
+    <string name="mic_toggle_info_content" msgid="3187791167208947239">"Als deze schakelaar aanstaat, hebben alle apps en services die de microfoon mogen gebruiken toegang tot de microfoon.\n\nStaat de schakelaar uit, dan hebben apps en services geen toegang tot de microfoon. Je kunt nog wel met de Google Assistent praten door op de Assistent-knop op de afstandsbediening te drukken.\n\nDeze instelling is misschien niet van invloed op audioapparaten die aangepaste protocollen gebruiken voor communicatie met de tv."</string>
+    <string name="mic_remote_toggle_on_info_title" msgid="8503441878870972046">"Microfoon aangezet op afstandsbediening"</string>
+    <string name="mic_remote_toggle_on_info_content" msgid="2715872916376493679">"De Google Assistent heeft toegang tot de microfoon op je afstandsbediening. Je kunt met de Assistent praten door op de Google Assistent-knop op de afstandsbediening te drukken."</string>
+    <string name="mic_remote_toggle_off_info_title" msgid="4902909833546393713">"Microfoon uitgezet op afstandsbediening"</string>
+    <string name="mic_remote_toggle_off_info_content" msgid="8062526350553191004">"Je kunt niet met de Google Assistent praten via je afstandsbediening. Als je de Google Assistent-knop wilt gebruiken, zet je toegang tot de microfoon aan."</string>
+    <string name="camera_toggle_info_title" msgid="3871317082313736088">"Cameratoegang: <xliff:g id="SENSOR_STATE">%s</xliff:g>"</string>
+    <string name="camera_toggle_info_content" msgid="2999965953853204003">"Als deze schakelaar aanstaat, hebben alle apps en services met toestemming toegang tot elke camera op dit apparaat.\n\nDeze instelling is niet van invloed op camera-randapparaten met een aangepast protocol."</string>
+    <string name="sensor_toggle_info_on" msgid="4568111889147132257">"Aan"</string>
+    <string name="sensor_toggle_info_off" msgid="7546772458177469821">"Uit"</string>
+    <string name="system_location" msgid="4057295363709016511">"Locatie"</string>
+    <string name="system_desc_location" msgid="1680134126100535031">"Apps die je toestemming hebben gevraagd, rechten geven om je locatiegegevens te gebruiken"</string>
+    <string name="system_network_location_confirm" msgid="7128162421781085332">"Locatietoestemming"</string>
+    <string name="location_mode_title" msgid="728244518174115443">"Modus"</string>
+    <string name="location_category_recent_location_requests" msgid="4541924383164183490">"Recente locatieverzoeken"</string>
+    <string name="location_no_recent_apps" msgid="7033474075806435793">"Er zijn geen apps die je locatie onlangs hebben opgevraagd"</string>
+    <string name="location_high_battery_use" msgid="5325556609027887602">"Hoog accugebruik"</string>
+    <string name="location_low_battery_use" msgid="728585923412018253">"Laag batterijgebruik"</string>
+    <string name="location_mode_wifi_description" msgid="84697248707903061">"Wifi gebruiken om locatie te schatten"</string>
+    <string name="location_status" msgid="3037321737386011224">"Locatiestatus"</string>
+    <string name="location_services" msgid="551503779736382878">"Locatieservices"</string>
+    <string name="on" msgid="4899322147062342542">"Aan"</string>
+    <string name="off" msgid="3127416478888499352">"Uit"</string>
+    <string name="google_location_services_title" msgid="6304196603522909239">"Google-locatieservices"</string>
+    <string name="third_party_location_services_title" msgid="2826218400381676508">"Locatieservices van derden"</string>
+    <string name="location_reporting" msgid="3552501333650895634">"Locatiemelding"</string>
+    <string name="location_history" msgid="4055660203090513120">"Locatiegeschiedenis"</string>
+    <string name="location_reporting_desc" msgid="1580018652781674608">"Google gebruikt deze functie in producten als Google Now en Google Maps. Als je Locatierapportage aanzet, kan elk Google-product dat deze functie gebruikt de meest recente locatiegegevens van je apparaat gebruiken in combinatie met je Google-account."</string>
+    <string name="location_history_desc" msgid="926674012916014270">"Wanneer \'Locatiegeschiedenis\' voor dit account aanstaat, kan Google de locatiegegevens van je apparaat opslaan voor gebruik door je apps.\n\nGoogle Maps kan je bijvoorbeeld routes bieden en Google Now kan je informeren over woon-werkverkeer.\n\nJe kunt de Locatiegeschiedenis op elk gewenst moment uitzetten, maar de geschiedenis wordt hierdoor niet verwijderd. Als je je Locatiegeschiedenis wilt bekijken en beheren, ga je naar maps.google.com/locationhistory."</string>
+    <string name="delete_location_history_title" msgid="707559064715633152">"Locatiegeschiedenis verwijderen"</string>
+    <string name="delete_location_history_desc" msgid="4035229731487113147">"Hiermee wordt alle Locatiegeschiedenis voor dit apparaat in dit Google-account gewist. Je kunt dit niet ongedaan maken. Sommige apps, waaronder Google Now, werken niet meer."</string>
+    <string name="accessibility_screen_readers_category_title" msgid="7742526514873922018">"Schermlezers"</string>
+    <string name="accessibility_display_category_title" msgid="593444602101558017">"Scherm"</string>
+    <string name="accessibility_interaction_controls_category_title" msgid="5290687835178852745">"Interactieopties"</string>
+    <string name="accessibility_audio_and_onscreen_text_category_title" msgid="113841605896486212">"Audio en tekst op het scherm"</string>
+    <string name="accessibility_experimental_category_title" msgid="3401773834179170206">"Experimenteel"</string>
+    <string name="accessibility_services_category_title" msgid="8813843874978910442">"Services"</string>
+    <string name="accessibility_service_settings" msgid="3251334786870932423">"Service-instellingen"</string>
+    <string name="accessibility_screen_reader_flattened_component_name" msgid="6834614827111101213">"com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService"</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="9200419191468995574">"Tekst met hoog contrast"</string>
+    <string name="accessibility_toggle_bold_text_preference_title" msgid="3328992531170432669">"Vetgedrukte tekst"</string>
+    <string name="accessibility_color_correction" msgid="6765093204922184119">"Kleurcorrectie"</string>
+    <string name="color_correction_usage" msgid="4160611639548748657">"Kleurcorrectie gebruiken"</string>
+    <string name="color_correction_color_mode" msgid="5081377780734779169">"Kleurenmodus"</string>
+    <string name="color_correction_mode_deuteranomaly" msgid="1513793544554228224">"Deuteranomalie"</string>
+    <string name="color_correction_mode_deuteranomaly_summary" msgid="5991561481464520986">"Rood-groen"</string>
+    <string name="color_correction_mode_protanomaly" msgid="8105793166015115037">"Protanomalie"</string>
+    <string name="color_correction_mode_protanomaly_summary" msgid="3247619910784115563">"Rood-groen"</string>
+    <string name="color_correction_mode_tritanomaly" msgid="757769418392736089">"Tritanomalie"</string>
+    <string name="color_correction_mode_tritanomaly_summary" msgid="137712354510881252">"Blauw-geel"</string>
+    <string name="color_correction_mode_grayscale" msgid="2592973844160514484">"Grijstinten"</string>
+    <string name="palette_color_red" msgid="507196433434979086">"Rood"</string>
+    <string name="palette_color_orange" msgid="6209196069366109835">"Oranje"</string>
+    <string name="palette_color_yellow" msgid="298466132578870590">"Geel"</string>
+    <string name="palette_color_green" msgid="4904783063036825668">"Groen"</string>
+    <string name="palette_color_cyan" msgid="3212217287628948203">"Cyaan"</string>
+    <string name="palette_color_blue" msgid="8836682634988540630">"Blauw"</string>
+    <string name="palette_color_purple" msgid="2123828754639683555">"Paars"</string>
+    <string name="palette_color_gray" msgid="4014534773994261194">"Grijs"</string>
+    <string name="accessibility_shortcut" msgid="5856158637840030531">"Snelkoppeling toegankelijkheid"</string>
+    <string name="accessibility_shortcut_enable" msgid="6603542432267329986">"Snelkoppeling toegankelijkheid aanzetten"</string>
+    <string name="accessibility_shortcut_service" msgid="2053250146891420311">"Service van sneltoets"</string>
+    <string name="accessibility_shortcut_description" msgid="2050424178481510046">"Wanneer de sneltoets aanstaat, kun je een toegankelijkheidsfunctie starten door drie seconden op de knop Terug en de knop Omlaag te drukken."</string>
+    <string name="accessibility_captions" msgid="3411554568812306549">"Ondertiteling"</string>
+    <string name="accessibility_captions_description" msgid="3827820027578548160">"Instellingen voor ondertitelingsoverlay in video"</string>
+    <string name="captions_display" msgid="2598662495450633375">"Weergave"</string>
+    <string name="captions_display_on" msgid="480438033345455728">"Aan"</string>
+    <string name="captions_display_off" msgid="87881163874948539">"Uit"</string>
+    <string name="display_options" msgid="2645282080948371603">"Weergaveopties"</string>
+    <string name="captions_configure" msgid="711991018642931958">"Configureren"</string>
+    <string name="captions_language" msgid="5905918439449912646">"Taal"</string>
+    <string name="captions_language_default" msgid="3894192926725192528">"Standaard"</string>
+    <string name="captions_textsize" msgid="7161136610669343510">"Lettergrootte"</string>
+    <string name="captions_captionstyle" msgid="6650139717545516071">"Ondertitelstijl"</string>
+    <string name="captions_customoptions" msgid="7691004663572161126">"Aangepaste opties"</string>
+    <string name="captions_fontfamily" msgid="1026632786438880997">"Lettertypefamilie"</string>
+    <string name="captions_textcolor" msgid="1566679779609140317">"Tekstkleur"</string>
+    <string name="captions_edgetype" msgid="4875636291904824401">"Randtype"</string>
+    <string name="captions_edgecolor" msgid="2779925179084237336">"Randkleur"</string>
+    <string name="captions_backgroundshow" msgid="1080183686470477645">"Achtergrond tonen"</string>
+    <string name="captions_backgroundcolor" msgid="2056944109914399253">"Achtergrondkleur"</string>
+    <string name="captions_backgroundopacity" msgid="1850126438162000027">"Ondoorzichtigheid van achtergrond"</string>
+    <string name="captioning_preview_text" msgid="3034147586392743237">"Ondertiteling ziet er zo uit"</string>
+    <string name="captions_textopacity" msgid="6055602491649526307">"Ondoorzichtigheid van tekst"</string>
+    <string name="captions_windowshow" msgid="6002072054703167886">"Venster tonen"</string>
+    <string name="captions_windowcolor" msgid="7460430328878876648">"Vensterkleur"</string>
+    <string name="captions_windowopacity" msgid="8645082670322789314">"Ondoorzichtigheid van venster"</string>
+    <string name="captions_style_0" msgid="169414884289770256">"Wit op zwart"</string>
+    <string name="captions_style_1" msgid="8236052739817535538">"Zwart op wit"</string>
+    <string name="captions_style_2" msgid="456353889540431910">"Geel op zwart"</string>
+    <string name="captions_style_3" msgid="3860050153620761166">"Geel op blauw"</string>
+    <string name="captions_style_custom" msgid="9062905566459387931">"Aangepast"</string>
+    <string name="color_white" msgid="4188877187457167678">"Wit"</string>
+    <string name="color_black" msgid="2631818627391955149">"Zwart"</string>
+    <string name="color_red" msgid="1899020130465926495">"Rood"</string>
+    <string name="color_green" msgid="7546929005626106667">"Groen"</string>
+    <string name="color_blue" msgid="7681690245150985958">"Blauw"</string>
+    <string name="color_cyan" msgid="3172130225116530998">"Cyaan"</string>
+    <string name="color_yellow" msgid="3519470952904560404">"Geel"</string>
+    <string name="color_magenta" msgid="2377854703399624607">"Magenta"</string>
+    <string name="accessibility_toggle_audio_description_preference_title" msgid="933923296129403548">"Audiobeschrijving"</string>
+    <string name="accessibility_audio_description_summary" msgid="2027813223650517036">"Een beschrijving van wat er op het scherm gebeurt horen in ondersteunde films en series"</string>
+    <string name="system_accessibility_status" msgid="8504842254080682515">"Aanzetten"</string>
+    <string name="system_accessibility_config" msgid="4820879735377962851">"Configuratie"</string>
+    <string name="system_accessibility_service_on_confirm_title" msgid="4547924421106540376">"<xliff:g id="SERVICE">%1$s</xliff:g> gebruiken?"</string>
+    <string name="system_accessibility_service_on_confirm_desc" msgid="5426217096813804569">"<xliff:g id="SERVICE">%1$s</xliff:g> kan je scherm lezen, content bovenop andere apps tonen, je interacties met apps of hardwaresensoren bijhouden en namens jou interactie hebben met apps."</string>
+    <string name="system_accessibility_service_off_confirm_title" msgid="1110904358228641834">"<xliff:g id="SERVICE">%1$s</xliff:g> beëindigen?"</string>
+    <string name="system_accessibility_service_off_confirm_desc" msgid="3486513644923267157">"Als je \'OK\' selecteert, wordt <xliff:g id="SERVICE">%1$s</xliff:g> beëindigd."</string>
+    <string name="system_accessibility_tts_output" msgid="3186078508203212288">"Tekst-naar-spraak"</string>
+    <string name="system_accessibility_tts_engine_config" msgid="4757760652785865532">"Engine-configuratie"</string>
+    <string name="system_speak_passwords" msgid="8556036524146404052">"Wachtwoorden voorlezen"</string>
+    <string name="system_preferred_engine" msgid="3545505072652708443">"Voorkeursengine"</string>
+    <string name="system_speech_rate" msgid="6553204071403872669">"Spreeksnelheid"</string>
+    <string name="system_play_sample" msgid="3934369914309865584">"Voorbeeld afspelen"</string>
+    <string name="system_install_voice_data" msgid="8016395777968958673">"Spraakgegevens installeren"</string>
+    <string name="system_general" msgid="687760148454147771">"Algemeen"</string>
+    <string name="system_debugging" msgid="1576324426385458481">"Foutopsporing"</string>
+    <string name="system_input" msgid="4457152980514604873">"Invoer"</string>
+    <string name="system_drawing" msgid="5802739024643871942">"Tekening"</string>
+    <string name="system_monitoring" msgid="7997260748312620855">"Controleren"</string>
+    <string name="system_apps" msgid="8481888654606868074">"Apps"</string>
+    <string name="system_stay_awake" msgid="5935117574414511413">"Stand-by"</string>
+    <string name="keep_screen_on_summary" msgid="4680661166009970792">"Het scherm gaat nooit uit"</string>
+    <string name="system_hdcp_checking" msgid="3757586362130048838">"HDCP-controle"</string>
+    <string name="system_hdmi_optimization" msgid="4122753440620724144">"HDMI-optimalisatie"</string>
+    <string name="system_reboot_confirm" msgid="7035370306447878560">"Nu opnieuw opstarten?"</string>
+    <string name="system_desc_reboot_confirm" msgid="1567738857421128179">"Als je deze instelling wilt bijwerken, moet je apparaat opnieuw worden opgestart"</string>
+    <string name="system_never_check" msgid="2860070727606369055">"Nooit controleren"</string>
+    <string name="system_check_for_drm_content_only" msgid="6667617772587997533">"Alleen controleren op DRM-content"</string>
+    <string name="system_always_check" msgid="384870282800221580">"Altijd controleren"</string>
+    <string name="system_bt_hci_log" msgid="1891838112637932603">"Bluetooth HCI-registratie"</string>
+    <string name="system_email_address" msgid="3725494874473757217">"E-mailadres"</string>
+    <string name="system_usb_debugging" msgid="2158285492172755923">"USB-foutopsporing"</string>
+    <string name="system_allow_mock_locations" msgid="2483106887711851466">"Neplocaties toestaan"</string>
+    <string name="system_select_debug_app" msgid="6200987902307533721">"App voor foutopsporing selecteren"</string>
+    <string name="system_wait_for_debugger" msgid="5715878008542589060">"Wachten op debugger"</string>
+    <string name="system_verify_apps_over_usb" msgid="7289212844195483932">"Apps verifiëren via USB"</string>
+    <string name="system_desc_verify_apps_over_usb" msgid="7737988681480237094">"Apps die zijn geïnstalleerd via ADB/ADT, controleren op schadelijk gedrag"</string>
+    <string name="system_wifi_verbose_logging" msgid="3097788974146704831">"Uitgebreide wifi-logregistratie"</string>
+    <string name="system_desc_wifi_verbose_logging" msgid="3537578245428327314">"Uitgebreide wifi-logregistratie aanzetten"</string>
+    <string name="system_show_touches" msgid="8244331695139748286">"Aanraakbewerkingen tonen"</string>
+    <string name="system_pointer_location" msgid="8724050865245555084">"Cursorlocatie"</string>
+    <string name="system_show_layout_bounds" msgid="8803080672553699649">"Indelingsgrenzen tonen"</string>
+    <string name="system_show_gpu_view_updates" msgid="1625918928089365222">"GPU-weergave-updates tonen"</string>
+    <string name="system_show_hardware_layer" msgid="5833664339844452290">"Hardwarelaag tonen"</string>
+    <string name="system_show_gpu_overdraw" msgid="5073007513540516704">"Overbelasting GPU tonen"</string>
+    <string name="system_show_surface_updates" msgid="7680759813613585278">"Oppervlakupdates tonen"</string>
+    <string name="system_window_animation_scale" msgid="685477540250939659">"Vensteranimatieschaal"</string>
+    <string name="system_transition_animation_scale" msgid="7266380208347453619">"Overgangsanimatieschaal"</string>
+    <string name="system_animator_duration_scale" msgid="3829445237130423625">"Duur van animatieschaal"</string>
+    <string name="system_strict_mode_enabled" msgid="7392183793064579588">"Strikte modus staat aan"</string>
+    <string name="system_profile_gpu_rendering" msgid="1113416260742329348">"GPU-rendering van profiel"</string>
+    <string name="system_enable_traces" msgid="108745519968154528">"Sporen aanzetten"</string>
+    <string name="system_dont_keep_activities" msgid="4641165963339846161">"Activiteiten niet opslaan"</string>
+    <string name="system_background_process_limit" msgid="1985373407150771045">"Achtergrondproceslimiet"</string>
+    <string name="system_show_all_anrs" msgid="5353216640638263217">"Alle ANR\'s tonen"</string>
+    <string name="system_desc_stay_awake" msgid="8485868071929937500">"Slaapstand uitzetten"</string>
+    <string name="system_desc_hdcp_checking" msgid="1664068008848077241">"Alleen gebruiken voor DRM-content"</string>
+    <string name="system_desc_hdmi_optimization" msgid="5695603795556335912">"Optimaliseer het scherm voor maximale resolutie of maximale framesnelheid. Dit betreft alleen Ultra HD-schermen. Als je dit wijzigt, wordt je apparaat opnieuw opgestart."</string>
+    <string name="system_desc_bt_hci_log" msgid="2592649923221658103">"Bluetooth HCI-snoop-registratie aanzetten"</string>
+    <string name="system_desc_usb_debugging" msgid="5672275208185222785">"Foutopsporingsmodus bij USB-verbinding"</string>
+    <string name="system_desc_wait_for_debugger" msgid="7213496668606417691">"Gedebugde app wacht op koppelen van debugger vóór uitvoering"</string>
+    <string name="system_desc_show_layout_bounds" msgid="5275008598296135852">"Clipgrenzen, marges en meer tonen"</string>
+    <string name="system_desc_show_gpu_view_updates" msgid="9088343415389734854">"Weergaven in vensters laten knipperen indien getekend met de GPU"</string>
+    <string name="system_desc_show_hardware_layer" msgid="3483713991865249527">"Hardwarelagen groen laten knipperen bij updates"</string>
+    <string name="system_desc_show_gpu_overdraw" msgid="74019834911598588">"Best naar slechtst: blauw, groen, lichtrood, rood"</string>
+    <string name="system_desc_show_surface_updates" msgid="4018685547515133353">"Hele vensteroppervlak laten knipperen bij updates"</string>
+    <string name="system_desc_strict_mode_enabled" msgid="1974896408481676324">"Knipperend scherm bij lange bewerkingen door apps"</string>
+    <string name="system_desc_profile_gpu_rendering" msgid="1594070211030991">"Renderingtijd in adb shell dumpsys gfxinfo meten"</string>
+    <string name="security_unknown_sources_title" msgid="2012801664240314305">"Onbekende bronnen"</string>
+    <string name="security_unknown_sources_desc" msgid="7196715598352173267">"Toestaan dat apps uit andere bronnen dan de Play Store worden geïnstalleerd"</string>
+    <string name="security_unknown_sources_confirm_title" msgid="4600896691987804985">"Onbekende bronnen toestaan"</string>
+    <string name="security_unknown_sources_confirm_desc" msgid="7883820068140189584">"Je apparaat en persoonsgegevens worden door de installatie en het gebruik van apps van onbekende bronnen gevoeliger voor aanvallen. Je gaat ermee akkoord dat alleen jij verantwoordelijk bent voor enige schade aan je apparaat of het verlies van gegevens die voortkomen uit het gebruik van deze apps."</string>
+    <string name="system_hdcp_checking_never" msgid="3251512398865365135">"Nooit"</string>
+    <string name="system_hdcp_checking_drm" msgid="2159124883496899278">"Voor DRM-content"</string>
+    <string name="system_hdcp_checking_always" msgid="5868177105455148262">"Altijd"</string>
+    <string name="system_hdmi_optimization_best_resolution" msgid="4916028940107998097">"Beste resolutie"</string>
+    <string name="system_hdmi_optimization_best_framerate" msgid="3778579148517609370">"Beste framerate"</string>
+    <string name="system_hw_overdraw_off" msgid="6637679040053936280">"Uit"</string>
+    <string name="system_hw_overdraw_areas" msgid="6442009722913530348">"Delen met overbelasting tonen"</string>
+    <string name="system_hw_overdraw_counter" msgid="9132113146364838852">"Teller voor overbelasting tonen"</string>
+    <string name="no_application" msgid="1904437693440706534">"Niets"</string>
+    <string name="enable_opengl_traces_none" msgid="4718084947494592040">"Geen"</string>
+  <string-array name="animation_scale_entries">
+    <item msgid="5408992662476056082">"Animatie uit"</item>
+    <item msgid="6818290063799857019">"Animatieschaal 0,5x"</item>
+    <item msgid="8257959452691080724">"Animatieschaal 1x"</item>
+    <item msgid="4781052272686018414">"Animatieschaal 1,5x"</item>
+    <item msgid="2272016945160227610">"Animatieschaal 2x"</item>
+    <item msgid="5015441793276576312">"Animatieschaal 5x"</item>
+    <item msgid="1290233583371556415">"Animatieschaal 10x"</item>
+  </string-array>
+    <string name="track_frame_time_off" msgid="8845064783618702239">"Uit"</string>
+    <string name="track_frame_time_bars" msgid="5841531515222229632">"Op het scherm als balken"</string>
+    <string name="app_process_limit_standard" msgid="6069948528843313888">"Standaardlimiet"</string>
+    <string name="app_process_limit_zero" msgid="4094665021909774994">"Geen achtergrondprocessen"</string>
+    <string name="app_process_limit_one" msgid="4509089015775863726">"Maximaal 1 proces"</string>
+    <string name="app_process_limit_two" msgid="368216781690488529">"Maximaal 2 processen"</string>
+    <string name="app_process_limit_three" msgid="2191860654645796987">"Maximaal 3 processen"</string>
+    <string name="app_process_limit_four" msgid="9186705437061005461">"Maximaal 4 processen"</string>
+    <string name="tts_rate_very_slow" msgid="1927454053669655117">"Zeer langzaam"</string>
+    <string name="tts_rate_slow" msgid="7668484707347561166">"Langzaam"</string>
+    <string name="tts_rate_normal" msgid="3631458247079252628">"Normaal"</string>
+    <string name="tts_rate_fast" msgid="5723868816257531421">"Snel"</string>
+    <string name="tts_rate_very_fast" msgid="7756663146626103952">"Zeer snel"</string>
+    <string name="title_settings" msgid="780933693363320088">"Instellingen voor <xliff:g id="NAME">%1$s</xliff:g>"</string>
+    <string name="title_current_keyboard" msgid="891238509164879851">"Huidig toetsenbord"</string>
+    <string name="title_configure" msgid="846802387014612210">"Configureren"</string>
+    <string name="desc_configure_keyboard" msgid="3474279140150468141">"Toetsenbordopties"</string>
+    <string name="title_current_autofill_service" msgid="9029001041887283153">"Huidige service voor automatisch invullen"</string>
+    <string name="title_select_autofill_service" msgid="696559582725756848">"Service voor automatisch invullen selecteren"</string>
+    <string name="autofill_none" msgid="1615056985649424207">"Geen"</string>
+    <string name="autofill_confirmation_message" msgid="3840267789160192558">"&lt;b&gt;Zorg dat je deze app vertrouwt&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Wachtwoordservice&gt;%1$s&lt;/xliff:g&gt; maakt gebruik van de content op je scherm om te bepalen wat automatisch kan worden aangevuld."</string>
+    <string name="computing_size" msgid="8623916230485437579">"Berekenen…"</string>
+    <string name="title_select_wifi_network" msgid="935820896444071617">"Je wifi-netwerk selecteren"</string>
+    <string name="accessories_wifi_display_rename_device" msgid="8803397194143132061">"Naam wijzigen"</string>
+    <string name="accessories_wifi_display_enable" msgid="2385467074170316302">"Wifi-weergave"</string>
+    <string name="accessories_wifi_display_pin_required" msgid="5434960694140426664">"Pincode vereist"</string>
+    <string name="whichApplication" msgid="4510042089342879264">"Actie voltooien met"</string>
+    <string name="alwaysUseQuestion" msgid="2643084054296937138">"Altijd deze optie gebruiken voor deze actie?"</string>
+    <string name="alwaysUseOption" msgid="8799609235198714441">"Altijd gebruiken"</string>
+    <string name="justOnceOption" msgid="6714005843102804865">"Eenmalig"</string>
+    <string name="noApplications" msgid="7511175717026318399">"Er zijn geen apps die deze actie kunnen uitvoeren."</string>
+    <string name="noAppsGoBack" msgid="2538480554615467065">"Terug"</string>
+    <string name="inputs_inputs" msgid="8639408473661259307">"Ingangen"</string>
+    <string name="inputs_header_cec" msgid="4139015942980115323">"Consumer Electronic Control (CEC)"</string>
+    <string name="inputs_cec_settings" msgid="5948357769198260080">"Apparaatbedieningsinstellingen"</string>
+    <string name="inputs_blu_ray" msgid="6561004081102615775">"Blu-ray"</string>
+    <string name="inputs_cable" msgid="8274665772422377063">"Kabel"</string>
+    <string name="inputs_dvd" msgid="1452146927899250552">"Dvd"</string>
+    <string name="inputs_game" msgid="4762255172943107070">"Gameconsole"</string>
+    <string name="inputs_aux" msgid="5331442342029867329">"Aux"</string>
+    <string name="inputs_custom_name" msgid="2649826613531559538">"Aangepaste naam"</string>
+    <string name="inputs_custom_name_description_fmt" msgid="2879134265596928298">"Geef een naam op voor de <xliff:g id="INPUT">%1$s</xliff:g>-ingang."</string>
+    <string name="inputs_hide" msgid="9223355763198742416">"Verborgen"</string>
+    <string name="inputs_show" msgid="2937435050499142756">"Deze ingang tonen"</string>
+    <string name="input_header_names" msgid="5903234218909970550">"Naam"</string>
+    <string name="inputs_hdmi_control" msgid="650355636965841054">"HDMI-bediening"</string>
+    <string name="inputs_hdmi_control_desc" msgid="306769914209526682">"De tv toestaan HDMI-apparaten te bedienen"</string>
+    <string name="inputs_device_auto_off" msgid="2659766884754402352">"Apparaat automatisch uit"</string>
+    <string name="inputs_device_auto_off_desc" msgid="1164897242719608201">"HDMI-apparaten samen uitzetten met de tv"</string>
+    <string name="inputs_tv_auto_on" msgid="544848340484583318">"Tv automatisch aan"</string>
+    <string name="inputs_tv_auto_on_desc" msgid="3640723210479925817">"De tv aanzetten samen met het HDMI-apparaat"</string>
+    <string name="inputs_header_connected_input" msgid="4323324944548164849">"{count,plural, =1{Aangesloten ingang}other{Aangesloten ingangen}}"</string>
+    <string name="inputs_header_standby_input" msgid="600117963181008144">"{count,plural, =1{Stand-by-ingang}other{Stand-by-ingangen}}"</string>
+    <string name="inputs_header_disconnected_input" msgid="3852361100151289264">"{count,plural, =1{Niet-aangesloten ingang}other{Niet-aangesloten ingangen}}"</string>
+    <string name="user_add_profile_item_summary" msgid="3211866291940617804">"Toegang tot apps en andere content in je account beperken"</string>
+    <string name="user_new_profile_name" msgid="6637593067318708353">"Beperkt profiel"</string>
+    <string name="user_restrictions_controlled_by" msgid="8124926446168030445">"Beheerd door <xliff:g id="APP">%1$s</xliff:g>"</string>
+    <string name="app_not_supported_in_limited" msgid="4046604594925826955">"Deze app wordt niet ondersteund voor beperkte profielen"</string>
+    <string name="app_sees_restricted_accounts" msgid="174038126799649152">"Deze app heeft toegang tot je accounts"</string>
+    <string name="restriction_location_enable_title" msgid="2552780806199464266">"Locatie"</string>
+    <string name="restriction_location_enable_summary" msgid="3719330231217994482">"Apps je locatiegegevens laten gebruiken"</string>
+    <string name="restricted_profile_switch_to" msgid="6193201935877168764">"Beperkt profiel openen"</string>
+    <string name="restricted_profile_switch_out" msgid="3589381233390753413">"Beperkt profiel sluiten"</string>
+    <string name="restricted_profile_delete_title" msgid="7153982195273379506">"Beperkt profiel verwijderen"</string>
+    <string name="restricted_profile_create_title" msgid="700322590579894058">"Beperkt profiel maken"</string>
+    <string name="restricted_profile_configure_title" msgid="3327502517511010296">"Instellingen"</string>
+    <string name="restricted_profile_configure_apps_title" msgid="2244201859522056827">"Apps die zijn toegestaan"</string>
+    <string name="restricted_profile_allowed" msgid="970921490464867884">"Toegestaan"</string>
+    <string name="restricted_profile_not_allowed" msgid="8184983064118036268">"Niet toegestaan"</string>
+    <string name="restricted_profile_customize_restrictions" msgid="4723577877385636704">"Beperkingen aanpassen"</string>
+    <string name="restricted_profile_configure_apps_description_loading" msgid="3293508876131962699">"Een ogenblik geduld…"</string>
+    <string name="restricted_profile_change_password_title" msgid="6961384850606763601">"Pincode wijzigen"</string>
+    <string name="restricted_profile_create_preference_screen" msgid="3263536648469645089">"Beperkt profiel maken?"</string>
+    <string name="restricted_profile_already_created_placeholder" msgid="8619544048199836920">"Al gemaakt"</string>
+    <string name="restricted_profile_skip_action" msgid="4674562040162193593">"Overslaan"</string>
+    <string name="restricted_profile_create_pin_action" msgid="1883036507880250231">"Pincode maken"</string>
+    <string name="restricted_profile_enter_preference_screen" msgid="676246260867597333">"Beperkt profiel openen?"</string>
+    <string name="restricted_profile_enter_not_found_placeholder" msgid="2270969471829375976">"Geen beperkt profiel"</string>
+    <string name="restricted_profile_enter_already_entered_placeholder" msgid="6178278708529027598">"Al ingevoerd"</string>
+    <string name="restriction_description" msgid="2053112392083722259">"<xliff:g id="DESCRIPTION">%1$s</xliff:g>\n<xliff:g id="VALUE">%2$s</xliff:g>"</string>
+    <string name="app_sees_restricted_accounts_and_controlled_by" msgid="1261056180558324892">"Deze app kan toegang krijgen tot je accounts. Beheerd door <xliff:g id="APP">%1$s</xliff:g>."</string>
+    <string name="pin_enter_unlock_channel" msgid="243855138978654080">"Pincode opgeven om dit kanaal te bekijken"</string>
+    <string name="pin_enter_unlock_program" msgid="275489015420025531">"Pincode opgeven om dit programma te bekijken"</string>
+    <string name="pin_enter_pin" msgid="5020029261153234751">"Pincode opgeven"</string>
+    <string name="pin_enter_new_pin" msgid="1930944619313642621">"Een nieuwe pincode instellen"</string>
+    <string name="pin_enter_again" msgid="7615050143778858658">"Pincode opnieuw opgeven"</string>
+    <string name="pin_enter_old_pin" msgid="5665265735227617942">"Oude pincode opgeven"</string>
+    <string name="pin_enter_wrong_seconds" msgid="3014013615537066237">"Je hebt vijf keer een onjuiste pincode opgegeven.\nProbeer het over <xliff:g id="RELATIVE_TIME_SPAN">%1$d</xliff:g> seconden opnieuw."</string>
+    <string name="pin_toast_wrong" msgid="4297542365877164402">"Onjuiste pincode, probeer het opnieuw"</string>
+    <string name="pin_toast_not_match" msgid="2439298696342975155">"Probeer het opnieuw. De pincode komt niet overeen."</string>
+    <string name="wifi_setup_input_password" msgid="8510003548463241234">"Wachtwoord opgeven voor <xliff:g id="SSID">%1$s</xliff:g>"</string>
+    <string name="wifi_setup_description" msgid="6843574399437584520">"Selecteer <xliff:g id="WIFI_SUBMIT_ICON">%1$s</xliff:g> om door te gaan."</string>
+    <string name="label_done_key" msgid="8576286462300373440">"Klaar"</string>
+    <string name="wifi_setup_connection_success" msgid="3301901673876973474">"Verbonden"</string>
+    <string name="wifi_setup_save_success" msgid="6862510218032734919">"Opgeslagen"</string>
+    <string name="device_apps_app_management_version" msgid="2119174719194899740">"Versie <xliff:g id="APP_VERSION">%1$s</xliff:g>"</string>
+    <string name="device_apps_app_management_open" msgid="4249743535677261897">"Openen"</string>
+    <string name="device_apps_app_management_force_stop" msgid="4454221309989640309">"Gedwongen stoppen"</string>
+    <string name="device_apps_app_management_force_stop_desc" msgid="1980972142863114899">"Als je een app gedwongen stopt, kan deze onverwacht gedrag vertonen."</string>
+    <string name="device_apps_app_management_uninstall" msgid="4171103696233332967">"Verwijderen"</string>
+    <string name="device_apps_app_management_uninstall_updates" msgid="5647988075828648951">"Updates verwijderen"</string>
+    <string name="device_apps_app_management_uninstall_updates_desc" msgid="4508586498292236706">"Alle updates van deze systeem-app voor Android worden verwijderd."</string>
+    <string name="device_apps_app_management_disable" msgid="819003297535493633">"Uitzetten"</string>
+    <string name="device_apps_app_management_disable_desc" msgid="9143166267511427607">"Wil je deze app uitzetten?"</string>
+    <string name="device_apps_app_management_enable" msgid="9173340340253029114">"Aanzetten"</string>
+    <string name="device_apps_app_management_enable_desc" msgid="8686291003061136476">"Wil je deze app aanzetten?"</string>
+    <string name="device_apps_app_management_storage_used" msgid="6725789557993296433">"Gebruikte opslag"</string>
+    <string name="device_apps_app_management_storage_used_desc" msgid="8928632612101487179">"<xliff:g id="SIZE">%1$s</xliff:g> gebruikt in <xliff:g id="VOLUME">%2$s</xliff:g>"</string>
+    <string name="device_apps_app_management_clear_data" msgid="7305471678286735600">"Gegevens wissen"</string>
+    <string name="device_apps_app_management_clear_data_desc" msgid="170972356946852847">"Alle gegevens voor deze app worden definitief verwijderd.\nDit omvat alle bestanden, instellingen, accounts, databases, enzovoort."</string>
+    <string name="device_apps_app_management_clear_default" msgid="4566187319647111484">"Standaardwaarden wissen"</string>
+    <string name="device_apps_app_management_clear_default_set" msgid="1649974109123107390">"App wordt gestart voor bepaalde acties"</string>
+    <string name="device_apps_app_management_clear_default_none" msgid="5935252537185381597">"Geen standaardwaarden ingesteld"</string>
+    <string name="device_apps_app_management_clear_cache" msgid="2678301483598915479">"Cachegeheugen wissen"</string>
+    <string name="device_apps_app_management_notifications" msgid="1687529279264810317">"Meldingen"</string>
+    <string name="device_apps_app_management_licenses" msgid="4809737266551899869">"Externe bron"</string>
+    <string name="device_apps_app_management_permissions" msgid="4951820230491375037">"Rechten"</string>
+    <string name="device_apps_app_management_not_available" msgid="4198634078194500518">"App niet beschikbaar"</string>
+    <string name="unused_apps" msgid="5539166745483454543">"Niet-gebruikte apps"</string>
+    <string name="settings_ok" msgid="5950888975075541964">"OK"</string>
+    <string name="settings_confirm" msgid="4489126458677153411">"Bevestigen"</string>
+    <string name="settings_cancel" msgid="576094334743686152">"Annuleren"</string>
+    <string name="settings_on" msgid="7734010120323404333">"Aan"</string>
+    <string name="settings_off" msgid="4060451657850476369">"Uit"</string>
+    <string name="device_daydreams_none" msgid="3405655350757277348">"Scherm uitzetten"</string>
+    <string name="device_daydreams_select" msgid="7203264446482623438">"Screensaver"</string>
+    <string name="device_daydreams_test" msgid="7828275397550076567">"Nu beginnen"</string>
+    <string name="device_daydreams_sleep" msgid="6847770718407377357">"Wanneer aanzetten"</string>
+    <string name="device_daydreams_sleep_description" msgid="6237610484915504587">"De schermbeveiliging wordt aangezet zodra het apparaat gedurende deze tijd inactief is. Als er geen schermbeveiliging is ingesteld, wordt het scherm uitgezet."</string>
+    <string name="device_daydreams_sleep_summary" msgid="3081688734381995693">"Na <xliff:g id="SLEEP_DESCRIPTION">%1$s</xliff:g> inactiviteit"</string>
+    <string name="device_energy_saver_screen_off" msgid="6908468996426629480">"Scherm uitzetten"</string>
+    <!-- no translation found for device_energy_saver_timeout_description (3206609135199137514) -->
+    <skip />
+    <string name="device_energy_saver_confirmation_title" msgid="7614859812773584773">"Instelling voor voeding en energie bevestigen"</string>
+    <string name="device_energy_saver_confirmation_message" msgid="7789453187001013951">"Als je je tv lange tijd aan laat staan, kan het energieverbruik toenemen"</string>
+    <string name="device_energy_saver_disable_allow_turning_screen_off_title" msgid="1468097048101593731">"Instelling voor energiebesparing uitzetten"</string>
+    <string name="device_energy_saver_disable_allow_turning_screen_off_text" msgid="6334963903866002164">"Bevestig dat je wilt voorkomen dat het scherm uitgaat terwijl je kijkt. Hierdoor kan het energiegebruik toenemen."</string>
+    <string name="device_energy_saver_sleep_timeout" msgid="1841900768718452039">"Indien inactief"</string>
+    <string name="device_energy_saver_attentive_timeout" msgid="3649486668821348087">"Tijdens het kijken"</string>
+    <string name="device_energy_saver_category_title" msgid="170076161677525986">"Automatisch uitzetten"</string>
+    <string name="device_energy_saver_sleep_timeout_dialog_title" msgid="6588352532253294558">"Automatisch uitzetten indien inactief"</string>
+    <string name="device_energy_saver_attentive_timeout_dialog_title" msgid="3273988875711109352">"Automatisch uitzetten tijdens kijken"</string>
+    <string name="device_energy_saver_validation_sleep" msgid="7490897287741107840">"De timer Indien inactief moet korter zijn dan de timer Tijdens het kijken"</string>
+    <string name="device_energy_saver_validation_attentive" msgid="1461105528087097435">"De timer Tijdens het kijken moet langer zijn dan de timer Indien inactief"</string>
+    <string name="limit_network_in_standby_toggle_title" msgid="6587185599397355336">"Netwerkverbinding beperken in stand-by"</string>
+    <string name="limit_network_in_standby_toggle_summary" msgid="9127792748675581174">"Gebruikt minder energie in stand-bymodus"</string>
+    <string name="limit_network_in_standby_toggle_info" msgid="566947772381093991">"De verbinding van je tv met het netwerk wordt verbroken in de stand-bymodus, behalve om automatische updates te ontvangen. Hierdoor kan het energiegebruik van je tv afnemen, maar dit betekent ook dat je bepaalde functies zoals casten en de Google Assistent niet kunt gebruiken in de stand-bymodus."</string>
+    <string name="limit_network_in_standby_confirm_title" msgid="789232987058850322">"Netwerkverbinding toestaan in stand-by"</string>
+    <string name="limit_network_in_standby_confirm_message" msgid="7176699480768019689">"Als je de netwerkverbinding toestaat in de stand-bymodus, neemt het energieverbruik in de stand-bymodus toe."</string>
+    <string name="backup_configure_account_default_summary" msgid="2170733614341544296">"Er is momenteel geen account ingesteld voor het opslaan van back-upgegevens"</string>
+    <string name="backup_erase_dialog_title" msgid="6008454053276987100"></string>
+    <string name="backup_erase_dialog_message" msgid="222169533402624861">"Het maken van back-ups van je wifi-wachtwoorden, bookmarks, andere instellingen en gegevens voor apps stoppen en alle kopieën op Google-servers wissen?"</string>
+    <string name="privacy_backup_data" msgid="3604057980102997914">"Back-up maken van mijn gegevens"</string>
+    <string name="privacy_backup_account" msgid="4527813051841860610">"Back-upaccount"</string>
+    <string name="privacy_automatic_restore" msgid="7117805818589418118">"Automatisch terugzetten"</string>
+    <string name="factory_reset_device" msgid="6509900821515094361">"Apparaat opnieuw instellen"</string>
+    <string name="factory_reset_description" msgid="6697396335158766785">"Hierdoor wordt je apparaat teruggezet naar de standaardinstellingen en worden alle gegevens, accounts, bestanden en gedownloade apps gewist."</string>
+    <string name="factory_reset_info_description" msgid="5098454670833183487">"Hiermee wordt je apparaat teruggezet naar de standaardinstellingen en worden alle gegevens, accounts, bestanden en gedownloade apps gewist."</string>
+    <string name="factory_reset_content_description" msgid="1677022688420116803">"Fabrieksinstellingen terugzetten, hierdoor wordt je apparaat teruggezet naar de standaardinstellingen en worden alle gegevens, accounts, bestanden en gedownloade apps gewist."</string>
+    <string name="confirm_factory_reset_description" msgid="1337483463207721713">"Al je persoonlijke informatie en gedownloade apps op dit apparaat wissen? Je kunt deze actie niet ongedaan maken."</string>
+    <string name="confirm_factory_reset_device" msgid="4308646529880718465">"Alles wissen"</string>
+    <string name="select_device_name_title" msgid="3045019448327493634">"Kies een naam voor je <xliff:g id="DEVICEMODEL">%1$s</xliff:g>"</string>
+    <string name="select_device_name_description" msgid="8528185095614986580">"Geef je apparaat een naam zodat je dit kunt identificeren tijdens het casten of wanneer je vanaf andere apparaten verbinding met dit apparaat maakt."</string>
+  <string-array name="rooms">
+    <item msgid="6590829789532602097">"Android TV"</item>
+    <item msgid="1140506340411482365">"Tv in woonkamer"</item>
+    <item msgid="6448060889026244632">"Tv in huiskamer"</item>
+    <item msgid="3336274213215419228">"Tv in slaapkamer"</item>
+  </string-array>
+    <string name="custom_room" msgid="6798144004583173563">"Aangepaste naam opgeven…"</string>
+    <string name="device_rename_title" msgid="9070021379000499270">"De naam van deze <xliff:g id="DEVICEMODEL">%1$s</xliff:g> wijzigen"</string>
+    <string name="device_rename_description" msgid="1973894029492915135">"Deze <xliff:g id="DEVICEMODEL">%1$s</xliff:g> heeft momenteel de naam \'<xliff:g id="DEVICENAME">%2$s</xliff:g>\'"</string>
+    <string name="device_name_suggestion_title" msgid="3986220212759193742">"Stel je apparaatnaam in"</string>
+    <string name="device_name_suggestion_summary" msgid="4582691399302362938">"Gebruik deze naam wanneer je foto\'s, video\'s en meer cast vanaf je telefoon"</string>
+    <string name="change_setting" msgid="7211706374208138343">"Wijzigen"</string>
+    <string name="keep_settings" msgid="703474489210093961">"Niet wijzigen"</string>
+    <string name="apps_permissions" msgid="7876407267050498394">"Rechten"</string>
+    <string name="device_apps_permissions" msgid="8421323706003063878">"App-rechten"</string>
+    <string name="app_permissions_group_summary" msgid="6818210080117761117">"Verleend aan <xliff:g id="COUNT_0">%1$d</xliff:g> van <xliff:g id="COUNT_1">%2$d</xliff:g> apps"</string>
+    <string name="bluetooth_permission_request" msgid="7788089036741496993">"Rechtenverzoek voor Bluetooth"</string>
+    <string name="security_patch" msgid="8924741264829495392">"Beveiligingspatchniveau van Android TV-OS"</string>
+    <string name="choose_application" msgid="2375936782103669988">"App kiezen"</string>
+    <string name="experimental_preference" msgid="3982593252210557436">"(Experimenteel)"</string>
+    <string name="reboot_safemode_action" msgid="2862127510492131128">"Opnieuw opstarten in veilige modus"</string>
+    <string name="reboot_safemode_confirm" msgid="5745977150299953603">"Wil je opnieuw opstarten in de veilige modus?"</string>
+    <string name="reboot_safemode_desc" msgid="2919933461408942799">"Als je dit doet, worden alle geïnstalleerde apps van derden uitgezet. Ze worden weer aangezet als je nogmaals opnieuw opstart."</string>
+    <string name="capturing_bugreport" msgid="832512801903486821">"Bugrapport wordt vastgelegd"</string>
+    <string name="available_virtual_keyboard_category" msgid="7445262027711560629">"Beschikbare virtuele toetsenborden"</string>
+    <string name="manage_keyboards" msgid="7983890675377321912">"Toetsenborden beheren"</string>
+    <string name="app_permission_summary_allowed" msgid="5359622119044147500">"Toegestaan"</string>
+    <string name="app_permission_summary_not_allowed" msgid="5131611341738385303">"Niet toegestaan"</string>
+    <string name="usage_access" msgid="8402350645248312782">"Gebruikstoegang"</string>
+    <string name="usage_access_description" msgid="3276026988575551587">"Met gebruikstoegang kan een app bijhouden welke andere apps je gebruikt (en hoe vaak), welke provider je hebt, je taalinstellingen en andere details."</string>
+    <string name="high_power_apps" msgid="5841073958519976562">"Energieoptimalisatie"</string>
+    <string name="high_power_apps_description" msgid="8651692364795060525">"Energieverbruik van apps optimaliseren"</string>
+    <string name="high_power_apps_empty" msgid="3084512758421482051">"Er zijn geen apps die moeten worden geoptimaliseerd"</string>
+    <string name="high_power_on" msgid="3120162683093360951">"Niet geoptimaliseerd"</string>
+    <string name="high_power_off" msgid="3588854600942236231">"Energieverbruik optimaliseren"</string>
+    <string name="high_power_system" msgid="6263052626979462255">"Energieoptimalisatie niet beschikbaar"</string>
+    <string name="manage_notification_access_title" msgid="8659254371564990084">"Toegang tot meldingen"</string>
+    <string name="no_notification_listeners" msgid="5119406452675724448">"Er zijn geen geïnstalleerde apps die toegang tot meldingen hebben aangevraagd."</string>
+    <string name="notification_listener_security_warning_summary" msgid="8602907284276088658">"Deze apps kunnen alle meldingen lezen, waaronder persoonlijke informatie zoals contactnamen en de tekst van berichten die je ontvangt. De apps kunnen meldingen ook sluiten of actieknoppen in de meldingen activeren."</string>
+    <string name="default_notification_access_package_summary" msgid="1354775994781420222">"Vereist door systeem"</string>
+    <string name="directory_access" msgid="7338555825237012006">"Toegang tot map"</string>
+    <string name="directory_access_description" msgid="3630855858552422012">"Deze apps hebben rechten voor bepaalde mappen."</string>
+    <string name="directory_on_volume" msgid="5628089584970521703">"<xliff:g id="VOLUME">%1$s</xliff:g> (<xliff:g id="DIRECTORY">%2$s</xliff:g>)"</string>
+    <string name="system_alert_window_settings" msgid="5790572489650085051">"Weergeven vóór andere apps"</string>
+    <string name="permit_draw_overlay" msgid="5312730681030266735">"Weergeven vóór andere apps toestaan"</string>
+    <string name="allow_overlay_description" msgid="5152329837278240259">"Een app toestaan op de voorgrond te worden weergegeven vóór andere apps die je gebruikt. Dit kan je gebruik van die apps verstoren of de manier wijzigen waarop die apps worden weergegeven of zich gedragen."</string>
+    <string name="write_system_settings" msgid="4284654265954461890">"Systeeminstellingen aanpassen"</string>
+    <string name="write_settings_title" msgid="2361816483383105754">"Kan systeeminstellingen aanpassen"</string>
+    <string name="write_settings_description" msgid="7382397926674265937">"Met deze rechten kan een app de systeeminstellingen aanpassen."</string>
+    <string name="write_settings_on" msgid="71675710746513956">"Ja"</string>
+    <string name="write_settings_off" msgid="6730113471695092167">"Nee"</string>
+    <string name="manage_external_storage_title" msgid="8139593207533811077">"Toegang tot alle bestanden"</string>
+    <string name="permit_manage_external_storage" msgid="1776899171934627417">"Toegang geven om alle bestanden te beheren"</string>
+    <string name="allow_manage_external_storage_description" msgid="4288250228151617611">"Toestaan dat deze app alle bestanden op dit apparaat of gekoppelde opslagvolumes kan lezen, aanpassen of verwijderen. Indien verleend, kan de app zonder jouw medeweten toegang tot bestanden krijgen."</string>
+    <string name="picture_in_picture_title" msgid="2636935591386702348">"Scherm-in-scherm"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="3688997906817583854">"Scherm-in-scherm toestaan"</string>
+    <string name="picture_in_picture_empty_text" msgid="4370198922852736600">"Geen geïnstalleerde apps die Scherm-in-scherm ondersteunen"</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="3296649114939705896">"Geef apps toestemming om een scherm-in-scherm-venster te maken als de app open is of als je de app verlaat (bijvoorbeeld om een video te blijven kijken). Dit venster wordt weergegeven vóór andere apps die je gebruikt."</string>
+    <string name="alarms_and_reminders_description" msgid="4063972350154624500">"Sta toe dat apps wekkers zetten en tijdgevoelige acties plannen. De apps kunnen hierdoor op de achtergrond worden uitgevoerd, waardoor je misschien meer batterijlading verbruikt.\n\nAls dit recht uitstaat, werken door deze app geplande bestaande wekkers en tijdgebaseerde afspraken niet."</string>
+    <string name="turn_screen_on_title" msgid="5293798529284629011">"Scherm aanzetten"</string>
+    <string name="allow_turn_screen_on" msgid="4903401106871656521">"Scherm aanzetten toestaan"</string>
+    <string name="allow_turn_screen_on_description" msgid="7521761625343889415">"Toestaan dat een app het scherm aanzet. Indien toegestaan, kan de app het scherm op elk moment aanzetten zonder jouw expliciete intentie."</string>
+    <string name="special_access" msgid="21806055758289916">"Speciale app-toegang"</string>
+    <string name="string_concat" msgid="5213870180216051497">"<xliff:g id="PART1">%1$s</xliff:g>, <xliff:g id="PART2">%2$s</xliff:g>"</string>
+    <string name="audio_category" msgid="6143623109624947993">"Audio"</string>
+    <string name="record_audio" msgid="5035689290259575229">"Audio opnemen"</string>
+    <string name="record_audio_summary_on" msgid="8724494646461335090">"Uitzetten om audio-opname te stoppen"</string>
+    <string name="record_audio_summary_off" msgid="1392440365091422816">"Aanzetten om audio-opname direct te starten"</string>
+    <string name="play_recorded_audio_title" msgid="4627717067151602729">"Opgenomen audio afspelen"</string>
+    <string name="save_recorded_audio_title" msgid="378003351782124651">"Opgenomen audio opslaan"</string>
+    <string name="time_to_start_read_title" msgid="6565449163802837806">"Tijd voordat audio wordt gelezen"</string>
+    <string name="time_to_valid_audio_title" msgid="7246101824813414348">"Tijd tot geldige audiogegevens"</string>
+    <string name="empty_audio_duration_title" msgid="9024377320171450683">"Duur van lege audio"</string>
+    <string name="record_audio_source_title" msgid="9087784503276397929">"Opgenomen audiobron"</string>
+    <string name="record_audio_source_dialog_title" msgid="6556408220589197097">"Opgenomen audiobron selecteren voor volgende opname"</string>
+    <string name="recorded_microphones_title" msgid="5466988146086215426">"Opgenomen microfoon(s)"</string>
+    <string name="show_audio_recording_start_failed" msgid="9131762831381326605">"Kan audio-opname niet starten."</string>
+    <string name="show_audio_recording_failed" msgid="8128216664039868681">"Audio-opname mislukt."</string>
+    <string name="bluetooth_ask_discovery_title" msgid="4955540555242269694">"Zichtbaar maken voor andere bluetooth-apparaten?"</string>
+    <string name="bluetooth_ask_discovery_message" msgid="8609666862877703398">"Een app wil je tv <xliff:g id="TIMEOUT">%1$d</xliff:g> seconden zichtbaar maken voor andere bluetooth-apparaten."</string>
+    <string name="help_center_title" msgid="6109822142761302433"></string>
+    <string name="disabled_by_policy_title" msgid="2220484346213756472">"Actie niet toegestaan"</string>
+    <string name="disabled_by_policy_title_adjust_volume" msgid="4229779946666263271">"Kan het volume niet wijzigen"</string>
+    <string name="disabled_by_policy_title_outgoing_calls" msgid="8642280178608881544">"Bellen niet toegestaan"</string>
+    <string name="disabled_by_policy_title_sms" msgid="5721045390560951358">"Sms niet toegestaan"</string>
+    <string name="disabled_by_policy_title_camera" msgid="6576557964422257426">"Camera niet toegestaan"</string>
+    <string name="disabled_by_policy_title_screen_capture" msgid="5774035841010091253">"Screenshot niet toegestaan"</string>
+    <string name="disabled_by_policy_title_suspend_packages" msgid="6500185610058872758">"Kan deze app niet openen"</string>
+    <string name="default_admin_support_msg" msgid="7913455019068370350">"Neem bij vragen contact op met je IT-beheerder"</string>
+    <string name="admin_support_more_info" msgid="9053232166115098434">"Meer informatie"</string>
+    <string name="admin_profile_owner_message" msgid="5729169873349157622">"Je beheerder kan apps en gegevens bijhouden en beheren die aan je werkprofiel zijn gekoppeld (waaronder instellingen, rechten, zakelijke toegang, netwerkactiviteit en locatiegegevens van het apparaat)."</string>
+    <string name="admin_profile_owner_user_message" msgid="6431405126322617268">"Je beheerder kan apps en gegevens bijhouden en beheren die aan deze gebruiker zijn gekoppeld (waaronder instellingen, rechten, zakelijke toegang, netwerkactiviteit en locatiegegevens van het apparaat)."</string>
+    <string name="admin_device_owner_message" msgid="1935507216776040907">"Je beheerder kan apps en gegevens bijhouden en beheren die aan dit apparaat zijn gekoppeld (waaronder instellingen, rechten, zakelijke toegang, netwerkactiviteit en locatiegegevens van het apparaat)."</string>
+    <string name="remove_managed_profile_label" msgid="8950011141359605612">"Werkprofiel verwijderen"</string>
+    <string name="active_device_admin_msg" msgid="185537304726228624">"Apparaatbeheer-app"</string>
+    <string name="remove_device_admin" msgid="2623866073546295104">"Deze apparaatbeheer-app uitzetten"</string>
+    <string name="uninstall_device_admin" msgid="6301368408620948266">"App verwijderen"</string>
+    <string name="remove_and_uninstall_device_admin" msgid="1504351551194915633">"Uitzetten en verwijderen"</string>
+    <string name="select_device_admin_msg" msgid="8475934459999710332">"Apparaatbeheer-apps"</string>
+    <string name="add_device_admin_msg" msgid="5390773166682603421">"Apparaatbeheer-app activeren?"</string>
+    <string name="add_device_admin" msgid="5078281377915844544">"Deze apparaatbeheer-app activeren"</string>
+    <string name="device_admin_warning" msgid="7399916080685200660">"Als je deze beheer-app activeert, sta je de app <xliff:g id="APP_NAME">%1$s</xliff:g> toe de volgende bewerkingen uit te voeren:"</string>
+    <string name="device_admin_warning_simplified" msgid="3310965971422346950">"Dit apparaat wordt beheerd en gecontroleerd door <xliff:g id="APP_NAME">%1$s</xliff:g>."</string>
+    <string name="device_admin_status" msgid="5467001937240455367">"Deze beheer-app is actief en staat toe dat de app <xliff:g id="APP_NAME">%1$s</xliff:g> de volgende bewerkingen uitvoert:"</string>
+    <string name="adding_profile_owner_warning" msgid="3888867082224127564">"Als je doorgaat, wordt je gebruiker beheerd door je beheerder, die ook de bijbehorende gegevens en persoonsgegevens kan opslaan.\n\nJe beheerder kan instellingen, toegang, apps en gegevens van deze gebruiker bijhouden en beheren, waaronder netwerkactiviteit en de locatiegegevens van je apparaat."</string>
+    <string name="share_remote_bugreport_dialog_title" msgid="2080017987692459555">"Bugrapport delen?"</string>
+    <string name="share_remote_bugreport_dialog_message_finished" msgid="8515056665416643253">"Je IT-beheerder heeft een bugrapport aangevraagd om problemen met dit apparaat op te lossen. Apps en gegevens kunnen worden gedeeld."</string>
+    <string name="share_remote_bugreport_dialog_message" msgid="4637489112422692638">"Je IT-beheerder heeft een bugrapport aangevraagd om problemen met dit apparaat op te lossen. Apps en gegevens kunnen worden gedeeld en je apparaat kan hierdoor tijdelijk worden vertraagd."</string>
+    <string name="sharing_remote_bugreport_dialog_message" msgid="8096239263583331293">"Dit bugrapport wordt gedeeld met je IT-beheerder. Neem contact met deze persoon op voor meer informatie."</string>
+    <string name="share_remote_bugreport_action" msgid="6760197666368262892">"Delen"</string>
+    <string name="decline_remote_bugreport_action" msgid="2130779396296090961">"Weigeren"</string>
+    <string name="network_connection_request_dialog_title" msgid="4103963119407212989">"Apparaat om te gebruiken met <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
+    <string name="network_connection_timeout_dialog_message" msgid="8408857135950230472">"Geen apparaten gevonden. Zorg dat apparaten aanstaan en beschikbaar zijn voor verbinding."</string>
+    <string name="network_connection_timeout_dialog_ok" msgid="5374522862360880609">"Opnieuw proberen"</string>
+    <string name="network_connection_errorstate_dialog_message" msgid="3346121178275518630">"Er is een probleem opgetreden. De app heeft het verzoek om een apparaat te kiezen geannuleerd."</string>
+    <string name="network_connection_connect_successful" msgid="2981223044343511313">"Verbinding gemaakt"</string>
+    <string name="network_connection_request_dialog_showall" msgid="2653775399674126208">"Alles tonen"</string>
+    <string name="progress_scanning" msgid="3323638586482686516">"Zoeken"</string>
+    <string name="add_account_intent_not_available_dialog_message" msgid="8326403834567215053">"Kan intentie voor account toevoegen niet ophalen bij authenticator."</string>
+    <string name="add_account_failed_dialog_message" msgid="3704858007957373186">"Kan het account niet toevoegen of het accounttype is niet beschikbaar."</string>
+    <string name="channels_and_inputs_title" msgid="7484506121290830217">"Kanalen en ingangen"</string>
+    <string name="channels_and_inputs_summary" msgid="3168386051698084007">"Kanalen, externe ingangen"</string>
+    <string name="channels_settings_title" msgid="8048956665383762510">"Kanalen"</string>
+    <string name="external_inputs_settings_title" msgid="8937038060355986380">"Externe ingangen"</string>
+    <string name="display_and_sound_vendor_summary" msgid="7661072343315403110">"Beeld, scherm, geluid"</string>
+    <string name="picture_settings_title" msgid="7643193630924322697">"Beeld"</string>
+    <string name="screen_settings_title" msgid="7806908869190824434">"Scherm"</string>
+    <string name="sound_settings_title" msgid="9149367966117889465">"Geluid"</string>
+    <string name="power_and_energy" msgid="4638182439670702556">"Voeding en energie"</string>
+    <string name="power_on_behavior" msgid="927607372303160716">"Startscherm na aanzetten"</string>
+    <string name="reset_options_title" msgid="7632580482285108955">"Resetten"</string>
+    <string name="adb_pairing_device_dialog_ethernet_pairing_code_label" msgid="7551782499828944838">"Koppelingscode voor ethernet"</string>
+    <string name="energy_modes" msgid="1331693860386361744">"Energiestanden"</string>
+    <string name="energy_modes_summary" msgid="2324906343309484649">"Deze instellingen zijn van invloed wanneer het apparaat niet wordt gebruikt"</string>
+    <string name="energy_mode_enables" msgid="357960364751477627">"Zet het volgende aan:"</string>
+    <string name="energy_mode_eco_hint" msgid="5280058011809503514">"Het stroomverbruik kan toenemen met het aantal tv-functies dat je aanzet."</string>
+    <string name="energy_modes_confirmation_title" msgid="4520280098781914825">"<xliff:g id="ENERGYMODENAME">%s</xliff:g> aanzetten"</string>
+    <string name="settings_find_my_remote_title" msgid="4586368268611622848">"Mijn afstandsbediening vinden"</string>
+    <string name="settings_find_my_remote_description" msgid="6606011378441585154">"Speel een geluid af om je Google TV-afstandsbediening te vinden als je deze kwijt bent"</string>
+    <string name="find_my_remote_slice_description" msgid="313598681990933215">"Je Google TV heeft een knop waarmee je 30 seconden een geluid kunt afspelen op je afstandsbediening. Dit werkt alleen met ondersteunde afstandsbedieningen voor Google TV.\n\nAls je het geluid wilt uitzetten, druk je op een knop op je afstandsbediening."</string>
+    <string name="find_my_remote_integration_hint" msgid="7560895390042161430">"Als Mijn afstandsbediening vinden aanstaat, kun je een geluid afspelen om je Google TV-afstandsbediening te vinden als je deze kwijt bent."</string>
+    <string name="find_my_remote_play_sound" msgid="3364983972397728084">"Geluid afspelen"</string>
+</resources>

@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2007 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" msgid="6098036489833144040">"Контролер разрешений"</string>
+    <string name="ok" msgid="1936281769725676272">"ОК"</string>
+    <string name="permission_search_keyword" msgid="1214451577494730543">"разрешения"</string>
+    <string name="cancel" msgid="8943320028373963831">"Отмена"</string>
+    <string name="back" msgid="6249950659061523680">"Назад"</string>
+    <string name="available" msgid="6007778121920339498">"Доступно"</string>
+    <string name="blocked" msgid="9195547604866033708">"Заблокировано"</string>
+    <string name="on" msgid="280241003226755921">"Включено"</string>
+    <string name="off" msgid="1438489226422866263">"Отключить"</string>
+    <string name="uninstall_or_disable" msgid="4496612999740858933">"Удалить или отключить"</string>
+    <string name="app_not_found_dlg_title" msgid="6029482906093859756">"Приложение не найдено"</string>
+    <string name="grant_dialog_button_deny" msgid="88262611492697192">"Запретить"</string>
+    <string name="grant_dialog_button_deny_and_dont_ask_again" msgid="1748925431574312595">"Запретить и больше не спрашивать"</string>
+    <string name="grant_dialog_button_no_upgrade" msgid="8344732743633736625">"Оставить доступ только в активном режиме"</string>
+    <string name="grant_dialog_button_no_upgrade_one_time" msgid="5125892775684968694">"Оставить \"Только в этот раз\""</string>
+    <string name="grant_dialog_button_more_info" msgid="213350268561945193">"Подробнее"</string>
+    <string name="grant_dialog_button_allow_all" msgid="5939066403732409516">"Разрешить ко всем"</string>
+    <string name="grant_dialog_button_always_allow_all" msgid="1719900027660252167">"Постоянный полный доступ"</string>
+    <string name="grant_dialog_button_allow_limited_access" msgid="5713551784422137594">"Разрешить ограниченный доступ"</string>
+    <string name="grant_dialog_button_allow_selected_photos" msgid="5497042471576153842">"Выбрать фотографии и видео"</string>
+    <string name="grant_dialog_button_allow_more_selected_photos" msgid="5145657877588697709">"Выбрать больше"</string>
+    <string name="grant_dialog_button_dont_select_more" msgid="6643552729129461268">"Не выбирать"</string>
+    <string name="grant_dialog_button_deny_anyway" msgid="7225905870668915151">"Все равно запретить"</string>
+    <string name="grant_dialog_button_dismiss" msgid="1930399742250226393">"Закрыть"</string>
+    <string name="current_permission_template" msgid="7452035392573329375">"<xliff:g id="CURRENT_PERMISSION_INDEX">%1$s</xliff:g> из <xliff:g id="PERMISSION_COUNT">%2$s</xliff:g>"</string>
+    <string name="permission_warning_template" msgid="2247087781222679458">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
+    <string name="permission_add_background_warning_template" msgid="1812914855915092273">"Всегда разрешать приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; <xliff:g id="ACTION">%2$s</xliff:g>?"</string>
+    <string name="allow_permission_foreground_only" msgid="116465816039675404">"Когда открыто приложение"</string>
+    <string name="allow_permission_always" msgid="5194342531206054051">"Всегда"</string>
+    <string name="deny_permission_deny_and_dont_ask_again" msgid="6106035221490102341">"Запретить и больше не спрашивать"</string>
+    <string name="permission_revoked_count" msgid="4785082705441547086">"отключено: <xliff:g id="COUNT">%1$d</xliff:g>"</string>
+    <string name="permission_revoked_all" msgid="3397649017727222283">"все отключены"</string>
+    <string name="permission_revoked_none" msgid="9213345075484381180">"все включены"</string>
+    <string name="grant_dialog_button_allow" msgid="5314677880021102550">"Разрешить"</string>
+    <string name="grant_dialog_button_allow_always" msgid="4485552579273565981">"Разрешить в любом режиме"</string>
+    <string name="grant_dialog_button_allow_foreground" msgid="501896824973636533">"При использовании приложения"</string>
+    <string name="grant_dialog_button_change_to_precise_location" msgid="3273115879467236033">"Изменить на точное местоположение"</string>
+    <string name="grant_dialog_button_keey_approximate_location" msgid="438025182769080011">"Оставить приблизительное местоположение"</string>
+    <string name="grant_dialog_button_allow_one_time" msgid="2618088516449706391">"Только в этот раз"</string>
+    <string name="grant_dialog_button_allow_background" msgid="8236044729434367833">"Разрешить в любом режиме"</string>
+    <string name="grant_dialog_button_allow_all_files" msgid="4955436994954829894">"Разрешить управление всеми файлами"</string>
+    <string name="grant_dialog_button_allow_media_only" msgid="4832877658422573832">"Разрешить доступ к медиафайлам"</string>
+    <string name="app_permissions_breadcrumb" msgid="5136969550489411650">"Приложения"</string>
+    <string name="app_permissions" msgid="3369917736607944781">"Разрешения приложений"</string>
+    <string name="unused_apps" msgid="2058057455175955094">"Неиспользуемые приложения"</string>
+    <string name="edit_photos_description" msgid="5540108003480078892">"Изменить список фото для этого приложения"</string>
+    <string name="no_unused_apps" msgid="12809387670415295">"Неиспользуемых приложений нет"</string>
+    <string name="zero_unused_apps" msgid="9024448554157499748">"Нет неиспользуемых приложений"</string>
+    <string name="review_permission_decisions" msgid="309559429150613632">"Действия с разрешениями"</string>
+    <string name="review_permission_decisions_view_all" msgid="90391040431566130">"Все недавние действия с разрешениями"</string>
+    <string name="review_permission_decisions_empty" msgid="8120775336417279806">"Нет недавних действий с разрешениями"</string>
+    <string name="auto_permission_manager_summary" msgid="9157438376234301354">"Управление доступом к календарю, списку вызовов и другим данным"</string>
+    <string name="granted_permission_decision" msgid="7824827491551861365">"Вы предоставили приложению \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" доступ к разрешению \"<xliff:g id="PERMISSION_NAME">%2$s</xliff:g>\""</string>
+    <string name="denied_permission_decision" msgid="5308961501779563781">"Вы запретили приложению \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" доступ к разрешению \"<xliff:g id="PERMISSION_NAME">%2$s</xliff:g>\""</string>
+    <string name="days_ago" msgid="6650359081551335629">"{count,plural, =0{Сегодня}=1{1 день назад}one{# день назад}few{# дня назад}many{# дней назад}other{# дня назад}}"</string>
+    <string name="app_disable_dlg_positive" msgid="7418444149981904940">"Отключить приложение"</string>
+    <string name="app_disable_dlg_text" msgid="3126943217146120240">"Если вы отключите это приложение, система и другие программы могут работать неправильно. Приложение установлено производителем, поэтому его нельзя удалить с устройства. После отключения оно перестанет работать и будет скрыто."</string>
+    <string name="app_permission_manager" msgid="3903811137630909550">"Разрешения"</string>
+    <string name="never_ask_again" msgid="4728762438198560329">"Больше не спрашивать"</string>
+    <string name="no_permissions" msgid="3881676756371148563">"Нет разрешений"</string>
+    <string name="additional_permissions" msgid="5801285469338873430">"Ещё разрешения"</string>
+    <string name="app_permissions_info_button_label" msgid="7633312050729974623">"Показать информацию о приложении"</string>
+    <string name="additional_permissions_more" msgid="5681220714755304407">"{count,plural, =1{Ещё #}one{Ещё #}few{Ещё #}many{Ещё #}other{Ещё #}}"</string>
+    <string name="old_sdk_deny_warning" msgid="2382236998845153919">"Это приложение было разработано для более ранней версии Android. Отзыв разрешения может вызвать неполадки в работе."</string>
+    <string name="storage_supergroup_warning_allow" msgid="103093462784523190">"Это приложение было разработано для более ранней версии Android. Если вы предоставите это разрешение, у приложения будет доступ ко всем файлам в хранилище устройства (в том числе к фото, видео и аудио)."</string>
+    <string name="storage_supergroup_warning_deny" msgid="6420765672683284347">"Это приложение было разработано для более ранней версии Android. Если вы не предоставите это разрешение, у приложения не будет доступа к файлам в хранилище устройства (в том числе к фото, видео и аудио)."</string>
+    <string name="default_permission_description" msgid="4624464917726285203">"выполнять неизвестное действие"</string>
+    <string name="app_permissions_group_summary" msgid="8788419008958284002">"Приложений с разрешением: <xliff:g id="COUNT_0">%1$d</xliff:g> из <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
+    <string name="app_permissions_group_summary2" msgid="4329922444840521150">"Приложений с разрешением: <xliff:g id="COUNT_0">%1$d</xliff:g> из <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
+    <string name="menu_show_system" msgid="4254021607027872504">"Показать системные процессы"</string>
+    <string name="menu_hide_system" msgid="3855390843744028465">"Скрыть системные процессы"</string>
+    <string name="menu_show_7_days_data" msgid="8979611198508523706">"Использование за 7 дней"</string>
+    <string name="menu_show_24_hours_data" msgid="8228054833323380780">"Использование за 24 часа"</string>
+    <string name="manage_permission" msgid="2895385393037061964">"Управление разрешением"</string>
+    <string name="no_apps" msgid="2412612731628386816">"Нет приложений"</string>
+    <string name="location_settings" msgid="3624412509133422562">"Настройки геолокации"</string>
+    <string name="location_warning" msgid="2381649060929040962">"Приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" обеспечивает геолокацию на этом устройстве. Вы всегда можете изменить настройки доступа к данным о местоположении."</string>
+    <string name="system_warning" msgid="1173400963234358816">"Без этого разрешения основные функции устройства могут работать неправильно."</string>
+    <string name="deny_read_media_visual_warning" msgid="3982586279917232827">"Это приложение было разработано для более ранней версии Android. Если вы запретите ему доступ к фото и видео, у приложения также не будет доступа к музыке и другим аудиофайлам."</string>
+    <string name="deny_read_media_aural_warning" msgid="8928699919508646732">"Это приложение было разработано для более ранней версии Android. Если вы запретите ему доступ к музыке и другим аудиофайлам, у приложения также не будет доступа к фото и видео."</string>
+    <string name="cdm_profile_revoke_warning" msgid="4443893270719106700">"Без этого разрешения некоторые функции устройства, связанные с этим приложением, могут работать неправильно."</string>
+    <string name="permission_summary_enforced_by_policy" msgid="4443598170942950519">"В соответствии с правилами"</string>
+    <string name="permission_summary_disabled_by_policy_background_only" msgid="221995005556362660">"Доступ в фоновом режиме отключен в соответствии с правилами"</string>
+    <string name="permission_summary_enabled_by_policy_background_only" msgid="8287675974767104279">"Доступ в фоновом режиме включен в соответствии с правилами"</string>
+    <string name="permission_summary_enabled_by_policy_foreground_only" msgid="3844582916889767831">"Доступ в активном режиме включен в соответствии с правилами"</string>
+    <string name="permission_summary_enforced_by_admin" msgid="822702574117248700">"Контролируется администратором"</string>
+    <string name="permission_summary_disabled_by_admin_background_only" msgid="3127091456731845646">"Доступ в фоновом режиме отключен администратором"</string>
+    <string name="permission_summary_enabled_by_admin_background_only" msgid="9132423838440275757">"Доступ в фоновом режиме включен администратором"</string>
+    <string name="permission_summary_enabled_by_admin_foreground_only" msgid="1298432715610745358">"Доступ в активном режиме включен администратором"</string>
+    <string name="permission_summary_enabled_system_fixed" msgid="2438344700184127274">"Это разрешение необходимо для нормальной работы устройства."</string>
+    <!-- no translation found for background_access_chooser_dialog_choices:0 (1351721623256561996) -->
+    <!-- no translation found for background_access_chooser_dialog_choices:1 (9127301153688725448) -->
+    <!-- no translation found for background_access_chooser_dialog_choices:2 (4305536986042401191) -->
+    <string name="permission_access_always" msgid="1474641821883823446">"Разрешить в любом режиме"</string>
+    <string name="permission_access_only_foreground" msgid="7801170728159326195">"Разрешить только во время использования приложения"</string>
+    <string name="permission_access_never" msgid="4647014230217936900">"Запретить"</string>
+    <string name="loading" msgid="4789365003890741082">"Загрузка…"</string>
+    <string name="all_permissions" msgid="6911125611996872522">"Все разрешения"</string>
+    <string name="other_permissions" msgid="2901186127193849594">"Что ещё может приложение"</string>
+    <string name="permission_request_title" msgid="8790310151025020126">"Запрос разрешений"</string>
+    <string name="permission_review_title_template_install" msgid="1284337937156289081">"Выберите разрешения для приложения &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;"</string>
+    <string name="permission_review_title_template_update" msgid="3232333580548588657">"Приложение &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; обновлено. Выберите разрешения для него."</string>
+    <string name="review_button_cancel" msgid="2191147944056548886">"Отмена"</string>
+    <string name="review_button_continue" msgid="2527918375047602199">"Продолжить"</string>
+    <string name="new_permissions_category" msgid="552995090178417611">"Новые разрешения"</string>
+    <string name="current_permissions_category" msgid="4292990083585728880">"Имеющиеся разрешения"</string>
+    <string name="message_staging" msgid="9110563899955511866">"Подождите…"</string>
+    <string name="app_name_unknown" msgid="1319665005754048952">"Неизвестное приложение"</string>
+    <string name="permission_usage_title" msgid="1568233336351734538">"Панель управления разрешениями"</string>
+    <string name="auto_permission_usage_summary" msgid="7335667266743337075">"Посмотреть, какие приложения недавно использовали разрешения"</string>
+    <string name="permission_group_usage_title" msgid="2595013198075285173">"Использование разрешения \"<xliff:g id="PERMGROUP">%1$s</xliff:g>\""</string>
+    <string name="perm_usage_adv_info_title" msgid="3357831829538873708">"Показать другие разрешения"</string>
+    <string name="perm_usage_adv_info_summary_2_items" msgid="3702175198750127822">"<xliff:g id="PERMGROUP_0">%1$s</xliff:g>, <xliff:g id="PERMGROUP_1">%2$s</xliff:g>"</string>
+    <string name="perm_usage_adv_info_summary_more_items" msgid="949055326299562218">"<xliff:g id="PERMGROUP_0">%1$s</xliff:g>, <xliff:g id="PERMGROUP_1">%2$s</xliff:g> и ещё <xliff:g id="NUM">%3$s</xliff:g>"</string>
+    <string name="permission_group_usage_subtitle_24h" msgid="5120155996322114181">"Хронология использования разрешения \"<xliff:g id="PERMGROUP">%1$s</xliff:g>\" за последние 24 часа"</string>
+    <string name="permission_group_usage_subtitle_7d" msgid="1465828402260324654">"Хронология использования разрешения \"<xliff:g id="PERMGROUP">%1$s</xliff:g>\" за последние 7 дней"</string>
+    <string name="permission_usage_access_dialog_subtitle" msgid="4171772805196955753">"Когда приложение использовало разрешение \"<xliff:g id="PERMGROUP">%1$s</xliff:g>\""</string>
+    <string name="permission_usage_access_dialog_learn_more" msgid="7121468469493184613">"Подробнее…"</string>
+    <string name="learn_more_content_description" msgid="8673699744544502539">"<xliff:g id="PERMGROUP">%1$s</xliff:g>: подробнее"</string>
+    <string name="manage_permission_summary" msgid="4117555482684114317">"Настроить доступ приложений к группе разрешений \"<xliff:g id="PERMGROUP">%1$s</xliff:g>\""</string>
+    <string name="auto_permission_usage_timeline_summary" msgid="2713135806453218703">"<xliff:g id="ACCESS_TIME">%1$s</xliff:g> • <xliff:g id="SUMMARY_TEXT">%2$s</xliff:g>"</string>
+    <string name="history_preference_subtext_2" msgid="1521763591164293683">"<xliff:g id="APP_NAME">%1$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%2$s</xliff:g>"</string>
+    <string name="history_preference_subtext_3" msgid="758761785983094351">"<xliff:g id="ATTRIBUTION_NAME">%1$s</xliff:g> • <xliff:g id="APP_NAME">%2$s</xliff:g> • <xliff:g id="TRUNCATED_TIME">%3$s</xliff:g>"</string>
+    <string name="duration_used_days" msgid="8238355545812998877">"{count,plural, =1{# день}one{# день}few{# дня}many{# дней}other{# дня}}"</string>
+    <string name="duration_used_hours" msgid="4983814806123370332">"{count,plural, =1{# час}one{# час}few{# часа}many{# часов}other{# часа}}"</string>
+    <string name="duration_used_minutes" msgid="1701379522897227819">"{count,plural, =1{# минута}one{# минута}few{# минуты}many{# минут}other{# минуты}}"</string>
+    <string name="duration_used_seconds" msgid="4067390990568727715">"{count,plural, =1{# секунда}one{# секунда}few{# секунды}many{# секунд}other{# секунды}}"</string>
+    <string name="permission_usage_any_permission" msgid="6358023078298106997">"Все разрешения"</string>
+    <string name="permission_usage_any_time" msgid="3802087027301631827">"Все время"</string>
+    <string name="permission_usage_last_n_days" msgid="7882626467375714145">"{count,plural, =1{За последний # день}one{За последний # день}few{За последние # дня}many{За последние # дней}other{За последние # дня}}"</string>
+    <string name="permission_usage_last_n_hours" msgid="8490466053680267858">"{count,plural, =1{За последний # час}one{За последний # час}few{За последние # часа}many{За последние # часов}other{За последние # часа}}"</string>
+    <string name="permission_usage_last_n_minutes" msgid="7817864229878281983">"{count,plural, =1{За последнюю # минуту}one{За последнюю # минуту}few{За последние # минуты}many{За последние # минут}other{За последние # минуты}}"</string>
+    <string name="no_permission_usages" msgid="9119517454177289331">"Разрешения не использовались"</string>
+    <string name="permission_usage_list_title_any_time" msgid="8718257027381592407">"Доступ к разрешениям за все время"</string>
+    <string name="permission_usage_list_title_last_7_days" msgid="9048542342670890615">"Доступ за последние 7 дней"</string>
+    <string name="permission_usage_list_title_last_day" msgid="8730907824567238461">"Доступ за последние 24 часа"</string>
+    <string name="permission_usage_list_title_last_hour" msgid="6624161487623223716">"Доступ за последний час"</string>
+    <string name="permission_usage_list_title_last_15_minutes" msgid="8615062016024296833">"Доступ за последние 15 минут"</string>
+    <string name="permission_usage_list_title_last_minute" msgid="3572792262919886849">"Доступ за последнюю минуту"</string>
+    <string name="permission_usage_bar_chart_title_any_time" msgid="2845251288192246754">"Разрешения, использованные за все время"</string>
+    <string name="permission_usage_bar_chart_title_last_7_days" msgid="5796577162176938349">"Разрешения, использованные за последние 7 дней"</string>
+    <string name="permission_usage_bar_chart_title_last_day" msgid="7950805735777472871">"Разрешения, использованные за последние 24 часа"</string>
+    <string name="permission_usage_bar_chart_title_last_hour" msgid="6571647509660009185">"Разрешения, использованные за последний час"</string>
+    <string name="permission_usage_bar_chart_title_last_15_minutes" msgid="2743143675412824819">"Разрешения, использованные за последние 15 минут"</string>
+    <string name="permission_usage_bar_chart_title_last_minute" msgid="820450867183487607">"Разрешения, использованные за последнюю минуту"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_days" msgid="4771868094611359651">"{count,plural, =1{С момента последнего использования прошел # день}one{С момента последнего использования прошел # день}few{С момента последнего использования прошло # дня}many{С момента последнего использования прошло # дней}other{С момента последнего использования прошло # дня}}"</string>
+    <string name="permission_usage_preference_summary_not_used_in_past_n_hours" msgid="3828973177433435742">"{count,plural, =1{С момента последнего использования прошел # час}one{С момента последнего использования прошел # час}few{С момента последнего использования прошло # часа}many{С момента последнего использования прошло # часов}other{С момента последнего использования прошло # часа}}"</string>
+    <string name="permission_usage_preference_label" msgid="8343167938128676378">"{count,plural, =1{Использует 1 приложение}one{Использует # приложение}few{Используют # приложения}many{Используют # приложений}other{Используют # приложения}}"</string>
+    <string name="permission_usage_view_details" msgid="6675335735468752787">"Показать все в панели управления"</string>
+    <string name="app_permission_usage_filter_label" msgid="7182861154638631550">"Фильтр: <xliff:g id="PERM">%1$s</xliff:g>"</string>
+    <string name="app_permission_usage_remove_filter" msgid="2926157607436428207">"Удалить фильтр"</string>
+    <string name="filter_by_title" msgid="7300368602759958031">"Фильтр"</string>
+    <string name="filter_by_permissions" msgid="7613462963111282568">"Фильтровать по разрешениям"</string>
+    <string name="filter_by_time" msgid="6667864816999691642">"Фильтровать по времени"</string>
+    <string name="sort_spinner_most_permissions" msgid="1704349738096822836">"Популярность"</string>
+    <string name="sort_spinner_most_accesses" msgid="5283913004357220161">"Количество разрешений"</string>
+    <string name="sort_spinner_recent" msgid="7513845273076525203">"Недавние"</string>
+    <string name="sort_by_app" msgid="4055799843051138087">"Сортировать по приложению"</string>
+    <string name="sort_by_time" msgid="5435045320002150456">"Сортировать по времени"</string>
+    <string name="item_separator" msgid="4030255389809224513">", "</string>
+    <string name="permission_usage_refresh" msgid="2264056346561305420">"Обновить"</string>
+    <string name="permission_history_title" msgid="8340081285133025225">"История разрешений"</string>
+    <string name="permission_history_category_today" msgid="7496389369158806620">"Сегодня"</string>
+    <string name="permission_history_category_yesterday" msgid="7242517121222012521">"Вчера"</string>
+    <string name="app_permission_usage_title" msgid="6676802437831981822">"Использование разрешений"</string>
+    <string name="app_permission_usage_summary" msgid="390383661936709672">"Сколько раз использовано: <xliff:g id="NUM">%1$s</xliff:g>. Общее время использования: <xliff:g id="DURATION">%2$s</xliff:g>. Последний раз: <xliff:g id="TIME">%3$s</xliff:g> назад."</string>
+    <string name="app_permission_usage_summary_no_duration" msgid="3698475875179457400">"Сколько раз использовано: <xliff:g id="NUM">%1$s</xliff:g>. Последний раз: <xliff:g id="TIME">%2$s</xliff:g> назад."</string>
+    <string name="app_permission_button_allow" msgid="5808039516494774647">"Разрешить"</string>
+    <string name="app_permission_button_allow_all_files" msgid="1792232272599018825">"Разрешить управление всеми файлами"</string>
+    <string name="app_permission_button_allow_media_only" msgid="2834282724426046154">"Разрешить доступ только к медиафайлам"</string>
+    <string name="app_permission_button_allow_always" msgid="4573292371734011171">"Разрешить в любом режиме"</string>
+    <string name="app_permission_button_allow_foreground" msgid="1991570451498943207">"Разрешить только во время использования приложения"</string>
+    <string name="app_permission_button_always_allow_all" msgid="4905699259378428855">"Постоянный полный доступ"</string>
+    <string name="app_permission_button_ask" msgid="3342950658789427">"Спрашивать каждый раз"</string>
+    <string name="app_permission_button_deny" msgid="6016454069832050300">"Запретить"</string>
+    <string name="precise_image_description" msgid="6349638632303619872">"Точное местоположение"</string>
+    <string name="approximate_image_description" msgid="938803699637069884">"Приблизительное местоположение"</string>
+    <string name="app_permission_location_accuracy" msgid="7166912915040018669">"Точное местоположение"</string>
+    <string name="app_permission_location_accuracy_subtitle" msgid="2654077606404987210">"Если определение точного местоположения отключено, приложения могут использовать данные о примерном местоположении устройства"</string>
+    <string name="app_permission_title" msgid="2090897901051370711">"Разрешение \"<xliff:g id="PERM">%1$s</xliff:g>\""</string>
+    <string name="app_permission_header" msgid="2951363137032603806">"<xliff:g id="PERM">%1$s</xliff:g>: доступ для этого приложения"</string>
+    <string name="app_permission_footer_app_permissions_link" msgid="4926890342636587393">"Все разрешения приложения \"<xliff:g id="APP">%1$s</xliff:g>\""</string>
+    <string name="app_permission_footer_permission_apps_link" msgid="3941988129992794327">"Все приложения с этим разрешением"</string>
+    <string name="assistant_mic_label" msgid="1011432357152323896">"Показывать сведения об использовании микрофона Ассистентом"</string>
+    <string name="unused_apps_category_title" msgid="2988455616845243901">"Настройки неиспользуемых приложений"</string>
+    <string name="auto_revoke_label" msgid="5068393642936571656">"Отзывать разрешения, если приложение не используется"</string>
+    <string name="unused_apps_label" msgid="2595428768404901064">"Удалять разрешения и освобождать место"</string>
+    <string name="unused_apps_label_v2" msgid="7058776770056517980">"Приостановить работу в неактивный период"</string>
+    <string name="unused_apps_label_v3" msgid="693340578642156657">"Приостановить работу в неактивный период"</string>
+    <string name="unused_apps_summary" msgid="8839466950318403115">"Удалить разрешения и временные файлы, прекратить отправку уведомлений"</string>
+    <string name="unused_apps_summary_v2" msgid="5011313200815115802">"Удалить разрешения и временные файлы, прекратить отправку уведомлений и перенести приложение в архив"</string>
+    <string name="auto_revoke_summary" msgid="5867548789805911683">"Для защиты ваших данных мы отзовем разрешения, предоставленные этому приложению, если вы не будете пользоваться им несколько месяцев."</string>
+    <string name="auto_revoke_summary_with_permissions" msgid="389712086597285013">"Если вы не будете пользоваться приложением несколько месяцев, в целях защиты ваших данных мы отзовем следующие разрешения: <xliff:g id="PERMS">%1$s</xliff:g>."</string>
+    <string name="auto_revoked_apps_page_summary" msgid="6594753657893756536">"В целях защиты ваших данных мы отозвали разрешения для приложений, которыми вы не пользовались несколько месяцев."</string>
+    <string name="auto_revoke_open_app_message" msgid="8075556291711205039">"Чтобы снова предоставить разрешения, откройте приложение."</string>
+    <string name="auto_revoke_disabled" msgid="8697684442991567188">"Для этого приложения отключен автоматический отзыв разрешений."</string>
+    <string name="auto_revocable_permissions_none" msgid="8334929619113991466">"Сейчас не предоставлено разрешений, которые можно отозвать автоматически"</string>
+    <string name="auto_revocable_permissions_one" msgid="5299112369449458176">"Разрешение \"<xliff:g id="PERM">%1$s</xliff:g>\" будет отозвано"</string>
+    <string name="auto_revocable_permissions_two" msgid="4874067408752041716">"Разрешения \"<xliff:g id="PERM_0">%1$s</xliff:g>\" и \"<xliff:g id="PERM_1">%2$s</xliff:g>\" будут отозваны"</string>
+    <string name="auto_revocable_permissions_many" msgid="1521807896206032992">"Разрешения, которые будут отозваны: <xliff:g id="PERMS">%1$s</xliff:g>"</string>
+    <string name="auto_manage_title" msgid="7693181026874842935">"Автоматическое управление разрешениями"</string>
+    <string name="auto_revoked_app_summary_one" msgid="7093213590301252970">"Отозвано разрешение \"<xliff:g id="PERMISSION_NAME">%s</xliff:g>\"."</string>
+    <string name="auto_revoked_app_summary_two" msgid="1910545340763709389">"Отозваны разрешения \"<xliff:g id="PERMISSION_NAME_0">%1$s</xliff:g>\" и \"<xliff:g id="PERMISSION_NAME_1">%2$s</xliff:g>\"."</string>
+    <string name="auto_revoked_app_summary_many" msgid="5930976230827378798">"Отозвано разрешение \"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>\" и ещё <xliff:g id="NUMBER">%2$s</xliff:g>."</string>
+    <string name="unused_apps_page_title" msgid="6986983535677572559">"Неиспользуемые приложения"</string>
+    <string name="unused_apps_page_summary" msgid="1867593913217272155">"Если вы не пользовались приложением несколько месяцев:\n\n• разрешения будут отозваны для защиты ваших данных;\n• уведомления будут отключены для экономии заряда батареи;\n• временные файлы будут удалены, чтобы освободить место.\n\nЧтобы заново предоставить разрешения и включить уведомления, откройте приложение."</string>
+    <string name="unused_apps_page_tv_summary" msgid="2624911608663778308">"Если вы не пользовались приложением в течение месяца:\n\n• разрешения будут отключены для защиты ваших данных;\n• временные файлы будут удалены, чтобы освободить место.\n\nЧтобы заново предоставить разрешения, откройте приложение."</string>
+    <string name="last_opened_category_title" msgid="8796557894614236128">"{count,plural, =1{Использовались более # месяца назад}one{Использовались более # месяца назад}few{Использовались более # месяцев назад}many{Использовались более # месяцев назад}other{Использовались более # месяца назад}}"</string>
+    <string name="last_opened_summary" msgid="5248984030024968808">"Вы открывали это приложение <xliff:g id="DATE">%s</xliff:g>"</string>
+    <string name="last_opened_summary_short" msgid="1646067226191176825">"Использовалось <xliff:g id="DATE">%s</xliff:g>"</string>
+    <string name="app_permission_footer_special_file_access" msgid="1884202176147657788">"Если вы разрешите приложению управлять всеми файлами, оно сможет просматривать, изменять и удалять любые файлы в общем хранилище на этом устройстве, а также на подключенных запоминающих устройствах. При этом оно сможет получать доступ к файлам без вашего ведома."</string>
+    <string name="special_file_access_dialog" msgid="583804114020740610">"Разрешить этому приложению просматривать, изменять и удалять любые файлы на этом устройстве, а также на подключенных запоминающих устройствах? Приложение сможет получать доступ к файлам без вашего ведома."</string>
+    <string name="permission_description_summary_generic" msgid="5401399408814903391">"Приложения с этим разрешением <xliff:g id="DESCRIPTION">%1$s</xliff:g>"</string>
+    <string name="permission_description_summary_activity_recognition" msgid="2652850576497070146">"Приложения с этим разрешением могут получать доступ к данным о вашей физической активности, включая количество пройденных шагов и продолжительность прогулок и поездок на велосипеде."</string>
+    <string name="permission_description_summary_calendar" msgid="103329982944411010">"Приложения с этим разрешением могут получать доступ к календарю."</string>
+    <string name="permission_description_summary_call_log" msgid="7321437186317577624">"Приложения с этим разрешением могут читать список вызовов и создавать записи в нем."</string>
+    <string name="permission_description_summary_camera" msgid="108004375101882069">"Приложения с этим разрешением могут снимать фото и видео."</string>
+    <string name="permission_description_summary_contacts" msgid="2337798886460408996">"Приложения с этим разрешением могут получать доступ к контактам."</string>
+    <string name="permission_description_summary_location" msgid="2817531799933480694">"Приложения с этим разрешением могут получать доступ к местоположению устройства."</string>
+    <string name="permission_description_summary_nearby_devices" msgid="8269183818275073741">"Приложения с этим разрешением могут находить устройства поблизости, подключаться к ним и определять их относительное местоположение."</string>
+    <string name="permission_description_summary_microphone" msgid="630834800308329907">"Приложения с этим разрешением могут записывать аудио."</string>
+    <string name="permission_description_summary_phone" msgid="4515277217435233619">"Приложения с этим разрешением могут совершать звонки и управлять ими."</string>
+    <string name="permission_description_summary_sensors" msgid="1836045815643119949">"Приложения с этим разрешением могут получать доступ к данным датчиков основных показателей жизнедеятельности."</string>
+    <string name="permission_description_summary_sms" msgid="725999468547768517">"Приложения с этим разрешением могут отправлять и просматривать SMS-сообщения."</string>
+    <string name="permission_description_summary_storage" msgid="6575759089065303346">"Приложения с этим разрешением могут получать доступ к фотографиям, медиа и другим файлам на вашем устройстве."</string>
+    <string name="permission_description_summary_read_media_aural" msgid="3354728149930482199">"Приложения с этим разрешением могут получать доступ к музыке и другим аудиофайлам на устройстве."</string>
+    <string name="permission_description_summary_read_media_visual" msgid="4991801977881732641">"Приложения с этим разрешением могут получать доступ к фото и видео на устройстве."</string>
+    <string name="app_permission_most_recent_summary" msgid="4292074449384040590">"Последний раз использовано: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_permission_most_recent_denied_summary" msgid="7659497197737708112">"Временно запрещено / Последний доступ: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_permission_never_accessed_summary" msgid="401346181461975090">"Не использовалось"</string>
+    <string name="app_permission_never_accessed_denied_summary" msgid="6596000497490905146">"Запрещено / Не использовалось"</string>
+    <string name="allowed_header" msgid="7769277978004790414">"Разрешено"</string>
+    <string name="allowed_always_header" msgid="6455903312589013545">"Разрешено всегда"</string>
+    <string name="allowed_foreground_header" msgid="6845655788447833353">"Разрешено только при использовании"</string>
+    <string name="allowed_storage_scoped" msgid="5383645873719086975">"Приложения с доступом только к медиафайлам"</string>
+    <string name="allowed_storage_full" msgid="5356699280625693530">"Приложения с доступом ко всем файлам"</string>
+    <string name="ask_header" msgid="2633816846459944376">"Спрашивать каждый раз"</string>
+    <string name="denied_header" msgid="903209608358177654">"Запрещено"</string>
+    <string name="storage_footer_hyperlink_text" msgid="8873343987957834810">"Ещё приложения с доступом ко всем файлам"</string>
+    <string name="days" msgid="609563020985571393">"{count,plural, =1{1 день}one{# день}few{# дня}many{# дней}other{# дня}}"</string>
+    <string name="hours" msgid="7302866489666950038">"{count,plural, =1{# час}one{# час}few{# часа}many{# часов}other{# часа}}"</string>
+    <string name="minutes" msgid="4868414855445375753">"{count,plural, =1{# минута}one{# минута}few{# минуты}many{# минут}other{# минуты}}"</string>
+    <string name="seconds" msgid="5893958182059842734">"{count,plural, =1{# секунда}one{# секунда}few{# секунды}many{# секунд}other{# секунды}}"</string>
+    <string name="permission_reminders" msgid="6528257957664832636">"Напоминания о разрешениях"</string>
+    <string name="auto_revoke_permission_reminder_notification_title_one" msgid="6690347469376854137">"1 неиспользуемое приложение"</string>
+    <string name="auto_revoke_permission_reminder_notification_title_many" msgid="6062217713645069960">"Неиспользуемые приложения (<xliff:g id="NUMBER_OF_APPS">%s</xliff:g>)"</string>
+    <string name="auto_revoke_permission_reminder_notification_content" msgid="4492228990462107487">"Разрешения отозваны для защиты конфиденциальности ваших данных. Нажмите, чтобы узнать больше."</string>
+    <string name="auto_revoke_permission_notification_title" msgid="2629844160853454657">"У неиспользуемых приложений отозваны разрешения"</string>
+    <string name="auto_revoke_permission_notification_content" msgid="5125990886047799375">"Вы уже несколько месяцев не используете некоторые приложения. Нажмите, чтобы посмотреть подробности."</string>
+    <string name="unused_apps_notification_title" msgid="4314832015894238019">"{count,plural, =1{# неиспользуемое приложение}one{# неиспользуемое приложение}few{# неиспользуемых приложения}many{# неиспользуемых приложений}other{# неиспользуемого приложения}}"</string>
+    <string name="unused_apps_notification_content" msgid="9195026773244581246">"Мы отозвали разрешения, удалили временные файлы и отключили уведомления. Нажмите, чтобы узнать подробности."</string>
+    <string name="unused_apps_safety_center_card_title" msgid="5638409355530099149">"Проверьте приложения с отозванными разрешениями"</string>
+    <string name="unused_apps_safety_center_card_content" msgid="1088557243627427820">"Мы отозвали разрешения, удалили временные файлы и отключили уведомления для приложений, которые вы давно не использовали."</string>
+    <string name="unused_apps_safety_center_action_title" msgid="8865914432518993194">"Проверить приложения"</string>
+    <string name="post_drive_permission_decision_reminder_title" msgid="1290697371418139976">"Проверьте недавние разрешения"</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_1_permission" msgid="670521503734140711">"Во время вождения вы предоставили приложению \"<xliff:g id="APP">%1$s</xliff:g>\" следующее разрешение: <xliff:g id="PERMISSION">%2$s</xliff:g>."</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_2_permissions" msgid="671791184670801301">"Во время вождения вы предоставили приложению \"<xliff:g id="APP">%1$s</xliff:g>\" следующие разрешения: <xliff:g id="PERMISSION_1">%2$s</xliff:g> и <xliff:g id="PERMISSION_2">%3$s</xliff:g>."</string>
+    <string name="post_drive_permission_decision_reminder_summary_1_app_multi_permission" msgid="4080701771111456927">"Во время вождения вы предоставили приложению \"<xliff:g id="APP">%2$s</xliff:g>\" несколько разрешений (<xliff:g id="COUNT">%1$d</xliff:g>)."</string>
+    <string name="post_drive_permission_decision_reminder_summary_multi_apps" msgid="5253882771252863902">"{count,plural, =1{Во время вождения вы предоставили разрешение для \"<xliff:g id="APP_0">%1$s</xliff:g>\" и ещё # приложения.}one{Во время вождения вы предоставили разрешение для \"<xliff:g id="APP_1">%1$s</xliff:g>\" и ещё # приложения.}few{Во время вождения вы предоставили разрешение для \"<xliff:g id="APP_1">%1$s</xliff:g>\" и ещё # приложений.}many{Во время вождения вы предоставили разрешение для \"<xliff:g id="APP_1">%1$s</xliff:g>\" и ещё # приложений.}other{Во время вождения вы предоставили разрешение для \"<xliff:g id="APP_1">%1$s</xliff:g>\" и ещё # приложения.}}"</string>
+    <string name="go_to_settings" msgid="1053735612211228335">"Открыть настройки"</string>
+    <string name="auto_revoke_setting_subtitle" msgid="8631720570723050460">"Вы уже несколько месяцев не используете некоторые приложения."</string>
+    <string name="permissions_removed_category_title" msgid="1064754271178447643">"Приложения, у которых отозваны разрешения"</string>
+    <string name="permission_removed_page_title" msgid="2627436155091001209">"Разрешения отозваны"</string>
+    <string name="all_unused_apps_category_title" msgid="755663524704745414">"Все неиспользуемые приложения"</string>
+    <string name="months_ago" msgid="1766026492610646354">"<xliff:g id="COUNT">%1$d</xliff:g> мес. назад"</string>
+    <string name="auto_revoke_preference_summary" msgid="5517958331781391481">"Разрешения отозваны для защиты конфиденциальности ваших данных."</string>
+    <string name="background_location_access_reminder_notification_title" msgid="1140797924301941262">"Приложению \"<xliff:g id="APP_NAME">%s</xliff:g>\" в фоновом режиме доступны геоданные"</string>
+    <string name="background_location_access_reminder_notification_content" msgid="7787084707336546245">"У этого приложения есть постоянный доступ к сведениям о вашем местоположении. Нажмите, чтобы изменить настройки."</string>
+    <string name="notification_listener_reminder_notification_title" msgid="3747210460187479091">"Проверьте приложение с доступом к уведомлениям"</string>
+    <string name="notification_listener_reminder_notification_content" msgid="831476101108863427">"Приложение \"<xliff:g id="APP_NAME">%s</xliff:g>\" может взаимодействовать с уведомлениями, в том числе скрывать их и получать к ним доступ."</string>
+    <string name="notification_listener_warning_card_content" msgid="7840973324284115893">"Это приложение может закрывать уведомления, совершать с ними другие действия и получать доступ к их содержимому. Некоторым приложениям это разрешение требуется для правильной работы."</string>
+    <string name="notification_listener_remove_access_button_label" msgid="7101898782417817097">"Запретить доступ"</string>
+    <string name="notification_listener_review_app_button_label" msgid="3433073281029143924">"Показать дополнительные параметры"</string>
+    <string name="notification_listener_remove_access_success_label" msgid="2477611529875633107">"Доступ закрыт"</string>
+    <string name="accessibility_access_reminder_notification_title" msgid="2971317234668807566">"Проверьте приложение с полным доступом к устройству"</string>
+    <string name="accessibility_access_reminder_notification_content" msgid="7389454158175306720">"У приложения \"<xliff:g id="APP_NAME">%s</xliff:g>\" есть доступ к данным на экране, и оно может выполнять команды на устройстве. Это нужно для правильной работы специальных возможностей."</string>
+    <string name="accessibility_access_warning_card_content" msgid="4370327190293217358">"У этого приложения есть доступ к данным на экране, и оно может выполнять команды на устройстве. Это нужно для правильной работы специальных возможностей. Рекомендуем убедиться, что приложению можно доверять."</string>
+    <string name="accessibility_remove_access_button_label" msgid="44145801526711640">"Запретить доступ"</string>
+    <string name="accessibility_show_all_apps_button_label" msgid="960067249326392280">"Показать приложения с полным доступом"</string>
+    <string name="accessibility_remove_access_success_label" msgid="4380995302917014670">"Доступ запрещен"</string>
+    <string name="safety_center_notification_app_label" msgid="2457720616141926534">"Система Android"</string>
+    <string name="auto_revoke_after_notification_title" msgid="5417761027669887431">"Разрешения для приложения отозваны в целях защиты данных"</string>
+    <string name="auto_revoke_after_notification_content_one" msgid="6804038707453662753">"Вы уже несколько месяцев не пользовались приложением \"<xliff:g id="APP_NAME">%s</xliff:g>\". Нажмите, чтобы посмотреть подробности."</string>
+    <string name="auto_revoke_after_notification_content_two" msgid="9108709764831425172">"Вы уже несколько месяцев не пользовались некоторыми приложениями: \"<xliff:g id="APP_NAME">%s</xliff:g>\" и ещё одним. Нажмите, чтобы посмотреть подробности."</string>
+    <string name="auto_revoke_after_notification_content_many" msgid="4774106206289751220">"Вы уже несколько месяцев не пользовались некоторыми приложениями: \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" и ещё <xliff:g id="NUMBER_OF_APPS">%2$s</xliff:g>. Нажмите, чтобы посмотреть подробности."</string>
+    <string name="auto_revoke_before_notification_title_one" msgid="6758024954464359876">"1 неиспользуемое приложение"</string>
+    <string name="auto_revoke_before_notification_title_many" msgid="4415543943846385685">"Неиспользуемых приложений: <xliff:g id="NUMBER_OF_APPS">%s</xliff:g>"</string>
+    <string name="auto_revoke_before_notification_content_one" msgid="1156635373417068822">"Чтобы защитить конфиденциальность ваших данных, разрешения будут отозваны. Нажмите, чтобы посмотреть подробности."</string>
+    <string name="unused_apps_title" msgid="8589298917717872239">"Неиспользуемые приложения"</string>
+    <string name="unused_apps_subtitle_after" msgid="2034267519506357898">"Разрешения отозваны у следующих приложений:"</string>
+    <string name="unused_apps_subtitle_before" msgid="5233302577076132427">"Разрешения будут отозваны у следующих приложений:"</string>
+    <string name="unused_permissions_subtitle_two" msgid="2207266295008423015">"<xliff:g id="PERM_NAME_0">%1$s</xliff:g> и <xliff:g id="PERM_NAME_1">%2$s</xliff:g>"</string>
+    <string name="unused_permissions_subtitle_many" msgid="4387289202207450238">"<xliff:g id="PERM_NAME_0">%1$s</xliff:g>, <xliff:g id="PERM_NAME_1">%2$s</xliff:g> и ещё <xliff:g id="NUMBER_OF_PERMISSIONS">%3$s</xliff:g>"</string>
+    <string name="unused_app_permissions_removed_summary" msgid="6779039455326071033">"В целях защиты ваших данных мы отозвали разрешения для приложений, которыми вы не пользовались несколько месяцев."</string>
+    <string name="unused_app_permissions_removed_summary_some" msgid="5080490037831563441">"В целях защиты ваших данных мы отозвали разрешения для некоторых приложений, которыми вы не пользовались несколько месяцев."</string>
+    <string name="one_unused_app_summary" msgid="7831913934488881991">"Вы уже несколько месяцев не используете 1 приложение."</string>
+    <string name="num_unused_apps_summary" msgid="1870719749940571227">"Вы уже несколько месяцев не используете некоторые приложения (<xliff:g id="NUMBER_OF_APPS">%s</xliff:g>)."</string>
+    <string name="permission_subtitle_only_in_foreground" msgid="9068389431267377564">"Разрешить только при использовании приложения"</string>
+    <string name="permission_subtitle_media_only" msgid="8917869683764720717">"Медиафайлы"</string>
+    <string name="permission_subtitle_all_files" msgid="4982613338298067862">"Все файлы"</string>
+    <string name="permission_subtitle_background" msgid="8916750995309083180">"Разрешено всегда"</string>
+    <string name="app_perms_24h_access" msgid="99069906850627181">"Последний доступ: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_perms_24h_access_yest" msgid="5411926024794555022">"Последний доступ: вчера в <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="app_perms_7d_access" msgid="4945055548894683751">"Последний доступ: <xliff:g id="TIME_DATE_0">%1$s</xliff:g> в <xliff:g id="TIME_DATE_1">%2$s</xliff:g>"</string>
+    <string name="app_perms_content_provider_24h" msgid="1055526027667508972">"Использовалось в последние 24 часа"</string>
+    <string name="app_perms_content_provider_7d" msgid="3215454898257814868">"Использовалось в последние 7 дней"</string>
+    <string name="app_perms_24h_access_background" msgid="3413674718969576843">"Последний доступ: <xliff:g id="TIME_DATE">%1$s</xliff:g> • Разрешено всегда"</string>
+    <string name="app_perms_24h_access_yest_background" msgid="9174750810998076725">"Последний доступ: вчера в <xliff:g id="TIME_DATE">%1$s</xliff:g> • Разрешено всегда"</string>
+    <string name="app_perms_7d_access_background" msgid="408099213372185627">"Последний доступ: <xliff:g id="TIME_DATE_0">%1$s</xliff:g> в <xliff:g id="TIME_DATE_1">%2$s</xliff:g> • Разрешено всегда"</string>
+    <string name="app_perms_content_provider_24h_background" msgid="3825902995186961496">"Использовалось в последние 24 часа • Разрешено всегда"</string>
+    <string name="app_perms_content_provider_7d_background" msgid="4818839672116463542">"Использовалось в последние 7 дней • Разрешено всегда"</string>
+    <string name="app_perms_24h_access_media_only" msgid="6651699644199132054">"Последний доступ: <xliff:g id="TIME_DATE">%1$s</xliff:g> • Медиафайлы"</string>
+    <string name="app_perms_24h_access_yest_media_only" msgid="7213187706424998792">"Последний доступ: вчера в <xliff:g id="TIME_DATE">%1$s</xliff:g> • Медиафайлы"</string>
+    <string name="app_perms_7d_access_media_only" msgid="1031096653668235200">"Последний доступ: <xliff:g id="TIME_DATE_0">%1$s</xliff:g> в <xliff:g id="TIME_DATE_1">%2$s</xliff:g> • Медиафайлы"</string>
+    <string name="app_perms_content_provider_24h_media_only" msgid="7797963000596179491">"Использовалось в последние 24 часа • Медиафайлы"</string>
+    <string name="app_perms_content_provider_7d_media_only" msgid="8446239884570262243">"Использовалось в последние 7 дней • Медиафайлы"</string>
+    <string name="app_perms_24h_access_all_files" msgid="8902360456978159091">"Последний доступ: <xliff:g id="TIME_DATE">%1$s</xliff:g> • Все файлы"</string>
+    <string name="app_perms_24h_access_yest_all_files" msgid="5708424073126844909">"Последний доступ: вчера в <xliff:g id="TIME_DATE">%1$s</xliff:g> • Все файлы"</string>
+    <string name="app_perms_7d_access_all_files" msgid="8246193786397635824">"Последний доступ: <xliff:g id="TIME_DATE_0">%1$s</xliff:g> в <xliff:g id="TIME_DATE_1">%2$s</xliff:g> • Все файлы"</string>
+    <string name="app_perms_content_provider_24h_all_files" msgid="573104317727770850">"Использовалось в последние 24 часа • Все файлы"</string>
+    <string name="app_perms_content_provider_7d_all_files" msgid="7962416229708835558">"Использовалось в последние 7 дней • Все файлы"</string>
+    <string name="no_permissions_allowed" msgid="6081976856354669209">"Разрешения не предоставлены"</string>
+    <string name="no_permissions_denied" msgid="8159923922804043282">"Предоставлены все разрешения"</string>
+    <string name="no_apps_allowed" msgid="7718822655254468631">"Не разрешено ни одному приложению"</string>
+    <string name="no_apps_allowed_full" msgid="8011716991498934104">"Нет приложений с доступом ко всем файлам."</string>
+    <string name="no_apps_allowed_scoped" msgid="4908850477787659501">"Нет приложений с доступом только к медиаконтенту."</string>
+    <string name="no_apps_denied" msgid="7663435886986784743">"Не запрещено ни одному приложению"</string>
+    <string name="car_permission_selected" msgid="180837028920791596">"Выбрано"</string>
+    <string name="settings" msgid="5409109923158713323">"Настройки"</string>
+    <string name="accessibility_service_dialog_title_single" msgid="7956432823014102366">"У сервиса \"<xliff:g id="SERVICE_NAME">%s</xliff:g>\" есть полный доступ к вашему устройству"</string>
+    <string name="accessibility_service_dialog_title_multiple" msgid="5527879210683548175">"У нескольких сервисов для предоставления специальных возможностей (<xliff:g id="NUM_SERVICES">%s</xliff:g>) есть полный доступ к вашему устройству"</string>
+    <string name="accessibility_service_dialog_bottom_text_single" msgid="1128666197822205958">"Сервису \"<xliff:g id="SERVICE_NAME">%s</xliff:g>\" доступны сведения о том, что отображается на экране, а также о действиях на устройстве и тексте, который вы вводили. Кроме того, сервис может сам выполнять действия и управлять экраном."</string>
+    <string name="accessibility_service_dialog_bottom_text_multiple" msgid="7009848932395519852">"Эти приложения могут получить доступ к изображению на экране, вашим действиям и вводимому тексту. Кроме того, они могут сами выполнять действия и управлять экраном."</string>
+    <string name="role_assistant_label" msgid="4727586018198208128">"Цифровой помощник по умолчанию"</string>
+    <string name="role_assistant_short_label" msgid="3369003713187703399">"Цифровой помощник"</string>
+    <string name="role_assistant_description" msgid="6622458130459922952">"Приложения-помощники могут использовать информацию на экране. Для большего удобства некоторые из них поддерживают запуск других приложений и голосовой ввод."</string>
+    <string name="role_browser_label" msgid="2877796144554070207">"Браузер по умолчанию"</string>
+    <string name="role_browser_short_label" msgid="6745009127123292296">"Браузер"</string>
+    <string name="role_browser_description" msgid="3465253637499842671">"Приложения, с помощью которых можно просматривать сайты и переходить по ссылкам."</string>
+    <string name="role_browser_request_title" msgid="2895200507835937192">"Сделать \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" браузером по умолчанию?"</string>
+    <string name="role_browser_request_description" msgid="5888803407905985941">"Разрешения не требуются"</string>
+    <string name="role_dialer_label" msgid="1100224146343237968">"Приложение для звонков"</string>
+    <string name="role_dialer_short_label" msgid="7186888549465352489">"Звонки"</string>
+    <string name="role_dialer_description" msgid="8768708633696539612">"Приложения, которые позволяют совершать и принимать звонки."</string>
+    <string name="role_dialer_request_title" msgid="5959618560705912058">"Сделать \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" приложением для звонков по умолчанию?"</string>
+    <string name="role_dialer_request_description" msgid="6288839625724909320">"Этому приложению будут предоставлены следующие разрешения: Камера, Контакты, Микрофон, Телефон и SMS."</string>
+    <string name="role_dialer_search_keywords" msgid="3324448983559188087">"набор номера"</string>
+    <string name="role_sms_label" msgid="8456999857547686640">"Приложение для SMS"</string>
+    <string name="role_sms_short_label" msgid="4371444488034692243">"SMS"</string>
+    <string name="role_sms_description" msgid="3424020199148153513">"Приложения, которые позволяют отправлять и принимать короткие текстовые сообщения, фото, видео и другие данные, используя номер телефона."</string>
+    <string name="role_sms_request_title" msgid="7953552109601185602">"Сделать \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" приложением для обмена SMS по умолчанию?"</string>
+    <string name="role_sms_request_description" msgid="2691004766132144886">"Этому приложению будут предоставлены следующие разрешения: Камера, Контакты, Файлы и медиаконтент, Микрофон, Телефон и SMS."</string>
+    <string name="role_sms_search_keywords" msgid="8022048144395047352">"сообщение, обмен сообщениями, текст, SMS"</string>
+    <string name="role_emergency_label" msgid="7028825857206842366">"Экстренные случаи по умолчанию"</string>
+    <string name="role_emergency_short_label" msgid="2388431453335350348">"Экстренные случаи"</string>
+    <string name="role_emergency_description" msgid="5051840234887686630">"Приложения, которые позволяют записывать ваши медицинские данные и передавать их экстренным службам, получать оповещения о погодных условиях и стихийных бедствиях, а также отправлять оповещения, если вам требуется помощь."</string>
+    <string name="role_emergency_request_title" msgid="8469579020654348567">"Сделать \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" приложением для экстренных случаев по умолчанию?"</string>
+    <string name="role_emergency_request_description" msgid="131645948770262850">"Разрешения не требуются"</string>
+    <string name="role_emergency_search_keywords" msgid="1920007722599213358">"чрезвычайная ситуация"</string>
+    <string name="role_home_label" msgid="3871847846649769412">"Главный экран по умолчанию"</string>
+    <string name="role_home_short_label" msgid="8544733747952272337">"Главный экран"</string>
+    <string name="role_home_description" msgid="7997371519626556675">"Такие приложения работают как главный экран устройства Android и предоставляют доступ к его содержимому и функциям."</string>
+    <string name="role_home_request_title" msgid="738136983453341081">"Сделать \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" приложением для главного экрана по умолчанию?"</string>
+    <string name="role_home_request_description" msgid="2658833966716057673">"Разрешения не требуются"</string>
+    <string name="role_home_search_keywords" msgid="3830755001192666285">"панель запуска"</string>
+    <string name="role_call_redirection_label" msgid="5785304207206147590">"Переадресация (по умолчанию)"</string>
+    <string name="role_call_redirection_short_label" msgid="7568143419571217757">"Переадресация звонков"</string>
+    <string name="role_call_redirection_description" msgid="6091669882014664420">"Приложения, которые позволяют перенаправлять исходящие вызовы на другой номер телефона."</string>
+    <string name="role_call_redirection_request_title" msgid="2816244455003562925">"Сделать \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" приложением для переадресации звонков по умолчанию?"</string>
+    <string name="role_call_redirection_request_description" msgid="3118895714178527164">"Разрешения не требуются"</string>
+    <string name="role_call_screening_label" msgid="883935222060878724">"АОН и защита от спама по умолчанию"</string>
+    <string name="role_call_screening_short_label" msgid="2048465565063130834">"АОН и защита от спама"</string>
+    <string name="role_call_screening_description" msgid="2349431420497468981">"Приложения, которые позволяют идентифицировать звонящих и блокировать спам, автоматические звонки и нежелательные номера."</string>
+    <string name="role_call_screening_request_title" msgid="7358309224566977290">"Сделать \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" приложением для автоматического определения номеров и защиты от спама по умолчанию?"</string>
+    <string name="role_call_screening_request_description" msgid="7338511921032446006">"Разрешения не требуются"</string>
+    <string name="role_automotive_navigation_label" msgid="2701890757955474751">"Навигатор по умолчанию"</string>
+    <string name="role_automotive_navigation_short_label" msgid="5165823092506922457">"Навигатор"</string>
+    <string name="role_automotive_navigation_description" msgid="7834601873792870134">"Приложения с пошаговой навигацией и поиском мест и объектов на карте."</string>
+    <string name="role_automotive_navigation_request_title" msgid="7525693151489384300">"Сделать приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" навигатором по умолчанию?"</string>
+    <string name="role_automotive_navigation_request_description" msgid="7073023813249245540">"Разрешения не требуются."</string>
+    <string name="role_watch_description" msgid="267003778693177779">"Приложению \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" будет предоставлен доступ к уведомлениям, а также следующие разрешения: телефон, SMS, контакты и календарь."</string>
+    <string name="role_app_streaming_description" msgid="7341638576226183992">"Приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" сможет взаимодействовать с уведомлениями и транслировать приложения на подключенное устройство."</string>
+    <string name="role_companion_device_computer_description" msgid="416099879217066377">"Этот сервис открывает другим устройствам доступ к фотографиям, медиафайлам и уведомлениям на вашем телефоне."</string>
+    <string name="role_notes_label" msgid="7451627001058089536">"Для заметок по умолчанию"</string>
+    <string name="role_notes_short_label" msgid="8796604147546125285">"Приложение для заметок"</string>
+    <string name="role_notes_description" msgid="8496852798616883551">"Приложения для написания заметок на вашем устройстве"</string>
+    <string name="role_notes_search_keywords" msgid="7710756695666744631">"заметки"</string>
+    <string name="role_wallet_label" msgid="3719419175656204207">"Кошелек по умолчанию"</string>
+    <string name="role_wallet_short_label" msgid="6521288403762457452">"Приложение-кошелек"</string>
+    <string name="role_wallet_description" msgid="3726535836165949838">"В приложении-кошельке можно хранить кредитные карты, карты постоянного клиента, автомобильные ключи и другие цифровые продукты. С его помощью удобнее проводить различные типы транзакций."</string>
+    <string name="role_wallet_request_title" msgid="4770217108262737093">"Использовать приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" как кошелек по умолчанию?"</string>
+    <string name="role_wallet_request_description" msgid="6305487425777483053">"Разрешения не требуются."</string>
+    <string name="request_role_current_default" msgid="738722892438247184">"Используется по умолчанию"</string>
+    <string name="request_role_dont_ask_again" msgid="3556017886029520306">"Больше не спрашивать"</string>
+    <string name="request_role_set_as_default" msgid="4253949643984172880">"По умолчанию"</string>
+    <string name="phone_call_uses_microphone" msgid="233569591461187177">"Сейчас микрофон используется в ходе &lt;b&gt;телефонного звонка&lt;/b&gt;."</string>
+    <string name="phone_call_uses_microphone_and_camera" msgid="6291898755681748189">"Сейчас камера и микрофон используются на &lt;b&gt;видеовстрече&lt;/b&gt;."</string>
+    <string name="phone_call_uses_camera" msgid="2048417022147857418">"Сейчас камера используется на &lt;b&gt;видеовстрече&lt;/b&gt;."</string>
+    <string name="system_uses_microphone" msgid="576672130318877143">"Сейчас микрофон используется системной службой."</string>
+    <string name="system_uses_microphone_and_camera" msgid="5124478304275138804">"Сейчас камера и микрофон используются системной службой."</string>
+    <string name="system_uses_camera" msgid="1911223105234441470">"Сейчас камера используется системной службой."</string>
+    <string name="other_use" msgid="6564855051022776692">"Использование другими сервисами:"</string>
+    <string name="ongoing_usage_dialog_ok" msgid="103556809118460072">"ОК"</string>
+    <string name="ongoing_usage_dialog_title" msgid="683836493556628569">"<xliff:g id="TYPES_LIST">%s</xliff:g>: использование в последнее время"</string>
+    <string name="ongoing_usage_dialog_title_mic" msgid="5966714811125593992">"Недавнее использование микрофона"</string>
+    <string name="ongoing_usage_dialog_title_camera" msgid="7819329688650711470">"Недавнее использование камеры"</string>
+    <string name="ongoing_usage_dialog_title_mic_camera" msgid="9079747867228772797">"Недавнее использование микрофона и камеры"</string>
+    <string name="ongoing_usage_dialog_separator" msgid="1715181526581520068">", "</string>
+    <string name="ongoing_usage_dialog_last_separator" msgid="4170995004748832163">" и "</string>
+    <string name="default_app_search_keyword" msgid="8330125736889689743">"приложения по умолчанию"</string>
+    <string name="permgroup_list_microphone_and_camera" msgid="962768198001487969">"Микрофон и камера"</string>
+    <string name="settings_button" msgid="4414988414732479636">"Настройки"</string>
+    <string name="default_apps" msgid="5119201969348748639">"Приложения по умолчанию"</string>
+    <string name="no_default_apps" msgid="2593466527182950231">"Нет приложений по умолчанию"</string>
+    <string name="default_apps_more" msgid="4078194675848858093">"Другие приложения по умолчанию"</string>
+    <string name="default_apps_manage_domain_urls" msgid="6775566451561036069">"Переход по ссылкам"</string>
+    <string name="default_apps_for_work" msgid="4970308943596201811">"Стандартные для работы"</string>
+    <string name="default_app_none" msgid="9084592086808194457">"Нет"</string>
+    <string name="default_app_system_default" msgid="6218386768175513760">"(по умолчанию)"</string>
+    <string name="default_app_no_apps" msgid="115720991680586885">"Приложений нет"</string>
+    <string name="car_default_app_selected" msgid="5416420830430644174">"Выбрано"</string>
+    <string name="car_default_app_selected_with_info" msgid="1932204186080593500">"Выбрано: <xliff:g id="ADDITIONAL_INFO">%1$s</xliff:g>"</string>
+    <string name="special_app_access_search_keyword" msgid="8032347212290774210">"специальный доступ для приложений"</string>
+    <string name="special_app_access" msgid="5019319067120213797">"Спец. доступ для приложений"</string>
+    <string name="no_special_app_access" msgid="6950277571805106247">"Специальный доступ не настроен"</string>
+    <string name="special_app_access_no_apps" msgid="4102911722787886970">"Нет приложений"</string>
+    <string name="home_missing_work_profile_support" msgid="1756855847669387977">"Рабочий профиль не поддерживается"</string>
+    <string name="encryption_unaware_confirmation_message" msgid="8274491794636402484">"Примечание. Если у вас установлена блокировка экрана, после перезагрузки вам потребуется разблокировать устройство, чтобы запустить приложение."</string>
+    <string name="assistant_confirmation_message" msgid="7476540402884416212">"Ассистент сможет получать данные об используемых в вашей системе приложениях, в том числе сведения с экрана и из самих приложений."</string>
+    <string name="incident_report_channel_name" msgid="3144954065936288440">"Отправка данных об отладке"</string>
+    <string name="incident_report_notification_title" msgid="4635984625656519773">"Отправка детализированных данных об отладке"</string>
+    <string name="incident_report_notification_text" msgid="3376480583513587923">"Приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" запрашивает разрешение на загрузку данных об отладке."</string>
+    <string name="incident_report_dialog_title" msgid="669104389325204095">"Отправить данные об отладке?"</string>
+    <string name="incident_report_dialog_intro" msgid="5897733669850951832">"В системе обнаружена проблема"</string>
+    <string name="incident_report_dialog_text" msgid="5675553296891757523">"Приложение \"<xliff:g id="APP_NAME_0">%1$s</xliff:g>\" запрашивает ваше согласие на загрузку с этого устройства отчета об ошибке, созданного <xliff:g id="DATE">%2$s</xliff:g> в <xliff:g id="TIME">%3$s</xliff:g>. Отчет может содержать персональную информацию с устройства или из установленных приложений, например имена пользователей, сведения о местоположении, идентификаторы устройства и данные сети. Отправляйте отчеты об ошибке только тем приложениям и пользователям, которым доверяете. Разрешить приложению \"<xliff:g id="APP_NAME_1">%4$s</xliff:g>\" загрузить отчет об ошибке?"</string>
+    <string name="incident_report_error_dialog_text" msgid="4189647113387092272">"Не удалось обработать информацию об ошибке в приложении \"<xliff:g id="APP_NAME">%1$s</xliff:g>\". Данные об отладке не отправлены. Приносим извинения за неудобства."</string>
+    <string name="incident_report_dialog_allow_label" msgid="2970242967721155239">"Разрешить"</string>
+    <string name="incident_report_dialog_deny_label" msgid="3535314290677579383">"Запретить"</string>
+    <string name="adjust_user_sensitive_title" msgid="4196724451314280527">"Расширенные настройки"</string>
+    <string name="menu_adjust_user_sensitive" msgid="6497923610654425780">"Расширенные настройки"</string>
+    <string name="adjust_user_sensitive_globally_title" msgid="8649190949066029174">"Показывать использование системными приложениями"</string>
+    <string name="adjust_user_sensitive_globally_summary" msgid="129467818433773912">"Показывать использование разрешений системой в строке состояния, на панели инструментов и т. д."</string>
+    <string name="adjust_user_sensitive_per_app_header" msgid="4543506440989005648">"Показывать выбранные приложения"</string>
+    <string name="assistant_record_audio_user_sensitive_title" msgid="5532123360322362378">"Показывать значок активации голосового помощника"</string>
+    <string name="assistant_record_audio_user_sensitive_summary" msgid="6482937591816401619">"Показывать значок в строке состояния, когда для активации голосового помощника используется микрофон"</string>
+    <string name="permgrouprequest_storage_isolated" msgid="4892154224026852295">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к фото и мультимедиа на устройстве?"</string>
+    <string name="permgrouprequest_device_aware_storage_isolated" msgid="5934218468708513375">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к фото и мультимедиа на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_contacts" msgid="8391550064551053695">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к контактам?"</string>
+    <string name="permgrouprequest_device_aware_contacts" msgid="2270563860206654757">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к контактам на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_location" msgid="6990232580121067883">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о местоположении устройства?"</string>
+    <string name="permgrouprequest_device_aware_location" msgid="6641436550953715107">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о местоположении устройства &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequestdetail_location" msgid="2635935335778429894">"Доступ к местоположению будет открыт, только пока вы пользуетесь приложением."</string>
+    <string name="permgroupbackgroundrequest_location" msgid="1085680897265734809">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о местоположении устройства?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_location" msgid="7660465507029650527">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о местоположении устройства &lt;b&gt;<xliff:g id="DEVICE_NAME">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupbackgroundrequestdetail_location" msgid="8021219324989662957">"Этому приложению может потребоваться доступ к вашему местоположению, даже когда вы им не пользуетесь. Предоставьте разрешение в "<annotation id="link">"настройках"</annotation>"."</string>
+    <string name="permgroupupgraderequest_location" msgid="8328408946822691636">"Изменить настройки доступа к данным о местоположении для приложения &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequest_device_aware_location" msgid="4528266408056426513">"Изменить для приложения &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о местоположении на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequestdetail_location" msgid="1550899076845189165">"Этому приложению требуется доступ к вашему местоположению, даже когда вы им не пользуетесь. Предоставьте разрешение в "<annotation id="link">"настройках"</annotation>"."</string>
+    <string name="permgrouprequest_nearby_devices" msgid="2272829282660436700">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; находить устройства поблизости, подключаться к ним и определять их относительное положение?"</string>
+    <string name="permgrouprequest_device_aware_nearby_devices" msgid="7919687165848885665">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; находить устройства поблизости, подключаться к ним и определять их относительное местоположение на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequestdetail_nearby_devices" msgid="6877531270654738614">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; находить устройства поблизости, подключаться к ним и определять их относительное положение? "<annotation id="link">"Открыть настройки"</annotation></string>
+    <string name="permgrouprequest_fineupgrade" msgid="2334242928821697672">"Изменить местоположение в приложении \"<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g>\" с приблизительного на точное?"</string>
+    <string name="permgrouprequest_device_aware_fineupgrade" msgid="3947134846432067176">"Разрешить приложению \"<xliff:g id="APP_NAME">&lt;b&gt;%1$s&lt;/b&gt;</xliff:g>\" доступ к данным о точном местоположении устройства &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; вместо приблизительного?"</string>
+    <string name="permgrouprequest_coarselocation" msgid="7244605063736425232">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о приблизительном местоположении устройства?"</string>
+    <string name="permgrouprequest_device_aware_coarselocation" msgid="9001956706241104626">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о приблизительном положении устройства &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_finelocation_imagetext" msgid="1313062433398914334">"Точно"</string>
+    <string name="permgrouprequest_coarselocation_imagetext" msgid="8650605041483025297">"Приблизительно"</string>
+    <string name="permgrouprequest_calendar" msgid="1493150855673603806">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к календарю?"</string>
+    <string name="permgrouprequest_device_aware_calendar" msgid="3103987548035171850">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к календарю на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_sms" msgid="5672063688745420991">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; отправлять и просматривать SMS?"</string>
+    <string name="permgrouprequest_device_aware_sms" msgid="7212083972999874267">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; отправлять и просматривать SMS на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_storage" msgid="8717773092518621602">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к фото, мультимедиа и файлам на устройстве?"</string>
+    <string name="permgrouprequest_device_aware_storage" msgid="872629037299467086">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к фото, мультимедиа и файлам на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_storage_q_to_s" msgid="8213701872983685505">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к &lt;b&gt;фото, видео, музыке и аудио&lt;/b&gt; на устройстве?"</string>
+    <string name="permgrouprequest_storage_pre_q" msgid="168130651144569428">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к &lt;b&gt;фото, видео, аудио и другим файлам&lt;/b&gt; на устройстве?"</string>
+    <string name="permgrouprequest_read_media_aural" msgid="2593365397347577812">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к музыке и аудио на устройстве?"</string>
+    <string name="permgrouprequest_device_aware_read_media_aural" msgid="3331524384339036668">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к музыке и аудио на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_read_media_visual" msgid="5548780620779729975">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к фото и видео на устройстве?"</string>
+    <string name="permgrouprequest_device_aware_read_media_visual" msgid="5492319750632751551">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к фото и видео на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_more_photos" msgid="128933814654231321">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к другим фото и видео на этом устройстве?"</string>
+    <string name="permgrouprequest_device_aware_more_photos" msgid="8946782319103584021">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к другим фото и видео на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_microphone" msgid="2825208549114811299">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; записывать аудио?"</string>
+    <string name="permgrouprequest_device_aware_microphone" msgid="1266843551173029370">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; записывать аудио на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequestdetail_microphone" msgid="8510456971528228861">"Приложение будет записывать аудио, только когда вы им пользуетесь."</string>
+    <string name="permgroupbackgroundrequest_microphone" msgid="8874462606796368183">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; записывать аудио?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_microphone" msgid="4990337225146130185">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; записывать аудио на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupbackgroundrequestdetail_microphone" msgid="553702902263681838">"Это приложение может записывать аудио в любое время, даже когда вы им не пользуетесь. "<annotation id="link">"Предоставьте разрешение в настройках."</annotation></string>
+    <string name="permgroupupgraderequest_microphone" msgid="1362781696161233341">"Изменить настройки доступа к микрофону для приложения &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequest_device_aware_microphone" msgid="222471025997100107">"Изменить для приложения &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; настройки доступа к микрофону на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequestdetail_microphone" msgid="2870497719571464239">"Это приложение записывает аудио в любое время, даже когда вы им не пользуетесь. "<annotation id="link">"Предоставьте разрешение в настройках."</annotation></string>
+    <string name="permgrouprequest_activityRecognition" msgid="5415121592794230330">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о физической активности?"</string>
+    <string name="permgrouprequest_device_aware_activityRecognition" msgid="3408326850847755759">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным о физической активности на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_camera" msgid="5123097035410002594">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; снимать фото и видео?"</string>
+    <string name="permgrouprequest_device_aware_camera" msgid="3525106924487608868">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; снимать фото и видео на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequestdetail_camera" msgid="9085323239764667883">"Приложение будет делать фотографии и снимать видео, только когда вы им пользуетесь."</string>
+    <string name="permgroupbackgroundrequest_camera" msgid="1274286575704213875">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; снимать фото и видео?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_camera" msgid="6718286540040964849">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; снимать фото и видео на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupbackgroundrequestdetail_camera" msgid="4458783509089859078">"Это приложение может делать фотографии и снимать видео в любое время, даже когда вы им не пользуетесь. "<annotation id="link">"Предоставьте разрешение в настройках."</annotation></string>
+    <string name="permgroupupgraderequest_camera" msgid="640758449200241582">"Изменить настройки доступа к камере для приложения &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequest_device_aware_camera" msgid="4198765626608612156">"Изменить для приложения &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; настройки доступа к камере на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequestdetail_camera" msgid="6642747548010962597">"Это приложение делает фотографии и снимает видео в любое время, даже когда вы им не пользуетесь. "<annotation id="link">"Предоставьте разрешение в настройках."</annotation></string>
+    <string name="permgrouprequest_calllog" msgid="2065327180175371397">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к списку вызовов?"</string>
+    <string name="permgrouprequest_device_aware_calllog" msgid="735079772627778095">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к списку вызовов на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_phone" msgid="1829234136997316752">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; совершать звонки и управлять ими?"</string>
+    <string name="permgrouprequest_device_aware_phone" msgid="4389610977195521813">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; совершать звонки и управлять ими на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgrouprequest_sensors" msgid="4397358316850652235">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным датчиков о состоянии организма?"</string>
+    <string name="permgrouprequest_device_aware_sensors" msgid="1900598688488188225">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным нательных датчиков на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupupgraderequestdetail_sensors" msgid="6651914048792092835">"Этому приложению требуется доступ к данным нательных датчиков, даже когда вы им не пользуетесь. Предоставить разрешение можно в "<annotation id="link">"настройках"</annotation>"."</string>
+    <string name="permgroupbackgroundrequest_sensors" msgid="5661924322018503886">"Разрешить приложению \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" доступ к данным датчиков на теле?"</string>
+    <string name="permgroupbackgroundrequest_device_aware_sensors" msgid="7691308331448239716">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным нательных датчиков на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="permgroupbackgroundrequestdetail_sensors" msgid="7726767635834043501">"Чтобы предоставить приложению доступ к данным нательных датчиков, даже когда вы им не пользуетесь, "<annotation id="link">"измените настройки"</annotation>"."</string>
+    <string name="permgroupupgraderequest_sensors" msgid="7576527638411370468">"Предоставлять приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным нательных датчиков, только когда оно используется?"</string>
+    <string name="permgroupupgraderequest_device_aware_sensors" msgid="3310667992344623159">"Разрешить прил. &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; доступ к данным нат. датчиков на устр. &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt; только при использ.?"</string>
+    <string name="permgrouprequest_notifications" msgid="6396739062335106181">"Разрешить <xliff:g id="APP_NAME">%1$s</xliff:g> отправлять уведомления?"</string>
+    <string name="permgrouprequest_device_aware_notifications" msgid="7307588961166360244">"Разрешить приложению &lt;b&gt;<xliff:g id="APP_NAME">%1$s</xliff:g>&lt;/b&gt; отправлять уведомления на устройстве &lt;b&gt;<xliff:g id="DEVICE">%2$s</xliff:g>&lt;/b&gt;?"</string>
+    <string name="auto_granted_permissions" msgid="6009452264824455892">"Контролируемые разрешения"</string>
+    <string name="auto_granted_location_permission_notification_title" msgid="7570818224669050377">"У приложения \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" есть доступ к геоданным"</string>
+    <string name="auto_granted_permission_notification_body" msgid="5040234389205471318">"В вашей организации приложению \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" разрешен доступ к геоданным."</string>
+    <string name="other_permissions_label" msgid="8986184335503271992">"Другие разрешения"</string>
+    <string name="not_used_permissions_label" msgid="3939839426115141264">"Разрешения, используемые системой"</string>
+    <string name="not_used_permissions_description" msgid="7595514824169388718">"Разрешения, используемые только системными приложениями"</string>
+    <string name="additional_permissions_label" msgid="7693557637462569046">"Дополнительные разрешения"</string>
+    <string name="additional_permissions_description" msgid="2186611950890732112">"Разрешения, определяемые приложениями."</string>
+    <string name="privdash_label_camera" msgid="1426440033626198096">"Камера"</string>
+    <string name="privdash_label_microphone" msgid="8415035835803511693">"Микрофон"</string>
+    <string name="privdash_label_location" msgid="6882400763866489291">"Местоположение"</string>
+    <string name="privdash_label_other" msgid="3710394147423236033">"Другое"</string>
+    <string name="privdash_label_none" msgid="5991866260360484858">"Нет"</string>
+    <string name="privdash_label_24h" msgid="1512532123865375319">"Последние\n24 часа"</string>
+    <string name="privdash_label_7d" msgid="5645301995348656931">"Последние\n7 дней"</string>
+    <string name="exempt_mic_camera_info_label" msgid="6273581737010902815">"Приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" защищено Android. Поскольку ваши данные обрабатываются на устройстве, разрешения, используемые приложением, не показываются в строке состояния на панели управления разрешениями."</string>
+    <string name="exempt_info_label" msgid="6286190981253476699">"Приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" защищено Android. Поскольку ваши данные обрабатываются на устройстве, разрешения, используемые приложением, не показываются на панели управления разрешениями."</string>
+    <string name="blocked_camera_title" msgid="1128510551791284384">"Камера устройства заблокирована"</string>
+    <string name="blocked_microphone_title" msgid="1631517143648232585">"Микрофон устройства заблокирован"</string>
+    <string name="blocked_location_title" msgid="2005608279812892383">"Геолокация отключена"</string>
+    <string name="blocked_sensor_summary" msgid="4443707628305027375">"Для приложений и сервисов"</string>
+    <string name="blocked_mic_summary" msgid="8960466941528458347">"Данные микрофона могут передаваться при звонке на номер экстренной службы"</string>
+    <string name="blocked_sensor_button_label" msgid="6742092634984289658">"Изменить"</string>
+    <string name="safety_center_dashboard_page_title" msgid="2810774008694315854">"Безопасность и кон­фи­ден­циаль­ность"</string>
+    <string name="safety_center_rescan_button" msgid="4517514567809409596">"Сканировать устройство"</string>
+    <string name="safety_center_issue_card_dismiss_button" msgid="5113965506144222402">"Закрыть"</string>
+    <string name="safety_center_issue_card_dismiss_confirmation_title" msgid="2734809473425036382">"Закрыть оповещение?"</string>
+    <string name="safety_center_issue_card_dismiss_confirmation_message" msgid="3775418736671093563">"Проверить и изменить настройки конфиденциальности и безопасности можно в любое время."</string>
+    <string name="safety_center_issue_card_confirm_dismiss_button" msgid="5884137843083634556">"Закрыть"</string>
+    <string name="safety_center_issue_card_cancel_dismiss_button" msgid="2874578798877712346">"Отмена"</string>
+    <string name="safety_center_entries_category_title" msgid="34356964062813115">"Настройки"</string>
+    <string name="safety_status_preference_title_and_summary_content_description" msgid="3511373256505058464">"Статус безопасности и конфиденциальности. <xliff:g id="OVERALL_SAFETY_STATUS">%1$s</xliff:g>. <xliff:g id="SUMMARY_OF_DEVICE_STATUS">%2$s</xliff:g>"</string>
+    <string name="security_settings" msgid="3808106921175271317">"Настройки безопасности"</string>
+    <string name="sensor_permissions_qs" msgid="1022267900031317472">"Разрешения"</string>
+    <string name="safety_privacy_qs_tile_title" msgid="727301867710374052">"Безопасность и кон­фи­ден­циаль­ность"</string>
+    <string name="safety_privacy_qs_tile_subtitle" msgid="3621544532041936749">"Проверьте статус."</string>
+    <string name="privacy_controls_qs" msgid="5780144882040591169">"Ваши настройки конфиденциальности"</string>
+    <string name="security_settings_button_label_qs" msgid="8280343822465962330">"Другие настройки"</string>
+    <string name="camera_toggle_label_qs" msgid="3880261453066157285">"Доступ к камере"</string>
+    <string name="microphone_toggle_label_qs" msgid="8132912469813396552">"Доступ к микрофону"</string>
+    <string name="permissions_removed_qs" msgid="8957319130625294572">"Разрешение отозвано"</string>
+    <string name="camera_usage_qs" msgid="4394233566086665994">"Показать данные о недавнем использовании камеры"</string>
+    <string name="microphone_usage_qs" msgid="8527666682168170417">"Показать данные о недавнем использовании микрофона"</string>
+    <string name="remove_camera_qs" msgid="3649996161066883350">"Запретить этому приложению доступ к камере"</string>
+    <string name="remove_microphone_qs" msgid="1276551965129953198">"Запретить этому приложению доступ к микрофону"</string>
+    <string name="manage_service_qs" msgid="7862555549364153805">"Настроить сервис"</string>
+    <string name="manage_permissions_qs" msgid="3780541819763475434">"Управление разрешениями"</string>
+    <string name="active_call_usage_qs" msgid="8559974395932523391">"Используется во время телефонного звонка"</string>
+    <string name="recent_call_usage_qs" msgid="743044899599410935">"Недавно использовалось во время телефонного звонка"</string>
+    <string name="active_app_usage_qs" msgid="4063912870936464727">"Используется приложением \"<xliff:g id="APP_NAME">%1$s</xliff:g>\""</string>
+    <string name="recent_app_usage_qs" msgid="6650259601306212327">"Недавно использовалось приложением \"<xliff:g id="APP_NAME">%1$s</xliff:g>\""</string>
+    <string name="active_app_usage_1_qs" msgid="4325136375823357052">"Используется приложением \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g>)"</string>
+    <string name="recent_app_usage_1_qs" msgid="261450184773310741">"Недавно использовалось приложением \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g>)"</string>
+    <string name="active_app_usage_2_qs" msgid="6107866785243565283">"Используется приложением \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>)"</string>
+    <string name="recent_app_usage_2_qs" msgid="3591205954235694403">"Недавно использовалось приложением \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" (<xliff:g id="ATTRIBUTION_LABEL">%2$s</xliff:g> • <xliff:g id="PROXY_LABEL">%3$s</xliff:g>)"</string>
+    <string name="media_confirm_dialog_positive_button" msgid="9020793594051526399">"Подтвердить"</string>
+    <string name="media_confirm_dialog_negative_button" msgid="226987376924861785">"Назад"</string>
+    <string name="media_confirm_dialog_title_a_to_p_aural_allow" msgid="8560601114044699903">"Будет предоставлен доступ и к другим файлам"</string>
+    <string name="media_confirm_dialog_title_a_to_p_aural_deny" msgid="7841428716317307685">"Доступа к другим файлам тоже не будет"</string>
+    <string name="media_confirm_dialog_title_a_to_p_visual_allow" msgid="6469086448310893751">"Будет предоставлен доступ и к другим файлам"</string>
+    <string name="media_confirm_dialog_title_a_to_p_visual_deny" msgid="5767849609024384226">"Доступа к другим файлам тоже не будет"</string>
+    <string name="media_confirm_dialog_title_q_to_s_aural_allow" msgid="3191904399336990537">"Будет предоставлен доступ к фотографиям и видео"</string>
+    <string name="media_confirm_dialog_title_q_to_s_aural_deny" msgid="3128147568953297969">"Доступа к фотографиям и видео тоже не будет"</string>
+    <string name="media_confirm_dialog_title_q_to_s_visual_allow" msgid="6310682466493330434">"Будет предоставлен доступ к музыке и аудиофайлам"</string>
+    <string name="media_confirm_dialog_title_q_to_s_visual_deny" msgid="1123845663785900471">"Доступа к музыке и аудиофайлам тоже не будет"</string>
+    <string name="media_confirm_dialog_message_a_to_p_aural_allow" msgid="7865167246140107623">"Это приложение не поддерживает последнюю версию Android. Если у него есть доступ к музыке и аудиофайлам, ему также будет предоставлен доступ к фотографиям, видео и другому контенту."</string>
+    <string name="media_confirm_dialog_message_a_to_p_aural_deny" msgid="287502523664804786">"Это приложение не поддерживает последнюю версию Android. Если у него нет доступа к музыке и аудиофайлам, у него также не будет доступа к фотографиям, видео и другому контенту."</string>
+    <string name="media_confirm_dialog_message_a_to_p_visual_allow" msgid="4952410892939590487">"Это приложение не поддерживает последнюю версию Android. Если у него есть доступ к фотографиям и видео, ему также будет предоставлен доступ к музыке, аудиофайлам и другому контенту."</string>
+    <string name="media_confirm_dialog_message_a_to_p_visual_deny" msgid="6609500525590757681">"Это приложение не поддерживает последнюю версию Android. Если у него нет доступа к фотографиям и видео, у него также не будет доступа к музыке, аудиофайлам и другому контенту."</string>
+    <string name="media_confirm_dialog_message_q_to_s_aural_allow" msgid="1702402580147536160">"Это приложение не поддерживает последнюю версию Android. Если у него есть доступ к музыке и аудиофайлам, ему также будет предоставлен доступ к фотографиям и видео."</string>
+    <string name="media_confirm_dialog_message_q_to_s_aural_deny" msgid="6832087393653561911">"Это приложение не поддерживает последнюю версию Android. Если у него нет доступа к музыке и аудиофайлам, у него также не будет доступа к фотографиям и видео."</string>
+    <string name="media_confirm_dialog_message_q_to_s_visual_allow" msgid="3504335060843147760">"Это приложение не поддерживает последнюю версию Android. Если у него есть доступ к фотографиям и видео, ему также будет предоставлен доступ к музыке и аудиофайлам."</string>
+    <string name="media_confirm_dialog_message_q_to_s_visual_deny" msgid="2145973462806481992">"Это приложение не поддерживает последнюю версию Android. Если у него нет доступа к музыке и аудиофайлам, у него также не будет доступа к фотографиям и видео."</string>
+    <string name="safety_center_background_location_access_notification_title" msgid="8933610618810588237">"Проверьте приложение с доступом к геоданным в фоновом режиме"</string>
+    <string name="safety_center_background_location_access_reminder_notification_content" msgid="4066560182507301022">"У приложения \"<xliff:g id="APP_NAME">%s</xliff:g>\" есть доступ к геоданным, даже когда оно закрыто."</string>
+    <string name="safety_center_background_location_access_reminder_title" msgid="5477847038103863843">"Проверьте приложение с доступом к геоданным в фоновом режиме"</string>
+    <string name="safety_center_background_location_access_reminder_summary" msgid="7431657777510537658">"У этого приложения есть доступ к геоданным, даже когда оно закрыто.\n\nНекоторым приложениям, которые обеспечивают безопасность или предназначены для экстренных случаев, требуется доступ к данным о вашем местоположении в фоновом режиме, чтобы правильно выполнять свои функции."</string>
+    <string name="safety_center_background_location_access_revoked" msgid="6972274943343442213">"Права доступа изменены."</string>
+    <string name="safety_center_view_recent_location_access" msgid="3524391299490678243">"Показать недавнее использование геоданных"</string>
+    <string name="privacy_controls_title" msgid="7605929972256835199">"Настройки конфиденциальности"</string>
+    <string name="camera_toggle_title" msgid="1251201397431837666">"Доступ к камере"</string>
+    <string name="mic_toggle_title" msgid="2649991093496110162">"Доступ к микрофону"</string>
+    <string name="perm_toggle_description" msgid="7801326363741451379">"Для приложений и сервисов"</string>
+    <string name="mic_toggle_description" msgid="9163104307990677157">"Для приложений и сервисов. Даже если эта функция отключена, данные микрофона могут передаваться при звонке на номер экстренной службы."</string>
+    <string name="location_settings_subtitle" msgid="2328360561197430695">"Список приложений и сервисов, у которых есть доступ к данным о местоположении"</string>
+    <string name="show_clip_access_notification_title" msgid="5168467637351109096">"Уведомления о доступе к буферу обмена"</string>
+    <string name="show_clip_access_notification_summary" msgid="3532020182782112687">"Показывать уведомления, когда приложения обращаются к скопированному тексту, изображениям или другому контенту"</string>
+    <string name="show_password_title" msgid="2877269286984684659">"Показывать пароли"</string>
+    <string name="show_password_summary" msgid="1110166488865981610">"Ненадолго показывать символы при вводе"</string>
+    <string name="permission_rationale_message_location" msgid="2153841534298068414">"Это приложение может передавать третьим лицам данные о местоположении."</string>
+    <string name="permission_rationale_location_title" msgid="2404797182678793506">"Передача данных и местоположение"</string>
+    <string name="permission_rationale_data_sharing_source_title" msgid="6874604543125814316">"Источник сведений о передаче данных"</string>
+    <string name="permission_rationale_data_sharing_device_manufacturer_message" msgid="7569261218145653185">"Разработчик предоставил производителю устройства информацию о том, как приложение передает данные. Со временем он может ее обновить."</string>
+    <string name="permission_rationale_data_sharing_source_message" msgid="8330794595417986883">"Разработчик предоставил "<annotation id="link"><annotation id="install_source" example="App Store">"%1$s"</annotation></annotation>" информацию о том, как приложение передает данные. Со временем она может обновляться."</string>
+    <string name="permission_rationale_location_purpose_title" msgid="5115877143670012618">"Цели передачи данных о местоположении:"</string>
+    <string name="permission_rationale_permission_data_sharing_varies_title" msgid="9103718980919908316">"Варианты передачи данных"</string>
+    <string name="permission_rationale_data_sharing_varies_message" msgid="4224469559084489222">"Работа с данными зависит от версии приложения, способа его использования, а также от вашего региона и возраста. Подробнее "<annotation id="link">"о передаче данных"</annotation>"…"</string>
+    <string name="permission_rationale_data_sharing_varies_message_without_link" msgid="4912763761399025094">"Работа с данными зависит от версии приложения, способа его использования, а также от вашего региона и возраста."</string>
+    <string name="permission_rationale_location_settings_title" msgid="7204145004850190953">"Данные о вашем местоположении"</string>
+    <string name="permission_rationale_permission_settings_message" msgid="631286040979660267">"Измените права доступа этого приложения в "<annotation id="link">"настройках конфиденциальности"</annotation>"."</string>
+    <string name="permission_rationale_purpose_app_functionality" msgid="8397736681065841405">"Функции приложения"</string>
+    <string name="permission_rationale_purpose_analytics" msgid="2070800501189620712">"Аналитика"</string>
+    <string name="permission_rationale_purpose_developer_communications" msgid="6453047018892062374">"Связь с разработчиком"</string>
+    <string name="permission_rationale_purpose_advertising" msgid="7156966429245180236">"Реклама и маркетинг"</string>
+    <string name="permission_rationale_purpose_fraud_prevention_security" msgid="4262104770357031902">"Предотвращение мошенничества, безопасность и соответствие требованиям"</string>
+    <string name="permission_rationale_purpose_personalization" msgid="1589973273682238708">"Персонализация"</string>
+    <string name="permission_rationale_purpose_account_management" msgid="2985772421946688879">"Управление аккаунтом"</string>
+    <string name="app_permission_rationale_message" msgid="8511466916077100713">"Безопасность данных"</string>
+    <string name="app_location_permission_rationale_title" msgid="925420340572401350">"Возможна передача геоданных"</string>
+    <string name="app_location_permission_rationale_subtitle" msgid="6986985722752868692">"Это приложение уведомило, что оно может передавать данные о вашем местоположении третьим лицам."</string>
+    <string name="data_sharing_updates_title" msgid="7996933386875213859">"Обновления в передаче данных о местоположении"</string>
+    <string name="data_sharing_updates_summary" msgid="764113985772233889">"Проверить приложения, которые изменили подход к передаче данных о вашем местоположении"</string>
+    <string name="data_sharing_updates_subtitle" msgid="6311537708950632329">"Эти приложения изменили подход к передаче данных о вашем местоположении. Возможно, такие сведения ранее не передавались или теперь передаются в рекламных или маркетинговых целях."</string>
+    <string name="data_sharing_updates_footer_message" msgid="1582711655172892107">"Разработчики этих приложений предоставили магазину информацию о своем подходе к передаче данных. Эти сведения могут обновляться.\n\nПодход к передаче данных может зависеть от версии приложения, способа его использования, а также от вашего региона и возраста."</string>
+    <string name="learn_about_data_sharing" msgid="4200480587079488045">"Сведения о передаче данных"</string>
+    <string name="shares_location_with_third_parties" msgid="2278051743742057767">"Теперь данные о вашем местоположении передаются третьим лицам."</string>
+    <string name="shares_location_with_third_parties_for_advertising" msgid="1918588064014480513">"Теперь данные о вашем местоположении передаются третьим лицам в рекламных или маркетинговых целях."</string>
+    <string name="updated_in_last_days" msgid="8371811947153042322">"{count,plural, =0{Обновлено за последний день}=1{Обновлено за последний день}one{Обновлено за последний # день}few{Обновлено за последние # дня}many{Обновлено за последние # дней}other{Обновлено за последние # дня}}"</string>
+    <string name="no_updates_at_this_time" msgid="9031085635689982935">"Обновлений пока нет"</string>
+    <string name="safety_label_changes_notification_title" msgid="4479955083472203839">"Обновление сведений о передаче данных"</string>
+    <string name="safety_label_changes_notification_desc" msgid="7808764283266234675">"Некоторые приложения изменили подход к передаче данных о вашем местоположении."</string>
+    <string name="safety_label_changes_gear_description" msgid="2655887555599138509">"Настройки"</string>
+    <string name="wear_app_perms_24h_access" msgid="8668121661337328895">"Последний доступ: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="wear_app_perms_24h_access_yest" msgid="7069312481704735679">"Последний доступ вчера: <xliff:g id="TIME_DATE">%1$s</xliff:g>"</string>
+    <string name="wear_app_perms_7d_access" msgid="4608069019194676432">"Последний доступ: <xliff:g id="TIME_DATE_0">%1$s</xliff:g>, <xliff:g id="TIME_DATE_1">%2$s</xliff:g>"</string>
+    <string name="test_otp_msg" msgid="7559110574222727550">"Ваш одноразовый код: 132435"</string>
+    <string name="enhanced_confirmation_dialog_title" msgid="7562437438040966351">"Настройки с ограниченным доступом"</string>
+    <string name="enhanced_confirmation_dialog_desc" msgid="5921240234843839219">"В целях безопасности эти настройки пока недоступны."</string>
+    <string name="enhanced_confirmation_dialog_title_permission" msgid="8411239333012890492">"Разрешение \"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>\" не предоставлено"</string>
+    <string name="enhanced_confirmation_dialog_desc_permission" msgid="9207115054288224451">"Приложение запросило разрешение \"<xliff:g id="PERMISSION_NAME">%1$s</xliff:g>\", доступ к которому ограничен, так как его использование может представлять угрозу для вашей безопасности и конфиденциальности. Без этого разрешения приложение может не работать."</string>
+    <string name="enhanced_confirmation_dialog_learn_more" msgid="5226619861379095709">"Подробнее"</string>
+    <string name="enhanced_confirmation_dialog_ok" msgid="1767075979746135617">"ОК"</string>
+</resources>

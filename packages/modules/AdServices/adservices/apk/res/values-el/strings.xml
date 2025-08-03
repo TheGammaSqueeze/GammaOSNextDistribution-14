@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  Copyright (C) 2022 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+ -->
+
+<!--  IMPORTANT! If adding new strings, then run generate_adservices_public_xml.py  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="permlab_accessAdServicesTopics" msgid="2910134708310472202">"πρόσβαση στο AdServices Topics API"</string>
+    <string name="permdesc_accessAdServicesTopics" msgid="677405540408619629">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο AdServices Topics API."</string>
+    <string name="permlab_accessAdServicesAttribution" msgid="5214710861314870958">"πρόσβαση στα AdServices Attribution API"</string>
+    <string name="permdesc_accessAdServicesAttribution" msgid="4553614196392171">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στα AdServices Attribution API."</string>
+    <string name="permlab_accessAdServicesCustomAudience" msgid="4365562651019065480">"πρόσβαση στο AdServices Custom Audience API"</string>
+    <string name="permdesc_accessAdServicesCustomAudience" msgid="6713089438953075862">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο AdServices Custom Audience AP"</string>
+    <string name="permlab_accessAdServicesAdId" msgid="1615451959935917231">"Πρόσβαση στο API AdId"</string>
+    <string name="permdesc_accessAdServicesAdId" msgid="6145143976659732220">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο API AdId."</string>
+    <string name="permlab_accessAdServicesConsent" msgid="4218463631288201212">"πρόσβαση στο AdServices Consent API"</string>
+    <string name="permdesc_accessAdServicesConsent" msgid="7750277247326139879">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο AdServices Consent API."</string>
+    <string name="permlab_adServicesAccessAdId" msgid="8185488502054653570">"Πρόσβαση στο Ad ID API"</string>
+    <string name="permdesc_adServicesAccessAdId" msgid="3263859073222697355">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο Ad ID API."</string>
+    <string name="permlab_adServicesAccessAdServicesCobaltUpload" msgid="760080027378720165">"Πρόσβαση στο AdServices Cobalt Upload API"</string>
+    <string name="permdesc_adServicesAccessAdServicesCobaltUpload" msgid="8157387772737666525">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο AdServices Cobalt Upload API."</string>
+    <string name="permlab_adServicesAccessAppSetId" msgid="2156563601489696838">"Πρόσβαση στο App Set ID API"</string>
+    <string name="permdesc_adServicesAccessAppSetId" msgid="7941260931851597525">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο App Set ID API."</string>
+    <string name="permlab_adServicesAccessConsentService" msgid="6435435615365433957">"Πρόσβαση στο Consent Service API"</string>
+    <string name="permdesc_adServicesAccessConsentService" msgid="4730521463856902020">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο Consent Service API."</string>
+    <string name="permlab_modifyAdServicesState" msgid="6800932419950823272">"Πρόσβαση στο AdService’s enablement state modification API"</string>
+    <string name="permdesc_modifyAdServicesState" msgid="8592251425800551473">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο AdService’s enablement state modification API."</string>
+    <string name="permlab_accessAdServicesState" msgid="4684852254587849110">"Πρόσβαση στο AdService’s enablement state API"</string>
+    <string name="permdesc_accessAdServicesState" msgid="4712113759240300316">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στο AdService’s enablement state API."</string>
+    <string name="permlab_accessAdServicesManager" msgid="7261917723342459824">"Πρόσβαση στα API του AdServicesManager"</string>
+    <string name="permdesc_accessAdServicesManager" msgid="259777314231794821">"Επιτρέπει σε μια εφαρμογή να αποκτήσει πρόσβαση στα API του AdServicesManager."</string>
+    <string name="permlab_updateAdservicesAdId" msgid="4050027862847854236">"Πρόσβαση στην ενημέρωση του API AdId από το AdService."</string>
+    <string name="permdesc_updateAdservicesAdId" msgid="2305983556095516823">"Επιτρέπει σε μια εφαρμογή να έχει πρόσβαση στην ενημέρωση του API AdId από το AdService."</string>
+    <string name="app_label" msgid="2639006978056689153">"Απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_notification_title_eu" msgid="678711480460802844">"Λάβετε μέρος στο πρόγραμμα beta απορρήτου διαφημίσεων του Android"</string>
+    <string name="notificationUI_notification_content_eu" msgid="6558497277233836013">"Το Android εξερευνά πιο ιδιωτικούς τρόπους για την εμφάνιση διαφημίσεων από εφαρμογές"</string>
+    <string name="notificationUI_notification_cta_eu" msgid="2548139830894655548">"Μάθετε περισσότερα"</string>
+    <string name="notificationUI_header_title_eu" msgid="9044572957854364091">"Beta απορρήτου διαφημίσεων του Android"</string>
+    <string name="notificationUI_container1_title_eu" msgid="1373016756109206670">"Τι νέο υπάρχει;"</string>
+    <string name="notificationUI_container1_body_text_eu" msgid="6852401002023449018">"Οι νέες λειτουργίες απορρήτου στο Privacy Sandbox επιτρέπουν στις εφαρμογές να εμφανίζουν διαφημίσεις που είναι συναφείς για εσάς, αλλά περιορίζουν τις πληροφορίες που μπορούν να μάθουν οι συγκεκριμένες εφαρμογές σχετικά με τις δραστηριότητές σας σε ιστοτόπους και εφαρμογές από άλλους προγραμματιστές."</string>
+    <string name="notificationUI_container1_control_text_eu" msgid="3328459492928352390">"Πώς λειτουργεί"</string>
+    <string name="notificationUI_container2_title_eu" msgid="3473572343314878715">"Τρόπος συμμετοχής"</string>
+    <string name="notificationUI_container2_body_text_eu" msgid="5566431917133361267">"Η ενεργοποίηση του προγράμματος beta επιτρέπει στις εφαρμογές να δοκιμάσουν αυτούς τους νέους πιο ιδιωτικούς τρόπους για την εμφάνιση διαφημίσεων. Μπορείτε να απενεργοποιήσετε το πρόγραμμα beta οποιαδήποτε στιγμή στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_left_control_button_text_eu" msgid="6497599738735989119">"Όχι, ευχαριστώ"</string>
+    <string name="notificationUI_right_control_button_text_eu" msgid="515640904971092242">"Ενεργοποίηση"</string>
+    <string name="notificationUI_more_button_text" msgid="5675315920171576420">"Περισσότερα"</string>
+    <string name="notificationUI_confirmation_accept_title" msgid="404510501246686605">"Σας ευχαριστούμε για τη συμμετοχή σας"</string>
+    <string name="notificationUI_confirmation_accept_subtitle" msgid="7583794584528601080">"Συμμετέχετε στο πρόγραμμα beta απορρήτου διαφημίσεων του Android. Το Privacy Sandbox είναι ενεργοποιημένο για τη συσκευή σας.\n\nΜπορείτε να μάθετε περισσότερα ή να απενεργοποιήσετε το πρόγραμμα beta οποιαδήποτε στιγμή στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_confirmation_decline_title" msgid="2937414869667970488">"Επιλέξατε να μην συμμετάσχετε"</string>
+    <string name="notificationUI_confirmation_decline_subtitle" msgid="3295085635387592533">"Σας ευχαριστούμε για την απάντησή σας. Το Privacy Sandbox είναι απενεργοποιημένο για τη συσκευή σας.\n\nΑν αλλάξετε γνώμη ή θέλετε να μάθετε περισσότερα, μεταβείτε στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_confirmation_left_control_button_text" msgid="3258790274841570794">"Ρυθμίσεις απορρήτου"</string>
+    <string name="notificationUI_confirmation_right_control_button_text" msgid="5562016954716134614">"Το κατάλαβα"</string>
+    <string name="notificationUI_container2_title" msgid="3719027076775659791">"Συμμετέχετε στο πρόγραμμα beta"</string>
+    <string name="notificationUI_container2_body_text" msgid="939678704046987170">"Το Privacy Sandbox είναι ενεργοποιημένο για τη συσκευή σας και οι εφαρμογές μπορούν να δοκιμάσουν αυτούς τους νέους πιο ιδιωτικούς τρόπους για την εμφάνιση διαφημίσεων. Μπορείτε να απενεργοποιήσετε το πρόγραμμα beta οποιαδήποτε στιγμή στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_right_control_button_text" msgid="3316102543563013793">"Το κατάλαβα"</string>
+    <string name="notificationUI_how_it_works_expanded_text1" msgid="510882738544330831">"Το Privacy Sandbox του Android παρέχει νέες λειτουργίες τις οποίες μπορούν να χρησιμοποιούν οι εφαρμογές για να εμφανίζουν διαφημίσεις που μπορεί να σας αρέσουν. Αυτές οι τεχνολογίες δεν χρησιμοποιούν αναγνωριστικά συσκευών.\n\nΤο Android και οι εφαρμογές σας μπορούν να εκτιμήσουν τα είδη διαφημίσεων που μπορεί να σας ενδιαφέρουν και να αποθηκεύσουν τα ενδιαφέροντα προσωρινά στη συσκευή σας. Αυτό επιτρέπει στις εφαρμογές να εμφανίζουν διαφημίσεις που μπορεί να σας αρέσουν, χωρίς να παρακολουθούν τη δραστηριότητά σας σε ιστοτόπους και εφαρμογές από άλλους προγραμματιστές."</string>
+    <string name="notificationUI_how_it_works_expanded_text2" msgid="4718413599985793343">"Εξατομίκευση διαφημίσεων με το Privacy Sandbox"</string>
+    <string name="notificationUI_how_it_works_expanded_text3" msgid="1721682192376354439">"•  Τα ενδιαφέροντα εκτιμώνται από το Android"</string>
+    <string name="notificationUI_how_it_works_expanded_text4" msgid="2441076226555310232">"Το Android περιοδικά εκτιμά τα κορυφαία ενδιαφέροντά σας με βάση τις εφαρμογές που χρησιμοποιείτε, για παράδειγμα, \"Αθλήματα\" ή \"Ταξίδια.\"\n\nΑργότερα, μια εφαρμογή μπορεί να υποβάλει αίτημα στο Android για την άδεια να χρησιμοποιήσει αυτά τα ενδιαφέροντα, προκειμένου να εμφανίζει διαφημίσεις που είναι πιο συναφείς για εσάς.\n\nΜπορείτε να δείτε μια λίστα με τα τρέχοντα ενδιαφέροντα στις ρυθμίσεις απορρήτου και να αποκλείσετε οποιοδήποτε δεν σας αρέσει."</string>
+    <string name="notificationUI_how_it_works_expanded_text5" msgid="8257214835811317663">"•  Τα ενδιαφέροντα εκτιμώνται από τις εφαρμογές"</string>
+    <string name="notificationUI_how_it_works_expanded_text6" msgid="5002571400213036779">"Οι εφαρμογές μπορούν να εκτιμήσουν τα ενδιαφέροντά σας και να τα αποθηκεύσουν προσωρινά με το Android. Για παράδειγμα, μια εφαρμογή που χρησιμοποιείτε για να αγοράσετε παπούτσια για τρέξιμο μπορεί να εκτιμήσει το ενδιαφέρον σας ως \"συμμετοχή σε μαραθώνιους\".\n\nΑργότερα, με βάση αυτό το ενδιαφέρον, μια διαφορετική εφαρμογή μπορεί να σας εμφανίσει μια διαφήμιση που σχετίζεται με μαραθώνιους.\n\nΜπορείτε να διαχειριστείτε τη λίστα των εφαρμογών με αποθηκευμένα ενδιαφέροντα στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_notification_ga_title" msgid="2396067549986723667">"Νέες λειτουργίες για το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_notification_ga_content" msgid="6996769289378595646">"Τα θέματα διαφημίσεων και τα νέα στοιχεία ελέγχου σάς προσφέρουν περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε"</string>
+    <string name="notificationUI_header_ga_title" msgid="71431748916938411">"Διατίθενται τώρα νέες λειτουργίες σχετικά με το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_container2_ga_introduction" msgid="7475765551849576649">"Το Android σημειώνει θέματα που σας ενδιαφέρουν με βάση τις εφαρμογές που χρησιμοποιήσατε πρόσφατα. Επίσης, οι εφαρμογές που χρησιμοποιείτε μπορούν να προσδιορίσουν τι σας αρέσει. Αργότερα, οι εφαρμογές θα μπορούν να ζητήσουν αυτές τις πληροφορίες για να εμφανίζουν εξατομικευμένες διαφημίσεις. Μπορείτε να επιλέξετε ποια θέματα και εφαρμογές θα χρησιμοποιούνται για την εμφάνιση διαφημίσεων."</string>
+    <string name="notificationUI_container3_ga_introduction" msgid="23684889230122342">"Για τη μέτρηση της απόδοσης μιας διαφήμισης, κοινοποιούνται περιορισμένοι τύποι δεδομένων μεταξύ των εφαρμογών."</string>
+    <string name="notificationUI_ga_container1_control_text" msgid="2890804613753992753">"Περισσότερα σχετικά με τις διαφημίσεις στο Android"</string>
+    <string name="notificationUI_how_it_works_row_subtitle1" msgid="912825880702200971">"Πιο χρήσιμες διαφημίσεις"</string>
+    <string name="notificationUI_how_it_works_row_body1" msgid="4789361794868401841">"Οι εφαρμογές μπορούν να ζητήσουν πληροφορίες από το Android για την εξατομίκευση των διαφημίσεων που βλέπετε."</string>
+    <string name="notificationUI_how_it_works_row_body2" msgid="4594125006313993563">"•  Το Android σημειώνει θέματα που σας ενδιαφέρουν με βάση τις εφαρμογές που χρησιμοποιήσατε πρόσφατα."</string>
+    <string name="notificationUI_how_it_works_row_body3" msgid="8182925720751237903">"•  Οι εφαρμογές που χρησιμοποιείτε μπορούν επίσης να προσδιορίσουν τι σας αρέσει με βάση τον τρόπο με τον οποίο τις χρησιμοποιείτε. Για παράδειγμα, αν χρησιμοποιείτε μια εφαρμογή που πουλάει παπούτσια για δρομείς μεγάλων αποστάσεων, η εφαρμογή μπορεί να αποφασίσει ότι σας ενδιαφέρουν οι μαραθώνιοι αγώνες."</string>
+    <string name="notificationUI_how_it_works_row_body4" msgid="9141477801225724765">"Αργότερα, μια εφαρμογή που χρησιμοποιείτε μπορεί να ζητήσει αυτές τις πληροφορίες, είτε πρόκειται για τα θέματα διαφημίσεων είτε για τις διαφημίσεις που προτείνονται από εφαρμογές που έχετε χρησιμοποιήσει."</string>
+    <string name="notificationUI_how_it_works_row_body5" msgid="1799812644646899106">"Το Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα τα θέματα και τα δεδομένα που προτείνονται από εφαρμογές. Μπορείτε επίσης να αποκλείσετε συγκεκριμένα θέματα και εφαρμογές που δεν θέλετε να κάνουν προτάσεις."</string>
+    <string name="notificationUI_how_it_works_subtitle2" msgid="6707667723072771353">"Μέτρηση της απόδοσης μιας διαφήμισης"</string>
+    <string name="notificationUI_how_it_works_row_body6" msgid="817760760703484877">"Οι εφαρμογές που χρησιμοποιείτε μπορούν να ζητήσουν από το Android πληροφορίες για να μετρήσουν την απόδοση των διαφημίσεών τους. Το Android επιτρέπει σε εφαρμογές να συλλέγουν περιορισμένους τύπους δεδομένων, όπως είναι η ώρα της ημέρας κατά την οποία μια διαφήμιση προβλήθηκε σε εσάς."</string>
+    <string name="notificationUI_notification_ga_title_eu" msgid="5688738863050944233">"Δοκιμάστε τις νέες λειτουργίες για το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_notification_ga_content_eu" msgid="3776849266110971223">"Τα θέματα διαφημίσεων σας προσφέρουν περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε"</string>
+    <string name="notificationUI_notification_ga_cta_eu" msgid="7798144953046480237">"Προβολή λεπτομερειών"</string>
+    <string name="notificationUI_header_ga_title_eu" msgid="2778645201747886593">"Δοκιμάστε τις νέες λειτουργίες για το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_container1_body_ga_text_eu" msgid="2274233132710263644">"Το Android θα κυκλοφορήσει νέες λειτουργίες απορρήτου που θα σας παρέχουν περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε."</string>
+    <string name="notificationUI_container2_body_ga_text_eu" msgid="6793120709749753769">"Τα θέματα διαφημίσεων βοηθούν τις εφαρμογές να εμφανίζουν συναφείς διαφημίσεις και παράλληλα προστατεύουν την ταυτότητά σας και τις πληροφορίες σχετικά με τη χρήση των εφαρμογών. Το Android μπορεί να σημειώνει θέματα που σας ενδιαφέρουν με βάση τις εφαρμογές που χρησιμοποιήσατε πρόσφατα. Αργότερα, μια εφαρμογή που χρησιμοποιείτε μπορεί να ζητήσει από το Android συναφή θέματα για την εξατομίκευση των διαφημίσεων που βλέπετε."</string>
+    <string name="notificationUI_container3_body_ga_text_eu" msgid="3035644153205825950">"Μπορείτε να δείτε θέματα διαφημίσεων στις ρυθμίσεις της συσκευής και να αποκλείσετε αυτά που δεν θέλετε να κοινοποιούνται στις εφαρμογές. Επίσης, το Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα θέματα διαφημίσεων."</string>
+    <string name="notificationUI_change_any_time_in_privacy_settings_eu" msgid="6183291019161806921">"Μπορείτε να αλλάξετε γνώμη οποιαδήποτε στιγμή στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_container1_control_ga_text_eu" msgid="4140760203991466914">"Περισσότερα σχετικά με τα θέματα διαφημίσεων"</string>
+    <string name="notificationUI_learn_more_from_privacy_policy" msgid="7612848815936356982">"Μάθετε περισσότερα σχετικά με το πώς το Android προστατεύει τα δεδομένα σας στην "<a href="https://policies.google.com/privacy">"Πολιτική απορρήτου"</a>"."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu" msgid="460463361383121815">"Δοκιμάστε το"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text3" msgid="3111631825321762696">"•  Τι δεδομένα χρησιμοποιούνται"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text4" msgid="1145343361575986367">"Τα θέματα διαφημίσεων βασίζονται στις εφαρμογές που χρησιμοποιήσατε πρόσφατα σε αυτήν τη συσκευή και το πόσο συχνά τις χρησιμοποιείτε."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text5" msgid="2413587107187922145">"•  Πώς χρησιμοποιούμε αυτά τα δεδομένα"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text6" msgid="5778722222337735336">"Το Android σημειώνει θέματα που σας ενδιαφέρουν καθώς χρησιμοποιείτε τις εφαρμογές σας. Οι ετικέτες των θεμάτων είναι προκαθορισμένες και περιλαμβάνουν στοιχεία όπως Τέχνες και ψυχαγωγία, Αγορές και Αθλητικά. Αργότερα, μια εφαρμογή που χρησιμοποιείτε μπορεί να ζητήσει από το Android ορισμένα από τα θέματα σας (αλλά όχι τα δεδομένα σχετικά με τη χρήση της εφαρμογής ή την ταυτότητά σας) για την εξατομίκευση των διαφημίσεων που βλέπετε."</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text7" msgid="2211184751410500976">"•  Πώς μπορείτε να διαχειρίζεστε τα δεδομένα σας"</string>
+    <string name="notificationUI_how_it_works_topics_expanded_text8" msgid="3876232146185987969">"Το Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα θέματα. Καθώς συνεχίζετε να χρησιμοποιείτε εφαρμογές, ένα θέμα μπορεί να εμφανιστεί ξανά στη λίστα. Μπορείτε επίσης να αποκλείσετε θέματα που δεν θέλετε να κοινοποιούνται από το Android σε εφαρμογές, καθώς και να απενεργοποιήσετε τα θέματα διαφημίσεων ανά πάσα στιγμή από τις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_you_can_change_in_privacy_settings" msgid="8442718185375108149">"Μπορείτε να κάνετε αλλαγές στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_fledge_measurement_title" msgid="2302720088407444975">"Διατίθενται τώρα άλλες λειτουργίες σχετικά με το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1" msgid="3722154862224354844">"Το Android προσφέρει επίσης νέους τρόπους για τον περιορισμό των δεδομένων που μπορούν να μαθαίνουν οι εφαρμογές σχετικά με εσάς όταν εμφανίζουν εξατομικευμένες διαφημίσεις."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2" msgid="1110822413861197210">"•  Οι διαφημίσεις που προτείνονται από εφαρμογές συμβάλλουν στην προστασία της ταυτότητας και των πληροφοριών σας σχετικά με τη χρήση των εφαρμογών ενώ ταυτόχρονα επιτρέπουν στις εφαρμογές να εμφανίζουν συναφείς διαφημίσεις. Με βάση τη δραστηριότητά σας, μια εφαρμογή που χρησιμοποιείτε μπορεί να προτείνει συναφείς διαφημίσεις σε άλλες εφαρμογές. Μπορείτε να δείτε μια λίστα με εφαρμογές και να τις αποκλείσετε ώστε να μην κάνουν προτάσεις, στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3" msgid="7507922087354681596">"•  Με τη μέτρηση διαφημίσεων, κοινοποιούνται περιορισμένοι τύποι δεδομένων μεταξύ των εφαρμογών, προκειμένου να μετρούν την απόδοση των διαφημίσεών τους, όπως είναι η ώρα της ημέρας κατά την οποία εμφανίστηκε μια διαφήμιση σε εσάς."</string>
+    <string name="notificationUI_fledge_measurement_control_ga_text_eu" msgid="5911907998498938712">"Περισσότερες πληροφορίες για τις διαφημίσεις που προτείνονται από εφαρμογές και τη μέτρηση διαφημίσεων"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text0" msgid="6741840736697440529">"Διαφημίσεις που προτείνονται από εφαρμογές"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text1" msgid="2371400801684689406">"•  Ποια δεδομένα χρησιμοποιούνται"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2" msgid="8987693356712090573">"Η δραστηριότητά σας σε μια εφαρμογή που χρησιμοποιείτε σε αυτήν τη συσκευή."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text3" msgid="7773565890104741591">"•  Πώς χρησιμοποιούν οι εφαρμογές αυτά τα δεδομένα"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text4" msgid="5573774292711029982">"Οι εφαρμογές μπορούν να αποθηκεύουν στο Android πληροφορίες σχετικά με πράγματα που σας αρέσουν. Για παράδειγμα, αν χρησιμοποιείτε μια εφαρμογή σχετικά με προπονήσεις για μαραθώνιο, η εφαρμογή μπορεί να αποφασίσει ότι ενδιαφέρεστε για παπούτσια τρεξίματος. Αργότερα, αν χρησιμοποιήσετε κάποια άλλη εφαρμογή, η συγκεκριμένη εφαρμογή μπορεί να σας δείξει μια διαφήμιση σχετικά με παπούτσια τρεξίματος που έχει προτείνει η πρώτη εφαρμογή."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text5" msgid="6202984450003932259">"•  Πώς μπορείτε να διαχειρίζεστε τα δεδομένα σας"</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text6" msgid="1154114779682761598">"Το Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα τα δεδομένα που προτείνονται από εφαρμογές. Μια εφαρμογή που θα χρησιμοποιήσετε ξανά μπορεί να εμφανιστεί και πάλι στη λίστα."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text7" msgid="3723406904978281843">"Μπορείτε επίσης να αποκλείσετε μια εφαρμογή ώστε να μην προτείνει διαφημίσεις για εσάς, να επαναφέρετε όλα τα δεδομένα για τις προτάσεις διαφημίσεων ή να απενεργοποιήσετε τις διαφημίσεις που προτείνονται από εφαρμογές ανά πάσα στιγμή στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text9" msgid="7251503200962215854">"Οι εφαρμογές που χρησιμοποιείτε μπορούν να ζητήσουν από το Android πληροφορίες που θα τις βοηθήσουν να μετρήσουν την απόδοση των διαφημίσεών τους. Το Android προστατεύει το απόρρητό σας περιορίζοντας τις πληροφορίες που μπορούν να κοινοποιούν οι εφαρμογές μεταξύ τους."</string>
+    <string name="notificationUI_notification_ga_title_eu_v2" msgid="7177601554853417301">"Διατίθενται τώρα νέες λειτουργίες σχετικά με το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_notification_ga_content_eu_v2" msgid="7684937197370860118">"Αποκτήστε περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε, προστατεύοντας παράλληλα την ταυτότητά σας"</string>
+    <string name="notificationUI_fledge_measurement_title_v2" msgid="7386987276666729548">"Διατίθενται τώρα νέες λειτουργίες σχετικά με το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_fledge_measurement_introduction_text1_v2" msgid="1698122077900406193">"Το Android διαθέτει νέους τρόπους για τον περιορισμό των δεδομένων που μπορούν να μαθαίνουν οι εφαρμογές σχετικά με εσάς όταν εμφανίζουν εξατομικευμένες διαφημίσεις."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text2_v2" msgid="6496383399982908427">"•  Με τις διαφημίσεις που προτείνονται από εφαρμογές, οι νέες λειτουργίες απορρήτου συμβάλλουν στην προστασία της ταυτότητάς σας και των πληροφοριών σχετικά με τη χρήση εφαρμογών και, παράλληλα, δίνουν στις εφαρμογές τη δυνατότητα να εμφανίζουν συναφείς διαφημίσεις. Με βάση τη δραστηριότητά σας, μια εφαρμογή που χρησιμοποιείτε μπορεί να προτείνει συναφείς διαφημίσεις σε άλλες εφαρμογές. Μπορείτε να δείτε μια λίστα με εφαρμογές και να τις αποκλείσετε ώστε να μην κάνουν προτάσεις στις ρυθμίσεις απορρήτου."</string>
+    <string name="notificationUI_fledge_measurement_introduction_text3_v2" msgid="1573699387054084341">"•  Με τη μέτρηση διαφημίσεων, κοινοποιούνται περιορισμένοι τύποι διαφημίσεων μεταξύ των εφαρμογών, προκειμένου να κατανοούν την απόδοση των διαφημίσεών τους, όπως είναι η ώρα της ημέρας κατά την οποία εμφανίστηκε μια διαφήμιση σε εσάς."</string>
+    <string name="notificationUI_how_it_works_fledge_measurement_expanded_text2_v2" msgid="4803581195824705286">"Η δραστηριότητά σας σε μια εφαρμογή που έχετε σε αυτήν τη συσκευή μπορεί να χρησιμοποιηθεί για προτάσεις διαφημίσεων."</string>
+    <string name="notificationUI_header_ga_title_eu_v2" msgid="6272314446074326973">"Ενεργοποίηση άλλης λειτουργίας σχετικά με το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_container1_body_ga_text_eu_v2" msgid="4308612015996567406">"Το Android προσφέρει επίσης μια νέα λειτουργία απορρήτου που σας δίνει περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε."</string>
+    <string name="notificationUI_container2_body_ga_text_eu_v2" msgid="8554180361193747350">"Τα θέματα διαφημίσεων βοηθούν τις εφαρμογές να εμφανίζουν συναφείς διαφημίσεις και παράλληλα προστατεύουν την ταυτότητά σας και τις πληροφορίες σχετικά με τη χρήση των εφαρμογών. Το Android μπορεί να σημειώσει θέματα που σας ενδιαφέρουν με βάση τις εφαρμογές που χρησιμοποιήσατε πρόσφατα. Αργότερα, μια εφαρμογή που χρησιμοποιείτε μπορεί να ζητήσει από το Android συναφή θέματα για να εμφανίσει πιο συναφείς διαφημίσεις."</string>
+    <string name="notificationUI_container3_body_ga_text_eu_v2" msgid="7059627328024038072">"Μπορείτε να δείτε θέματα διαφημίσεων στις ρυθμίσεις απορρήτου και να αποκλείσετε αυτά που δεν θέλετε να κοινοποιούνται στις εφαρμογές. Επίσης, το Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα θέματα διαφημίσεων."</string>
+    <string name="notificationUI_right_control_button_ga_text_eu_v2" msgid="3808348683964837775">"Ενεργοποίηση"</string>
+    <string name="notificationUI_notification_ga_title_v2" msgid="4163996968068066587">"Διατίθενται τώρα νέες λειτουργίες σχετικά με το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_notification_ga_content_v2" msgid="9010872481787347894">"Τώρα υπάρχουν περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε οι οποίες σας επιτρέπουν να προστατεύετε παράλληλα την ταυτότητά σας"</string>
+    <string name="notificationUI_header_ga_title_v2" msgid="7278405488204886217">"Διατίθενται τώρα νέες λειτουργίες σχετικά με το απόρρητο διαφημίσεων"</string>
+    <string name="notificationUI_container1_ga_introduction_v2" msgid="8607352345994852038">"Το Android προσφέρει τώρα νέες λειτουργίες απορρήτου που σας δίνουν περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε."</string>
+    <string name="notificationUI_next_button_text" msgid="6150546034144405663">"Επόμενο"</string>
+    <string name="settingsUI_main_view_title" msgid="8506265544709344889">"Privacy Sandbox"</string>
+    <string name="settingsUI_main_view_subtitle" msgid="4192045492059726083">"Συμμετάσχετε στο πρόγραμμα beta απορρήτου διαφημίσεων του Android"</string>
+    <string name="settingsUI_privacy_sandbox_beta_switch_title" msgid="8281037143852126401">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_title" msgid="5339945741183473274">"Ενδιαφέροντα που εκτιμήθηκαν από το Android"</string>
+    <string name="settingsUI_apps_title" msgid="5995350116551596477">"Εφαρμογές που εκτιμούν ενδιαφέροντα"</string>
+    <string name="settingsUI_main_view_info_text8" msgid="3283348237139281934">"Μέτρηση διαφημίσεων"</string>
+    <string name="settingsUI_main_view_info_text9" msgid="8099947772206651223">"Οι εφαρμογές μπορούν να χρησιμοποιούν το Privacy Sandbox για τη μέτρηση της αποτελεσματικότητας των διαφημίσεών τους. Για να είναι αυτό δυνατό, οι διαφημιζόμενοι μπορούν να αποθηκεύουν προσωρινά δεδομένα με το Android σχετικά με τις αλληλεπιδράσεις σας μεταξύ των διαφημίσεών τους και των εφαρμογών. Η ποσότητα δεδομένων που μπορούν να αποθηκεύσουν είναι περιορισμένη και διαγράφεται τακτικά.\n\nΜπορείτε να διαγράψετε αυτά τα δεδομένα οποιαδήποτε στιγμή, απενεργοποιώντας το Privacy Sandbox."</string>
+    <string name="settingsUI_topics_view_subtitle" msgid="2555242128148608108">"Το Android περιοδικά εκτιμά τα κορυφαία ενδιαφέροντά σας με βάση τις εφαρμογές που χρησιμοποιείτε. Οι εφαρμογές μπορούν να υποβάλουν αίτημα στο Android για την άδεια να χρησιμοποιούν αυτά τα ενδιαφέροντα, προκειμένου να εμφανίζουν διαφημίσεις που είναι πιο συναφείς για εσάς.\n\nΑν αποκλείσετε ένα ενδιαφέρον, δεν θα προστεθεί ξανά στη λίστα, παρά μόνο αν καταργήσετε τον αποκλεισμό του. Ενδέχεται να συνεχίσετε να βλέπετε μερικές σχετικές διαφημίσεις."</string>
+    <string name="settingsUI_block_topic_title" msgid="542801436874037128">"Αποκλεισμός"</string>
+    <string name="settingsUI_unblock_topic_title" msgid="9183891456548567284">"Κατάργηση αποκλεισμού"</string>
+    <string name="settingsUI_blocked_topics_title" msgid="84411550241312692">"Ενδιαφέροντα που έχετε αποκλείσει"</string>
+    <string name="settingsUI_reset_topics_title" msgid="4659272636850648155">"Επαναφορά όλων των ενδιαφερόντων"</string>
+    <string name="settingsUI_topics_view_no_topics_text" msgid="8337078176142128219">"Δεν υπάρχουν ενδιαφέροντα για εμφάνιση αυτήν τη στιγμή."</string>
+    <string name="settingsUI_topics_view_no_topics_ga_text" msgid="4232374024129407829">"Δεν υπάρχουν θέματα για εμφάνιση αυτήν τη στιγμή.\nΜάθετε περισσότερα σχετικά με τα "<a href="https://support.google.com/android?p=ad_privacy">"θέματα διαφημίσεων"</a></string>
+    <string name="settingsUI_topics_view_info_text1" msgid="1837427989556474858">"Privacy Sandbox"</string>
+    <string name="settingsUI_topics_view_info_text2" msgid="3814232857139974524">"Το πρόγραμμα beta απορρήτου διαφημίσεων του Android παρέχει νέες λειτουργίες τις οποίες μπορούν να χρησιμοποιούν οι εφαρμογές για να εμφανίζουν διαφημίσεις που μπορεί να σας αρέσουν. Αυτές οι τεχνολογίες δεν χρησιμοποιούν αναγνωριστικά συσκευών.\n\nΤο Android μπορεί να εκτιμήσει τα είδη διαφημίσεων που μπορεί να σας ενδιαφέρουν και να αποθηκεύσει αυτά τα ενδιαφέροντα προσωρινά στη συσκευή σας. Αυτό επιτρέπει στις εφαρμογές να εμφανίζουν διαφημίσεις που είναι συναφείς για εσάς, χωρίς να παρακολουθούν τη δραστηριότητά σας σε ιστοτόπους και εφαρμογές από άλλους προγραμματιστές."</string>
+    <string name="settingsUI_topics_view_no_blocked_topics_text" msgid="2592506251182454751">"Δεν έχετε αποκλεισμένα ενδιαφέροντα"</string>
+    <string name="settingsUI_no_blocked_topics_ga_text" msgid="3571887649896533532">"Δεν υπάρχουν αποκλεισμένα θέματα"</string>
+    <string name="settingsUI_view_blocked_topics_title" msgid="6524865577585338530">"Προβολή αποκλεισμένων θεμάτων"</string>
+    <string name="settingsUI_topics_are_reset" msgid="7474478586324962685">"Έγινε επαναφορά των ενδιαφερόντων"</string>
+    <string name="settingsUI_topics_are_reset_ga" msgid="1862215340606433752">"Έγινε επαναφορά των θεμάτων"</string>
+    <string name="settingsUI_apps_view_subtitle" msgid="4320154274829130809">"Οι εφαρμογές μπορούν να εκτιμήσουν τα ενδιαφέροντά σας και να τα αποθηκεύσουν προσωρινά με το Android. Αργότερα, μια διαφορετική εφαρμογή μπορεί να εμφανίσει μια διαφήμιση με βάση αυτά τα ενδιαφέροντα.\n\nΑν αποκλείσετε μια εφαρμογή, θα πάψει να εκτιμά άλλα ενδιαφέροντα. Δεν θα προστεθεί ξανά σε αυτήν τη λίστα εφαρμογών, παρά μόνο αν καταργήσετε τον αποκλεισμό της. Τα ενδιαφέροντα που έχουν ήδη εκτιμηθεί από την εφαρμογή θα διαγραφούν, αλλά ίσως συνεχίσετε να βλέπετε μερικές σχετικές διαφημίσεις."</string>
+    <string name="settingsUI_blocked_apps_title" msgid="2912819231721312960">"Εφαρμογές που αποκλείσατε"</string>
+    <string name="settingsUI_view_blocked_apps_title" msgid="7095922654201180593">"Προβολή αποκλεισμένων εφαρμογών"</string>
+    <string name="settingsUI_reset_apps_title" msgid="3102875782600625477">"Επαναφορά ενδιαφερόντων που έχουν εκτιμηθεί από εφαρμογές"</string>
+    <string name="settingsUI_apps_view_no_apps_text" msgid="5821437091309568626">"Δεν υπάρχουν εφαρμογές που να προτείνουν ενδιαφέροντα για εσάς αυτήν τη στιγμή"</string>
+    <string name="settingsUI_apps_view_no_apps_ga_text" msgid="827670084273365802">"Δεν υπάρχουν εφαρμογές για εμφάνιση αυτήν τη στιγμή. \nΜάθετε περισσότερα σχετικά με τις "<a href="https://support.google.com/android?p=ad_privacy">"διαφημίσεις που προτείνονται από εφαρμογές"</a></string>
+    <string name="settingsUI_apps_view_info_text1" msgid="8524518056879001890">"Privacy Sandbox"</string>
+    <string name="settingsUI_apps_view_info_text2" msgid="6191835773793395323">"Το πρόγραμμα beta απορρήτου διαφημίσεων του Android παρέχει νέες λειτουργίες τις οποίες μπορούν να χρησιμοποιούν οι εφαρμογές για να εμφανίζουν διαφημίσεις που μπορεί να σας αρέσουν. Αυτές οι τεχνολογίες δεν χρησιμοποιούν αναγνωριστικά συσκευών.\n\nΟι εφαρμογές μπορούν να εκτιμήσουν τα είδη διαφημίσεων που μπορεί να σας ενδιαφέρουν και να αποθηκεύσουν αυτά τα ενδιαφέροντα προσωρινά στη συσκευή σας. Αυτό επιτρέπει στις εφαρμογές να εμφανίζουν διαφημίσεις που είναι συναφείς για εσάς, χωρίς να παρακολουθούν τη δραστηριότητά σας σε ιστοτόπους και εφαρμογές από άλλους προγραμματιστές."</string>
+    <string name="settingsUI_apps_view_no_blocked_apps_text" msgid="6386103688779633888">"Δεν έχετε αποκλεισμένες εφαρμογές"</string>
+    <string name="settingsUI_no_blocked_apps_ga_text" msgid="5715916198159277202">"Δεν υπάρχουν αποκλεισμένες εφαρμογές"</string>
+    <string name="settingsUI_measurement_switch_title" msgid="2111625410373329760">"Να επιτρέπεται η μέτρηση των διαφημίσεων"</string>
+    <string name="settingsUI_measurement_view_intro_text" msgid="2780083472100004780">"Οι εφαρμογές και οι διαφημιζόμενοι μπορούν να ζητήσουν πληροφορίες από το Android οι οποίες βοηθούν στη μέτρηση της απόδοσης των διαφημίσεών τους.\n\nΤα δεδομένα μέτρησης διαφημίσεων διαγράφονται ανά τακτά χρονικά διαστήματα από τη συσκευή σας."</string>
+    <string name="settingsUI_measurement_view_reset_title" msgid="518549441454274773">"Επαναφορά δεδομένων μέτρησης"</string>
+    <string name="settingsUI_measurement_view_footer_text" msgid="823743750634137761">"Το Android προστατεύει το απόρρητό σας περιορίζοντας τις πληροφορίες που μπορούν να κοινοποιήσουν οι εφαρμογές μεταξύ τους. Οι αναφορές αποστέλλονται με καθυστέρηση για την προστασία της ταυτότητάς σας.\n\nΤο πρόγραμμα περιήγησης που χρησιμοποιείτε μπορεί να έχει κάποια παρόμοια ρύθμιση. Αν η μέτρηση διαφημίσεων είναι ενεργή στο Android και στο πρόγραμμα περιήγησης, μια εταιρεία ίσως να μπορεί να μετρήσει την αποτελεσματικότητα μιας διαφήμισης μεταξύ των εφαρμογών που χρησιμοποιείτε και των ιστοτόπων που επισκέπτεστε. Το ιστορικό περιήγησης διατηρείται ιδιωτικό στη συσκευή σας.\n\nΜάθετε περισσότερα σχετικά με το πώς το Android προστατεύει τα δεδομένα σας στην "<a href="https://policies.google.com/privacy">"Πολιτική απορρήτου"</a>"."</string>
+    <string name="settingsUI_measurement_are_reset" msgid="3109724238284555411">"Έγινε επαναφορά των δεδομένων μέτρησης διαφημίσεων"</string>
+    <string name="settingsUI_dialog_negative_text" msgid="2991743327829379614">"Ακύρωση"</string>
+    <string name="settingsUI_dialog_opt_out_title" msgid="7364417538227823889">"Να απενεργοποιηθεί το Privacy Sandbox;"</string>
+    <string name="settingsUI_dialog_opt_out_message" msgid="277021855863398163">"Εάν αλλάξετε γνώμη ή θέλετε να μάθετε περισσότερα σχετικά με την έκδοση beta απορρήτου διαφημίσεων του Android, μεταβείτε στις ρυθμίσεις απορρήτου."</string>
+    <string name="settingsUI_dialog_opt_out_positive_text" msgid="8325131452422895574">"Απενεργοποίηση"</string>
+    <string name="settingsUI_dialog_block_topic_title" msgid="2250176723499905800">"Να αποκλειστεί το θέμα <xliff:g id="TOPIC">%1$s</xliff:g>;"</string>
+    <string name="settingsUI_dialog_block_topic_message" msgid="1400336281231183620">"Το συγκεκριμένο θέμα θα αποκλειστεί και δεν θα προστεθεί ξανά στη λίστα, εκτός και αν το προσθέσετε πάλι. Ενδέχεται να συνεχίσετε να βλέπετε μερικές σχετικές διαφημίσεις."</string>
+    <string name="settingsUI_dialog_block_topic_positive_text" msgid="2296205088661063414">"Αποκλεισμός"</string>
+    <string name="settingsUI_dialog_unblock_topic_title" msgid="8073938057439853098">"Ο αποκλεισμός του θέματος <xliff:g id="TOPIC">%1$s</xliff:g> καταργήθηκε"</string>
+    <string name="settingsUI_dialog_unblock_topic_message" msgid="4894588769439475026">"Το Android ενδέχεται να προσθέσει ξανά αυτό το θέμα στη λίστα, αλλά μπορεί να μην εμφανιστεί αμέσως"</string>
+    <string name="settingsUI_dialog_unblock_topic_positive_text" msgid="100197988093248650">"OK"</string>
+    <string name="settingsUI_dialog_reset_topic_title" msgid="344077320598377031">"Επαναφορά όλων των θεμάτων διαφημίσεων;"</string>
+    <string name="settingsUI_dialog_reset_topic_message" msgid="3533277451580994438">"Το περιεχόμενο της λίστας θα διαγραφεί και στο μέλλον θα προστεθούν νέα θέματα. Ενδέχεται να εξακολουθείτε να βλέπετε ορισμένες διαφημίσεις που σχετίζονται με τα θέματα που επαναφέρατε."</string>
+    <string name="settingsUI_dialog_reset_topic_positive_text" msgid="7734301266846695010">"Επαναφορά"</string>
+    <string name="settingsUI_dialog_block_app_title" msgid="4307840076271594235">"Να αποκλειστεί η εφαρμογή <xliff:g id="APP">%1$s</xliff:g>;"</string>
+    <string name="settingsUI_dialog_block_app_message" msgid="4276422781824461333">"Αυτή η εφαρμογή δεν θα προτείνει διαφημίσεις και δεν θα προστεθεί ξανά στη λίστα, εκτός και αν καταργήσετε τον αποκλεισμό της. Ενδέχεται να συνεχίσετε να βλέπετε μερικές σχετικές διαφημίσεις."</string>
+    <string name="settingsUI_dialog_unblock_app_title" msgid="2550291012359801944">"Ο αποκλεισμός της εφαρμογής <xliff:g id="APP">%1$s</xliff:g> καταργήθηκε"</string>
+    <string name="settingsUI_dialog_unblock_app_message" msgid="6191841911127908772">"Αυτή η εφαρμογή μπορεί να προτείνει ξανά διαφημίσεις για εσάς, αλλά μπορεί να μην εμφανιστεί αμέσως στη λίστα. Ενδέχεται να χρειαστεί κάποιος χρόνος για να δείτε σχετικές διαφημίσεις."</string>
+    <string name="settingsUI_dialog_reset_app_title" msgid="3700919198466445097">"Επαναφορά των διαφημίσεων που προτείνονται από εφαρμογές;"</string>
+    <string name="settingsUI_dialog_reset_app_message" msgid="7831735384043940627">"Τα δεδομένα σχετικά με τις προτάσεις διαφημίσεων από τις εφαρμογές που περιέχει η λίστα θα διαγραφούν και οι εφαρμογές θα προτείνουν νέες διαφημίσεις στο μέλλον. Ενδέχεται να συνεχίσετε να βλέπετε μερικές σχετικές διαφημίσεις."</string>
+    <string name="settingsUI_apps_are_reset" msgid="1093844198650066771">"Έγινε επαναφορά των δεδομένων εφαρμογών"</string>
+    <string name="settingsUI_dialog_topics_opt_in_title" msgid="1362256280523442278">"Τα θέματα διαφημίσεων είναι ενεργά"</string>
+    <string name="settingsUI_dialog_topics_opt_in_message" msgid="6819771501435075150">"Το Android θα ξεκινήσει να σημειώνει θέματα που σας ενδιαφέρουν, αλλά μπορεί να περάσει καιρός μέχρι να εμφανιστούν τα πρώτα θέματα."</string>
+    <string name="settingsUI_dialog_topics_opt_out_title" msgid="5911772561101117470">"Να απενεργοποιηθούν τα θέματα διαφημίσεων;"</string>
+    <string name="settingsUI_dialog_topics_opt_out_message" msgid="7254104395483409350">"Αυτή η λίστα θεμάτων θα διαγραφεί. Το Android δεν θα σημειώνει πλέον θέματα που σας ενδιαφέρουν, αλλά μπορεί να βλέπετε ακόμα συναφείς διαφημίσεις."</string>
+    <string name="settingsUI_dialog_apps_opt_in_title" msgid="2295945781045079503">"Οι διαφημίσεις που προτείνονται από εφαρμογές είναι ενεργές"</string>
+    <string name="settingsUI_dialog_apps_opt_in_message" msgid="8144825082538072154">"Οι εφαρμογές μπορεί να ξεκινήσουν να προτείνουν διαφημίσεις. Θα δείτε μια λίστα με τις εφαρμογές μόλις ξεκινήσουν να προτείνουν διαφημίσεις."</string>
+    <string name="settingsUI_dialog_apps_opt_out_title" msgid="4222076552642401217">"Απενεργοποίηση προτάσεων για διαφημίσεις από εφαρμογές;"</string>
+    <string name="settingsUI_dialog_apps_opt_out_message" msgid="6369931338223871618">"Όλα τα δεδομένα σχετικά με τις προτάσεις διαφημίσεων θα διαγραφούν. Οι εφαρμογές δεν θα μπορούν να προτείνουν πλέον διαφημίσεις, αλλά μπορεί να βλέπετε ακόμα συναφείς διαφημίσεις."</string>
+    <string name="settingsUI_dialog_measurement_opt_in_title" msgid="1436286077459847555">"Η μέτρηση διαφημίσεων είναι ενεργή"</string>
+    <string name="settingsUI_dialog_measurement_opt_in_message" msgid="6054936530818477354">"Το Android μπορεί να κοινοποιεί μόνο πολύ περιορισμένες πληροφορίες σε εφαρμογές για να τις βοηθάει στη μέτρηση της απόδοσης των διαφημίσεών τους."</string>
+    <string name="settingsUI_dialog_measurement_opt_out_title" msgid="7432170540914883206">"Να απενεργοποιηθεί η μέτρηση διαφημίσεων;"</string>
+    <string name="settingsUI_dialog_measurement_opt_out_message" msgid="2185287342979898515">"Όλες οι αναφορές μέτρησης διαφημίσεων που βρίσκονται σε εκκρεμότητα θα διαγραφούν και δεν θα δημιουργηθούν ούτε θα κοινοποιηθούν νέες αναφορές."</string>
+    <string name="settingsUI_main_view_ga_title" msgid="628993290364476040">"Απόρρητο διαφημίσεων"</string>
+    <string name="settingsUI_topics_ga_title" msgid="4815364317504405264">"Θέματα διαφημίσεων"</string>
+    <string name="settingsUI_apps_ga_title" msgid="6646343832670673768">"Διαφημίσεις που προτείνονται από εφαρμογές"</string>
+    <string name="settingsUI_main_view_ad_topics_info" msgid="5758770045787568091">"Το Android καταγράφει θέματα που σας ενδιαφέρουν με βάση τις εφαρμογές που χρησιμοποιήσατε πρόσφατα και το πόσο συχνά τις χρησιμοποιείτε."</string>
+    <string name="settingsUI_main_view_apps_info" msgid="3093099990301760086">"Οι εφαρμογές που χρησιμοποιείτε μπορούν επίσης να διαπιστώσουν τι σας αρέσει με βάση τον τρόπο με τον οποίο τις χρησιμοποιείτε."</string>
+    <string name="settingsU_main_view_measurement_info" msgid="7231616293146266690">"Οι εφαρμογές που χρησιμοποιείτε μπορούν να ζητήσουν πληροφορίες από το Android για να μετρήσουν την απόδοση των διαφημίσεών τους. Το Android επιτρέπει στις εφαρμογές να συλλέγουν περιορισμένους τύπους δεδομένων."</string>
+    <string name="settingsU_main_view_learn_more" msgid="1510918572255886819">"Μάθετε περισσότερα σχετικά με το "<a href="https://support.google.com/android?p=ad_privacy">"απόρρητο διαφημίσεων σε Android"</a></string>
+    <string name="settingsUI_topics_subtitle" msgid="6972706530860751586">"Ενεργά / <xliff:g id="TOPICS_COUNT">%1$d</xliff:g> θέματα"</string>
+    <string name="settingsUI_topics_subtitle_plural" msgid="7938363290536769313">"{count,plural, =1{Ενεργό / # θέμα}other{Ενεργά / # θέματα}}"</string>
+    <string name="settingsUI_apps_subtitle" msgid="5488403228775310943">"Ενεργές / <xliff:g id="APPS_COUNT">%1$d</xliff:g> εφαρμογές"</string>
+    <string name="settingsUI_apps_subtitle_plural" msgid="7184167843623106783">"{count,plural, =1{Ενεργή / # εφαρμογή}other{Ενεργές / # εφαρμογές}}"</string>
+    <string name="settingsUI_subtitle_consent_on" msgid="4526152882066971753">"Ενεργή"</string>
+    <string name="settingsUI_subtitle_consent_off" msgid="3699617207496648034">"Ανενεργή"</string>
+    <string name="settingsUI_topics_view_ga_subtitle" msgid="4448883758817660143">"Τα θέματα ενδιαφέροντος βασίζονται στις εφαρμογές που χρησιμοποιήσατε πρόσφατα και χρησιμοποιούνται από τις εφαρμογές για την εμφάνιση εξατομικευμένων διαφημίσεων.\n\nΜπορείτε να αποκλείσετε θέματα που δεν θέλετε να κοινοποιούνται σε εφαρμογές. Επίσης, το Android διαγράφει θέματα αυτόματα και ανά τακτά χρονικά διαστήματα.\n\nΑυτή η λειτουργία μπορεί να είναι ενεργοποιημένη, ωστόσο, ενδέχεται να μην βλέπετε μια λίστα θεμάτων έως ότου η λειτουργία γίνει πλήρως διαθέσιμη και αρχίσει να χρησιμοποιείται από εφαρμογές."</string>
+    <string name="settingsUI_topics_switch_title" msgid="6138535622464144001">"Να επιτρέπονται τα θέματα διαφημίσεων"</string>
+    <string name="settingsUI_blocked_topics_ga_title" msgid="1855691597262481021">"Θέματα διαφημίσεων που αποκλείσατε"</string>
+    <string name="settingsUI_reset_topics_ga_title" msgid="1580902912944562790">"Επαναφορά όλων των θεμάτων διαφημίσεων"</string>
+    <string name="settingsU_topics_view_footer" msgid="1030678323154113993">"Το Android καταγράφει θέματα που σας ενδιαφέρουν με βάση τις εφαρμογές που χρησιμοποιήσατε πρόσφατα.\n\nΑργότερα, μια εφαρμογή που χρησιμοποιείτε μπορεί να ζητήσει από το Android τα θέματα σας για την εξατομίκευση των διαφημίσεων που βλέπετε. Το Android κοινοποιεί έως 3 θέματα, ενώ προστατεύει την ταυτότητά σας και τις πληροφορίες σχετικά με την από μέρους σας χρήση της εφαρμογής.\n\nΤο Android διαγράφει αυτόματα τα θέματα ανά τακτά χρονικά διαστήματα. Καθώς συνεχίζετε να χρησιμοποιείτε εφαρμογές, μπορεί ένα θέμα να εμφανιστεί ξανά στη λίστα. Εναλλακτικά, μπορείτε να αποκλείσετε θέματα που δεν θέλετε να κοινοποιεί το Android σε εφαρμογές.\n\nΣτις εφαρμογές σας, μια διαφήμιση που βλέπετε μπορεί να είναι εξατομικευμένη, ανάλογα με αυτήν τη ρύθμιση, τη ρύθμιση διαφημίσεων που προτείνονται από εφαρμογές, τις ρυθμίσεις αναγνωριστικού διαφήμισης και το αν η εφαρμογή που χρησιμοποιείτε εξατομικεύει τις διαφημίσεις."</string>
+    <string name="settingsUI_apps_switch_title" msgid="4459742127173310507">"Να επιτρέπονται οι διαφημίσεις που προτείνονται από την εφαρμογή"</string>
+    <string name="settingsUI_apps_view_ga_subtitle" msgid="4376440601964010807">"Οι εφαρμογές που χρησιμοποιείτε μπορούν να προσδιορίσουν τι περιεχόμενο σας αρέσει και έπειτα να προτείνουν διαφημίσεις σε άλλες εφαρμογές.\n\nΜπορείτε να αποκλείσετε τις εφαρμογές, ώστε να μην κάνουν προτάσεις. Επίσης, το Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα τα δεδομένα που προτείνονται από εφαρμογές.\n\nΑυτή η λειτουργία μπορεί να είναι ενεργοποιημένη, ωστόσο, ενδέχεται να μην βλέπετε μια λίστα εφαρμογών έως ότου η λειτουργία γίνει πλήρως διαθέσιμη και αρχίσει να χρησιμοποιείται από εφαρμογές."</string>
+    <string name="settingsUI_blocked_apps_ga_title" msgid="3403673196085504304">"Εφαρμογές που αποκλείσατε"</string>
+    <string name="settingsUI_reset_apps_ga_title" msgid="8096477193202146197">"Επαναφορά δεδομένων που προτείνονται από εφαρμογές"</string>
+    <string name="settingsUI_apps_view_footer" msgid="5502656868680626279">"Είναι σύνηθες για τις εφαρμογές που χρησιμοποιείτε να απομνημονεύουν πράγματα που σας ενδιαφέρουν, προκειμένου να εξατομικεύσουν την εμπειρία σας. Οι εφαρμογές μπορούν επίσης να αποθηκεύουν πληροφορίες με το Android οι οποίες σχετίζονται με τα θέματά σας.\n\nΓια παράδειγμα, αν χρησιμοποιείτε μια εφαρμογή σχετικά με προπονήσεις για μαραθώνιο, η εφαρμογή μπορεί να αποφασίσει ότι σας ενδιαφέρουν τα παπούτσια για τρέξιμο. Αργότερα, αν χρησιμοποιήσετε κάποια άλλη εφαρμογή, η συγκεκριμένη εφαρμογή μπορεί να σας δείξει μια διαφήμιση σχετικά με παπούτσια για τρέξιμο που έχει προτείνει η πρώτη εφαρμογή.\n\nΤο Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα τα δεδομένα που προτείνονται από εφαρμογές. Μια εφαρμογή που θα χρησιμοποιήσετε ξανά μπορεί να εμφανιστεί και πάλι στη λίστα. Εναλλακτικά, μπορείτε να αποκλείσετε μια εφαρμογή, ώστε να μην προτείνει διαφημίσεις για εσάς.\n\nΣτις εφαρμογές σας, μια διαφήμιση που βλέπετε μπορεί να εμφανίζεται εξατομικευμένη, με βάση αυτήν τη ρύθμιση, τη ρύθμιση για τα θέματα διαφημίσεων, τις ρυθμίσεις για το αναγνωριστικό διαφήμισης και το κατά πόσο η εφαρμογή που χρησιμοποιείτε εξατομικεύει τις διαφημίσεις."</string>
+    <string name="notificationUI_u18_notification_title" msgid="3039567502781358382">"Διατίθεται τώρα νέα λειτουργία απορρήτου διαφημίσεων"</string>
+    <string name="notificationUI_u18_notification_content" msgid="782224580271117368">"Για τη μέτρηση της απόδοσης των διαφημίσεων, κοινοποιούνται μόνο πολύ περιορισμένες πληροφορίες μεταξύ των εφαρμογών"</string>
+    <string name="notificationUI_u18_body1" msgid="95107947575995393">"Παρουσιάζουμε μια νέα λειτουργία απορρήτου διαφημίσεων που ονομάζεται μέτρηση διαφημίσεων. Το Android κοινοποιεί μόνο πολύ περιορισμένες πληροφορίες μεταξύ των εφαρμογών, όπως το πότε εμφανίστηκε μια διαφήμιση σε εσάς, προκειμένου να βοηθήσει τις εφαρμογές να μετρούν την απόδοση των διαφημίσεων."</string>
+    <string name="notificationUI_u18_body3" msgid="4149294335097045465">"Μπορείτε να κάνετε αλλαγές στις ρυθμίσεις απορρήτου διαφημίσεων."</string>
+    <string name="settingsUI_u18_main_view_measurement_info" msgid="5164208931246902715">"Οι εφαρμογές που χρησιμοποιείτε μπορούν να ζητήσουν πληροφορίες από το Android για να μετρήσουν την απόδοση των διαφημίσεών τους. Το Android επιτρέπει στις εφαρμογές να συλλέγουν μόνο περιορισμένους τύπους δεδομένων."</string>
+    <string name="notificationUI_pas_notification_title" msgid="1802264465856796661">"Νέες λειτουργίες απορρήτου διαφημίσεων"</string>
+    <string name="notificationUI_pas_notification_content" msgid="4707569137808653882">"Αποκτήστε περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε συμβάλλοντας παράλληλα στην προστασία της ταυτότητάς σας"</string>
+    <string name="notificationUI_pas_re_notification_title" msgid="3602324501055294805">"Ενημερώσεις στις λειτουργίες απορρήτου διαφημίσεων που χρησιμοποιείτε"</string>
+    <string name="notificationUI_pas_re_notification_content" msgid="4205599804842406411">"Αποκτήστε περισσότερες επιλογές σχετικά με τις διαφημίσεις που βλέπετε συμβάλλοντας παράλληλα στην προστασία της ταυτότητάς σας"</string>
+    <string name="notificationUI_pas_body_main" msgid="4373572260264270651">"Το Android επεκτείνει τις λειτουργίες απορρήτου διαφημίσεων για να περιορίσει τις πληροφορίες που μπορούν να μάθουν για εσάς οι εφαρμογές όταν προβάλλουν εξατομικευμένες διαφημίσεις."</string>
+    <string name="notificationUI_pas_body1" msgid="850989038991219454">"Οι εφαρμογές και οι συνεργάτες διαφήμισής τους, μπορούν να χρησιμοποιήσουν τη δραστηριότητά σας σε όλες τις εφαρμογές σε αυτή τη συσκευή για να εξατομικεύσουν τις διαφημίσεις, συμβάλλοντας παράλληλα στο να παραμείνει ιδιωτική και ασφαλής η ταυτότητά σας."</string>
+    <string name="notificationUI_pas_expand_button_text1" msgid="8981025972348568991">"Περισσότερα για τις διαφημίσεις που προτείνονται από εφαρμογές"</string>
+    <string name="notificationUI_pas_body2" msgid="8458057494531462690">"Κοινοποιούνται περιορισμένοι τύποι διαφημίσεων μεταξύ των εφαρμογών, προκειμένου να κατανοούν την απόδοση των διαφημίσεών τους, όπως είναι η ώρα της ημέρας κατά την οποία εμφανίστηκε μια διαφήμιση σε εσάς."</string>
+    <string name="notificationUI_pas_expand_button_text2" msgid="2852531029825598040">"Περισσότερα σχετικά με τη μέτρηση διαφημίσεων"</string>
+    <string name="notificationUI_pas_combined_body_2" msgid="2127790402199502013">"Το Android καταγράφει θέματα που σας ενδιαφέρουν με βάση τις εφαρμογές που χρησιμοποιήσατε πρόσφατα. Επίσης, οι εφαρμογές και οι συνεργάτες διαφήμισής τους, μπορούν να χρησιμοποιήσουν τη δραστηριότητά σας σε όλες τις εφαρμογές σε αυτή τη συσκευή για να εξατομικεύσουν τις διαφημίσεις, συμβάλλοντας παράλληλα στο να παραμείνει ιδιωτική και ασφαλής η ταυτότητά σας."</string>
+    <string name="notificationUI_pas_combined_dropdown_body2" msgid="5592056391863655805">"•  Οι εφαρμογές που χρησιμοποιείτε μπορούν επίσης να προσδιορίσουν τι σας αρέσει με βάση τη δραστηριότητά σας σε εφαρμογές. Για παράδειγμα, αν χρησιμοποιείτε συχνά εφαρμογές μαγειρικής, ενδέχεται να εμφανίζονται διαφημίσεις υπηρεσιών διανομής ειδών παντοπωλείου ή σχετικού περιεχομένου σε άλλες εφαρμογές.\n\nΟι εφαρμογές μπορούν να αποθηκεύσουν με ασφάλεια αυτές τις πληροφορίες προκειμένου η χρήση τους να είναι δυνατή από τους συνεργάτες διαφήμισής τους μόνο για την εξατομίκευση διαφημίσεων σε άλλες εφαρμογές."</string>
+    <string name="notificationUI_pas_combined_dropdown_body3" msgid="7622881614002410415">"Αργότερα, μια εφαρμογή που χρησιμοποιείτε μπορεί να ζητήσει αυτές τις πληροφορίες, είτε πρόκειται για τα θέματα διαφημίσεων είτε για τις διαφημίσεις που προτείνονται από εφαρμογές που έχετε χρησιμοποιήσει."</string>
+    <string name="notificationUI_pas_combined_dropdown_body5" msgid="3066941294231483873">"Οι εφαρμογές που χρησιμοποιείτε μπορούν να ζητήσουν πληροφορίες από το Android για να μετρήσουν την απόδοση των διαφημίσεών τους. Το Android συμβάλλει στην προστασία του απορρήτου σας περιορίζοντας τις πληροφορίες που μπορούν να κοινοποιήσουν οι εφαρμογές μεταξύ τους."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle1" msgid="2518548652511929388">"Τι δεδομένα χρησιμοποιούνται;"</string>
+    <string name="notificationUI_pas_msmt_body1" msgid="6437950797184418065">"Οι εφαρμογές που χρησιμοποιείτε μπορούν να ζητήσουν από το Android πληροφορίες που θα τις βοηθήσουν να μετρήσουν την απόδοση των διαφημίσεών τους. Το Android συμβάλλει στην προστασία του απορρήτου σας περιορίζοντας τις πληροφορίες που μπορούν να κοινοποιούν οι εφαρμογές μεταξύ τους."</string>
+    <string name="notificationUI_pas_msmt_dropdown_subtitle2" msgid="1369612937107473791">"Πώς προστατεύεται η ταυτότητά μου;"</string>
+    <string name="notificationUI_pas_msmt_body2" msgid="6096311192720552724">"Το Android χρησιμοποιεί πολλά μέτρα προστασίας του απορρήτου, όπως η συγκέντρωση και η προσθήκη θορύβου στα δεδομένα, για να περιορίσει τις πληροφορίες που κοινοποιούν οι εφαρμογές μεταξύ τους και να συμβάλει στην προστασία της ταυτότητάς σας.\n\nΕπίσης, τα δεδομένα μέτρησης διαφημίσεων διαγράφονται από τη συσκευή σας ανά τακτά χρονικά διαστήματα."</string>
+    <string name="notificationUI_pas_app_body1" msgid="5276341884020030212">"Η δραστηριότητα σε εφαρμογές μπορεί να χρησιμοποιηθεί για προτάσεις διαφημίσεων."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle2" msgid="6921646926839023847">"Πώς χρησιμοποιούν οι εφαρμογές αυτά τα δεδομένα;"</string>
+    <string name="notificationUI_pas_app_body2" msgid="7216401746885174244">"Οι εφαρμογές μπορούν να αποθηκεύσουν με ασφάλεια αυτές τις πληροφορίες προκειμένου η χρήση τους να είναι δυνατή μόνο από τους συνεργάτες διαφήμισης για την εξατομίκευση διαφημίσεων σε άλλες εφαρμογές. Για παράδειγμα, αν χρησιμοποιείτε συχνά εφαρμογές μαγειρικής, ενδέχεται να εμφανίζονται διαφημίσεις υπηρεσιών διανομής ειδών παντοπωλείου ή σχετικού περιεχομένου σε άλλες εφαρμογές."</string>
+    <string name="notificationUI_pas_app_dropdown_subtitle3" msgid="140629612535108432">"Πώς μπορώ να διαχειριστώ αυτά τα δεδομένα;"</string>
+    <string name="notificationUI_pas_app_body3" msgid="6455200181055776674">"Μπορείτε να αποκλείσετε συγκεκριμένες εφαρμογές από το να κοινοποιούν τη δραστηριότητά σας σε συνεργάτες διαφήμισης. Στις ρυθμίσεις απορρήτου, μπορείτε ανά πάσα στιγμή να επαναφέρετε ή να απενεργοποιήσετε τις διαφημίσεις που προτείνονται από εφαρμογές. Επίσης, το Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα αυτά τα δεδομένα."</string>
+    <string name="notificationUI_pas_leanr_more_link" msgid="8029331460965381868"><a href="https://support.google.com/android?p=ad_privacy">"Μάθετε περισσότερα σχετικά με το πώς το Android συμβάλλει στην προστασία του απορρήτου σας"</a></string>
+    <string name="settingsUI_pas_apps_view_body_text" msgid="4229629051979290546">"Οι εφαρμογές και οι συνεργάτες διαφήμισής τους μπορούν να χρησιμοποιήσουν τη δραστηριότητά σας σε άλλες εφαρμογές σε αυτή τη συσκευή για να εξατομικεύσουν τις διαφημίσεις, συμβάλλοντας παράλληλα στο να παραμείνουν ιδιωτικές και ασφαλείς οι πληροφορίες σχετικά με σας.\n\nΓια παράδειγμα, αν χρησιμοποιείτε συχνά εφαρμογές μαγειρικής, ενδέχεται να εμφανίζονται διαφημίσεις υπηρεσιών διανομής ειδών παντοπωλείου ή σχετικού περιεχομένου σε άλλες εφαρμογές.\n\nΤο Android διαγράφει αυτόματα τη δραστηριότητά σας ανά τακτά χρονικά διαστήματα, αλλά μπορείτε επίσης να αποκλείσετε εφαρμογές από το να κοινοποιούν τη δραστηριότητά σας στους συνεργάτες διαφήμισης."</string>
+    <string name="settingsUI_pas_apps_view_footer" msgid="272934340041202862">"Είναι σύνηθες για τις εφαρμογές και τους συνεργάτες διαφήμισης να απομνημονεύουν πράγματα που σας ενδιαφέρουν, προκειμένου να εξατομικεύσουν την εμπειρία σας. Οι εφαρμογές μπορούν να αποθηκεύσουν με ασφάλεια αυτές τις πληροφορίες προκειμένου η χρήση τους να είναι δυνατή μόνο από τους συνεργάτες διαφήμισης για την εμφάνιση διαφημίσεων σε άλλες εφαρμογές.\n\nΜπορείτε να αποκλείσετε μια εφαρμογή από το να κοινοποιεί δεδομένα δραστηριότητας σε συνεργάτες διαφήμισης. Επίσης, το Android διαγράφει αυτόματα και ανά τακτά χρονικά διαστήματα τα δεδομένα δραστηριότητας που έχουν κοινοποιηθεί, επομένως, μια εφαρμογή που χρησιμοποιείτε ξανά μπορεί να επανεμφανιστεί σε αυτή τη λίστα.\n\nΥπάρχουν πολλοί παράγοντες που καθορίζουν αν μια διαφήμιση που βλέπετε είναι εξατομικευμένη, όπως αυτή η ρύθμιση, η ρύθμιση θεμάτων διαφημίσεων, οι ρυθμίσεις αναγνωριστικού διαφήμισης και αν η εφαρμογή που χρησιμοποιείτε εξατομικεύει διαφημίσεις.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Μάθετε περισσότερα σχετικά με τις διαφημίσεις που προτείνονται από εφαρμογές"</a></string>
+    <string name="settingsUI_pas_msmt_view_footer" msgid="1547779101661050529">"Το Android χρησιμοποιεί πολλά μέτρα προστασίας του απορρήτου, όπως η συγκέντρωση και η προσθήκη θορύβου στα δεδομένα, για να περιορίσει τις πληροφορίες που κοινοποιούν οι εφαρμογές μεταξύ τους και να συμβάλει στην προστασία της ταυτότητάς σας.\n\nΤο πρόγραμμα περιήγησης που χρησιμοποιείτε ενδέχεται να έχει μια παρόμοια ρύθμιση. Αν η μέτρηση διαφημίσεων είναι ενεργή στο Android και στο πρόγραμμα περιήγησης, μια εταιρεία ίσως να μπορεί να μετρήσει την αποτελεσματικότητα μιας διαφήμισης μεταξύ των εφαρμογών που χρησιμοποιείτε και των ιστοτόπων που επισκέπτεστε. Το ιστορικό περιήγησής σας διατηρείται ιδιωτικό στη συσκευή σας.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Μάθετε περισσότερα σχετικά με τη μέτρηση διαφημίσεων"</a></string>
+    <string name="settingsUI_pas_topics_view_footer" msgid="4765854921394271217">"Το Android καταγράφει θέματα που σας ενδιαφέρουν με βάση τις εφαρμογές που χρησιμοποιήσατε τις τελευταίες εβδομάδες.\n\nΑργότερα, μια εφαρμογή που χρησιμοποιείτε μπορεί να ζητήσει από το Android τα θέματά σας για την εξατομίκευση των διαφημίσεων που βλέπετε. Το Android κοινοποιεί έως 3 θέματα, ενώ προστατεύει την ταυτότητά σας και τις πληροφορίες σχετικά με την από μέρους σας χρήση της εφαρμογής.\n\nΤο Android διαγράφει αυτόματα τα θέματα ανά τακτά χρονικά διαστήματα. Καθώς συνεχίζετε να χρησιμοποιείτε εφαρμογές, μπορεί ένα θέμα να εμφανιστεί ξανά στη λίστα. Εναλλακτικά, μπορείτε να αποκλείσετε θέματα που δεν θέλετε να κοινοποιεί το Android σε εφαρμογές.\n\nΥπάρχουν πολλοί παράγοντες που καθορίζουν αν μια διαφήμιση που βλέπετε είναι εξατομικευμένη, όπως αυτή η ρύθμιση, η ρύθμιση διαφημίσεων που προτείνονται από εφαρμογές, οι ρυθμίσεις αναγνωριστικού διαφήμισης και αν η εφαρμογή που χρησιμοποιείτε εξατομικεύει διαφημίσεις.\n\n"<a href="https://support.google.com/android?p=ad_privacy">"Μάθετε περισσότερα σχετικά με τα θέματα διαφημίσεων"</a></string>
+    <string name="ic_consent_notification_ga_image_description" msgid="3533533250410782396">"Πολύχρωμη εικόνα με σύμβολα που αντιπροσωπεύουν θέματα ενδιαφέροντος, όπως μουσική, ειδήσεις και αθλητικά"</string>
+    <string name="ic_main_view_ga_image_description" msgid="2629819188282778867">"Πολύχρωμη εικόνα μιας κλειδαριάς εντός ενός κύκλου"</string>
+    <string name="ic_placeholder_icon_for_empty_apps_list_description" msgid="966722661475466048">"Μικρή ασπρόμαυρη εικόνα με εννέα κουκκίδες που σχηματίζουν ένα τετράγωνο"</string>
+    <string name="ic_placeholder_icon_for_empty_topics_list_description" msgid="5856717679022459721">"Μικρή ασπρόμαυρη εικόνα απλών σχημάτων όπως μια καρδιά, ένα τρίγωνο και ένα τετράγωνο"</string>
+    <string name="topic10001" msgid="1270825507916795717">"Τέχνες και ψυχαγωγία"</string>
+    <string name="topic10002" msgid="8657696153158750159">"Ηθοποιία και θέατρο"</string>
+    <string name="topic10003" msgid="8107343709605778937">"Ανιμέ και Manga"</string>
+    <string name="topic10004" msgid="8860839733494442614">"Καρτούν"</string>
+    <string name="topic10005" msgid="2366794377271477958">"Κόμικ"</string>
+    <string name="topic10006" msgid="3856192433168050494">"Συναυλίες και μουσικά φεστιβάλ"</string>
+    <string name="topic10007" msgid="7701054618107492020">"Χορός"</string>
+    <string name="topic10008" msgid="5566660187422751041">"Βιομηχανία ψυχαγωγίας"</string>
+    <string name="topic10009" msgid="9048499060637442408">"Διασκέδαση και παιχνίδια γενικών γνώσεων"</string>
+    <string name="topic10010" msgid="2312303716461948144">"Διασκεδαστικά τεστ και αστείες έρευνες"</string>
+    <string name="topic10011" msgid="175945911179628507">"Χιούμορ"</string>
+    <string name="topic10012" msgid="7308795546139033442">"Αστείες φωτογραφίες και βίντεο"</string>
+    <string name="topic10013" msgid="1525199586552473496">"Ζωντανή κωμωδία"</string>
+    <string name="topic10014" msgid="4310243571925250159">"Ζωντανές αθλητικές συναντήσεις"</string>
+    <string name="topic10015" msgid="726046067079821146">"Μαγεία"</string>
+    <string name="topic10016" msgid="2349985783026324836">"Καταχωρήσεις ταινιών και ώρες προβολής αιθουσών"</string>
+    <string name="topic10017" msgid="5137452934538259985">"Ταινίες"</string>
+    <string name="topic10018" msgid="2701694124396534094">"Ταινίες δράσης και περιπέτειας"</string>
+    <string name="topic10019" msgid="4229784972880729321">"Ταινίες κινουμένων σχεδίων"</string>
+    <string name="topic10020" msgid="7406506079009096133">"Ταινίες κωμωδίας"</string>
+    <string name="topic10021" msgid="8455397230215712525">"Ταινίες Cult και Indie"</string>
+    <string name="topic10022" msgid="4121646102859453428">"Ταινίες ντοκιμαντέρ"</string>
+    <string name="topic10023" msgid="254151319845267278">"Ταινίες δράματος"</string>
+    <string name="topic10024" msgid="9166490951622139148">"Ταινίες για όλη την οικογένεια"</string>
+    <string name="topic10025" msgid="4556814606759167730">"Ταινίες τρόμου"</string>
+    <string name="topic10026" msgid="210222384439682793">"Αισθηματικές ταινίες"</string>
+    <string name="topic10027" msgid="6865151893887179263">"Θρίλερ"</string>
+    <string name="topic10028" msgid="7591747452141916447">"Μουσική και ήχος"</string>
+    <string name="topic10029" msgid="2603521148910221418">"Μπλουζ"</string>
+    <string name="topic10030" msgid="1882645896051165373">"Κλασική μουσική"</string>
+    <string name="topic10031" msgid="3075843490601826275">"Μουσική Country"</string>
+    <string name="topic10032" msgid="5492959212920168739">"Χορευτική και ηλεκτρονική μουσική"</string>
+    <string name="topic10033" msgid="895853536740398847">"Λαϊκή και παραδοσιακή μουσική"</string>
+    <string name="topic10034" msgid="4234814709585731313">"Τζαζ"</string>
+    <string name="topic10035" msgid="4357756001621317728">"Μετάδοση και λήψη μουσικών αρχείων"</string>
+    <string name="topic10036" msgid="449833307315797283">"Μουσικά βίντεο"</string>
+    <string name="topic10037" msgid="51698216720637667">"Μουσικά όργανα"</string>
+    <string name="topic10038" msgid="8450729953573104572">"Πιάνα και πλήκτρα"</string>
+    <string name="topic10039" msgid="9069435933476958784">"Ποπ μουσική"</string>
+    <string name="topic10040" msgid="2307340564445486423">"Ραδιόφωνο"</string>
+    <string name="topic10041" msgid="7067032299296103616">"Ραδιοφωνικοί σταθμοί με συνεντεύξεις"</string>
+    <string name="topic10042" msgid="7915590336813971860">"Ραπ και χιπ χοπ"</string>
+    <string name="topic10043" msgid="8147403254760123570">"Μουσική ροκ"</string>
+    <string name="topic10044" msgid="6201404431104417585">"Κλασικό ροκ και παλιές επιτυχίες"</string>
+    <string name="topic10045" msgid="3723162035372109422">"Hard Rock και Progressive"</string>
+    <string name="topic10046" msgid="4700537150965749092">"Ανεξάρτητη (Indie) και εναλλακτική μουσική"</string>
+    <string name="topic10047" msgid="6868724754947095800">"Δείγματα και βιβλιοθήκες ήχου"</string>
+    <string name="topic10048" msgid="1968071881240362644">"Σόουλ και RnB"</string>
+    <string name="topic10049" msgid="3935800983716699672">"Soundtrack"</string>
+    <string name="topic10050" msgid="1374275552775889532">"Μουσική του κόσμου"</string>
+    <string name="topic10051" msgid="5719726125732251258">"Ρέγκε και μουσική της Καραϊβικής"</string>
+    <string name="topic10052" msgid="1284902821545612733">"Συλλογές εικόνων στο διαδίκτυο"</string>
+    <string name="topic10053" msgid="5420622301656482567">"Βίντεο στο διαδίκτυο"</string>
+    <string name="topic10054" msgid="4562235511593399260">"Βίντεο ζωντανής ροής"</string>
+    <string name="topic10055" msgid="3752987507076288470">"Ροή ταινιών και τηλεοπτικών εκπομπών"</string>
+    <string name="topic10056" msgid="1316228709578133569">"Όπερα"</string>
+    <string name="topic10057" msgid="3265794667031664331">"Οδηγοί τηλεόρασης και αναφορές"</string>
+    <string name="topic10058" msgid="8409884272709263707">"Τηλεοπτικά δίκτυα και σταθμοί"</string>
+    <string name="topic10059" msgid="6770193120260554722">"Τηλεοπτικές εκπομπές και προγράμματα"</string>
+    <string name="topic10060" msgid="2410694865246432781">"Κωμωδίες στην τηλεόραση"</string>
+    <string name="topic10061" msgid="7733515887806604226">"Τηλεοπτικά ντοκιμαντέρ και εκπομπές ενημέρωσης"</string>
+    <string name="topic10062" msgid="2539857914076699714">"Τηλεοπτικά δράματα"</string>
+    <string name="topic10063" msgid="7645361077069015698">"Τηλεοπτικές σαπουνόπερες"</string>
+    <string name="topic10064" msgid="3322306867038013554">"Τηλεοπτικές εκπομπές για όλη την οικογένεια"</string>
+    <string name="topic10065" msgid="6361928032564256523">"Τηλεοπτικές εκπομπές reality"</string>
+    <string name="topic10066" msgid="9206067258196707389">"Τηλεοπτικές εκπομπές επιστημονικής φαντασίας και επικής φαντασίας"</string>
+    <string name="topic10067" msgid="6479768451596254929">"Εικαστικές τέχνες και σχέδιο"</string>
+    <string name="topic10068" msgid="7999222744500155387">"Σχέδιο"</string>
+    <string name="topic10069" msgid="3345227631449580699">"Ζωγραφική"</string>
+    <string name="topic10070" msgid="8921241315781663883">"Φωτογραφικές και ψηφιακές τέχνες"</string>
+    <string name="topic10071" msgid="5802889978655775195">"Αυτοκίνητα και άλλα οχήματα"</string>
+    <string name="topic10072" msgid="7699714565299422080">"Φορτηγά και τρέιλερ φορτίου"</string>
+    <string name="topic10073" msgid="8309536003187424408">"Κλασικά οχήματα"</string>
+    <string name="topic10074" msgid="7682849385993670574">"Προσαρμοσμένα οχήματα και οχήματα επιδόσεων"</string>
+    <string name="topic10075" msgid="6556611554556269074">"Τιμές βενζίνης και καύσιμα οχημάτων"</string>
+    <string name="topic10076" msgid="4919696820372108489">"Μηχανοκίνητα οχήματα (ανά τύπο)"</string>
+    <string name="topic10077" msgid="7501391101287632363">"Αυτόνομα οχήματα"</string>
+    <string name="topic10078" msgid="4334233882549881927">"Οχήματα με πτυσσόμενη οροφή"</string>
+    <string name="topic10079" msgid="3172046203487780210">"Κουπέ"</string>
+    <string name="topic10080" msgid="8163934214927408125">"Αυτοκίνητα τύπου hatchback"</string>
+    <string name="topic10081" msgid="577995777553561437">"Υβριδικά και εναλλακτικά οχήματα"</string>
+    <string name="topic10082" msgid="9109129029552185357">"Πολυτελή οχήματα"</string>
+    <string name="topic10083" msgid="2403537768530923605">"Αυτοκίνητα μίνι και πόλης"</string>
+    <string name="topic10084" msgid="8422281545992763598">"Μοτοσικλέτες"</string>
+    <string name="topic10085" msgid="8083861494180925476">"Οχήματα εκτός δρόμου"</string>
+    <string name="topic10086" msgid="7643969175312645412">"Ημιφορτηγά"</string>
+    <string name="topic10087" msgid="2731154517409527341">"Σκούτερ και μοτοποδήλατα"</string>
+    <string name="topic10088" msgid="3252737061574829966">"Τετράθυρα αυτοκίνητα (σεντάν)"</string>
+    <string name="topic10089" msgid="5296300331452192377">"Αυτοκίνητα τύπου station wagon"</string>
+    <string name="topic10090" msgid="3420243367635085619">"Οχήματα τύπου SUV και crossover"</string>
+    <string name="topic10091" msgid="1855954783407839458">"Οχήματα τύπου crossover"</string>
+    <string name="topic10092" msgid="3748598147176261608">"Φορτηγάκια και μίνιβαν"</string>
+    <string name="topic10093" msgid="4427294934418177183">"Ρυμούλκηση και οδική βοήθεια"</string>
+    <string name="topic10094" msgid="2377839138225502290">"Ασφάλεια οδικής κυκλοφορίας"</string>
+    <string name="topic10095" msgid="84682415803421329">"Ανταλλακτικά και εξαρτήματα οχημάτων"</string>
+    <string name="topic10096" msgid="8920802377602814882">"Ρυμούλκηση και οδική βοήθεια"</string>
+    <string name="topic10097" msgid="1171171183482751335">"Αγορά οχήματος"</string>
+    <string name="topic10098" msgid="2079957196489295765">"Μεταχειρισμένα οχήματα"</string>
+    <string name="topic10099" msgid="8979943848539150620">"Εκθέσεις αυτοκινήτων"</string>
+    <string name="topic10100" msgid="4197262693717174623">"Ομορφιά και φυσική κατάσταση"</string>
+    <string name="topic10101" msgid="7348658588841917441">"Τέχνη σώματος"</string>
+    <string name="topic10102" msgid="3638722720071045006">"Περιποίηση προσώπου και σώματος"</string>
+    <string name="topic10103" msgid="7505482487921433611">"Αποσμητικά"</string>
+    <string name="topic10104" msgid="6370054283334591202">"Προϊόντα μπάνιου και σώματος"</string>
+    <string name="topic10105" msgid="1191169056931411220">"Καθαρή ομορφιά"</string>
+    <string name="topic10106" msgid="3928455104996075953">"Μακιγιάζ και καλλυντικά"</string>
+    <string name="topic10107" msgid="3798923390765338227">"Προϊόντα περιποίησης νυχιών"</string>
+    <string name="topic10108" msgid="577259588028933025">"Κολώνιες και αρώματα"</string>
+    <string name="topic10109" msgid="2191558742276310934">"Ξυραφάκια και ξυριστικές μηχανές"</string>
+    <string name="topic10110" msgid="4668859731019222824">"Μόδα και στιλ"</string>
+    <string name="topic10111" msgid="8382751996496129758">"Φυσική κατάσταση"</string>
+    <string name="topic10112" msgid="2904455776326272301">"Bodybuilding"</string>
+    <string name="topic10113" msgid="8931680908070341060">"Κατάρτιση γυμναστών και προσωπική εκγύμναση"</string>
+    <string name="topic10114" msgid="1666144425445242905">"Προϊόντα τεχνολογίας για σωματική άσκηση"</string>
+    <string name="topic10115" msgid="3024886857586781525">"Περιποίηση μαλλιών"</string>
+    <string name="topic10116" msgid="763642849903586689">"Βιβλία και λογοτεχνία"</string>
+    <string name="topic10117" msgid="2897295398887355445">"Παιδική λογοτεχνία"</string>
+    <string name="topic10118" msgid="8261966919146004082">"Ebook"</string>
+    <string name="topic10119" msgid="894448782525835364">"Περιοδικά"</string>
+    <string name="topic10120" msgid="6413553316742475453">"Ποίηση"</string>
+    <string name="topic10121" msgid="5743038898774111015">"Επιχειρήσεις και βιομηχανία"</string>
+    <string name="topic10122" msgid="9008408720895399838">"Διαφήμιση και μάρκετινγκ"</string>
+    <string name="topic10123" msgid="2259134467663515137">"Πωλήσεις"</string>
+    <string name="topic10124" msgid="6342988250432534253">"Γεωργία και Δασοπονία"</string>
+    <string name="topic10125" msgid="4258543381071903891">"Παραγωγή τροφίμων"</string>
+    <string name="topic10126" msgid="7175643869342613083">"Αυτοκινητοβιομηχανία"</string>
+    <string name="topic10127" msgid="6431712570995680971">"Αεροπορικός κλάδος"</string>
+    <string name="topic10128" msgid="4235280795901477432">"Επιχειρηματικές δραστηριότητες"</string>
+    <string name="topic10129" msgid="7076722669374577677">"Ευέλικτες συνθήκες εργασίας"</string>
+    <string name="topic10130" msgid="3611582433482627069">"Ανθρώπινο δυναμικό"</string>
+    <string name="topic10131" msgid="1372513307847962621">"Εμπορικά δάνεια"</string>
+    <string name="topic10132" msgid="4784716346965522438">"Οικοδομές και Συντήρηση"</string>
+    <string name="topic10133" msgid="7421272318291450977">"Επιστήμη πολιτικών μηχανικών"</string>
+    <string name="topic10134" msgid="6960637850006318075">"Αμυντική βιομηχανία"</string>
+    <string name="topic10135" msgid="3682767135401089609">"Ενέργεια και Οργανισμοί κοινής ωφέλειας"</string>
+    <string name="topic10136" msgid="455894912948558854">"Παροχή και επεξεργασία νερού"</string>
+    <string name="topic10137" msgid="8298610586001250767">"Υπηρεσίες φιλοξενίας"</string>
+    <string name="topic10138" msgid="1297997683887620829">"Κατασκευές"</string>
+    <string name="topic10139" msgid="2881410777083033235">"Μέταλλα και Εξόρυξη"</string>
+    <string name="topic10140" msgid="3210849036014636721">"MLM και Ευκαιρίες για επιχειρήσεις"</string>
+    <string name="topic10141" msgid="2209863158714894227">"Φαρμακευτική και Βιοτεχνολογία"</string>
+    <string name="topic10142" msgid="5503134498670972397">"Εκτύπωση και εκδόσεις"</string>
+    <string name="topic10143" msgid="7443122495469194311">"Λιανικό εμπόριο"</string>
+    <string name="topic10144" msgid="4491152042745513902">"Επιχειρηματικό κεφάλαιο"</string>
+    <string name="topic10145" msgid="7181389660165515306">"Υπολογιστές και ηλεκτρονικά"</string>
+    <string name="topic10146" msgid="5319328674320188177">"Περιφερειακά υπολογιστών"</string>
+    <string name="topic10147" msgid="3115360970477190823">"Εκτυπωτές"</string>
+    <string name="topic10148" msgid="388392714835039199">"Ασφάλεια υπολογιστών"</string>
+    <string name="topic10149" msgid="8669494095915530311">"Λογισμικό προστασίας από ιούς και κακόβουλα προγράμματα"</string>
+    <string name="topic10150" msgid="7287887356428407082">"Ασφάλεια δικτύου"</string>
+    <string name="topic10151" msgid="1896865948857670589">"Ηλεκτρονικά είδη"</string>
+    <string name="topic10152" msgid="2229775287055715130">"Ψηφιακές φωτογραφικές μηχανές και κάμερες"</string>
+    <string name="topic10153" msgid="6999943807078774050">"GPS και πλοήγηση"</string>
+    <string name="topic10154" msgid="6865619906648095342">"Οικιακός αυτοματισμός"</string>
+    <string name="topic10155" msgid="6083736045761149547">"Συστήματα οικιακού κινηματογράφου"</string>
+    <string name="topic10156" msgid="5908298124114814149">"MP3 και φορητά media player"</string>
+    <string name="topic10157" msgid="5681638457846277732">"Φορετή τεχνολογία"</string>
+    <string name="topic10158" msgid="3203453971647354680">"Δημιουργία αντιγράφων ασφαλείας και ανάκτηση δεδομένων"</string>
+    <string name="topic10159" msgid="5630430439595766824">"Επιτραπέζιοι υπολογιστές"</string>
+    <string name="topic10160" msgid="4829448963240629016">"Φορητοί υπολογιστές και notebook"</string>
+    <string name="topic10161" msgid="172004201167511870">"Δικτύωση"</string>
+    <string name="topic10162" msgid="6091195506695436179">"Κατανεμημένα συστήματα πληροφορικής και cloud computing"</string>
+    <string name="topic10163" msgid="1151401754761855146">"Προγραμματισμός"</string>
+    <string name="topic10164" msgid="9084381711034794904">"Λογισμικό"</string>
+    <string name="topic10165" msgid="7794619191364239903">"Λογισμικό ήχου και μουσικής"</string>
+    <string name="topic10166" msgid="8763250476037582784">"Επιχειρήσεις και λογισμικό παραγωγικότητας"</string>
+    <string name="topic10167" msgid="2049380875864013534">"Λογισμικό ημερολογίου και προγραμματισμού"</string>
+    <string name="topic10168" msgid="8902187628490964169">"Λογισμικό συνεργασίας και συνδιάσκεψης"</string>
+    <string name="topic10169" msgid="827557334245484202">"Λογισμικό παρουσιάσεων"</string>
+    <string name="topic10170" msgid="9004257492478793528">"Λογισμικό υπολογιστικών φύλλων"</string>
+    <string name="topic10171" msgid="7993474143932045967">"Λογισμικό επεξεργασίας κειμένου"</string>
+    <string name="topic10172" msgid="7796145013604839047">"Desktop Publishing"</string>
+    <string name="topic10173" msgid="2914187257631238849">"Γραμματοσειρές"</string>
+    <string name="topic10174" msgid="2115617300581130014">"Διαχείριση λήψεων"</string>
+    <string name="topic10175" msgid="5871766754983733443">"Λογισμικό χωρίς κόστος και λογισμικό κοινής χρήσης"</string>
+    <string name="topic10176" msgid="4556902534984350353">"Λογισμικό γραφικών και κινουμένων σχεδίων"</string>
+    <string name="topic10177" msgid="5020885617411375213">"Έξυπνοι προσωπικοί βοηθοί"</string>
+    <string name="topic10178" msgid="6156514295355993755">"Συσκευές αναπαραγωγής πολυμέσων"</string>
+    <string name="topic10179" msgid="4166560755175055525">"Λογισμικό παρακολούθησης"</string>
+    <string name="topic10180" msgid="1616408866159152420">"Λειτουργικά συστήματα"</string>
+    <string name="topic10181" msgid="1104637623376778918">"Λογισμικό φωτογραφίας και βίντεο"</string>
+    <string name="topic10182" msgid="4433309778429721885">"Λογισμικό φωτογραφίας"</string>
+    <string name="topic10183" msgid="7726225846283601216">"Λογισμικό βίντεο"</string>
+    <string name="topic10184" msgid="7666718573841178521">"Βοηθητικό λογισμικό"</string>
+    <string name="topic10185" msgid="7090504131394943791">"Προγράμματα περιήγησης στον ιστό"</string>
+    <string name="topic10186" msgid="2894398454040127175">"Οικονομικά"</string>
+    <string name="topic10187" msgid="3321209590831212269">"Λογιστική και έλεγχος"</string>
+    <string name="topic10188" msgid="6091864564976149142">"Προετοιμασία και προγραμματισμός φόρου"</string>
+    <string name="topic10189" msgid="5722909809680931661">"Τραπεζικές υπηρεσίες"</string>
+    <string name="topic10190" msgid="4954502185848303449">"Υπηρεσίες μεταφοράς χρημάτων και αποστολής εμβασμάτων"</string>
+    <string name="topic10191" msgid="374364159635356705">"Πιστώσεις και δανεισμός"</string>
+    <string name="topic10192" msgid="4780985034026130257">"Πιστωτικές κάρτες"</string>
+    <string name="topic10193" msgid="5010972379907168829">"Στεγαστική Χρηματοδότηση"</string>
+    <string name="topic10194" msgid="1311944420068992723">"Προσωπικά δάνεια"</string>
+    <string name="topic10195" msgid="7554681395283728871">"Φοιτητικά δάνεια και χρηματοδότηση σπουδών"</string>
+    <string name="topic10196" msgid="1390058955048742733">"Χρηματοοικονομικός σχεδιασμός και διαχείριση"</string>
+    <string name="topic10197" msgid="6999203003544574270">"Συνταξιοδότηση και σύνταξη"</string>
+    <string name="topic10198" msgid="1172025416206301419">"Επιχορηγήσεις"</string>
+    <string name="topic10199" msgid="2817599683028682473">"Επιχορηγήσεις"</string>
+    <string name="topic10200" msgid="4560138974690686847">"Ασφάλιση"</string>
+    <string name="topic10201" msgid="447240478385298875">"Ασφάλεια αυτοκινήτων"</string>
+    <string name="topic10202" msgid="8047136869242553756">"Ασφάλεια υγείας"</string>
+    <string name="topic10203" msgid="6593194921457271151">"Ασφάλεια σπιτιού"</string>
+    <string name="topic10204" msgid="4634976092969827804">"Ασφάλεια ζωής"</string>
+    <string name="topic10205" msgid="262581473890356377">"Ταξιδιωτική ασφάλεια"</string>
+    <string name="topic10206" msgid="5534905376642807172">"Επενδύσεις"</string>
+    <string name="topic10207" msgid="2202788132330201137">"Εμπόριο αγαθών και εμπορευμάτων επί προθεσμία"</string>
+    <string name="topic10208" msgid="1250532081213960304">"Νομίσματα και συνάλλαγμα"</string>
+    <string name="topic10209" msgid="7384658616986998949">"Κεφάλαια αντιστάθμισης κινδύνου"</string>
+    <string name="topic10210" msgid="5646412565978393234">"Αμοιβαία κεφάλαια"</string>
+    <string name="topic10211" msgid="2001835133812379482">"Μετοχές και ομόλογα"</string>
+    <string name="topic10212" msgid="2364530251853656532">"Ποτό και φαγητό"</string>
+    <string name="topic10213" msgid="805716705436663130">"Μαγειρική και συνταγές"</string>
+    <string name="topic10214" msgid="726298155737413779">"Μπάρμπεκιου και ψητά"</string>
+    <string name="topic10215" msgid="1502589059550612499">"Κουζίνες"</string>
+    <string name="topic10216" msgid="7699499757302291329">"Κουζίνα για χορτοφάγους"</string>
+    <string name="topic10217" msgid="2160292055279553771">"Vegan κουζίνα"</string>
+    <string name="topic10218" msgid="4090671581843003332">"Υγιεινή διατροφή"</string>
+    <string name="topic10219" msgid="7663946426520362378">"Λιανικοί έμποροι τροφίμων και ειδών παντοπωλείου"</string>
+    <string name="topic10220" msgid="4812477283307222367">"Παιχνίδια"</string>
+    <string name="topic10221" msgid="2320959705105050635">"Παιχνίδια Arcade και μηχανές με κέρμα"</string>
+    <string name="topic10222" msgid="1659423113675232767">"Μπιλιάρδο"</string>
+    <string name="topic10223" msgid="3526662148224862522">"Επιτραπέζια παιχνίδια"</string>
+    <string name="topic10224" msgid="8806949357679505576">"Σκάκι και παιχνίδια στρατηγικής"</string>
+    <string name="topic10225" msgid="564207834821286301">"Παιχνίδια με κάρτες"</string>
+    <string name="topic10226" msgid="6918788605930334066">"Συλλεκτικά παιχνίδια με κάρτες"</string>
+    <string name="topic10227" msgid="7011042093822468388">"Παιχνίδια για υπολογιστές και βιντεοπαιχνίδια"</string>
+    <string name="topic10228" msgid="6883716111007300369">"Παιχνίδια δράσης και πλατφόρμας"</string>
+    <string name="topic10229" msgid="1448569034984381121">"Παιχνίδια περιπέτειας"</string>
+    <string name="topic10230" msgid="3350872631578952799">"Παιχνίδια casual"</string>
+    <string name="topic10231" msgid="405082026972839048">"Διαγωνισμοί βιντεοπαιχνιδιών"</string>
+    <string name="topic10232" msgid="1839026948327779776">"Παιχνίδια οδήγησης και ράλι"</string>
+    <string name="topic10233" msgid="1188186151495453281">"Παιχνίδια μάχης"</string>
+    <string name="topic10234" msgid="693433817142162565">"Πληροφορίες αναφοράς και κριτικές παιχνιδιών"</string>
+    <string name="topic10235" msgid="8703923040923920090">"Λύσεις και υποδείξεις βιντεοπαιχνιδιών"</string>
+    <string name="topic10236" msgid="320145832033080647">"Παιχνίδια για πολλούς παίκτες"</string>
+    <string name="topic10237" msgid="5441671482070243974">"Παιχνίδια μουσικής και χορού"</string>
+    <string name="topic10238" msgid="124952008622371505">"Παιχνίδια sandbox"</string>
+    <string name="topic10239" msgid="8116373838332949879">"Παιχνίδια σκοποβολής"</string>
+    <string name="topic10240" msgid="429738690314619395">"Παιχνίδια προσομοίωσης"</string>
+    <string name="topic10241" msgid="6759586807395308444">"Παιχνίδια οικονομικής διαχείρισης"</string>
+    <string name="topic10242" msgid="6446465880310926504">"Παιχνίδια δημιουργίας πόλεων"</string>
+    <string name="topic10243" msgid="1900180483768183189">"Παιχνίδια προσομοίωσης ζωής"</string>
+    <string name="topic10244" msgid="7177785844550764762">"Προσομοιωτές οχημάτων"</string>
+    <string name="topic10245" msgid="3479291573578622081">"Αθλητικά παιχνίδια"</string>
+    <string name="topic10246" msgid="1362878793775338590">"Παιχνίδια αθλητικής διαχείρισης"</string>
+    <string name="topic10247" msgid="7167743512938031275">"Παιχνίδια στρατηγικής"</string>
+    <string name="topic10248" msgid="279151815457227293">"Τροποποιήσεις και πρόσθετα βιντεοπαιχνιδιών"</string>
+    <string name="topic10249" msgid="631580828608894782">"Εκπαιδευτικά παιχνίδια"</string>
+    <string name="topic10250" msgid="8788829601095126859">"Οικογενειακά παιχνίδια και δραστηριότητες"</string>
+    <string name="topic10251" msgid="4289374662760140512">"Ζωγραφική και χρωματισμός"</string>
+    <string name="topic10252" msgid="3704663832286223948">"Παιχνίδια ένδυσης και μόδας"</string>
+    <string name="topic10253" msgid="385499297969826942">"Παζλ και σπαζοκεφαλιές"</string>
+    <string name="topic10254" msgid="3407688580587226586">"Παιχνίδια ρόλων"</string>
+    <string name="topic10255" msgid="5123382868307815261">"Πινγκ-πονγκ"</string>
+    <string name="topic10256" msgid="3732657908002298514">"Παιχνίδια με τουβλάκια"</string>
+    <string name="topic10257" msgid="1563737702727245186">"Παιχνίδια λέξεων"</string>
+    <string name="topic10258" msgid="3098024313656910144">"Χόμπι και ελεύθερος χρόνος"</string>
+    <string name="topic10259" msgid="4943419230459875946">"Επέτειοι"</string>
+    <string name="topic10260" msgid="8082531986100775125">"Γενέθλια και ονομαστικές εορτές"</string>
+    <string name="topic10261" msgid="5848226607755547256">"Καταδύσεις και υποβρύχιες δραστηριότητες"</string>
+    <string name="topic10262" msgid="7200864040450019529">"Κλωστοϋφαντουργικές τέχνες"</string>
+    <string name="topic10263" msgid="361345691023794788">"Εξωτερικοί χώροι"</string>
+    <string name="topic10264" msgid="1786205972094583167">"Ψάρεμα"</string>
+    <string name="topic10265" msgid="2823178926106728570">"Κυνήγι και σκοποβολή"</string>
+    <string name="topic10266" msgid="8850275614185862002">"Paintball"</string>
+    <string name="topic10267" msgid="3722262029580639019">"Τηλεχειρισμός και μοντελισμός"</string>
+    <string name="topic10268" msgid="3854589101176380228">"Γάμοι"</string>
+    <string name="topic10269" msgid="6274589872519767859">"Σπίτι και κήπος"</string>
+    <string name="topic10270" msgid="6333380157855869252">"Κηπουρική"</string>
+    <string name="topic10271" msgid="7654177637864012480">"Διακόσμηση σπιτιού και εσωτερικών χώρων"</string>
+    <string name="topic10272" msgid="3679206633003573176">"Οικιακές συσκευές"</string>
+    <string name="topic10273" msgid="7964372799408781017">"Ανακαίνιση σπιτιού"</string>
+    <string name="topic10274" msgid="7438404923297950713">"Οικιακή ασφάλεια"</string>
+    <string name="topic10275" msgid="682064062059687444">"Οικιακά είδη"</string>
+    <string name="topic10276" msgid="6967461678618700017">"Διαμόρφωση υπαίθριων χώρων"</string>
+    <string name="topic10277" msgid="5888643119731566320">"Διαδίκτυο και τηλεπικοινωνίες"</string>
+    <string name="topic10278" msgid="1736187026108921963">"Ηλεκτρονικό ταχυδρομείο και ανταλλαγή μηνυμάτων"</string>
+    <string name="topic10279" msgid="9034205050642228743">"Ηλεκτρονικό ταχυδρομείο"</string>
+    <string name="topic10280" msgid="3168053876492638177">"Αποστολή άμεσων μηνυμάτων και μηνυμάτων κειμένου"</string>
+    <string name="topic10281" msgid="582764575763317221">"Φωνητική συνομιλία και συνομιλία μέσω βίντεο"</string>
+    <string name="topic10282" msgid="7165187778548433480">"ISPs (Παροχείς Υπηρεσιών Διαδικτύου)"</string>
+    <string name="topic10283" msgid="4990902662337451282">"Προμηθευτές Τηλεφωνικών Υπηρεσιών"</string>
+    <string name="topic10284" msgid="8298837964949288587">"Ήχοι κλήσης και θέματα κινητών"</string>
+    <string name="topic10285" msgid="5409600379647005862">"Μηχανές αναζήτησης"</string>
+    <string name="topic10286" msgid="5120434472606081895">"Smartphone"</string>
+    <string name="topic10287" msgid="3350459436622898201">"Τηλεσυνδιάσκεψη"</string>
+    <string name="topic10288" msgid="4197272921112835157">"Εφαρμογές ιστού και εργαλεία στο διαδίκτυο"</string>
+    <string name="topic10289" msgid="5361961713593805925">"Υπηρεσίες ιστού"</string>
+    <string name="topic10290" msgid="1030690821237195132">"Αποθηκευτικός χώρος cloud"</string>
+    <string name="topic10291" msgid="4049265350889304495">"Σχέδιο και ανάπτυξη ιστού"</string>
+    <string name="topic10292" msgid="3386329227033265361">"Φιλοξενία ιστοτόπων"</string>
+    <string name="topic10293" msgid="5737650187548034975">"Εργασία και εκπαίδευση"</string>
+    <string name="topic10294" msgid="4134169605040294646">"Εκπαίδευση"</string>
+    <string name="topic10295" msgid="331240908257602211">"Ακαδημαϊκά συνέδρια και δημοσιεύσεις"</string>
+    <string name="topic10296" msgid="8588303480683748067">"Κολέγια και πανεπιστήμια"</string>
+    <string name="topic10297" msgid="6374270931732387420">"Εξ αποστάσεως εκπαίδευση"</string>
+    <string name="topic10298" msgid="1588575102152049123">"Νηπιακή εκπαίδευση"</string>
+    <string name="topic10299" msgid="2437152839161363820">"Προσχολική ηλικία"</string>
+    <string name="topic10300" msgid="1716635660730089544">"Σχολική εκπαίδευση στο σπίτι"</string>
+    <string name="topic10301" msgid="7986927377838820550">"Τυποποιημένες και εισαγωγικές εξετάσεις"</string>
+    <string name="topic10302" msgid="5998774512114172286">"Εξοπλισμός διδασκόντων και αιθουσών διδασκαλίας"</string>
+    <string name="topic10303" msgid="4585533807035591476">"Τεχνική και δια βίου εκπαίδευση"</string>
+    <string name="topic10304" msgid="7882895278855442691">"Θέσεις εργασίας"</string>
+    <string name="topic10305" msgid="5595618454946980801">"Πόροι και σχεδιασμός καριέρας"</string>
+    <string name="topic10306" msgid="2721676636117931598">"Καταχωρίσεις για εργασία"</string>
+    <string name="topic10307" msgid="1718396745825058084">"Κράτος και κυβέρνηση"</string>
+    <string name="topic10308" msgid="5324738087341048710">"Έγκλημα και Δικαιοσύνη"</string>
+    <string name="topic10309" msgid="6295029954614836413">"Νομικά"</string>
+    <string name="topic10310" msgid="8422735354338745855">"Νομικές υπηρεσίες"</string>
+    <string name="topic10311" msgid="1230675855406761762">"Ειδήσεις"</string>
+    <string name="topic10312" msgid="6827799049548932141">"Οικονομικά νέα"</string>
+    <string name="topic10313" msgid="2329065661493302739">"Τοπικές ειδήσεις"</string>
+    <string name="topic10314" msgid="8901835561696055036">"Συγχωνεύσεις και εξαγορές"</string>
+    <string name="topic10315" msgid="5854338074460033131">"Εφημερίδες"</string>
+    <string name="topic10316" msgid="5102748655058857401">"Πολιτική"</string>
+    <string name="topic10317" msgid="888696185673599406">"Αθλητικές ειδήσεις"</string>
+    <string name="topic10318" msgid="8287583657423629224">"Καιρός"</string>
+    <string name="topic10319" msgid="8709805241522664825">"Διεθνείς ειδήσεις"</string>
+    <string name="topic10320" msgid="2512907250610386132">"Διαδικτυακές κοινότητες"</string>
+    <string name="topic10321" msgid="7457693963027299711">"Clip Art και κινούμενα GIF"</string>
+    <string name="topic10322" msgid="3527120229469957977">"Γνωριμίες και προσωπικά"</string>
+    <string name="topic10323" msgid="6172125921314846923">"Διαχείριση ειδήσεων και κοινωνική ενημέρωση"</string>
+    <string name="topic10324" msgid="6723820054750378285">"Κοινή χρήση και φιλοξενία αρχείων"</string>
+    <string name="topic10325" msgid="916412844647169263">"Πάροχοι φόρουμ και συζητήσεων (Chat)"</string>
+    <string name="topic10326" msgid="9167525727089128814">"Μικροϊστολόγια"</string>
+    <string name="topic10327" msgid="3594488251348215868">"Κοινή χρήση φωτογραφιών και βίντεο"</string>
+    <string name="topic10328" msgid="5431605505487660527">"Κοινή χρήση φωτογραφιών και εικόνων"</string>
+    <string name="topic10329" msgid="2949598007790820705">"Κοινή χρήση βίντεο"</string>
+    <string name="topic10330" msgid="4210169032750748349">"Εμφανίσεις"</string>
+    <string name="topic10331" msgid="9148081156366912077">"Εφαρμογές και πρόσθετα κοινωνικών δικτύων"</string>
+    <string name="topic10332" msgid="1812925257476776861">"Κοινωνικά δίκτυα"</string>
+    <string name="topic10333" msgid="5793613565022694596">"Άνθρωποι και κοινωνία"</string>
+    <string name="topic10334" msgid="2146426680680125392">"Οικογένεια και σχέσεις"</string>
+    <string name="topic10335" msgid="8268284709343326034">"Καταγωγή και γενεαλογία"</string>
+    <string name="topic10336" msgid="360328903013424569">"Γάμος"</string>
+    <string name="topic10337" msgid="6450553850860149046">"Ανατροφή παιδιών"</string>
+    <string name="topic10338" msgid="3722340462966505867">"Υιοθέτηση"</string>
+    <string name="topic10339" msgid="8126807339140404862">"Βρέφη και νήπια"</string>
+    <string name="topic10340" msgid="259457452971577855">"Ασφάλεια παιδιών στο διαδίκτυο"</string>
+    <string name="topic10341" msgid="9138253009638520984">"Ρομαντικά"</string>
+    <string name="topic10342" msgid="3272595442607863965">"Επιστημονική και επική φαντασία"</string>
+    <string name="topic10343" msgid="7170264926050881882">"Κατοικίδια και άλλα ζώα"</string>
+    <string name="topic10344" msgid="6956876217624431965">"Τροφή και είδη περιποίησης κατοικίδιων ζώων"</string>
+    <string name="topic10345" msgid="8114717708270133007">"Κατοικίδια"</string>
+    <string name="topic10346" msgid="3632598362312784148">"Πτηνά"</string>
+    <string name="topic10347" msgid="1650823938622414225">"Γάτες"</string>
+    <string name="topic10348" msgid="570783769757187957">"Σκυλιά"</string>
+    <string name="topic10349" msgid="6069145390145874420">"Ψάρια και ενυδρεία"</string>
+    <string name="topic10350" msgid="7438757598978766290">"Ερπετά και αμφίβια"</string>
+    <string name="topic10351" msgid="2065353497413573236">"Κτηνίατροι"</string>
+    <string name="topic10352" msgid="2787610393079898221">"Ακίνητα"</string>
+    <string name="topic10353" msgid="230887584509968233">"Οικόπεδα και γη"</string>
+    <string name="topic10354" msgid="2552020152740480445">"Χρονομεριστικές μισθώσεις και ακίνητα διακοπών"</string>
+    <string name="topic10355" msgid="3803439663410756731">"Αναφορά"</string>
+    <string name="topic10356" msgid="1282534977124646845">"Επιχειρηματικές και προσωπικές καταχωρίσεις"</string>
+    <string name="topic10357" msgid="1506615046588912749">"Γενικές αναφορές"</string>
+    <string name="topic10358" msgid="4670198218200218886">"Αριθμομηχανές και εργαλεία αναφοράς"</string>
+    <string name="topic10359" msgid="4422164571631604534">"Λεξικά και εγκυκλοπαίδειες"</string>
+    <string name="topic10360" msgid="4777419229443131291">"Εκπαιδευτικές πηγές"</string>
+    <string name="topic10361" msgid="2911719878674200735">"Οδηγίες"</string>
+    <string name="topic10362" msgid="8045493635242789203">"Ώρα και ημερολόγια"</string>
+    <string name="topic10363" msgid="3433488479827868110">"Γλωσσικοί πόροι"</string>
+    <string name="topic10364" msgid="7272051128606899896">"Σπουδές ξένων γλωσσών"</string>
+    <string name="topic10365" msgid="1638685557205583094">"Εργαλεία και πόροι μετάφρασης"</string>
+    <string name="topic10366" msgid="5972643213789684860">"Χάρτες"</string>
+    <string name="topic10367" msgid="4693720215957988260">"Επιστήμη"</string>
+    <string name="topic10368" msgid="7342229547845270303">"Επαυξημένη και εικονική πραγματικότητα"</string>
+    <string name="topic10369" msgid="7623948477078242419">"Βιοϊατρικές επιστήμες"</string>
+    <string name="topic10370" msgid="1849957115993781053">"Γενετική"</string>
+    <string name="topic10371" msgid="5801324530787262649">"Χημεία"</string>
+    <string name="topic10372" msgid="7043359432633182804">"Οικολογία και περιβάλλον"</string>
+    <string name="topic10373" msgid="1506052968197311461">"Γεωλογία"</string>
+    <string name="topic10374" msgid="5081919530597944716">"Μηχανική εκμάθηση και τεχνητή νοημοσύνη"</string>
+    <string name="topic10375" msgid="7880740430968664319">"Μαθηματικά"</string>
+    <string name="topic10376" msgid="8685831276841267222">"Φυσική"</string>
+    <string name="topic10377" msgid="8162056465305020784">"Ρομποτική"</string>
+    <string name="topic10378" msgid="6048245367747141920">"Αγορές"</string>
+    <string name="topic10379" msgid="3561154473861357708">"Αντίκες και συλλεκτικά είδη"</string>
+    <string name="topic10380" msgid="3001377458860648561">"Ένδυση"</string>
+    <string name="topic10381" msgid="1050316146323573972">"Παιδική ένδυση"</string>
+    <string name="topic10382" msgid="1131102032733237256">"Στολές"</string>
+    <string name="topic10383" msgid="2953255538603038999">"Ανδρικά ενδύματα"</string>
+    <string name="topic10384" msgid="5208244211687593882">"Γυναικεία ενδύματα"</string>
+    <string name="topic10385" msgid="3335546606796359244">"Προσωπικές αγγελίες"</string>
+    <string name="topic10386" msgid="6517746237788385147">"Πόροι καταναλωτών"</string>
+    <string name="topic10387" msgid="8607123472737800846">"Κουπόνια και εκπτωτικές προσφορές"</string>
+    <string name="topic10388" msgid="1641030315133068943">"Προγράμματα και κάρτες επιβράβευσης αφοσιωμένων πελατών"</string>
+    <string name="topic10389" msgid="8196319126164726646">"Τεχνική υποστήριξη και επισκευές"</string>
+    <string name="topic10390" msgid="1361120031667629697">"Λουλούδια"</string>
+    <string name="topic10391" msgid="9119667040520612849">"Ευχετήριες κάρτες"</string>
+    <string name="topic10392" msgid="6877484311325584713">"Προμήθειες για γιορτές και εκδηλώσεις"</string>
+    <string name="topic10393" msgid="7537523054091079737">"Πύλες αγορών"</string>
+    <string name="topic10394" msgid="5321887056912883029">"Αθλητικά"</string>
+    <string name="topic10395" msgid="8799420706106672054">"Αμερικανικό ποδόσφαιρο"</string>
+    <string name="topic10396" msgid="2048632371307841946">"Αυστραλιανό ποδόσφαιρο"</string>
+    <string name="topic10397" msgid="653991203228840785">"Αγώνες αυτοκινήτων"</string>
+    <string name="topic10398" msgid="5412613151176189985">"Μπέιζμπολ"</string>
+    <string name="topic10399" msgid="2009283546036614639">"Μπάσκετ"</string>
+    <string name="topic10400" msgid="5034305624605462351">"Μπόουλινγκ"</string>
+    <string name="topic10401" msgid="26807857115228330">"Πυγμαχία"</string>
+    <string name="topic10402" msgid="6218088033939518718">"Μαζορέτες"</string>
+    <string name="topic10403" msgid="3030076002966858939">"Κολεγιακά αθλήματα"</string>
+    <string name="topic10404" msgid="4018137098149287073">"Κρίκετ"</string>
+    <string name="topic10405" msgid="9036991434485987285">"Ποδηλασία"</string>
+    <string name="topic10406" msgid="7185471418082005024">"Ιππασία"</string>
+    <string name="topic10407" msgid="316266982792700993">"Επικίνδυνα σπορ"</string>
+    <string name="topic10408" msgid="2571246233605408148">"Αναρρίχηση και ορειβασία"</string>
+    <string name="topic10409" msgid="1182462921341224299">"Αθλητικά παιχνίδια φαντασίας"</string>
+    <string name="topic10410" msgid="7501849152641094734">"Γκολφ"</string>
+    <string name="topic10411" msgid="6678464213609789748">"Ενόργανη γυμναστική"</string>
+    <string name="topic10412" msgid="335770351079973128">"Χόκεϊ"</string>
+    <string name="topic10413" msgid="416366556259783701">"Παγοδρομίες"</string>
+    <string name="topic10414" msgid="6909439381556710013">"Πολεμικές τέχνες"</string>
+    <string name="topic10415" msgid="4535534983750709163">"Αγώνες μοτοσικλετών"</string>
+    <string name="topic10416" msgid="1687911875093638923">"Ολυμπιακοί Αγώνες"</string>
+    <string name="topic10417" msgid="2735521554483279111">"Ράγκμπι"</string>
+    <string name="topic10418" msgid="8763139538107186007">"Τρέξιμο και περπάτημα"</string>
+    <string name="topic10419" msgid="979581105119036716">"Σκι και snowboard"</string>
+    <string name="topic10420" msgid="5256622299392338856">"Ποδόσφαιρο"</string>
+    <string name="topic10421" msgid="2654561933626679644">"Σέρφινγκ"</string>
+    <string name="topic10422" msgid="978920114358054206">"Κολύμβηση"</string>
+    <string name="topic10423" msgid="4476847046369253369">"Τένις"</string>
+    <string name="topic10424" msgid="6170255954653344524">"Στίβος"</string>
+    <string name="topic10425" msgid="3357509018485364691">"Βόλεϊ"</string>
+    <string name="topic10426" msgid="3761026182327229458">"Πάλη"</string>
+    <string name="topic10427" msgid="3748043578314103947">"Ταξίδια και μετακινήσεις"</string>
+    <string name="topic10428" msgid="7483002505617756861">"Ταξίδια περιπέτειας"</string>
+    <string name="topic10429" msgid="8091163959414149724">"Αεροπορικά ταξίδια"</string>
+    <string name="topic10430" msgid="1917556952821193760">"Επαγγελματικά ταξίδια"</string>
+    <string name="topic10431" msgid="7980462767288577734">"Ενοικιάσεις αυτοκινήτων"</string>
+    <string name="topic10432" msgid="4266685292456713522">"Κρουαζιέρες και τσάρτερ"</string>
+    <string name="topic10433" msgid="5001290528529256942">"Οικογενειακά ταξίδια"</string>
+    <string name="topic10434" msgid="6310190021663379686">"Μήνες του μέλιτος και ρομαντικές αποδράσεις"</string>
+    <string name="topic10435" msgid="8897799078890998992">"Ξενοδοχεία και διαμονή"</string>
+    <string name="topic10436" msgid="6778700611322666596">"Λεωφορεία και τρένα κάλυψης μεγάλων αποστάσεων"</string>
+    <string name="topic10437" msgid="4764816005841382091">"Ταξίδια χαμηλού κόστους και τελευταίας στιγμής"</string>
+    <string name="topic10438" msgid="1305380730693546021">"Αξεσουάρ αποσκευών και ταξιδίου"</string>
+    <string name="topic10439" msgid="7731122187851230543">"Τουριστικοί προορισμοί"</string>
+    <string name="topic10440" msgid="8071652555461175118">"Παραλίες και νησιά"</string>
+    <string name="topic10441" msgid="7182533767302670894">"Περιφερειακά πάρκα και κήποι"</string>
+    <string name="topic10442" msgid="6462141176894347324">"Θεματικά πάρκα"</string>
+    <string name="topic10443" msgid="7234914754801803285">"Ζωολογικοί κήποι"</string>
+    <string name="topic10444" msgid="4322315510441782805">"Πληροφορίες κυκλοφορίας και οργανογράμματα διαδρομών"</string>
+    <string name="topic10445" msgid="1182221450749409373">"Γραφεία και υπηρεσίες ταξιδίων"</string>
+    <string name="topic10446" msgid="3104259094878772333">"Ταξιδιωτικοί οδηγοί και οδοιπορικά"</string>
+</resources>
