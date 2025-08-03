@@ -1,0 +1,1698 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Copyright (C) 2018 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License"" />
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<roles>
+
+    <permission-set name="phone">
+        <permission name="android.permission.READ_PHONE_STATE" />
+        <permission name="android.permission.CALL_PHONE" />
+        <permission name="android.permission.READ_CALL_LOG" />
+        <permission name="android.permission.WRITE_CALL_LOG" />
+        <permission name="com.android.voicemail.permission.ADD_VOICEMAIL" />
+        <permission name="com.android.voicemail.permission.READ_VOICEMAIL" minSdkVersion="31" />
+        <permission name="com.android.voicemail.permission.WRITE_VOICEMAIL" minSdkVersion="31" />
+        <permission name="android.permission.USE_SIP" />
+        <permission name="android.permission.PROCESS_OUTGOING_CALLS" />
+        <permission name="android.permission.ANSWER_PHONE_CALLS" />
+    </permission-set>
+
+    <permission-set name="contacts">
+        <permission name="android.permission.READ_CONTACTS" />
+        <permission name="android.permission.WRITE_CONTACTS" />
+        <permission name="android.permission.GET_ACCOUNTS" />
+    </permission-set>
+
+    <permission-set name="location">
+        <permission name="android.permission.ACCESS_COARSE_LOCATION" />
+        <permission name="android.permission.ACCESS_FINE_LOCATION" />
+    </permission-set>
+
+    <permission-set name="coarse_location">
+        <permission name="android.permission.ACCESS_COARSE_LOCATION" />
+    </permission-set>
+
+    <permission-set name="calendar">
+        <permission name="android.permission.READ_CALENDAR" />
+        <permission name="android.permission.WRITE_CALENDAR" />
+    </permission-set>
+
+    <permission-set name="sms">
+        <permission name="android.permission.SEND_SMS" />
+        <permission name="android.permission.RECEIVE_SMS" />
+        <permission name="android.permission.READ_SMS" />
+        <permission name="android.permission.RECEIVE_WAP_PUSH" />
+        <permission name="android.permission.RECEIVE_MMS" />
+        <permission name="android.permission.READ_CELL_BROADCASTS" />
+    </permission-set>
+
+    <permission-set name="microphone">
+        <permission name="android.permission.RECORD_AUDIO" />
+    </permission-set>
+
+    <permission-set name="camera">
+        <permission name="android.permission.CAMERA" />
+    </permission-set>
+
+    <permission-set name="sensors">
+        <permission name="android.permission.BODY_SENSORS" />
+        <permission name="android.permission.BODY_SENSORS_BACKGROUND" minSdkVersion="33" />
+    </permission-set>
+
+    <permission-set name="storage">
+        <permission name="android.permission.READ_EXTERNAL_STORAGE" />
+        <permission name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        <permission name="android.permission.READ_MEDIA_AUDIO" minSdkVersion="33" />
+        <permission name="android.permission.READ_MEDIA_VIDEO" minSdkVersion="33" />
+        <permission name="android.permission.READ_MEDIA_IMAGES" minSdkVersion="33" />
+        <permission name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" minSdkVersion="34" />
+    </permission-set>
+
+    <permission-set name="nearby_devices">
+        <permission name="android.permission.BLUETOOTH_ADVERTISE" minSdkVersion="31" />
+        <permission name="android.permission.BLUETOOTH_CONNECT" minSdkVersion="31" />
+        <permission name="android.permission.BLUETOOTH_SCAN" minSdkVersion="31" />
+        <permission name="android.permission.NEARBY_WIFI_DEVICES" minSdkVersion="33" />
+    </permission-set>
+
+    <permission-set name="notifications">
+        <permission name="android.permission.POST_NOTIFICATIONS" minSdkVersion="33" />
+    </permission-set>
+
+    <role
+        name="android.app.role.ASSISTANT"
+        behavior="AssistantRoleBehavior"
+        defaultHolders="config_defaultAssistant"
+        description="@string/role_assistant_description"
+        exclusive="true"
+        fallBackToDefaultHolder="true"
+        showNone="true"
+        label="@string/role_assistant_label"
+        overrideUserWhenGranting="true"
+        requestable="false"
+        shortLabel="@string/role_assistant_short_label"
+        uiBehavior="AssistantRoleUiBehavior">
+        <required-components>
+            <!-- Qualified components are determined int AssistantRoleBehavior. This comment here is
+                 ignored and represents just a rough description
+
+            <any-of>
+                <service permission="android.permission.BIND_VOICE_INTERACTION"
+                         supportsAssist="true">
+                    <intent-filter>
+                        <action name="android.service.voice.VoiceInteractionService" />
+                    </intent-filter>
+                    <meta-data name="android.voice_interaction"
+                               optional="false">
+                        required tag in metadata xml: sessionService
+                        required tag in metadata xml: recognitionService
+                        required tag in metadata xml: supportsAssist = true
+                    </meta-data>
+                </service>
+                <activity>
+                    <intent-filter>
+                        <action name="android.intent.action.ASSIST" />
+                    </intent-filter>
+                </activity>
+            </ any-of>
+
+            -->
+        </required-components>
+        <permissions>
+            <permission-set name="sms" />
+            <permission name="android.permission.READ_CALL_LOG" />
+            <permission name="android.permission.ACCESS_BLOBS_ACROSS_USERS" minSdkVersion="31" />
+            <permission name="android.permission.READ_ASSISTANT_APP_SEARCH_DATA"
+                minSdkVersion="33"/>
+            <permission name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
+                minSdkVersion="33" />
+            <permission name="android.permission.EXECUTE_APP_ACTION"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_CONTENT_SUGGESTIONS"
+                minSdkVersion="35" optionalMinSdkVersion="34" />
+            <permission name="android.permission.EMBED_ANY_APP_IN_UNTRUSTED_MODE"
+                minSdkVersion="35" />
+        </permissions>
+        <app-op-permissions>
+            <app-op-permission name="android.permission.SYSTEM_ALERT_WINDOW" />
+        </app-op-permissions>
+    </role>
+
+    <!---
+      ~ @see com.android.settings.applications.defaultapps.DefaultBrowserPreferenceController
+      ~ @see com.android.settings.applications.defaultapps.DefaultBrowserPicker
+      ~ @see com.android.server.pm.PackageManagerService.resolveAllBrowserApps(int)
+      ~ @see com.android.server.pm.PackageManagerService.setDefaultBrowserPackageName(String, int)
+      ~ @see com.android.server.pm.permission.DefaultPermissionGrantPolicy.grantDefaultPermissionsToDefaultBrowser(String, int)
+      -->
+    <role
+        name="android.app.role.BROWSER"
+        behavior="BrowserRoleBehavior"
+        defaultHolders="config_defaultBrowser"
+        description="@string/role_browser_description"
+        exclusive="true"
+        label="@string/role_browser_label"
+        overrideUserWhenGranting="true"
+        requestDescription="@string/role_browser_request_description"
+        requestTitle="@string/role_browser_request_title"
+        shortLabel="@string/role_browser_short_label">
+        <!--
+          ~ Required components matching is handled in BrowserRoleBehavior because it needs the
+          ~ PackageManager.MATCH_ALL flag and other manual filtering, which cannot fit in our
+          ~ current mechanism easily.
+          -->
+        <!--
+        <required-components>
+            <activity>
+                <intent-filter>
+                    <action name="android.intent.action.VIEW" />
+                    <category name="android.intent.category.BROWSABLE" />
+                    <data scheme="http" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        -->
+        <!--
+          ~ Not need to set preferred activity because PackageManager handles browser intents
+          ~ specially.
+          -->
+        <permissions>
+            <permission name="android.permission.PROVIDE_OWN_AUTOFILL_SUGGESTIONS" minSdkVersion="34" />
+        </permissions>
+    </role>
+
+    <!--
+      ~ @see com.android.settings.applications.defaultapps.DefaultPhonePreferenceController
+      ~ @see com.android.settings.applications.defaultapps.DefaultPhonePicker
+      ~ @see android.telecom.DefaultDialerManager
+      ~ @see com.android.server.pm.permission.DefaultPermissionGrantPolicy.grantDefaultPermissionsToDefaultDialerApp(String, int)
+      ~ @see com.android.server.pm.Settings.setDefaultDialerPackageNameLPw(String, int)
+      -->
+    <role
+        name="android.app.role.DIALER"
+        behavior="DialerRoleBehavior"
+        defaultHolders="config_defaultDialer"
+        description="@string/role_dialer_description"
+        exclusive="true"
+        fallBackToDefaultHolder="true"
+        label="@string/role_dialer_label"
+        overrideUserWhenGranting="true"
+        requestDescription="@string/role_dialer_request_description"
+        requestTitle="@string/role_dialer_request_title"
+        searchKeywords="@string/role_dialer_search_keywords"
+        shortLabel="@string/role_dialer_short_label"
+        uiBehavior="DialerRoleUiBehavior">
+        <required-components>
+            <activity>
+                <intent-filter>
+                    <action name="android.intent.action.DIAL" />
+                </intent-filter>
+            </activity>
+            <activity>
+                <intent-filter>
+                    <action name="android.intent.action.DIAL" />
+                    <data scheme="tel" />
+                </intent-filter>
+            </activity>
+            <service minTargetSdkVersion="33" permission="android.permission.BIND_INCALL_SERVICE">
+                <meta-data name="android.telecom.IN_CALL_SERVICE_UI" value="true" />
+                <meta-data
+                    name="android.telecom.IN_CALL_SERVICE_CAR_MODE_UI"
+                    value="true"
+                    prohibited="true" />
+                <intent-filter>
+                    <action name="android.telecom.InCallService" />
+                </intent-filter>
+            </service>
+        </required-components>
+        <permissions>
+            <permission-set name="phone" />
+            <permission-set name="contacts" />
+            <permission-set name="sms" />
+            <permission-set name="microphone" />
+            <permission-set name="camera" />
+            <permission-set name="notifications" />
+        </permissions>
+        <app-op-permissions>
+            <app-op-permission name="android.permission.SYSTEM_ALERT_WINDOW" />
+        </app-op-permissions>
+        <app-ops>
+            <!--
+              ~ @see com.android.settings.applications.defaultapps.DefaultPhonePicker#setDefaultKey(String)
+              ~ @see com.android.settings.fuelgauge.BatteryUtils#setForceAppStandby(int, String, int)
+              -->
+            <app-op name="android:run_in_background" maxTargetSdkVersion="25" mode="allowed" />
+            <app-op name="android:run_any_in_background" mode="allowed" />
+        </app-ops>
+        <preferred-activities>
+            <preferred-activity>
+                <activity>
+                    <intent-filter>
+                        <action name="android.intent.action.DIAL" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.DIAL" />
+                </intent-filter>
+            </preferred-activity>
+            <preferred-activity>
+                <activity>
+                    <intent-filter>
+                        <action name="android.intent.action.DIAL" />
+                        <data scheme="tel" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.DIAL" />
+                    <data scheme="tel" />
+                </intent-filter>
+            </preferred-activity>
+        </preferred-activities>
+    </role>
+
+    <!--
+      ~ @see com.android.settings.applications.defaultapps.DefaultSmsPreferenceController
+      ~ @see com.android.settings.applications.defaultapps.DefaultSmsPicker
+      ~ @see com.android.internal.telephony.SmsApplication
+      ~ @see com.android.server.pm.permission.DefaultPermissionGrantPolicy.grantDefaultPermissionsToDefaultSmsApp(String, int)
+      -->
+    <role
+        name="android.app.role.SMS"
+        behavior="SmsRoleBehavior"
+        defaultHolders="config_defaultSms"
+        description="@string/role_sms_description"
+        exclusive="true"
+        label="@string/role_sms_label"
+        overrideUserWhenGranting="true"
+        requestDescription="@string/role_sms_request_description"
+        requestTitle="@string/role_sms_request_title"
+        searchKeywords="@string/role_sms_search_keywords"
+        shortLabel="@string/role_sms_short_label"
+        uiBehavior="SmsRoleUiBehavior">
+        <required-components>
+            <receiver permission="android.permission.BROADCAST_SMS">
+                <intent-filter>
+                    <action name="android.provider.Telephony.SMS_DELIVER" />
+                </intent-filter>
+            </receiver>
+            <receiver permission="android.permission.BROADCAST_WAP_PUSH">
+                <intent-filter>
+                    <action name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+                    <data mimeType="application/vnd.wap.mms-message" />
+                </intent-filter>
+            </receiver>
+            <service permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
+                <intent-filter>
+                    <action name="android.intent.action.RESPOND_VIA_MESSAGE" />
+                    <data scheme="smsto" />
+                </intent-filter>
+            </service>
+            <activity>
+                <intent-filter>
+                    <action name="android.intent.action.SENDTO" />
+                    <data scheme="smsto" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        <permissions>
+            <permission-set name="phone" />
+            <permission-set name="contacts" />
+            <permission-set name="sms" />
+            <permission-set name="storage" />
+            <permission-set name="microphone" />
+            <permission-set name="camera" />
+            <permission-set name="notifications" />
+            <permission name="android.permission.START_FOREGROUND_SERVICES_FROM_BACKGROUND" minSdkVersion="31" />
+        </permissions>
+        <app-ops>
+            <app-op name="android:write_sms" mode="allowed" />
+            <!--
+              ~ @see com.android.settings.applications.defaultapps.DefaultSmsPicker#setDefaultKey(String)
+              ~ @see com.android.settings.fuelgauge.BatteryUtils#setForceAppStandby(int, String, int)
+              -->
+            <app-op name="android:run_in_background" maxTargetSdkVersion="25" mode="allowed" />
+            <app-op name="android:run_any_in_background" mode="allowed" />
+            <app-op name="android:read_device_identifiers" mode="allowed" />
+        </app-ops>
+        <preferred-activities>
+            <preferred-activity>
+                <activity>
+                    <intent-filter>
+                        <action name="android.intent.action.SENDTO" />
+                        <data scheme="smsto" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.SENDTO" />
+                    <data scheme="sms" />
+                </intent-filter>
+                <intent-filter>
+                    <action name="android.intent.action.SENDTO" />
+                    <data scheme="smsto" />
+                </intent-filter>
+                <intent-filter>
+                    <action name="android.intent.action.SENDTO" />
+                    <data scheme="mms" />
+                </intent-filter>
+                <intent-filter>
+                    <action name="android.intent.action.SENDTO" />
+                    <data scheme="mmsto" />
+                </intent-filter>
+            </preferred-activity>
+        </preferred-activities>
+    </role>
+
+    <!---
+      ~ @see com.android.settings.applications.defaultapps.DefaultEmergencyPreferenceController
+      ~ @see com.android.settings.applications.defaultapps.DefaultEmergencyPicker
+      ~ @see com.android.phone.EmergencyAssistanceHelper
+      -->
+    <role
+        name="android.app.role.EMERGENCY"
+        behavior="EmergencyRoleBehavior"
+        description="@string/role_emergency_description"
+        exclusive="true"
+        label="@string/role_emergency_label"
+        overrideUserWhenGranting="true"
+        requestDescription="@string/role_emergency_request_description"
+        requestTitle="@string/role_emergency_request_title"
+        searchKeywords="@string/role_emergency_search_keywords"
+        shortLabel="@string/role_emergency_short_label"
+        systemOnly="true"
+        uiBehavior="EmergencyRoleUiBehavior">
+        <required-components>
+            <activity>
+                <intent-filter>
+                    <action name="android.telephony.action.EMERGENCY_ASSISTANCE" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.START_FOREGROUND_SERVICES_FROM_BACKGROUND" minSdkVersion="31" />
+            <permission name="android.permission.OBSERVE_SENSOR_PRIVACY" minSdkVersion="31" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ @see com.android.settings.applications.defaultapps.DefaultHomePreferenceController
+      ~ @see com.android.settings.applications.defaultapps.DefaultHomePicker
+      ~ @see com.android.server.pm.PackageManagerService#setHomeActivity(ComponentName, int)
+      -->
+    <role
+        name="android.app.role.HOME"
+        behavior="HomeRoleBehavior"
+        description="@string/role_home_description"
+        exclusive="true"
+        label="@string/role_home_label"
+        overrideUserWhenGranting="true"
+        requestDescription="@string/role_home_request_description"
+        requestTitle="@string/role_home_request_title"
+        searchKeywords="@string/role_home_search_keywords"
+        shortLabel="@string/role_home_short_label"
+        uiBehavior="HomeRoleUiBehavior">
+        <!-- Also used by HomeRoleBehavior.getFallbackHolder(). -->
+        <required-components>
+            <activity>
+                <intent-filter>
+                    <action name="android.intent.action.MAIN" />
+                    <category name="android.intent.category.HOME" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        <preferred-activities>
+            <preferred-activity>
+                <activity>
+                    <intent-filter>
+                        <action name="android.intent.action.MAIN" />
+                        <category name="android.intent.category.HOME" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.MAIN" />
+                    <category name="android.intent.category.HOME" />
+                </intent-filter>
+            </preferred-activity>
+        </preferred-activities>
+        <permissions>
+            <permission name="android.permission.READ_HOME_APP_SEARCH_DATA" minSdkVersion="33" />
+            <permission name="android.permission.ALLOW_SLIPPERY_TOUCHES" minSdkVersion="33" optionalMinSdkVersion="30" />
+            <permission name="android.permission.RECEIVE_SENSITIVE_NOTIFICATIONS" minSdkVersion="35" />
+        </permissions>
+    </role>
+
+    <!--- @see android.telecom.CallRedirectionService -->
+    <role
+        name="android.app.role.CALL_REDIRECTION"
+        defaultHolders="config_defaultCallRedirection"
+        description="@string/role_call_redirection_description"
+        exclusive="true"
+        label="@string/role_call_redirection_label"
+        overrideUserWhenGranting="true"
+        requestDescription="@string/role_call_redirection_request_description"
+        requestTitle="@string/role_call_redirection_request_title"
+        shortLabel="@string/role_call_redirection_short_label"
+        showNone="true">
+        <required-components>
+            <service permission="android.permission.BIND_CALL_REDIRECTION_SERVICE">
+                <intent-filter>
+                    <action name="android.telecom.CallRedirectionService" />
+                </intent-filter>
+            </service>
+        </required-components>
+    </role>
+
+    <!--- @see android.telecom.CallScreeningService -->
+    <role
+        name="android.app.role.CALL_SCREENING"
+        defaultHolders="config_defaultCallScreening"
+        description="@string/role_call_screening_description"
+        exclusive="true"
+        label="@string/role_call_screening_label"
+        overrideUserWhenGranting="true"
+        requestDescription="@string/role_call_screening_request_description"
+        requestTitle="@string/role_call_screening_request_title"
+        shortLabel="@string/role_call_screening_short_label"
+        showNone="true">
+        <required-components>
+            <service permission="android.permission.BIND_SCREENING_SERVICE">
+                <intent-filter>
+                    <action name="android.telecom.CallScreeningService" />
+                </intent-filter>
+            </service>
+        </required-components>
+        <permissions>
+            <permission-set name="notifications" />
+        </permissions>
+        <app-op-permissions>
+            <app-op-permission name="android.permission.SYSTEM_ALERT_WINDOW" />
+        </app-op-permissions>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_GALLERY"
+        defaultHolders="config_systemGallery"
+        exclusive="true"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="storage" />
+            <permission name="android.permission.ACCESS_MEDIA_LOCATION" />
+            <permission name="android.permission.START_FOREGROUND_SERVICES_FROM_BACKGROUND" minSdkVersion="31" />
+        </permissions>
+        <app-ops>
+            <app-op name="android:write_media_images" mode="allowed" />
+            <app-op name="android:write_media_video" mode="allowed" />
+        </app-ops>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_AUTOMOTIVE_CLUSTER"
+        behavior="AutomotiveRoleBehavior"
+        defaultHolders="config_systemAutomotiveCluster"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.ANSWER_PHONE_CALLS" />
+            <permission name="android.permission.READ_CALL_LOG" />
+            <permission name="android.permission.READ_CONTACTS" />
+            <permission name="android.car.permission.CAR_ENERGY"/>
+        </permissions>
+    </role>
+
+    <role
+        name="android.app.role.COMPANION_DEVICE_WATCH"
+        behavior="CompanionDeviceWatchRoleBehavior"
+        description="@string/role_watch_description"
+        exclusive="false"
+        minSdkVersion="31"
+        systemOnly="false"
+        visible="false">
+        <permissions>
+            <permission-set name="calendar" />
+            <permission-set name="phone" />
+            <permission-set name="sms" />
+            <permission-set name="contacts" />
+            <permission-set name="nearby_devices" />
+            <permission-set name="notifications" minSdkVersion="35" />
+            <!-- If this role holder has a NotificationListenerService, let that service receive
+                 notifications with sensitive content unredacted-->
+            <permission name="android.permission.RECEIVE_SENSITIVE_NOTIFICATIONS" minSdkVersion="35"/>
+        </permissions>
+        <app-op-permissions>
+            <app-op-permission name="android.permission.MANAGE_ONGOING_CALLS" />
+            <app-op-permission name="android.permission.USE_ICC_AUTH_WITH_DEVICE_IDENTIFIER" />
+            <app-op-permission name="android.permission.MEDIA_ROUTING_CONTROL" minSdkVersion="35" />
+        </app-op-permissions>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_AUTOMOTIVE_PROJECTION"
+        allowBypassingQualification="true"
+        defaultHolders="config_systemAutomotiveProjection"
+        exclusive="false"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="microphone" />
+            <permission-set name="location" />
+            <permission-set name="nearby_devices" />
+            <permission-set name="notifications" />
+            <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" minSdkVersion="33" />
+            <permission name="android.permission.CALL_PHONE" />
+            <permission name="android.permission.CREATE_VIRTUAL_DEVICE" minSdkVersion="33" />
+            <permission name="android.permission.READ_CALENDAR" />
+            <permission name="android.permission.READ_CALL_LOG" />
+            <permission name="android.permission.READ_CONTACTS" />
+            <permission name="android.permission.READ_PHONE_STATE" />
+            <permission name="android.permission.RECEIVE_SMS" />
+            <permission name="android.permission.REQUEST_COMPANION_PROFILE_AUTOMOTIVE_PROJECTION" minSdkVersion="33" />
+            <permission name="android.permission.SEND_SMS" />
+            <permission name="android.permission.TOGGLE_AUTOMOTIVE_PROJECTION" minSdkVersion="33" />
+            <permission name="android.permission.ADD_TRUSTED_DISPLAY" minSdkVersion="34"/>
+            <permission name="android.permission.ASSOCIATE_COMPANION_DEVICES" minSdkVersion="34"/>
+            <!-- If this role holder has a NotificationListenerService, let that service receive
+                 notifications with sensitive content unredacted-->
+            <permission name="android.permission.RECEIVE_SENSITIVE_NOTIFICATIONS" minSdkVersion="35"/>
+        </permissions>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_SHELL"
+        behavior="SystemShellRoleBehavior"
+        defaultHolders="config_systemShell"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <!-- Used for CTS testing -->
+            <permission name="android.permission.CREATE_VIRTUAL_DEVICE" minSdkVersion="33" />
+            <permission name="android.permission.ACCESS_RCS_USER_CAPABILITY_EXCHANGE" />
+            <permission name="android.permission.ACCESS_AMBIENT_CONTEXT_EVENT" minSdkVersion="33"/>
+            <permission name="android.permission.PERFORM_IMS_SINGLE_REGISTRATION" />
+            <permission name="android.permission.BACKGROUND_CAMERA" />
+            <permission name="android.permission.RECORD_BACKGROUND_AUDIO" />
+            <permission name="android.permission.BYPASS_ROLE_QUALIFICATION" />
+            <permission name="android.permission.OBSERVE_SENSOR_PRIVACY" />
+            <permission name="android.permission.MANAGE_SENSOR_PRIVACY" />
+            <permission name="android.permission.READ_GLOBAL_APP_SEARCH_DATA" />
+            <permission name="android.permission.TOGGLE_AUTOMOTIVE_PROJECTION" minSdkVersion="33" />
+            <permission name="android.permission.SET_DEFAULT_ACCOUNT_FOR_CONTACTS"
+                minSdkVersion="33" />
+            <permission name="android.permission.REQUEST_COMPANION_PROFILE_AUTOMOTIVE_PROJECTION"
+                minSdkVersion="33" />
+            <permission name="android.permission.MANAGE_SAFETY_CENTER"
+                minSdkVersion="33" />
+            <permission name="android.permission.ADD_TRUSTED_DISPLAY" minSdkVersion="33" />
+            <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" minSdkVersion="33" />
+            <permission name="android.permission.SUBSCRIBE_TO_KEYGUARD_LOCKED_STATE"
+                minSdkVersion="33" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_ACCOUNT_MANAGEMENT"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_AIRPLANE_MODE"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APPS_CONTROL"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APP_EXEMPTIONS"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APP_RESTRICTIONS"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_BLUETOOTH"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CALLS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CAMERA"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CONTENT_PROTECTION"
+                minSdkVersion="35" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DEBUGGING_FEATURES"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_FACTORY_RESET"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_FUN" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_KEYGUARD"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK_TASK"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MOBILE_NETWORK"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MODIFY_USERS"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_PACKAGE_STATE"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_PHYSICAL_MEDIA"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_RESET_PASSWORD"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_RUNTIME_PERMISSIONS"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SAFE_BOOT"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SMS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_STATUS_BAR"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_TIME" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_USB_FILE_TRANSFER"
+                minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_WINDOWS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_WIPE_DATA"
+                minSdkVersion="34" />
+            <permission name="android.permission.SET_TIME" minSdkVersion="34" />
+            <permission name="android.permission.SET_TIME_ZONE" minSdkVersion="34" />
+            <permission name="android.permission.SATELLITE_COMMUNICATION" minSdkVersion="34" />
+            <permission name="android.permission.ALWAYS_UPDATE_WALLPAPER" minSdkVersion="35" />
+            <permission name="android.permission.EMBED_ANY_APP_IN_UNTRUSTED_MODE"
+                minSdkVersion="35" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_AUDIT_LOGGING"
+                minSdkVersion="35" />
+        </permissions>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_CONTACTS"
+        defaultHolders="config_systemContacts"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.ACCESS_RCS_USER_CAPABILITY_EXCHANGE" />
+            <permission name="android.permission.SET_DEFAULT_ACCOUNT_FOR_CONTACTS"
+                minSdkVersion="33" />
+        </permissions>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_SPEECH_RECOGNIZER"
+        allowBypassingQualification="true"
+        defaultHolders="config_systemSpeechRecognizer"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.RECORD_AUDIO" />
+            <permission name="android.permission.UPDATE_APP_OPS_STATS" />
+        </permissions>
+        <required-components>
+            <service>
+                <intent-filter>
+                    <action name="android.speech.RecognitionService" />
+                </intent-filter>
+            </service>
+        </required-components>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_WIFI_COEX_MANAGER"
+        defaultHolders="config_systemWifiCoexManager"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.WIFI_ACCESS_COEX_UNSAFE_CHANNELS" />
+            <permission name="android.permission.WIFI_UPDATE_COEX_UNSAFE_CHANNELS" />
+        </permissions>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_WELLBEING"
+        defaultHolders="config_systemWellbeing"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false" >
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.ACCESS_AMBIENT_CONTEXT_EVENT" minSdkVersion="33"/>
+            <permission name="android.permission.ACCESS_INSTANT_APPS"/>
+            <permission name="android.permission.START_CROSS_PROFILE_ACTIVITIES" minSdkVersion="33"/>
+            <permission name="android.permission.SUSPEND_APPS"/>
+            <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY"/>
+        </permissions>
+        <app-op-permissions>
+            <app-op-permission name="android.permission.SCHEDULE_EXACT_ALARM" minSdkVersion="34"/>
+        </app-op-permissions>
+    </role>
+
+    <!---
+      ~ A role for the notification handler on TV devices.
+      ~ Note: on TV devices that have the Dashboard screen, the holder for this role is responsible
+      ~ for it, which is why it needs OBSERVE_SENSOR_PRIVACY permission (the Dashboard displays
+      ~ the state of the privacy sensors).
+      -->
+    <role
+        name="android.app.role.SYSTEM_TELEVISION_NOTIFICATION_HANDLER"
+        behavior="TelevisionRoleBehavior"
+        defaultHolders="config_systemTelevisionNotificationHandler"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY" />
+            <permission name="android.permission.OBSERVE_SENSOR_PRIVACY" />
+        </permissions>
+    </role>
+
+    <!---
+        A role for the system package that is allowed to create CompanionDeviceManager associations
+        based on user consent to allow the associated app to manage the associated device.
+    -->
+    <role
+        name="android.app.role.SYSTEM_COMPANION_DEVICE_PROVIDER"
+        defaultHolders="config_systemCompanionDeviceProvider"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false" >
+        <permissions>
+            <permission name="android.permission.ASSOCIATE_COMPANION_DEVICES"/>
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that provides privacy-preserving intelligent processor for
+      ~ system UI features.
+      ~
+      ~ A package holding this role MUST comply with requirements outlined in the Android CDD
+      ~ section "9.8.6 Content Capture".
+      ~ Example link for Android 11:
+      ~ https://source.android.com/compatibility/11/android-11-cdd#9_8_6_content_capture
+      ~
+      ~ In addition, packages MUST NOT:
+      ~ - Request INTERNET permission. Instead packages MUST access the internet through
+      ~   well-defined APIs in an open source project.
+      ~ - Perform direct binds to other applications, except the following system packages:
+      ~   - Bluetooth
+      ~   - Contacts
+      ~   - Media
+      ~   - Telephony
+      ~   - System UI
+      ~   - Component providing internet APIs (see above)
+      ~   To achieve this packages MUST set up explicit <allow-association> configuration in the
+      ~   system config.
+      -->
+    <role
+        name="android.app.role.SYSTEM_UI_INTELLIGENCE"
+        defaultHolders="config_systemUiIntelligence"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.ACCESS_SHORTCUTS" />
+            <permission name="android.permission.ACCESS_BACKGROUND_LOCATION" minSdkVersion="33" />
+            <permission name="android.permission.ACCESS_COARSE_LOCATION" minSdkVersion="33" />
+            <permission name="android.permission.ACCESS_FINE_LOCATION" minSdkVersion="33" />
+            <permission name="android.permission.BLUETOOTH_CONNECT" />
+            <permission name="android.permission.BLUETOOTH_SCAN" />
+            <permission name="android.permission.MANAGE_APP_PREDICTIONS" />
+            <permission name="android.permission.UNLIMITED_SHORTCUTS_API_CALLS" />
+            <permission name="android.permission.MANAGE_SEARCH_UI" />
+            <permission name="android.permission.READ_CALL_LOG" minSdkVersion="33" />
+            <permission name="android.permission.READ_CONTACTS" minSdkVersion="33" />
+            <permission name="android.permission.READ_EXTERNAL_STORAGE" />
+            <permission name="android.permission.READ_MEDIA_AUDIO" minSdkVersion="33" />
+            <permission name="android.permission.READ_MEDIA_IMAGES" minSdkVersion="33" />
+            <permission name="android.permission.READ_MEDIA_VIDEO" minSdkVersion="33" />
+            <permission name="android.permission.READ_SMS" minSdkVersion="33" />
+            <permission name="android.permission.READ_PEOPLE_DATA" />
+            <permission name="android.permission.READ_GLOBAL_APP_SEARCH_DATA" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that provides on-device intelligent processor for ambient
+      ~ audio.
+      ~
+      ~ A package holding this role MUST comply with requirements outlined in the Android CDD
+      ~ section "9.8.6 Content Capture".
+      ~ Example link for Android 11:
+      ~ https://source.android.com/compatibility/11/android-11-cdd#9_8_6_content_capture
+      ~
+      ~ In addition, packages MUST NOT:
+      ~ - Request INTERNET permission. Instead packages MUST access the internet through
+      ~   well-defined APIs in an open source project.
+      ~ - Perform direct binds to other applications, except the following system packages:
+      ~   - Bluetooth
+      ~   - Contacts
+      ~   - Media
+      ~   - Telephony
+      ~   - System UI
+      ~   - Component providing internet APIs (see above)
+      ~   To achieve this packages MUST set up explicit <allow-association> configuration in the
+      ~   system config.
+      -->
+    <role
+        name="android.app.role.SYSTEM_AMBIENT_AUDIO_INTELLIGENCE"
+        defaultHolders="config_systemAmbientAudioIntelligence"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+            <permission name="android.permission.CAPTURE_MEDIA_OUTPUT" />
+            <permission name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />
+            <permission name="android.permission.MODIFY_AUDIO_ROUTING" />
+            <permission name="android.permission.RECORD_AUDIO" />
+            <permission name="android.permission.CAPTURE_AUDIO_HOTWORD" />
+            <permission name="android.permission.EXEMPT_FROM_AUDIO_RECORD_RESTRICTIONS" />
+            <permission name="android.permission.MANAGE_SOUND_TRIGGER" />
+            <permission name="android.permission.LOCATION_HARDWARE" />
+            <permission name="android.permission.MANAGE_MUSIC_RECOGNITION" />
+            <permission name="android.permission.OBSERVE_SENSOR_PRIVACY" />
+            <permission name="android.permission.READ_PHONE_STATE" minSdkVersion="33" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that provides on-device intelligent processor for audio.
+      ~
+      ~ A package holding this role MUST comply with requirements outlined in the Android CDD
+      ~ section "9.8.6 Content Capture".
+      ~ Example link for Android 11:
+      ~ https://source.android.com/compatibility/11/android-11-cdd#9_8_6_content_capture
+      ~
+      ~ In addition, packages MUST NOT:
+      ~ - Request INTERNET permission. Instead packages MUST access the internet through
+      ~   well-defined APIs in an open source project.
+      ~ - Perform direct binds to other applications, except the following system packages:
+      ~   - Bluetooth
+      ~   - Contacts
+      ~   - Media
+      ~   - Telephony
+      ~   - System UI
+      ~   - Component providing internet APIs (see above)
+      ~   To achieve this packages MUST set up explicit <allow-association> configuration in the
+      ~   system config.
+      -->
+    <role
+        name="android.app.role.SYSTEM_AUDIO_INTELLIGENCE"
+        defaultHolders="config_systemAudioIntelligence"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+            <permission name="android.permission.CAPTURE_MEDIA_OUTPUT" />
+            <permission name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />
+            <permission name="android.permission.CONTROL_INCALL_EXPERIENCE" />
+            <permission name="android.permission.MODIFY_AUDIO_ROUTING" />
+            <permission name="android.permission.MODIFY_PHONE_STATE" />
+            <permission name="android.permission.READ_CALL_LOG" minSdkVersion="33" />
+            <permission name="android.permission.READ_PHONE_STATE" minSdkVersion="33" />
+            <permission name="android.permission.RECORD_AUDIO" />
+            <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY" />
+            <permission name="android.permission.SET_SYSTEM_AUDIO_CAPTION" minSdkVersion="33" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that provides on-device intelligent processor for
+      ~ notifications.
+      ~
+      ~ A package holding this role MUST comply with requirements outlined in the Android CDD
+      ~ section "9.8.6 Content Capture".
+      ~ Example link for Android 11:
+      ~ https://source.android.com/compatibility/11/android-11-cdd#9_8_6_content_capture
+      ~
+      ~ In addition, packages MUST NOT:
+      ~ - Request INTERNET permission. Instead packages MUST access the internet through
+      ~   well-defined APIs in an open source project.
+      ~ - Perform direct binds to other applications, except the following system packages:
+      ~   - Bluetooth
+      ~   - Contacts
+      ~   - Media
+      ~   - Telephony
+      ~   - System UI
+      ~   - Component providing internet APIs (see above)
+      ~   To achieve this packages MUST set up explicit <allow-association> configuration in the
+      ~   system config.
+      -->
+    <role
+        name="android.app.role.SYSTEM_NOTIFICATION_INTELLIGENCE"
+        defaultHolders="config_systemNotificationIntelligence"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.REQUEST_NOTIFICATION_ASSISTANT_SERVICE" />
+            <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY" />
+            <!-- If this role holder has a NotificationListenerService, let that service receive
+                 notifications with sensitive content unredacted-->
+            <permission name="android.permission.RECEIVE_SENSITIVE_NOTIFICATIONS" minSdkVersion="35"/>
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that provides on-device intelligent processor for text.
+      ~
+      ~ A package holding this role MUST comply with requirements outlined in the Android CDD
+      ~ section "9.8.6 Content Capture".
+      ~ Example link for Android 11:
+      ~ https://source.android.com/compatibility/11/android-11-cdd#9_8_6_content_capture
+      ~
+      ~ In addition, packages MUST NOT:
+      ~ - Request INTERNET permission. Instead packages MUST access the internet through
+      ~   well-defined APIs in an open source project.
+      ~ - Perform direct binds to other applications, except the following system packages:
+      ~   - Bluetooth
+      ~   - Contacts
+      ~   - Media
+      ~   - Telephony
+      ~   - System UI
+      ~   - Component providing internet APIs (see above)
+      ~   To achieve this packages MUST set up explicit <allow-association> configuration in the
+      ~   system config.
+      -->
+    <role
+        name="android.app.role.SYSTEM_TEXT_INTELLIGENCE"
+        defaultHolders="config_systemTextIntelligence"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.ACCESS_BACKGROUND_LOCATION" minSdkVersion="33" />
+            <permission name="android.permission.ACCESS_COARSE_LOCATION" minSdkVersion="33" />
+            <permission name="android.permission.MANAGE_UI_TRANSLATION" />
+            <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY" />
+            <permission name="android.permission.READ_CLIPBOARD_IN_BACKGROUND" minSdkVersion="33" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that provides on-device intelligent processor for visual
+      ~ features.
+      ~
+      ~ A package holding this role MUST comply with requirements outlined in the Android CDD
+      ~ section "9.8.6 Content Capture".
+      ~ Example link for Android 11:
+      ~ https://source.android.com/compatibility/11/android-11-cdd#9_8_6_content_capture
+      ~
+      ~ In addition, packages MUST NOT:
+      ~ - Request INTERNET permission. Instead packages MUST access the internet through
+      ~   well-defined APIs in an open source project.
+      ~ - Perform direct binds to other applications, except the following system packages:
+      ~   - Bluetooth
+      ~   - Contacts
+      ~   - Media
+      ~   - Telephony
+      ~   - System UI
+      ~   - Component providing internet APIs (see above)
+      ~   To achieve this packages MUST set up explicit <allow-association> configuration in the
+      ~   system config.
+      -->
+    <role
+        name="android.app.role.SYSTEM_VISUAL_INTELLIGENCE"
+        defaultHolders="config_systemVisualIntelligence"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.CAMERA" />
+            <permission name="android.permission.SYSTEM_CAMERA" />
+            <permission name="android.permission.UPDATE_DEVICE_STATS" />
+            <permission name="android.permission.OBSERVE_SENSOR_PRIVACY" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that is allowed to manage documents (e.g., attach files etc.)
+      ~ on the device.
+      ~ A package holding this role must comply with the requirements outlined in the Android CDD
+      ~ section "2.2.3. Software" under heading "3.2.3.1/H-0-1".
+      ~ Example link for Android 11:
+      ~ https://source.android.com/compatibility/11/android-11-cdd#2_2_3_software
+    -->
+    <role
+        name="android.app.role.SYSTEM_DOCUMENT_MANAGER"
+        behavior="DocumentManagerRoleBehavior"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <required-components>
+            <!--- Flag value is MATCH_DISABLED_COMPONENTS-->
+            <activity queryFlags="0x00000200">
+                <intent-filter>
+                    <action name="android.intent.action.OPEN_DOCUMENT" />
+                    <category name="android.intent.category.OPENABLE" />
+                    <data mimeType="*/*" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.MANAGE_DOCUMENTS" />
+            <permission name="android.permission.CACHE_CONTENT" />
+            <permission name="android.permission.REMOVE_TASKS" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that serves as the activity recognizer on the device.
+      ~ This is the application that provides the data behind the activity recognition
+      ~ runtime permission.
+      -->
+    <role
+        name="android.app.role.SYSTEM_ACTIVITY_RECOGNIZER"
+        allowBypassingQualification="true"
+        defaultHolders="config_systemActivityRecognizer"
+        exclusive="false"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <required-components>
+            <service>
+                <intent-filter>
+                    <action name="android.intent.action.ACTIVITY_RECOGNIZER" />
+                </intent-filter>
+            </service>
+        </required-components>
+    </role>
+
+    <!---
+      ~ A role for the system UI package.
+      -->
+    <role
+        name="android.app.role.SYSTEM_UI"
+        defaultHolders="config_systemUi"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.MANAGE_SENSOR_PRIVACY" />
+            <permission name="android.permission.OBSERVE_SENSOR_PRIVACY" />
+            <permission name="android.permission.ACCESS_AMBIENT_CONTEXT_EVENT" minSdkVersion="33"/>
+            <!-- If this role holder has a NotificationListenerService, let that service receive
+                 notifications with sensitive content unredacted-->
+            <permission name="android.permission.RECEIVE_SENSITIVE_NOTIFICATIONS" minSdkVersion="35"/>
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the package responsible for interacting with a TV remote.
+      -->
+    <role
+        name="android.app.role.SYSTEM_TELEVISION_REMOTE_SERVICE"
+        behavior="TelevisionRoleBehavior"
+        defaultHolders="config_systemTelevisionRemoteService"
+        exclusive="true"
+        minSdkVersion="31"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.OBSERVE_SENSOR_PRIVACY" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the companion device package that create and manage connections to connected
+      ~ devices and perform app streaming to the devices.
+      -->
+    <role
+        name="android.app.role.COMPANION_DEVICE_APP_STREAMING"
+        allowBypassingQualification="true"
+        behavior="CompanionDeviceAppStreamingRoleBehavior"
+        description="@string/role_app_streaming_description"
+        exclusive="false"
+        minSdkVersion="33"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <!-- For capturing audio from the app on the device. -->
+            <permission name="android.permission.RECORD_AUDIO" />
+            <permission name="android.permission.CREATE_VIRTUAL_DEVICE" minSdkVersion="33" />
+            <permission name="android.permission.ADD_TRUSTED_DISPLAY" minSdkVersion="33" />
+            <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" minSdkVersion="33" />
+
+            <!--TODO(b/201605314) For calling Telecom framework API for audio streaming-->
+            <!--<permission name="android.permission.PROVIDE_CALL_ENDPOINTS" />-->
+       </permissions>
+    </role>
+
+    <!---
+      ~ A role for the companion device package that allows connected computers to mirror
+      ~ notifications and access photos and media from the phone.
+      -->
+    <role
+        name="android.app.role.COMPANION_DEVICE_COMPUTER"
+        allowBypassingQualification="true"
+        behavior="CompanionDeviceComputerRoleBehavior"
+        description="@string/role_companion_device_computer_description"
+        exclusive="false"
+        minSdkVersion="33"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission-set name="storage" />
+            <!-- If this role holder has a NotificationListenerService, let that service receive
+                 notifications with sensitive content unredacted-->
+            <permission name="android.permission.RECEIVE_SENSITIVE_NOTIFICATIONS" minSdkVersion="35"/>
+       </permissions>
+    </role>
+
+    <role
+        name="android.app.role.COMPANION_DEVICE_GLASSES"
+        behavior="CompanionDeviceGlassesRoleBehavior"
+        exclusive="false"
+        minSdkVersion="34"
+        systemOnly="false"
+        visible="false">
+        <permissions>
+            <permission-set name="contacts" />
+            <permission-set name="microphone" />
+            <permission-set name="nearby_devices" />
+            <permission-set name="notifications" />
+            <permission-set name="phone" />
+            <permission-set name="sms" />
+            <!-- If this role holder has a NotificationListenerService, let that service receive
+                 notifications with sensitive content unredacted-->
+            <permission name="android.permission.RECEIVE_SENSITIVE_NOTIFICATIONS" minSdkVersion="35"/>
+       </permissions>
+       <app-op-permissions>
+           <app-op-permission name="android.permission.MANAGE_ONGOING_CALLS" />
+       </app-op-permissions>
+    </role>
+
+    <role
+        name="android.app.role.COMPANION_DEVICE_NEARBY_DEVICE_STREAMING"
+        allowBypassingQualification="true"
+        exclusive="false"
+        minSdkVersion="34"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="nearby_devices" />
+            <permission name="android.permission.CREATE_VIRTUAL_DEVICE" />
+            <permission name="android.permission.ADD_TRUSTED_DISPLAY" />
+            <permission name="android.permission.ADD_ALWAYS_UNLOCKED_DISPLAY" />
+        </permissions>
+    </role>
+
+     <role
+        name="android.app.role.SYSTEM_SUPERVISION"
+        defaultHolders="config_systemSupervision"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="true"
+        visible="false" >
+        <permissions>
+            <permission name="android.permission.ACCESS_INSTANT_APPS"/>
+            <permission name="android.permission.KILL_UID" minSdkVersion="34"/>
+            <permission name="android.permission.MANAGE_DEFAULT_APPLICATIONS" minSdkVersion="34"/>
+            <permission name="android.permission.SUSPEND_APPS"/>
+            <permission name="android.permission.SYSTEM_APPLICATION_OVERLAY"/>
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the package responsible for constructing managed device experiences,
+      ~ including during provisioning.
+      -->
+    <role
+        name="android.app.role.DEVICE_POLICY_MANAGEMENT"
+        behavior="DevicePolicyManagementRoleBehavior"
+        defaultHolders="config_devicePolicyManagement"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="false"
+        visible="false">
+        <required-components>
+            <activity permission="android.permission.LAUNCH_DEVICE_MANAGER_SETUP">
+                <intent-filter>
+                    <action name="android.app.action.ROLE_HOLDER_PROVISION_MANAGED_DEVICE_FROM_TRUSTED_SOURCE" />
+                </intent-filter>
+            </activity>
+            <activity permission="android.permission.LAUNCH_DEVICE_MANAGER_SETUP">
+                <intent-filter>
+                    <action name="android.app.action.ROLE_HOLDER_PROVISION_MANAGED_PROFILE" />
+                </intent-filter>
+            </activity>
+            <activity permission="android.permission.LAUNCH_DEVICE_MANAGER_SETUP">
+                <intent-filter>
+                    <action name="android.app.action.ROLE_HOLDER_PROVISION_FINALIZATION" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.BIND_DEVICE_ADMIN" />
+            <permission name="android.permission.MANAGE_DEVICE_ADMINS" />
+            <permission name="android.permission.NETWORK_MANAGED_PROVISIONING" />
+            <permission name="android.permission.PEERS_MAC_ADDRESS" />
+            <permission name="android.permission.USE_COLORIZED_NOTIFICATIONS" />
+            <permission name="android.permission.MASTER_CLEAR" />
+            <permission name="android.permission.WRITE_SECURE_SETTINGS" />
+            <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+            <permission name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
+            <permission name="android.permission.START_FOREGROUND_SERVICES_FROM_BACKGROUND" />
+            <permission name="android.permission.MANAGE_PROFILE_AND_DEVICE_OWNERS" />
+            <permission name="android.permission.INTERACT_ACROSS_USERS" />
+            <permission name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+            <permission name="com.android.permission.INSTALL_EXISTING_PACKAGES" />
+            <permission name="android.permission.DELETE_PACKAGES" />
+            <permission name="android.permission.ACCESS_PDB_STATE" />
+            <permission name="android.permission.MARK_DEVICE_ORGANIZATION_OWNED" />
+            <permission name="android.permission.CHANGE_COMPONENT_ENABLED_STATE" />
+            <permission name="android.permission.SET_TIME" />
+            <permission name="android.permission.SET_TIME_ZONE" />
+            <permission name="android.permission.CRYPT_KEEPER" />
+            <permission name="android.permission.SHUTDOWN" />
+            <permission name="android.permission.PERFORM_CDMA_PROVISIONING" />
+            <permission name="android.permission.CONFIGURE_INTERACT_ACROSS_PROFILES" />
+            <permission name="android.permission.WRITE_SETTINGS" />
+            <permission name="android.permission.CHANGE_CONFIGURATION" />
+            <permission name="android.permission.LAUNCH_DEVICE_MANAGER_SETUP" />
+            <permission name="android.permission.INSTALL_DPC_PACKAGES" />
+            <permission name="android.permission.QUERY_USERS" />
+            <permission name="android.permission.UPDATE_DEVICE_MANAGEMENT_RESOURCES" />
+            <permission name="android.permission.QUERY_ADMIN_POLICY" />
+            <permission name="android.permission.TRIGGER_LOST_MODE" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APP_EXEMPTIONS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_ACCOUNT_MANAGEMENT" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_AIRPLANE_MODE" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CAMERA" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CERTIFICATES" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_COMMON_CRITERIA_MODE" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DEFAULT_SMS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_FACTORY_RESET" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_INPUT_METHODS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_KEYGUARD" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK_CREDENTIALS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MOBILE_NETWORK" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MTE" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_PACKAGE_STATE" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_PROFILES" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_RESTRICT_PRIVATE_DNS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SCREEN_CAPTURE" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SECURITY_LOGGING" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SUSPEND_PERSONAL_APPS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SYSTEM_UPDATES" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_TIME" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_USB_DATA_SIGNALLING" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_WIFI" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_WIPE_DATA" minSdkVersion="34" />
+            <permission name="android.permission.SET_TIME" minSdkVersion="34" />
+            <permission name="android.permission.SET_TIME_ZONE" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DEBUGGING_FEATURES" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MODIFY_USERS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SAFE_BOOT" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MICROPHONE" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_USB_FILE_TRANSFER" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_ACROSS_USERS_SECURITY_CRITICAL" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_ACROSS_USERS" minSdkVersion="34" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CONTENT_PROTECTION" minSdkVersion="35" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_QUERY_SYSTEM_UPDATES" minSdkVersion="35" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_BLOCK_UNINSTALL" minSdkVersion="35" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CAMERA_TOGGLE" minSdkVersion="35" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_MICROPHONE_TOGGLE" minSdkVersion="35" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_THEFT_DETECTION" minSdkVersion="35" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_AUDIT_LOGGING" minSdkVersion="35" />
+        </permissions>
+    </role>
+
+    <role
+        name="android.app.role.SYSTEM_APP_PROTECTION_SERVICE"
+        defaultHolders="config_systemAppProtectionService"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.GET_HISTORICAL_APP_OPS_STATS" />
+            <permission name="android.permission.READ_SMS" />
+            <permission name="android.permission.RECEIVE_SMS" />
+            <permission name="android.permission.GET_BACKGROUND_INSTALLED_PACKAGES" minSdkVersion="35" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the system package that handles syncing calendar from another device on
+      ~ Automotive.
+      -->
+    <role
+        name="android.app.role.SYSTEM_AUTOMOTIVE_CALENDAR_SYNC_MANAGER"
+        behavior="AutomotiveRoleBehavior"
+        defaultHolders="config_systemAutomotiveCalendarSyncManager"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.READ_CALENDAR" />
+            <permission name="android.permission.WRITE_CALENDAR" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the package that handles navigation on the Automotive.
+      ~ This is the application that provides point-of-interest search and
+      ~ turn-by-turn navigation guidance.
+      -->
+    <role
+        name="android.app.role.AUTOMOTIVE_NAVIGATION"
+        behavior="AutomotiveRoleBehavior"
+        defaultHolders="config_defaultAutomotiveNavigation"
+        description="@string/role_automotive_navigation_description"
+        exclusive="true"
+        label="@string/role_automotive_navigation_label"
+        minSdkVersion="33"
+        overrideUserWhenGranting="true"
+        requestDescription="@string/role_automotive_navigation_request_description"
+        requestTitle="@string/role_automotive_navigation_request_title"
+        shortLabel="@string/role_automotive_navigation_short_label">
+        <required-components>
+            <activity>
+                <intent-filter>
+                    <action name="android.intent.action.MAIN" />
+                    <category name="android.intent.category.APP_MAPS" />
+                </intent-filter>
+            </activity>
+            <activity>
+                <intent-filter>
+                    <action name="android.intent.action.NAVIGATE" />
+                    <data scheme="geo" />
+                </intent-filter>
+            </activity>
+            <activity>
+                <intent-filter>
+                    <action name="android.intent.action.MAIN" />
+                    <category name="android.car.cluster.NAVIGATION" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        <preferred-activities>
+            <preferred-activity>
+                <activity>
+                    <intent-filter>
+                        <action name="android.intent.action.MAIN" />
+                        <category name="android.intent.category.APP_MAPS" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.MAIN" />
+                    <category name="android.intent.category.APP_MAPS" />
+                </intent-filter>
+            </preferred-activity>
+            <preferred-activity>
+                <activity>
+                    <intent-filter>
+                        <action name="android.intent.action.NAVIGATE" />
+                        <data scheme="geo" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.NAVIGATE" />
+                    <data scheme="geo" />
+                </intent-filter>
+            </preferred-activity>
+            <preferred-activity>
+                <activity>
+                    <intent-filter>
+                        <action name="android.intent.action.MAIN" />
+                        <category name="android.car.cluster.NAVIGATION" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.MAIN" />
+                    <category name="android.car.cluster.NAVIGATION" />
+                </intent-filter>
+            </preferred-activity>
+        </preferred-activities>
+    </role>
+
+    <!---
+      ~ A role for the package that handles AI features for the settings app
+      -->
+    <role
+        name="android.app.role.SYSTEM_SETTINGS_INTELLIGENCE"
+        defaultHolders="config_systemSettingsIntelligence"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.INTERACT_ACROSS_USERS_FULL" minSdkVersion="34" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the package that handles Bluetooth for the device
+      -->
+    <role
+        name="android.app.role.SYSTEM_BLUETOOTH_STACK"
+        defaultHolders="config_systemBluetoothStack"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.NETWORK_FACTORY" />
+            <permission name="android.permission.BLUETOOTH_MAP" />
+            <permission name="android.permission.BLUETOOTH_STACK" />
+            <permission name="android.permission.NET_ADMIN" />
+            <permission name="android.permission.LISTEN_ALWAYS_REPORTED_SIGNAL_STRENGTH" />
+            <permission name="android.permission.MANAGE_APP_OPS_MODES" />
+            <permission name="android.permission.MANAGE_COMPANION_DEVICES" />
+            <permission name="android.permission.QUERY_AUDIO_STATE" />
+            <permission name="android.permission.DEVICE_POWER" />
+            <permission name="android.permission.NET_TUNNELING" />
+        </permissions>
+    </role>
+
+    <!--
+     ~ A role assigned to the financing kiosk app
+    -->
+    <role
+        name="android.app.role.FINANCED_DEVICE_KIOSK"
+        exclusive="true"
+        minSdkVersion="34"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.MANAGE_DEVICE_LOCK_STATE" />
+        </permissions>
+    </role>
+
+    <!--
+     ~ A role assigned to the device lock controller
+    -->
+    <role
+        name="android.app.role.SYSTEM_FINANCED_DEVICE_CONTROLLER"
+        defaultHolders="config_systemFinancedDeviceController"
+        exclusive="true"
+        minSdkVersion="34"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="notifications" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_APPS_CONTROL" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_CALLS" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_DEBUGGING_FEATURES" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_INSTALL_UNKNOWN_SOURCES" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_LOCK_TASK" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_SAFE_BOOT" />
+            <permission name="android.permission.MANAGE_DEVICE_POLICY_TIME" />
+            <permission name="android.permission.MASTER_CLEAR" />
+            <permission name="android.permission.INTERACT_ACROSS_USERS" />
+            <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the wear health service that handles health/fitness tracking features.
+    -->
+    <role
+        name="android.app.role.SYSTEM_WEAR_HEALTH_SERVICE"
+        behavior="SystemWearHealthServiceRoleBehavior"
+        defaultHolders="config_systemWearHealthService"
+        exclusive="true"
+        minSdkVersion="33"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission-set name="sensors" />
+            <permission-set name="location" />
+            <permission name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+            <permission name="android.permission.ACTIVITY_RECOGNITION" />
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the package that responds to system notes actions.
+    -->
+    <role
+        name="android.app.role.NOTES"
+        behavior="NotesRoleBehavior"
+        defaultHolders="config_defaultNotes"
+        description="@string/role_notes_description"
+        exclusive="true"
+        label="@string/role_notes_label"
+        minSdkVersion="34"
+        overrideUserWhenGranting="true"
+        requestable="false"
+        searchKeywords="@string/role_notes_search_keywords"
+        shortLabel="@string/role_notes_short_label"
+        showNone="true">
+        <required-components>
+            <!-- Flag value is FLAG_SHOW_WHEN_LOCKED | FLAG_TURN_SCREEN_ON -->
+            <activity flags="0x1800000">
+                <intent-filter>
+                    <action name="android.intent.action.CREATE_NOTE" />
+                </intent-filter>
+            </activity>
+        </required-components>
+        <preferred-activities>
+            <preferred-activity>
+                <!-- Flag value is FLAG_SHOW_WHEN_LOCKED | FLAG_TURN_SCREEN_ON -->
+                <activity flags="0x1800000">
+                    <intent-filter>
+                        <action name="android.intent.action.CREATE_NOTE" />
+                    </intent-filter>
+                </activity>
+                <intent-filter>
+                    <action name="android.intent.action.CREATE_NOTE" />
+                </intent-filter>
+            </preferred-activity>
+        </preferred-activities>
+        <permissions>
+            <permission name="android.permission.LAUNCH_CAPTURE_CONTENT_ACTIVITY_FOR_NOTE" minSdkVersion="34"/>
+        </permissions>
+    </role>
+
+    <!---
+      ~ A role for the package that streams calls to other devices.
+    -->
+    <role
+        name="android.app.role.SYSTEM_CALL_STREAMING"
+        allowBypassingQualification="true"
+        defaultHolders="config_systemCallStreaming"
+        exclusive="true"
+        minSdkVersion="34"
+        static="true"
+        systemOnly="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.CALL_AUDIO_INTERCEPTION" />
+            <permission name="android.permission.RECORD_AUDIO" />
+        </permissions>
+        <required-components>
+            <service permission="android.permission.BIND_CALL_STREAMING_SERVICE">
+                <intent-filter>
+                    <action name="android.telecom.CallStreamingService" />
+                </intent-filter>
+            </service>
+        </required-components>
+    </role>
+
+    <role
+        name="android.app.role.RETAIL_DEMO"
+        behavior="RetailDemoRoleBehavior"
+        defaultHolders="config_defaultRetailDemo"
+        exclusive="true"
+        minSdkVersion="35"
+        static="true"
+        visible="false">
+        <permissions>
+            <permission name="android.permission.ACCESS_BLOBS_ACROSS_USERS" />
+            <permission name="android.permission.CHANGE_CONFIGURATION" />
+            <permission name="android.permission.MODIFY_DAY_NIGHT_MODE" />
+            <permission name="android.permission.MODIFY_PHONE_STATE" />
+            <permission name="android.permission.OBSERVE_APP_USAGE" />
+            <permission name="android.permission.QUERY_USERS" />
+            <permission name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
+            <permission name="android.permission.START_ACTIVITIES_FROM_BACKGROUND" />
+            <permission name="android.permission.START_FOREGROUND_SERVICES_FROM_BACKGROUND" />
+            <permission name="android.permission.WRITE_SETTINGS" />
+        </permissions>
+        <app-op-permissions>
+            <app-op-permission name="android.permission.PACKAGE_USAGE_STATS" />
+        </app-op-permissions>
+    </role>
+
+    <role
+        name="android.app.role.WALLET"
+        behavior="WalletRoleBehavior"
+        defaultHolders="config_defaultWallet"
+        description="@string/role_wallet_description"
+        exclusive="true"
+        label="@string/role_wallet_label"
+        minSdkVersion="35"
+        overrideUserWhenGranting="true"
+        requestable="true"
+        requestDescription="@string/role_wallet_request_description"
+        requestTitle="@string/role_wallet_request_title"
+        showNone="true"
+        shortLabel="@string/role_wallet_short_label"
+        uiBehavior="WalletRoleUiBehavior"/>
+
+
+</roles>

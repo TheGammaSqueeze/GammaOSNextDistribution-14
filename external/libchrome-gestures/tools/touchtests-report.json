@@ -1,0 +1,3698 @@
+{
+  "alex/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "alex/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "alex/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "alex/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "alex/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "alex/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "alex/null_when_scroll_intended": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "alex/wiggle_when_stationary": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "atlas-1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "atlas-1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "atlas-1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "atlas-1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "atlas-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "atlas-1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "atlas-1.0/fat-thumb-fail": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "atlas-1.0/palm-while-typing": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "atlas-1.0/palm-while-typing-2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "atlas-1.0/palm-while-typing-3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "atlas-1.0/pinch-from-edge": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "atlas-1.0/tap-drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "atlas-1.0/tap-sides": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.0
+  },
+  "atlas-1.0/taps-1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "atlas-1.0/taps-2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "atlas-1.0/taps-3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "atlas-1.0/taps-4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "atlas-1.0/taps-5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "big-elan-5.0/baseline/click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "big-elan-5.0/baseline/drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9699785944759369
+  },
+  "big-elan-5.0/baseline/fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "big-elan-5.0/baseline/move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.10897709647675068
+  },
+  "big-elan-5.0/baseline/scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.050632038245555996
+  },
+  "big-elan-5.0/baseline/tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "big-elan-5.0/large_pressure_changes": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "blaze-elan-1.0/baseline/click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "blaze-elan-1.0/baseline/drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9802452506817975
+  },
+  "blaze-elan-1.0/baseline/fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.03632292835357449
+  },
+  "blaze-elan-1.0/baseline/move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9942045666873714
+  },
+  "blaze-elan-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9952767176814333
+  },
+  "blaze-elan-1.0/baseline/tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "butterfly1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly1.0/quick_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.999963999855999
+  },
+  "butterfly1.0/stationary_1F": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "butterfly1.0/tap_no_wiggle": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "butterfly2.4/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly2.4/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly2.4/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly2.4/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly2.4/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly2.4/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "butterfly2.4/bottom_non_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "butterfly2.4/fat_finger_move": {
+    "description": "\n    A fat (noisy) finger moving from left to right.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9908285496063849
+  },
+  "butterfly2.4/move_jumped_at_end": {
+    "description": "\n    Feedback showed the cursor jumping after lifting the finger.\n    Make sure it does not happen.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "butterfly2.4/scroll_expected_but_moved": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "candy/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "candy/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "candy/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "candy/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "candy/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "candy/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "candy/scroll_fail_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9958480906107742
+  },
+  "clapper-1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "clapper-1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "clapper-1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "clapper-1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "clapper-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "clapper-1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "common/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "common/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "common/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "common/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "common/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "common/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "eve-1.0/3f-should-swipe-not-scroll-1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9998541145175693
+  },
+  "eve-1.0/3f-should-swipe-not-scroll-2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9999114850675692
+  },
+  "eve-1.0/3f-should-swipe-not-scroll-3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.948537640301511
+  },
+  "eve-1.0/bad_accel": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9106573725157767
+  },
+  "eve-1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "eve-1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "eve-1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "eve-1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "eve-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "eve-1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "eve-1.0/fast_scroll_finger_split": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/hover_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "eve-1.0/palm_rejection": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "eve-1.0/pinch_at_top": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "eve-1.0/pinchlike_palm": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/scroll_no_pinch_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/scroll_no_pinch_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/scroll_no_pinch_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/scroll_no_pinch_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/scroll_no_pinch_5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/scroll_no_pinch_6": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/scroll_no_pinch_7": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/scroll_no_pinch_8": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/tap_rejection": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "eve-1.0/tap_should_click_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "eve-1.0/tap_should_click_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "eve-1.0/tap_should_click_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "eve-1.0/tap_should_click_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "eve-1.0/type_touch": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "falco-2.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "falco-2.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "falco-2.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "falco-2.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "falco-2.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "falco-2.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "falco-2.0/false_scrolling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "falco-2.0/false_scrolling_long": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.8009435555152339
+  },
+  "falco-2.0/lift_jump_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "falco-2.0/lift_jump_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "falco-2.0/lift_jump_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "falco-2.0/lift_jump_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "falco-2.0/simple_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "falco-2.0/simple_move2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "falco-2.0/simple_move3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9879210811306939
+  },
+  "glimmer-1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "glimmer-1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "glimmer-1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "glimmer-1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "glimmer-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "glimmer-1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "gnawty-elan-4.0/baseline/click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "gnawty-elan-4.0/baseline/drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.997738329781867
+  },
+  "gnawty-elan-4.0/baseline/fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9537474467290741
+  },
+  "gnawty-elan-4.0/baseline/move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9790638646838501
+  },
+  "gnawty-elan-4.0/baseline/scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9891288569179316
+  },
+  "gnawty-elan-4.0/baseline/tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "gnawty-elan-4.0/swipe_left_australian": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": true
+  },
+  "gnawty-elan-4.0/swipe_left_traditional": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": true
+  },
+  "gnawty-elan-4.0/swipe_up_australian": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": true
+  },
+  "gnawty-elan-4.0/swipe_up_traditional": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": true
+  },
+  "kip-elan-3.0/baseline/click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "kip-elan-3.0/baseline/drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9957815245350038
+  },
+  "kip-elan-3.0/baseline/fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9935254419506476
+  },
+  "kip-elan-3.0/baseline/move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.953667994333679
+  },
+  "kip-elan-3.0/baseline/scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.8652029287931811
+  },
+  "kip-elan-3.0/baseline/tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "leon-1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "leon-1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "leon-1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "leon-1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "leon-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "leon-1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "leon-1.0/jumpy_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9946983640371343
+  },
+  "leon-1.0/jumpy_scroll2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.3175448784419359
+  },
+  "leon-1.0/jumpy_scroll3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.7939085461207753
+  },
+  "leon-1.0/jumpy_scroll4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9967708366197258
+  },
+  "leon-1.0/jumpy_scroll5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.7445115116257466
+  },
+  "leon-1.0/moves_up_left": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "leon-1.0/moves_up_left2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.8912969952591686
+  },
+  "leon-1.0/right_click_fail": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "leon-1.0/right_click_fail2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "leon-1.0/right_click_fail3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "leon-1.0/right_click_fail4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/2_finger_delayed_click": {
+    "description": "\n    This test was artificially created. Both fingers touch down at exactly the\n    same time, which is not usually happening for thumb and finger.\n    So we treat them as both fingers and right click.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/accidental_2F_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/base_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/base_drumroll_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/base_drumroll_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/base_palm_presence_both": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "link/base_palm_thumb_pointing_left": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9788202509230436
+  },
+  "link/base_right_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/base_right_click_1_sec_interval": {
+    "description": "\n    The beginning of this log shows small one-finger movements,\n    so movement at the beginning is considered ok, while movement everywhere\n    else should not happen.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/base_right_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/base_scroll_down": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.990862252978319
+  },
+  "link/base_scroll_left": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.985188704940706
+  },
+  "link/base_scroll_right": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.994784352282683
+  },
+  "link/base_scroll_up": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9629461106657982
+  },
+  "link/base_scroll_up_regardless_prior_state": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.954487944543677
+  },
+  "link/base_single_finger_click_and_select": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9410150451179711
+  },
+  "link/base_single_finger_tap_and_half": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9862666312062258
+  },
+  "link/base_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "link/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "link/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "link/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "link/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "link/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "link/bottom_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/button_click_merge_issue": {
+    "description": "\n    Issues with finger merging appear when multiple fingers touch down at\n    the same time. These issues are usually resolved after 2, 3 hardware\n    states. This test case shows the problem with a 3 finger click.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/button_middle_click_variations": {
+    "description": "\n    Test if different variations of performing a middle click using\n    the phyiscal button is working.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/button_right_click_no_wiggle": {
+    "description": "\n    Same log as button_right_click_variations, but this time check\n    for cursor wiggle between the down/up events!\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/button_right_click_variations": {
+    "description": "\n    Test if different variations of performing a right click using\n    the phyiscal button is working.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/click_and_drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/click_and_drag_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/click_and_drag_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/click_and_drag_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/click_before_finger": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/close_finger_false_right_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/close_finger_false_right_click_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/dummy": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/fling_stop_order": {
+    "description": "\n    This test checks if fling stop events are sent before button events, as this\n    is required by Chrome.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/generous_tap_drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/hard_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/jumping_cursor_with_palm": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/left_click_with_resting_thumb": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/left_when_right_click_intended_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/left_when_right_click_intended_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/left_when_right_click_intended_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/light_tap_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/merge_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/merge_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/merge_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/merge_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/merge_5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/middle_button_with_thumb": {
+    "description": "\n    Classified thumbs used to induce problems with button detections,\n    check if the middle click works.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/motion_resting_thumb": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "link/move_before_pinch": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.5848310577324695
+  },
+  "link/move_then_tap1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/move_then_tap2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/move_then_tap3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/move_then_tap4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/move_then_tap5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/move_then_tap6": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/move_then_tap7": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/move_then_tap8": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/pinch_false_positive_1": {
+    "description": "\n    The feedback report showed a pinch gesture where only motion should\n    have happened. This test is passes as long as there is no\n    pinch gesture happening.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/pinch_false_positive_2": {
+    "description": "\n    The feedback report showed a pinch gesture where only motion should\n    have happened. This test is passes as long as there is no\n    pinch gesture happening.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/pinch_variations": {
+    "description": "\n    Pinch is currently not supported and work in progress.\n  ",
+    "disabled": true,
+    "error": "",
+    "result": "disabled",
+    "score": 0
+  },
+  "link/pinch_zoom_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9991184732950322
+  },
+  "link/pinch_zoom_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.99944908106567
+  },
+  "link/pinch_zoom_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9993805422331903
+  },
+  "link/pinch_zoom_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9967395687527829
+  },
+  "link/pinch_zoom_5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9982186281882592
+  },
+  "link/pinch_zoom_6": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9991255297087251
+  },
+  "link/resting_2F_with_thumb_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/resting_thumb": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": true
+  },
+  "link/resting_thumb_scroll": {
+    "description": "\n    Test if even with a resting (and moving) thumb we still get\n    good scrolling and fling behavior\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/right_when_left_click_intended": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scroll_before_pinch_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.999213802857196
+  },
+  "link/scroll_before_pinch_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9930683363850754
+  },
+  "link/scroll_false_negatives": {
+    "description": "\n    A scrolling gesture with a resting thumb. Tricky part here is\n    that the thumb has only a slightly higher pressure than\n    the other contacts. Make sure scrolling works anyway.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/scroll_with_upper_thumb": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "disabled",
+    "score": 0
+  },
+  "link/scrolling_with_low_press_fingers": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "link/scrolling_with_low_press_fingers_10": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scrolling_with_low_press_fingers_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scrolling_with_low_press_fingers_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scrolling_with_low_press_fingers_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scrolling_with_low_press_fingers_5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scrolling_with_low_press_fingers_6": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scrolling_with_low_press_fingers_7": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scrolling_with_low_press_fingers_8": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/scrolling_with_low_press_fingers_9": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/simple_3f_swipe": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9516334268553607
+  },
+  "link/stationary_finger": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/thumb_split_right_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/thumb_split_right_click_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/ttc_with_palm": {
+    "description": "\n    The log contains some history of the palm with movement/scrolls.\n    At the end there are two taps performed and we want to make sure\n    they happen.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/unexpected_fling_cancel": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/unexpected_fling_cancel2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "link/zerofingerclick": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "logitech-t620/accidental_back_fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "logitech-t620/accidental_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "logitech-t620/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "logitech-t620/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "logitech-t620/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "logitech-t620/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "logitech-t620/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "logitech-t620/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "logitech-t620/extra_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": true
+  },
+  "logitech-t620/jerky_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "logitech-t620/low_dpi_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9996865348815822
+  },
+  "logitech-t620/reverse_liftoff": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "logitech-t620/reverse_scroll_on_lift": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "logitech-t620/scroll_on_lift": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "lulu-1.7/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lulu-1.7/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lulu-1.7/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lulu-1.7/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lulu-1.7/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lulu-1.7/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lulu-1.7/not_moving": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "lumpy/2f_scroll_fail": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/base_button_drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9773338137604507
+  },
+  "lumpy/base_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/base_fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "lumpy/base_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "lumpy/base_scroll_h": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "lumpy/base_scroll_v": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "lumpy/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lumpy/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lumpy/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lumpy/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lumpy/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lumpy/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "lumpy/brush_after_move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "disabled",
+    "score": 0
+  },
+  "lumpy/dummy": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "lumpy/high_thumb_dragging": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/left_when_right_click_intended": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/right_when_left_click_intended": {
+    "description": "\n    Very nasty case with 2 palms appearing with one thumb all in the time\n    frame of 300ms. The user intended to do a left click.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/scroll_with_upper_thumb": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "lumpy/scroll_without_fling": {
+    "description": "\n    Make sure there is no *real* fling.  Every time a scroll ends there\n    should be a fling event, but in this case it's velocity must be 0\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "lumpy/scroll_without_fling2": {
+    "description": "\n    Make sure there is no *real* fling.  Every time a scroll ends there\n    should be a fling event, but in this case it's velocity must be 0\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "lumpy/thumb_split_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/thumb_split_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/thumb_split_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/thumb_split_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "lumpy/thumb_split_5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "magicmouse/accel_custom": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9967364783457839
+  },
+  "magicmouse/accel_new": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9685833338013481
+  },
+  "magicmouse/accel_old": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9978665449024333
+  },
+  "magicmouse/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "magicmouse/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "magicmouse/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "magicmouse/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "magicmouse/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "magicmouse/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "magicmouse/move_with_resent_packets": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "magicmouse/no_scrolls": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "magicmouse/scroll_custom": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "magicmouse/scroll_normal": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "minnie-2.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "minnie-2.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "minnie-2.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "minnie-2.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "minnie-2.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "minnie-2.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "minnie-2.0/light_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "ms-precision-mouse-1.0/fast_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.99375
+  },
+  "ms-precision-mouse-1.0/jerky_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "parrot1.2/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "parrot1.2/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "parrot1.2/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "parrot1.2/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "parrot1.2/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "parrot1.2/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "parrot1.2/quick_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9999581873327497
+  },
+  "parrot1.2/small-direction-change": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "parrot1.2/thumb_split_click": {
+    "description": "\n    Pointing finger followed by a thumb press for left click.\n    Very nasty merge/split happening here.\n  ",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "parrot1.2/thumb_split_merge_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "parrot1.2/thumb_split_merge_ratio": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "peppy/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "peppy/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "peppy/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "peppy/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "peppy/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "peppy/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "peppy/move_with_thumb": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "peppy/move_with_thumb_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.7987786869843075
+  },
+  "peppy/move_with_thumb_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.06191254292677331
+  },
+  "pit1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "pit1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "pit1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "pit1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "pit1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "pit1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "pit1.0/finger_classified_as_palm": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "pit1.0/missed_ttc": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "pit1.0/stuck_button_with_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "pit1.0/zero_finger_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "quawks-elan-6.0/baseline/click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "quawks-elan-6.0/baseline/drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9970284280519195
+  },
+  "quawks-elan-6.0/baseline/fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.995856896057069
+  },
+  "quawks-elan-6.0/baseline/move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9822969667763042
+  },
+  "quawks-elan-6.0/baseline/scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9272712229505671
+  },
+  "quawks-elan-6.0/baseline/tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "rambi-elan-0.0/baseline/click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "rambi-elan-0.0/baseline/drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9979430046981552
+  },
+  "rambi-elan-0.0/baseline/fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9953567727288528
+  },
+  "rambi-elan-0.0/baseline/move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9867439784993131
+  },
+  "rambi-elan-0.0/baseline/scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9895545369555232
+  },
+  "rambi-elan-0.0/baseline/tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "redrix-1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "redrix-1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "redrix-1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "redrix-1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "redrix-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "redrix-1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "redrix-1.0/skipped_moves_with_unstable_size": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "redrix-1.0/tap-drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "relm-1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "relm-1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "relm-1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "relm-1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "relm-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "relm-1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "relm-1.0/locke-scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9947207733333334
+  },
+  "relm-1.0/locke-split-scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9999346228070181
+  },
+  "relm-1.0/locke-split-stick": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/move-near-stale-finger-should-not-stop": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/one-stationary-plus-two-scroll-should-not-move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/one-stationary-plus-two-scroll-should-not-swipe": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/place-then-scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/stale-finger-click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "relm-1.0/stale-finger-click-close": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "relm-1.0/stale-finger-same-hand-should-move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9319811340447308
+  },
+  "relm-1.0/stale-finger-should-scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "relm-1.0/stale-finger-swipe-should-not-scroll-after": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "relm-1.0/stale-finger-swipe-should-not-scroll-before": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "relm-1.0/stale-four-finger-swipe": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/stale-move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/stale-scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/stale-three-finger-swipe": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "relm-1.0/start-close-to-stale-finger-then-move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "samus-atmel-1.0-1/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "samus-atmel-1.0-1/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "samus-atmel-1.0-1/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "samus-atmel-1.0-1/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "samus-atmel-1.0-1/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "samus-atmel-1.0-1/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "samus-atmel-1.0-1/puneet_palm1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "samus-atmel-1.0-1/puneet_palm2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "samus-atmel-1.0-1/puneet_palm3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "samus-atmel-1.0-1/puneet_palm4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "samus-atmel-1.0-1/scroll_fling1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.4953265210544784
+  },
+  "samus-atmel-1.0-1/two_finger_back1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9962386944621435
+  },
+  "snow1.3/2F_TTC_with_1F_on_edge": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow1.3/base_edge_palm": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "snow1.3/base_right_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow1.3/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow1.3/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow1.3/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow1.3/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow1.3/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow1.3/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow1.3/brush_after_move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "disabled",
+    "score": 0
+  },
+  "snow1.3/move_then_light_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9836259581661809
+  },
+  "snow1.3/move_then_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow1.3/palm_envelope_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "snow1.3/palm_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "snow1.3/scroll_with_pause": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow1.3/slowscroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow1.3/snow_thumb_split": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow1.3/spurious_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow1.3/top_edge_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9388368401792873
+  },
+  "snow1.3/top_edge_tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow1.3/vertical_scrolls_down": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "snow2.3/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow2.3/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow2.3/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow2.3/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow2.3/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow2.3/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "snow2.3/bottom_tap_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow2.3/flat_thumb_move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "snow2.3/missed_2f_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.871094388900799
+  },
+  "snow2.3/quick_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9996781830934257
+  },
+  "snow2.3/refling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9845098720878498
+  },
+  "snow2.3/scroll_down_fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9985109863537592
+  },
+  "snow2.3/scroll_down_fling2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9991156461889733
+  },
+  "snow2.3/scrolling_with_low_press_fingers": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "snow2.3/scrolling_with_low_press_fingers_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow2.3/scrolling_with_low_press_fingers_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow2.3/scrolling_with_low_press_fingers_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow2.3/scrolling_with_low_press_fingers_5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "snow2.3/scrolling_with_sensor_jump": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "snow2.3/slow_start_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9540558014179414
+  },
+  "snow2.3/zerofingerclick": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "spring1/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "spring1/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "spring1/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "spring1/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "spring1/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "spring1/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "spring1/distant_right_tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "disabled",
+    "score": 0
+  },
+  "spring1/drumroll_fail": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "spring1/dummy": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "spring1/merge_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "spring1/merge_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "spring1/merge_3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "spring1/merge_4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "spring1/merge_5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "spring1/missed_right_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "spring1/move_then_scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.7175067664972574
+  },
+  "spring1/no_scroll_after_buttons_up": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "spring1/scroll_fail1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "spring1/scroll_fail2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "spring1/scroll_fail3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "spring1/scroll_fail4": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "spring1/scroll_fail5": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "spring1/scroll_fail6": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "spring1/scroll_fail7": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "spring1/tap_to_click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "spring1/wiggling_when_stationary": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "stout/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "stout/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "stout/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "stout/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "stout/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "stout/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "stout/cursor_jump_when_arrival": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9150838638709169
+  },
+  "stout/move_when_scroll_intended": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "stout/null_when_scroll_intended": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "stout/null_when_scroll_intended2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "stout/null_when_scroll_intended3": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "stout/right_click_when_scrolling_intended": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "stout/tap_on_the_bottom": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "stout/wiggle_when_stationary": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "stout/wiggle_when_stationary2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "swanky-elan-2.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "swanky-elan-2.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "swanky-elan-2.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "swanky-elan-2.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "swanky-elan-2.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "swanky-elan-2.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "swanky-elan-2.0/circles": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9549860483562952
+  },
+  "swanky-elan-2.0/move_lift_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": true
+  },
+  "swanky-elan-2.0/move_lift_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": true
+  },
+  "swanky-elan-2.0/scroll_lift_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "swanky-elan-2.0/scroll_lift_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "vell-1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "vell-1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "vell-1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "vell-1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "vell-1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "vell-1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "vell-1.0/click_release_too_early": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "wolf-elan-2.0/baseline/click": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "wolf-elan-2.0/baseline/drag": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9959707544173486
+  },
+  "wolf-elan-2.0/baseline/fling": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.7769712683176837
+  },
+  "wolf-elan-2.0/baseline/move": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.994819421040505
+  },
+  "wolf-elan-2.0/baseline/scroll": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 0.9689304428635529
+  },
+  "wolf-elan-2.0/baseline/tap": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1.0
+  },
+  "wolf1.0/baseline/click": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "wolf1.0/baseline/drag": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "wolf1.0/baseline/fling": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "wolf1.0/baseline/move": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "wolf1.0/baseline/scroll": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "wolf1.0/baseline/tap": {
+    "description": "",
+    "disabled": true,
+    "error": "",
+    "result": "incomplete",
+    "score": 0
+  },
+  "wolf1.0/palm_motion": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "success",
+    "score": 1
+  },
+  "wolf1.0/scroll_lift_bounce_1": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  },
+  "wolf1.0/scroll_lift_bounce_2": {
+    "description": "",
+    "disabled": false,
+    "error": "",
+    "result": "failure",
+    "score": false
+  }
+}
