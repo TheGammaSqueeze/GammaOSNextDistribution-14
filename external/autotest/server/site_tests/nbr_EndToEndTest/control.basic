@@ -1,0 +1,40 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "hbarnor, Chromium OS"
+NAME = "nbr_EndToEndTest.basic"
+TIME = "MEDIUM"
+PURPOSE = "Test an NBR N-to-M recovery with Nebraska."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+DEPENDENCIES = "servo_state:WORKING"
+ATTRIBUTES = "suite:nbr"
+PY_VERSION = 3
+
+DOC = """
+This tests an N-to-M recovery. This means that it will recover from a ToT install
+to the current stable. This test will be used in the CQ to ensure that changes
+don't break NBR.
+
+We supply a job_repo_url to the test when running locally. In the lab this will
+be passed directly. The job_repo_url is a link to the autotest packages on a
+devserver. The test uses it to find the correct payload to use.
+
+Example usage:
+test_that nbr_EndToEndTest.basic <DUT> --board=<board> --args="job_repo_url='http://<devserver IP>:8082/static/<board>-release/RXX-XXXXX.X.X/autotest/packages', running_at_desk=True"
+
+"""
+
+from autotest_lib.client.common_lib import utils
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args, **args_dict)
+    # TODO(b//221263849): n2m is disabled till we have stable versions for
+    # guybrush and/or brya.
+    job.run_test("nbr_EndToEndTest", host=host, n2m=False, **args_dict)
+
+job.parallel_simple(run, machines)

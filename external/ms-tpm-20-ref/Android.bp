@@ -1,0 +1,131 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    default_applicable_licenses: ["external_ms-tpm-20-ref_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_ms-tpm-20-ref_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-MIT",
+        "legacy_by_exception_only", // by exception only
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "ms-tpm-20-ref-defaults",
+    local_include_dirs: [
+        "TPMCmd/Platform/include",
+        "TPMCmd/Platform/include/prototypes",
+        "TPMCmd/Simulator/include",
+        "TPMCmd/Simulator/include/prototypes",
+        "TPMCmd/tpm/include",
+        "TPMCmd/tpm/include/Ossl",
+        "TPMCmd/tpm/include/prototypes",
+    ],
+    device_supported: false,
+    host_supported: true,
+    shared_libs: [
+        "libcrypto",
+    ],
+    cflags: [
+        "-DMAX_SYM_DATA=256",
+        "-DDEBUG=YES",
+        "-DUSE_DEBUG_RNG=NO",
+        "-DALG_CAMELLIA=ALG_NO",
+        "-Wno-logical-op-parentheses",
+        "-Wno-empty-body",
+        "-Wno-missing-field-initializers",
+        "-Wno-unused-parameter",
+        "-Wno-typedef-redefinition",
+    ],
+    target: {
+        darwin: {
+            enabled: true,
+        },
+    },
+}
+
+cc_library_static {
+    name: "ms-tpm-20-ref-lib",
+    srcs: [
+        "TPMCmd/Platform/src/*.c",
+        "TPMCmd/Simulator/src/TPMCmdp.c",
+        "TPMCmd/Simulator/src/TcpServer.c",
+        "TPMCmd/tpm/src/command/**/*.c",
+        "TPMCmd/tpm/src/crypt/*.c",
+        "TPMCmd/tpm/src/crypt/ossl/*.c",
+        "TPMCmd/tpm/src/events/*.c",
+        "TPMCmd/tpm/src/main/*.c",
+        "TPMCmd/tpm/src/subsystem/*.c",
+        "TPMCmd/tpm/src/support/*.c",
+        "TPMCmd/tpm/src/X509/*.c",
+    ],
+    export_include_dirs: [
+        "TPMCmd/Platform/include",
+        "TPMCmd/Platform/include/prototypes",
+        "TPMCmd/Simulator/include",
+        "TPMCmd/Simulator/include/prototypes",
+        "TPMCmd/tpm/include",
+        "TPMCmd/tpm/include/Ossl",
+        "TPMCmd/tpm/include/prototypes",
+    ],
+    target: {
+        windows: {
+            enabled: true,
+            cflags: [
+                "-Wno-unknown-pragmas",
+            ],
+            host_ldlibs: [
+                "-lws2_32",
+            ],
+        },
+    },
+    defaults: [ "ms-tpm-20-ref-defaults" ],
+}
+
+cc_binary_host {
+    name: "ms-tpm-20-ref",
+    srcs: [
+        "TPMCmd/Simulator/src/TPMCmds.c",
+    ],
+    static_libs: [
+        "ms-tpm-20-ref-lib",
+    ],
+    defaults: [ "ms-tpm-20-ref-defaults" ],
+}

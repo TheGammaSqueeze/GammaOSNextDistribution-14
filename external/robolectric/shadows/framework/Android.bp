@@ -1,0 +1,67 @@
+//#############################################
+// Compile Robolectric shadows framework
+//#############################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_robolectric_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+java_library_host {
+    name: "Robolectric_shadows_framework_upstream",
+    srcs: [
+        "src/main/java/**/*.java",
+        "src/main/java/**/*.kt",
+    ],
+    java_resource_dirs: ["src/main/resources"],
+    javacflags: [
+        "-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric",
+        "-Aorg.robolectric.annotation.processing.sdkCheckMode=ERROR",
+        // Uncomment the below to debug annotation processors not firing.
+        //"-verbose",
+        //"-XprintRounds",
+        //"-XprintProcessorInfo",
+        //"-Xlint",
+        //"-J-verbose",
+    ],
+    libs: [
+        "Robolectric_annotations_upstream",
+        "Robolectric_nativeruntime_upstream",
+        "Robolectric_resources_upstream",
+        "Robolectric_pluginapi_upstream",
+        "Robolectric_sandbox_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_shadows_versioning_upstream",
+        "Robolectric_utils_upstream",
+        "Robolectric_utils_reflector_upstream",
+        "auto_value_annotations",
+        "jsr305",
+        "icu4j",
+
+        "robolectric-accessibility-test-framework-2.1",
+        "robolectric-javax.annotation-api-1.2",
+        "robolectric-sqlite4java-0.282",
+        "asm-commons-9.2",
+        "guava",
+        "asm-tree-9.2",
+        "asm-9.2",
+        //standard tools
+        "error_prone_annotations",
+        // aar files that make up android and jetpack
+        "robolectric-host-android_all",
+        "robolectric-host-androidx-test-core_upstream",
+        //"robolectric-host-androidx-test-ext-junit_upstream",
+        "robolectric-host-androidx-test-monitor_upstream",
+        //"robolectric-host-androidx-test-runner_upstream",
+    ],
+    plugins: [
+        "auto_value_plugin_1.9",
+        "auto_value_builder_plugin_1.9",
+        "Robolectric_processor_upstream",
+    ],
+
+}

@@ -1,0 +1,55 @@
+# Use `copybara copy.bara.sky` to update sources from upstream.
+core.workflow(
+    name = "default",
+    origin = git.origin(
+        url = "https://github.com/llvm/llvm-project.git",
+        ref = "main",
+    ),
+    origin_files = glob(
+        [
+            "libc/**",
+            "libc/LICENSE.TXT",
+        ],
+        # Exclude copying these files from upstream. Keep sorted.
+        exclude = [
+            "**/*.h.def",
+            "**/*.inc",
+            "**/*.md",
+            "**/*.txt",
+            "**/.clang-tidy",
+            "**/CMakeLists.txt",
+            "**/README.txt",
+            "libc/.gitignore",
+            "libc/AOR_v20.02/**",
+            "libc/benchmarks/**",
+            "libc/cmake/**",
+            "libc/config/**",
+            "libc/docs/**",
+            "libc/examples/**",
+            "libc/fuzzing/**",
+            "libc/spec/**",
+            "libc/startup/**",
+            "libc/utils/**",
+        ],
+    ),
+    destination = git.gerrit_destination(
+        url = "https://android.googlesource.com/platform/external/llvm-libc",
+        fetch = "main",
+    ),
+    destination_files = glob(
+        [
+            "**.cpp",
+            "**.h",
+            "LICENSE",
+        ],
+    ),
+    authoring = authoring.pass_thru(
+        "LLVM libc <llvm-libc@google.com>"
+    ),
+    transformations = [
+          core.move("libc/LICENSE.TXT", "LICENSE"),
+          core.move("libc/include", "include"),
+          core.move("libc/src", "src"),
+          core.move("libc/test", "test"),
+    ],
+)

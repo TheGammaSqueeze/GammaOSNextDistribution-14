@@ -1,0 +1,19 @@
+name: "vhost"
+description: "a pure rust library for vdpa, vhost and vhost-user"
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/vhost"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/vhost/vhost-0.8.1.crate"
+  }
+  version: "0.8.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 9
+    day: 6
+  }
+}

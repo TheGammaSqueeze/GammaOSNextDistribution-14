@@ -1,0 +1,22 @@
+{
+  "run_cargo": false,
+  "variants": [
+    {},
+    {
+      "features": [
+        "alloc"
+      ],
+      "module_name_overrides": {
+        "libhex": "libhex_nostd"
+      },
+      "package": {
+        "hex": {
+          "alloc": true,
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

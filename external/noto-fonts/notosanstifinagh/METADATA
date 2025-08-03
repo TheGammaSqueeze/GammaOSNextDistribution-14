@@ -1,0 +1,13 @@
+name: "notosanstifinagh"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Tifinagh is an unmodulated (“sans serif”) design fortexts in the African Tifinagh script. It has 164 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanstifinagh"
+  }
+  version: "2.002"
+  license_type: NOTICE
+  last_upgrade_date { year: 2020 month: 2 day: 10 }
+}

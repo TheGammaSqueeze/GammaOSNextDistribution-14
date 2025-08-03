@@ -1,0 +1,4 @@
+function symbol changed from 'int a()' {c} to 'int b()' {c}
+  binding changed from weak to global
+
+exit code 4

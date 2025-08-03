@@ -1,0 +1,69 @@
+syntax = "proto2";
+
+package com.google.common.truth.extensions.proto;
+
+import "google/protobuf/any.proto";
+
+option java_package = "com.google.common.truth.extensions.proto";
+option java_multiple_files = true;
+
+// For brevity: o_ means 'optional', r_ means 'repeated'
+
+// This file must be kept in sync with test_message3.proto for tests to work.
+// Field names and field numbers should all match. Features supported in one
+// syntax but not the other are commented out in the other file.
+
+message TestMessage2 {
+  enum TestEnum2 {
+    DEFAULT = 0;
+    ONE = 1;
+    TWO = 2;
+  }
+
+  optional int32 o_int = 1;
+  repeated string r_string = 2;
+  optional int64 o_long_defaults_to_42 = 3 [default = 42];
+  optional TestEnum2 o_enum = 4;
+  optional float o_float = 5;
+  optional float o_float2 = 6;
+  optional double o_double = 7;
+  optional double o_double2 = 8;
+  optional float o_float_defaults_to_42 = 9 [default = 42.0];
+  optional double o_double_defaults_to_42 = 10 [default = 42.0];
+
+  optional RequiredStringMessage2 o_required_string_message = 11;
+  repeated RequiredStringMessage2 r_required_string_message = 12;
+  optional TestMessage2 o_test_message = 13;
+  repeated TestMessage2 r_test_message = 14;
+  optional SubTestMessage2 o_sub_test_message = 15;
+  repeated SubTestMessage2 r_sub_test_message = 16;
+  map<string, TestMessage2> test_message_map = 17;
+  optional .google.protobuf.Any o_any_message = 18;
+  repeated .google.protobuf.Any r_any_message = 19;
+
+  oneof oneof_field {
+    TestMessage2 oneof_message1 = 20;
+    TestMessage2 oneof_message2 = 21;
+  }
+}
+
+message RequiredStringMessage2 {
+  required string required_string = 1;
+}
+
+message SubTestMessage2 {
+  optional int32 o_int = 1;
+  repeated string r_string = 2;
+  optional float o_float = 3;
+  optional double o_double = 4;
+
+  optional TestMessage2 o_test_message = 5;
+  optional SubSubTestMessage2 o_sub_sub_test_message = 6;
+}
+
+message SubSubTestMessage2 {
+  optional int32 o_int = 1;
+  repeated string r_string = 2;
+  optional float o_float = 3;
+  optional double o_double = 4;
+}

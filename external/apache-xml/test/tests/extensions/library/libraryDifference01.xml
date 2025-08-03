@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+  <list name="abc">
+    <item>a</item>
+    <item>b</item>
+    <item>c</item>
+  </list>
+  <list name="abc2">
+    <item>a</item>
+    <item>b</item>
+    <item>c</item>
+  </list>
+  <list name="aaa">
+    <item>a</item>
+    <item>a</item>
+    <item>a</item>
+  </list>
+  <list name="xyz">
+    <item>x</item>
+    <item>y</item>
+    <item>z</item>
+  </list>
+  <list name="aab">
+    <item>a</item>
+    <item>a</item>
+    <item>b</item>
+  </list>
+</doc>

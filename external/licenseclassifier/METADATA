@@ -1,0 +1,19 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update licenseclassifier
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "licenseclassifier"
+description: "The license classifier is a library and set of tools that can analyze text to determine what type of license it contains."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/licenseclassifier.git"
+  }
+  version: "v2.0.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 3
+    day: 2
+  }
+}

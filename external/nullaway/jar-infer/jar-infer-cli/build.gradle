@@ -1,0 +1,141 @@
+plugins {
+    id "java-library"
+    id "com.vanniktech.maven.publish"
+    id "com.github.johnrengelman.shadow"
+}
+
+// JarInfer requires JDK 11+, due to its dependence on WALA
+tasks.withType(JavaCompile) {
+    java.sourceCompatibility = JavaVersion.VERSION_11
+    java.targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation deps.build.commonscli
+    implementation deps.build.guava
+    implementation project(":jar-infer:jar-infer-lib")
+
+    testImplementation deps.test.junit4
+    testImplementation(deps.build.errorProneTestHelpers) {
+        exclude group: "junit", module: "junit"
+    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'com.uber.nullaway.jarinfer.JarInfer')
+    }
+    // add this classifier so that the output file for the jar task differs from
+    // the output file for the shadowJar task (otherwise they overwrite each other's
+    // outputs, forcing the tasks to always re-run)
+    archiveClassifier = "nonshadow"
+}
+
+shadowJar {
+    mergeServiceFiles()
+    configurations = [
+        project.configurations.runtimeClasspath
+    ]
+    archiveClassifier = ""
+}
+shadowJar.dependsOn jar
+assemble.dependsOn shadowJar
+
+
+// We disable the default maven publications to make sure only
+// our custom shadow publication is used. Since we use the empty
+// classifier for our fat jar, it would otherwise clash with the
+// default maven publication (Also, this seems to be the only way
+// to get a pom.xml with no dependencies for our fat jar, as using
+// a classifier would result on both fat and thin jar sharing the
+// same pom.xml. Instead, we skip publishing the thin jar
+// altogether)
+tasks.withType(PublishToMavenRepository) {
+    onlyIf {
+        publication == publishing.publications.shadow
+    }
+}
+tasks.withType(PublishToMavenLocal) {
+    onlyIf {
+        publication == publishing.publications.shadow
+    }
+}
+
+publishing {
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+            // Since we are skipping the default maven publication, we append the `:sources` and
+            // `:javadoc` artifacts here. They are also required for Maven Central validation.
+            afterEvaluate {
+                artifact project.sourcesJar
+                artifact project.javadocJar
+            }
+            // The shadow publication does not auto-configure the pom.xml file for us, so we need to
+            // set it up manually. We use the opportunity to change the name and description from
+            // the generic NullAway values to ones specific for the JarInfer tool.
+            pom {
+                name = 'JarInfer'
+                description = 'A JVM bytecode null auto-annotation tool for use with NullAway'
+                url = project.property('POM_URL')
+                licenses {
+                    license {
+                        name = project.property('POM_LICENCE_NAME')
+                        url = project.property('POM_LICENCE_URL')
+                        distribution = project.property('POM_LICENCE_DIST')
+                    }
+                }
+                developers {
+                    developer {
+                        id = project.property('POM_DEVELOPER_ID')
+                        name = project.property('POM_DEVELOPER_NAME')
+                        url = project.property('POM_DEVELOPER_URL')
+                    }
+                }
+                scm {
+                    connection = project.property('POM_SCM_CONNECTION')
+                    developerConnection = project.property('POM_SCM_DEV_CONNECTION')
+                    url = project.property('POM_SCM_URL')
+                }
+            }
+        }
+    }
+
+    afterEvaluate {
+        // Below is a series of hacks needed to get publication to work with
+        // gradle-maven-publish-plugin >= 0.15.0 (itself needed after the upgrade to Gradle 8.0.2).
+        // Not sure why e.g. publishShadowPublicationToMavenCentralRepository must depend on signMavenPublication
+        // (rather than just signShadowPublication)
+        project.tasks.named('generateMetadataFileForMavenPublication').configure {
+            dependsOn 'sourcesJar'
+            dependsOn 'simpleJavadocJar'
+        }
+        if (project.tasks.findByName('signShadowPublication')) {
+            project.tasks.named('signShadowPublication').configure {
+                dependsOn 'sourcesJar'
+                dependsOn 'simpleJavadocJar'
+            }
+        }
+        project.tasks.named('publishShadowPublicationToMavenCentralRepository').configure {
+            if (project.tasks.findByName('signMavenPublication')) {
+                dependsOn 'signMavenPublication'
+            }
+        }
+        project.tasks.named('publishShadowPublicationToMavenLocal').configure {
+            dependsOn 'sourcesJar'
+            dependsOn 'simpleJavadocJar'
+            if (project.tasks.findByName('signMavenPublication')) {
+                dependsOn 'signMavenPublication'
+            }
+        }
+    }
+}

@@ -1,0 +1,13 @@
+name: "laboratory50"
+description:
+    "Russian hyphenation patterns"
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/laboratory50/russian-spellpack"
+  }
+  version: "7ff7934531a0711b5c86802ab635fdbdc974c1cc"
+  last_upgrade_date { year: 2023 month: 5 day: 10 }
+  license_type: RESTRICTED
+}

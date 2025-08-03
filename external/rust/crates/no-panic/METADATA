@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/no-panic
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "no-panic"
+description: "Attribute macro to require that the compiler prove a function can\'t ever panic."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/no-panic"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/no-panic/no-panic-0.1.26.crate"
+  }
+  version: "0.1.26"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 14
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "image": "gcr.io/crosvm-infra/crosvm_dev:latest",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "esbenp.prettier-vscode",
+        "ms-python.vscode-pylance",
+        "foxundermoon.shell-format",
+        "timonwong.shellcheck"
+      ]
+    }
+  },
+  "runArgs": [
+    // Allow access to the kvm device so we can run VMs for testing
+    "--device=/dev/kvm",
+    "--group-add=kvm",
+    // Allow a higher PID limit since we launch a lot of test processes.
+    "--pids-limit=4096"
+  ],
+  "updateContentCommand": "git config --global --add safe.directory '*' && git submodule update --init"
+}

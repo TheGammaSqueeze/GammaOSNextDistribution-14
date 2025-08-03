@@ -1,0 +1,11 @@
+{
+  "features": [
+    "serde"
+  ],
+  "package": {
+    "serde_spanned": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

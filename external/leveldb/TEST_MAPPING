@@ -1,0 +1,12 @@
+{
+   "mainline-presubmit": [
+        {
+            "name": "leveldb_test[com.google.android.mediaprovider.apex]"
+        }
+    ],
+   "presubmit": [
+      {
+         "name":"leveldb_test"
+      }
+   ]
+}

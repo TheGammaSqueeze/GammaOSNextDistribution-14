@@ -1,0 +1,17 @@
+{
+  "presubmit": [
+    {
+      "name": "IcingSearchEngineTest"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "IcingSearchEngineTest"
+    }
+  ],
+  "imports": [
+    {
+      "path": "packages/modules/AppSearch"
+    }
+  ]
+}

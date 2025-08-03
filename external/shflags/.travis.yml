@@ -1,0 +1,37 @@
+language: bash
+
+env:
+  - SHUNIT_COLOR='always'
+
+script:
+  # Execute the unit tests.
+  - ./test_runner
+
+addons:
+  apt:
+    packages:
+      - ksh
+      - mksh
+      - zsh
+
+matrix:
+  include:
+    - os: linux
+      dist: bionic  # Ubuntu Bionic 18.04 (EoL Apr 2028).
+    - os: linux
+      dist: xenial  # Ubuntu Xenial 16.04 (EoL Apr 2024).
+    - os: linux
+      dist: trusty  # Ubuntu Trusty 14.04 (EoL Apr 2022).
+    - os: osx
+    - os: linux
+      script:
+        # Run the source through ShellCheck (http://www.shellcheck.net).
+        - shellcheck *_test.sh
+        - shellcheck -s sh shflags shflags_test_helpers
+
+branches:
+  only:
+  - master
+  - 1.0.x
+  # Tags, e.g. v.1.2.3.
+  - /^v\d+\.\d+(\.\d+)?(-\S*)?$/

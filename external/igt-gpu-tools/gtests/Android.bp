@@ -1,0 +1,285 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_igt-gpu-tools_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-MIT
+    default_applicable_licenses: ["external_igt-gpu-tools_license"],
+}
+
+cc_defaults {
+    name: "gtest_igt_gpu_tools_default",
+    cppflags: [
+        "-DFLAG_GTEST_ENABLED",
+    ],
+    compile_multilib: "64",
+    multilib: {
+        lib64: {
+            suffix: "64"
+        },
+    },
+    local_include_dirs: ["include"],
+    require_root: true,
+    test_suites: ["device-tests"],
+}
+
+cc_test {
+    name: "gtest_kms_atomic",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_atomic.cpp",
+        "src/gtest_helper.cpp"
+    ],
+}
+
+cc_test {
+    name: "gtest_kms_flip",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_flip.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_kms_vblank",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_vblank.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_ion_fb",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_ion_fb.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_kms_throughput",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_throughput.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_gem_blt",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_gem_blt.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_core_auth",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_core_auth.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_kms_properties",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_properties.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_core_getclient",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_core_getclient.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+// cc_test {
+//     name: "gtest_drm_read",
+//     defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_drm_read.cpp",
+//        "src/gtest_helper.cpp",
+//     ]
+// }
+
+
+cc_test {
+    name: "gtest_kms_addfb_basic",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_addfb_basic.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_kms_getfb",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_getfb.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_kms_atomic_interruptible",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_atomic_interruptible.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_kms_atomic_transition",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_atomic_transition.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+// cc_test {
+//     name: "gtest_kms_color",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_color.c",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+// cc_test {
+//     name: "gtest_kms_concurrent",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_concurrent.c",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+// cc_test {
+//     name: "gtest_kms_crtc_background_color",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_crtc_background_color.c",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+cc_test {
+    name: "gtest_kms_flip_tiling",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_flip_tiling.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+// cc_test {
+//     name: "gtest_kms_frontbuffer_tracking",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_frontbuffer_tracking.cpp",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+// cc_test {
+//     name: "gtest_kms_plane_alpha_blend",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_plane_alpha_blend.cpp",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+// cc_test {
+//     name: "gtest_kms_plane",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_plane.c",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+cc_test {
+    name: "gtest_kms_plane_lowres",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_plane_lowres.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+// cc_test {
+//     name: "gtest_kms_plane_multiple",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_plane_multiple.cpp",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+cc_test {
+    name: "gtest_kms_plane_scaling",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_plane_scaling.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_kms_prop_blob",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_kms_prop_blob.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+// cc_test {
+//     name: "gtest_kms_setmode",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_setmode.cpp",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+// cc_test {
+//     name: "gtest_kms_vrr",
+//    defaults: ["gtest_igt_gpu_tools_default"],
+//     srcs: [
+//        "src/gtest_kms_vrr.cpp",
+//        "src/gtest_helper.cpp",
+//    ],
+// }
+
+cc_test {
+    name: "gtest_syncobj_basic",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: [
+        "src/gtest_syncobj_basic.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}
+
+cc_test {
+    name: "gtest_syncobj_wait",
+    defaults: ["gtest_igt_gpu_tools_default"],
+    srcs: ["src/gtest_syncobj_wait.cpp",
+        "src/gtest_helper.cpp",
+    ],
+}

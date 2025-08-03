@@ -1,0 +1,531 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_hist_alloc, tracefs_hist_alloc_2d, tracefs_hist_alloc_nd, tracefs_hist_alloc_nd_cnt, tracefs_hist_free,
+tracefs_hist_add_key, tracefs_hist_add_key_cnt, tracefs_hist_add_value - Create and destroy event histograms
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+enum *tracefs_hist_key_type* {
+	*TRACEFS_HIST_KEY_NORMAL* = 0,
+	*TRACEFS_HIST_KEY_HEX*,
+	*TRACEFS_HIST_KEY_SYM*,
+	*TRACEFS_HIST_KEY_SYM_OFFSET*,
+	*TRACEFS_HIST_KEY_SYSCALL*,
+	*TRACEFS_HIST_KEY_EXECNAME*,
+	*TRACEFS_HIST_KEY_LOG*,
+	*TRACEFS_HIST_KEY_USECS*,
+	*TRACEFS_HIST_KEY_MAX*
+};
+
+struct *tracefs_hist_axis* {
+	const char pass:[*]_key_;
+	enum tracefs_hist_key_type _type_;
+};
+
+struct tracefs_hist pass:[*]*tracefs_hist_alloc*(struct tracefs_tep pass:[*] _tep_,
+			const char pass:[*]_system_, const char pass:[*]_event_,
+			const char pass:[*]_key_, enum tracefs_hist_key_type _type_);
+struct tracefs_hist pass:[*]*tracefs_hist_alloc_2d*(struct tracefs_tep pass:[*] _tep_,
+			const char pass:[*]_system_, const char pass:[*]_event_,
+			const char pass:[*]_key1_, enum tracefs_hist_key_type _type1_,
+			const char pass:[*]_key2_, enum tracefs_hist_key_type _type2_));
+struct tracefs_hist pass:[*]*tracefs_hist_alloc_nd*(struct tracefs_tep pass:[*] _tep_,
+			const char pass:[*]_system_, const char pass:[*]_event_,
+			struct tracefs_hist_axis pass:[*]_axes_);
+struct tracefs_hist pass:[*]*tracefs_hist_alloc_nd_cnt*(struct tep_handle pass:[*]_tep_,
+			  const char pass:[*]_system_, const char pass:[*]_event_name_,
+			  struct tracefs_hist_axis_cnt pass:[*]_axes_);
+void *tracefs_hist_free*(struct tracefs_hist pass:[*]_hist_);
+
+int *tracefs_hist_add_key*(struct tracefs_hist pass:[*]_hist_, const char pass:[*]_key_,
+			 enum tracefs_hist_key_type _type_);
+int *tracefs_hist_add_key_cnt*(struct tracefs_hist pass:[*]_hist_, const char pass:[*]_key_,
+			 enum tracefs_hist_key_type _type_, int _cnt_);
+int *tracefs_hist_add_value*(struct tracefs_hist pass:[*]_hist_, const char pass:[*]_value_);
+--
+
+DESCRIPTION
+-----------
+Event histograms are created by the trigger file in the event directory.
+The syntax can be complex and difficult to get correct. This API handles the
+syntax, and facilitates the creation and interaction with the event histograms.
+See https://www.kernel.org/doc/html/latest/trace/histogram.html for more information.
+
+*tracefs_hist_alloc*() allocates a "struct tracefs_hist" descriptor of a one-dimensional
+histogram and returns the address of it. This descriptor must be freed by *tracefs_hist_free*().
+The _tep_ is a trace event handle (see *tracefs_local_events*(3)), that holds the
+_system_ and _event_ that the histogram will be attached to. The _system_ is the
+system or group of the event. The _event_ is the event to attach the histogram to.
+The _key_ is a field of the event that will be used as the key(dimension) of the histogram.
+The _type_ is the type of the _key_. See KEY TYPES below.
+
+*tracefs_hist_alloc_2d*() allocates a "struct tracefs_hist" descriptor of a two-dimensional
+histogram and returns the address of it. This descriptor must be freed by *tracefs_hist_free*().
+The _tep_ is a trace event handle (see *tracefs_local_events*(3)), that holds the
+_system_ and _event_ that the histogram will be attached to. The _system_ is the
+system or group of the event. The _event_ is the event to attach the histogram to.
+The _key1_ is the first field of the event that will be used as the key(dimension)
+of the histogram. The _type1_ is the type of the _key1_. See KEY TYPES below.
+The _key2_ is the second field of the event that will be used as the key(dimension)
+of the histogram. The _type2_ is the type of the _key2_. See KEY TYPES below.
+
+*tracefs_hist_alloc_nd*() allocates a "struct tracefs_hist" descriptor of an N-dimensional
+histogram and returns the address of it. This descriptor must be freed by *tracefs_hist_free*().
+The _tep_ is a trace event handle (see *tracefs_local_events*(3)), that holds the
+_system_ and _event_ that the histogram will be attached to. The _system_ is the
+system or group of the event. The _event_ is the event to attach the histogram to.
+The _axes_ is an array of _key_ / _type_ pairs, defining the dimensions of the histogram.
+
+*tracefs_hist_alloc_nd_cnt*() will initialize a histogram descriptor that will be attached to
+the _system_/_event_. This only initializes the descriptor with the given _axes_ keys as primaries.
+This only initializes the descriptor, it does not start the histogram in the kernel.
+The difference between this and *tracefs_hist_alloc_nd()* is that the _axes_ parameter
+is of type *struct tracefs_hist_axis_cnt* and not *struct tracefs_hist_axis*.
+
+*tracefs_hist_free*() frees the _tracefs_hist_ descriptor. Note, it does not stop
+or disable the running histogram if it was started. *tracefs_hist_destroy*() needs
+to be called to do so.
+
+*tracefs_hist_add_key*() Adds a secondary or tertiary key to the histogram.
+The key passed to *tracefs_hist_alloc_nd*() is the primary key of the histogram.
+The first time this function is called, it will add a secondary key (or two dimensional
+histogram). If this function is called again on the same histogram, it will add
+a _tertiary_ key (or three dimensional histogram). The _hist_ parameter is the
+histogram descriptor to add the _key_ to. The _type_ is the type of key to add
+(See KEY TYPES below).
+
+The *tracefs_hist_add_key_cnt*() is the same as *tracefs_hist_add_key*() except
+that it allows to add a counter for the given type. Currently, there's only
+the *buckets* type that requires a counter. When adding a key with the buckets
+type, *tracefs_hist_add_key*() is not sufficient, as the *buckets* type requires
+a counter or bucket size. Use *tracefs_hist_add_key_cnt*() when specifing
+a key that is broken up into  buckets, and pass in the size of those buckets
+into _cnt_.
+
+*tracefs_hist_add_value*() will add a value to record. By default, the value is
+simply the "hitcount" of the number of times a instance of the histogram's
+key was hit. The _hist_ is the histogram descriptor to add the value to.
+The _value_ is a field in the histogram to add to when an instance of the
+key is hit.
+
+KEY TYPES
+---------
+
+*tracefs_hist_alloc_nd*() and *tracefs_hist_add_key*() both add a key and requires
+that key to have a type. The types may be:
+
+*TRACEFS_HIST_KEY_NORMAL* or zero (0) which is to not modify the type.
+
+*TRACEFS_HIST_KEY_HEX* to display the key in hex.
+
+*TRACEFS_HIST_KEY_SYM* to display the key as a kernel symbol (if found). If
+the key is an address, this is useful as it will display the function names instead
+of just a number.
+
+*TRACEFS_HIST_KEY_SYM_OFFSET* similar to *TRACEFS_HIST_KEY_SYM* but will also include
+the offset of the function to match the exact address.
+
+*TRACEFS_HIST_KEY_SYSCALL* If the key is a system call "id" (the number passed from user
+space to the kernel to tell it what system call it is calling), then the name of
+the system call is displayed.
+
+*TRACEFS_HIST_KEY_EXECNAME* If "common_pid" is the key (the pid of the executing task),
+instead of showing the number, show the name of the running task.
+
+*TRACEFS_HIST_KEY_LOG* will display the key in a binary logarithmic scale.
+
+*TRACEFS_HIST_KEY_USECS* for use with "common_timestamp" or TRACEFS_HIST_TIMESTAMP,
+in which case it will show the timestamp in microseconds instead of nanoseconds.
+
+RETURN VALUE
+------------
+*tracefs_hist_alloc_nd*() returns an allocated histogram descriptor which must
+be freed by *tracefs_hist_free*() or NULL on error.
+
+All the other functions return zero on success or -1 on error.
+
+If *tracefs_hist_start*() returns an error, a message may be displayed
+in the kernel that can be retrieved by *tracefs_error_last()*.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <stdlib.h>
+#include <ctype.h>
+#include <unistd.h>
+#include <tracefs.h>
+
+enum commands {
+	START,
+	PAUSE,
+	CONT,
+	RESET,
+	DELETE,
+	SHOW,
+};
+
+static void parse_system_event(char *group, char **system, char **event)
+{
+	*system = strtok(group, "/");
+	*event = strtok(NULL, "/");
+	if (!*event) {
+		*event = *system;
+		*system = NULL;
+	}
+}
+
+static int parse_keys(char *keys, struct tracefs_hist_axis_cnt **axes)
+{
+	char *sav = NULL;
+	char *key;
+	int cnt = 0;
+
+	for (key = strtok_r(keys, ",", &sav); key; key = strtok_r(NULL, ",", &sav)) {
+		struct tracefs_hist_axis_cnt *ax;
+		char *att;
+
+		ax = realloc(*axes, sizeof(*ax) * (cnt + 2));
+		if (!ax) {
+			perror("Failed to allocate axes");
+			exit(-1);
+		}
+		ax[cnt].key = key;
+		ax[cnt].type = 0;
+		ax[cnt + 1].key = NULL;
+		ax[cnt + 1].type = 0;
+
+		*axes = ax;
+
+		att = strchr(key, '.');
+		if (att) {
+			*att++ = '\0';
+			if (strcmp(att, "hex") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_HEX;
+			else if (strcmp(att, "sym") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_SYM;
+			else if (strcmp(att, "sym_offset") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_SYM_OFFSET;
+			else if (strcmp(att, "syscall") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_SYSCALL;
+			else if (strcmp(att, "exec") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_EXECNAME;
+			else if (strcmp(att, "log") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_LOG;
+			else if (strcmp(att, "usecs") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_USECS;
+			else if (strncmp(att, "buckets", 7) == 0) {
+				if (att[7] != '=' && !isdigit(att[8])) {
+					fprintf(stderr, "'buckets' key type requires '=<size>'\n");
+					exit(-1);
+				}
+				ax[cnt].type = TRACEFS_HIST_KEY_BUCKETS;
+				ax[cnt].cnt = atoi(&att[8]);
+			} else {
+				fprintf(stderr, "Undefined attribute '%s'\n", att);
+				fprintf(stderr,"  Acceptable attributes:\n");
+				fprintf(stderr,"    hex, sym, sym_offset, syscall, exe, log, usecs\n");
+				exit(-1);
+			}
+		}
+		cnt++;
+	}
+	return cnt;
+}
+
+static void process_hist(enum commands cmd, const char *instance_name,
+			 char *group, char *keys, char *vals, char *sort,
+			 char *ascend, char *desc)
+{
+	struct tracefs_instance *instance = NULL;
+	struct tracefs_hist *hist;
+	struct tep_handle *tep;
+	struct tracefs_hist_axis_cnt *axes = NULL;
+	char *system;
+	char *event;
+	char *sav;
+	char *val;
+	int ret;
+	int cnt;
+
+	if (instance_name) {
+		instance = tracefs_instance_create(instance_name);
+		if (!instance) {
+			fprintf(stderr, "Failed instance create\n");
+			exit(-1);
+		}
+	}
+
+	tep = tracefs_local_events(NULL);
+	if (!tep) {
+		perror("Could not read events");
+		exit(-1);
+	}
+
+	parse_system_event(group, &system, &event);
+
+	if (cmd == SHOW) {
+		char *content;
+		content = tracefs_event_file_read(instance, system, event,
+						  "hist", NULL);
+		if (!content) {
+			perror("Reading hist file");
+			exit(-1);
+		}
+		printf("%s\n", content);
+		free(content);
+		return;
+	}
+
+	if (!keys) {
+		fprintf(stderr, "Command needs -k option\n");
+		exit(-1);
+	}
+
+	cnt = parse_keys(keys, &axes);
+	if (!cnt) {
+		fprintf(stderr, "No keys??\n");
+		exit(-1);
+	}
+
+	/* buckets require the nd_cnt function */
+	switch (cnt) {
+	case 2:
+		if (axes[1].type == TRACEFS_HIST_KEY_BUCKETS)
+			cnt = -1;
+		/* fall through */
+	case 1:
+		if (axes[0].type == TRACEFS_HIST_KEY_BUCKETS)
+			cnt = -1;
+	}
+
+	/* Show examples of hist1d and hist2d */
+	switch (cnt) {
+	case 1:
+		hist = tracefs_hist_alloc(tep, system, event,
+					  axes[0].key, axes[0].type);
+		break;
+	case 2:
+		hist = tracefs_hist_alloc_2d(tep, system, event,
+					     axes[0].key, axes[0].type,
+					     axes[1].key, axes[1].type);
+		break;
+	default:
+		/* Really, 1 and 2 could use this too */
+		hist = tracefs_hist_alloc_nd_cnt(tep, system, event, axes);
+	}
+	if (!hist) {
+		fprintf(stderr, "Failed hist create\n");
+		exit(-1);
+	}
+
+	if (vals) {
+		sav = NULL;
+		for (val = strtok_r(vals, ",", &sav); val; val = strtok_r(NULL, ",", &sav)) {
+			ret = tracefs_hist_add_value(hist, val);
+			if (ret) {
+				fprintf(stderr, "Failed to add value %s\n", val);
+				exit(-1);
+			}
+		}
+	}
+
+	if (sort) {
+		sav = NULL;
+		for (val = strtok_r(sort, ",", &sav); val; val = strtok_r(NULL, ",", &sav)) {
+			ret = tracefs_hist_add_sort_key(hist, val);
+			if (ret) {
+				fprintf(stderr, "Failed to add sort key/val %s\n", val);
+				exit(-1);
+			}
+		}
+	}
+
+	if (ascend) {
+		sav = NULL;
+		for (val = strtok_r(ascend, ",", &sav); val; val = strtok_r(NULL, ",", &sav)) {
+			ret = tracefs_hist_sort_key_direction(hist, val, TRACEFS_HIST_SORT_ASCENDING);
+			if (ret) {
+				fprintf(stderr, "Failed to add ascending key/val %s\n", val);
+				exit(-1);
+			}
+		}
+	}
+
+	if (desc) {
+		sav = NULL;
+		for (val = strtok_r(desc, ",", &sav); val; val = strtok_r(NULL, ",", &sav)) {
+			ret = tracefs_hist_sort_key_direction(hist, val, TRACEFS_HIST_SORT_DESCENDING);
+			if (ret) {
+				fprintf(stderr, "Failed to add descending key/val %s\n", val);
+				exit(-1);
+			}
+		}
+	}
+
+	tracefs_error_clear(instance);
+
+	switch (cmd) {
+	case START:
+		ret = tracefs_hist_start(instance, hist);
+		if (ret) {
+			char *err = tracefs_error_last(instance);
+			if (err)
+				fprintf(stderr, "\n%s\n", err);
+		}
+		break;
+	case PAUSE:
+		ret = tracefs_hist_pause(instance, hist);
+		break;
+	case CONT:
+		ret = tracefs_hist_continue(instance, hist);
+		break;
+	case RESET:
+		ret = tracefs_hist_reset(instance, hist);
+		break;
+	case DELETE:
+		ret = tracefs_hist_destroy(instance, hist);
+		break;
+	case SHOW:
+		/* Show was already done */
+		break;
+	}
+	if (ret)
+		fprintf(stderr, "Failed: command\n");
+	exit(ret);
+}
+
+int main (int argc, char **argv, char **env)
+{
+	enum commands cmd;
+	char *instance = NULL;
+	char *cmd_str;
+	char *event = NULL;
+	char *keys = NULL;
+	char *vals = NULL;
+	char *sort = NULL;
+	char *desc = NULL;
+	char *ascend = NULL;
+
+	if (argc < 2) {
+		fprintf(stderr, "usage: %s command [-B instance][-e [system/]event][-k keys][-v vals][-s sort]\n", argv[0]);
+		fprintf(stderr, "      [-a ascending][-d descending]\n");
+		exit(-1);
+	}
+
+	cmd_str = argv[1];
+
+	if (!strcmp(cmd_str, "start"))
+		cmd = START;
+	else if (!strcmp(cmd_str, "pause"))
+		cmd = PAUSE;
+	else if (!strcmp(cmd_str, "cont"))
+		cmd = CONT;
+	else if (!strcmp(cmd_str, "reset"))
+		cmd = RESET;
+	else if (!strcmp(cmd_str, "delete"))
+		cmd = DELETE;
+	else if (!strcmp(cmd_str, "show"))
+		cmd = SHOW;
+	else {
+		fprintf(stderr, "Unknown command %s\n", cmd_str);
+		exit(-1);
+	}
+
+	for (;;) {
+		int c;
+
+		c = getopt(argc - 1, argv + 1, "e:k:v:B:s:d:a:");
+		if (c == -1)
+			break;
+
+		switch (c) {
+		case 'e':
+			event = optarg;
+			break;
+		case 'k':
+			keys = optarg;
+			break;
+		case 'v':
+			vals = optarg;
+			break;
+		case 'B':
+			instance = optarg;
+			break;
+		case 's':
+			sort = optarg;
+			break;
+		case 'd':
+			desc = optarg;
+			break;
+		case 'a':
+			ascend = optarg;
+			break;
+		}
+	}
+	if (!event) {
+		event = "kmem/kmalloc";
+		if (!keys)
+			keys = "call_site.sym,bytes_req";
+		if (!vals)
+			vals = "bytes_alloc";
+		if (!sort)
+			sort = "bytes_req,bytes_alloc";
+		if (!desc)
+			desc = "bytes_alloc";
+	}
+	process_hist(cmd, instance, event, keys, vals, sort, ascend, desc);
+}
+
+--
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1),
+*tracefs_hist_pause*(3),
+*tracefs_hist_continue*(3),
+*tracefs_hist_reset*(3)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+*sameeruddin shaik* <sameeruddin.shaik8@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

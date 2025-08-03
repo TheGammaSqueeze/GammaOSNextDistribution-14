@@ -1,0 +1,31 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "bvt-tast-parallels-informational"
+PURPOSE = "Runs informational Parallels Tast tests."
+
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite is used to run all informational Parallels Tast integration tests
+on release (a.k.a. canary) builders.
+
+This suite should only be run against devices licensed for an appropriate
+version of Windows and Office. Contact parallels-cros@ for details about
+license specifics.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['max_runtime_mins'] = 60
+args_dict['timeout_mins'] = 1440
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

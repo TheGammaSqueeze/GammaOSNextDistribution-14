@@ -1,0 +1,755 @@
+load("@build_bazel_rules_android//android:rules.bzl", "android_library")
+
+licenses(["notice"])
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "hybrid_decrypt_config",
+    srcs = ["HybridDecryptConfig.java"],
+    deps = [
+        ":hybrid_config",
+        "//src/main/java/com/google/crypto/tink:config",
+    ],
+)
+
+java_library(
+    name = "hybrid_encrypt_wrapper",
+    srcs = ["HybridEncryptWrapper.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:hybrid_encrypt",
+        "//src/main/java/com/google/crypto/tink:primitive_set",
+        "//src/main/java/com/google/crypto/tink:primitive_wrapper",
+        "//src/main/java/com/google/crypto/tink:registry",
+        "//src/main/java/com/google/crypto/tink/internal:monitoring_util",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_monitoring_registry",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_client",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_keyset_info",
+        "//src/main/java/com/google/crypto/tink/subtle:bytes",
+    ],
+)
+
+java_library(
+    name = "hybrid_decrypt_wrapper",
+    srcs = ["HybridDecryptWrapper.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:crypto_format",
+        "//src/main/java/com/google/crypto/tink:hybrid_decrypt",
+        "//src/main/java/com/google/crypto/tink:primitive_set",
+        "//src/main/java/com/google/crypto/tink:primitive_wrapper",
+        "//src/main/java/com/google/crypto/tink:registry",
+        "//src/main/java/com/google/crypto/tink/internal:monitoring_util",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_monitoring_registry",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_client",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_keyset_info",
+    ],
+)
+
+java_library(
+    name = "ecies_aead_hkdf_public_key_manager",
+    srcs = ["EciesAeadHkdfPublicKeyManager.java"],
+    deps = [
+        ":hybrid_util",
+        ":registry_ecies_aead_hkdf_dem_helper",
+        "//proto:ecies_aead_hkdf_java_proto",
+        "//proto:tink_java_proto",
+        "//src/main/java/com/google/crypto/tink:hybrid_encrypt",
+        "//src/main/java/com/google/crypto/tink/internal:key_type_manager",
+        "//src/main/java/com/google/crypto/tink/internal:primitive_factory",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_dem_helper",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_hybrid_encrypt",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves",
+        "//src/main/java/com/google/crypto/tink/subtle:validators",
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
+)
+
+java_library(
+    name = "registry_ecies_aead_hkdf_dem_helper",
+    srcs = ["RegistryEciesAeadHkdfDemHelper.java"],
+    deps = [
+        "//proto:aes_ctr_hmac_aead_java_proto",
+        "//proto:aes_ctr_java_proto",
+        "//proto:aes_gcm_java_proto",
+        "//proto:aes_siv_java_proto",
+        "//proto:hmac_java_proto",
+        "//proto:tink_java_proto",
+        "//src/main/java/com/google/crypto/tink:aead",
+        "//src/main/java/com/google/crypto/tink:deterministic_aead",
+        "//src/main/java/com/google/crypto/tink:registry",
+        "//src/main/java/com/google/crypto/tink/aead:aead_config",
+        "//src/main/java/com/google/crypto/tink/daead:deterministic_aead_config",
+        "//src/main/java/com/google/crypto/tink/hybrid/subtle:aead_or_daead",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_dem_helper",
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
+)
+
+java_library(
+    name = "hybrid_config",
+    srcs = ["HybridConfig.java"],
+    deps = [
+        ":ecies_aead_hkdf_private_key_manager",
+        ":ecies_aead_hkdf_public_key_manager",
+        ":hybrid_decrypt_wrapper",
+        ":hybrid_encrypt_wrapper",
+        "//proto:config_java_proto",
+        "//src/main/java/com/google/crypto/tink/aead:aead_config",
+        "//src/main/java/com/google/crypto/tink/config:tink_fips",
+        "//src/main/java/com/google/crypto/tink/daead:deterministic_aead_config",
+        "//src/main/java/com/google/crypto/tink/hybrid/internal:hpke_private_key_manager",
+    ],
+)
+
+java_library(
+    name = "hybrid_key_templates",
+    srcs = ["HybridKeyTemplates.java"],
+    deps = [
+        ":ecies_aead_hkdf_private_key_manager",
+        "//proto:common_java_proto",
+        "//proto:ecies_aead_hkdf_java_proto",
+        "//proto:tink_java_proto",
+        "//src/main/java/com/google/crypto/tink/aead:aead_key_templates",
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
+)
+
+java_library(
+    name = "ecies_aead_hkdf_private_key_manager",
+    srcs = ["EciesAeadHkdfPrivateKeyManager.java"],
+    deps = [
+        ":ecies_aead_hkdf_public_key_manager",
+        ":hybrid_util",
+        ":registry_ecies_aead_hkdf_dem_helper",
+        "//proto:common_java_proto",
+        "//proto:ecies_aead_hkdf_java_proto",
+        "//proto:tink_java_proto",
+        "//src/main/java/com/google/crypto/tink:hybrid_decrypt",
+        "//src/main/java/com/google/crypto/tink:key_template",
+        "//src/main/java/com/google/crypto/tink:key_templates",
+        "//src/main/java/com/google/crypto/tink:registry",
+        "//src/main/java/com/google/crypto/tink/aead:aes_ctr_hmac_aead_key_manager",
+        "//src/main/java/com/google/crypto/tink/aead:aes_gcm_key_manager",
+        "//src/main/java/com/google/crypto/tink/internal:key_template_proto_converter",
+        "//src/main/java/com/google/crypto/tink/internal:key_type_manager",
+        "//src/main/java/com/google/crypto/tink/internal:primitive_factory",
+        "//src/main/java/com/google/crypto/tink/internal:private_key_type_manager",
+        "//src/main/java/com/google/crypto/tink/internal:tink_bug_exception",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_dem_helper",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_hybrid_decrypt",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves",
+        "//src/main/java/com/google/crypto/tink/subtle:validators",
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
+)
+
+java_library(
+    name = "hybrid_util",
+    srcs = ["HybridUtil.java"],
+    deps = [
+        "//proto:common_java_proto",
+        "//proto:ecies_aead_hkdf_java_proto",
+        "//src/main/java/com/google/crypto/tink:registry",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves",
+    ],
+)
+
+java_library(
+    name = "hybrid_decrypt_factory",
+    srcs = ["HybridDecryptFactory.java"],
+    deps = [
+        ":hybrid_decrypt_wrapper",
+        "//src/main/java/com/google/crypto/tink:hybrid_decrypt",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+    ],
+)
+
+java_library(
+    name = "hybrid_encrypt_factory",
+    srcs = ["HybridEncryptFactory.java"],
+    deps = [
+        ":hybrid_encrypt_wrapper",
+        "//src/main/java/com/google/crypto/tink:hybrid_encrypt",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+    ],
+)
+
+java_library(
+    name = "hybrid_encrypt_config",
+    srcs = ["HybridEncryptConfig.java"],
+    deps = [
+        ":hybrid_config",
+        "//src/main/java/com/google/crypto/tink:config",
+    ],
+)
+
+java_library(
+    name = "hybrid_parameters",
+    srcs = ["HybridParameters.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:parameters",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+java_library(
+    name = "hybrid_private_key",
+    srcs = ["HybridPrivateKey.java"],
+    deps = [
+        ":hybrid_parameters",
+        ":hybrid_public_key",
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink:private_key",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+java_library(
+    name = "hybrid_public_key",
+    srcs = ["HybridPublicKey.java"],
+    deps = [
+        ":hybrid_parameters",
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+java_library(
+    name = "hpke_parameters",
+    srcs = ["HpkeParameters.java"],
+    deps = [
+        ":hybrid_parameters",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+java_library(
+    name = "hpke_public_key",
+    srcs = ["HpkePublicKey.java"],
+    deps = [
+        ":hpke_parameters",
+        ":hybrid_public_key",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key",
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha",
+        "//src/main/java/com/google/crypto/tink/internal:elliptic_curves_util",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+java_library(
+    name = "hpke_private_key",
+    srcs = ["HpkePrivateKey.java"],
+    deps = [
+        ":hpke_parameters",
+        ":hpke_public_key",
+        ":hybrid_private_key",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key",
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha",
+        "//src/main/java/com/google/crypto/tink/internal:big_integer_encoding",
+        "//src/main/java/com/google/crypto/tink/internal:elliptic_curves_util",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves",
+        "//src/main/java/com/google/crypto/tink/subtle:x25519",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+java_library(
+    name = "hpke_proto_serialization",
+    srcs = ["HpkeProtoSerialization.java"],
+    deps = [
+        ":hpke_parameters",
+        ":hpke_private_key",
+        ":hpke_public_key",
+        "//proto:hpke_java_proto",
+        "//proto:tink_java_proto",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key",
+        "//src/main/java/com/google/crypto/tink:secret_key_access",
+        "//src/main/java/com/google/crypto/tink/hybrid/internal:hpke_util",
+        "//src/main/java/com/google/crypto/tink/internal:big_integer_encoding",
+        "//src/main/java/com/google/crypto/tink/internal:enum_type_proto_converter",
+        "//src/main/java/com/google/crypto/tink/internal:key_parser",
+        "//src/main/java/com/google/crypto/tink/internal:key_serializer",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_serialization_registry",
+        "//src/main/java/com/google/crypto/tink/internal:parameters_parser",
+        "//src/main/java/com/google/crypto/tink/internal:parameters_serializer",
+        "//src/main/java/com/google/crypto/tink/internal:proto_key_serialization",
+        "//src/main/java/com/google/crypto/tink/internal:proto_parameters_serialization",
+        "//src/main/java/com/google/crypto/tink/internal:util",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
+)
+
+java_library(
+    name = "ecies_parameters",
+    srcs = ["EciesParameters.java"],
+    deps = [
+        ":hybrid_parameters",
+        "//src/main/java/com/google/crypto/tink:parameters",
+        "//src/main/java/com/google/crypto/tink/aead:aes_ctr_hmac_aead_parameters",
+        "//src/main/java/com/google/crypto/tink/aead:aes_gcm_parameters",
+        "//src/main/java/com/google/crypto/tink/aead:x_cha_cha20_poly1305_parameters",
+        "//src/main/java/com/google/crypto/tink/daead:aes_siv_parameters",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+java_library(
+    name = "ecies_public_key",
+    srcs = ["EciesPublicKey.java"],
+    deps = [
+        ":ecies_parameters",
+        ":hybrid_public_key",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key",
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink/internal:elliptic_curves_util",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+java_library(
+    name = "ecies_proto_serialization",
+    srcs = ["EciesProtoSerialization.java"],
+    deps = [
+        ":ecies_parameters",
+        ":ecies_private_key",
+        ":ecies_public_key",
+        "//proto:common_java_proto",
+        "//proto:ecies_aead_hkdf_java_proto",
+        "//proto:tink_java_proto",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key",
+        "//src/main/java/com/google/crypto/tink:secret_key_access",
+        "//src/main/java/com/google/crypto/tink:tink_proto_parameters_format",
+        "//src/main/java/com/google/crypto/tink/internal:big_integer_encoding",
+        "//src/main/java/com/google/crypto/tink/internal:enum_type_proto_converter",
+        "//src/main/java/com/google/crypto/tink/internal:key_parser",
+        "//src/main/java/com/google/crypto/tink/internal:key_serializer",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_serialization_registry",
+        "//src/main/java/com/google/crypto/tink/internal:parameters_parser",
+        "//src/main/java/com/google/crypto/tink/internal:parameters_serializer",
+        "//src/main/java/com/google/crypto/tink/internal:proto_key_serialization",
+        "//src/main/java/com/google/crypto/tink/internal:proto_parameters_serialization",
+        "//src/main/java/com/google/crypto/tink/internal:util",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "//src/main/java/com/google/crypto/tink/util:secret_big_integer",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_protobuf_protobuf_java",
+    ],
+)
+
+java_library(
+    name = "ecies_private_key",
+    srcs = ["EciesPrivateKey.java"],
+    deps = [
+        ":ecies_parameters",
+        ":ecies_public_key",
+        ":hybrid_private_key",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key",
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink/internal:elliptic_curves_util",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves",
+        "//src/main/java/com/google/crypto/tink/subtle:x25519",
+        "//src/main/java/com/google/crypto/tink/util:secret_big_integer",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+# Android libraries
+
+android_library(
+    name = "hybrid_decrypt_config-android",
+    srcs = ["HybridDecryptConfig.java"],
+    deps = [
+        ":hybrid_config-android",
+        "//src/main/java/com/google/crypto/tink:config-android",
+    ],
+)
+
+android_library(
+    name = "hybrid_encrypt_wrapper-android",
+    srcs = ["HybridEncryptWrapper.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:hybrid_encrypt-android",
+        "//src/main/java/com/google/crypto/tink:primitive_set-android",
+        "//src/main/java/com/google/crypto/tink:primitive_wrapper-android",
+        "//src/main/java/com/google/crypto/tink:registry-android",
+        "//src/main/java/com/google/crypto/tink/internal:monitoring_util-android",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_monitoring_registry-android",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_client-android",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_keyset_info-android",
+        "//src/main/java/com/google/crypto/tink/subtle:bytes-android",
+    ],
+)
+
+android_library(
+    name = "hybrid_decrypt_wrapper-android",
+    srcs = ["HybridDecryptWrapper.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:crypto_format-android",
+        "//src/main/java/com/google/crypto/tink:hybrid_decrypt-android",
+        "//src/main/java/com/google/crypto/tink:primitive_set-android",
+        "//src/main/java/com/google/crypto/tink:primitive_wrapper-android",
+        "//src/main/java/com/google/crypto/tink:registry-android",
+        "//src/main/java/com/google/crypto/tink/internal:monitoring_util-android",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_monitoring_registry-android",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_client-android",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_keyset_info-android",
+    ],
+)
+
+android_library(
+    name = "ecies_aead_hkdf_public_key_manager-android",
+    srcs = ["EciesAeadHkdfPublicKeyManager.java"],
+    deps = [
+        ":hybrid_util-android",
+        ":registry_ecies_aead_hkdf_dem_helper-android",
+        "//proto:ecies_aead_hkdf_java_proto_lite",
+        "//proto:tink_java_proto_lite",
+        "//src/main/java/com/google/crypto/tink:hybrid_encrypt-android",
+        "//src/main/java/com/google/crypto/tink/internal:key_type_manager-android",
+        "//src/main/java/com/google/crypto/tink/internal:primitive_factory-android",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_dem_helper-android",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_hybrid_encrypt-android",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves-android",
+        "//src/main/java/com/google/crypto/tink/subtle:validators-android",
+        "@maven//:com_google_protobuf_protobuf_javalite",
+    ],
+)
+
+android_library(
+    name = "registry_ecies_aead_hkdf_dem_helper-android",
+    srcs = ["RegistryEciesAeadHkdfDemHelper.java"],
+    deps = [
+        "//proto:aes_ctr_hmac_aead_java_proto_lite",
+        "//proto:aes_ctr_java_proto_lite",
+        "//proto:aes_gcm_java_proto_lite",
+        "//proto:aes_siv_java_proto_lite",
+        "//proto:hmac_java_proto_lite",
+        "//proto:tink_java_proto_lite",
+        "//src/main/java/com/google/crypto/tink:aead-android",
+        "//src/main/java/com/google/crypto/tink:deterministic_aead-android",
+        "//src/main/java/com/google/crypto/tink:registry-android",
+        "//src/main/java/com/google/crypto/tink/aead:aead_config-android",
+        "//src/main/java/com/google/crypto/tink/daead:deterministic_aead_config-android",
+        "//src/main/java/com/google/crypto/tink/hybrid/subtle:aead_or_daead-android",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_dem_helper-android",
+        "@maven//:com_google_protobuf_protobuf_javalite",
+    ],
+)
+
+android_library(
+    name = "hybrid_config-android",
+    srcs = ["HybridConfig.java"],
+    deps = [
+        ":ecies_aead_hkdf_private_key_manager-android",
+        ":ecies_aead_hkdf_public_key_manager-android",
+        ":hybrid_decrypt_wrapper-android",
+        ":hybrid_encrypt_wrapper-android",
+        "//proto:config_java_proto_lite",
+        "//src/main/java/com/google/crypto/tink/aead:aead_config-android",
+        "//src/main/java/com/google/crypto/tink/config:tink_fips-android",
+        "//src/main/java/com/google/crypto/tink/daead:deterministic_aead_config-android",
+        "//src/main/java/com/google/crypto/tink/hybrid/internal:hpke_private_key_manager-android",
+    ],
+)
+
+android_library(
+    name = "hybrid_key_templates-android",
+    srcs = ["HybridKeyTemplates.java"],
+    deps = [
+        ":ecies_aead_hkdf_private_key_manager-android",
+        "//proto:common_java_proto_lite",
+        "//proto:ecies_aead_hkdf_java_proto_lite",
+        "//proto:tink_java_proto_lite",
+        "//src/main/java/com/google/crypto/tink/aead:aead_key_templates-android",
+        "@maven//:com_google_protobuf_protobuf_javalite",
+    ],
+)
+
+android_library(
+    name = "ecies_aead_hkdf_private_key_manager-android",
+    srcs = ["EciesAeadHkdfPrivateKeyManager.java"],
+    deps = [
+        ":ecies_aead_hkdf_public_key_manager-android",
+        ":hybrid_util-android",
+        ":registry_ecies_aead_hkdf_dem_helper-android",
+        "//proto:common_java_proto_lite",
+        "//proto:ecies_aead_hkdf_java_proto_lite",
+        "//proto:tink_java_proto_lite",
+        "//src/main/java/com/google/crypto/tink:hybrid_decrypt-android",
+        "//src/main/java/com/google/crypto/tink:key_template-android",
+        "//src/main/java/com/google/crypto/tink:key_templates-android",
+        "//src/main/java/com/google/crypto/tink:registry-android",
+        "//src/main/java/com/google/crypto/tink/aead:aes_ctr_hmac_aead_key_manager-android",
+        "//src/main/java/com/google/crypto/tink/aead:aes_gcm_key_manager-android",
+        "//src/main/java/com/google/crypto/tink/internal:key_template_proto_converter-android",
+        "//src/main/java/com/google/crypto/tink/internal:key_type_manager-android",
+        "//src/main/java/com/google/crypto/tink/internal:primitive_factory-android",
+        "//src/main/java/com/google/crypto/tink/internal:private_key_type_manager-android",
+        "//src/main/java/com/google/crypto/tink/internal:tink_bug_exception-android",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_dem_helper-android",
+        "//src/main/java/com/google/crypto/tink/subtle:ecies_aead_hkdf_hybrid_decrypt-android",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves-android",
+        "//src/main/java/com/google/crypto/tink/subtle:validators-android",
+        "@maven//:com_google_protobuf_protobuf_javalite",
+    ],
+)
+
+android_library(
+    name = "hybrid_util-android",
+    srcs = ["HybridUtil.java"],
+    deps = [
+        "//proto:common_java_proto_lite",
+        "//proto:ecies_aead_hkdf_java_proto_lite",
+        "//src/main/java/com/google/crypto/tink:registry-android",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves-android",
+    ],
+)
+
+android_library(
+    name = "hybrid_decrypt_factory-android",
+    srcs = ["HybridDecryptFactory.java"],
+    deps = [
+        ":hybrid_decrypt_wrapper-android",
+        "//src/main/java/com/google/crypto/tink:hybrid_decrypt-android",
+        "//src/main/java/com/google/crypto/tink:registry_cluster-android",
+    ],
+)
+
+android_library(
+    name = "hybrid_encrypt_factory-android",
+    srcs = ["HybridEncryptFactory.java"],
+    deps = [
+        ":hybrid_encrypt_wrapper-android",
+        "//src/main/java/com/google/crypto/tink:hybrid_encrypt-android",
+        "//src/main/java/com/google/crypto/tink:registry_cluster-android",
+    ],
+)
+
+android_library(
+    name = "hybrid_encrypt_config-android",
+    srcs = ["HybridEncryptConfig.java"],
+    deps = [
+        ":hybrid_config-android",
+        "//src/main/java/com/google/crypto/tink:config-android",
+    ],
+)
+
+android_library(
+    name = "hybrid_parameters-android",
+    srcs = ["HybridParameters.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:parameters-android",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha-android",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+android_library(
+    name = "hybrid_private_key-android",
+    srcs = ["HybridPrivateKey.java"],
+    deps = [
+        ":hybrid_parameters-android",
+        ":hybrid_public_key-android",
+        "//src/main/java/com/google/crypto/tink:key-android",
+        "//src/main/java/com/google/crypto/tink:private_key-android",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha-android",
+        "//src/main/java/com/google/crypto/tink/util:bytes-android",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+android_library(
+    name = "hybrid_public_key-android",
+    srcs = ["HybridPublicKey.java"],
+    deps = [
+        ":hybrid_parameters-android",
+        "//src/main/java/com/google/crypto/tink:key-android",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha-android",
+        "//src/main/java/com/google/crypto/tink/util:bytes-android",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+android_library(
+    name = "hpke_parameters-android",
+    srcs = ["HpkeParameters.java"],
+    deps = [
+        ":hybrid_parameters-android",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+android_library(
+    name = "hpke_public_key-android",
+    srcs = ["HpkePublicKey.java"],
+    deps = [
+        ":hpke_parameters-android",
+        ":hybrid_public_key-android",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key-android",
+        "//src/main/java/com/google/crypto/tink:key-android",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha-android",
+        "//src/main/java/com/google/crypto/tink/internal:elliptic_curves_util-android",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves-android",
+        "//src/main/java/com/google/crypto/tink/util:bytes-android",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+android_library(
+    name = "hpke_private_key-android",
+    srcs = ["HpkePrivateKey.java"],
+    deps = [
+        ":hpke_parameters-android",
+        ":hpke_public_key-android",
+        ":hybrid_private_key-android",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key-android",
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access-android",
+        "//src/main/java/com/google/crypto/tink:key-android",
+        "//src/main/java/com/google/crypto/tink/annotations:alpha-android",
+        "//src/main/java/com/google/crypto/tink/internal:big_integer_encoding-android",
+        "//src/main/java/com/google/crypto/tink/internal:elliptic_curves_util-android",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves-android",
+        "//src/main/java/com/google/crypto/tink/subtle:x25519-android",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes-android",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+android_library(
+    name = "hpke_proto_serialization-android",
+    srcs = ["HpkeProtoSerialization.java"],
+    deps = [
+        ":hpke_parameters-android",
+        ":hpke_private_key-android",
+        ":hpke_public_key-android",
+        "//proto:hpke_java_proto_lite",
+        "//proto:tink_java_proto_lite",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key-android",
+        "//src/main/java/com/google/crypto/tink:secret_key_access-android",
+        "//src/main/java/com/google/crypto/tink/hybrid/internal:hpke_util-android",
+        "//src/main/java/com/google/crypto/tink/internal:big_integer_encoding-android",
+        "//src/main/java/com/google/crypto/tink/internal:enum_type_proto_converter-android",
+        "//src/main/java/com/google/crypto/tink/internal:key_parser-android",
+        "//src/main/java/com/google/crypto/tink/internal:key_serializer-android",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_serialization_registry-android",
+        "//src/main/java/com/google/crypto/tink/internal:parameters_parser-android",
+        "//src/main/java/com/google/crypto/tink/internal:parameters_serializer-android",
+        "//src/main/java/com/google/crypto/tink/internal:proto_key_serialization-android",
+        "//src/main/java/com/google/crypto/tink/internal:proto_parameters_serialization-android",
+        "//src/main/java/com/google/crypto/tink/internal:util-android",
+        "//src/main/java/com/google/crypto/tink/util:bytes-android",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes-android",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_protobuf_protobuf_javalite",
+    ],
+)
+
+android_library(
+    name = "ecies_parameters-android",
+    srcs = ["EciesParameters.java"],
+    deps = [
+        ":hybrid_parameters-android",
+        "//src/main/java/com/google/crypto/tink:parameters-android",
+        "//src/main/java/com/google/crypto/tink/aead:aes_ctr_hmac_aead_parameters-android",
+        "//src/main/java/com/google/crypto/tink/aead:aes_gcm_parameters-android",
+        "//src/main/java/com/google/crypto/tink/aead:x_cha_cha20_poly1305_parameters-android",
+        "//src/main/java/com/google/crypto/tink/daead:aes_siv_parameters-android",
+        "//src/main/java/com/google/crypto/tink/util:bytes-android",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+android_library(
+    name = "ecies_proto_serialization-android",
+    srcs = ["EciesProtoSerialization.java"],
+    deps = [
+        ":ecies_parameters-android",
+        ":ecies_private_key-android",
+        ":ecies_public_key-android",
+        "//proto:common_java_proto_lite",
+        "//proto:ecies_aead_hkdf_java_proto_lite",
+        "//proto:tink_java_proto_lite",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key-android",
+        "//src/main/java/com/google/crypto/tink:secret_key_access-android",
+        "//src/main/java/com/google/crypto/tink:tink_proto_parameters_format-android",
+        "//src/main/java/com/google/crypto/tink/internal:big_integer_encoding-android",
+        "//src/main/java/com/google/crypto/tink/internal:enum_type_proto_converter-android",
+        "//src/main/java/com/google/crypto/tink/internal:key_parser-android",
+        "//src/main/java/com/google/crypto/tink/internal:key_serializer-android",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_serialization_registry-android",
+        "//src/main/java/com/google/crypto/tink/internal:parameters_parser-android",
+        "//src/main/java/com/google/crypto/tink/internal:parameters_serializer-android",
+        "//src/main/java/com/google/crypto/tink/internal:proto_key_serialization-android",
+        "//src/main/java/com/google/crypto/tink/internal:proto_parameters_serialization-android",
+        "//src/main/java/com/google/crypto/tink/internal:util-android",
+        "//src/main/java/com/google/crypto/tink/util:bytes-android",
+        "//src/main/java/com/google/crypto/tink/util:secret_big_integer-android",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes-android",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_protobuf_protobuf_javalite",
+    ],
+)
+
+android_library(
+    name = "ecies_public_key-android",
+    srcs = ["EciesPublicKey.java"],
+    deps = [
+        ":ecies_parameters-android",
+        ":hybrid_public_key-android",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key-android",
+        "//src/main/java/com/google/crypto/tink:key-android",
+        "//src/main/java/com/google/crypto/tink/internal:elliptic_curves_util-android",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves-android",
+        "//src/main/java/com/google/crypto/tink/util:bytes-android",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)
+
+android_library(
+    name = "ecies_private_key-android",
+    srcs = ["EciesPrivateKey.java"],
+    deps = [
+        ":ecies_parameters-android",
+        ":ecies_public_key-android",
+        ":hybrid_private_key-android",
+        "//src/main/java/com/google/crypto/tink:accesses_partial_key-android",
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access-android",
+        "//src/main/java/com/google/crypto/tink:key-android",
+        "//src/main/java/com/google/crypto/tink/internal:elliptic_curves_util-android",
+        "//src/main/java/com/google/crypto/tink/subtle:elliptic_curves-android",
+        "//src/main/java/com/google/crypto/tink/subtle:x25519-android",
+        "//src/main/java/com/google/crypto/tink/util:secret_big_integer-android",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes-android",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+    ],
+)

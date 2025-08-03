@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no' ?>
+<SubPlan version="2.0">
+  <Entry include="CtsAppTestCases android.app.cts.SystemFeaturesTest" />
+  <Entry include="CtsCameraTestCases" />
+  <Entry include="CtsDeqpTestCases dEQP-GLES3.functional.prerequisite#*" />
+  <Entry include="CtsMediaStressTestCases android.mediastress.cts.MediaRecorderStressTest" />
+  <Entry include="CtsMediaTestCases" />
+  <Entry include="CtsNativeMediaAAudioTestCases" />
+  <Entry include="CtsNetTestCases" />
+  <Entry include="CtsPerfettoTestCases" />
+  <Entry include="CtsPermissionTestCases android.permission.cts.CameraPermissionTest" />
+  <Entry include="CtsPermissionTestCases android.permission.cts.Camera2PermissionTest" />
+  <Entry include="CtsSensorTestCases" />
+  <Entry include="CtsSustainedPerformanceHostTestCases" />
+  <Entry include="CtsUsageStatsTestCases" />
+  <Entry include="CtsViewTestCases" />
+</SubPlan>

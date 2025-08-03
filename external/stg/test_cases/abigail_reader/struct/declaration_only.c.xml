@@ -1,0 +1,10 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='foo' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='declaration_only.c' language='LANG_C11'>
+    <pointer-type-def type-id='a44bfb6f' size-in-bits='64' id='077d3467'/>
+    <class-decl name='Foo' is-struct='yes' visibility='default' is-declaration-only='yes' id='a44bfb6f'/>
+    <var-decl name='foo' type-id='077d3467' mangled-name='foo' visibility='default' elf-symbol-id='foo'/>
+  </abi-instr>
+</abi-corpus>

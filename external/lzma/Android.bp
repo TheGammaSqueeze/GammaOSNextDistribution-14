@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: ["external_lzma_license"],
+}
+
+// Added automatically by a large-scale-change
+license {
+    name: "external_lzma_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+subdirs = [
+    "C",
+]

@@ -1,0 +1,25 @@
+<booklist>
+<book>
+    <title>Design Patterns</title>
+    <author>Erich Gamma</author>
+    <author>Richard Helm</author>
+    <author>Ralph Johnson</author>
+    <author>John Vlissides</author>
+</book>
+<book>
+    <title>Pattern Hatching</title>
+    <author>John Vlissides</author>
+</book>
+<book>
+    <title>Building Applications Frameworks</title>
+    <author>Mohamed Fayad</author>
+    <author>Douglas C. Schmidt</author>
+    <author>Ralph Johnson</author>
+</book>
+<book>
+    <title>Implementing Applications Frameworks</title>
+    <author>Mohamed Fayad</author>
+    <author>Douglas C. Schmidt</author>
+    <author>Ralph Johnson</author>
+</book>
+</booklist>

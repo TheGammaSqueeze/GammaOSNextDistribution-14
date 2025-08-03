@@ -1,0 +1,59 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_llvm_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-NCSA
+    default_applicable_licenses: ["external_llvm_license"],
+}
+
+cc_library_static {
+    name: "libLLVMMipsCodeGen",
+    defaults: [
+        "llvm-lib-defaults",
+        "llvm-mips-defaults",
+    ],
+    srcs: ["*.cpp"],
+}
+
+cc_defaults {
+    name: "llvm-mips-defaults",
+    generated_headers: ["llvm-gen-mips"],
+    static_libs: ["llvm-mips-headers"],
+}
+
+cc_library_static {
+    name: "llvm-mips-headers",
+    vendor_available: true,
+    product_available: true,
+    host_supported: true,
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+    export_include_dirs: ["."],
+}
+
+llvm_tblgen {
+    name: "llvm-gen-mips",
+    in: "Mips.td",
+    outs: [
+        "MipsGenRegisterInfo.inc",
+        "MipsGenInstrInfo.inc",
+        "MipsGenCodeEmitter.inc",
+        "MipsGenMCCodeEmitter.inc",
+        "MipsGenMCPseudoLowering.inc",
+        "MipsGenAsmWriter.inc",
+        "MipsGenAsmMatcher.inc",
+        "MipsGenDAGISel.inc",
+        "MipsGenFastISel.inc",
+        "MipsGenCallingConv.inc",
+        "MipsGenSubtargetInfo.inc",
+        "MipsGenDisassemblerTables.inc",
+    ],
+}
+
+subdirs = ["*"]

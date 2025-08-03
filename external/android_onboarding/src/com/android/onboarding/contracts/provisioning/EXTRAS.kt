@@ -1,0 +1,251 @@
+package com.android.onboarding.contracts.provisioning
+
+import android.app.admin.DevicePolicyManager
+import com.google.android.setupcompat.util.WizardManagerHelper
+
+object EXTRAS {
+  /** @see com.android.managedprovisioning.model.ProvisioningParams.EXTRA_PROVISIONING_PARAMS */
+  inline val EXTRA_PROVISIONING_PARAMS: String
+    get() = "provisioningParams"
+
+  inline val EXTRA_PROVISIONING_ADMIN_EXTRAS_BUNDLE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ADMIN_EXTRAS_BUNDLE
+
+  @Deprecated("Deprecated in DevicePolicyManager")
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_NAME
+
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME
+
+  inline val EXTRA_PROVISIONING_ACCOUNT_TO_MIGRATE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ACCOUNT_TO_MIGRATE
+
+  inline val EXTRA_PROVISIONING_KEEP_ACCOUNT_ON_MIGRATION: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_KEEP_ACCOUNT_ON_MIGRATION
+
+  @Deprecated("Deprecated in DevicePolicyManager")
+  inline val EXTRA_PROVISIONING_EMAIL_ADDRESS: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_EMAIL_ADDRESS
+
+  @Deprecated("Deprecated in DevicePolicyManager")
+  inline val EXTRA_PROVISIONING_MAIN_COLOR: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_MAIN_COLOR
+
+  inline val EXTRA_PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED
+
+  inline val EXTRA_PROVISIONING_PROVISIONING_TIME_ZONE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_TIME_ZONE
+
+  inline val EXTRA_PROVISIONING_LOCAL_TIME: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_LOCAL_TIME
+
+  inline val EXTRA_PROVISIONING_LOCALE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_LOCALE
+
+  inline val EXTRA_PROVISIONING_WIFI_SSID: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_SSID
+
+  inline val EXTRA_PROVISIONING_WIFI_HIDDEN: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_HIDDEN
+
+  inline val EXTRA_PROVISIONING_WIFI_SECURITY_TYPE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_SECURITY_TYPE
+
+  inline val EXTRA_PROVISIONING_WIFI_PASSWORD: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_PASSWORD
+
+  inline val EXTRA_PROVISIONING_WIFI_EAP_METHOD: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_EAP_METHOD
+
+  inline val EXTRA_PROVISIONING_WIFI_PHASE2_AUTH: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_PHASE2_AUTH
+
+  inline val EXTRA_PROVISIONING_WIFI_CA_CERTIFICATE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_CA_CERTIFICATE
+
+  inline val EXTRA_PROVISIONING_WIFI_USER_CERTIFICATE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_USER_CERTIFICATE
+
+  inline val EXTRA_PROVISIONING_WIFI_IDENTITY: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_IDENTITY
+
+  inline val EXTRA_PROVISIONING_WIFI_ANONYMOUS_IDENTITY: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_ANONYMOUS_IDENTITY
+
+  inline val EXTRA_PROVISIONING_WIFI_DOMAIN: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_DOMAIN
+
+  inline val EXTRA_PROVISIONING_WIFI_PROXY_HOST: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_PROXY_HOST
+
+  inline val EXTRA_PROVISIONING_WIFI_PROXY_PORT: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_PROXY_PORT
+
+  inline val EXTRA_PROVISIONING_WIFI_PROXY_BYPASS: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_PROXY_BYPASS
+
+  inline val EXTRA_PROVISIONING_WIFI_PAC_URL: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_WIFI_PAC_URL
+
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_ORGANIZATION_NAME: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ORGANIZATION_NAME
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_SUPPORT_URL: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SUPPORT_URL
+
+  @Deprecated("Deprecated in DevicePolicyManager")
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_LABEL: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_LABEL
+
+  @Deprecated("Deprecated in DevicePolicyManager")
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_ICON_URI: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_ICON_URI
+
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_MINIMUM_VERSION_CODE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_MINIMUM_VERSION_CODE
+
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_COOKIE_HEADER: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_COOKIE_HEADER
+
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM
+
+  inline val EXTRA_PROVISIONING_SENSORS_PERMISSION_GRANT_OPT_OUT: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SENSORS_PERMISSION_GRANT_OPT_OUT
+
+  inline val EXTRA_PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM
+
+  inline val EXTRA_PROVISIONING_SKIP_ENCRYPTION: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SKIP_ENCRYPTION
+
+  @Deprecated("Deprecated in DevicePolicyManager")
+  inline val EXTRA_PROVISIONING_LOGO_URI: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_LOGO_URI
+
+  inline val EXTRA_PROVISIONING_DISCLAIMERS: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DISCLAIMERS
+
+  inline val EXTRA_PROVISIONING_DISCLAIMER_HEADER: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DISCLAIMER_HEADER
+
+  inline val EXTRA_PROVISIONING_DISCLAIMER_CONTENT: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_DISCLAIMER_CONTENT
+
+  @Deprecated("Deprecated in DevicePolicyManager")
+  inline val EXTRA_PROVISIONING_SKIP_USER_CONSENT: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SKIP_USER_CONSENT
+
+  inline val EXTRA_PROVISIONING_SKIP_EDUCATION_SCREENS: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SKIP_EDUCATION_SCREENS
+
+  inline val EXTRA_PROVISIONING_USE_MOBILE_DATA: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_USE_MOBILE_DATA
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_TRIGGER: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_TRIGGER
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROFILE_OWNER_NAME: String
+    get() = DevicePolicyManager.EXTRA_PROFILE_OWNER_NAME
+
+  inline val EXTRA_DEVICE_ADMIN: String
+    get() = DevicePolicyManager.EXTRA_DEVICE_ADMIN
+
+  inline val EXTRA_PROVISIONING_IMEI: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_IMEI
+
+  inline val EXTRA_PROVISIONING_SERIAL_NUMBER: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SERIAL_NUMBER
+
+  inline val EXTRA_PROVISIONING_MODE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_MODE
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_SUPPORTED_MODES: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SUPPORTED_MODES
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_SKIP_OWNERSHIP_DISCLAIMER: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SKIP_OWNERSHIP_DISCLAIMER
+
+  inline val EXTRA_PROVISIONING_ALLOWED_PROVISIONING_MODES: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ALLOWED_PROVISIONING_MODES
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_RETURN_BEFORE_POLICY_COMPLIANCE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_RETURN_BEFORE_POLICY_COMPLIANCE
+
+  @Deprecated("Deprecated in DevicePolicyManager")
+  inline val EXTRA_PROVISIONING_KEEP_SCREEN_ON: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_KEEP_SCREEN_ON
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_ROLE_HOLDER_UPDATE_RESULT_CODE: String
+    get() = DevicePolicyManager.EXTRA_ROLE_HOLDER_UPDATE_RESULT_CODE
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_ROLE_HOLDER_CUSTOM_USER_CONSENT_INTENT: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ROLE_HOLDER_CUSTOM_USER_CONSENT_INTENT
+
+  /**
+   * Cannot link against it directly because it's marked as `@hidden` without `@SystemApi`
+   *
+   * @see DevicePolicyManager.EXTRA_PROVISIONING_ACTION
+   */
+  inline val EXTRA_PROVISIONING_ACTION: String
+    get() = "android.app.extra.PROVISIONING_ACTION"
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_ROLE_HOLDER_STATE: String
+    get() = DevicePolicyManager.EXTRA_ROLE_HOLDER_STATE
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_FORCE_UPDATE_ROLE_HOLDER: String
+    get() = DevicePolicyManager.EXTRA_FORCE_UPDATE_ROLE_HOLDER
+
+  inline val EXTRA_PROVISIONING_ALLOW_OFFLINE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ALLOW_OFFLINE
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_ROLE_HOLDER_PACKAGE_DOWNLOAD_LOCATION: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ROLE_HOLDER_PACKAGE_DOWNLOAD_LOCATION
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_ROLE_HOLDER_SIGNATURE_CHECKSUM: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ROLE_HOLDER_SIGNATURE_CHECKSUM
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_ROLE_HOLDER_PACKAGE_DOWNLOAD_COOKIE_HEADER: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ROLE_HOLDER_PACKAGE_DOWNLOAD_COOKIE_HEADER
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_PROVISIONING_ROLE_HOLDER_EXTRAS_BUNDLE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_ROLE_HOLDER_EXTRAS_BUNDLE
+
+  @get:Suppress("UNRESOLVED_REFERENCE")
+  inline val EXTRA_ROLE_HOLDER_PROVISIONING_INITIATOR_PACKAGE: String
+    get() = DevicePolicyManager.EXTRA_ROLE_HOLDER_PROVISIONING_INITIATOR_PACKAGE
+
+  inline val EXTRA_RESULT_LAUNCH_INTENT: String
+    get() = DevicePolicyManager.EXTRA_RESULT_LAUNCH_INTENT
+
+  inline val EXTRA_PROVISIONING_SHOULD_LAUNCH_RESULT_INTENT: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_SHOULD_LAUNCH_RESULT_INTENT
+
+  inline val EXTRA_PROVISIONING_TIME_ZONE: String
+    get() = DevicePolicyManager.EXTRA_PROVISIONING_TIME_ZONE
+
+  inline val EXTRA_IS_SETUP_FLOW: String
+    get() = WizardManagerHelper.EXTRA_IS_SETUP_FLOW
+}

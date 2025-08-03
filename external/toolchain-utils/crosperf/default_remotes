@@ -1,0 +1,6 @@
+bob           : chromeos8-row12-rack16-host2
+chell         : chromeos6-row16-rack5-host6    chromeos6-row16-rack5-host7
+coral         : chromeos6-row5-rack6-host1     chromeos6-row5-rack6-host3    chromeos6-row5-rack6-host5
+elm           : chromeos6-row14-rack15-host21
+nautilus      : chromeos6-row5-rack10-host1    chromeos6-row5-rack10-host3
+snappy        : chromeos8-row12-rack17-host1        chromeos8-row12-rack17-host2

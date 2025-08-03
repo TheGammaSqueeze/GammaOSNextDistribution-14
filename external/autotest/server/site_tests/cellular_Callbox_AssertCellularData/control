@@ -1,0 +1,25 @@
+# Copyright (c) 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "latware@google.com"
+NAME = "cellular_Callbox_AssertCellularData"
+ATTRIBUTES = "suite:cellular_callbox"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_TYPE = "server"
+PY_VERSION = 3
+DOC = """
+This test asserts the stability of cellular data on DUTs. This does so by
+connecting to a CMW500 Callbox that is connected to the DUT, asserts that
+the CMW500 Callbox is running a cellular simulation that is providing data
+to the DUT via its cellular connection.  Then it asserts that the data
+provided by that connection is identical to the data provided by the ethernet
+connection on the DUT.
+"""
+
+def run_test(machine):
+    host = hosts.create_host(machine)
+    job.run_test('cellular_Callbox_AssertCellularData', host=host)
+
+parallel_simple(run_test, machines)

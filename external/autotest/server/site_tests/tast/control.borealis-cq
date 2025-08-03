@@ -1,0 +1,32 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.borealis-cq'
+TIME = 'SHORT'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'servo_state:WORKING'
+ATTRIBUTES = 'suite:borealis-cq'
+MAX_RESULT_SIZE_KB = 256 * 1024
+PY_VERSION = 3
+
+DOC = '''
+Run the Tast tests which run in suite:borealis-cq.
+'''
+
+args_dict = utils.args_to_dict(args)
+assert 'servo_state:WORKING' in DEPENDENCIES
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine, servo_args=servo_args),
+                 test_exprs=['("group:borealis" && !informational && borealis_cq)'],
+                 ignore_test_failures=True, max_run_sec=3600,
+                 command_args=args,
+                 retries=2)
+
+parallel_simple(run, machines)

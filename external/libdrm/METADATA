@@ -1,0 +1,19 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update libdrm
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "libdrm"
+description: "libdrm Direct Rendering Manager library and headers"
+third_party {
+  url {
+    type: GIT
+    value: "https://gitlab.freedesktop.org/mesa/drm.git"
+  }
+  version: "libdrm-2.4.109"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 2
+    day: 17
+  }
+}

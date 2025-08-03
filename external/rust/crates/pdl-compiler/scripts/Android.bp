@@ -1,0 +1,58 @@
+// Python generator.
+python_binary_host {
+    name: "pdl_python_generator",
+    main: "generate_python_backend.py",
+    srcs: [
+        "generate_python_backend.py",
+        "pdl/ast.py",
+        "pdl/core.py",
+        "pdl/utils.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+// C++ generator.
+python_binary_host {
+    name: "pdl_cxx_generator",
+    main: "generate_cxx_backend.py",
+    srcs: [
+        "generate_cxx_backend.py",
+        "pdl/ast.py",
+        "pdl/core.py",
+        "pdl/utils.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+// C++ test generator.
+python_binary_host {
+    name: "pdl_cxx_unittest_generator",
+    main: "generate_cxx_backend_tests.py",
+    srcs: [
+        "generate_cxx_backend_tests.py",
+        "pdl/ast.py",
+        "pdl/core.py",
+        "pdl/utils.py",
+    ],
+    version: {
+        py3: {
+            embedded_launcher: true,
+        },
+    },
+}
+
+// C++ packet runtime.
+cc_library_headers {
+    name: "pdl_cxx_packet_runtime",
+    export_include_dirs: ["."],
+    host_supported: true,
+    vendor_available: true,
+}

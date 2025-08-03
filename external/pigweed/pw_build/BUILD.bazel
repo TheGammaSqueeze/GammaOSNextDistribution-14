@@ -1,0 +1,146 @@
+# Copyright 2019 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load(
+    "//pw_build:pigweed.bzl",
+    "pw_cc_binary_with_map",
+    "pw_cc_blob_info",
+    "pw_cc_blob_library",
+    "pw_cc_test",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+config_setting(
+    name = "kythe",
+    values = {
+        "define": "kythe_corpus=pigweed.googlesource.com/pigweed/pigweed",
+    },
+)
+
+pw_cc_blob_info(
+    name = "test_blob_aligned",
+    alignas = "512",
+    file_path = "test_blob_0123.bin",
+    symbol_name = "kFirstBlob0123",
+)
+
+pw_cc_blob_info(
+    name = "test_blob_unaligned",
+    file_path = "test_blob_0123.bin",
+    symbol_name = "kSecondBlob0123",
+)
+
+pw_cc_blob_library(
+    name = "test_blob",
+    blobs = [
+        ":test_blob_aligned",
+        ":test_blob_unaligned",
+    ],
+    namespace = "test::ns",
+    out_header = "pw_build/test_blob.h",
+)
+
+pw_cc_test(
+    name = "cc_blob_library_test",
+    srcs = ["cc_blob_library_test.cc"],
+    deps = [":test_blob"],
+)
+
+pw_cc_binary_with_map(
+    name = "cc_binary_with_map",
+    srcs = ["empty_main.cc"],
+    # Only enable on platforms that support -Map linker flag
+    target_compatible_with = select({
+        "@platforms//os:macos": ["@platforms//:incompatible"],
+        "@platforms//os:windows": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+)
+
+# Bazel produces root-relative file paths without the -ffile-prefix-map option.
+pw_cc_test(
+    name = "file_prefix_map_test",
+    srcs = [
+        "file_prefix_map_test.cc",
+        "pw_build_private/file_prefix_map_test.h",
+    ],
+    defines = [
+        "PW_BUILD_EXPECTED_HEADER_PATH=\\\"pw_build/pw_build_private/file_prefix_map_test.h\\\"",
+        "PW_BUILD_EXPECTED_SOURCE_PATH=\\\"pw_build/file_prefix_map_test.cc\\\"",
+    ],
+)
+
+label_flag(
+    name = "default_module_config",
+    # The default module config is empty.
+    build_setting_default = ":empty_cc_library",
+)
+
+cc_library(
+    name = "test_module_config",
+    defines = [
+        "PW_THREAD_FREERTOS_CONFIG_JOINING_ENABLED=1",
+    ],
+)
+
+pw_cc_test(
+    name = "module_config_test",
+    srcs = ["module_config_test.cc"],
+    # This test requires a special configuration. It's run in CI, and can be
+    # run manually via,
+    #
+    #   bazel build \
+    #     --//pw_thread_freertos:config_override=//pw_build:test_module_config \
+    #     --platforms=//pw_build/platforms:testonly_freertos \
+    #     //pw_build:module_config_test
+    tags = ["manual"],
+    deps = ["//pw_thread:thread"],
+)
+
+# This empty library is used as a placeholder for label flags that need to
+# point to a library of some kind, but don't actually need the dependency to
+# amount to anything.
+cc_library(
+    name = "empty_cc_library",
+)
+
+# A special target used instead of a cc_library as the default condition in
+# backend multiplexer select statements to signal that a facade is in an
+# unconfigured state. This produces better error messages than e.g. using an
+# invalid label.
+#
+# If you're a user whose build errored out because a library transitively
+# depended on this target: the platform you're targeting did not specify which
+# backend to use for some facade. Look at the previous step in the dependency
+# chain (printed with the error) to figure out which one.
+cc_library(
+    name = "unspecified_backend",
+    target_compatible_with = ["@platforms//:incompatible"],
+)
+
+# Additional libraries that all binaries using Pigweed should be linked against.
+#
+# This is analogous to GN's pw_build_LINK_DEPS. See
+# https://pigweed.dev/build_system.html#docs-build-system-bazel-link-extra-lib
+# for more details.
+cc_library(
+    name = "default_link_extra_lib",
+    deps = [
+        "//pw_log:backend_impl",
+        "//targets:pw_assert_backend_impl",
+    ],
+)

@@ -1,0 +1,32 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.inputs-upstream'
+TIME = 'LONG'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:input-tools-upstream'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+DOC = '''
+Run the Tast tests which run in suite:input-tools-upstream.
+
+"group:input-tools-upstream" indicates tests that runs on CrOS Essential Inputs.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['("group:input-tools-upstream")'],
+                 ignore_test_failures=True, max_run_sec=10800,
+                 command_args=args)
+
+parallel_simple(run, machines)

@@ -1,0 +1,42 @@
+include ":connectedapps-annotations"
+project(":connectedapps-annotations").projectDir = file("annotations")
+include ":connectedapps-testing-annotations"
+project(":connectedapps-testing-annotations").projectDir = file("testing/annotations")
+include ":connectedapps"
+project(":connectedapps").projectDir = file("sdk")
+include ":connectedapps-testing"
+project(":connectedapps-testing").projectDir = file("testing/sdk")
+include ":connectedapps-processor"
+project(":connectedapps-processor").projectDir = file("processor")
+include ":connectedapps-sharedtests"
+project(":connectedapps-sharedtests").projectDir = file("tests/shared")
+
+include ":connectedapps-testapp"
+project(":connectedapps-testapp").projectDir = file("tests/shared/testapp")
+
+include ":connectedapps-testapp_additional_types"
+project(":connectedapps-testapp_additional_types").projectDir = file("tests/shared/additional_types")
+
+include ":connectedapps-testapp_basictypes"
+project(":connectedapps-testapp_basictypes").projectDir = file("tests/shared/basictypes")
+
+include ":connectedapps-testapp_configuration"
+project(":connectedapps-testapp_configuration").projectDir = file("tests/shared/configuration")
+
+include ":connectedapps-testapp_connector"
+project(":connectedapps-testapp_connector").projectDir = file("tests/shared/connector")
+
+include ":connectedapps-testapp_types"
+project(":connectedapps-testapp_types").projectDir = file("tests/shared/types")
+
+include ":connectedapps-testapp_types_providers"
+project(":connectedapps-testapp_types_providers").projectDir = file("tests/shared/types_providers")
+
+include ":connectedapps-testapp_wrappers"
+project(":connectedapps-testapp_wrappers").projectDir = file("tests/shared/wrappers")
+
+include ":connectedapps-testapp_crossuser"
+project(":connectedapps-testapp_crossuser").projectDir = file("tests/shared/crossuser")
+
+include ":connectedapps-testapp_app"
+project(":connectedapps-testapp_app").projectDir = file("tests/shared/app")

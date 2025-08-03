@@ -1,0 +1,16 @@
+name: "mako"
+description:
+    "Mako is a template library written in Python. It provides a familiar, "
+    "non-XML syntax which compiles into Python modules for maximum performance."
+
+third_party {
+homepage: "https://github.com/sqlalchemy/mako"
+  identifier {
+    type: "Git"
+    value: "https://github.com/sqlalchemy/mako"
+    primary_source: true
+  }
+  version: "rel_1_3_0"
+  last_upgrade_date { year: 2023 month: 12 day: 6 }
+  license_type: NOTICE
+}

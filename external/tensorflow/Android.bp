@@ -1,0 +1,355 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_tensorflow_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+//
+// large-scale-change filtered out the below license kinds as false-positives:
+//   SPDX-license-identifier-CC-BY-SA
+//   SPDX-license-identifier-MPL-2.0
+// See: http://go/android-license-faq
+license {
+    name: "external_tensorflow_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+        "NOTICE",
+    ],
+}
+
+cc_library_headers {
+    name: "tensorflow_headers",
+    export_include_dirs: ["."],
+    vendor_available: true,
+    host_supported: true,
+    sdk_version: "current",
+    min_sdk_version: "apex_inherit",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.extservices",
+        "com.android.neuralnetworks",
+        "test_com.android.neuralnetworks",
+        "com.android.adservices",
+        "com.android.ondevicepersonalization",
+    ],
+}
+
+genrule {
+    name: "libtflite_mutable_schema",
+    tools: ["flatc"],
+    cmd: "$(location flatc) --cpp --no-union-value-namespacing --gen-object-api --gen-mutable --keep-prefix -o $$(dirname $(out)) $(in)",
+    srcs: [ "tensorflow/lite/schema/schema.fbs" ],
+    out: [ "tensorflow/lite/schema/mutable/schema_generated.h" ],
+}
+
+subdirs = ["tensorflow/lite"]
+
+filegroup {
+    name: "tensorflow_tsl_logging_srcs",
+    srcs: [
+        "tensorflow/tsl/platform/default/logging.cc",
+        "tensorflow/tsl/platform/default/env_time.cc",
+    ],
+}
+
+cc_library_static {
+    name: "TfliteNnapiDelegateTests_static",
+    srcs: [
+        "tensorflow/lite/delegates/nnapi/nnapi_delegate_test.cc",
+        "tensorflow/lite/kernels/test_delegate_providers.cc",
+        "tensorflow/lite/kernels/test_util.cc",
+        "tensorflow/lite/kernels/acceleration_test_util.cc",
+        "tensorflow/lite/kernels/acceleration_test_util_internal.cc",
+        "tensorflow/lite/delegates/nnapi/acceleration_test_list.cc",
+        "tensorflow/lite/delegates/nnapi/acceleration_test_util.cc",
+    ],
+    include_dirs: [
+        "external/flatbuffers/include",
+        "external/tensorflow",
+        "external/ruy",
+    ],
+    cflags: [
+        "-DPLATFORM_POSIX_ANDROID",
+        "-Wextra",
+        "-Wno-extern-c-compat",
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+        "-Wno-unused-private-field",
+    ],
+    shared_libs: [
+        "libandroid",
+        "liblog",
+        "libneuralnetworks",
+    ],
+    static_libs: [
+        "libgtest_ndk_c++",
+        "libgmock_ndk",
+        "libtflite_static",
+        "tensorflow_abseil",
+    ],
+    header_libs: [
+        "libeigen",
+        "gemmlowp_headers",
+        "libtflite_schema_headers",
+    ],
+    sdk_version: "current",
+    stl: "c++_static",
+}
+
+cc_library_static {
+    name: "libtflite_flex_delegate",
+    srcs: [
+        ":tflite_src",
+        ":tflite_flex_delegate",
+        ":tensorflow_c_srcs",
+        ":tensorflow_c_eager_srcs",
+        ":tensorflow_core_data_mobile_srcs_no_runtime",
+        ":tensorflow_core_kernels_mobile_srcs",
+        ":tensorflow_core_common_runtime_mobile_srcs_only_runtime",
+        ":tensorflow_core_framework_mobile_srcs_only_runtime",
+        ":tensorflow_core_framework_mobile_srcs_no_runtime",
+        ":tensorflow_core_graph_mobile_srcs_only_runtime",
+        ":tensorflow_core_util_mobile_srcs_no_runtime",
+        ":tensorflow_core_util_mobile_srcs_only_runtime",
+        ":tensorflow_core_platform_mobile_srcs_no_runtime",
+        ":tensorflow_core_platform_mobile_srcs_only_runtime",
+        ":tensorflow_core_profiler_mobile_srcs_no_runtime",
+        ":tensorflow_core_tfrt_fallback_op_kernel_runner",
+        ":tensorflow_tsl_platform_default_mobile_srcs_no_runtime",
+        ":tensorflow_tsl_platform_default_mobile_srcs_only_runtime",
+        ":tensorflow_core_lib_io_mobile_src_only_runtime",
+        ":tensorflow_core_lib_mobile_src_only_runtime",
+        ":tensorflow_core_lib_mobile_src_no_runtime",
+        "tensorflow/core/nccl/collective_communicator.cc",
+        "tensorflow/core/example/feature_util.cc",
+        "tensorflow/core/ops/no_op.cc",
+        "tensorflow/core/ops/array_ops.cc",
+        "tensorflow/core/ops/parsing_ops.cc",
+        "tensorflow/core/ops/dataset_ops.cc",
+        "tensorflow/core/ops/function_ops.cc",
+        "tensorflow/core/ops/io_ops.cc",
+        "tensorflow/core/ops/nn_ops.cc",
+        "tensorflow/core/ops/string_ops.cc",
+        "tensorflow/core/lib/wav/wav_io.cc",
+        "tensorflow/compiler/jit/defs.cc",
+    ],
+    export_include_dirs: ["."],
+    whole_static_libs: [
+        "libdoubleconversion",
+        "tensorflow_abseil",
+        "libfft2d",
+        "libruy_static",
+        "libtextclassifier_hash_static",
+        "tensorflow_core_proto_cpp_lite",
+    ],
+    header_libs: [
+        "fp16_headers",
+        "jni_headers",
+        "liblog_headers",
+    ],
+    generated_headers: ["libtflite_mutable_schema"],
+    shared_libs: [
+        "libz",
+    ],
+    include_dirs: [
+        "external/FP16",
+        "external/eigen",
+        "external/flatbuffers/include",
+        "external/gemmlowp",
+        "external/libtextclassifier/native/",
+        "external/tensorflow",
+        "external/neon_2_sse",
+    ],
+    cflags: [
+        "-DNAMESPACE_FOR_HASH_FUNCTIONS=farmhash",
+        "-DTF_ANDROID_ENABLE_LOGSINK",
+        "-DPLATFORM_POSIX_ANDROID",
+        "-DENABLE_ABSL_IN_TENSORFLOW",
+        "-DIS_MOBILE_PLATFORM",
+        "-DTF_ANDROID_ENABLE_LOG_EVERY_N_SECONDS",
+        // Used to support int64, string type in //tensorflow/core/framework/register_types.h.
+        "-D__ANDROID_TYPES_FULL__",
+        "-Wno-defaulted-function-deleted",
+        "-Wno-deprecated-builtins",
+        "-Wno-deprecated-declarations",
+        "-Wno-expansion-to-defined",
+        "-Wno-ignored-qualifiers",
+        "-Wno-missing-field-initializers",
+        "-Wno-mismatched-tags",
+        "-Wno-unused-const-variable",
+        "-Wno-unused-but-set-variable",
+        "-Wno-unused-parameter",
+        "-Wno-user-defined-warnings",
+        "-Wno-gnu-inline-cpp-without-extern",
+    ],
+    cpp_std: "gnu++17",
+    stl: "libc++_static",
+    min_sdk_version: "33",
+    sdk_version: "current",
+    apex_available: ["com.android.ondevicepersonalization"],
+}
+
+cc_library_static {
+    name: "tflite_configuration_proto",
+    proto: {
+        type: "lite",
+        canonical_path_from_root: false,
+        export_proto_headers: true,
+    },
+    stl: "libc++",
+    srcs: ["tensorflow/lite/experimental/acceleration/configuration/**/*.proto"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.adservices",
+        "com.android.extservices",
+    ],
+}
+
+filegroup(
+    name = "tensorflow_core_protobuf_src",
+    srcs = [
+        "tensorflow/core/protobuf/bfc_memory_map.proto",
+        "tensorflow/core/protobuf/config.proto",
+        "tensorflow/core/protobuf/coordination_config.proto",
+        "tensorflow/core/protobuf/coordination_service.proto",
+        "tensorflow/core/protobuf/cluster.proto",
+        "tensorflow/core/protobuf/debug.proto",
+        "tensorflow/core/protobuf/device_filters.proto",
+        "tensorflow/core/protobuf/device_properties.proto",
+        "tensorflow/core/protobuf/data_service.proto",
+        "tensorflow/core/protobuf/debug_event.proto",
+        "tensorflow/core/protobuf/eager_service.proto",
+        "tensorflow/core/protobuf/graph_debug_info.proto",
+        "tensorflow/core/protobuf/queue_runner.proto",
+        "tensorflow/core/protobuf/rewriter_config.proto",
+        "tensorflow/core/protobuf/tensor_bundle.proto",
+        "tensorflow/core/protobuf/saver.proto",
+        "tensorflow/core/protobuf/verifier_config.proto",
+        "tensorflow/core/protobuf/error_codes.proto",
+        "tensorflow/core/protobuf/composite_tensor_variant.proto",
+        "tensorflow/core/protobuf/master.proto",
+        "tensorflow/core/protobuf/meta_graph.proto",
+        "tensorflow/core/protobuf/named_tensor.proto",
+        "tensorflow/core/protobuf/remote_tensor_handle.proto",
+        "tensorflow/core/protobuf/saved_model.proto",
+        "tensorflow/core/protobuf/saved_object_graph.proto",
+        "tensorflow/core/protobuf/status.proto",
+        "tensorflow/core/protobuf/struct.proto",
+        "tensorflow/core/protobuf/worker.proto",
+        "tensorflow/core/protobuf/tensorflow_server.proto",
+        "tensorflow/core/protobuf/trackable_object_graph.proto",
+        "tensorflow/core/protobuf/transport_options.proto",
+        "tensorflow/core/grappler/costs/op_performance_data.proto",
+        "tensorflow/compiler/xla/pjrt/distributed/protocol.proto",
+        "tensorflow/compiler/xla/stream_executor/dnn.proto",
+    ],
+)
+
+cc_library_static {
+    name: "tensorflow_core_proto_cpp_lite",
+    proto: {
+        export_proto_headers: true,
+        canonical_path_from_root: false,
+        type: "lite",
+        include_dirs: ["external/protobuf/src"],
+    },
+    srcs: [
+        "tensorflow/core/framework/*.proto",
+        "tensorflow/core/example/example.proto",
+        "tensorflow/core/example/feature.proto",
+        "tensorflow/core/example/example_parser_configuration.proto",
+        "tensorflow/core/profiler/protobuf/xplane.proto",
+        "tensorflow/core/profiler/profiler_options.proto",
+        "tensorflow/core/util/saved_tensor_slice.proto",
+        "tensorflow/core/util/event.proto",
+        ":tensorflow_core_protobuf_src",
+        ":libprotobuf-internal-protos",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    static_libs: [
+        "libprotobuf-cpp-lite-ndk",
+    ],
+    sdk_version: "current",
+    export_include_dirs: ["."],
+    stl: "libc++_static",
+    min_sdk_version: "33",
+    apex_available: ["com.android.ondevicepersonalization"],
+}
+
+java_library_static {
+    name: "tensorflow_core_proto_java_lite",
+    srcs: [
+        "tensorflow/core/framework/*.proto",
+        "tensorflow/core/example/example.proto",
+        "tensorflow/core/example/feature.proto",
+        "tensorflow/core/example/example_parser_configuration.proto",
+        "tensorflow/core/profiler/protobuf/xplane.proto",
+        "tensorflow/core/profiler/profiler_options.proto",
+        "tensorflow/core/util/saved_tensor_slice.proto",
+        "tensorflow/core/util/event.proto",
+        ":tensorflow_core_protobuf_src",
+        ":libprotobuf-internal-protos",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+        include_dirs: [
+            "external/protobuf/src",
+            "external/protobuf/java",
+        ],
+        type: "lite",
+    },
+    static_libs: ["libprotobuf-java-lite"],
+    sdk_version: "current",
+    min_sdk_version: "33",
+    apex_available: ["com.android.ondevicepersonalization"],
+}
+
+// Clients that want to link in custom ops/delegates need to manually link in the JNI bridge
+// to their own custom shared libraries.
+filegroup {
+    name: "tensorflowlite_jni_src",
+    srcs: ["tensorflow/lite/java/src/main/native/*.cc"],
+    visibility: [
+        "//packages/modules/OnDevicePersonalization:__subpackages__",
+    ],
+}

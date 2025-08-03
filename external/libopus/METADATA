@@ -1,0 +1,22 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update libopus
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "libopus"
+description: "Android fork of the opus library."
+third_party {
+  url {
+    type: GIT
+    value: "https://gitlab.xiph.org/xiph/opus.git"
+  }
+  version: "v1.4"
+  license_type: NOTICE
+  security {
+    tag: "NVD-CPE2.3:cpe:/a:opus-codec:opus:1.0.3"
+  }
+  last_upgrade_date {
+    year: 2023
+    month: 4
+    day: 21
+  }
+}

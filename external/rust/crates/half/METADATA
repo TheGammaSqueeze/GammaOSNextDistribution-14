@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/half
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "half"
+description: "Half-precision floating point f16 and bf16 types for Rust implementing the IEEE 754-2008 standard binary16 and bfloat16 types."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/half"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/half/half-2.2.1.crate"
+  }
+  version: "2.2.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 2
+    day: 2
+  }
+}

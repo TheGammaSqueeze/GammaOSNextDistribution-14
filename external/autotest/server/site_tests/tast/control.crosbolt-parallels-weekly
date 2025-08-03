@@ -1,0 +1,43 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.crosbolt-parallels-weekly'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:crosbolt_perf_parallels_weekly'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the Tast crosbolt performance test suite for booted Parallels.
+
+This test may only be run on hardware licensed for specific versions of
+Windows and Office. Contact parallels-cros@google.com for details.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+This test runs Tast-based crosbolt performance tests against a remote DUT.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['('
+                             '"group:parallels_crosbolt" && '
+                             'parallels_crosbolt_weekly'
+                             ')'],
+                 ignore_test_failures=True,
+                 max_run_sec=7200,  # 2 hours.
+                 command_args=args,
+                 varslist=['pita.windowsLicensed=true'])
+
+parallel_simple(run, machines)

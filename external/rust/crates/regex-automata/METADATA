@@ -1,0 +1,19 @@
+name: "regex-automata"
+description: "Automata construction and matching using regular expressions."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/regex-automata"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/regex-automata/regex-automata-0.1.10.crate"
+  }
+  version: "0.1.10"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 6
+    day: 21
+  }
+}

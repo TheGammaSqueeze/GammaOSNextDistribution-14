@@ -1,0 +1,15 @@
+{
+  "features": [
+    "arbitrary-derive"
+  ],
+  "package": {
+    "libfuzzer-sys": {
+      "dep_blocklist": [
+        "libfuzzer",
+        "libstdc++"
+      ],
+      "force_rlib": true
+    }
+  },
+  "run_cargo": false
+}

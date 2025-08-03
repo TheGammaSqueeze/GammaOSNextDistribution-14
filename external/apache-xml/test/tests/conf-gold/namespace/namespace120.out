@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out xmlns="base.test" xmlns:p1="xyz"><p1:foo xmlns:p1="new"><yyy xmlns:p1="xyz"/></p1:foo></out>

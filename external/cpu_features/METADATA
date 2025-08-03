@@ -1,0 +1,19 @@
+name: "cpu_features"
+description: "A cross platform C99 library to get cpu features at runtime."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/cpu_features"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/cpu_features.git"
+  }
+  version: "v0.9.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 9
+    day: 14
+  }
+}

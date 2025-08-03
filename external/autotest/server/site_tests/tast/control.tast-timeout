@@ -1,0 +1,35 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.tast-timeout'
+TIME = 'SHORT'
+TEST_TYPE = 'Server'
+# Uncomment the following line for CQ testing
+#ATTRIBUTES = 'suite:bvt-tast-cq'
+MAX_RESULT_SIZE_KB = 256 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Simulate a tast timeout in the middle of the running tast tests.
+
+'''
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['('
+                             '"group:mainline" && '
+                             '"name:example.*"'
+                             ')'],
+                 ignore_test_failures=False, max_run_sec=120,
+                 command_args=args,
+                 clear_tpm=False)
+
+parallel_simple(run, machines)

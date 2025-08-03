@@ -1,0 +1,45 @@
+AUTHOR = "jpmurphy"
+NAME = "power_VideoCall.option"
+PURPOSE = "Simulates video call multitasking."
+CRITERIA = "This test is a benchmark."
+TIME = "LENGTHY"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test simulates video call multitasking and record power related statistic.
+
+This test accepts command line arguments to override default arguments to
+run_once.
+
+Default Workload
+- Camera preview in 720p using VP9 codec.
+- Four 720p 30fps video playback with two VP8 videos and two VP9 videos.
+- Google Doc with emulated typing.
+
+The default run time is 2 hours to allow the DUT to heat up to steady state.
+"""
+
+HOURS=60 * 60
+
+args_dict = utils.args_to_dict(args)
+
+duration = int(args_dict.get('duration', 2 * HOURS))
+preset = str(args_dict.get('preset', ''))
+video_url = str(args_dict.get('video_url', ''))
+num_video = int(args_dict.get('num_video', 5))
+multitask = args_dict.get('multitask')
+if multitask and (str(multitask).lower() == 'false' or int(multitask) == 0):
+    multitask = False
+else:
+    multitask = True
+min_run_time_percent = int(args_dict.get('min_run_time_percent', 100))
+
+pdash_note = args_dict.get('pdash_note', '')
+
+job.run_test('power_VideoCall', pdash_note=pdash_note, tag=NAME.split('.')[1],
+             duration=duration, preset=preset, video_url=video_url,
+             num_video=num_video, multitask=multitask,
+             min_run_time_percent=min_run_time_percent)

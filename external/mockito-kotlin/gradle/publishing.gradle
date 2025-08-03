@@ -1,0 +1,69 @@
+apply plugin: 'maven-publish'
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/javadoc'
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        javaLibrary(MavenPublication) {
+            artifactId 'mockito-kotlin'
+
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+
+            artifact javadocJar
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', 'Mockito-Kotlin')
+                root.appendNode('description', 'Using Mockito with Kotlin.')
+                root.appendNode('url', 'https://github.com/mockito/mockito-kotlin')
+
+                def scm = root.appendNode('scm')
+                scm.appendNode('url', 'scm:git@github.com:mockito/mockito-kotlin.git')
+
+                def licenses = root.appendNode('licenses')
+                def mitLicense = licenses.appendNode('license')
+                mitLicense.appendNode('name', 'MIT')
+
+                def developers = root.appendNode('developers')
+                def nhaarman = developers.appendNode('developer')
+                nhaarman.appendNode('id', 'nhaarman')
+                nhaarman.appendNode('name', 'Niek Haarman')
+            }
+        }
+    }
+
+    //useful for testing - running "publish" will create artifacts/pom in a local dir
+    repositories { maven { url = "$rootProject.buildDir/repo" } }
+}
+
+clean {
+    delete "$rootProject.buildDir/repo"
+}
+
+// Avoid generation of the module metadata so that we don't have to publish an additional file
+// and keep the build logic simple.
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+}
+
+//fleshes out problems with Maven pom generation when building
+tasks.build.dependsOn('publishJavaLibraryPublicationToMavenLocal')
+
+apply plugin: 'signing' //https://docs.gradle.org/current/userguide/signing_plugin.html
+signing {
+    if (System.getenv("PGP_KEY")) {
+        useInMemoryPgpKeys(System.getenv("PGP_KEY"), System.getenv("PGP_PWD"))
+        sign publishing.publications.javaLibrary
+    }
+}

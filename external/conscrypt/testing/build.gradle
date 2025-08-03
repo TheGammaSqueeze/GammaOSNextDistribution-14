@@ -1,0 +1,26 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+description = 'Conscrypt: Testing'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+    }
+}
+
+dependencies {
+    // Only compile against these. Other modules will embed the generated
+    // constants directly. The stubs libraries should not end up in the
+    // final build.
+    compileOnly project(':conscrypt-constants'),
+                project(':conscrypt-libcore-stub'),
+                project(':conscrypt-android-stub')
+
+    implementation libraries.bouncycastle_apis,
+            libraries.bouncycastle_provider,
+            libraries.junit
+}

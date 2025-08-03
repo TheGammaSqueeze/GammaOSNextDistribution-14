@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+  <!-- NOTE: when editing this file, you may need to update gold line/col values below! -->
+  <elem line="4" col="29" />
+  <elem line="5" col="41" multi="true" >
+    <subelem line="6" col="34" />
+  </elem>
+</doc>

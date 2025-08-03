@@ -1,0 +1,20 @@
+name: "smccc"
+description: "Functions and constants for the Arm SMC Calling Convention (SMCCC) 1.4 and Arm Power State Coordination Interface (PSCI) 1.1 on aarch64."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/smccc"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/smccc/smccc-0.1.1.crate"
+  }
+  version: "0.1.1"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 5
+    day: 10
+  }
+}

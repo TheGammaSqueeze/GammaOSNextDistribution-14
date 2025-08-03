@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="dagger.hilt.android.testing.testinstallin">
+
+  <application>
+    <activity
+        android:name=".TestInstallInFooTest$TestActivity"
+        android:exported="false"
+        tools:ignore="MissingClass"/>
+  </application>
+</manifest>

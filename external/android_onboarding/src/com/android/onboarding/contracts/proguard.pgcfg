@@ -1,0 +1,6 @@
+-keepattributes RuntimeVisibleAnnotations
+-keep @interface com.android.onboarding.contracts.annotations.OnboardingNode
+
+# b/252388315
+-if @com.android.onboarding.contracts.annotations.OnboardingNode class **
+-keep, allowshrinking, allowoptimization, allowobfuscation class <1>

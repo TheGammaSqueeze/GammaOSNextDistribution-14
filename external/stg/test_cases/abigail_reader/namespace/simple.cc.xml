@@ -1,0 +1,51 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_ZN3foo2x5Ev' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='_ZN3foo2x1E' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN3foo2x2E' size='20' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN3foo2x3E' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN3foo2x4E' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN3foo2x6E' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN3foo2x7E' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN3foo2x8E' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='simple.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='__ARRAY_SIZE_TYPE__' size-in-bits='64' id='7ff19f0f'/>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <array-type-def dimensions='1' type-id='95e97e5e' size-in-bits='160' id='e41e1db9'>
+      <subrange length='5' type-id='7ff19f0f' id='53010e10'/>
+    </array-type-def>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='9cac1fee'/>
+    <qualified-type-def type-id='95e97e5e' const='yes' id='2448a865'/>
+    <namespace-decl name='foo'>
+      <typedef-decl name='type_definition' type-id='95e97e5e' id='2f43e790'/>
+      <class-decl name='S' size-in-bits='32' is-struct='yes' visibility='default' id='6a22df54'>
+        <data-member access='public' layout-offset-in-bits='0'>
+          <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+        </data-member>
+      </class-decl>
+      <union-decl name='U' size-in-bits='32' visibility='default' id='acb7a25f'>
+        <data-member access='public'>
+          <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+        </data-member>
+      </union-decl>
+      <enum-decl name='E' id='cff58263'>
+        <underlying-type type-id='9cac1fee'/>
+        <enumerator name='X' value='0'/>
+        <enumerator name='Y' value='1'/>
+      </enum-decl>
+      <var-decl name='x1' type-id='95e97e5e' mangled-name='_ZN3foo2x1E' visibility='default' elf-symbol-id='_ZN3foo2x1E'/>
+      <var-decl name='x2' type-id='e41e1db9' mangled-name='_ZN3foo2x2E' visibility='default' elf-symbol-id='_ZN3foo2x2E'/>
+      <var-decl name='x3' type-id='2448a865' mangled-name='_ZN3foo2x3E' visibility='default' elf-symbol-id='_ZN3foo2x3E'/>
+      <var-decl name='x4' type-id='2f43e790' mangled-name='_ZN3foo2x4E' visibility='default' elf-symbol-id='_ZN3foo2x4E'/>
+      <function-decl name='x5' mangled-name='_ZN3foo2x5Ev' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN3foo2x5Ev'>
+        <return type-id='95e97e5e'/>
+      </function-decl>
+      <var-decl name='x6' type-id='6a22df54' mangled-name='_ZN3foo2x6E' visibility='default' elf-symbol-id='_ZN3foo2x6E'/>
+      <var-decl name='x7' type-id='acb7a25f' mangled-name='_ZN3foo2x7E' visibility='default' elf-symbol-id='_ZN3foo2x7E'/>
+      <var-decl name='x8' type-id='cff58263' mangled-name='_ZN3foo2x8E' visibility='default' elf-symbol-id='_ZN3foo2x8E'/>
+    </namespace-decl>
+  </abi-instr>
+</abi-corpus>

@@ -1,0 +1,65 @@
+From 8d6bfc60f38d2b0c2d5f1cca55cef64b6f9b3f42 Mon Sep 17 00:00:00 2001
+From: Jiyong Park <jiyong@google.com>
+Date: Sat, 26 Jun 2021 00:31:25 +0900
+Subject: [PATCH] Open /dev/kmsg in Android
+
+In Android, ordinary processes don't have privilege to open /dev/kmsg.
+That has been done by letting init open it (via `file /dev/kmsg w`) and
+share the file descriptor with the forked process. The file descriptor
+number is passed via an environment variable.
+
+Implement the procedure.
+
+Bug: 189805435
+Test: m
+Change-Id: I8e39c9bd506fdc9d37a7fb5cd2b14e7d4a5074b7
+---
+ src/lib.rs | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib.rs b/src/lib.rs
+index 157c43d..d87df22 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -46,7 +46,7 @@ extern crate log;
+ extern crate libc;
+ 
+ use std::fs::{OpenOptions, File};
+-use std::io::{Write, self};
++use std::io::{Error, ErrorKind, Write, self};
+ use std::sync::Mutex;
+ use std::env;
+ 
+@@ -75,10 +75,28 @@ impl KernelLog {
+         }
+     }
+ 
++    #[cfg(not(target_os = "android"))]
++    fn open_kmsg() -> io::Result<File> {
++        OpenOptions::new().write(true).open("/dev/kmsg")
++    }
++
++    #[cfg(target_os = "android")]
++    fn open_kmsg() -> io::Result<File> {
++        // In Android, a process normally doesn't have the permission to open /dev/kmsg. Instead it
++        // is opened by init (via `file /dev/kmsg w` in the rc file) and the file descriptor is
++        // shared when executing the process. The file descriptor number is passed via an
++        // environment variable "ANDROID_FILE_<file_name>" where <file_name> is the path to the
++        // file where non alpha-numeric characters are replaced with '_'.
++        match env::var("ANDROID_FILE__dev_kmsg") {
++            Ok(val) => OpenOptions::new().write(true).open(format!("/proc/self/fd/{}", val)),
++            Err(e) => Err(Error::new(ErrorKind::Other, "ANDROID_FILE__dev_kmsg doesn't exist")),
++        }
++    }
++
+     /// Create new kernel logger with error level filter
+     pub fn with_level(filter: LevelFilter) -> io::Result<KernelLog> {
+         Ok(KernelLog {
+-            kmsg: Mutex::new(OpenOptions::new().write(true).open("/dev/kmsg")?),
++            kmsg: Mutex::new(Self::open_kmsg()?),
+             maxlevel: filter
+         })
+     }
+-- 
+2.32.0.93.g670b81a890-goog
+

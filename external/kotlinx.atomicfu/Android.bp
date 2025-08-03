@@ -1,0 +1,42 @@
+package {
+    default_visibility: [":__subpackages__"],
+    default_applicable_licenses: ["external_kotlinx.atomicfu_license"],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// http://go/android-license-faq
+license {
+    name: "external_kotlinx.atomicfu_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "license/**/*",
+    ],
+}
+
+java_library {
+    name: "kotlinx_atomicfu",
+    host_supported: true,
+    sdk_version: "core_current",
+    srcs: ["atomicfu/src/jvmMain/**/*.kt"],
+    exclude_srcs: ["atomicfu/src/jvmMain/kotlin/kotlinx/atomicfu/LockFreedomTestEnvironment.kt"],
+    common_srcs: ["atomicfu/src/commonMain/**/*.kt"],
+    kotlincflags: [
+        "-Xmulti-platform",
+    ],
+    visibility: [
+        "//external/kotlinx.coroutines",
+        "//prebuilts/sdk/current/androidx:__subpackages__",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}

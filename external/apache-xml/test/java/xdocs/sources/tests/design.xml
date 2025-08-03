@@ -1,0 +1,278 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE s1 SYSTEM "sbk:/style/dtd/document.dtd">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the  "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<s1 title="Testing Design/Standards">
+<ul>
+<li><link anchor="overview-tests">Overview of Testing concepts</link></li>
+<li><link anchor="standards-api-tests">Standards for API Tests</link></li>
+<li><link anchor="standards-xsl-tests">Standards for Stylesheet Tests</link></li>
+<li><link anchor="testing-links">Links to other testing sites</link></li>
+</ul>
+
+  <anchor name="overview-tests"/>
+  <s2 title="Overview of Testing concepts">
+    <p>While an overview of software testing in general is outside 
+    the scope we can address in this document, here are some of the 
+    concepts and background behind the Xalan testing effort.</p>
+    <gloss>
+      <label>A quick glossary of Xalan testing terms:</label><item></item>
+      <label>What is a test?</label>
+      <item>The word 'test' is overused, and can refer to a number 
+      of things.  It can be an API test, which will usually be a Java 
+      class that verifies the behavior of Xalan by calling it's API's.
+      It can be a stylesheet test, which is normally an .xsl stylesheet 
+      file with a matching .xml data file, and often has an expected 
+      output file with a .out extension.</item>
+      <label>What kinds of tests does Xalan have?</label>
+      <item>There are several different ways to categorize the 
+      tests currently used in Xalan: API tests and testlets, specific tests 
+      for detailed areas of the API in Xalan; Conformance Tests, 
+      with stylesheets in the tests\conf directory that each test 
+      conformance with a specific part of the XSLT spec, and are 
+      run automatically by a test driver; performance tests, which 
+      are a set of stylesheets specifically designed to show the 
+      performance of a processor in various ways, that are run 
+      automatically by a test driver; contributed tests, which are 
+      stored in tests\contrib, where anyone is invited to submit their 
+      own favorite stylesheets that we can use to test future Xalan 
+      releases.  There are also a few specific tests of extensions, as well 
+      as a small but growing suite of individual Bugzilla bug regression tests. 
+      We are working on better documentation and 
+      structure for the tests.</item>
+      <label>What is a test result?</label>
+      <item>While most people view tests as having a simple boolean 
+      pass/fail result, I've found it more useful to have a range of 
+      results from our tests. Briefly, they include INCP or incomplete 
+      tests; PASS tests, where everything went correctly; FAIL tests, 
+      where something obviously didn't go correctly; ERRR tests, where 
+      something failed in an unexpected way, and AMBG or ambiguous tests, 
+      where the test appears to have completed but the output results 
+      haven't been verified to be correct yet. 
+      <link anchor="overview-tests-results">See a full description of test results.</link></item>
+      <label>How are test results stored/displayed?</label>
+      <item>Xalan tests all use 
+      <jump href="apidocs/org/apache/qetest/Reporter.html">Reporter</jump>s and 
+      <jump href="apidocs/org/apache/qetest/Logger.html">Logger</jump>s to store their results. 
+      By default, most Reporters send output to a ConsoleLogger (so you 
+      can see what's happening as the test runs) and to an XMLFileLogger 
+      (which stores it's results on disk).  The logFile input to a test 
+      (generally on the command line or in a .properties file)
+      determines where it will produce it's MyTestResults.xml file, which 
+      are the complete report of what the test did, as saved to disk by 
+      it's XMLFileLogger.  You can 
+      then use <link idref="run" anchor="how-to-view-results">viewResults.xsl</link> 
+      to pretty-print the results into a MyTestResults.html
+      file that you can view in your browser.  We are working on other 
+      stylesheets to output results in different formats.
+      </item>
+      <label>What are your file/test naming conventions?</label>
+      <item>See the sections below for <link anchor="standards-api-tests">API test naming</link> and 
+      <link anchor="standards-xsl-tests">stylesheet file naming</link> conventions.</item>
+    </gloss>
+
+    <anchor name="overview-tests-results"/>
+    <p>Xalan tests will report one of several results, as detailed below. 
+    Note that the framework automatically rolls-up the results for 
+    any individual test file: a testCase's result is calculated from 
+    any test points or <code>check*()</code> calls within that testCase; 
+    a testFile's result is calculated from the results of it's testCases.</p>
+    <ul>
+    <li>INCP/incomplete: all tests start out as incomplete.  If a test never calls 
+    a <code>check*()</code> method (i.e. never officially verifies a test 
+    point), then it's result will be incomplete. This is important for cases 
+    where a test file begins running, and then causes some unexpected 
+    error that exits the test.  
+    <br/>Some other test harnesses will erroneously 
+    report this test as passing, since it never actually reported that 
+    anything failed.  For Xalan, this may also be reported if a test 
+    calls <code>testFileInit</code> or <code>testCaseInit</code>, but 
+    never calls the corresponding <code>testFileClose</code> or <code>testCaseClose</code>.
+    See <jump href="apidocs/org/apache/qetest/Logger.html#INCP">Logger.INCP</jump></li>
+
+    <li>PASS: the test ran to completion and all test points verified correctly. 
+    This is obviously a good thing. A test will only pass if it has at least one 
+    test point that passes and has no other kinds of test points (i.e. fail, 
+    ambiguous, or error).
+    See <jump href="apidocs/org/apache/qetest/Logger.html#PASS">Logger.PASS</jump></li>
+
+    <li>AMBG/ambiguous: the test ran to completion but at least one test point 
+    could not verify it's data because it could not find the 'gold' 
+    data to verify against.  This test niether passes nor fails, 
+    but exists somewhere in the middle.  
+    <br/>The usual solution is to 
+    manually compare the actual output the test produced and verify 
+    that it is correct, and then check in the output as the 'gold'
+    or expected data.  Then when you next run the test, it should pass.
+    A test is ambiguous if at least one test point is ambiguous, and 
+    it has no fail or error test points; this means that a test with 
+    both ambiguous and pass test points will roll-up to be ambiguous.
+    See <jump href="apidocs/org/apache/qetest/Logger.html#AMBG">Logger.AMBG</jump></li>
+
+    <li>FAIL: the test ran to completion but at least one test point 
+    did not verify correctly.  This is normally used for cases where 
+    we attempt to validate a test point, but get the wrong answer: 
+    for example if we call setData(3) then call getData and get a '2' back.
+    <br/>In most cases, a test should be able to continue normally after a FAIL 
+    result, and the rest of the results should be valid.
+    A test will fail if at least one test point is fail, and 
+    it has no error test points; thus a fail always takes precedence
+    over a pass or ambiguous result.
+    See <jump href="apidocs/org/apache/qetest/Logger.html#FAIL">Logger.FAIL</jump></li>
+
+    <li>ERRR/error: the test ran to completion but at least one test point 
+    had an error or did not verify correctly. This is normally used for 
+    cases where we attempt to validate a test point, but something unexpected
+    happens: for example if we call setData(3), and calling getData throws 
+    an exception.  
+    <br/>Although the difference seems subtle, it can be a useful 
+    diagnostic, since a test that reports an ERRR may not necessarily be able 
+    to continue normally.  In Xalan API tests, we often use this code if 
+    some setup routines for a testCase fail, meaning that the rest of the 
+    test case probably won't work properly.
+    <br/>A test will report an ERRR result if at least one test point is ERRR; 
+    thus an ERRR result takes precedence over any other kind of result.
+    Note that calling <code>Reporter.logErrorMsg()</code> will not cause 
+    an error result, it will merely log out the message.  You generally must 
+    call <code>checkErr</code> directly to cause an ERRR result.
+    See <jump href="apidocs/org/apache/qetest/Logger.html#ERRR">Logger.ERRR</jump></li>
+
+    </ul>
+  </s2>
+
+  <anchor name="standards-api-tests"/>
+  <s2 title="Standards for API Tests">
+    <p>In progress. Both the overall Java testing framework, the test drivers, 
+    and the specific API tests have a number of design decisions detailed 
+    in the javadoc 
+    <jump href="apidocs/org/apache/qetest/package-summary.html">here</jump> and 
+    <jump href="apidocs/org/apache/qetest/xsl/package-summary.html">here</jump>.</p>
+    <p>Naming conventions: obviously we follow basic Java coding 
+    standards as well as some specific standards that apply to Xalan
+    or to testing in general.  Comments appreciated.</p>
+    <gloss>
+      <label>Some naming conventions currently used:</label><item></item>
+      <label>*Test.java/.class</label>
+      <item>As in 'ConformanceTest', 'PerformanceTest', etc.: a single, 
+      automated test file designed to be run from the command line or 
+      from a testing harness.  This may be used in the future by 
+      automated test discovery mechanisims.</item>
+      <label>*Testlet.java/.class</label>
+      <item>As in '<jump href="apidocs/org/apache/qetest/xsl/StylesheetTestlet.html">StylesheetTestlet</jump>', 'PerformanceTestlet', etc.: a single, 
+      automated testlet designed to be run from the command line or 
+      from a testing harness.  Testlets are generally focused on one 
+      or a very few test points, and usually are data-driven.  A testlet 
+      defines a single test case algorithim, and relies on the caller 
+      (or *TestletDriver) to provide it with the data point(s) to use 
+      in it's test, including gold comparison info.</item>
+      <label>*Datalet.java/.class</label>
+      <item>As in '<jump href="apidocs/org/apache/qetest/xsl/StylesheetDatalet.html">StylesheetDatalet</jump>': a single set of test data for 
+      a Testlet to execute.  Separating a specific set of data from the 
+      testing algorithim to use with the data makes it easy to write 
+      and run large sets of data-driven tests.</item>
+      <label>*APITest.java/.class</label>
+      <item>As in 'TransformerAPITest', etc.: a single, 
+      automated test file designed to be run from the command line or 
+      from a testing harness, specifically providing test coverage of 
+      a number of API's.  Instead of performing the same kind of generic 
+      processing/transformations to a whole directory tree of files, these 
+      *APITests attempt to validate the API functionality itself: e.g. when 
+      you call setFoo(1), you should expect that getFoo() will return 1.
+      </item>
+      <label>XSL*.java/.class</label>
+      <item>Files that are specific to some kind of XSL(T) and XML concepts in 
+      general, but not necessarily specific to Xalan itself. I.e. these 
+      files may generally need org.xml.sax.* or org.w3c.dom.* to compile, but 
+      usually should not need org.apache.xalan.* to compile.</item>
+      <label>Logging*.java/.class</label>
+      <item>Various testing implementations of common error handler, 
+      URI resolver, and other classes.  These generally do not implement 
+      much functionality of the underlying classes, but simply log out 
+      everything that happens to them to a Logger, for later analysis.  
+      Thus we can hook a LoggingErrorHandler up to a Transformer, run a 
+      stylesheet with known errors through it, and then go back and validate 
+      that the Transformer logged the appropriate errors with this service.</item>
+      <label>QetestUtils.java/.class</label>
+      <item>A simple static utility class with a few general-purpose 
+      utility methods for testing.</item>
+    </gloss>
+    <p>Please: if you plan to submit Java API tests, use the existing framework 
+    as <link idref="submit" anchor="write-API-tests">described</link>.</p>
+  </s2>
+      
+  <anchor name="standards-xsl-tests"/>
+  <s2 title="Standards for Stylesheet Tests">
+    <p>In progress. See the <link idref="submit" anchor="write-xsl-tests">discussion about OASIS</link> for an overview.</p>
+    <p>Currently, the basic standards for Conformance and related 
+    tests are to provide similarly-named 
+    *.xml and *.xsl files, and a proposed *.out 'gold' or expected 
+    output file.  The basenames of the file should start with the name 
+    of the parent directory the files are in.  Thus if you had a new 
+    test you wanted to contribute about the 'foo' feature, you might
+    submit a set of files like so:</p>
+    <p>All under <code>xml-xalan\test\tests</code>:<br/>
+      <code>contrib\foo\foo.xml</code><br/>
+      <code>contrib\foo\foo.xsl</code><br/>
+      <code>contrib-gold\foo\foo.out</code><br/><br/>
+      You could then run this test through the Conformance test driver like:<br/>
+      <code>cd xml-xalan\test</code><br/>
+      <code>build contrib -Dqetest.category=foo</code><br/>
+    </p>
+    <p>Tests using Xalan Extensions may be found under test/tests/extensions and are separated 
+    into directories by language:<br/>
+    <gloss>
+      <label>test/tests/extensions/library</label>
+        <item>Stylesheets for extensions implemented natively in Xalan; these only 
+        have .xsl and .xml files for the test</item>
+      <label>test/tests/extensions/java</label>
+        <item>Stylesheets for extensions implemented in Java; these are run by 
+        a .java file that uses an ExtensionTestlet to run</item>
+      <label>test/tests/extensions/javascript</label>
+        <item>Stylesheets for extensions implemented in Javascript; these include 
+        only a .xsl and .xml file but require 
+        <jump href="http://xml.apache.org/xalan-j/extensions.html#supported-lang">bsf.jar and js.jar</jump> in the classpath</item>
+    </gloss>
+    </p>
+
+  </s2>
+
+  <anchor name="testing-links"/>
+  <s2 title="Links to other testing sites">
+    <p>A few quick links to other websites about software quality 
+    engineering/assurance.  No endorsement, express or implied should 
+    be inferred from any of these links, but hopefully they'll be 
+    useful for a few of you.</p>
+    <p>One note: I've commonly found two basic 
+    kinds of sites about software testing: ones for IS/IT types,
+    and ones for software engineers.  The first kind deal with testing 
+    or verifying the deployment or integration of business software 
+    systems, certification exams for MS or Novell networks, ISO 
+    certification for your company, etc.  The second kind (which I 
+    find more interesting) deal with testing software applications 
+    themselves; i.e. the testing ISV's do to their own software before 
+    selling it in the market.  So far, there seem to be a lot more 
+    IS/IT 'testing' sites than there are application 'testing' sites.</p>
+    <ul>
+    <li><jump href="http://www.soft.com/Institute/HotList/index.html">Software Research Institute HotList</jump>
+    This is a pretty good laundry list of top-level links for software testing</li>
+    <li><jump href="http://www.swquality.com/users/pustaver/index.shtml">SWQuality site; plenty of links</jump></li>
+    <li><jump href="http://www.stickyminds.com/">StickyMinds</jump></li>
+    <li><jump href="http://www.sqe.com/press/index.asp">SQE</jump></li>
+    </ul>
+  </s2>
+</s1>

@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsTfliteNnapiDelegateTestCases"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "CtsTfliteNnapiDelegateTestCases"
+    }
+  ]
+}

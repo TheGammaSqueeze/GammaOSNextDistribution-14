@@ -1,0 +1,38 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_ZN12NonToVirtualC1Ev' type='func-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='_ZTI12NonToVirtual' size='56' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTI1A' size='24' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTI1B' size='24' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTI4Base' size='16' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTS12NonToVirtual' size='15' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTS1A' size='3' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTS1B' size='3' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTS4Base' size='6' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTT12NonToVirtual' size='8' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTV12NonToVirtual' size='32' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='non_to_virtual' size='16' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='virtual_to_non' size='2' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='virtual_inheritance.cc' language='LANG_C_plus_plus_14'>
+    <class-decl name='Base' size-in-bits='8' is-struct='yes' visibility='default' id='19a47a20'/>
+    <class-decl name='A' size-in-bits='8' is-struct='yes' visibility='default' id='3ed987a4'>
+      <base-class access='public' layout-offset-in-bits='0' type-id='19a47a20'/>
+    </class-decl>
+    <class-decl name='B' size-in-bits='8' is-struct='yes' visibility='default' id='41d98c5d'>
+      <base-class access='public' layout-offset-in-bits='0' type-id='19a47a20'/>
+    </class-decl>
+    <class-decl name='VirtualToNon' size-in-bits='16' is-struct='yes' visibility='default' id='27874114'>
+      <base-class access='public' layout-offset-in-bits='0' type-id='3ed987a4'/>
+      <base-class access='public' layout-offset-in-bits='8' type-id='41d98c5d'/>
+    </class-decl>
+    <class-decl name='NonToVirtual' size-in-bits='128' is-struct='yes' visibility='default' id='274e5714'>
+      <base-class access='public' layout-offset-in-bits='192' is-virtual='yes' type-id='3ed987a4'/>
+      <base-class access='public' layout-offset-in-bits='256' is-virtual='yes' type-id='41d98c5d'/>
+    </class-decl>
+    <var-decl name='virtual_to_non' type-id='27874114' mangled-name='virtual_to_non' visibility='default' elf-symbol-id='virtual_to_non'/>
+    <var-decl name='non_to_virtual' type-id='274e5714' mangled-name='non_to_virtual' visibility='default' elf-symbol-id='non_to_virtual'/>
+  </abi-instr>
+</abi-corpus>

@@ -1,0 +1,577 @@
+{
+  "kernel-presubmit": [
+    {
+      "name": "vts_ltp_test_arm",
+      "options": [
+        {
+          // TODO(b/262943169)
+          "exclude-filter": "cve.cve-2021-4034_32bit"
+        },
+        {
+          // TODO(b/237560213)
+          "exclude-filter": "syscalls.tgkill03_32bit"
+        },
+        {
+          // TODO(b/143654050)
+          "exclude-filter": "syscalls.memfd_create01_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.futimesat01_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.clock_nanosleep02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.select04_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.epoll_wait02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.clock_nanosleep02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.pselect01_64_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.nanosleep01_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.poll02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.futex_wait05_32bit"
+        },
+        {
+          // TODO(b/191622991)
+          "exclude-filter": "controllers.cgroup_fj_function_memory_32bit#controllers.cgroup_fj_function_memory_32bit"
+        },
+        {
+          // vts_slow_ltp_tests_arm
+          "exclude-filter": "controllers.memcg_regression_32bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2011-0999_32bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2015-7550_32bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2016-7117_32bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2017-2671_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio15_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio16_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio17_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio19_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio20_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio21_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio23_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio24_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio25_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio27_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio28_32bit"
+        },
+        {
+          "exclude-filter": "fs.fs_di_32bit"
+        },
+        {
+          "exclude-filter": "fs.fs_fill_32bit"
+        },
+        {
+          "exclude-filter": "fs.fs_inod01_32bit"
+        },
+        {
+          "exclude-filter": "fs.linker01_32bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress01_32bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress06_32bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress09_32bit"
+        },
+        {
+          "exclude-filter": "mm.mtest06_32bit"
+        },
+        {
+          "exclude-filter": "mm.mtest06_32bit"
+        },
+        {
+          "exclude-filter": "nptl.nptl01_32bit"
+        },
+        {
+          "exclude-filter": "pty.pty01_32bit"
+        },
+        {
+          "exclude-filter": "sched.hackbench01_32bit"
+        },
+        {
+          "exclude-filter": "sched.hackbench02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.copy_file_range01_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.fallocate05_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.fcntl15_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.fcntl15_64_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.gettimeofday02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.inotify09_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.keyctl02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.kill02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.mkdir09_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.readahead02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.waitid01_32bit"
+        }
+      ]
+    },
+    {
+      "name": "vts_ltp_test_arm_64",
+      "options": [
+        {
+          // TODO(b/262943169)
+          "exclude-filter": "cve.cve-2021-4034_64bit"
+        },
+        {
+          // TODO(b/191622991)
+          "exclude-filter": "controllers.cgroup_fj_function_memory_64bit#controllers.cgroup_fj_function_memory_64bit"
+        },
+        {
+          // vts_slow_ltp_tests_arm
+          "exclude-filter": "controllers.memcg_regression_64bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2011-0999_64bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2015-7550_64bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2016-7117_64bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2017-2671_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio15_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio16_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio17_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio19_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio20_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio21_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio23_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio24_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio25_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio27_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio28_64bit"
+        },
+        {
+          "exclude-filter": "fs.fs_di_64bit"
+        },
+        {
+          "exclude-filter": "fs.fs_fill_64bit"
+        },
+        {
+          "exclude-filter": "fs.fs_inod01_64bit"
+        },
+        {
+          "exclude-filter": "fs.linker01_64bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress01_64bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress06_64bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress09_64bit"
+        },
+        {
+          "exclude-filter": "nptl.nptl01_64bit"
+        },
+        {
+          "exclude-filter": "pty.pty01_64bit"
+        },
+        {
+          "exclude-filter": "sched.hackbench01_64bit"
+        },
+        {
+          "exclude-filter": "sched.hackbench02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.copy_file_range01_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.fallocate05_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.fcntl15_64_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.fcntl15_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.gettimeofday02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.inotify09_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.keyctl02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.kill02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.mkdir09_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.readahead02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.waitid01_64bit"
+        }
+      ]
+    },
+    {
+      "name": "vts_ltp_test_x86",
+      "options": [
+        {
+          // vts_slow_ltp_tests_x86
+          "exclude-filter": "controllers.memcg_regression_32bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2011-0999_32bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2015-7550_32bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2016-7117_32bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2017-2671_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio15_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio16_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio17_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio19_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio20_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio21_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio23_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio24_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio25_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio27_32bit"
+        },
+        {
+          "exclude-filter": "dio.dio28_32bit"
+        },
+        {
+          "exclude-filter": "fs.fs_di_32bit"
+        },
+        {
+          "exclude-filter": "fs.fs_fill_32bit"
+        },
+        {
+          "exclude-filter": "fs.fs_inod01_32bit"
+        },
+        {
+          "exclude-filter": "fs.linker01_32bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress01_32bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress06_32bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress09_32bit"
+        },
+        {
+          "exclude-filter": "mm.mtest06_32bit"
+        },
+        {
+          "exclude-filter": "nptl.nptl01_32bit"
+        },
+        {
+          "exclude-filter": "pty.pty01_32bit"
+        },
+        {
+          "exclude-filter": "sched.hackbench01_32bit"
+        },
+        {
+          "exclude-filter": "sched.hackbench02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.clock_nanosleep02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.copy_file_range01_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.fallocate05_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.fcntl15_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.gettimeofday02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.inotify09_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.keyctl02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.kill02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.mkdir09_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.nanosleep01_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.poll02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.readahead02_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.select04_32bit"
+        },
+        {
+          "exclude-filter": "syscalls.waitid01_32bit"
+        }
+      ]
+    },
+    {
+      "name": "vts_ltp_test_x86_64",
+      "options": [
+        {
+          // vts_slow_ltp_tests_x86
+          "exclude-filter": "cve.cve-2011-0999_64bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2015-7550_64bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2016-7117_64bit"
+        },
+        {
+          "exclude-filter": "cve.cve-2017-2671_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio01_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio02_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio03_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio04_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio05_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio06_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio07_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio08_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio09_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio10_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio11_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio12_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio13_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio14_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio15_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio16_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio17_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio18_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio19_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio20_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio21_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio22_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio23_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio24_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio25_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio26_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio27_64bit"
+        },
+        {
+          "exclude-filter": "dio.dio28_64bit"
+        },
+        {
+          "exclude-filter": "fs.fs_fill_64bit"
+        },
+        {
+          "exclude-filter": "fs.fs_inod01_64bit"
+        },
+        {
+          "exclude-filter": "fs.linker01_64bit"
+        },
+        {
+          "exclude-filter": "mm.mmapstress06_64bit"
+        },
+        {
+          "exclude-filter": "mm.mtest06_64bit"
+        },
+        {
+          "exclude-filter": "nptl.nptl01_64bit"
+        },
+        {
+          "exclude-filter": "sched.hackbench01_64bit"
+        },
+        {
+          "exclude-filter": "sched.hackbench02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.clock_nanosleep02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.inotify09_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.keyctl02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.nanosleep01_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.poll02_64bit"
+        },
+        {
+          "exclude-filter": "syscalls.select04_64bit"
+        }
+      ]
+    }
+  ]
+}

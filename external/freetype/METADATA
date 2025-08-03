@@ -1,0 +1,22 @@
+name: "freetype"
+description: "FreeType is a freely available software library to render fonts."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.freetype.org/"
+  }
+  url {
+    type: GIT
+    value: "git://git.sv.nongnu.org/freetype/freetype2.git"
+  }
+  version: "2.13.2"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 17
+  }
+  security {
+      tag: "NVD-CPE2.3:cpe:/a:freetype:freetype:2.13.2"
+  }
+}

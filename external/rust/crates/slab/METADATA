@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/slab
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "slab"
+description: "Pre-allocated storage for a uniform data type"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 5
+  }
+  homepage: "https://crates.io/crates/slab"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/slab/slab-0.4.9.crate"
+    version: "0.4.9"
+  }
+}

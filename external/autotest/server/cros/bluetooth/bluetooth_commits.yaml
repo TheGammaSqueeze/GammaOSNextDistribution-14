@@ -1,0 +1,53 @@
+# The chameleon bundle commits for Bluetooth tests in the test lab.
+
+# The current commit for all DUTs except those in lab_next_hosts.
+# Copy lab_next_commit to lab_curr_commit only when the latter proves
+# to be stable.
+# Note: d732343cf is the last python2 commit.
+# Do not modify this attribute anymore. Use the lab_commit_map if the host's
+# build version is after chromium: 3386750.
+lab_curr_commit: 881f0e0
+
+# the chameleon commit to update on the selected DUTs in lab_next_hosts
+# E.g.,
+#   lab_next_commit: 71be114
+# Leave it empty as below to always use lab_curr_commit.
+#   lab_next_commit:
+lab_next_commit: 87bed79
+
+# the lab_next_commit will be only used for this particular build number
+# Check http://go/cros-bt-stainless-result to find the next build number.
+# E.g.,
+#   lab_next_build: 13750.0.0
+# Leave it empty as below to always use lab_curr_commit.
+#   lab_next_build:
+lab_next_build: 14461.0.0
+
+lab_next_hosts:
+  - chromeos15-row8-metro4-host5    # lazor, Qualcomm WCN3990, kernel5.4
+  - chromeos15-row8-metro4-host6    # lazor, Qualcomm WCN3990, kernel5.4
+  - chromeos15-row5-rack7-host7     # kohaku, Intel AX201, kernel4.19
+  - chromeos15-row5-rack8-host7     # kohaku, Intel AX201, kernel4.19
+  - chromeos15-row5-rack1-host4     # blooglet, RTL8822, kernel4.14
+  - chromeos15-row5-rack2-host4     # blooglet, RTL8822, kernel4.14
+
+# The lab_commit_map has the format:
+# lab_commit_map:
+#   - build_version: 14461.0.0
+#     chameleon_commit: 87bed79
+#   - build_version: 00000.0.0
+#     chameleon_commit: 881f0e0
+# Each item in the lab_commit_map has the format:
+# {'build_version': build_version, 'chameleon_commit': chameleon_commit}.
+# Test server will choose the most recent build_version according to the DUT's
+# build version. The config should provide a default bundle (version 00000.0.0
+# as it is the smallest version). Note that this map is stored in reverse
+# chronological order, and each build_version or chameleon_commits should be
+# newer than the prior one.
+# We need to clean up the commit table once the corresponding build is older
+# than the current LTS version. Current LTS version is: 13816.103.0 (M90).
+lab_commit_map:
+  - build_version: 14461.0.0
+    chameleon_commit: 87bed79
+  - build_version: 00000.0.0
+    chameleon_commit: 881f0e0

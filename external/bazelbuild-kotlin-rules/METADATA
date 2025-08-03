@@ -1,0 +1,18 @@
+name: "bazelbuild-kotlin-rules"
+description:
+    "A repository of [Bazel](https://bazel.build) starlark rules and tooling "
+    "for Kotlin. "
+    " "
+    "These rules are maintained and published by Google as-is, with limited to "
+    "no support available at the moment."
+
+third_party {
+  url {
+    type: GIT
+    value: "https://team.googlesource.com/kotlin-rules/rules"
+  }
+  version: "56d691d5d452654a36b5890992042e85137ad083"
+  last_upgrade_date { year: 2023 month: 10 day: 18}
+  license_type: NOTICE
+}
+

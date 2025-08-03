@@ -1,0 +1,7 @@
+third_party {
+  license_type: NOTICE
+  security {
+    # Common Platform Enumeration tags
+    tag: "NVD-CPE2.3:cpe:/a:apple:mdnsresponder:320.10.80"
+  }
+}

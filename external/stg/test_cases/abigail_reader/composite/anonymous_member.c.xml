@@ -1,0 +1,43 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='v' size='16' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='anonymous_member.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='__anonymous_struct__' size-in-bits='128' is-struct='yes' is-anonymous='yes' visibility='default' id='e7f43f72'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='' type-id='e7f43f73' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='' type-id='e7f43f74' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='' type-id='e7f43f75' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='' type-id='e7f43f76' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='__anonymous_struct__1' size-in-bits='32' is-struct='yes' is-anonymous='yes' visibility='default' id='e7f43f73'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='one' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='__anonymous_struct__2' size-in-bits='32' is-struct='yes' is-anonymous='yes' visibility='default' id='e7f43f74'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='two' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='__anonymous_struct__3' size-in-bits='32' is-struct='yes' is-anonymous='yes' visibility='default' id='e7f43f75'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='four' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='__anonymous_struct__4' size-in-bits='32' is-struct='yes' is-anonymous='yes' visibility='default' id='e7f43f76'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='eight' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='v' type-id='e7f43f72' mangled-name='v' visibility='default' elf-symbol-id='v'/>
+  </abi-instr>
+</abi-corpus>

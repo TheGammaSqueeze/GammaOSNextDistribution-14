@@ -1,0 +1,47 @@
+[package]
+name = "gpu_display"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[features]
+x = []
+kiwi = []
+
+[dependencies]
+anyhow = "*"
+data_model = { path = "../common/data_model" }
+libc = "*"
+base = { path = "../base" }
+linux_input_sys = { path = "../linux_input_sys" }
+remain = "*"
+thiserror = "*"
+cfg-if = "*"
+serde = { version = "1", features = [ "derive" ] }
+zerocopy = { version = "0.7", features = ["derive"] }
+
+[target.'cfg(windows)'.dependencies]
+cros_tracing = { path = "../cros_tracing" }
+metrics = { path = "../metrics" }
+num-traits = "*"
+winapi = "*"
+win_util = { path = "../win_util" }
+sync = { path = "../common/sync" }
+euclid = "*"
+vm_control = { path = "../vm_control", features = ["gpu"] }
+once_cell = "*"
+
+[build-dependencies]
+cc = "1.0.25"
+pkg-config = "0.3.11"
+cfg-if = "1.0.0"
+which = "4"
+
+[[example]]
+name = "simple"
+path = "examples/simple.rs"
+
+[[example]]
+name = "simple_open"
+path = "examples/simple_open.rs"
+required-features = ["x"]

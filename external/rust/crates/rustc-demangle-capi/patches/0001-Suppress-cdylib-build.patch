@@ -1,0 +1,30 @@
+From 8106a52ecca371216903fb7b5077409ee1d31ee0 Mon Sep 17 00:00:00 2001
+From: Matthew Maurer <mmaurer@google.com>
+Date: Mon, 16 Aug 2021 14:05:54 -0700
+Subject: [PATCH] Suppress cdylib build
+
+Currently, cdylibs aren't allowed in certain contexts until support for
+vendor snapshots is added. Since rustc-demangle-capi is needed in those
+environments, we prevent cdylib from being generated during the
+cargo2android scan.
+
+Change-Id: I1deb453a8095bc69f963e765b28333752ec483ff
+---
+ Cargo.toml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index 5828d25..9ab660e 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -20,6 +20,6 @@ repository = "https://github.com/alexcrichton/rustc-demangle"
+ 
+ [lib]
+ name = "rustc_demangle"
+-crate-type = ["staticlib", "cdylib"]
++crate-type = ["staticlib"]
+ [dependencies.rustc-demangle]
+ version = "0.1.16"
+-- 
+2.33.0.rc1.237.g0d66db33f3-goog
+

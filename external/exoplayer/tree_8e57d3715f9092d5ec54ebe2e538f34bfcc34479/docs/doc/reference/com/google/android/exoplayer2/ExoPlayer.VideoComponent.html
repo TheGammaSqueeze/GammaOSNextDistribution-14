@@ -1,0 +1,657 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>ExoPlayer.VideoComponent (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="ExoPlayer.VideoComponent (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":38,"i11":38,"i12":38,"i13":38,"i14":38,"i15":38,"i16":38,"i17":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2</a></div>
+<h2 title="Interface ExoPlayer.VideoComponent" class="title">Interface ExoPlayer.VideoComponent</h2>
+</div>
+<div class="contentContainer">
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Known Implementing Classes:</dt>
+<dd><code><a href="SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></dd>
+</dl>
+<dl>
+<dt>Enclosing interface:</dt>
+<dd><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></dd>
+</dl>
+<hr>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static interface <span class="typeNameLabel">ExoPlayer.VideoComponent</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a>, as the <a href="ExoPlayer.VideoComponent.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer.VideoComponent</code></a> methods are defined by that
+     interface.</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearCameraMotionListener(com.google.android.exoplayer2.video.spherical.CameraMotionListener)">clearCameraMotionListener</a></span>&#8203;(<a href="video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#clearCameraMotionListener(com.google.android.exoplayer2.video.spherical.CameraMotionListener)"><code>ExoPlayer.clearCameraMotionListener(CameraMotionListener)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearVideoFrameMetadataListener(com.google.android.exoplayer2.video.VideoFrameMetadataListener)">clearVideoFrameMetadataListener</a></span>&#8203;(<a href="video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#clearVideoFrameMetadataListener(com.google.android.exoplayer2.video.VideoFrameMetadataListener)"><code>ExoPlayer.clearVideoFrameMetadataListener(VideoFrameMetadataListener)</code></a>
+     instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearVideoSurface()">clearVideoSurface</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoSurface()"><code>Player.clearVideoSurface()</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearVideoSurface(android.view.Surface)">clearVideoSurface</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoSurface(android.view.Surface)"><code>Player.clearVideoSurface(Surface)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearVideoSurfaceHolder(android.view.SurfaceHolder)">clearVideoSurfaceHolder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceHolder</a>&nbsp;surfaceHolder)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoSurfaceHolder(android.view.SurfaceHolder)"><code>Player.clearVideoSurfaceHolder(SurfaceHolder)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearVideoSurfaceView(android.view.SurfaceView)">clearVideoSurfaceView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceView</a>&nbsp;surfaceView)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoSurfaceView(android.view.SurfaceView)"><code>Player.clearVideoSurfaceView(SurfaceView)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearVideoTextureView(android.view.TextureView)">clearVideoTextureView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top">TextureView</a>&nbsp;textureView)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoTextureView(android.view.TextureView)"><code>Player.clearVideoTextureView(TextureView)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoChangeFrameRateStrategy()">getVideoChangeFrameRateStrategy</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#getVideoChangeFrameRateStrategy()"><code>ExoPlayer.getVideoChangeFrameRateStrategy()</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.C.VideoScalingMode int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoScalingMode()">getVideoScalingMode</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#getVideoScalingMode()"><code>ExoPlayer.getVideoScalingMode()</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoSize()">getVideoSize</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getVideoSize()"><code>Player.getVideoSize()</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCameraMotionListener(com.google.android.exoplayer2.video.spherical.CameraMotionListener)">setCameraMotionListener</a></span>&#8203;(<a href="video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setCameraMotionListener(com.google.android.exoplayer2.video.spherical.CameraMotionListener)"><code>ExoPlayer.setCameraMotionListener(CameraMotionListener)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoChangeFrameRateStrategy(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategyint)">setVideoChangeFrameRateStrategy</a></span>&#8203;(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;videoChangeFrameRateStrategy)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setVideoChangeFrameRateStrategy(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategyint)"><code>ExoPlayer.setVideoChangeFrameRateStrategy(int)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoFrameMetadataListener(com.google.android.exoplayer2.video.VideoFrameMetadataListener)">setVideoFrameMetadataListener</a></span>&#8203;(<a href="video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setVideoFrameMetadataListener(com.google.android.exoplayer2.video.VideoFrameMetadataListener)"><code>ExoPlayer.setVideoFrameMetadataListener(VideoFrameMetadataListener)</code></a>
+     instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)">setVideoScalingMode</a></span>&#8203;(@com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;videoScalingMode)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)"><code>ExoPlayer.setVideoScalingMode(int)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoSurface(android.view.Surface)">setVideoSurface</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVideoSurface(android.view.Surface)"><code>Player.setVideoSurface(Surface)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoSurfaceHolder(android.view.SurfaceHolder)">setVideoSurfaceHolder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceHolder</a>&nbsp;surfaceHolder)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVideoSurfaceHolder(android.view.SurfaceHolder)"><code>Player.setVideoSurfaceHolder(SurfaceHolder)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoSurfaceView(android.view.SurfaceView)">setVideoSurfaceView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceView</a>&nbsp;surfaceView)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVideoSurfaceView(android.view.SurfaceView)"><code>Player.setVideoSurfaceView(SurfaceView)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoTextureView(android.view.TextureView)">setVideoTextureView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top">TextureView</a>&nbsp;textureView)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVideoTextureView(android.view.TextureView)"><code>Player.setVideoTextureView(TextureView)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoScalingMode</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setVideoScalingMode&#8203;(<a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
+                         @com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;videoScalingMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)"><code>ExoPlayer.setVideoScalingMode(int)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="getVideoScalingMode()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getVideoScalingMode</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<a href="C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
+@com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;getVideoScalingMode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#getVideoScalingMode()"><code>ExoPlayer.getVideoScalingMode()</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setVideoChangeFrameRateStrategy(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategyint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoChangeFrameRateStrategy</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setVideoChangeFrameRateStrategy&#8203;(<a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2">@VideoChangeFrameRateStrategy</a>
+                                     @com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;videoChangeFrameRateStrategy)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setVideoChangeFrameRateStrategy(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategyint)"><code>ExoPlayer.setVideoChangeFrameRateStrategy(int)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="getVideoChangeFrameRateStrategy()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getVideoChangeFrameRateStrategy</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<a href="C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2">@VideoChangeFrameRateStrategy</a>
+@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;getVideoChangeFrameRateStrategy()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#getVideoChangeFrameRateStrategy()"><code>ExoPlayer.getVideoChangeFrameRateStrategy()</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setVideoFrameMetadataListener(com.google.android.exoplayer2.video.VideoFrameMetadataListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoFrameMetadataListener</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setVideoFrameMetadataListener&#8203;(<a href="video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setVideoFrameMetadataListener(com.google.android.exoplayer2.video.VideoFrameMetadataListener)"><code>ExoPlayer.setVideoFrameMetadataListener(VideoFrameMetadataListener)</code></a>
+     instead.</div>
+</div>
+</li>
+</ul>
+<a id="clearVideoFrameMetadataListener(com.google.android.exoplayer2.video.VideoFrameMetadataListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearVideoFrameMetadataListener</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;clearVideoFrameMetadataListener&#8203;(<a href="video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#clearVideoFrameMetadataListener(com.google.android.exoplayer2.video.VideoFrameMetadataListener)"><code>ExoPlayer.clearVideoFrameMetadataListener(VideoFrameMetadataListener)</code></a>
+     instead.</div>
+</div>
+</li>
+</ul>
+<a id="setCameraMotionListener(com.google.android.exoplayer2.video.spherical.CameraMotionListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCameraMotionListener</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setCameraMotionListener&#8203;(<a href="video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#setCameraMotionListener(com.google.android.exoplayer2.video.spherical.CameraMotionListener)"><code>ExoPlayer.setCameraMotionListener(CameraMotionListener)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="clearCameraMotionListener(com.google.android.exoplayer2.video.spherical.CameraMotionListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearCameraMotionListener</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;clearCameraMotionListener&#8203;(<a href="video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExoPlayer.html#clearCameraMotionListener(com.google.android.exoplayer2.video.spherical.CameraMotionListener)"><code>ExoPlayer.clearCameraMotionListener(CameraMotionListener)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="clearVideoSurface()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearVideoSurface</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;clearVideoSurface()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoSurface()"><code>Player.clearVideoSurface()</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="clearVideoSurface(android.view.Surface)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearVideoSurface</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;clearVideoSurface&#8203;(@Nullable
+                       <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoSurface(android.view.Surface)"><code>Player.clearVideoSurface(Surface)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setVideoSurface(android.view.Surface)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoSurface</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setVideoSurface&#8203;(@Nullable
+                     <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVideoSurface(android.view.Surface)"><code>Player.setVideoSurface(Surface)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setVideoSurfaceHolder(android.view.SurfaceHolder)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoSurfaceHolder</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setVideoSurfaceHolder&#8203;(@Nullable
+                           <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceHolder</a>&nbsp;surfaceHolder)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVideoSurfaceHolder(android.view.SurfaceHolder)"><code>Player.setVideoSurfaceHolder(SurfaceHolder)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="clearVideoSurfaceHolder(android.view.SurfaceHolder)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearVideoSurfaceHolder</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;clearVideoSurfaceHolder&#8203;(@Nullable
+                             <a href="https://developer.android.com/reference/android/view/SurfaceHolder.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceHolder</a>&nbsp;surfaceHolder)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoSurfaceHolder(android.view.SurfaceHolder)"><code>Player.clearVideoSurfaceHolder(SurfaceHolder)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setVideoSurfaceView(android.view.SurfaceView)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoSurfaceView</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setVideoSurfaceView&#8203;(@Nullable
+                         <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceView</a>&nbsp;surfaceView)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVideoSurfaceView(android.view.SurfaceView)"><code>Player.setVideoSurfaceView(SurfaceView)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="clearVideoSurfaceView(android.view.SurfaceView)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearVideoSurfaceView</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;clearVideoSurfaceView&#8203;(@Nullable
+                           <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink" target="_top">SurfaceView</a>&nbsp;surfaceView)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoSurfaceView(android.view.SurfaceView)"><code>Player.clearVideoSurfaceView(SurfaceView)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="setVideoTextureView(android.view.TextureView)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoTextureView</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;setVideoTextureView&#8203;(@Nullable
+                         <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top">TextureView</a>&nbsp;textureView)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#setVideoTextureView(android.view.TextureView)"><code>Player.setVideoTextureView(TextureView)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="clearVideoTextureView(android.view.TextureView)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearVideoTextureView</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+void&nbsp;clearVideoTextureView&#8203;(@Nullable
+                           <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top">TextureView</a>&nbsp;textureView)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#clearVideoTextureView(android.view.TextureView)"><code>Player.clearVideoTextureView(TextureView)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="getVideoSize()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getVideoSize</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+<a href="video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;getVideoSize()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="Player.html#getVideoSize()"><code>Player.getVideoSize()</code></a> instead.</div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../index-all.html">Index</a></li>
+<li><a href="../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

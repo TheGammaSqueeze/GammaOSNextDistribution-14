@@ -1,0 +1,16 @@
+variable symbol changed from 'int c' to 'char c'
+  CRC changed from 0x1e91976d to 0x10706189
+  type changed from 'int' to 'char'
+
+variable symbol 'int b' changed
+  CRC changed from 0xb70c2d59 to 0xb7c5b6f1
+
+variable symbol 'int d' changed
+  CRC changed from 0xb1221a47 to 0x9be92606
+
+... 1 omitted; 3 symbols have only CRC changes
+
+type 'struct A' changed
+  byte size changed from 8 to 12
+  member 'int z' was added
+

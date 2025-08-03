@@ -1,0 +1,30 @@
+<NewsML><NewsEnvelope><DateAndTime/></NewsEnvelope><NewsItem Duid="NewsItem" xml:space="preserve"><Identification><NewsIdentifier><ProviderId>reuters.com</ProviderId><DateId>20011009</DateId><NewsItemId>nWEL37400</NewsItemId><RevisionId PreviousRevision="1" Update="U">2</RevisionId><PublicIdentifier>urn:newsml:reuters.com:20011009:nWEL37400</PublicIdentifier></NewsIdentifier></Identification><NewsManagement><NewsItemType FormalName="News"/><FirstCreated>20011009T120921-0700</FirstCreated><ThisRevisionCreated>20011009T120921-0700</ThisRevisionCreated><Status FormalName="Usable"/></NewsManagement><NewsComponent Essential="yes"><TopicSet FormalName="ReutersMetaData"><Topic Duid="providedby"><TopicType FormalName="providedby"/><Property FormalName="Code" Value="NDS"/></Topic><Topic Duid="companies"><TopicType FormalName="companies"/><Property FormalName="Code" Value=".NZ40"/><Property FormalName="Code" Value="FBU.NZ"/><Property FormalName="Code" Value="FFS.NZ"/><Property FormalName="Code" Value="TEL.NZ"/><Property FormalName="Code" Value="TRH.NZ"/></Topic><Topic Duid="nameditem"><TopicType FormalName="nameditem"/><Property FormalName="Code" Value="NZ/ADR"/></Topic><Topic Duid="topics"><TopicType FormalName="topics"/><Property FormalName="Code" Value="NZ"/><Property FormalName="Code" Value="ASIA"/><Property FormalName="Code" Value="STX"/><Property FormalName="Code" Value="US"/><Property FormalName="Code" Value="LEN"/><Property FormalName="Code" Value="RTRS"/></Topic><Topic Duid="products"><TopicType FormalName="products"/><Property FormalName="Code" Value="ND"/><Property FormalName="Code" Value="E"/><Property FormalName="Code" Value="RNP"/><Property FormalName="Code" Value="DNP"/><Property FormalName="Code" Value="PCO"/><Property FormalName="Code" Value="PCU"/></Topic><Topic Duid="headline_pes"><TopicType FormalName="headline_pes"/><Property FormalName="Code" Value="511 376 408 416 433 443 458"/></Topic><Topic Duid="story_pes"><TopicType FormalName="story_pes"/><Property FormalName="Code" Value="511 376 408 416 433 443 458"/></Topic></TopicSet><Role FormalName="main"/><NewsLines><HeadLine>NZx Morning Call-NZ ADRs flat, Telecom  <Origin Href="QuoteRef">TEL.NZ</Origin>  slips</HeadLine></NewsLines><AdministrativeMetadata><Source><Party FormalName="RTRS"/></Source></AdministrativeMetadata><DescriptiveMetadata><Language FormalName="EN"/></DescriptiveMetadata><ContentItem Duid="story1"><DataContent>
+<pre>    WELLINGTON, Oct 10 (Reuters) - Prices of 
+selected New Zealand 
+stocks listed in the United States, and the change from their 
+close on the previous New Zealand and U.S. trading days. 
+    All columns are shown converted to New Zealand shares and 
+currency except the first column which shows the ADR priced in 
+U.S. dollars: 
+                         ADR      -----------Converted-------- 
+                        Price     Price    Change vs    Volume 
+ Company:                USD       NZD     NZ close      (000) 
+ FCL Building <Origin Href="QuoteRef">FLB.N</Origin>     11.16      2.71      
+nil           30  
+ FCL Forests  <Origin Href="QuoteRef">FFS.N</Origin>      1.00      0.24      
+nil          115  
+ Telecom      <Origin Href="QuoteRef">NZT.N</Origin>     14.28      4.33       -
+4          125  
+ Tranz Rail  <Origin Href="QuoteRef">TNZR.O</Origin>      untraded 
+    NOTE- The above rates were at 8:00 a.m. (NZT) when the Dow 
+Jones Industrial Average  <Origin Href="QuoteRef">.DJI</Origin>  was down 23 
+points at 9,045. They 
+are based on a conversion rate of NZ$=$0.4124. 
+    On the New York Stock Exchange, Telecom American Depositary 
+Receipts are traded in bundles of eight ordinary shares, while 
+Fletcher Building and Forests shares are traded in bundles of 10. 
+    On the Nasdaq exchange, Tranz Rail ADSs are traded in bundles 
+of three ordinary shares. 
+    ((Wellington newsroom, tel +64 +4 471-4277, fax +64 +4 473 
+6212, wellington.newsroom@reuters.com)) 
+</pre></DataContent></ContentItem></NewsComponent></NewsItem></NewsML>

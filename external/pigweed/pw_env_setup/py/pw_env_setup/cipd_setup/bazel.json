@@ -1,0 +1,32 @@
+{
+  "included_files": [
+    "buildifier.json"
+  ],
+  "packages": [
+    {
+      "path": "fuchsia/third_party/bazel/${platform}",
+      "platforms": [
+        "linux-amd64",
+        "mac-amd64",
+        "mac-arm64",
+        "windows-amd64"
+      ],
+      "tags": [
+        "version:2@7.0.2.6"
+      ],
+      "version_file": ".versions/bazel.version"
+    },
+    {
+      "path": "flutter/java/openjdk/${platform}",
+      "platforms": [
+        "linux-amd64",
+        "mac-amd64",
+        "mac-arm64",
+        "windows-amd64"
+      ],
+      "tags": [
+        "version:17"
+      ]
+    }
+  ]
+}

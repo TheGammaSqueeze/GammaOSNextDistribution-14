@@ -1,0 +1,17 @@
+function symbol '_ZN4Func10remove_parEi' was removed
+
+function symbol '_ZN4Func10rename_oldEv' was removed
+
+function symbol '_ZN4Func15change_par_typeEi' was removed
+
+function symbol '_ZN4Func7add_parEv' was removed
+
+function symbol '_ZN4Func10remove_parEv' was added
+
+function symbol '_ZN4Func10rename_newEv' was added
+
+function symbol '_ZN4Func15change_par_typeEl' was added
+
+function symbol '_ZN4Func7add_parEi' was added
+
+exit code 4

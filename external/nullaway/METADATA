@@ -1,0 +1,13 @@
+name: "nullaway"
+description:
+    "Null-safety checking tool"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/uber/nullaway"
+  }
+  version: "0.9.5"
+  last_upgrade_date { year: 2022 month: 02 day: 04 }
+  license_type: NOTICE
+}

@@ -1,0 +1,43 @@
+// Copyright 2008 The Android Open Source Project
+// the custom dex'ed emma library ready to put on a device.
+// ============================================================
+package {
+    default_applicable_licenses: ["external_emma_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_emma_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-CPL-1.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+java_library {
+    name: "emma",
+    srcs: [
+        "core/**/*.java",
+        "pregenerated/**/*.java",
+    ],
+    java_resource_dirs: [
+        "core/res",
+        "pregenerated/res",
+    ],
+    sdk_version: "9",
+    errorprone: {
+        javacflags: [
+            "-Xep:MissingOverride:OFF",
+            "-Xep:ComparableType:WARN",
+            "-Xep:ReturnValueIgnored:WARN",
+        ],
+    },
+    lint: {
+        warning_checks: ["SuspiciousIndentation"],
+    },
+    host_supported: true,
+}

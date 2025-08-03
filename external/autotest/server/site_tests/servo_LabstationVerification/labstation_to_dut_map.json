@@ -1,0 +1,87 @@
+{
+  "chromeos1-row4-rack7-labstation2": [
+    {
+      "hostname": "chromeos1-row4-rack7-host1",
+      "board": "soraka",
+      "model": "soraka",
+      "servo_serial": "C1903142451",
+      "servo_port": "9999",
+      "mac_address": "F4:F5:E8:50:DD:01",
+      "stable_version": "R86-13421.17.0"
+    },
+    {
+      "hostname": "chromeos1-row4-rack7-host2",
+      "board": "grunt",
+      "model": "aleena",
+      "servo_serial": "C1706310086",
+      "servo_port": "9998",
+      "mac_address": "08:9E:08:E4:A0:5C",
+      "stable_version": "R86-13421.32.0"
+    },
+    {
+      "hostname": "chromeos1-row4-rack7-host3",
+      "board": "kevin",
+      "model": "kevin",
+      "servo_serial": "C1903145143",
+      "servo_port": "9997",
+      "mac_address": "F4:F5:E8:50:E7:85",
+      "stable_version": "R86-13421.32.0"
+    },
+    {
+      "hostname": "chromeos1-row4-rack7-host5",
+      "board": "nocturne",
+      "model": "nocturne",
+      "servo_serial": "C1706310022",
+      "servo_port": "9995",
+      "mac_address": "08:9E:08:E4:A0:1C",
+      "stable_version": "R86-13421.32.0"
+    },
+    {
+      "hostname": "chromeos1-row4-rack7-host6",
+      "board": "nami",
+      "model": "bard",
+      "servo_serial": "C1903142681",
+      "servo_port": "9994",
+      "mac_address": "F4:F5:E8:50:DD:E7",
+      "stable_version": "R86-13421.32.0"
+    }
+  ],
+  "chromeos1-row4-rack9-labstation3": [
+    {
+      "hostname": "chromeos1-row4-rack9-host3",
+      "board": "atlas",
+      "model": "atlas",
+      "servo_serial": "C1804022991",
+      "servo_port": "9997",
+      "mac_address": "F4:F5:E8:50:D1:D5",
+      "stable_version": "R86-13421.32.0"
+    },
+    {
+      "hostname": "chromeos1-row4-rack9-host4",
+      "board": "atlas",
+      "model": "atlas",
+      "servo_serial": "C1706310083",
+      "servo_port": "9996",
+      "mac_address": "08:9E:08:E4:A0:59",
+      "stable_version": "R86-13421.32.0"
+    },
+    {
+      "hostname": "chromeos1-row4-rack9-host5",
+      "board": "fizz",
+      "model": "wukong",
+      "servo_serial": "C1903143985",
+      "servo_port": "9995",
+      "mac_address": "F4:F5:E8:50:E2:FF",
+      "stable_version": "R86-13421.32.0"
+    },
+    {
+      "hostname": "chromeos1-row4-rack9-host6",
+      "board": "sarien",
+      "model": "sarien",
+      "servo_serial": "C1903143516",
+      "servo_port": "9994",
+      "mac_address": "F4:F5:E8:50:E1:2A",
+      "stable_version": "R86-13421.32.0"
+    }
+  ]
+}

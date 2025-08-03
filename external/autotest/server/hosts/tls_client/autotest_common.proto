@@ -1,0 +1,431 @@
+// Copyright 2019 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+syntax = "proto3";
+
+package chromiumos.config.api.test.tls;
+
+option go_package = "go.chromium.org/chromiumos/config/go/api/test/tls";
+
+import "google/protobuf/empty.proto";
+
+import "dependencies/longrunning/operations.proto";
+
+// Common lab services implemented on top of the wiring APIs.
+//
+// The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+// NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and
+// "OPTIONAL" in this document are to be interpreted as described in
+// RFC 2119.
+//
+// All clients SHOULD pass the gRPC metadata key request_trace_id with one
+// value. The value is a unique string that is associated with the method call
+// in metrics. Clients that do not pass request_trace_id MAY be rejected so that
+// they can be fixed.
+service Common {
+  // ExecDutCommand runs a command on a DUT.
+  //
+  // The working directory is /.
+  // A tty is not spawned for the command.
+  // The user and group is root.
+  // All signals have their default dispositions and are not masked.
+  // The umask is set to 0.
+  //
+  // The environment contains:
+  //
+  //   TERM=dumb
+  //   PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin
+  //   LANG=en_US.UTF-8
+  //   USER=root
+  //   HOME=/root
+  //
+  // The environment MAY also contain SSH client variables.
+  // The environment SHALL NOT contain variables not mentioned above.
+  //
+  // If the stream is interrupted, the implementation MAY attempt to
+  // stop the command by sending SIGINT, SIGHUP, SIGTERM, or SIGKILL.
+  rpc ExecDutCommand(ExecDutCommandRequest)
+      returns (stream ExecDutCommandResponse);
+
+  // ProvisionDut installs a specified version of ChromeOS on the DUT, along
+  // with any specified DLCs.
+  //
+  // If the DUT is already on the specified version of ChromeOS, the OS will
+  // not be provisioned.
+  //
+  // If the DUT already has the specified list of DLCs, only the missing DLCs
+  // will be provisioned.
+  rpc ProvisionDut(ProvisionDutRequest) returns (google.longrunning.Operation) {
+    option (google.longrunning.operation_info) = {
+      response_type: "ProvisionDutResponse",
+      metadata_type: "ProvisionDutMetadata"
+    };
+  }
+
+  // ProvisionLacros installs a specified version of Lacros on the DUT.
+  //
+  // If the DUT already has the specified version of Lacros, Lacros will not be
+  // provisioned.
+  rpc ProvisionLacros(ProvisionLacrosRequest) returns (google.longrunning.Operation) {
+    option (google.longrunning.operation_info) = {
+      response_type: "ProvisionLacrosResponse",
+      metadata_type: "ProvisionLacrosMetadata"
+    };
+  }
+
+  // FetchCrashes gets a stream of all crash reports currently on the DUT.
+  //
+  // The stream returned may split up a crash over multiple
+  // `FetchCrashesResponse` protos. See the definition of that proto for
+  // details.
+  //
+  // This call is read-only: it doesn't delete the crashes that it reads.
+  rpc FetchCrashes(FetchCrashesRequest) returns (stream FetchCrashesResponse);
+
+  // CreateFakeOmaha starts a fake Omaha service on TLS and exposes the
+  // listened port to the DUT.
+  rpc CreateFakeOmaha(CreateFakeOmahaRequest) returns (FakeOmaha);
+  // DeleteFakeOmaha deletes the specified fake Omaha resource created by
+  // CreateFakeOmaha.
+  rpc DeleteFakeOmaha(DeleteFakeOmahaRequest) returns (google.protobuf.Empty);
+}
+
+message ExecDutCommandRequest {
+  // name is the resource name for the DUT.
+  // The DUT name is passed to the RTD when the RTD is started.
+  // It is not specified whether the name is the DUT hostname.
+  string name = 1;
+  // command is the command to run.
+  // If this contains no slashes, it is resolved using PATH.
+  // If this starts with /, it is used as an absolute path to the
+  // program to run.
+  // Otherwise, this is treated as a path relative to the working
+  // directory.
+  string command = 2;
+  // args are the arguments to pass to the command.
+  repeated string args = 3;
+  // stdin is passed to the command as the program's stdin.
+  // The stream does not support seeking.
+  // An empty bytes is not treated specially; if the command reads
+  // from stdin, it will receive zero bytes.
+  bytes stdin = 4;
+  // stdout indicates how to handle the command's stdout.
+  Output stdout = 5;
+  // stderr indicates how to handle the command's stderr.
+  Output stderr = 6;
+}
+message ExecDutCommandResponse {
+  message ExitInfo {
+    // status provides information about how the command process
+    // terminated.
+    //
+    // If the command failed to start, status is set to an arbitrary
+    // non-zero value.
+    //
+    // If signaled is set, status is set to the signal that caused
+    // the command to terminate.
+    //
+    // Otherwise, status is set to the exit status of the process.
+    // Exit statuses outside of 0 to 255 inclusive are not supported;
+    // they will be mapped to an arbitrary non-zero value.
+    //
+    // status is zero if and only if the process was successfully
+    // started and exited with a zero status.
+    int32 status = 1;
+    // signaled indicates whether the command exited due to a signal.
+    // If set, status contains the signal.
+    bool signaled = 2;
+    // started indicates whether the command was started.
+    bool started = 3;
+    // error_message provides a human readable explanation for some errors.
+    // This MUST NOT be inspected by programs.
+    string error_message = 4;
+  }
+  // exit_info contains exit information.
+  // This is set when the command has exited or failed to start.
+  // This is set on the last message in the response stream.
+  ExitInfo exit_info = 1;
+  // stdout contains the shell command's stdout output since the last
+  // response in the stream.
+  // The implementation MAY batch or delay output to later
+  // responses in the stream.
+  bytes stdout = 2;
+  // stderr contains the shell command's stderr output since the last
+  // response in the stream.
+  // The implementation MAY batch or delay output to later
+  // responses in the stream.
+  bytes stderr = 3;
+}
+
+// Output enumeration for ExecDutCommandRequest.
+enum Output {
+  // OUTPUT_PIPE means to collect output and return it.
+  OUTPUT_PIPE = 0;
+  // OUTPUT_STDOUT is a special value for stderr which means to merge stderr
+  // into stdout.
+  OUTPUT_STDOUT = 1;
+}
+
+message ProvisionDutRequest {
+  // name is the resource name for the DUT.
+  // The DUT name is passed to the RTD when the RTD is started.
+  // It is not specified whether the name is the DUT hostname.
+  string name = 1;
+
+  // TODO(crbug.com/1155247) Deprecate this nested message and replace with
+  // top level ChromeOsImage.
+  message ChromeOSImage {
+    oneof path_oneof {
+      // gs_path_prefix is the GS path to where kernel, rootfs, and stateful
+      // images are located. If DLCs are to be provisioned, it must be a GS path
+      // that also has the dlc directory.
+      // Only gs://chromeos-image-archive bucket is supported.
+      // For example the format should be:
+      // - gs://chromeos-image-archive/eve-release/R86-13380.0.0
+      string gs_path_prefix = 1;
+    }
+  }
+  // image specifies the ChromeOS image with which to provision the DUT.
+  ChromeOSImage image = 2;
+
+  // Reference DLCs developer documentation:
+  // https://source.corp.google.com/chromeos_public/src/platform2/dlcservice/docs/developer.md
+  message DLCSpec {
+    // id is the DLC ID which is a unique identifier.
+    // The DLC ID must follow a specific format that can be found in the DLC
+    // developer doc below.
+    string id = 1;
+  }
+  // dlc_specs specifies which DLCs to install on the DUT after provisioning.
+  repeated DLCSpec dlc_specs = 3;
+  // preserve_stateful specifies whether the stateful partition should be preserved during
+  // provisioning. If preserve_stateful is not set to true, the stateful partition is
+  // block-level wiped and reset during provisioning.
+  bool preserve_stateful = 4;
+}
+
+message ProvisionDutResponse {
+  // When the status code is other than OK, details in Status message should be
+  // parsed for ErrorInfo message with the following Reasons as the reason.
+  enum Reason {
+    // status code: INVALID_ARGUMENT
+    REASON_INVALID_REQUEST = 0;
+    // status code: FAILED_PRECONDITION
+    REASON_DUT_UNREACHABLE_PRE_PROVISION = 1;
+    // status code: FAILED_PRECONDITION
+    REASON_DOWNLOADING_IMAGE_FAILED = 2;
+    // status code: DEADLINE_EXCEEDED
+    REASON_PROVISIONING_TIMEDOUT = 3;
+    // status code: ABORTED
+    REASON_PROVISIONING_FAILED = 4;
+    // status code: ABORTED
+    REASON_DUT_UNREACHABLE_POST_PROVISION = 5;
+  }
+}
+
+message ProvisionDutMetadata {
+}
+
+message ProvisionLacrosRequest {
+  // name is the resource name for the DUT.
+  // The DUT name is passed to the RTD when the RTD is started.
+  // It is not specified whether the name is the DUT hostname.
+  string name = 1;
+
+  message LacrosImage {
+    oneof path_oneof {
+      // gs_path_prefix is the GS path prefix to where Lacros is located.
+      string gs_path_prefix = 1;
+    }
+  }
+  // image specifies the Lacros image with which to provision the DUT.
+  LacrosImage image = 2;
+}
+
+message ProvisionLacrosResponse {
+  // When the status code is other than OK, details in Status message should be
+  // parsed for ErrorInfo message with the following Reasons as the reason.
+  enum Reason {
+    // Failed as the ProvisionLacros request is invalid.
+    REASON_INVALID_REQUEST = 0;
+    // Failed to connect to the DUT prior to provisioning Lacros.
+    REASON_DUT_UNREACHABLE_PRE_PROVISION = 1;
+    // Failed to download the Lacros image or a timeout during download.
+    REASON_DOWNLOADING_IMAGE_FAILED = 2;
+    // Failed due to a timeout during the main Lacros provisioning.
+    // Excludes timeout during other steps.
+    REASON_PROVISIONING_TIMEDOUT = 3;
+    // General failure in Lacros provisioning.
+    REASON_PROVISIONING_FAILED = 4;
+  }
+}
+
+message ProvisionLacrosMetadata {
+}
+
+message FetchCrashesRequest {
+    // dut is the resource name for the DUT from which to fetch crashes.
+    // The DUT name is passed to the RTD when the RTD is started.
+    // It is not specified whether the name is the DUT hostname.
+    string dut = 1;
+    // If true, fetch the core file.
+    // For uploads to the crash server, that should generally be false.
+    // If the crash file is likely to be used for manual debugging (e.g. on
+    // a manually-invoked test suite run), this might be true.
+    // Coredumps can be extremely large (even gigabytes), so if resource usage
+    // is a concern, this should probably be false.
+    bool fetch_core = 2;
+}
+
+// When this response is streamed, the first proto with a given crash ID will
+// always contain the CrashInfo.
+// Files and core dumps (if present) may be streamed. If they are,
+// subsequent protos with the same crash ID will follow, each containing a chunk
+// of file/coredump. To reassemble these, concatenate the bytes received from
+// each subsequent proto with a matching crash_id (concatenate blobs that have
+// matching crash_ids and keys).
+// Additional crashes may be reported in the same stream with a new crash ID.
+message FetchCrashesResponse {
+    // Crash id. unique only within responses to a single FetchCrashes request.
+    // Used to assemble multiple streamed |FetchCrashesResponse| protos into a
+    // single crash report.
+    int64 crash_id = 1;
+    oneof data {
+      // Full details of crash report.
+      CrashInfo crash = 2;
+      // Misc file (e.g. minidump, large binary log, etc)
+      CrashBlob blob = 3;
+      // Coredump. Present iff fetch_core was true in FetchCrashesRequest and
+      // the crash has a coredump. (kernel warnings, for example, do not have
+      // one).
+      bytes core = 4;
+    }
+}
+
+// The data in this proto matches the metadata from crash-reporter's meta files.
+// Sender::CreateCrashFormData puts this data into crash upload POST requests.
+// (See src/platform2/crash-reporter/crash_sender_util.cc.)
+// The names in this proto MUST match the names that crash-reporter uses so
+// that, when crashes are uploaded to the crash server, they are interpreted
+// as they are when crash-reporter uploads them.
+// Similarly, when this proto is converted into a POST request to send to the
+// crash server, the names must not be altered.
+message CrashInfo {
+    // Name of executable that crashed (e.g. "chrome")
+    string exec_name = 1;
+    // Product name (e.g. "Chrome_ChromeOS" or "ChromeOS")
+    string prod = 2;
+    // Product version (e.g. "12345.0.0")
+    string ver = 3;
+    // Crash signature (may not be populated for all crashes)
+    string sig = 4;
+    // The name of the integration test that was running when this crash
+    // happened, if any.
+    string in_progress_integration_test = 5;
+    // The name of the collector (e.g. chrome_collector, arc_collector)
+    string collector = 6;
+    // Additional key-value pairs of metadata (e.g. "crash_loop_mode = true").
+    // These should be included in any POSTs to the crash server in a standard
+    // POST form, as seen in CreateCrashFormData.
+    // (despite the fact that this message is a subfield, it should be a flat
+    // structure in any POSTs).
+    repeated CrashMetadata fields = 7;
+}
+
+// Arbitrary text-only key-value pair corresponding to the key-value pairs in
+// crash report metadata files.
+message CrashMetadata {
+    // This value is a UTF8, human-readable, description of the data.
+    string key = 1;
+    // The value will be a human-readable string (e.g. "12345.0.0"), which must
+    // be valid UTF-8.
+    string text = 2;
+};
+
+// Arbitrary non-UTF8 key-value pair from crash report metadata files.
+message CrashBlob {
+    // This value is a UTF8, human-readable, description of the data.
+    // This should be passed as the 'name' to the crash server.
+    // For instance, upload_file_fake_payload
+    string key = 1;
+    // The value is a blob (e.g. a file from sysfs or a minidump), which need
+    // not be valid UTF-8, and may be large.
+    bytes blob = 2;
+    // The basename of the file. Must be specified as the filename in data
+    // uploaded to the crash server.
+    // e.g. foo_binary.20201027.102345.0.dmp
+    string filename = 3;
+};
+
+message ChromeOsImage {
+  oneof path_oneof {
+    // gs_path_prefix is the GS path to where the payloads are located. For
+    // example the format MAY be:
+    // gs://chromeos-image-archive/eve-release/R86-13380.0.0
+    string gs_path_prefix = 1;
+  }
+}
+
+message FakeOmaha {
+  // name is the resource name of the fake Omaha service.
+  // Format: fakeOmaha/{fake-omaha-id}
+  // The implementation MUST set it after creating the fake Omaha service.
+  // Clients SHOULD NOT set it.
+  string name = 1;
+  // dut is the resource name for the DUT.
+  // The DUT name is passed to the RTD when the RTD is started.
+  // It is not specified whether the name is the DUT hostname.
+  string dut = 2;
+
+  // target_build is the ChromeOS build that the fake Omaha service will serve
+  // payloads for.
+  ChromeOsImage target_build = 3;
+
+  message Payload {
+    enum Type {
+      TYPE_UNSPECIFIED = 0;
+      FULL = 1;
+      DELTA = 2;
+    }
+    // id is the id of the payload. It MAY be "ROOTFS" or a DLC id, etc.
+    string id = 1;
+    // type is the payload type, e.g. TYPE_FULL or TYPE_DELTA.
+    Type type = 2;
+  }
+  // payloads is the payloads can be served by the fake Omaha service.
+  repeated Payload payloads = 4;
+  // exposed_via_proxy indicates that the fake Omaha service is exposed to a
+  // DUT via a proxy server, instead of exposing to the DUT directly. So the
+  // service exposing won't be impacted by rebooting the DUT, disconnecting the
+  // DUT network, etc.
+  bool exposed_via_proxy = 5;
+  // critical_update instructs the fake Omaha created that the update is
+  // critical if set.
+  bool critical_update = 6;
+  // return_noupdate_starting indicates from which update check to start returning noupdate.
+  // It MUST be 0 or greater.
+  // When set to 0 (the default value), disables returning noupdate.
+  // If set to positive N, returns noupdate for the Nth check and for every
+  // check thereafter.
+  // For example, if set to 1, returns noupdate starting from the first check,
+  // i.e., always returns noupdate.
+  int32 return_noupdate_starting = 7;
+  // omaha_url is the current fake Omaha service URL which is reachable from
+  // the specified DUT.
+  // The URL can be used as input of the update engine client of the DUT.
+  // The implementation MUST set it after creating the fake Omaha service.
+  // Clients SHOULD NOT set it.
+  string omaha_url = 8;
+}
+
+message CreateFakeOmahaRequest {
+  // fake_omaha is the fake omaha service to be created.
+  FakeOmaha fake_omaha = 1;
+}
+
+message DeleteFakeOmahaRequest {
+  // The resource name of the fake Omaha service to stop.
+  // Format: fakeOmahaServices/{fake-omaha-id}
+  string name = 1;
+}

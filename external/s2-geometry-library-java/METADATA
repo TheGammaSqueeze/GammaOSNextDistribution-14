@@ -1,0 +1,21 @@
+name: "s2-geometry-library-java"
+description:
+    "Java S2 Library "
+    " "
+    "S2 is a library for spherical geometry that aims to have the same "
+    "robustness, flexibility, and performance as the very best planar geometry "
+    "libraries."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://s2geometry.io/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/s2-geometry-library-java"
+  }
+  version: "c28f287b996c0cedc5516a0426fbd49f6c9611ec"
+  last_upgrade_date { year: 2020 month: 7 day: 1 }
+  license_type: NOTICE
+}

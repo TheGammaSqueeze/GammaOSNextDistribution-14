@@ -1,0 +1,24 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x34c1eb21
+  kind: POINTER
+  pointee_type_id: 0xf9474a19
+}
+struct_union {
+  id: 0xf9474a19
+  kind: STRUCT
+  name: "Foo"
+}
+elf_symbol {
+  id: 0x06f8338c
+  name: "foo"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x34c1eb21
+  full_name: "foo"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x06f8338c
+}

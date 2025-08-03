@@ -1,0 +1,126 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// A shared library for use on Android by frameworks and other code outside
+// of the ART mainline module. It provides a subset of ICU APIs, some
+// Android extensions and stable symbols. Most Android target code should
+// depend on this library.
+//
+// With the exception of a few special cases like host apex build targets,
+// host binaries should use libicuuc + libicui18n directly.
+package {
+    default_team: "trendy_team_java_core_libraries",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_icu_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["external_icu_license"],
+    default_visibility: ["//external/icu:__subpackages__"],
+}
+
+cc_library_shared {
+    name: "libandroidicu",
+
+    // All code is imported via libandroidicu_static.
+    srcs: [],
+    // host_supported is required for some cases, e.g. host apex. This library
+    // is not intended for general host use.  Please refer to
+    // external/icu/build/icu.go for the full allowlist.
+    host_supported: true,
+    native_bridge_supported: true,
+    unique_host_soname: true,
+    apex_available: [
+        "com.android.i18n",
+    ],
+
+    // The implementation of libandroidicu depends on libicuuc and and libicui18n,
+    // but we need to export the headers in include/.
+    //
+    // However, include/unicode has a copy of a subset of header files
+    // as in libicuuc and libicui18n. We can't build C/C++ codes against
+    // both set of headers, since the headers have the same relative paths,
+    // and the compiler will find it ambiguous.
+    //
+    // Instead, we build the implementation of the shim libaray
+    // as a static library aganist libicuuc and libicui18n first,
+    // and export the headers in include/.
+    whole_static_libs: ["libandroidicu_static"],
+    shared_libs: [
+        "libbase",
+        "libicuuc",
+        "libicui18n",
+        "liblog",
+    ],
+    header_libs: ["libandroidicu_headers"],
+    export_header_lib_headers: ["libandroidicu_headers"],
+    stubs: {
+        symbol_file: "libandroidicu.map.txt",
+        versions: [
+            "1",
+        ],
+    },
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    target: {
+        android: {
+            cflags: [
+                "-DANDROID_LINK_SHARED_ICU4C",
+            ],
+            version_script: "libandroidicu.map.txt",
+        },
+        windows: {
+            enabled: true,
+        },
+    },
+    // Only add a new path below if your project needs UConverter or URegularExpression from ICU.
+    visibility: [
+        "//build/orchestrator/apis",
+        "//external/icu:__subpackages__",
+        "//packages/modules/RuntimeI18n:__subpackages__",
+        // The following dependencies can't use libicu instead, because it depends on UConverter
+        // or URegularExpression or statically linking libsqlite / libxml2.
+        "//external/libxml2",
+        "//external/robolectric/nativeruntime/external/sqlite/android",
+        "//external/sqlite:__subpackages__",
+        "//external/sfntly",
+        "//frameworks/av/media/libmedia",
+    ],
+}
+
+cc_library_headers {
+    name: "libandroidicu_headers",
+    host_supported: true,
+    native_bridge_supported: true,
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.i18n",
+    ],
+
+    // include/unicode/: Includes modified C headers from ICU4C,
+    //                   but excludes C++ headers.
+    // include/uconfig_local.h: local configuration specific for libandroidicu
+    export_include_dirs: ["include"],
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+// TODO: http://b/120776993 Testing for libandroidicu

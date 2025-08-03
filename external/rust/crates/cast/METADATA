@@ -1,0 +1,19 @@
+name: "cast"
+description: "Ergonomic, checked cast functions for primitive types"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/cast"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/cast/cast-0.3.0.crate"
+  }
+  version: "0.3.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 9
+    day: 22
+  }
+}

@@ -1,0 +1,47 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, Chromium OS"
+NAME = "autoupdate_Basic.full.pin"
+TIME = "MEDIUM"
+PURPOSE = "Tests an N-to-N update with Nebraska with a PIN login."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:au-perbuild"
+PY_VERSION = 3
+DOC = """
+This tests an N-to-N update. That means it will update to the same version
+that the DUT was provisioned with. This test will be used in the CQ to ensure
+changes don't break autoupdate.
+
+In the lab, a job_repo_url will be passed directly to the test. It contains
+information about the build to use and the IP address of lab cache server to
+download update payloads from. Local runs can use cache servers as well but
+the setup is fairly complicated.
+
+Instead you can use the `running_at_desk` arg when running tests locally to
+avoid the extra setup needed to access cache servers from your workstation.
+`running_at_desk` will copy payloads from gs://chromeos-image-archive/ to a
+public bucket that is accessible without additional configuration.
+
+Example usage:
+
+You can specify the build to AU to for full updates. It should be greater
+than or equal to the version currently on the DUT:
+test_that <DUT> autoupdate_Basic.full.pin --board=<board> --args="running_at_desk=True build=R102-14643.0.0"
+
+If no build is specified, the current version on the DUT will be used:
+test_that <DUT> autoupdate_Basic.full.pin --board=<board> --args="running_at_desk=True"
+"""
+
+from autotest_lib.client.common_lib import utils
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('autoupdate_Basic', host=host, full_payload=True,
+    		 pin_login=True, **args_dict)
+
+job.parallel_simple(run, machines)

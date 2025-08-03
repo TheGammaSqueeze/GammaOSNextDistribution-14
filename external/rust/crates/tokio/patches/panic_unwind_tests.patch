@@ -1,0 +1,44 @@
+diff --git a/tests/rt_common.rs b/tests/rt_common.rs
+index f5dce54..abca8dd 100644
+--- a/tests/rt_common.rs
++++ b/tests/rt_common.rs
+@@ -845,6 +845,7 @@ rt_test! {
+     }
+ 
+     #[cfg_attr(target_os = "wasi", ignore = "Wasi does not support threads or panic recovery")]
++    #[cfg(panic = "unwind")]
+     #[test]
+     fn panic_in_task() {
+         let rt = rt();
+diff --git a/tests/task_abort.rs b/tests/task_abort.rs
+index 4798246..481cc96 100644
+--- a/tests/task_abort.rs
++++ b/tests/task_abort.rs
+@@ -176,6 +176,7 @@ fn test_abort_wakes_task_3964() {
+ /// Checks that aborting a task whose destructor panics does not allow the
+ /// panic to escape the task.
+ #[test]
++#[cfg(panic = "unwind")]
+ fn test_abort_task_that_panics_on_drop_contained() {
+     let rt = Builder::new_current_thread().enable_time().build().unwrap();
+ 
+@@ -199,6 +200,7 @@ fn test_abort_task_that_panics_on_drop_contained() {
+ 
+ /// Checks that aborting a task whose destructor panics has the expected result.
+ #[test]
++#[cfg(panic = "unwind")]
+ fn test_abort_task_that_panics_on_drop_returned() {
+     let rt = Builder::new_current_thread().enable_time().build().unwrap();
+ 
+diff --git a/tests/task_blocking.rs b/tests/task_blocking.rs
+index 62e20f6..4594498 100644
+--- a/tests/task_blocking.rs
++++ b/tests/task_blocking.rs
+@@ -114,6 +114,7 @@ fn can_enter_current_thread_rt_from_within_block_in_place() {
+ }
+ 
+ #[test]
++#[cfg(panic = "unwind")]
+ fn useful_panic_message_when_dropping_rt_in_rt() {
+     use std::panic::{catch_unwind, AssertUnwindSafe};
+ 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><out>
+     This is for testing the node-set of doc/b with highest value in it.  That tree would be:
+     25
+     This is for testing the node-set of b1/b with highest value in it.  That tree would be:
+     64
+     This is for testing the node-set of b2/b with highest value in it.  That tree would be:
+     1230
+     This is for testing the node-set of b3/b with highest value in it.  That tree would be:
+     NaN
+     This is for testing the node-set of //b with highest value in it.  That tree would be:
+     1230
+     
+     This is for testing the node-set of c with highest value in it.  That tree would be:
+     NaN
+     This is for testing the node-set of d with highest value in it.  That tree would be:
+     NaN</out>

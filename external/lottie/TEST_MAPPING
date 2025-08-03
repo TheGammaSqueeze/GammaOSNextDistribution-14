@@ -1,0 +1,25 @@
+{
+    "presubmit-large": [
+        {
+            "name": "CtsPermissionUiTestCases",
+            "options": [
+                {
+                    "exclude-annotation": "android.platform.test.annotations.FlakyTest"
+                }
+            ]
+        }
+    ],
+    "mainline-presubmit": [
+        {
+            "name": "CtsPermissionUiTestCases[com.google.android.permission.apex]",
+            "options": [
+                {
+                    "include-filter": "android.permissionui.cts.LocationAccuracyTest"
+                },
+                {
+                    "exclude-annotation": "android.platform.test.annotations.FlakyTest"
+                }
+            ]
+        }
+    ]
+}

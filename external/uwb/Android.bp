@@ -1,0 +1,10 @@
+package {
+    default_applicable_licenses: ["external_uwb_license"],
+}
+
+license {
+    name: "external_uwb_license",
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["LICENSE"],
+}
+subdirs = ["src"]

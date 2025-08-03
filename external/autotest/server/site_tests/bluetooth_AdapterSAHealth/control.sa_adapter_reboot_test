@@ -1,0 +1,36 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterSAHealth.sa_adapter_reboot_test'
+PURPOSE = ('Reboot device and ensure Bluetooth adapter is up')
+CRITERIA = 'Pass all health test'
+# TODO(b/173146480) re-enable this test once BT state persists properly around
+# reboots
+ATTRIBUTES = ''
+TIME = 'MEDIUM'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth'
+PY_VERSION = 3
+
+DOC = """Server side bluetooth adapter stress tests involving reboot.
+    First we test powering on the adapter, reboot the DUT, and make sure
+    the adapter is still powered on and in a working state.
+
+    Next we test powering off the adapter, reboot, and verify the adapter
+    is still powered off.
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterSAHealth', host=host,
+                  num_iterations=1, test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

@@ -1,0 +1,21 @@
+diff --git a/protos/Android.bp b/protos/Android.bp
+index eed6fd361..929925ac3 100644
+--- a/protos/Android.bp
++++ b/protos/Android.bp
+@@ -19,7 +19,15 @@ rust_library {
+     cargo_pkg_version: "0.1.0",
+     srcs: ["src/lib.rs"],
+     edition: "2021",
+-    rustlibs: ["libprotobuf"],
++    features: [
++        "composite-disk",
++        "registered_events",
++    ],
++    rustlibs: [
++        "libcdisk_spec_proto",
++        "libprotobuf",
++        "libregistered_events_proto",
++    ],
+ }
+ 
+ rust_protobuf {

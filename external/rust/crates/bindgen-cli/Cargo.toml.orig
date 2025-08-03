@@ -1,0 +1,49 @@
+[package]
+authors = [
+  "The rust-bindgen project contributors",
+]
+description = "Automatically generates Rust FFI bindings to C and C++ libraries."
+keywords = ["bindings", "ffi", "code-generation"]
+categories = ["external-ffi-bindings", "development-tools::ffi"]
+license = "BSD-3-Clause"
+name = "bindgen-cli"
+readme = "../README.md"
+repository = "https://github.com/rust-lang/rust-bindgen"
+documentation = "https://docs.rs/bindgen"
+homepage = "https://rust-lang.github.io/rust-bindgen/"
+version = "0.69.2"
+edition = "2018"
+rust-version = "1.64.0"
+
+[[bin]]
+path = "main.rs"
+name = "bindgen"
+
+[dependencies]
+bindgen = { path = "../bindgen", version = "=0.69.2",  default-features = false, features = ["__cli", "experimental"] }
+clap = { version = "4", features = ["derive"] }
+clap_complete = "4"
+env_logger = { version = "0.10.0", optional = true }
+log = { version = "0.4", optional = true }
+shlex = "1"
+
+[features]
+default = ["logging", "runtime", "which-rustfmt"]
+logging = ["bindgen/logging", "dep:env_logger", "dep:log"]
+static = ["bindgen/static"]
+runtime = ["bindgen/runtime"]
+# Dynamically discover a `rustfmt` binary using the `which` crate
+which-rustfmt = ["bindgen/which-rustfmt"]
+
+## The following features are for internal use and they shouldn't be used if
+## you're not hacking on bindgen
+# Features used for CI testing 
+__testing_only_extra_assertions = ["bindgen/__testing_only_extra_assertions"]
+__testing_only_libclang_9 = ["bindgen/__testing_only_libclang_9"]
+__testing_only_libclang_5 = ["bindgen/__testing_only_libclang_5"]
+
+[package.metadata.release]
+release = true
+
+[package.metadata.dist]
+dist = true

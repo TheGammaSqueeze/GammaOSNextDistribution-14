@@ -1,0 +1,198 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE s1 SYSTEM "sbk:/style/dtd/document.dtd">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the  "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<s1 title="Running Tests">
+<ul>
+<li><link anchor="how-to-run">How-to: Run Xalan-J tests</link></li>
+<li><link anchor="how-to-view-results">How-to: View Test Results</link></li>
+<li><link anchor="test-options">Common Test Options</link></li>
+<li><link anchor="how-to-run-c">How-to: Run Xalan-C tests</link></li>
+</ul>
+
+    <anchor name="how-to-run"/>
+    <s2 title="How-to: Run tests">
+    <p>Nearly all tests for Xalan are independent Java classes built 
+    into testxsl.jar that 
+    can be run either individually on the command line, programmatically 
+    from your application or our handy Ant build.xml file, or in batches from 
+    <jump href="apidocs/org/apache/qetest/xsl/XSLTestHarness.html">XSLTestHarness</jump>.
+    There really isn't any magic to them: you can just set your classpath and 
+    execute java.exe to run them; some Tests and Testlets currently provide defaults
+    for their inputs, so you can run them without any setup at all. 
+    However we have provided a couple of more 
+    convenient ways to run the most common tests:</p>
+    <note>If you need to debug into the tests themselves, 
+    you may want to use the <link idref="faq" anchor="debug">debug*.bat files</link></note>
+    <p>Of course, first <link idref="getstarted" anchor="how-to-build">Build a fresh copy of testxsl.jar.</link>
+    </p>
+    <p>cd xml-xalan\test<br/></p>
+    <p>You can either: use the Ant build.xml script; run a convenience batch file; or execute java.exe yourself.</p>
+    
+    <p>
+      <code>build conf [<link anchor="test-options">Ant-prefixed options</link>]</code>
+        <br/>(runs StylesheetTestletDriver over tests\conf test tree using the default StylesheetTestlet)<br/><br/>
+      <code>build perf [<link anchor="test-options">Ant-prefixed options</link>]</code>
+        <br/>(runs StylesheetTestletDriver over tests\perf test tree using the default PerformanceTestlet)<br/><br/>
+      <code>build api -DtestClass=TRAXAPITestClassName [<link anchor="test-options">Ant-prefixed options</link>]</code> 
+      <br/>(runs TRAX interface tests with Xalan-J 2.x<br/>
+    </p>
+    <p>Alternately: some convenience batch files are provided for the most common 
+    tests - these simply turn around and call build.bat/.sh for you.<br/>
+    (Namely conf.bat, perf.bat, and the like)</p>
+    <p>Alternately: Run java.exe and the desired test class yourself:<br/></p>
+    <note>Running tests with alternate JAXP parsers: all org.apache.qetest.trax.* 
+    tests can be run with Xalan-J 2.x and any JAXP 1.1 compatible parser, like 
+    crimson.jar.  Be sure to manually set the appropriate system properties to use 
+    your parser instead of xerces.jar, which is the default for Xalan-J.  Tests will 
+    also run on any JAXP 1.1 compatible xslt processor, namely either our default 
+    xalan one or our new xsltc one.</note>
+    </s2>
+      
+    <anchor name="how-to-view-results"/>
+    <s2 title="How-to: View Test Results">
+      <p>Most tests both send basic results to System.out, as well as 
+      writing a full set of output results to their <code><link anchor="test-options-logfile">logFile</link></code>, as 
+      set from a .properties file or the command line. Generally the 
+      output results file is easier to deal with. The basic format is 
+      fairly simple and you can certainly read it as-is.  Also, many tests 
+      send only summary results to the console, but full output to the results file.</p>
+      <p>To 'pretty-print' results or produce reports, please use the 
+        viewResults.xsl stylesheet and associated batch/shell files, like so:<br/>
+        <code>cd \xml-xalan\test</code><br/><br/>
+        <code>build conf -DoptionName=optionValue <link anchor="test-options-logfile">-Dqetest.logFile results/MyResults.xml</link></code><br/><br/>
+        <code>viewResults.bat results/MyResults.xml results/MyPrettyResults.html [options]</code><br/><br/>
+        These options are passed to Xalan's command line to transform the 
+        xml formatted output results into a nicer-looking html file. The most 
+        common option would be <code>-param loggingLevel 99</code> to get 
+        more output shown in the results (higher numbers up to 99 show more details, 
+        lower numbers, down to 0, show fewer details).
+      </p>  
+      <p>Alternatively, the tableResults.xsl stylesheet can be used to pretty-print
+        results from the conformance test for multiple TRAX flavours:<br/><br/>
+        <code>cd \xml-xalan\test</code><br/><br/>
+        <code>build alltest.conf</code><br/><br/>
+        <code>set RESULTSCANNER=tableResults.xsl</code><br/><br/>
+        <code>viewResults.bat results-alltest/conf/sax/results.xml results.html [options]</code><br/><br/>
+        This will generate a pretty-printed HTML table in results.html, listing all
+        flavours as well as the results of individual test cases for each category.
+        The options can be passed to tableResults.xsl to generate conformance reports
+        on previously run tests, or to compare two runs of the conformance test suite.
+      </p>  
+      <p>Possible options that can be passed to tableResults.xsl:
+        <ul>
+          <li>
+            <code>-param resultsDir /path/to/result/results-alltest/conf</code><br/><br/>
+            Passing the path to the <code>results-alltest/conf</code> directory generates
+            a report based on the results in that directory. Defaults to <code>./results-alltest/conf</code><br/><br/>
+          </li>
+          <li>
+            <code>-param compareAgainst /path/to/other/results-alltest/conf</code><br/><br/>
+            Passing the path to anothe <code>results-alltest/conf</code> directory compares
+            that result against the result pointed to by resultsDir.<br/><br/>
+          </li>
+          <li>
+            <code>-param resultsDir results-alltest.xsltc/conf</code><br/><br/>
+            Generates a report on the results of an xsltc test (with the <code>alltest.conf.xsltc</code>) target.
+          </li>
+        </ul>
+      </p>      
+      <p>Future work includes greatly updated results analysis stylesheets. 
+      See FailScanner.xsl and PerfScanner.xsl for ideas.  An important design 
+      principle in the tests is that at runtime the tests merely output 
+      whatever data they can as results are generated; afterwards, we then 
+      post-process the results into whatever presentation format is needed, 
+      including perhaps re-calculating overall results (example: if we have 
+      a list of known fails correlated to JIRA numbers, then a stylesheet 
+      could filter out these fails and report them as known bugs instead.
+      </p>
+    </s2>
+    <anchor name="test-options"/>
+    <s2 title="Common Test Options">
+      <note>Section needs updating to reflect the fact that while the options the 
+      tests see remain as below, the user must now prefix all optionNames with 
+      'qetest.' or 'conf.', etc. when passing the options on the command line or 
+      via my.test.properties or test.properties -sc</note>
+      <p>Most tests can either accept options from a properties file, via:<br/>
+      <code>&nbsp;&nbsp;TestName -load file.properties</code><br/><br/>
+      or simply from the command line (which overrides the properties file) like:<br/>
+      <code>&nbsp;&nbsp;TestName -arg1 value1 -arg2 -arg3 value3</code><br/><br/></p>
+      <p>To see all options, call a test with an illegal argument to force it 
+      to print out it's .usage(). You may mix setting options from a properties 
+      file and from the command line; command line options will take precedence.</p>
+      <p>For another description of options, see <br/><code>xml-xalan\test\test.properties</code>,<br/> 
+      which describes most of them with comments.  Remember that the prefixes 
+      'qetest.', 'conf.' etc. are used by the Ant build.xml file to manage which 
+      properties are used for different kinds of tests, and are ripped off before 
+      being passed to the Java test script itself.  Thus qetest.loggingLevel=99 in 
+      the test.properties file becomes just loggingLevel of 99 when passed to the test.</p>
+      <note>Path-like options set in a properties file generally should use 
+      forward slashes (legal in URL's), even on Windows platforms.</note>
+      <p>Quick list of options</p>
+        <anchor name="test-options-logfile"/>
+      <gloss>
+        <label>-logFile <ref>resultsFileName.xml</ref></label>
+          <item>sends test results to an XML-based results file</item>
+        <label>-loggingLevel <ref>nn</ref></label>
+          <item>determines how much information is sent to your logFile, 0=very little, 99=lots</item>
+        <label>-ConsoleLogger.loggingLevel <ref>nn</ref></label>
+          <item>determines how much information is sent just to the default ConsoleLogger: 
+          since often you won't be watching the console as the test is running, you can set this 
+          lower than your loggingLevel to speed the tests up a little</item>
+        <label>-inputDir <ref>path/to/tests</ref></label>
+          <item>path to a directory tree of input *.xml/*.xsl files, using your system's separator</item>
+        <label>-outputDir <ref>path/to/output/area</ref></label>
+          <item>where all output is sent</item>
+        <label>-goldDir <ref>path/to/gold</ref></label>
+          <item>path to a directory tree of reference output - this tree should be 
+          a parallel structure to the inputDir tree</item>
+        <label>-category <ref>dirName</ref></label>
+          <item>only run this single named subdir within inputDir</item>
+        <label>-excludes <ref>'test1.xsl;test2.xsl'</ref></label>
+          <item>will skip running any specifically named tests; do not use any path elements here</item>
+        <label>-flavor <ref>xalan|trax|trax.d2d</ref></label>
+          <item>which kind/flavor of Processor to test; see
+          <jump href="apidocs/org/apache/qetest/xslwrapper/ProcessorWrapper.html">ProcessorWrapper.java</jump> </item>
+        <label>-testlet <ref>TestletClassname</ref></label>
+          <item>For StylesheetTestletDriver, use a different class for the testing algorithim</item>
+        <label>-load <ref>file.properties</ref></label>
+          <item>(read in a .properties file, that can set any/all of the other opts)  
+          This option is automatically used by the Ant build.xml file, so you normally 
+          would not specify it yourself.</item>
+      </gloss> 	
+      <p>Note that most options work equivalently with either Xalan-J or Xalan-C tests.</p>
+      <p>When running tests using Ant, the &lt;xalantest&gt; task actually 
+      marshalls various Ant variables and uses the precompiled org.apache.qetest.xsl.XSLTestAntTask 
+      to actually execute the test (either in the same JVM or forked depending on 
+      ${fork-tests}.  It simply strips the appropriate set of prefixes 
+      off of required Ant variables and dumps them into an XSLTestAntTask.properties 
+      file on disk, which it tells the test executing to -load.</p>
+    </s2>
+    
+    <anchor name="how-to-run-c"/>
+    <s2 title="How-to: Run Xalan-C tests">
+      <p>In progress.  A few C++ API tests are checked into the <code>xml-xalan/c/Tests</code>
+      repository area already.  To execute any set of 'conformance' tests with the 
+      Xalan-C processor, we currently use the 
+      org.apache.qetest.xsl.<jump href="apidocs/org/apache/qetest/xsl/XalanCTestlet.html">XalanCTestlet</jump>
+      driver.  This is written in Java to take advantage of the framework and 
+      results reporting, but basically constructs a command line for each test 
+      and then shells out to <code>TestXSLT.exe -in file.xsl...</code> to run the test; 
+      it then uses the same validation routines as the Java ConformanceTest.</p>
+    </s2>    
+</s1>

@@ -1,0 +1,4 @@
+{
+  "features": "alloc,der,pkcs8",
+  "patch": "patches/rules.mk.diff"
+}

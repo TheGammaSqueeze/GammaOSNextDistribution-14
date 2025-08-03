@@ -1,0 +1,42 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file is not auto-generated. Don't delete it.
+from autotest_lib.client.common_lib import utils, global_config
+import pipes
+
+AUTHOR = 'ARC++ Team'
+NAME = 'cheets_CTS_R.internal.x86.waivers'
+ATTRIBUTES = 'suite:arc-cts-r, suite:arc-cts-qual, suite:arc-cts-hardware'
+DEPENDENCIES = 'arc, cts_abi_x86'
+JOB_RETRIES = 1
+TEST_TYPE = 'server'
+TIME = 'MEDIUM'
+MAX_RESULT_SIZE_KB = 512000
+PY_VERSION = 3
+DOC = 'Run waived tests of the Android Compatibility Test Suite (CTS) using x86 ABI in ARC.'
+
+def run_TS(machine):
+    host_list = [hosts.create_host(machine)]
+    ssid = utils.get_wireless_ssid(machine['hostname'])
+    wifipass = global_config.global_config.get_config_value('CLIENT',
+                'wireless_password', default=None)
+    job.run_test(
+        'cheets_CTS_R',
+        hosts=host_list,
+        iterations=1,
+        max_retry=10,
+        tag='internal.x86.waivers',
+        test_name='cheets_CTS_R.internal.x86.waivers',
+        run_template=['run', 'commandAndExit', 'cts', '--subplan', 'waivers'],
+        retry_template=['run', 'commandAndExit', 'retry', '--retry', '{session_id}'],
+        target_module='cts-dev',
+        target_plan='waivers',
+        load_waivers=False,
+        bundle='x86',
+        uri='DEV_WAIVER',
+        use_jdk9=True,
+        timeout=14400)
+
+parallel_simple(run_TS, machines)

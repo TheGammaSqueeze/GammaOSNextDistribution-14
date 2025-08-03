@@ -1,0 +1,5 @@
+cfgs: [
+        // cfg(soong) is used to distinguish code that only builds on Android, so
+        // that (most of) the same code can be built under both Soong and cargo.
+        "soong",
+]

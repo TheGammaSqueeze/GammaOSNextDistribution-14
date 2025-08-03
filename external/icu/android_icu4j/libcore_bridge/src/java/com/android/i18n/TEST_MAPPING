@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsIcuTestCases",
+      "options": [
+        {
+          "include-filter": "com.android.i18n"
+        }
+      ]
+    }
+  ]
+}

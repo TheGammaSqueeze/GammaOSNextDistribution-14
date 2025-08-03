@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<test desc="selects 3, 4">
+<num>3</num>
+<num>4</num>
+</test>
+<test desc="selects 1, 2, a, 3, 4">
+<num>1</num>
+<num>2</num>
+<str>a</str>
+<num>3</num>
+<num>4</num>
+</test>
+<test desc="selects nothing"/>
+</out>

@@ -1,0 +1,12 @@
+name: "nanopb"
+description: "Nanopb - Protocol Buffers for Embedded Systems"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/nanopb/nanopb"
+  }
+  version: "0.3.9.8"
+  last_upgrade_date { year: 2021 month: 12 day: 6 }
+  license_type: NOTICE
+}

@@ -1,0 +1,147 @@
+/*
+ * Copyright (C) 2017. Uber Technologies
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import net.ltgt.gradle.errorprone.CheckSeverity
+buildscript {
+    repositories {
+        mavenCentral()
+        google() // For Gradle 4.0+
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'com.vanniktech:gradle-maven-publish-plugin:0.25.3'
+    }
+}
+plugins {
+    id "com.diffplug.spotless" version "6.23.3"
+    id "net.ltgt.errorprone" version "3.1.0" apply false
+    id "com.github.johnrengelman.shadow" version "8.1.1" apply false
+    id "me.champeau.jmh" version "0.7.1" apply false
+    id "com.github.ben-manes.versions" version "0.50.0"
+    id "com.felipefzdz.gradle.shellcheck" version "1.4.6"
+}
+
+repositories {
+    // to get the google-java-format jar and dependencies
+    mavenCentral()
+}
+
+apply from: "gradle/dependencies.gradle"
+
+subprojects { project ->
+    project.apply plugin: "net.ltgt.errorprone"
+    project.dependencies {
+        errorprone deps.build.errorProneCore
+    }
+    project.tasks.withType(JavaCompile) {
+        dependsOn(installGitHooks)
+        options.compilerArgs += [
+            "-Xlint:deprecation",
+            "-Xlint:rawtypes",
+            "-Xlint:unchecked",
+            "-Werror"
+        ]
+        options.errorprone {
+            // disable warnings in generated code; AutoValue code fails UnnecessaryParentheses check
+            disableWarningsInGeneratedCode = true
+            // this check is too noisy
+            check("StringSplitter", CheckSeverity.OFF)
+            // https://github.com/google/error-prone/issues/3366
+            check("CanIgnoreReturnValueSuggester", CheckSeverity.OFF)
+            // turn up various checks
+            check("WildcardImport", CheckSeverity.ERROR)
+            check("MissingBraces", CheckSeverity.ERROR)
+            check("TypeToString", CheckSeverity.ERROR)
+            check("SymbolToString", CheckSeverity.ERROR)
+            check("MultipleTopLevelClasses", CheckSeverity.ERROR)
+            check("ClassName", CheckSeverity.ERROR)
+            check("PackageLocation", CheckSeverity.ERROR)
+            check("UnnecessaryAnonymousClass", CheckSeverity.ERROR)
+            check("UnusedException", CheckSeverity.ERROR)
+            // To enable auto-patching, uncomment the line below, replace [CheckerName] with
+            // the checker(s) you want to apply patches for (comma-separated), and above, disable
+            // "-Werror"
+            // errorproneArgs.addAll("-XepPatchChecks:[CheckerName]", "-XepPatchLocation:IN_PLACE")
+        }
+    }
+
+    // Target JDK 8.  We need to use the older sourceCompatibility / targetCompatibility settings to get
+    // the build to work on JDK 11+.  Once we stop supporting JDK 8, switch to using the javac "release" option
+    tasks.withType(JavaCompile) {
+        java.sourceCompatibility = "1.8"
+        java.targetCompatibility = "1.8"
+    }
+
+    tasks.withType(Test).configureEach {
+        maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    }
+
+    repositories {
+        mavenCentral()
+        google()
+    }
+
+    // For some reason, spotless complains when applied to the jar-infer folder itself, even
+    // though there is no top-level :jar-infer project
+    if (project.name != "jar-infer") {
+        project.apply plugin: "com.diffplug.spotless"
+        spotless {
+            java {
+                googleJavaFormat()
+            }
+        }
+    }
+}
+
+spotless {
+    predeclareDeps()
+    groovyGradle {
+        target '**/*.gradle'
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+spotlessPredeclare {
+    java { googleJavaFormat('1.18.1') }
+    groovyGradle {
+        greclipse()
+    }
+}
+
+shellcheck {
+    useDocker = false
+    shellcheckBinary = "shellcheck"
+    sourceFiles =
+            fileTree(".") {
+                include("**/*.sh")
+            }
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+//  Google Java Format pre-commit hook installation
+//
+
+tasks.register('installGitHooks', Copy) {
+    from(file('config/hooks/pre-commit-stub')) {
+        rename 'pre-commit-stub', 'pre-commit'
+    }
+    into file('.git/hooks')
+    fileMode 0777
+}

@@ -1,0 +1,8 @@
+{
+  "tests": true,
+  "module_visibility": {
+    "libfragile": [
+      "//external/rust/crates/mockall"
+    ]
+  }
+}

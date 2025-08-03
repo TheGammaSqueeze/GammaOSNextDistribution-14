@@ -1,0 +1,20 @@
+name: "jackson-databind"
+description:
+    "This project contains the general-purpose data-binding functionality and "
+    "tree-model for Jackson Data Processor. It builds on Streaming API (stream "
+    "parser/generator) package, and uses Jackson Annotations for configuration. "
+    "Project is licensed under Apache License 2.0."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/FasterXML/jackson-databind"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/FasterXML/jackson-databind.git"
+  }
+  version: "2.12"
+  last_upgrade_date { year: 2020 month: 8 day: 5 }
+  license_type: NOTICE
+}

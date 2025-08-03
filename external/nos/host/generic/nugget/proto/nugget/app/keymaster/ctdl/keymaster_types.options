@@ -1,0 +1,12 @@
+nugget.app.keymaster.ctdl.KeyParameters.params max_count:20
+nugget.app.keymaster.ctdl.HmacSharingParameters.seed max_size:32
+nugget.app.keymaster.ctdl.HmacSharingParameters.nonce max_size:32
+nugget.app.keymaster.ctdl.HardwareAuthToken.mac max_size:32
+nugget.app.keymaster.ctdl.VerificationToken.mac max_size:32
+nugget.app.keymaster.ctdl.VigoKey.x max_size:64
+nugget.app.keymaster.ctdl.VigoSignature.r max_size:32
+nugget.app.keymaster.ctdl.VigoSignature.s max_size:32
+nugget.app.keymaster.ctdl.VigoSecret.material max_size:32
+nugget.app.keymaster.ctdl.VigoSecret.iv max_size:16
+nugget.app.keymaster.ctdl.VigoSecret.tag max_size:16
+nugget.app.keymaster.ctdl.KeysToSign.keys max_count:20

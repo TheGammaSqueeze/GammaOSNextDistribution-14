@@ -1,0 +1,13 @@
+name: "notoserif"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Serif is a modulated (“serif”) design for texts in theLatin, Cyrillic and Greek scripts, also suitable as thecomplementary font for other script-specific Noto Serif fonts. It has italicstyles, multiple weights and widths, and 3,256 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notoserif"
+  }
+  version: "1.070"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 7 day: 27 }
+}

@@ -1,0 +1,13 @@
+name: "notonaskharabic"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Naskh Arabic is a modulated (“serif”) Naskh design, suitablefor texts in the Middle Eastern Arabic script and for use togetherwith serif fonts. It has multiple weights and 1,598 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notonaskharabic"
+  }
+  version: "1.080"
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 2 day: 7 }
+}

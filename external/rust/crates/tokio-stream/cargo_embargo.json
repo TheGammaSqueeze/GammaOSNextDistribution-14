@@ -1,0 +1,14 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.btservices"
+  ],
+  "features": [
+    "time",
+    "net",
+    "io-util",
+    "fs"
+  ],
+  "min_sdk_version": "29",
+  "run_cargo": false
+}

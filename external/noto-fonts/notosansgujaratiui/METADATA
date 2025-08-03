@@ -1,0 +1,13 @@
+name: "notosansgujaratiui"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Gujarati UI is an unmodulated (“sans serif”) design forapp and website user interfaces in the Indic Gujarati script. It has816 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansgujaratiui"
+  }
+  version: "1.030"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

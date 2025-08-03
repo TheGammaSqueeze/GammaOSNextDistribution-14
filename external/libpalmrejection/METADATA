@@ -1,0 +1,13 @@
+name: "libpalmrejection"
+description:
+    "This is a fork of the Chromium code for palm rejection. The palm rejection "
+    "feature processes the input event stream and determines if any of the "
+    "pointers in that stream are palms. The output of this code is a list of "
+    "pointers that are identified as palms. Typically, the expectation is that "
+    "the upper layers would then cancel or remove these pointers from the input "
+    "event stream that is sent to applications."
+
+third_party {
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 1 day: 10 }
+}

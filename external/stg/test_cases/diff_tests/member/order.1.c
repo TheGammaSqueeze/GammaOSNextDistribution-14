@@ -1,0 +1,12 @@
+struct {
+  int zero;
+  int one;
+  int two;
+  double e;
+  int three;
+  double pi;
+  int four;
+  int five;
+  int six;
+  double tau;
+} v;

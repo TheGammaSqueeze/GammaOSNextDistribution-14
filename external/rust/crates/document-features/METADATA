@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/document-features
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "document-features"
+description: "Extract documentation for the feature flags from comments in Cargo.toml"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 8
+  }
+  homepage: "https://crates.io/crates/document-features"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/document-features/document-features-0.2.8.crate"
+    version: "0.2.8"
+  }
+}

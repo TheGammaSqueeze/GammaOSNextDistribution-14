@@ -1,0 +1,155 @@
+// Copyright 2023 The Pigweed Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+package {
+    default_applicable_licenses: ["external_pigweed_license"],
+}
+
+cc_library_headers {
+    name: "pw_rpc_transport_rpc_transport_headers",
+    cpp_std: "c++20",
+    export_include_dirs: ["public"],
+    header_libs: [
+        "pw_function_headers",
+    ],
+    export_header_lib_headers: [
+        "pw_function_headers",
+    ],
+    static_libs: [
+        "pw_bytes",
+        "pw_status",
+    ],
+    export_static_lib_headers: [
+        "pw_bytes",
+        "pw_status",
+    ],
+    host_supported: true,
+    vendor_available: true,
+}
+
+cc_library_static {
+    name: "pw_rpc_transport_local_rpc_egress",
+    cpp_std: "c++20",
+    vendor_available: true,
+    host_supported: true,
+    header_libs: [
+        "pw_log_headers",
+        "pw_log_null_headers",
+        "pw_polyfill_headers",
+        "pw_preprocessor_headers",
+        "pw_result_headers",
+        "pw_rpc_transport_rpc_transport_headers",
+    ],
+    export_header_lib_headers: [
+        "pw_log_headers",
+        "pw_result_headers",
+        "pw_rpc_transport_rpc_transport_headers",
+    ],
+    static_libs: [
+        "pw_containers",
+    ],
+    export_static_lib_headers: [
+        "pw_containers",
+    ],
+    srcs: [
+        "local_rpc_egress.cc",
+    ],
+}
+
+cc_library_static {
+    name: "pw_rpc_transport_simple_framing",
+    cpp_std: "c++20",
+    vendor_available: true,
+    host_supported: true,
+    header_libs: [
+        "pw_assert_headers",
+        "pw_assert_log_headers",
+        "pw_log_headers",
+        "pw_log_null_headers",
+        "pw_polyfill_headers",
+        "pw_preprocessor_headers",
+        "pw_result_headers",
+        "pw_rpc_transport_rpc_transport_headers",
+        "pw_span_headers",
+    ],
+    export_header_lib_headers: [
+        "pw_assert_headers",
+        "pw_log_headers",
+        "pw_result_headers",
+        "pw_rpc_transport_rpc_transport_headers",
+        "pw_span_headers",
+    ],
+    srcs: [
+        "simple_framing.cc",
+    ],
+}
+
+filegroup {
+    name: "pw_rpc_transport_egress_ingress_src_files",
+    srcs: [
+        "egress_ingress.cc",
+    ],
+}
+
+// This rule must be instantiated, e.g.
+//
+//   cc_library_static {
+//       name: "<instance_name>",
+//       cflags: [
+//           "-DPW_RPC_USE_GLOBAL_MUTEX=0",
+//           "-DPW_RPC_COMPLETION_REQUEST_CALLBACK",
+//           "-DPW_RPC_DYNAMIC_ALLOCATION",
+//       ],
+//       defaults: [
+//           "pw_rpc_transport_egress_ingress_defaults",
+//       ],
+//   }
+cc_defaults {
+    name: "pw_rpc_transport_egress_ingress_defaults",
+    cpp_std: "c++20",
+    defaults: [
+        "pw_chrono_defaults",
+        "pw_chrono_stl_defaults",
+        "pw_rpc_defaults",
+        "pw_sync_stl_defaults",
+        "pw_thread_defaults",
+        "pw_thread_stl_defaults",
+    ],
+    header_libs: [
+        "pw_assert_headers",
+        "pw_assert_log_headers",
+        "pw_log_headers",
+        "pw_log_null_headers",
+        "pw_rpc_transport_rpc_transport_headers",
+        "pw_sync_headers",
+        "pw_sync_binary_semaphore_thread_notification_backend_headers",
+    ],
+    export_header_lib_headers: [
+        "pw_assert_headers",
+        "pw_log_headers",
+        "pw_rpc_transport_rpc_transport_headers",
+        "pw_sync_headers",
+    ],
+    static_libs: [
+        "pw_hdlc",
+        "pw_metric",
+    ],
+    export_static_lib_headers: [
+        "pw_hdlc",
+        "pw_metric",
+    ],
+    srcs: [
+        ":pw_rpc_transport_egress_ingress_src_files",
+    ],
+}

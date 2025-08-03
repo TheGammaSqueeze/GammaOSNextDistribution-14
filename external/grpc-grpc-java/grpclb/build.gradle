@@ -1,0 +1,40 @@
+plugins {
+    id "java"
+    id "maven-publish"
+
+    id "com.google.protobuf"
+    id "me.champeau.gradle.japicmp"
+    id "ru.vyarus.animalsniffer"
+}
+
+description = "gRPC: GRPCLB LoadBalancer plugin"
+
+dependencies {
+    implementation project(':grpc-core'),
+            project(':grpc-protobuf'),
+            project(':grpc-stub'),
+            libraries.protobuf.java,
+            libraries.protobuf.java.util,
+            libraries.guava
+    runtimeOnly libraries.errorprone.annotations
+    compileOnly libraries.javax.annotation
+    testImplementation libraries.truth,
+            testFixtures(project(':grpc-core'))
+
+    signature libraries.signature.java
+}
+
+configureProtoCompilation()
+
+tasks.named("javadoc").configure {
+    exclude 'io/grpc/grpclb/Internal*'
+}
+
+tasks.named("jacocoTestReport").configure {
+    classDirectories.from = sourceSets.main.output.collect {
+        fileTree(dir: it,
+        exclude: [
+                '**/io/grpc/lb/v1/**',
+        ])
+    }
+}

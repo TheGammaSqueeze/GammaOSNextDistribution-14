@@ -1,0 +1,62 @@
+cc_defaults {
+    name: "libgrpcio_sys_defaults",
+    cflags: [
+        "-DGRPC_SYS_SECURE",
+    ],
+    shared_libs: ["libgrpc++"],
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+    product_available: false,
+    vendor_available: true,
+    min_sdk_version: "29",
+}
+
+cc_library {
+    name: "libgrpc_wrap",
+    defaults: ["libgrpcio_sys_defaults"],
+    host_supported: true,
+    srcs: ["grpc_wrap.cc"],
+}
+
+rust_bindgen {
+    name: "libgrpc_bindgen",
+    defaults: ["libgrpcio_sys_defaults"],
+    host_supported: true,
+    wrapper_src: "android/bindgen_wrapper.hpp",
+    source_stem: "grpc-bindings",
+    crate_name: "grpc_bindgen",
+    bindgen_flags: [
+        "--constified-enum-module grpc_status_code",
+        "--default-enum-style rust",
+        "--allowlist-function=\\bgrpc_.*",
+        "--allowlist-function=\\bgpr_.*",
+        "--allowlist-function=\\bgrpcwrap_.*",
+        "--allowlist-var=\\bGRPC_.*",
+        "--allowlist-type=\\bgrpc_.*",
+        "--allowlist-type=\\bgpr_.*",
+        "--allowlist-type=\\bgrpcwrap_.*",
+        "--allowlist-type=\\bcensus_context.*",
+        "--allowlist-type=\\bverify_peer_options.*",
+        "--blocklist-type=(__)?pthread.*",
+        "--blocklist-function=\\bgpr_mu_.*",
+        "--blocklist-function=\\bgpr_cv_.*",
+        "--blocklist-function=\\bgpr_once_.*",
+        "--blocklist-type=gpr_mu",
+        "--blocklist-type=gpr_cv",
+        "--blocklist-type=gpr_once",
+    ],
+    min_sdk_version: "29",
+}
+
+rust_test {
+    name: "libgrpc_bindgen_test",
+    srcs: [":libgrpc_bindgen"],
+    crate_name: "grpc_bindgen_test",
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    clippy_lints: "none",
+    lints: "none",
+}

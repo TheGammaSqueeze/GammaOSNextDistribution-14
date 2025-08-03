@@ -1,0 +1,11 @@
+<myDoc>
+   <myNode id="tools">
+        <myItem>Item of tools</myItem>
+   </myNode>
+   <myNode id="main">
+        <myItem>Item of main</myItem>
+   </myNode>
+   <myNode id="aux">
+        <myItem>Item of aux</myItem>
+   </myNode>
+</myDoc>

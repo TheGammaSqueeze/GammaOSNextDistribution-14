@@ -1,0 +1,219 @@
+.TH SG_DECODE_SENSE "8" "August 2022" "sg3_utils\-1.48" SG3_UTILS
+.SH NAME
+sg_decode_sense \- decode SCSI sense and related data
+.SH SYNOPSIS
+.B sg_decode_sense
+[\fI\-\-binary=BFN\fR] [\fI\-\-cdb\fR] [\fI\-\-err=ES\fR] [\fI\-\-file=HFN\fR]
+[\fI\-\-help\fR] [\fI\-\-hex\fR] [\fI\-\-inhex=HFN\fR]
+[\fI\-\-ignore\-first\fR] [\fI\-\-json[=JO]\fR] [\fI\-\-nodecode\fR]
+[\fI\-\-nospace\fR] [\fI\-\-status=SS\fR] [\fI\-\-verbose\fR]
+[\fI\-\-version\fR] [\fI\-\-write=WFN\fR] [H1 H2 H3 ...]
+.SH DESCRIPTION
+.\" Add any additional description here
+This utility takes SCSI sense data in binary or as a sequence of ASCII
+hexadecimal bytes and decodes it. The primary reference for the
+decoding is SPC\-5 ANSI INCITS 502\-2020 and the most recent draft
+SPC\-6 revision 6 which can be found at https://www.t10.org and other
+locations on the internet.
+.PP
+SCSI sense data is often found in kernel log files as a result of
+something going wrong or may be an informative warning. It is often shown
+as a sequence of hexadecimal bytes, starting with 70, 71, 72, 73, f0 or f1.
+Sense data could be up to 252 bytes long but typically is much shorter
+than that, 18 bytes long is often seen and is usually associated with
+the older "fixed" format sense data.
+.PP
+The sense data can be provided on the command line or in a file. If given
+on the command line the sense data should be a sequence of hexadecimal bytes
+separated by space. Alternatively a file can be given with the contents in
+binary or ASCII hexadecimal bytes. The latter form can contain several lines
+each with none, one or more ASCII hexadecimal bytes separated by
+space (comma or tab). The hash symbol may appear and it and the rest of the
+line is ignored making it useful for comments.
+.PP
+If the \fI\-\-cdb\fR option is given then rather than viewing the given hex
+arguments as sense data, it is viewed as a SCSI command descriptor
+block (CDB). In this case the command name is printed out. That name is
+based on the first hex byte given (know as the opcode) and optionally on
+another field called the "service action".
+.PP
+Another alternate action is when the \fI\-\-err=ES\fR is given. \fIES\fR
+is assumed to be an "exit status" value between 0 and 255 from one of the
+utilities in this package. A descriptive string is printed. Other options
+are ignored apart from \fI\-\-verbose\fR.
+.PP
+When the \fI\-\-nodecode\fR option is given, this utility may be used to
+convert a binary file to hexadecimal or vice versa. The data converted does
+not need to be sense data.
+.SH OPTIONS
+Arguments to long options are mandatory for short options as well.
+.TP
+\fB\-b\fR, \fB\-\-binary\fR=\fIBFN\fR
+the data is read in binary from a file called \fIBFN\fR. The option
+cannot be given with \fI\-\-file=HFN\fR or \fI\-\-inhex=HFN\fR as they
+contradict. The data is assumed to be sense data unless the
+fI\-\-nodecode\fR is given.
+.TP
+\fB\-c\fR, \fB\-\-cdb\fR
+treat the given string of hex arguments as bytes in a SCSI CDB and
+decode the command name.
+.TP
+\fB\-e\fR, \fB\-\-err\fR=\fIES\fR
+\fIES\fR should be an "exit status" value between 0 and 255 that is
+available from the shell (i.e. the utility's execution context) after the
+utility is finished. By default an indicative error message is printed to
+stdout; and if the \fI\-\-verbose\fR option is given once (or an odd number
+of times) then the message is instead printed to stderr. If \fI\-\-verbose\fR
+is given two or more times a longer form of the message is output. In all
+cases the message is less than 128 characters long with one trailing line
+feed. All other command line options and arguments are ignored.
+.TP
+\fB\-f\fR, \fB\-\-file\fR=\fIHFN\fR
+the sense data is read in ASCII hexadecimal from a file called \fIHFN\fR.
+The sense data should appear as a sequence of bytes separated by space,
+comma, tab, hyphen or newline. Everything from and including a hash symbol
+to the end of that line is ignored. If \fI\-\-nospace\fR is set then no
+separator is required between the ASCII hexadecimal digits in \fIHFN\fR
+with bytes decoded from pairs of ASCII hexadecimal digits.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+output the usage message then exit.
+.TP
+\fB\-H\fR, \fB\-\-hex\fR
+this option is used once in conjunction with \fI\-\-write=WFN\fR in order to
+change the output written to \fIWFN\fR to lines of ASCII hex bytes suitable
+for a C language compiler. Each line contains up to 16 bytes (e.g. a line
+starting with "0x3b,0x07,0x00,0xff").
+.br
+In other cases (i.e. when \fI\-\-write=WFN\fR is not given, or this option
+is given more than once) then the output is as described in the sg3_utils(8)
+manpage.
+.br
+The combination of \fI\-\-inhex=HFN\fR and this option used three times
+can be useful to converting hexadecimal bytes (e.g. hyphen separated) into
+a more regular form. The short option form is more convenient for invoking
+this option three times (e.g. '\-HHH').
+.TP
+\fB\-i\fR, \fB\-\-inhex\fR=\fIHFN\fR
+same action as \fI\-\-file=HFN\fR. This option was added for compatibility
+with other utilities in this package that have a \fI\-\-inhex=\fR option.
+.TP
+\fB\-I\fR, \fB\-\-ignore\-first\fR
+many programs that output hex bytes (e.g. 'hexdump \-C') have a running
+count (or index) in the first column of each line. This option ignores the
+first hexadecimal value on each line. This option has no effect if
+\fI\-\-binary=BFN\fR or \fI\-\-nospace\fR are given. Blank lines and any
+character from and after "#" on a line are ignored. Useful with the
+\fI\-\-file=HFN\fR and \fI\-\-nodecode\fR options.
+.TP
+\fB\-j\fR, \fB\-\-json[\fR=\fIJO\fR]
+output is in JSON format instead of human readable form. See sg3_utils_json
+manpage or use '?' for \fIJO\fR for a summary.
+.br
+This option is designed to parse sense data into JSON output.
+.TP
+\fB\-N\fR, \fB\-\-nodecode\fR
+Do not decode the given data as sense or a cdb. Useful when arbitrary data
+is given (e.g. when converting hex to binary or vice versa).
+.TP
+\fB\-n\fR, \fB\-\-nospace\fR
+expect ASCII hexadecimal to be a string of hexadecimal digits with no
+spaces between them. Bytes are decoded by taking two hexadecimal digits
+at a time, so an even number of digits is expected. The string of
+hexadecimal digits may be on the command line (replacing "H1 H2 H3")
+or spread across multiple lines the \fIHFN\fR given to \fI\-\-file=\fR.
+On the command line, spaces (or other whitespace characters) between
+sequences of hexadecimal digits are ignored; the maximum command line
+hex string is 1023 characters long.
+.TP
+\fB\-s\fR, \fB\-\-status\fR=\fISS\fR
+where \fISS\fR is a SCSI status byte value, given in hexadecimal. The
+SCSI status byte is related to, but distinct from, sense data.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+increase the degree of verbosity (debug messages).
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+output version string then exit.
+.TP
+\fB\-w\fR, \fB\-\-write\fR=\fIWFN\fR
+writes the sense data out to a file called \fIWFN\fR. If necessary \fIWFN\fR
+is created. If \fIWFN\fR exists then it is truncated prior to writing the
+sense data to it. If the \fI\-\-hex\fR option is also given then ASCII hex
+is written to \fIWFN\fR (see the \fI\-\-hex\fR option description);
+otherwise binary is written to \fIWFN\fR. This option is a convenience and
+may be helpful in converting the ASCII hexadecimal representation of sense
+data (or anything else) into the equivalent binary or a compilable ASCII
+hex form.
+.SH NOTES
+Unlike most utilities in this package, this utility does not access a
+SCSI device (logical unit). This utility accesses a library associated
+with this package. Amongst other things the library decodes SCSI sense
+data.
+.PP
+The sg_raw utility takes a ASCII hexadecimal sequence representing a SCSI
+CDB. When sg_raw is given the '\-vvv' option, it will attempt to decode the
+CDB name.
+.PP
+Using the option combination: "\fI\-\-inhex=HFN \-\-nodecode \-\-write=WFN\fR"
+may be used to convert hexadecimal (as produced by this and other utilities
+in this package) to binary where the output file is \fIWFN\fR.
+.PP
+Unlike many other utilities there is no \fI\-\-raw\fR option. However binary
+data can be input using the \fI\-\-binary=BFN\fR option while binary data
+can be output using the \fI\-\-write=WFN\fR option (in the absence of the
+\fI\-\-hex\fR option).
+.SH EXAMPLES
+Sense data is often printed out in kernel logs and sometimes on the
+command line when verbose or debug flags are given. It will be at least
+8 bytes long, often 18 bytes long but may be longer. A sense data string
+might look like this:
+.PP
+f0 00 03 00 00 12 34 0a  00 00 00 00 11 00 00 00
+.br
+00 00
+.PP
+Cut and paste it after the sg_decode_sense command:
+.PP
+  sg_decode_sense f0 00 03 00 00 12 34 0a 00 00 00 00 11 00 00 00 00 00
+.PP
+and for this sense data the output should look like this:
+.PP
+ Fixed format, current;  Sense key: Medium Error
+.br
+ Additional sense: Unrecovered read error
+.br
+  Info fld=0x1234 [4660]
+.PP
+For a medium error the Info field is the logical block address (LBA)
+of the lowest numbered block that the associated SCSI command was not
+able to read (verify or write).
+.PP
+To convert arbitrary binary data to hex, suitable to be parsed by other
+sg3_utils utilities. The \fI\-\-nodecode\fR option is used in this case:
+.PP
+  sg_decode_sense \-N \-i vpd_zbdc.hex \-w vpd_zbdc.bin
+.PP
+The '\-HHH' will output hex to the console (stdout) in a form suitable for
+other utilities in this package to parse as input. And sg_decode_sense can
+also be used to convert from arbitrary hex to binary with:
+.PP
+  sg_decode_sense \-N \-b vpd_zbdc.raw \-HHH
+.PP
+Note that tools like hexdump and od place a counter (i.e. an index starting
+at 0) at the beginning of each line which is a pain when parsing hex.
+The '/-HHH' option(s) does not output that leading counter on each line.
+.SH EXIT STATUS
+The exit status of sg_decode_sense is 0 when it is successful. Otherwise
+see the sg3_utils(8) man page.
+.SH AUTHORS
+Written by Douglas Gilbert.
+.SH "REPORTING BUGS"
+Report bugs to <dgilbert at interlog dot com>.
+.SH COPYRIGHT
+Copyright \(co 2010\-2022 Douglas Gilbert
+.br
+This software is distributed under a BSD\-2\-Clause license. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+.B sg_requests,sg_raw(sg3_utils)

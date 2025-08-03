@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<test desc="selects true (abc, abc)">true, true</test>
+<test desc="selects true (abc, abc and parent)">true</test>
+<test desc="selects false (abc, xyz)">false</test>
+<test desc="selects false (abc, abc2)">false</test>
+<test desc="selects false (abc, abc[1])">false</test>
+<test desc="selects false (abc[1], abc)">false</test>
+<test desc="selects true (abc[1], abc[1])">true</test>
+</out>

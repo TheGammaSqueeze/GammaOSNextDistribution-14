@@ -1,0 +1,39 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+array {
+  id: 0x9d362140
+  number_of_elements: 17
+  element_type_id: 0x6720d32f
+}
+member {
+  id: 0xe0b89aa0
+  name: "member"
+  type_id: 0x9d362140
+}
+struct_union {
+  id: 0x0515f337
+  kind: STRUCT
+  name: "wrapper<int, 17>"
+  definition {
+    bytesize: 68
+    member_id: 0xe0b89aa0
+  }
+}
+elf_symbol {
+  id: 0x4529dee2
+  name: "variable"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x0515f337
+  full_name: "variable"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x4529dee2
+}

@@ -1,0 +1,6 @@
+include platform/prebuilts/rust:main:/OWNERS
+# Android Hardware Security
+asbel@google.com
+jbires@google.com
+paulcrowley@google.com
+

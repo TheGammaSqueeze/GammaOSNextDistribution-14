@@ -1,0 +1,90 @@
+diff --git a/android/bindgen_cmd/Android.bp b/android/bindgen_cmd/Android.bp
+new file mode 100644
+index 0000000..689e7ae
+--- /dev/null
++++ b/android/bindgen_cmd/Android.bp
+@@ -0,0 +1,28 @@
++package {
++    // See: http://go/android-license-faq
++    // A large-scale-change added 'default_applicable_licenses' to import
++    // all of the 'license_kinds' from "external_rust_crates_bindgen_license"
++    // to get the below license kinds:
++    //   SPDX-license-identifier-Apache-2.0
++    default_applicable_licenses: ["external_rust_crates_bindgen_license"],
++}
++
++rust_library_host {
++    name: "libbindgen_cmd",
++    crate_name: "bindgen_cmd",
++    srcs: ["src/lib.rs"],
++    edition: "2018",
++    features: [
++        "clap",
++        "runtime",
++        "which",
++        "which-rustfmt",
++    ],
++    rustlibs: [
++        "libbindgen",
++        "libbindgen_cli",
++        "libclap",
++        "libenv_logger",
++    ],
++    compile_multilib: "first",
++}
+diff --git a/android/bindgen_cmd/src/lib.rs b/android/bindgen_cmd/src/lib.rs
+new file mode 100644
+index 0000000..d33da7f
+--- /dev/null
++++ b/android/bindgen_cmd/src/lib.rs
+@@ -0,0 +1,50 @@
++// Copyright 2020, The Android Open Source Project
++//
++// Licensed under the Apache License, Version 2.0 (the "License");
++// you may not use this file except in compliance with the License.
++// You may obtain a copy of the License at
++//
++//     http://www.apache.org/licenses/LICENSE-2.0
++//
++// Unless required by applicable law or agreed to in writing, software
++// distributed under the License is distributed on an "AS IS" BASIS,
++// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// See the License for the specific language governing permissions and
++// limitations under the License.
++
++//! This is a helper crate for using bindgen as a library from within
++//! Android's build system. Some functionality (such as the type selection
++//! heuristic) is not available on the command line, and so the library
++//! interface may be necessary. Bindgen also needs to receive configuration
++//! from Soong however to find appropriate headers, set global cflags, etc.
++//!
++//! This crate provides the ability to run a hooked version of the command
++//! line bindgen tool, with the ability to call a user-provided transformation
++//! on the the builder before it is used.
++
++use bindgen;
++use bindgen_cli;
++use std::env;
++
++/// Takes in a function describing adjustments to make to a builder
++/// initialized by the command line. `build(|x| x)` is equivalent to
++/// running bindgen. When converting a build.rs, you will want to convert the
++/// additional configuration they do into a function, then pass it to `build`
++/// inside your main function.
++pub fn build<C: FnOnce(bindgen::Builder) -> bindgen::Builder>(configure: C) {
++    env_logger::init();
++
++    match bindgen_cli::builder_from_flags(env::args()) {
++        Ok((builder, output, _)) => {
++            configure(builder)
++                .generate()
++                .expect("Unable to generate bindings")
++                .write(output)
++                .expect("Unable to write output");
++        }
++        Err(error) => {
++            eprintln!("{}", error);
++            std::process::exit(1);
++        }
++    };
++}

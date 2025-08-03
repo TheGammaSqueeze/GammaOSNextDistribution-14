@@ -1,0 +1,58 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0xb0312d5a
+  name: "short"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000002
+}
+member {
+  id: 0x6203902d
+  name: "rest_of_the_struct"
+  type_id: 0xb0312d5a
+}
+member {
+  id: 0x4dbddff8
+  name: "x"
+  type_id: 0xb0312d5a
+  offset: 16
+  bitsize: 5
+}
+member {
+  id: 0x214471dc
+  name: "y"
+  type_id: 0xb0312d5a
+  offset: 21
+  bitsize: 6
+}
+member {
+  id: 0xc93d2a5e
+  name: "z"
+  type_id: 0xb0312d5a
+  offset: 27
+  bitsize: 5
+}
+struct_union {
+  id: 0xf6f304f7
+  kind: STRUCT
+  name: "Foo"
+  definition {
+    bytesize: 4
+    member_id: 0x6203902d
+    member_id: 0x4dbddff8
+    member_id: 0x214471dc
+    member_id: 0xc93d2a5e
+  }
+}
+elf_symbol {
+  id: 0x3997c6eb
+  name: "var"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf6f304f7
+  full_name: "var"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x3997c6eb
+}

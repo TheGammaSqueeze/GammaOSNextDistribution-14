@@ -1,0 +1,77 @@
+package {
+    default_applicable_licenses: [
+        "external_pandora_bt-test-interfaces_license",
+    ],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_pandora_bt-test-interfaces_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+java_library {
+    name: "pandora-grpc-java",
+    visibility: ["//packages/modules/Bluetooth/android/pandora/server"],
+    srcs: [":pandora-protos"],
+    static_libs: [
+        "grpc-java-lite",
+        "guava",
+        "javax_annotation-api_1.3.2",
+        "libprotobuf-java-lite",
+        "opencensus-java-api",
+        "pandora-proto-java",
+    ],
+    proto: {
+        include_dirs: [
+            "external/protobuf/src",
+            "external/pandora/bt-test-interfaces",
+        ],
+        plugin: "grpc-java-plugin",
+        output_params: [
+           "lite",
+        ],
+    },
+}
+
+java_library {
+    name: "pandora-proto-java",
+    visibility: [
+        "//packages/modules/Bluetooth/android/pandora/server",
+        "//packages/modules/Bluetooth/pandora/interfaces",
+    ],
+    srcs: [
+        "pandora/*.proto",
+        ":libprotobuf-internal-protos",
+    ],
+    static_libs: [
+        "libprotobuf-java-lite",
+    ],
+    proto: {
+        // Disable canonical path as this breaks the identification of
+        // well known protobufs
+        canonical_path_from_root: false,
+        type: "lite",
+        include_dirs: [
+            "external/protobuf/src",
+            "external/pandora/bt-test-interfaces",
+        ],
+    },
+}
+
+filegroup {
+    name: "pandora-protos",
+    srcs: [
+        "pandora/a2dp.proto",
+        "pandora/host.proto",
+        "pandora/l2cap.proto",
+        "pandora/security.proto",
+    ],
+}

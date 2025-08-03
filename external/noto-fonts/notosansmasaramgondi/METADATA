@@ -1,0 +1,13 @@
+name: "notosansmasaramgondi"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Masaram Gondi is an unmodulated (“sans serif”) design fortexts in the Indic Masaram Gondi script. It has 187 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansmasaramgondi"
+  }
+  version: "1.002"
+  license_type: NOTICE
+  last_upgrade_date { year: 2020 month: 2 day: 10 }
+}

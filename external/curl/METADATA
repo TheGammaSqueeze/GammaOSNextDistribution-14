@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/curl
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "curl"
+description: "A command line tool and library for transferring data with URLs."
+third_party {
+  license_type: NOTICE
+  security {
+    tag: "NVD-CPE2.3:cpe:/a:haxx:curl:7.87.0"
+  }
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 20
+  }
+  homepage: "https://curl.haxx.se/"
+  identifier {
+    type: "Git"
+    value: "https://github.com/curl/curl/"
+    version: "curl-8_6_0"
+  }
+}

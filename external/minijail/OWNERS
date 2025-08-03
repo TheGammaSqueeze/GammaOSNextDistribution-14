@@ -1,0 +1,10 @@
+set noparent
+# Android: exclude upstream owners so that code review requests will be routed
+# to the Android/downstream owners below.
+#include OWNERS_GENERAL
+adelva@google.com
+victorhsieh@google.com
+
+# Emeritus.
+#drewry@google.com
+#keescook@google.com

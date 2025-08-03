@@ -1,0 +1,21 @@
+Patch Android.bp to use the old syn v1 package.
+
+--- a/Android.bp	2023-11-06 16:05:46.887866053 +0100
++++ b/Android.bp	2023-11-06 16:06:15.768058832 +0100
+@@ -14,7 +14,7 @@
+         "libcfg_if",
+         "libproc_macro2",
+         "libquote",
+-        "libsyn",
++        "libsyn_deprecated",
+     ],
+ }
+ 
+@@ -34,6 +34,6 @@
+         "libcfg_if",
+         "libproc_macro2",
+         "libquote",
+-        "libsyn",
++        "libsyn_deprecated",
+     ],
+ }

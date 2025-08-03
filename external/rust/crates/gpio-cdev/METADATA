@@ -1,0 +1,20 @@
+name: "gpio-cdev"
+description: "Linux GPIO Character Device Support (/dev/gpiochipN)"
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/gpio-cdev"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/gpio-cdev/gpio-cdev-0.6.0.crate"
+  }
+  version: "0.6.0"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 29
+  }
+}

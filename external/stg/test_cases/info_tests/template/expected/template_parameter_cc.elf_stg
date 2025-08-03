@@ -1,0 +1,210 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+array {
+  id: 0x9d362140
+  number_of_elements: 17
+  element_type_id: 0x6720d32f
+}
+member {
+  id: 0x80bcb4cd
+  name: "a"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0x4cff5574
+  name: "b"
+  type_id: 0x6720d32f
+  offset: 32
+}
+member {
+  id: 0x4cff584f
+  name: "b"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0x0f3f9186
+  name: "c"
+  type_id: 0x6720d32f
+  offset: 32
+}
+member {
+  id: 0xc37de7d7
+  name: "d"
+  type_id: 0x6720d32f
+  offset: 64
+}
+member {
+  id: 0x874410b0
+  name: "e"
+  type_id: 0x9d362140
+}
+member {
+  id: 0x41fcdfad
+  name: "f"
+  type_id: 0x6720d32f
+  offset: 544
+}
+member {
+  id: 0x023d43d4
+  name: "g"
+  type_id: 0x6720d32f
+  offset: 576
+}
+member {
+  id: 0xa8938b2e
+  name: "h"
+  type_id: 0x7578447d
+}
+member {
+  id: 0x86c14d13
+  name: "i"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0x2d952030
+  name: "j"
+  type_id: 0xa5c1eab5
+}
+member {
+  id: 0x6940985f
+  name: "k"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0xc5d22295
+  name: "l"
+  type_id: 0xcb978265
+}
+member {
+  id: 0x8dbf3d30
+  name: "m"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0x46ee5fe7
+  name: "n"
+  type_id: 0x8891f0f8
+}
+member {
+  id: 0x04420382
+  name: "o"
+  type_id: 0x6720d32f
+  offset: 608
+}
+struct_union {
+  id: 0x7578447d
+  kind: STRUCT
+  name: "T1<int>"
+  definition {
+    bytesize: 8
+    member_id: 0x80bcb4cd
+    member_id: 0x4cff5574
+  }
+}
+struct_union {
+  id: 0xa5c1eab5
+  kind: STRUCT
+  name: "T2<int, int>"
+  definition {
+    bytesize: 12
+    member_id: 0x4cff584f
+    member_id: 0x0f3f9186
+    member_id: 0xc37de7d7
+  }
+}
+struct_union {
+  id: 0xcb978265
+  kind: STRUCT
+  name: "T3<17, int>"
+  definition {
+    bytesize: 76
+    member_id: 0x874410b0
+    member_id: 0x41fcdfad
+    member_id: 0x023d43d4
+  }
+}
+struct_union {
+  id: 0xd94d74b0
+  kind: UNION
+  name: "T4<T1>"
+  definition {
+    bytesize: 8
+    member_id: 0xa8938b2e
+    member_id: 0x86c14d13
+  }
+}
+struct_union {
+  id: 0x5e0ea2b4
+  kind: UNION
+  name: "T5<T2>"
+  definition {
+    bytesize: 12
+    member_id: 0x2d952030
+    member_id: 0x6940985f
+  }
+}
+struct_union {
+  id: 0x8891f0f8
+  kind: UNION
+  name: "T6<T3>"
+  definition {
+    bytesize: 76
+    member_id: 0xc5d22295
+    member_id: 0x8dbf3d30
+  }
+}
+struct_union {
+  id: 0x886d9bb6
+  kind: STRUCT
+  name: "T7<T6>"
+  definition {
+    bytesize: 80
+    member_id: 0x46ee5fe7
+    member_id: 0x04420382
+  }
+}
+elf_symbol {
+  id: 0xab18a5e8
+  name: "v1"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd94d74b0
+  full_name: "v1"
+}
+elf_symbol {
+  id: 0x975e59cf
+  name: "v2"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x5e0ea2b4
+  full_name: "v2"
+}
+elf_symbol {
+  id: 0x2999e447
+  name: "v3"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x8891f0f8
+  full_name: "v3"
+}
+elf_symbol {
+  id: 0x19de9370
+  name: "v4"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x886d9bb6
+  full_name: "v4"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xab18a5e8
+  symbol_id: 0x975e59cf
+  symbol_id: 0x2999e447
+  symbol_id: 0x19de9370
+}

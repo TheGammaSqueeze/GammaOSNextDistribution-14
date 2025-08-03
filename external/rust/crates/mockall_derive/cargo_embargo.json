@@ -1,0 +1,12 @@
+{
+  "tests": true,
+  "package": {
+    "mockall_derive": {
+      "device_supported": false,
+      "dep_blocklist": [
+        "libpretty_assertions"
+      ],
+      "patch": "patches/use-deprecated-syn1-dep.patch"
+    }
+  }
+}

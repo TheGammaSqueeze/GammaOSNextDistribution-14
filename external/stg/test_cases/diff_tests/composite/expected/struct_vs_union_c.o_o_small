@@ -1,0 +1,7 @@
+function symbol changed from 'void fun(const struct A*)' to 'void fun(const union A*)'
+  type changed from 'void(const struct A*)' to 'void(const union A*)'
+    parameter 1 type changed from 'const struct A*' to 'const union A*'
+      pointed-to type changed from 'const struct A' to 'const union A'
+        underlying type changed from 'struct A' to 'union A'
+
+exit code 4

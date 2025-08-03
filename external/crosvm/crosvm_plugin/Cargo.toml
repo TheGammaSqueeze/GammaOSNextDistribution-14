@@ -1,0 +1,19 @@
+[package]
+name = "crosvm_plugin"
+version = "0.17.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[features]
+stats = []
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+kvm = { path = "../kvm" }
+kvm_sys = { path = "../kvm_sys" }
+libc = "*"
+protobuf = "3.2"
+protos = { path = "../protos", features = ["plugin"] }
+base = { path = "../base" }

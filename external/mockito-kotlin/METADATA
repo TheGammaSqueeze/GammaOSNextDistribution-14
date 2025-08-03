@@ -1,0 +1,14 @@
+name: "mockito-kotlin"
+description:
+    "Mockito for Kotlin"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/mockito/mockito-kotlin"
+  }
+  version: "2.2.11"
+  last_upgrade_date { year: 2023 month: 6 day: 13 }
+  license_type: NOTICE
+}
+

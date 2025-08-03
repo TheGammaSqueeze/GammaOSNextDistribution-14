@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["external_python_jinja_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_python_jinja_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE.rst",
+    ],
+}

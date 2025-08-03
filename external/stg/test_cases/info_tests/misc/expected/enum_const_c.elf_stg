@@ -1,0 +1,49 @@
+version: 0x00000002
+root_id: 0x84ea5130
+typedef {
+  id: 0x7d386fee
+  name: "Foo"
+  referred_type_id: 0x226ff690
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+enumeration {
+  id: 0x226ff690
+  name: "Foo"
+  definition {
+    underlying_type_id: 0x4585663f
+    enumerator {
+      name: "FOO_ONE"
+      value: 1
+    }
+    enumerator {
+      name: "FOO_TWO"
+      value: 2
+    }
+    enumerator {
+      name: "FOO_THREE"
+      value: 3
+    }
+  }
+}
+function {
+  id: 0xe47b32e5
+  return_type_id: 0x7d386fee
+  parameter_id: 0x7d386fee
+}
+elf_symbol {
+  id: 0xdfa4312b
+  name: "getEnum"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe47b32e5
+  full_name: "getEnum"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xdfa4312b
+}

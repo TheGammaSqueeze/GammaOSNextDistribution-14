@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><out>
+   Using variable bases with power 0:<br/>10 to the power of 0 is 1<br/>2.5 to the power of 0 is 1<br/>1 to the power of 0 is 1<br/>0 to the power of 0 is 1<br/>-10 to the power of 0 is 1<br/>
+   Using variable base with power -0:
+   10 to the power of 0 is 1<br/>2.5 to the power of 0 is 1<br/>1 to the power of 0 is 1<br/>0 to the power of 0 is 1<br/>-10 to the power of 0 is 1<br/>
+   Using variable base with power 10:
+   10 to the power of 10 is 10000000000<br/>2.5 to the power of 10 is 9536.7431640625<br/>1 to the power of 10 is 1<br/>0 to the power of 10 is 0<br/>-10 to the power of 10 is 10000000000<br/>
+   Using variable base with power 2:
+   10 to the power of 2.5 is 316.2277660168379<br/>2.5 to the power of 2.5 is 9.882117688026185<br/>1 to the power of 2.5 is 1<br/>0 to the power of 2.5 is 0<br/>-10 to the power of 2.5 is NaN<br/>
+   Using variable base with power -5:
+   10 to the power of -5 is 0.00001<br/>2.5 to the power of -5 is 0.01024<br/>1 to the power of -5 is 1<br/>0 to the power of -5 is Infinity<br/>-10 to the power of -5 is -0.00001<br/>
+   Using input as base with power 5223849703457:
+   5223849703457 to the power of 5223849703457 is Infinity<br/>NaN to the power of 5223849703457 is NaN<br/>Infinity to the power of 5223849703457 is Infinity<br/>
+   Using input as base with power NaN:
+   5223849703457 to the power of NaN is NaN<br/>NaN to the power of NaN is NaN<br/>Infinity to the power of NaN is NaN<br/>
+   Using input as base with power Infinity:
+   5223849703457 to the power of Infinity is Infinity<br/>NaN to the power of Infinity is NaN<br/>Infinity to the power of Infinity is Infinity<br/></out>

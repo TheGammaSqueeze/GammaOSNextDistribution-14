@@ -1,0 +1,53 @@
+package {
+    default_applicable_licenses: ["libabsl_license"],
+}
+
+license {
+    name: "libabsl_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["LICENSE"],
+}
+
+// Monolithic module for use on device. Currently restricted to 3P libraries
+// which require it as a dependency. See go/absl-android for more information.
+cc_library_static {
+    name: "libabsl",
+    host_supported: true,
+    vendor_available: true,
+    srcs: [
+        "absl/**/*.cc",
+    ],
+    exclude_srcs: [
+        "absl/**/*benchmark.cc",
+        "absl/**/*benchmarks.cc",
+        "absl/**/*_test.cc",
+        "absl/**/*_testing.cc",
+        "absl/base/spinlock_test_common.cc",
+        "absl/hash/internal/print_hash_of.cc",
+        "absl/log/internal/test_helpers.cc",
+        "absl/log/internal/test_matchers.cc",
+        "absl/log/scoped_mock_log.cc",
+        "absl/random/internal/gaussian_distribution_gentables.cc",
+    ],
+    export_include_dirs: ["."],
+    shared_libs: [
+        "liblog",
+    ],
+    stl: "libc++",
+    apex_available: [
+        "//apex_available:platform",
+    ],
+    visibility: [
+        "//external/grpc-grpc:__subpackages__",
+        "//external/kythe:__subpackages__",
+    ],
+}
+
+// Globally visible host-only library.
+cc_library_host_static {
+    name: "libabsl_host",
+    whole_static_libs: ["libabsl"],
+    export_include_dirs: ["."],
+    stl: "libc++",
+}

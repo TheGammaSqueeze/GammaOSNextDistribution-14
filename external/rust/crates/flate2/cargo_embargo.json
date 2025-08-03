@@ -1,0 +1,25 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "features": [
+    "zlib"
+  ],
+  "package": {
+    "flate2": {
+      "patch": "patches/Android.bp.patch",
+      "test_data": {
+        "tests/gunzip.rs": [
+          "tests/corrupt-gz-file.bin",
+          "tests/good-file.gz",
+          "tests/good-file.txt",
+          "tests/multi.gz",
+          "tests/multi.txt"
+        ]
+      }
+    }
+  },
+  "run_cargo": false,
+  "tests": true
+}

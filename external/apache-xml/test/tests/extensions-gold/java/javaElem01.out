@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<extension-string>attr-String</extension-string>
+<extension-ctr>1</extension-ctr>
+<extension-boolean>true</extension-boolean>
+<extension-ctr>2</extension-ctr>
+<extension-double>1.1</extension-double>
+<extension-ctr>3</extension-ctr>
+<extension-node>attr-Node</extension-node>
+<extension-ctr>4</extension-ctr>
+</out>

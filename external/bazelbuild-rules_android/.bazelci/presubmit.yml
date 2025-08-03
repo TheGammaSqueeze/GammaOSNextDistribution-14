@@ -1,0 +1,48 @@
+---
+
+x_defaults:
+  common: &common
+    bazel: last_green
+    build_targets:
+    - "//src/..."
+    - "//test/..."
+    - "//android/..."
+    - "//rules/..."
+    - "-//src/java/com/example/sampleapp/..."
+    - "//toolchains/..."
+    - "//tools/..."
+    - "-//tools/android/..." # TODO(#122): Un-exclude this once #122 is fixed.
+    test_targets:
+    - "//src/..."
+    - "//test/..."
+    - "-//src/tools/enforce_min_sdk_floor/..."
+    - "-//src/java/com/example/sampleapp/..."
+    test_flags:
+     # Sandboxed SDK tools depend on libraries that require Java runtime 17 or higher.
+    - "--java_runtime_version=17"
+
+tasks:
+  ubuntu2004:
+    <<: *common
+  macos:
+    <<: *common
+  macos_arm64:
+    <<: *common
+  ubuntu2004_bzlmod:
+    name: Bzlmod ubuntu2004
+    platform: ubuntu2004
+    build_flags:
+    - "--enable_bzlmod"
+    <<: *common
+  macos_bzlmods:
+    name: Bzlmod macos
+    platform: macos
+    build_flags:
+    - "--enable_bzlmod"
+    <<: *common
+  macos_arm64_bzlmod:
+    name: Bzlmod macos_arm64
+    platform: macos_arm64
+    build_flags:
+    - "--enable_bzlmod"
+    <<: *common

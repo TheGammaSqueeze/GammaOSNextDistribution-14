@@ -1,0 +1,9 @@
+function symbol 'int deleted_fun()' was removed
+
+function symbol 'long added_fun()' was added
+
+function symbol changed from 'int changed_fun()' to 'long changed_fun()'
+  type changed from 'int()' to 'long()'
+    return type changed from 'int' to 'long'
+
+exit code 4

@@ -1,0 +1,144 @@
+name: Dagger Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dagger_release_version:
+        description: 'The Dagger version to use in this release.'
+        required: true
+
+env:
+  USE_JAVA_DISTRIBUTION: 'zulu'
+  USE_JAVA_VERSION: '11'
+  # Our Bazel builds currently rely on 5.3.2. The version is set via
+  # baselisk by USE_BAZEL_VERSION: https://github.com/bazelbuild/bazelisk.
+  USE_BAZEL_VERSION: '5.3.2'
+  DAGGER_RELEASE_VERSION: "${{ github.event.inputs.dagger_release_version }}"
+  # The default Maven 3.9.0 has a regression so we manually install 3.8.7.
+  # https://issues.apache.org/jira/browse/MNG-7679
+  USE_MAVEN_VERSION: '3.8.7'
+
+# TODO(bcorso):Convert these jobs into local composite actions to share with the
+# continuous integration workflow.
+jobs:
+  validate-latest-dagger-version:
+    name: 'Validate Dagger version'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/prechecks
+  bazel-build:
+    name: 'Bazel build'
+    needs: validate-latest-dagger-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/bazel-build
+  bazel-test:
+    name: 'Bazel tests'
+    needs: validate-latest-dagger-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/bazel-test
+  artifact-java-local-tests:
+    name: 'Artifact Java local tests'
+    needs: bazel-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/artifact-java-local-tests
+  test-gradle-plugin:
+    name: 'Test Hilt Gradle plugin'
+    needs: bazel-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/test-gradle-plugin
+  artifact-android-local-tests:
+    name: 'Artifact Android local tests (AGP ${{ matrix.agp }})'
+    needs: bazel-build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        agp: ['7.0.0', '7.1.2']
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/artifact-android-local-tests
+        with:
+          agp: '${{ matrix.agp }}'
+  publish-artifacts:
+    name: 'Publish Artifact'
+    needs: [bazel-test, artifact-java-local-tests, artifact-android-local-tests, test-gradle-plugin]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
+        uses: actions/setup-java@v3
+        with:
+          distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
+          java-version: '${{ env.USE_JAVA_VERSION }}'
+          server-id: sonatype-nexus-staging
+          server-username: CI_DEPLOY_USERNAME
+          server-password: CI_DEPLOY_PASSWORD
+          gpg-private-key: ${{ secrets.CI_GPG_PRIVATE_KEY }}
+          gpg-passphrase: CI_GPG_PASSPHRASE
+      - name: 'Check out repository'
+        uses: actions/checkout@v3
+      - name: 'Cache local Maven repository'
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/com/google/dagger
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: 'Cache Bazel files'
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: ${{ runner.os }}-bazel-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-build-
+      - name: 'Cache Gradle files'
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Publish artifacts
+        run: |
+          util/deploy-all.sh \
+            "gpg:sign-and-deploy-file" \
+            "${{ env.DAGGER_RELEASE_VERSION }}" \
+            "-DrepositoryId=sonatype-nexus-staging" \
+            "-Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+        shell: bash
+        env:
+          CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+          CI_GPG_PASSPHRASE: ${{ secrets.CI_GPG_PASSPHRASE }}
+      - name: 'Set git credentials'
+        run: |
+            git config --global user.email "dagger-dev+github@google.com"
+            git config --global user.name "Dagger Team"
+        shell: bash
+      - name: 'Publish tagged release'
+        run: util/publish-tagged-release.sh ${{ env.DAGGER_RELEASE_VERSION }}
+        shell: bash
+      - name: 'Publish tagged docs'
+        run: util/publish-tagged-docs.sh ${{ env.DAGGER_RELEASE_VERSION }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: 'Clean bazel cache'
+        # According to the documentation, we should be able to exclude these via
+        # the actions/cache path, e.g. "!~/.cache/bazel/*/*/external/" but that
+        # doesn't seem to work.
+        run: |
+          rm -rf $(bazel info repository_cache)
+          rm -rf ~/.cache/bazel/*/*/external/
+        shell: bash

@@ -1,0 +1,14 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.bedsteadonboarding.data",
+    manifest: ":android_onboarding.bedsteadonboarding.AndroidManifest",
+    srcs: [
+        "*.kt",
+    ],
+    static_libs: [
+        "android_onboarding.contracts.annotations",
+    ],
+}

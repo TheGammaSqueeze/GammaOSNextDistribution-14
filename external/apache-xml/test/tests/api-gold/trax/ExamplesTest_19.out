@@ -1,0 +1,6 @@
+<?xml-stylesheet type="text/xsl" href="../xsl/foo.xsl">
+<foo:document creation-date="971255692078" file-name="test" file-path="work" xmlns:bar="http://apache.org/bar" xmlns:foo="http://apache.org/foo">
+
+<bar:element>MyBar</bar:element>
+
+</foo:document>

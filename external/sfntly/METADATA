@@ -1,0 +1,15 @@
+name: "sfntly"
+description: "The sfntly project contains Java and C++ libraries for reading, editing, and writing sfnt container fonts (OpenType, TrueType, AAT/GX, and Graphite.)"
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/googlefonts/sfntly.git"
+  }
+  version: "1e7adf313bd9c488a70015f8df8782f7c65e9ce7"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 10
+    day: 28
+  }
+}

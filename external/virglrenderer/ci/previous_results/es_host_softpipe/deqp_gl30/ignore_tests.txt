@@ -1,0 +1,2 @@
+# Flip-flops between Pass and Fail
+KHR-GL30.transform_feedback.draw_xfb_test

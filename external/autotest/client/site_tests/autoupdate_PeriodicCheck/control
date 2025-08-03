@@ -1,0 +1,16 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+TIME='Short'
+AUTHOR = 'Chromium OS'
+DOC = """Client side test for testing periodic update checks."""
+
+NAME = 'autoupdate_PeriodicCheck'
+PURPOSE = 'Client side test for testing periodic update checks.'
+TEST_CLASS = 'platform'
+TEST_CATEGORY = 'Functional'
+TEST_TYPE = 'client'
+PY_VERSION = 3
+
+job.run_test('autoupdate_PeriodicCheck')

@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "bsdiff_unittest"
+    }
+  ],
+  "hwasan-presubmit": [
+    {
+      "name": "bsdiff_unittest"
+    }
+  ]
+}

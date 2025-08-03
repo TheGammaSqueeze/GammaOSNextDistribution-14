@@ -1,0 +1,17 @@
+name: "Bumble"
+description:
+    "Bumble is a full-featured Bluetooth stack written entirely in Python."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://google.github.io/bumble/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/bumble"
+  }
+  version: "783b2d70a517a4c5fd828a0f6b8b2a46fe8750c5"
+  last_upgrade_date { year: 2023 month: 9 day: 12 }
+  license_type: NOTICE
+}

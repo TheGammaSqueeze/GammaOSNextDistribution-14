@@ -1,0 +1,19 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update sonic
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "sonic"
+description: "Sonic is a simple algorithm for speeding up or slowing down speech."
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/waywardgeek/sonic/archive/8694c596378c24e340c09ff2cd47c065494233f1.zip"
+  }
+  version: "8694c596378c24e340c09ff2cd47c065494233f1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 13
+  }
+}

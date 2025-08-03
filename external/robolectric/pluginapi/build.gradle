@@ -1,0 +1,15 @@
+import org.robolectric.gradle.DeployedRoboJavaModulePlugin
+import org.robolectric.gradle.RoboJavaModulePlugin
+
+apply plugin: RoboJavaModulePlugin
+apply plugin: DeployedRoboJavaModulePlugin
+
+dependencies {
+    compileOnly libs.findbugs.jsr305
+    api project(":annotations")
+    api libs.guava
+
+    testImplementation libs.junit4
+    testImplementation libs.truth
+    testImplementation libs.mockito
+}

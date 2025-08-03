@@ -1,0 +1,21 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.contracts.authmanaged",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "*.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "android_onboarding.common",
+        "android_onboarding.contracts",
+        "android_onboarding.contracts.setupwizard",
+        "android_onboarding.contracts.annotations",
+        "androidx.annotation_annotation",
+        "setupcompat",
+        "jsr330",
+    ],
+}

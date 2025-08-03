@@ -1,0 +1,65 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x5ab350f8
+  name: "signed char"
+  encoding: SIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+function {
+  id: 0x0ccacff7
+  return_type_id: 0x384f7d7c
+  parameter_id: 0x384f7d7c
+}
+function {
+  id: 0x903bc575
+  return_type_id: 0x5ab350f8
+  parameter_id: 0x5ab350f8
+}
+function {
+  id: 0xdab9eed2
+  return_type_id: 0x5d8155a5
+  parameter_id: 0x5d8155a5
+}
+elf_symbol {
+  id: 0x7709bd40
+  name: "x"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x903bc575
+  full_name: "x"
+}
+elf_symbol {
+  id: 0xb5c9c657
+  name: "y"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x0ccacff7
+  full_name: "y"
+}
+elf_symbol {
+  id: 0xf58aebbc
+  name: "z"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xdab9eed2
+  full_name: "z"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x7709bd40
+  symbol_id: 0xb5c9c657
+  symbol_id: 0xf58aebbc
+}

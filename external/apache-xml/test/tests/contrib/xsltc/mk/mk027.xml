@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<products>
+<product name="strawberry jam">
+   <region name="south" sales="20.00"/>
+   <region name="north" sales="50.00"/>
+</product>
+<product name="raspberry jam">
+   <region name="south" sales="205.16"/>
+   <region name="north" sales="10.50"/>
+</product>
+<product name="plum jam">
+   <region name="east" sales="320.20"/>
+   <region name="north" sales="39.50"/>
+</product>
+</products>
+

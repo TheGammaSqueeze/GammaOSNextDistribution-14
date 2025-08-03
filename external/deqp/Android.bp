@@ -1,0 +1,315 @@
+package {
+    default_applicable_licenses: ["external_deqp_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_deqp_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+        "NOTICE",
+    ],
+}
+
+build = ["AndroidGen.bp"]
+
+// Used by Amber.
+// Amber includes "vkDefs.h".
+cc_library_headers {
+    name: "deqp_vulkan_headers",
+    defaults: ["deqp_and_deps_defaults"],
+    export_include_dirs: [
+        "external/vulkancts/framework/vulkan",
+        "external/vulkancts/framework/vulkan/generated/vulkan",
+        "framework/delibs/debase",
+    ],
+}
+
+// These defaults ensure we have a consistent set of defines and compiler flags
+// across dEQP and its dependencies.
+cc_defaults {
+    name: "deqp_and_deps_defaults",
+    cpp_std: "c++17",
+    cflags: [
+        // Amber defines.
+        "-DAMBER_CTS_VULKAN_HEADER=1",
+        "-DAMBER_ENABLE_CLSPV=0",
+        "-DAMBER_ENABLE_DXC=0",
+        "-DAMBER_ENABLE_LODEPNG=1", // This has no effect.
+        "-DAMBER_ENABLE_RTTI=1",
+        "-DAMBER_ENABLE_SHADERC=0",
+        "-DAMBER_ENABLE_SPIRV_TOOLS=0",
+        "-DAMBER_ENABLE_VK_DEBUGGING=0",
+        "-DAMBER_ENGINE_DAWN=0",
+        "-DAMBER_ENGINE_VULKAN=1",
+
+        // glslang defines:
+        "-DENABLE_HLSL",
+        "-DENABLE_OPT=0",
+        "-DGLSLANG_OSINCLUDE_UNIX",
+
+        // SPIRV-Tools defines:
+        "-DSPIRV_ANDROID",
+        "-DSPIRV_CHECK_CONTEXT",
+        "-DSPIRV_COLOR_TERMINAL",
+        "-DSPIRV_TIMER_ENABLED",
+
+        // Android/Clang defines (not needed):
+        // -D_FORTIFY_SOURCE=2
+        // -DANDROID
+        // -DNDEBUG
+
+        // dEQP defines that we don't want/need:
+        // -DDE_DEBUG
+        // -DDEQP_USE_RELEASE_INFO_FILE
+        // -DPNG_DEBUG
+
+        // dEQP defines that are worked out in deDefs.h, without needing
+        // explicit defs:
+        // -DDE_PTR_SIZE=8
+        // -DDE_CPU=DE_CPU_ARM_64
+        //"-DDE_FENV_ACCESS_ON=_Pragma(\"STDC FENV_ACCESS ON\")",
+
+        // dEQP defines:
+        "-D_XOPEN_SOURCE=600",
+        "-DDE_ASSERT_FAILURE_CALLBACK",
+        "-DDE_COMPILER=DE_COMPILER_CLANG",
+        "-DDE_MINGW=0",
+        "-DDE_OS=DE_OS_ANDROID",
+        "-DDEQP_GLES2_DIRECT_LINK=1",
+        "-DDEQP_HAVE_RENDERDOC_HEADER=0", // Needs to be 0.
+        "-DDEQP_EXCLUDE_VK_VIDEO_TESTS",
+        "-DDEQP_SUPPORT_DRM=0",
+        "-DDEQP_SUPPORT_GLES1=1",
+        "-DDEQP_TARGET_NAME=\"Android\"",
+        "-DQP_SUPPORT_PNG",
+        "-DCTS_USES_VULKAN",
+
+        "-Wall",
+        "-Werror",
+        "-Wconversion",
+
+        "-fwrapv",
+    ],
+    cppflags: [
+        "-fexceptions",
+    ],
+    sdk_version: "27",
+    rtti: true,
+    stl: "c++_static",
+    product_variables: {
+        platform_sdk_version: {
+            cflags: [
+                // dEQP defines:
+                "-DDE_ANDROID_API=%d",
+            ],
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libdeqp",
+    defaults: ["libdeqp_defaults"],
+}
+
+cc_defaults {
+    name: "libdeqp_defaults",
+    defaults: [
+        "libdeqp_gen",
+        "deqp_and_deps_defaults",
+    ],
+
+    tidy_checks: [
+        // The clang-tidy google-explicit-constructor warning is issued to nearly
+        // 1000 conversion constructors in this project. They are from more than
+        // 500 source files. Most of them should be declared explicit, but many
+        // of them need to be implicit. Until we correctly mark them as explicit
+        // or NOLINT(implicit), we suppress the google-explicit-constructor check.
+        "-google-explicit-constructor",
+
+        "-google-build-explicit-make-pair",
+        "-google-global-names-in-headers",
+        "-google-runtime-member-string-references",
+        "-google-runtime-operator",
+    ],
+
+    header_libs: ["jni_headers"],
+
+    include_dirs: [
+        "external/deqp-deps/SPIRV-Headers/include",
+    ],
+
+    shared_libs: [
+        "libEGL",
+        "libGLESv2",
+        "libandroid",
+        "liblog",
+        "libm",
+        "libc",
+        "libz",
+        "libdl",
+    ],
+
+    static_libs: [
+        "libpng_ndk",
+        "deqp_glslang_glslang",
+        "deqp_glslang_OSDependent",
+        "deqp_glslang_MachineIndependent",
+        "deqp_glslang_GenericCodeGen",
+        "deqp_glslang_SPIRV",
+        "deqp_glslang_SPVRemapper",
+        "deqp_spirv-tools",
+        "deqp_amber",
+    ],
+
+    cflags: [
+        "-Wno-implicit-fallthrough",
+        "-Wno-sign-conversion",
+        "-Wno-unused-private-field",
+        "-Wno-shorten-64-to-32",
+    ],
+
+    cppflags: [
+        "-Wno-non-virtual-dtor",
+        "-Wno-delete-non-virtual-dtor",
+        "-Wno-implicit-int-conversion",
+        "-Wno-missing-field-initializers",
+        "-Wno-switch",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+    ],
+}
+
+android_test {
+    name: "com.drawelements.deqp",
+
+    test_suites: [
+        "vts10",
+    ],
+
+    srcs: ["android/package/src/**/*.java"],
+    resource_dirs: ["android/package/res"],
+    manifest: "android/package/AndroidManifest-integration.xml",
+
+    asset_dirs: [
+        "data",
+        "external/vulkancts/data",
+        "external/graphicsfuzz/data",
+    ],
+
+    jni_libs: ["libdeqp"],
+
+    compile_multilib: "both",
+
+    // We could go down all the way to API-13 for 32bit. 22 is required for 64bit ARM.
+    sdk_version: "test_current",
+
+    // Avoid apk installation failures ('Requires development platform...' errors)
+    min_sdk_version: "31",
+    target_sdk_version: "34",
+}
+
+cc_test {
+    name: "deqp-binary",
+    defaults: ["libdeqp_defaults"],
+
+    cflags: [
+        "-DDEQP_GLES3_RUNTIME_LOAD=1",
+    ],
+
+    cppflags: [
+        "-Wno-macro-redefined",
+    ],
+
+    srcs: [
+        "framework/platform/tcuMain.cpp",
+        "framework/platform/surfaceless/tcuSurfacelessPlatform.cpp",
+    ],
+
+    local_include_dirs: [
+        "framework/platform/surfaceless",
+    ],
+
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+
+    compile_multilib: "both",
+
+    version_script: "deqp_binary.lds",
+
+    host_supported: false,
+    gtest: false,
+    auto_gen_config: false,
+    test_options: {
+        unit_test: false,
+    },
+    data: [
+        ":deqp_binary_incremental_test_lists",
+        ":deqp_binary_data",
+        ":deqp_binary_data_vulkancts",
+        ":deqp_binary_data_graphicsfuzz",
+    ],
+}
+
+filegroup {
+    name: "deqp_binary_incremental_test_lists",
+    srcs: [
+        "android/cts/main/gles3-incremental-deqp.txt",
+        "android/cts/main/vk-incremental-deqp.txt",
+    ],
+    path: "android/cts/main",
+}
+
+filegroup {
+    name: "deqp_binary_data",
+    srcs: [
+        "data/**/*",
+    ],
+    path: "data",
+}
+
+filegroup {
+    name: "deqp_binary_data_vulkancts",
+    srcs: [
+        "external/vulkancts/data/**/*",
+    ],
+    path: "external/vulkancts/data",
+}
+
+filegroup {
+    name: "deqp_binary_data_graphicsfuzz",
+    srcs: [
+        "external/graphicsfuzz/data/**/*",
+    ],
+    path: "external/graphicsfuzz/data",
+}

@@ -1,0 +1,15 @@
+name: "libdivsufsort"
+description: "A lightweight suffix-sorting library"
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/y-256/libdivsufsort/archive/refs/tags/2.0.0.tar.gz"
+  }
+  version: "2.0.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2008
+    month: 8
+    day: 23
+  }
+}

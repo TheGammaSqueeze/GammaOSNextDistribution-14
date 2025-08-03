@@ -1,0 +1,20 @@
+name: "predicates"
+description: "An implementation of boolean-valued predicate functions."
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/predicates"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/predicates/predicates-3.0.4.crate"
+  }
+  version: "3.0.4"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 6
+  }
+}

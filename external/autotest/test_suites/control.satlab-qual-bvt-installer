@@ -1,0 +1,31 @@
+# Copyright 2017 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "bvt-installer"
+PURPOSE = "Build verification of ChromeOS pieces related to Installer for Satlab"
+
+TIME = "MEDIUM"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This is a fork of control.bvt-installer for Satlab qualification.
+
+The original is control.bvt-installer in the same directory as this file.
+
+https://chromium.googlesource.com/chromiumos/third_party/autotest/+/main/test_suites/control.bvt-installer
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['job'] = job
+args_dict['max_runtime_mins'] = 60
+args_dict['name'] = 'bvt-installer'
+# timeout_mins not present in original.
+args_dict['timeout_mins'] = 4 * 60
+
+dynamic_suite.reimage_and_run(**args_dict)

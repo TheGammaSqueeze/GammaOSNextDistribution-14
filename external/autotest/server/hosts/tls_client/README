@@ -1,0 +1,10 @@
+Protos in this dir are generated using buildprotos.py and manually checked
+into the tree. The source of the protos is
+src/config/proto/chromiumos/config/api/test/tls/commontls.proto, and
+src/config/proto/chromiumos/config/api/test/tls/dependencies/longrunning/operations.proto
+relative to a standard repo.
+(https://chromium.git.corp.google.com/chromiumos/config/+/HEAD/proto/chromiumos/config/api/test/tls/commontls.proto)
+If there are updates to src proto, the protos here must be re-generated. Run the
+script "buildprotos.py" to automatically rebuild them from the source. You must
+manually repo sync prior to this. If there are changes to the file structure
+in the source, buildprotos.py will need to be updated for this.

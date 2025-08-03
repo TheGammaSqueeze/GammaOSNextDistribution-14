@@ -1,0 +1,111 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/status.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// Result of a call to IcingSearchEngine.Optimize
+// Next tag: 3
+message OptimizeResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   WARNING_DATA_LOSS
+  //   ABORTED
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  optional StatusProto status = 1;
+
+  optional OptimizeStatsProto optimize_stats = 2;
+  // TODO(b/147699081): Add a field to indicate lost_schema and lost_documents.
+  // go/icing-library-apis.
+}
+
+// Result of a call to IcingSearchEngine.GetOptimizeInfo
+// Next tag: 5
+message GetOptimizeInfoResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  optional StatusProto status = 1;
+
+  // Documents that have expired or been deleted, but are still taking up space
+  // in IcingSearchEngine.
+  optional int64 optimizable_docs = 2;
+
+  // Estimated bytes that could be recovered. The exact size per document isn't
+  // tracked, so this is based off an average document size.
+  optional int64 estimated_optimizable_bytes = 3;
+
+  // The amount of time since the last optimize ran.
+  optional int64 time_since_last_optimize_ms = 4;
+}
+
+// Next tag: 13
+message OptimizeStatsProto {
+  // Overall time used for the function call.
+  optional int32 latency_ms = 1;
+
+  // Time used to optimize the document store.
+  optional int32 document_store_optimize_latency_ms = 2;
+
+  // Time used to restore the index.
+  optional int32 index_restoration_latency_ms = 3;
+
+  // Number of documents before the optimization.
+  optional int32 num_original_documents = 4;
+
+  // Number of documents deleted.
+  optional int32 num_deleted_documents = 5;
+
+  // Number of documents expired.
+  optional int32 num_expired_documents = 6;
+
+  // Size of storage before the optimize.
+  optional int64 storage_size_before = 7;
+
+  // Size of storage after the optimize.
+  optional int64 storage_size_after = 8;
+
+  // The amount of time since the last optimize ran.
+  optional int64 time_since_last_optimize_ms = 9;
+
+  enum IndexRestorationMode {
+    // The index has been translated in place to match the optimized document
+    // store.
+    INDEX_TRANSLATION = 0;
+    // The index has been rebuilt from scratch during optimization. This could
+    // happen when we received a DATA_LOSS error from OptimizeDocumentStore,
+    // Index::Optimize failed, or rebuilding could be faster.
+    FULL_INDEX_REBUILD = 1;
+  }
+  optional IndexRestorationMode index_restoration_mode = 10;
+
+  // Number of namespaces before the optimization.
+  optional int32 num_original_namespaces = 11;
+
+  // Number of namespaces deleted.
+  optional int32 num_deleted_namespaces = 12;
+}

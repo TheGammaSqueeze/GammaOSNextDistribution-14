@@ -1,0 +1,27 @@
+# Copyright 2014 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'chromeos-pvs-team'
+NAME = 'pvs-quick-check'
+PURPOSE = 'Quick check to download autotest client to dut and run stub test'
+
+TIME = 'SHORT'
+TEST_CATEGORY = 'General'
+TEST_CLASS = 'suite'
+TEST_TYPE = 'Server'
+
+DOC = """
+This suite is intended to be run by partners as a quick check of the build.
+It only contains a stub_Pass test. It works by relying
+on the safety checks built into the provisioning code to identify bad builds.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['add_experimental'] = True
+args_dict['name'] = NAME
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

@@ -1,0 +1,39 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+    default_visibility: [
+        "//external/spdx-tools:__subpackages__",
+        "//build/make/tools/compliance:__subpackages__",
+    ],
+}
+
+bootstrap_go_package {
+    name: "spdx-tools-spdxv2_1",
+    pkgPath: "github.com/spdx/tools-golang/spdx/v2_1",
+    srcs: [
+        "annotation.go",
+        "creation_info.go",
+        "document.go",
+        "file.go",
+        "other_license.go",
+        "package.go",
+        "relationship.go",
+        "review.go",
+        "snippet.go",
+    ],
+    deps: ["spdx-tools-spdxcommon"],
+}

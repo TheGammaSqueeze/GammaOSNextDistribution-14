@@ -1,0 +1,1 @@
+The Android.bp file contains the "winapi" feature even though it is not used on Android.  This gets added automatically by cargo2android.py and removing it would be non-trivial.  It should have no effect on the crate, as the code is included only on Windows, so we keep it rather than maintaining a patch to remove it.

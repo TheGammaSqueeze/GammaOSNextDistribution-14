@@ -1,0 +1,23 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_libdrm_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-MIT
+    default_applicable_licenses: ["external_libdrm_license"],
+}
+
+cc_library_shared {
+    name: "libdrm_tegra",
+    vendor: true,
+    shared_libs: ["libdrm"],
+
+    srcs: ["tegra.c"],
+
+    cflags: [
+        "-DHAVE_LIBDRM_ATOMIC_PRIMITIVES=1",
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-variable",
+    ],
+}

@@ -1,0 +1,6 @@
+type 'struct A' changed
+  was fully defined, is now only declared
+
+type 'struct B' changed
+  was only declared, is now fully defined
+

@@ -1,0 +1,19 @@
+name: "junit"
+description: "JUnit is a simple framework to write repeatable tests."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://junit.org/junit4/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/junit-team/junit4.git"
+  }
+  version: "r4.13.2"
+  license_type: RECIPROCAL
+  last_upgrade_date {
+    year: 2021
+    month: 3
+    day: 3
+  }
+}

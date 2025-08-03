@@ -1,0 +1,35 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "puthik"
+NAME = "power_LW.power_LoadTest_1hour"
+TIME = "LONG"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:power_dashboard"
+PY_VERSION = 3
+
+DOC = """
+Control file for running power_LoadTest.1hour in power lab.
+"""
+
+from autotest_lib.client.common_lib import utils
+
+args_dict = utils.args_to_dict(args)
+test = 'power_LoadTest'
+args = {
+    'pdash_note': args_dict.get('pdash_note', ''),
+    'tag' : '1hour_PLW',
+    'loop_time' : 3600,
+    'loop_count' : 1,
+    'test_low_batt_p' : 6,
+}
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test("power_LW", host=host, test=test, args=args,
+                 machine=machine, tag=NAME.split('.')[1])
+
+parallel_simple(run, machines)

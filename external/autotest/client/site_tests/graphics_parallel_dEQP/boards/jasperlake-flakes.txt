@@ -1,0 +1,3 @@
+dEQP-VK.api.version_check.version
+dEQP-VK.ssbo.phys.layout.random.all_shared_buffer
+dEQP-VK.wsi.display_control.register_display_event

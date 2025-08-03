@@ -1,0 +1,37 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file has been automatically generated. Do not edit!
+
+AUTHOR = 'ARC++ Team'
+NAME = 'cheets_CTS_R.internal.arm.all.CtsSettingsHostTestCases_-_CtsSyncManagerTestsCases'
+ATTRIBUTES = 'suite:arc-cts-qual'
+DEPENDENCIES = 'arc'
+JOB_RETRIES = 1
+TEST_TYPE = 'server'
+TIME = 'MEDIUM'
+MAX_RESULT_SIZE_KB = 512000
+PY_VERSION = 3
+DOC = 'Run module CtsSettingsHostTestCases, CtsSettingsTestCases, CtsSettingsTestCases[secondary_user], CtsSharedLibsApiSignatureTestCases, CtsSharedLibsApiSignatureTestCases[instant], CtsSharedLibsApiSignatureTestCases[secondary_user], CtsSharesheetTestCases, CtsSharesheetTestCases[secondary_user], CtsShortcutHostTestCases, CtsShortcutManagerLauncher1, CtsShortcutManagerLauncher1[secondary_user], CtsShortcutManagerLauncher2, CtsShortcutManagerLauncher2[secondary_user], CtsShortcutManagerLauncher3, CtsShortcutManagerLauncher3[secondary_user], CtsShortcutManagerLauncher4, CtsShortcutManagerLauncher4[secondary_user], CtsShortcutManagerPackage1, CtsShortcutManagerPackage1[secondary_user], CtsShortcutManagerPackage2, CtsShortcutManagerPackage2[secondary_user], CtsShortcutManagerPackage3, CtsShortcutManagerPackage3[secondary_user], CtsShortcutManagerPackage4, CtsShortcutManagerPackage4[secondary_user], CtsShortcutManagerTestCases, CtsShortcutManagerTestCases[secondary_user], CtsShortcutManagerThrottlingTest, CtsShortcutManagerThrottlingTest[secondary_user], CtsSignedConfigHostTestCases, CtsSignedConfigHostTestCases[secondary_user], CtsSimRestrictedApisTestCases, CtsSimRestrictedApisTestCases[secondary_user], CtsSimpleCpuTestCases, CtsSimpleCpuTestCases[secondary_user], CtsSimpleperfTestCases, CtsSkQPTestCases, CtsSkQPTestCases[secondary_user], CtsSliceTestCases, CtsSliceTestCases[secondary_user], CtsSoundTriggerTestCases, CtsSoundTriggerTestCases[instant], CtsSoundTriggerTestCases[secondary_user], CtsSpeechTestCases, CtsSpeechTestCases[secondary_user], CtsStagedInstallHostTestCases, CtsStatsdHostTestCases, CtsStatsdHostTestCases[instant], CtsStatsdHostTestCases[secondary_user], CtsStrictJavaPackagesTestCases, CtsStrictJavaPackagesTestCases[secondary_user], CtsSuspendAppsPermissionTestCases, CtsSuspendAppsPermissionTestCases[secondary_user], CtsSuspendAppsTestCases, CtsSuspendAppsTestCases[secondary_user], CtsSustainedPerformanceHostTestCases, CtsSustainedPerformanceHostTestCases[secondary_user], CtsSyncAccountAccessOtherCertTestCases, CtsSyncAccountAccessOtherCertTestCases[secondary_user], CtsSyncContentHostTestCases, CtsSyncContentHostTestCases[secondary_user], CtsSyncManagerTestsCases, CtsSyncManagerTestsCases[secondary_user] of the Android Compatibility Test Suite (CTS) using arm ABI in the ARC++ container.'
+
+def run_TS(machine):
+    host_list = [hosts.create_host(machine)]
+    job.run_test(
+        'cheets_CTS_R',
+        hosts=host_list,
+        iterations=1,
+        max_retry=9,
+        tag='internal.arm.all.CtsSettingsHostTestCases_-_CtsSyncManagerTestsCases',
+        test_name='cheets_CTS_R.internal.arm.all.CtsSettingsHostTestCases_-_CtsSyncManagerTestsCases',
+        run_template=['run', 'commandAndExit', 'cts', '--include-filter', 'CtsSettingsHostTestCases', '--include-filter', 'CtsSettingsTestCases', '--include-filter', 'CtsSettingsTestCases[secondary_user]', '--include-filter', 'CtsSharedLibsApiSignatureTestCases', '--include-filter', 'CtsSharedLibsApiSignatureTestCases[instant]', '--include-filter', 'CtsSharedLibsApiSignatureTestCases[secondary_user]', '--include-filter', 'CtsSharesheetTestCases', '--include-filter', 'CtsSharesheetTestCases[secondary_user]', '--include-filter', 'CtsShortcutHostTestCases', '--include-filter', 'CtsShortcutManagerLauncher1', '--include-filter', 'CtsShortcutManagerLauncher1[secondary_user]', '--include-filter', 'CtsShortcutManagerLauncher2', '--include-filter', 'CtsShortcutManagerLauncher2[secondary_user]', '--include-filter', 'CtsShortcutManagerLauncher3', '--include-filter', 'CtsShortcutManagerLauncher3[secondary_user]', '--include-filter', 'CtsShortcutManagerLauncher4', '--include-filter', 'CtsShortcutManagerLauncher4[secondary_user]', '--include-filter', 'CtsShortcutManagerPackage1', '--include-filter', 'CtsShortcutManagerPackage1[secondary_user]', '--include-filter', 'CtsShortcutManagerPackage2', '--include-filter', 'CtsShortcutManagerPackage2[secondary_user]', '--include-filter', 'CtsShortcutManagerPackage3', '--include-filter', 'CtsShortcutManagerPackage3[secondary_user]', '--include-filter', 'CtsShortcutManagerPackage4', '--include-filter', 'CtsShortcutManagerPackage4[secondary_user]', '--include-filter', 'CtsShortcutManagerTestCases', '--include-filter', 'CtsShortcutManagerTestCases[secondary_user]', '--include-filter', 'CtsShortcutManagerThrottlingTest', '--include-filter', 'CtsShortcutManagerThrottlingTest[secondary_user]', '--include-filter', 'CtsSignedConfigHostTestCases', '--include-filter', 'CtsSignedConfigHostTestCases[secondary_user]', '--include-filter', 'CtsSimRestrictedApisTestCases', '--include-filter', 'CtsSimRestrictedApisTestCases[secondary_user]', '--include-filter', 'CtsSimpleCpuTestCases', '--include-filter', 'CtsSimpleCpuTestCases[secondary_user]', '--include-filter', 'CtsSimpleperfTestCases', '--include-filter', 'CtsSkQPTestCases', '--include-filter', 'CtsSkQPTestCases[secondary_user]', '--include-filter', 'CtsSliceTestCases', '--include-filter', 'CtsSliceTestCases[secondary_user]', '--include-filter', 'CtsSoundTriggerTestCases', '--include-filter', 'CtsSoundTriggerTestCases[instant]', '--include-filter', 'CtsSoundTriggerTestCases[secondary_user]', '--include-filter', 'CtsSpeechTestCases', '--include-filter', 'CtsSpeechTestCases[secondary_user]', '--include-filter', 'CtsStagedInstallHostTestCases', '--include-filter', 'CtsStatsdHostTestCases', '--include-filter', 'CtsStatsdHostTestCases[instant]', '--include-filter', 'CtsStatsdHostTestCases[secondary_user]', '--include-filter', 'CtsStrictJavaPackagesTestCases', '--include-filter', 'CtsStrictJavaPackagesTestCases[secondary_user]', '--include-filter', 'CtsSuspendAppsPermissionTestCases', '--include-filter', 'CtsSuspendAppsPermissionTestCases[secondary_user]', '--include-filter', 'CtsSuspendAppsTestCases', '--include-filter', 'CtsSuspendAppsTestCases[secondary_user]', '--include-filter', 'CtsSustainedPerformanceHostTestCases', '--include-filter', 'CtsSustainedPerformanceHostTestCases[secondary_user]', '--include-filter', 'CtsSyncAccountAccessOtherCertTestCases', '--include-filter', 'CtsSyncAccountAccessOtherCertTestCases[secondary_user]', '--include-filter', 'CtsSyncContentHostTestCases', '--include-filter', 'CtsSyncContentHostTestCases[secondary_user]', '--include-filter', 'CtsSyncManagerTestsCases', '--include-filter', 'CtsSyncManagerTestsCases[secondary_user]', '--logcat-on-failure'],
+        retry_template=['run', 'commandAndExit', 'retry', '--retry', '{session_id}'],
+        target_module='all.CtsSettingsHostTestCases_-_CtsSyncManagerTestsCases',
+        target_plan=None,
+        bundle='arm',
+        uri='LATEST',
+        use_jdk9=True,
+        use_old_adb=True,
+        timeout=172800)
+
+parallel_simple(run_TS, machines)

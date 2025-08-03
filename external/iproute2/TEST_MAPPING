@@ -1,0 +1,16 @@
+{
+    "presubmit": [
+        { "name": "netd_integration_test" },
+        { "name": "netd_unit_test" },
+        { "name": "netdutils_test" },
+        { "name": "resolv_integration_test" },
+        { "name": "resolv_unit_test" }
+    ],
+    "hwasan-presubmit": [
+        { "name": "netd_integration_test" },
+        { "name": "netd_unit_test" },
+        { "name": "netdutils_test" },
+        { "name": "resolv_integration_test" },
+        { "name": "resolv_unit_test" }
+    ]
+}

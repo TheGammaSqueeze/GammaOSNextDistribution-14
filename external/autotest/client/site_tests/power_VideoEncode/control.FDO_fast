@@ -1,0 +1,30 @@
+AUTHOR = "puthik"
+NAME = "power_VideoEncode.FDO_fast"
+PURPOSE = "Make sure video encode works fine with optional force discharge."
+
+CRITERIA = "This test is a benchmark."
+TIME = "FAST"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test makes sure that power_VideoEncode is working fine while optionally
+force discharge.
+
+"FDO" is short for "force discharge optional." Test will use EC command to
+force DUT to discharge. If it fails, then use AC as the power source.
+"""
+
+formats = [
+    ('h264', 'hd', 24),
+    ('vp9', 'hvga', 24),
+    ('vp8', 'qhvga', 15),
+]
+
+args_dict = utils.args_to_dict(args)
+pdash_note = args_dict.get('pdash_note', '')
+job.run_test('power_VideoEncode', tag=NAME.split('.')[1], seconds_per_test=30,
+             seconds_period=5, format=formats, pdash_note=pdash_note,
+             force_discharge='optional')

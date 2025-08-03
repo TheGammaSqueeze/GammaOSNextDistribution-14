@@ -1,0 +1,119 @@
+function freq_to_chan {
+	local freq=$1
+
+	if [[ $freq -ge 2412 && $freq -le 2472 ]]; then
+		band="11g"
+		chan=$(( ($freq - 2412) / 5 + 1 ))
+	else
+		band="11a"
+		chan=$(( ($freq - 5000) / 5 ))
+	fi
+	echo "$chan $band"
+}
+
+
+function meshup-iw {
+	local if=$1
+	local meshid=$2
+	local freq=$3
+	local ip=$4
+
+	ip link set $if down
+	iw dev $if set type mp
+	ip link set $if up
+	iw dev $if mesh join $meshid freq $freq
+	ip addr add $ip/24 dev $if 2>/dev/null
+}
+
+function meshup-wpas-open {
+	local if=$1
+	local meshid=$2
+	local freq=$3
+	local ip=$4
+
+	ip link set $if down
+	iw dev $if set type mp
+	ip link set $if up
+
+	cat<<EOM > /tmp/wpas-$if.conf
+network={
+	ssid="wmediumd-mesh"
+	mode=5
+	frequency=$freq
+	key_mgmt=NONE
+}
+EOM
+	wpa_supplicant -i $if -c /tmp/wpas-$if.conf &
+	ip addr add $ip/24 dev $if 2>/dev/null
+}
+
+function meshup-wpas {
+	local if=$1;
+	local meshid=$2;
+	local freq=$3;
+	local ip=$4;
+
+	ip link set $if down
+	iw dev $if set type mp
+	ip link set $if up
+
+	cat<<EOM > /tmp/wpas-$if.conf
+network={
+	ssid="wmediumd-mesh-sec"
+	mode=5
+	frequency=$freq
+	key_mgmt=SAE
+	psk="some passphrase"
+}
+EOM
+	wpa_supplicant -i $if -c /tmp/wpas-$if.conf &
+	ip addr add $ip/24 dev $if 2>/dev/null
+}
+
+function meshup-authsae {
+	local if=$1;
+	local meshid=$2;
+	local freq=$3;
+	local ip=$4;
+
+	ip link set $if down
+	iw dev $if set type mp
+	ip link set $if up
+
+	chan_params=$(freq_to_chan $freq)
+	read -ra ch <<< "$chan_params"
+
+	cat<<EOM > /tmp/authsae-$if.conf
+authsae:
+{
+ sae:
+  {
+    debug = 480;
+    password = "some passphrase";
+    group = [19, 26, 21, 25, 20];
+    blacklist = 5;
+    thresh = 5;
+    lifetime = 3600;
+  };
+ meshd:
+  {
+    meshid = "wmediumd-mesh-sec";
+    interface = "wlan0";
+    passive = 0;
+    secured = 1;
+    debug = 1;
+    mediaopt = 1;
+    band = "${ch[1]}";
+    channel = ${ch[0]};
+  };
+};
+EOM
+	meshd-nl80211 -i $if -c /tmp/authsae-$if.conf &
+	ip addr add $ip/24 dev $if 2>/dev/null
+}
+
+function addr2phy {
+	local addr=$1;
+	grep -l $addr /sys/class/ieee80211/phy*/macaddress | \
+		awk -F '/' '{print $(NF-1)}'
+}

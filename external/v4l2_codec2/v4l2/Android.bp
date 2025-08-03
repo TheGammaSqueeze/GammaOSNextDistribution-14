@@ -1,0 +1,57 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_v4l2_codec2_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_v4l2_codec2_license"],
+}
+
+cc_library {
+    name: "libv4l2_codec2_v4l2",
+    vendor: true,
+
+    defaults: [
+        "libcodec2-hidl-defaults",
+    ],
+
+    srcs: [
+        "V4L2ComponentCommon.cpp",
+        "V4L2ComponentFactory.cpp",
+        "V4L2ComponentStore.cpp",
+        "V4L2Decoder.cpp",
+        "V4L2DecodeComponent.cpp",
+        "V4L2Device.cpp",
+        "V4L2DevicePoller.cpp",
+        "V4L2Encoder.cpp",
+        "V4L2EncodeComponent.cpp",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+
+    header_libs: [
+        "libcodec2_internal",
+    ],
+    shared_libs: [
+        "android.hardware.graphics.common@1.0",
+        "libc2plugin_store",
+        "libchrome",
+        "libcodec2_soft_common",
+        "libcutils",
+        "liblog",
+        "libsfplugin_ccodec_utils",
+        "libstagefright_bufferqueue_helper",
+        "libstagefright_foundation",
+        "libui",
+        "libv4l2_codec2_common",
+        "libv4l2_codec2_components",
+    ],
+
+    cflags: [
+      "-Werror",
+      "-Wall",
+      "-Wno-unused-parameter",  // needed for libchrome/base codes
+      "-Wthread-safety",
+    ],
+}

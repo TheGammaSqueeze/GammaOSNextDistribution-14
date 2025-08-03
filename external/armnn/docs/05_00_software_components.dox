@@ -1,0 +1,48 @@
+/// Copyright (c) 2022 ARM Limited and Contributors. All rights reserved.
+///
+/// SPDX-License-Identifier: MIT
+///
+
+namespace armnn
+{
+/**
+@page swtools Software Components
+
+On this page you can find all software components contained in the Arm NN repository. You will find links to how-to guides and
+other helpful information in each section.
+
+ - @subpage delegate
+ - @subpage supportlibrary
+ - @subpage runtimeoptions
+ - @subpage parsers
+ - @subpage md_python_pyarmnn_README
+ - @subpage serializer
+ - @subpage deserializer
+ - @subpage md_src_armnnConverter_README
+ - @subpage md_tests_ImageCSVFileGenerator_README
+ - @subpage md_tests_ImageTensorGenerator_README
+ - @subpage md_tests_ModelAccuracyTool-Armnn_README
+**/
+}
+
+
+/// Create pages for each tool so they appear nicely in the doxygen tree-view. Subpages are not listed there.
+///
+/// Note: The parser, serializer and deserializer pages are created in 01_parsers.dox or 02_deserializer_serializer.dox
+namespace armnn
+{
+/**
+
+@page md_python_pyarmnn_README PyArmNN
+
+@page md_src_armnnConverter_README Converter
+
+@page md_tests_ModelAccuracyTool-Armnn_README ModelAccuracyTool
+
+@page md_tests_ImageCSVFileGenerator_README ImageCSVFileGenerator
+
+@page md_tests_ImageTensorGenerator_README ImageTensorGenerator
+
+**/
+}
+

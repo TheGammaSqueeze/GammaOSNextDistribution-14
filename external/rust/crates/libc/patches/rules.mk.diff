@@ -1,0 +1,26 @@
+diff --git a/rules.mk b/rules.mk
+index b2ae04d7..0cd09394 100644
+--- a/rules.mk
++++ b/rules.mk
+@@ -24,5 +24,21 @@ MODULE_RUSTFLAGS += \
+ 	--cfg 'libc_ptr_addr_of' \
+ 	--cfg 'libc_underscore_const_names' \
+ 	--cfg 'libc_union' \
++	-A unknown-lints \
++
++MODULE_LIBRARY_DEPS := \
++	trusty/user/base/lib/libcompiler_builtins-rust \
++	trusty/user/base/lib/libcore-rust \
++
++ifeq ($(call TOBOOL,$(TRUSTY_USERSPACE)),true)
++
++MODULE_RUSTFLAGS += \
++	--cfg 'feature="trusty_sys"' \
++
++MODULE_LIBRARY_DEPS += \
++	trusty/user/base/lib/libc-trusty \
++	trusty/user/base/lib/trusty-sys \
++
++endif
+ 
+ include make/library.mk

@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/tinyvec_macros
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "tinyvec_macros"
+description: "Some macros for tiny containers"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/tinyvec_macros"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/tinyvec_macros/tinyvec_macros-0.1.1.crate"
+  }
+  version: "0.1.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 2
+    day: 17
+  }
+}

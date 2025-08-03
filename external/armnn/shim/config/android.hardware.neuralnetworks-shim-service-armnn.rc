@@ -1,0 +1,5 @@
+service hal_neuralnetworks_armnn /vendor/bin/hw/android.hardware.neuralnetworks-shim-service-armnn
+    class hal
+    user system
+    group system
+    task_profiles NNApiHALPerformance

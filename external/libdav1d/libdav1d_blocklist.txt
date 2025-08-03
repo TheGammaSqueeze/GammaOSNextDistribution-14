@@ -1,0 +1,53 @@
+[integer]
+#src/env.h:116: __ubsan_handle_add_overflow_minimal_abort
+fun:gather_top_partition_prob
+#src/env.h:417: 0 - 1 cannot be represented in type 'unsigned int'
+fun:av1_get_uni_p1_ctx
+
+#src/loopfilter_tmpl.c:170: 0 - 1 cannot be represented in type 'unsigned int'
+fun:loop_filter_h_sb128y_c
+#src/loopfilter_tmpl.c:192: 0 - 1 cannot be represented in type 'unsigned int'
+fun:loop_filter_v_sb128y_c
+
+# src/msac.c:44: 64 - 4294967281 - 24 cannot be represented in type 'unsigned int'
+fun:ctx_refill
+# src/msac.c:98: 0 * (32768 - 2 * 21188) cannot be represented in type 'unsigned int'
+# src/msac.c:100: __ubsan_handle_sub_overflow_minimal_abort
+fun:dav1d_msac_decode_bool_c
+# src/msac.c:132: 4294967295 + 1 cannot be represented in type 'unsigned int'
+fun:dav1d_msac_decode_symbol_adapt_c
+# src/msac.c:82: 1 * (39424 - 2 * 19716) cannot be represented in type 'unsigned int'
+# src/msac.c:84: __ubsan_handle_sub_overflow_minimal_abort
+fun:dav1d_msac_decode_bool_equi_c
+
+#src/msac.h:94: 0 - 1 cannot be represented in type 'unsigned int'
+fun:dav1d_msac_decode_bools
+
+#src/recon_tmpl.c:66: __ubsan_handle_mul_overflow_minimal_abort
+fun:get_dc_sign_ctx
+#src/recon_tmpl.c:95: __ubsan_handle_mul_overflow_minimal_abort
+fun:decode_coefs
+
+#src/obu.c:1200:56: unsigned integer overflow: 0 - 1 cannot be represented in type 'unsigned int'
+fun:dav1d_parse_obus
+
+#src/obu.c:1115:62: runtime error: unsigned integer overflow: 34 - 128 cannot be represented in type 'unsigned int'
+fun:parse_frame_hdr
+
+#src/getbits.h:56:51: unsigned integer overflow: 48 - 4294967288 cannot be represented in type 'unsigned int'
+fun:dav1d_get_bits_pos
+
+#src/loopfilter_tmpl.c:234:35: unsigned integer overflow: 0 - 1 cannot be represented in type 'unsigned int'
+fun:loop_filter_v_sb128uv_c
+
+#src/loopfilter_tmpl.c:212:35: unsigned integer overflow: 0 - 1 cannot be represented in type 'unsigned int'
+fun:loop_filter_h_sb128uv_c
+
+#src/recon_tmpl.c:56:16: unsigned integer overflow: 0 - 1 cannot be represented in type 'unsigned int'
+fun:read_golomb
+
+#src/decode.c:1107:65: unsigned integer overflow: 4294967295 + 1 cannot be represented in type 'unsigned int'
+fun:decode_b
+
+#src/lib.c:206:51: unsigned integer overflow: 0 - 1 cannot be represented in type 'unsigned int'
+fun:dav1d_open

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out><wxyz:foo xmlns:wxyz="test.com"><yyy xmlns="test.com"/></wxyz:foo></out>

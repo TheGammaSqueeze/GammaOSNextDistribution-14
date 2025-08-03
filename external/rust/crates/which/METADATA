@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/which
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "which"
+description: "A Rust equivalent of Unix command \"which\". Locate installed executable in cross platforms."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/which"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/which/which-4.4.0.crate"
+  }
+  version: "4.4.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 2
+    day: 17
+  }
+}

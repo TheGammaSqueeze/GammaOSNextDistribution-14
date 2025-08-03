@@ -1,0 +1,13 @@
+name: "notosansoldnortharabian"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Old North Arabian is an unmodulated (“sans serif”) designfor texts in the historical Middle Eastern Old North Arabian script.It has 37 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansoldnortharabian"
+  }
+  version: "2.000"
+  license_type: NOTICE
+  last_upgrade_date { year: 2018 month: 3 day: 19 }
+}

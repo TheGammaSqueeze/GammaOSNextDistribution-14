@@ -1,0 +1,51 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_v4l2_codec2_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_v4l2_codec2_license"],
+}
+
+cc_library {
+    name: "libv4l2_codec2_common",
+    vendor: true,
+
+    defaults: [
+        "libcodec2-impl-defaults",
+    ],
+
+    srcs: [
+        "Common.cpp",
+        "EncodeHelpers.cpp",
+        "FormatConverter.cpp",
+        "Fourcc.cpp",
+        "H264NalParser.cpp",
+        "HEVCNalParser.cpp",
+        "NalParser.cpp",
+        "VideoTypes.cpp",
+        "VideoPixelFormat.cpp",
+    ],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    shared_libs: [
+        "libchrome",
+        "libcutils",
+        "liblog",
+        "libstagefright_foundation",
+        "libui",
+        "libutils",
+    ],
+
+    static_libs: [
+        "libyuv_static"
+    ],
+
+    cflags: [
+      "-Werror",
+      "-Wall",
+    ],
+}

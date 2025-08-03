@@ -1,0 +1,19 @@
+name: "untrusted"
+description: "Safe, fast, zero-panic, zero-crashing, zero-allocation parsing of untrusted inputs in Rust."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/untrusted"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/untrusted/untrusted-0.7.1.crate"
+  }
+  version: "0.7.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 11
+    day: 26
+  }
+}

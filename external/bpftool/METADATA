@@ -1,0 +1,19 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update bpftool
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "bpftool"
+description: "tool for inspection and simple manipulation of eBPF programs and maps"
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/libbpf/bpftool.git"
+  }
+  version: "66c1c8b51826fc4cd0641e5b99d54f469a11f726"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 16
+  }
+}

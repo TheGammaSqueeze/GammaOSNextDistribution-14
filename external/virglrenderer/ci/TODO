@@ -1,0 +1,7 @@
+- Investigate using vtest instead of the full stack
+- Run static checkers (syntax and maybe others)
+- Run Valgrind
+- Run fuzzers
+- Run weston in the guest (as a systemd service) instead of X
+- Run performance tests
+- Publish results

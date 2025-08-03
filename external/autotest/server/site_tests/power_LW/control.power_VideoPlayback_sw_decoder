@@ -1,0 +1,33 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "puthik"
+NAME = "power_LW.power_VideoPlayback_sw_decoder"
+TIME = "MEDIUM"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:power_dashboard"
+PY_VERSION = 3
+
+DOC = """
+Control file for running power_VideoPlayback.sw_decoder in power lab.
+"""
+
+from autotest_lib.client.common_lib import utils
+
+args_dict = utils.args_to_dict(args)
+test = 'power_VideoPlayback'
+args = {
+    'pdash_note': args_dict.get('pdash_note', ''),
+    'tag' : 'sw_decoder_PLW',
+    'use_hw_decode' : False,
+}
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test("power_LW", host=host, test=test, args=args,
+                 machine=machine, tag=NAME.split('.')[1])
+
+parallel_simple(run, machines)

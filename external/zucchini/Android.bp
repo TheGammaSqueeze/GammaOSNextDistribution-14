@@ -1,0 +1,178 @@
+
+package {
+    default_applicable_licenses: ["external_zucchini_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_zucchini_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "legacy_notice",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+filegroup {
+    name: "libzucchini_srcs",
+
+    srcs: [
+        "abs32_utils.cc",
+        "address_translator.cc",
+        "arm_utils.cc",
+        "binary_data_histogram.cc",
+        "buffer_sink.cc",
+        "buffer_source.cc",
+        "crc32.cc",
+        "disassembler.cc",
+        "disassembler_dex.cc",
+        "disassembler_elf.cc",
+        "disassembler_no_op.cc",
+        "disassembler_win32.cc",
+        "disassembler_ztf.cc",
+        "element_detection.cc",
+        "encoded_view.cc",
+        "ensemble_matcher.cc",
+        "equivalence_map.cc",
+        "heuristic_ensemble_matcher.cc",
+        "image_index.cc",
+        "imposed_ensemble_matcher.cc",
+        "io_utils.cc",
+        "mapped_file.cc",
+        "patch_reader.cc",
+        "patch_writer.cc",
+        "reference_bytes_mixer.cc",
+        "reference_set.cc",
+        "rel32_finder.cc",
+        "rel32_utils.cc",
+        "reloc_elf.cc",
+        "reloc_win32.cc",
+        "target_pool.cc",
+        "targets_affinity.cc",
+        "zucchini_apply.cc",
+        "zucchini_gen.cc",
+        "zucchini_tools.cc",
+    ],
+}
+
+filegroup {
+    name: "zucchini_srcs",
+    srcs: [
+        "main_utils.cc",
+        "zucchini_commands.cc",
+        "zucchini_integration.cc",
+        "zucchini_main_aosp.cc",
+    ],
+}
+
+filegroup {
+    name: "libzucchini_headers",
+    srcs: [
+        "abs32_utils.h",
+        "address_translator.h",
+        "algorithm.h",
+        "arm_utils.h",
+        "binary_data_histogram.h",
+        "buffer_sink.h",
+        "buffer_source.h",
+        "buffer_view.h",
+        "crc32.h",
+        "disassembler.h",
+        "disassembler_dex.h",
+        "disassembler_elf.h",
+        "disassembler_no_op.h",
+        "disassembler_win32.h",
+        "disassembler_ztf.h",
+        "element_detection.h",
+        "encoded_view.h",
+        "ensemble_matcher.h",
+        "equivalence_map.h",
+        "heuristic_ensemble_matcher.h",
+        "image_index.h",
+        "image_utils.h",
+        "imposed_ensemble_matcher.h",
+        "io_utils.h",
+        "main_utils.h",
+        "mapped_file.h",
+        "patch_reader.h",
+        "patch_utils.h",
+        "patch_writer.h",
+        "reference_bytes_mixer.h",
+        "reference_set.h",
+        "rel32_finder.h",
+        "rel32_utils.h",
+        "reloc_elf.h",
+        "reloc_win32.h",
+        "suffix_array.h",
+        "target_pool.h",
+        "targets_affinity.h",
+        "test_disassembler.h",
+        "test_reference_reader.h",
+        "test_utils.h",
+        "type_dex.h",
+        "type_elf.h",
+        "type_win_pe.h",
+        "type_ztf.h",
+        "typed_value.h",
+        "zucchini.h",
+        "zucchini_apply.h",
+        "zucchini_commands.h",
+        "zucchini_gen.h",
+        "zucchini_integration.h",
+        "zucchini_tools.h",
+    ],
+}
+
+cc_library {
+    name: "libzucchini",
+    host_supported: true,
+    device_supported: true,
+    recovery_available: true,
+    // Need this to ensure that the generated headers are used,
+    // instead of loacl ones. As the generated headers contain
+    // incorrect include paths
+    include_build_directory: false,
+    srcs: [":libzucchini_srcs"],
+    local_include_dirs: ["aosp/include"],
+    export_include_dirs: [
+        "aosp/include/components",
+        "aosp/include/",
+    ],
+    static_libs: [
+        "libchrome",
+        "libcutils",
+    ],
+    shared_libs: [
+        "liblog",
+        "libbase",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    visibility: [
+        "//external/puffin:__subpackages__",
+        "//system/update_engine:__subpackages__",
+    ],
+}
+
+cc_binary {
+    name: "zucchini",
+    host_supported: true,
+    device_supported: true,
+    srcs: [":zucchini_srcs"],
+    include_build_directory: false,
+    local_include_dirs: ["aosp/include"],
+    static_libs: [
+        "libchrome",
+        "libcutils",
+        "libzucchini",
+        "liblog",
+        "libbase",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+}

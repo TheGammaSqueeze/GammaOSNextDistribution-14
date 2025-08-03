@@ -1,0 +1,176 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  USE_JAVA_DISTRIBUTION: 'zulu'
+  USE_JAVA_VERSION: '11'
+  # Our Bazel builds currently rely on 5.3.2. The version is set via
+  # baselisk by USE_BAZEL_VERSION: https://github.com/bazelbuild/bazelisk.
+  USE_BAZEL_VERSION: '5.3.2'
+  # The default Maven 3.9.0 has a regression so we manually install 3.8.7.
+  # https://issues.apache.org/jira/browse/MNG-7679
+  USE_MAVEN_VERSION: '3.8.7'
+
+jobs:
+  validate-latest-dagger-version:
+    name: 'Validate Dagger version'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/prechecks
+  bazel-build:
+    name: 'Bazel build'
+    needs: validate-latest-dagger-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/bazel-build
+  bazel-test:
+    name: 'Bazel tests'
+    needs: validate-latest-dagger-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/bazel-test
+  artifact-java-local-tests:
+    name: 'Artifact Java local tests'
+    needs: bazel-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/artifact-java-local-tests
+  test-gradle-plugin:
+    name: 'Test Hilt Gradle plugin'
+    needs: bazel-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/test-gradle-plugin
+  artifact-android-local-tests:
+    name: 'Artifact Android local tests (AGP ${{ matrix.agp }})'
+    needs: bazel-build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        agp: ['7.0.0', '7.1.2']
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/artifact-android-local-tests
+        with:
+          agp: '${{ matrix.agp }}'
+  artifact-android-emulator-tests:
+    name: 'Artifact Android emulator tests (API 30)'
+    needs: bazel-build
+    # It's recommended to run emulator tests on macOS
+    # See https://github.com/marketplace/actions/android-emulator-runner
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/artifact-android-emulator-tests
+        timeout-minutes: 30 # TODO(b/287486065) investigate whether there is performance regression
+        with:
+          api-level: '30'
+  artifact-android-emulator-legacy-api-tests:
+    name: 'Artifact Android emulator tests (API ${{ matrix.api-level }})'
+    # We only run this on master push (essentially a postsubmit) since these
+    # can take a while to run
+    if: github.event_name == 'push' && github.repository == 'google/dagger' && github.ref == 'refs/heads/master'
+    needs: bazel-build
+    # It's recommended to run emulator tests on macOS
+    # See https://github.com/marketplace/actions/android-emulator-runner
+    runs-on: macos-latest
+    strategy:
+      matrix: # Run on 16 (PreL), 21 (L), and 26 (O).
+        api-level: [16, 21, 26]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/artifact-android-emulator-tests
+        timeout-minutes: 25
+        with:
+          api-level: '${{ matrix.api-level }}'
+  publish-snapshot:
+    name: 'Publish snapshot'
+    # TODO(bcorso): Consider also waiting on artifact-android-emulator-tests
+    # and artifact-android-emulator-legacy-api-tests after checking flakiness.
+    needs: [bazel-test, artifact-java-local-tests, artifact-android-local-tests, test-gradle-plugin]
+    if: github.event_name == 'push' && github.repository == 'google/dagger' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
+        uses: actions/setup-java@v3
+        with:
+          distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
+          java-version: '${{ env.USE_JAVA_VERSION }}'
+          server-id: sonatype-nexus-snapshots
+          server-username: CI_DEPLOY_USERNAME
+          server-password: CI_DEPLOY_PASSWORD
+      - name: 'Check out repository'
+        uses: actions/checkout@v3
+      - name: 'Cache local Maven repository'
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.m2/repository
+            !~/.m2/repository/com/google/dagger
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: 'Cache Bazel files'
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/bazel
+          key: ${{ runner.os }}-bazel-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-build-
+      - name: 'Cache Gradle files'
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: 'Publish latest docs'
+        run: ./util/generate-latest-docs.sh
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: 'Publish latest snapshot'
+        run: |
+          util/deploy-all.sh \
+            "deploy:deploy-file" \
+            "HEAD-SNAPSHOT" \
+            "-DrepositoryId=sonatype-nexus-snapshots" \
+            "-Durl=https://oss.sonatype.org/content/repositories/snapshots"
+        shell: bash
+        env:
+          CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+          CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+      - name: 'Clean bazel cache'
+        # According to the documentation, we should be able to exclude these via
+        # the actions/cache path, e.g. "!~/.cache/bazel/*/*/external/" but that
+        # doesn't seem to work.
+        run: |
+          rm -rf $(bazel info repository_cache)
+          rm -rf ~/.cache/bazel/*/*/external/
+        shell: bash
+  build-gradle-plugin-latest-agp:
+    name: 'Build Hilt Gradle plugin against latest AGP version'
+    # We only run this on master push (essentially a postsubmit) since we
+    # don't want this job to prevent merges
+    if: github.event_name == 'push' && github.repository == 'google/dagger' && github.ref == 'refs/heads/master'
+    needs: bazel-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/build-gradle-plugin
+        with:
+          agp: '+'

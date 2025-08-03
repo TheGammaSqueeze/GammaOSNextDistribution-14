@@ -1,0 +1,24 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.contracts.testing",
+    manifest: "AndroidManifest.xml",
+    srcs: [
+        "*.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "android_onboarding.contracts",
+        "android-support-v7-appcompat",
+        "androidx.test.core",
+        "androidx.activity_activity-ktx",
+        "androidx.fragment_fragment-ktx",
+        "androidx.appcompat_appcompat",
+        "Robolectric_all-target_upstream",
+        "apache-commons-lang3",
+        "kotlin-reflect",
+        "truth",
+    ],
+}

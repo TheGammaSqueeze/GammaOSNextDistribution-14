@@ -1,0 +1,7 @@
+variable symbol changed from 'enum { one = 1, two = 2, four = 4, } v' to 'enum { zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, } v'
+  type changed from 'enum { one = 1, two = 2, four = 4, }' to 'enum { zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, }'
+    enumerator 'zero' (0) was added
+    enumerator 'three' (3) was added
+    enumerator 'five' (5) was added
+
+exit code 4

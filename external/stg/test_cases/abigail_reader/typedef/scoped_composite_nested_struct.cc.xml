@@ -1,0 +1,59 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='unnamed_class' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='unnamed_struct' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='unnamed_union' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='scoped_composite_nested_struct.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <class-decl name='Scope' size-in-bits='8' is-struct='yes' visibility='default' id='036608f3'>
+      <member-type access='public'>
+        <class-decl name='UnnamedClass' size-in-bits='64' naming-typedef-id='fefdfd88' visibility='default' id='db38c06b'>
+          <member-type access='private'>
+            <class-decl name='Nested' size-in-bits='64' is-struct='yes' visibility='default' id='70c5a590'>
+              <data-member access='public' layout-offset-in-bits='0'>
+                <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+              </data-member>
+            </class-decl>
+          </member-type>
+          <data-member access='private' layout-offset-in-bits='0'>
+            <var-decl name='nested' type-id='70c5a590' visibility='default'/>
+          </data-member>
+        </class-decl>
+      </member-type>
+      <member-type access='public'>
+        <typedef-decl name='UnnamedClass' type-id='db38c06b' id='fefdfd88'/>
+      </member-type>
+      <member-type access='public'>
+        <class-decl name='UnnamedStruct' size-in-bits='64' is-struct='yes' naming-typedef-id='9f41d1e9' visibility='default' id='0a339d04'>
+          <data-member access='public' layout-offset-in-bits='0'>
+            <var-decl name='nested' type-id='70c5a590' visibility='default'/>
+          </data-member>
+        </class-decl>
+      </member-type>
+      <member-type access='public'>
+        <typedef-decl name='UnnamedStruct' type-id='0a339d04' id='9f41d1e9'/>
+      </member-type>
+      <member-type access='public'>
+        <union-decl name='UnnamedUnion' size-in-bits='64' naming-typedef-id='d1b84ab7' visibility='default' id='424c6787'>
+          <member-type access='public'>
+            <class-decl name='Nested' size-in-bits='64' is-struct='yes' visibility='default' id='c49771b7'>
+              <data-member access='public' layout-offset-in-bits='0'>
+                <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+              </data-member>
+            </class-decl>
+          </member-type>
+          <data-member access='public'>
+            <var-decl name='nested' type-id='c49771b7' visibility='default'/>
+          </data-member>
+        </union-decl>
+      </member-type>
+      <member-type access='public'>
+        <typedef-decl name='UnnamedUnion' type-id='424c6787' id='d1b84ab7'/>
+      </member-type>
+    </class-decl>
+    <var-decl name='unnamed_class' type-id='fefdfd88' mangled-name='unnamed_class' visibility='default' elf-symbol-id='unnamed_class'/>
+    <var-decl name='unnamed_struct' type-id='9f41d1e9' mangled-name='unnamed_struct' visibility='default' elf-symbol-id='unnamed_struct'/>
+    <var-decl name='unnamed_union' type-id='d1b84ab7' mangled-name='unnamed_union' visibility='default' elf-symbol-id='unnamed_union'/>
+  </abi-instr>
+</abi-corpus>

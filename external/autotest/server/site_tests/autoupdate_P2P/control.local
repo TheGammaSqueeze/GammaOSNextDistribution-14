@@ -1,0 +1,52 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, Chromium OS"
+NAME = "autoupdate_P2P.local"
+PURPOSE = "Test autoupdate via peer to peer(P2P) locally."
+TIME = "MEDIUM"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+PY_VERSION = 3
+
+DOC = """
+This tests autoupdate between two devices via peer to peer.
+
+Use this control file to debug the test at your desk. The test requires the
+lab to schedule and provision two DUTs before the test begins. We will need
+to do that setup manually before running the test.
+
+Steps to run from your desk:
+1. Lease two DUTs in the lab. They need to be the same make/model and near
+each other.
+2. ssh into both and make sure they can ping each other.
+3. Provision both DUTs to the same build. You can use cros flash to do this.
+4. Pass two args to test_that: companion_hosts and job_repo_url.
+
+A job_repo_url is a URL passed to each test that points to the autotest
+packages. The AU tests use that url to figure out the devserver to use for the
+test. When you are running locally you need to pass in a job_repo_url. An
+example is:
+http://100.115.245.194:8082/static/caroline-release/R82-12887.0.0/autotest/packages
+
+test_that <hostname>.cros autoupdate_P2P.local --companion_hosts="<hostname2>.cros" --args="job_repo_url=<job_repo_url> with_dlc=True"
+
+"""
+
+import logging
+from autotest_lib.server import utils
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    if 'job_repo_url' in args_dict:
+        host1 = hosts.create_host(machine)
+        companions = hosts.create_companion_hosts(companion_hosts)
+        with_dlc = bool(args_dict.get('with_dlc', False))
+        job.run_test('autoupdate_P2P', host=host1, companions=companions, running_at_desk=True, job_repo_url=args_dict.get('job_repo_url'), with_dlc=with_dlc)
+    else:
+        logging.info('Please provide both "companion_hosts" and "job_repo_url" args to test_that.')
+
+job.parallel_simple(run, machines)

@@ -1,0 +1,36 @@
+function symbol 'int Func::rename_old(struct Func*)' {_ZN4Func10rename_oldEv} was removed
+
+function symbol 'int Func::add_parameter(struct Func*)' {_ZN4Func13add_parameterEv} was removed
+
+function symbol 'int Func::remove_parameter(struct Func*, int)' {_ZN4Func16remove_parameterEi} was removed
+
+function symbol 'int Func::change_parameter_type(struct Func*, int)' {_ZN4Func21change_parameter_typeEi} was removed
+
+function symbol 'int Func::rename_new(struct Func*)' {_ZN4Func10rename_newEv} was added
+
+function symbol 'int Func::add_parameter(struct Func*, int)' {_ZN4Func13add_parameterEi} was added
+
+function symbol 'int Func::remove_parameter(struct Func*)' {_ZN4Func16remove_parameterEv} was added
+
+function symbol 'int Func::change_parameter_type(struct Func*, long)' {_ZN4Func21change_parameter_typeEl} was added
+
+function symbol changed from 'int Func::change_return_type(struct Func*)' {_ZN4Func18change_return_typeEv} to 'long Func::change_return_type(struct Func*)' {_ZN4Func18change_return_typeEv}
+  type changed from 'int(struct Func*)' to 'long(struct Func*)'
+    return type changed from 'int' to 'long'
+    parameter 1 type 'struct Func*' changed
+      pointed-to type 'struct Func' changed
+        byte size changed from 4 to 8
+        member changed from 'int x' to 'long x'
+          type changed from 'int' to 'long'
+
+function symbol 'int Func::change_parameter_name(struct Func*, int)' {_ZN4Func21change_parameter_nameEi} changed
+  type 'int(struct Func*, int)' changed
+    parameter 1 type 'struct Func*' changed
+      pointed-to type 'struct Func' changed
+        (already reported)
+
+variable symbol 'struct Func var' changed
+  type 'struct Func' changed
+    (already reported)
+
+exit code 4

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+  <list>
+    <item>Above Should be include-list then import-list</item>
+    <item>This is URIResolverTest.xml!</item>
+    <item match-by="import">Should be matched-by-import</item>
+    <item match-by="include">Should be matched-by-include</item>
+    <item match-by="main">Should be matched-by-import-also</item>
+    <list>
+      <item>Should be matched-by-main</item>
+      <item>Should be matched-by-main</item>
+    </list>
+  </list>
+</doc>

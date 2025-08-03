@@ -1,0 +1,7 @@
+permissionRules:
+  - team: actools-python
+    permission: admin
+  - team: actools
+    permission: admin
+  - team: yoshi-python
+    permission: push

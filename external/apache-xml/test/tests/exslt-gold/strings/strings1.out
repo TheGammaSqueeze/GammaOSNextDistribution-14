@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><out>
+   Left-justified with padding longer than name:
+   Dmitry Hayes -
+   Dmitry Hayes-X-O-X-O-X-O-X-O-X-O-X-O-X-O-X-O 
+   Right-justified with padding longer than name:
+   Matthew Hoyt -
+   nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnMatthew Hoyt 
+   Centered with padding longer than name:
+   June Ng -
+   DDDDDDDDDDDDDDDDDDJune NgDDDDDDDDDDDDDDDDDDD 
+   Left-justified with padding shorter than name:
+   David Bertoni -
+   David 
+   Right-justified with null padding than name:
+   Joseph Kesselman -
+    
+   Default justification is left-justified:
+   Me Too -
+   Me Tooooooooooooooooooooooooooo</out>

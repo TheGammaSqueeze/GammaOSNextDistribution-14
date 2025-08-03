@@ -1,0 +1,145 @@
+# Copyright (C) 2018 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# libandroidicu is a shim library of libicuuc and libicui18n.
+# The shim library includes the following APIs only.
+#
+# If a new API is needed in the shim, please add the API in the following list,
+# and re-run external/icu/tools/icu4c_srcgen/generate_libandroidicu.py.
+
+u_charDirection
+u_charMirror
+u_charName
+u_charType
+u_countChar32
+u_digit
+u_errorName
+u_foldCase
+u_getCombiningClass
+u_getIntPropertyMaxValue
+u_getIntPropertyValue
+u_getNumericValue
+u_hasBinaryProperty
+u_isalnum
+u_isalpha
+u_iscntrl
+u_isdefined
+u_isdigit
+u_isIDIgnorable
+u_isIDPart
+u_isIDStart
+u_isJavaSpaceChar
+u_islower
+u_isMirrored
+u_ispunct
+u_isspace
+u_istitle
+u_isUAlphabetic
+u_isupper
+u_isUWhiteSpace
+u_isWhitespace
+u_strFromUTF8
+u_strFromUTF8WithSub
+u_strToLower
+u_strToUpper
+u_strToUTF8
+u_tolower
+u_totitle
+u_toupper
+ubidi_close
+ubidi_countRuns
+ubidi_getDirection
+ubidi_getParaLevel
+ubidi_getLength
+ubidi_getLevelAt
+ubidi_getVisualRun
+ubidi_open
+ubidi_openSized
+ubidi_reorderVisual
+ubidi_setClassCallback
+ubidi_setPara
+ubrk_clone
+ubrk_close
+ubrk_current
+ubrk_first
+ubrk_following
+ubrk_getRuleStatus
+ubrk_isBoundary
+ubrk_next
+ubrk_open
+ubrk_preceding
+ubrk_setText
+ubrk_setUText
+ucnv_close
+# Temporarily keep ucnv_convert in Android S due to this feature request. http://b/163081189
+ucnv_convert
+ucnv_convertEx
+ucnv_getNextUChar
+ucnv_open
+ucnv_setFromUCallBack
+ucnv_setToUCallBack
+UCNV_FROM_U_CALLBACK_STOP
+UCNV_TO_U_CALLBACK_STOP
+ucol_close
+ucol_open
+ucol_setAttribute
+ucol_strcoll
+ucol_strcollIter
+ucsdet_close
+ucsdet_detectAll
+ucsdet_detect
+ucsdet_getConfidence
+ucsdet_getName
+ucsdet_open
+ucsdet_setText
+udatpg_close
+udatpg_getBestPattern
+udatpg_open
+uiter_setUTF8
+uloc_addLikelySubtags
+uloc_canonicalize
+uloc_countAvailable
+uloc_forLanguageTag
+uloc_getAvailable
+uloc_getDefault
+uloc_getISO3Country
+uloc_getISO3Language
+uloc_getISOCountries
+uloc_getISOLanguages
+uloc_getName
+uloc_getScript
+uloc_setDefault
+uloc_toLanguageTag
+unorm2_composePair
+unorm2_getDecomposition
+unorm2_getNFCInstance
+unorm2_getNFDInstance
+unorm2_getRawDecomposition
+uregex_close
+uregex_matches
+uregex_open
+uregex_setText
+ures_close
+ures_getByIndex
+ures_getByKey
+ures_getString
+ures_openDirect
+uscript_getScript
+uscript_getShortName
+utext_close
+utext_openUChars
+utext_openUTF8
+utrans_close
+utrans_openU
+utrans_transUChars

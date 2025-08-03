@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/zip
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "zip"
+description: "Library to support the reading and writing of zip files."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 12
+    day: 4
+  }
+  homepage: "https://crates.io/crates/zip"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/zip/zip-0.6.6.crate"
+    version: "0.6.6"
+  }
+}

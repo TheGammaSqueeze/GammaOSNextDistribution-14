@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/indexmap
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "indexmap"
+description: "A hash table with consistent order and fast iteration."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/indexmap/1.9.1"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/indexmap/indexmap-1.9.2.crate"
+  }
+  version: "1.9.2"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 12
+    day: 12
+  }
+}

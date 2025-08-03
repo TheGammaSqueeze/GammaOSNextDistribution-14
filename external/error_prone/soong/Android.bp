@@ -1,0 +1,21 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_error_prone_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_error_prone_license"],
+}
+
+bootstrap_go_package {
+    name: "soong-java-config-error_prone",
+    pkgPath: "android/soong/java/config/error_prone",
+    deps: [
+        "soong-android",
+        "soong-java-config",
+    ],
+    srcs: [
+        "error_prone.go",
+    ],
+    pluginFor: ["soong_build"],
+}

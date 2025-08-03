@@ -1,0 +1,33 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_iproute2_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-GPL
+    //   SPDX-license-identifier-GPL-2.0
+    default_applicable_licenses: ["external_iproute2_license"],
+}
+
+cc_binary {
+    name: "ss",
+    defaults: ["iproute2_defaults"],
+
+    srcs: [
+        "ss.c",
+        "ssfilter.y",
+    ],
+
+    shared_libs: [
+        "libiprouteutil",
+        "libnetlink",
+        "libselinux",
+    ],
+
+    cflags: [
+        "-Wno-missing-field-initializers",
+        "-Wno-tautological-pointer-compare",
+        "-Dsethostent(x)=",
+    ],
+
+    ldflags: ["-Wl,-export-dynamic"],
+}

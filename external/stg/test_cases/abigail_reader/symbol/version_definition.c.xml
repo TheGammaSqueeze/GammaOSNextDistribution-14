@@ -1,0 +1,27 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='test' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='versioned_foo' version='VERS_1' is-default-version='yes' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='versioned_foo' version='VERS_2' is-default-version='no' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='versioned_foo' version='VERS_3' is-default-version='no' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='versioned_foo_v1' type='func-type' binding='global-binding' visibility='default-visibility' alias='versioned_foo@@VERS_1' is-defined='yes'/>
+    <elf-symbol name='versioned_foo_v2' type='func-type' binding='global-binding' visibility='default-visibility' alias='versioned_foo@VERS_2' is-defined='yes'/>
+    <elf-symbol name='versioned_foo_v3' type='func-type' binding='global-binding' visibility='default-visibility' alias='versioned_foo@VERS_3' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='version_definition.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <function-decl name='test' mangled-name='test' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='test'>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='versioned_foo_v1' mangled-name='versioned_foo_v1' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='versioned_foo_v1'>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <function-decl name='versioned_foo_v2' mangled-name='versioned_foo_v2' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='versioned_foo_v2'>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <function-decl name='versioned_foo_v3' mangled-name='versioned_foo_v3' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='versioned_foo_v3'>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <type-decl name='void' id='48b5725f'/>
+  </abi-instr>
+</abi-corpus>

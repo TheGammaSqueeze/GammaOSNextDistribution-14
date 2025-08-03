@@ -1,0 +1,24 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='x' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='y' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='z' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='char.c' language='LANG_C11'>
+    <type-decl name='char' size-in-bits='8' id='a84c031d'/>
+    <type-decl name='signed char' size-in-bits='8' id='28577a57'/>
+    <type-decl name='unsigned char' size-in-bits='8' id='002ac4a6'/>
+    <function-decl name='x' mangled-name='x' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='x'>
+      <parameter type-id='28577a57' name='c'/>
+      <return type-id='28577a57'/>
+    </function-decl>
+    <function-decl name='y' mangled-name='y' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='y'>
+      <parameter type-id='a84c031d' name='c'/>
+      <return type-id='a84c031d'/>
+    </function-decl>
+    <function-decl name='z' mangled-name='z' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='z'>
+      <parameter type-id='002ac4a6' name='c'/>
+      <return type-id='002ac4a6'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

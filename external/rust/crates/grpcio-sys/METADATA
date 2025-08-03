@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/grpcio-sys
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "grpcio-sys"
+description: "FFI bindings to gRPC c core library"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 1
+    day: 2
+  }
+  homepage: "https://crates.io/crates/grpcio-sys"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/grpcio-sys/grpcio-sys-0.13.0+1.56.2-patched.crate"
+    version: "0.13.0+1.56.2-patched"
+  }
+}

@@ -1,0 +1,16 @@
+[package]
+name = "usb_util"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[dependencies]
+static_assertions = "1.1"
+data_model = { path = "../common/data_model" }
+libc = "*"
+remain = "*"
+thiserror = "*"
+base = { path = "../base" }
+usb_sys = { path = "../usb_sys" }
+sync = { path = "../common/sync" }
+zerocopy = { version = "0.7", features = ["derive"] }

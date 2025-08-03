@@ -1,0 +1,19 @@
+name: "jcommander"
+description: "JCommander is a very small Java framework that makes it trivial to parse command line parameters."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "http://jcommander.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/cbeust/jcommander.git"
+  }
+  version: "1.71"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 4
+    day: 8
+  }
+}

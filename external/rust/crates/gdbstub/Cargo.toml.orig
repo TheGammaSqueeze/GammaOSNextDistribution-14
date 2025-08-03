@@ -1,0 +1,52 @@
+[package]
+name = "gdbstub"
+description = "An implementation of the GDB Remote Serial Protocol in Rust"
+authors = ["Daniel Prilik <danielprilik@gmail.com>"]
+version = "0.7.1"
+license = "MIT OR Apache-2.0"
+edition = "2018"
+readme = "README.md"
+documentation = "https://docs.rs/gdbstub"
+homepage = "https://github.com/daniel5151/gdbstub"
+repository  = "https://github.com/daniel5151/gdbstub"
+keywords = ["gdb", "emulation", "no_std", "debugging"]
+categories = ["development-tools::debugging", "embedded", "emulators", "network-programming", "no-std"]
+exclude = ["examples/**/*.elf", "examples/**/*.o"]
+
+[dependencies]
+bitflags = "2.3.1"
+cfg-if = "1.0"
+log = "0.4"
+managed = { version = "0.8", default-features = false }
+num-traits = { version = "0.2", default-features = false }
+paste = "1.0"
+
+[dev-dependencies]
+gdbstub_arch = { path = "./gdbstub_arch/" }
+
+armv4t_emu = "0.1"
+pretty_env_logger = "0.4"
+goblin = "0.4"
+
+[features]
+default = ["std", "trace-pkt"]
+alloc = ["managed/alloc"]
+std = ["alloc"]
+trace-pkt = ["alloc"]
+paranoid_unsafe = []
+
+# INTERNAL: enables the `__dead_code_marker!` macro.
+# used as part of the `scripts/test_dead_code_elim.sh`
+__dead_code_marker = []
+
+[[example]]
+name = "armv4t"
+required-features = ["std"]
+
+[[example]]
+name = "armv4t_multicore"
+required-features = ["std"]
+
+[workspace]
+members = ["gdbstub_arch"]
+exclude = ["example_no_std"]

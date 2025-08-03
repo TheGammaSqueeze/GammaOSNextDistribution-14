@@ -1,0 +1,19 @@
+name: "fmtlib"
+description: "{fmt} is an open-source formatting library providing a fast and safe alternative to C stdio and C++ iostreams."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/fmtlib/fmt"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/fmtlib/fmt.git"
+  }
+  version: "10.1.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 12
+    day: 7
+  }
+}

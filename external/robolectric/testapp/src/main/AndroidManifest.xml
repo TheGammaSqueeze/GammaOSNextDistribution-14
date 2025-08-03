@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.robolectric.testapp"
+    android:versionCode="123"
+    android:versionName="aVersionName">
+
+    <application
+        android:theme="@style/Theme.Robolectric" android:enabled="true">
+      <activity android:name=".TestActivity" android:exported="true">
+        <intent-filter>
+            <category android:name="android.intent.category.LAUNCHER"/>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent-filter>
+      </activity>
+      <activity android:name=".DisabledTestActivity" android:enabled="false" android:exported="true"/>
+      <service android:name=".TestService" android:exported="true"/>
+
+      <activity
+          android:name=".ActivityWithAnotherTheme"
+          android:theme="@style/Theme.AnotherTheme" android:exported="true"/>
+      <activity android:name=".ActivityWithoutTheme" android:exported="true"/>
+
+    </application>
+</manifest>

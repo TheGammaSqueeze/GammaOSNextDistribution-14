@@ -1,0 +1,86 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+member {
+  id: 0x2a24396d
+  type_id: 0x27be95a5
+}
+member {
+  id: 0x2fddd982
+  type_id: 0x3059161a
+}
+member {
+  id: 0x348a54af
+  type_id: 0x5d0722af
+}
+member {
+  id: 0xa0d54b05
+  name: "x"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0xff4b45f9
+  name: "y"
+  type_id: 0x384f7d7c
+}
+struct_union {
+  id: 0x27be95a5
+  kind: STRUCT
+  definition {
+    bytesize: 1
+    member_id: 0xff4b45f9
+  }
+}
+struct_union {
+  id: 0x3059161a
+  kind: STRUCT
+  definition {
+    bytesize: 4
+    member_id: 0xa0d54b05
+  }
+}
+struct_union {
+  id: 0x5d0722af
+  kind: UNION
+  definition {
+    bytesize: 4
+    member_id: 0x2fddd982
+    member_id: 0x2a24396d
+  }
+}
+struct_union {
+  id: 0xc1147dbd
+  kind: STRUCT
+  name: "A"
+  definition {
+    bytesize: 4
+    member_id: 0x348a54af
+  }
+}
+function {
+  id: 0x4f13c399
+  return_type_id: 0xc1147dbd
+}
+elf_symbol {
+  id: 0x06f8338c
+  name: "foo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x4f13c399
+  full_name: "foo"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x06f8338c
+}

@@ -1,0 +1,5 @@
+variable symbol changed from 'const int x' to 'volatile int x'
+  type changed from 'const int' to 'volatile int'
+    qualifier const removed
+    qualifier volatile added
+

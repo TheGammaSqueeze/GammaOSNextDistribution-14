@@ -1,0 +1,45 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterQRHealth'
+PURPOSE = ('Batch of Bluetooth BQR health tests')
+CRITERIA = 'Pass all health test'
+ATTRIBUTES = 'suite:bluetooth' # This control file is used to run all tests locally.
+TIME = 'SHORT'  # Approximately 15 mins
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:2'
+PY_VERSION = 3
+
+DOC = """
+    A Batch of Bluetooth Quality Report health tests. This test is written
+    as a batch of tests in order to reduce test time, since auto-test ramp
+    up time is costly. The batch is using BluetoothAdapterQuickTests wrapper
+    methods to start and end a test and a batch of tests.
+
+    This class can be called to run the entire test batch or to run a
+    specific test only
+
+    Currently, the batch contains the following tests:
+    - qr_a2dp_test
+    - qr_hfp_nbs_dut_as_src_test
+    - qr_hfp_wbs_dut_as_src_test
+    - qr_disabled_a2dp_test
+    - qr_a2dp_cl_keyboard_test
+    - qr_hfp_wbs_dut_as_sink_cl_keyboard_test
+    - qr_hfp_nbs_dut_as_sink_cl_keyboard_test
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterQRHealth', host=host, num_iterations=1,
+                 args_dict=args_dict)
+
+parallel_simple(run, machines)

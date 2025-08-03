@@ -1,0 +1,26 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Chrome Browsre Infra Team'
+NAME = 'chromium_Telemetry'
+TIME = 'LONG'
+TEST_CATEGORY = 'Benchmark'
+TEST_CLASS = 'performance'
+TEST_TYPE = 'server'
+PY_VERSION = 3
+
+DOC = '''
+This server side test suite executes the Telemetry Benchmark:
+loading.desktop.
+
+This benchmark will run on lacros built by browser infra.
+
+This control file is still in experimental stage.
+'''
+
+def run_benchmark(machine):
+    host = hosts.create_host(machine)
+    job.run_test('chromium_Telemetry', host=host, args=args)
+
+parallel_simple(run_benchmark, machines)

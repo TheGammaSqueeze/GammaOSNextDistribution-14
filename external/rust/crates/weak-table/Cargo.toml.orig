@@ -1,0 +1,24 @@
+[package]
+name = "weak-table"
+version = "0.3.2"
+authors = ["Jesse A. Tov <jesse.tov@gmail.com>"]
+description = "Weak hash maps and sets"
+repository = "https://github.com/tov/weak-table-rs"
+readme = "README.md"
+license = "MIT"
+keywords = ["containers", "Rc", "Arc", "weak", "no_std"]
+edition = "2018"
+
+[dependencies]
+ahash = { version = "0.7.6", optional = true, features = [] }
+
+[dev-dependencies]
+quickcheck = "1"
+rand = "0.8.4"
+
+[features]
+default = ["std"]
+std = []
+
+# This feature doesn’t actually do anything. TODO: remove in v0.4.
+alloc = []

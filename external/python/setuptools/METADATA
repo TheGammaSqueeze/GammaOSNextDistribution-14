@@ -1,0 +1,17 @@
+name: "setuptools"
+description:
+    ""
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://pypi.org/project/setuptools/"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://files.pythonhosted.org/packages/27/01/6d721dbe597bd8234d978270b99717d017cafb6b1115e0eaafd373eaaa68/setuptools-61.1.0.tar.gz"
+  }
+  version: "v61.1.0"
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 3 day: 25 }
+}

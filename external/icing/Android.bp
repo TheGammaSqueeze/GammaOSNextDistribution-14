@@ -1,0 +1,155 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_icing_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_icing_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "libicing_defaults",
+
+    // For debug / treemap purposes.
+    //strip: {
+    //    keep_symbols: true,
+    //},
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-deprecated-declarations",
+        "-Wno-ignored-qualifiers",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare",
+        "-Wno-tautological-constant-out-of-range-compare",
+        "-Wno-undefined-var-template",
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+        "-Wno-unused-private-field",
+        "-Wno-extern-c-compat",
+
+        "-funsigned-char",
+        "-fvisibility=hidden",
+
+        "-Bsymbolic",
+    ],
+    apex_available: ["com.android.appsearch"],
+}
+
+// TODO(b/193244409): Use the filegroup libicing_test_common along with
+//                    libicing_defaults to build libicing.
+cc_library_shared {
+    name: "libicing",
+    defaults: ["libicing_defaults"],
+    srcs: [
+        "icing/**/*.cc",
+    ],
+    exclude_srcs: [
+        "icing/**/*-test-*",
+        "icing/**/*-test.*",
+        "icing/**/*_test.cc",
+        "icing/**/*_benchmark.cc",
+        "icing/testing/**/*",
+        "icing/tokenization/reverse_jni/**/*",
+        "icing/tokenization/simple/**/*",
+        "icing/tools/**/*",
+        "icing/transform/map/**/*",
+        "icing/transform/simple/**/*",
+    ],
+    header_libs: ["jni_headers"],
+    static_libs: [
+        "icing-c-proto",
+        "libutf",
+    ],
+    shared_libs: [
+        "libicu",
+        "liblog",
+        "libprotobuf-cpp-lite",
+        "libz",
+    ],
+    version_script: "icing/jni.lds",
+    min_sdk_version: "Tiramisu",
+}
+
+filegroup {
+    name: "libicing_test_common",
+    // TODO(b/193244409): Utilize globs once all build errors are fixed.
+    srcs: [
+        "icing/absl_ports/*.cc",
+        "icing/file/**/*.cc",
+        "icing/index/**/*.cc",
+        "icing/legacy/**/*.cc",
+        "icing/portable/*.cc",
+        "icing/query/**/*.cc",
+        "icing/schema/*.cc",
+        "icing/scoring/**/*.cc",
+        "icing/store/*.cc",
+        "icing/testing/*.cc",
+        "icing/text_classifier/lib3/utils/base/*.cc",
+        "icing/text_classifier/lib3/utils/hash/*.cc",
+        "icing/tokenization/*.cc",
+        "icing/util/*.cc",
+    ],
+    // TODO(b/193244409): Remove after all the excluded tests are passing.
+    exclude_srcs: [
+        "icing/**/*_benchmark.cc",
+        "icing/**/*-jni-layer.cc",
+        "icing/index/**/*_test.cc",
+        "icing/legacy/**/*_test.cc",
+        "icing/query/**/*_test.cc",
+        "icing/scoring/**/*_test.cc",
+        "icing/store/*_test.cc",
+        "icing/testing/*test*.cc",
+        "icing/tokenization/*_test.cc",
+        "icing/util/*_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libicing_tests",
+    defaults: ["libicing_defaults"],
+    test_suites: ["device_tests"],
+    // TODO(b/193244409): Implement globs for additional tests.
+    srcs: [
+        ":libicing_test_common",
+    ],
+    static_libs: [
+        "icing-c-proto",
+        "libgmock",
+        "libgoogle-benchmark",
+        "libgtest",
+    ],
+    shared_libs: [
+        "libicu",
+        "libicu_cts_stub",
+        "liblog",
+        "libprotobuf-cpp-lite",
+        "libz",
+    ],
+}
+
+// TODO(cassiewang): Add build rules and a TEST_MAPPING for cc_tests

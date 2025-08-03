@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/flate2
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "flate2"
+description: "DEFLATE compression and decompression exposed as Read/BufRead/Write streams. Supports miniz_oxide, miniz.c, and multiple zlib implementations. Supports zlib, gzip, and raw deflate streams."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 1
+  }
+  homepage: "https://crates.io/crates/flate2"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/flate2/flate2-1.0.28.crate"
+    version: "1.0.28"
+  }
+}

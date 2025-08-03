@@ -1,0 +1,12 @@
+target: {
+    android: {
+        cfgs: ["default_log_impl"],
+        rustlibs: [
+            "libandroid_log_sys",
+            "libonce_cell",
+        ],
+        shared_libs: [
+            "liblog",
+        ],
+    }
+}

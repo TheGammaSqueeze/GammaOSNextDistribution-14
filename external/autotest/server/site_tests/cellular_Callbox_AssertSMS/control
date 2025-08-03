@@ -1,0 +1,23 @@
+# Copyright (c) 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "latware@google.com"
+NAME = "cellular_Callbox_AssertSMS"
+ATTRIBUTES = "suite:cellular_callbox"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_TYPE = "server"
+PY_VERSION = 3
+DOC = """
+This test asserts the functionality of SMS messages on Chromebooks. It does so
+by connecting to a CMW500 Callbox, setting the SMS message to a unique string,
+sending the message, then asserting that the message is received by the
+Chromebook.
+"""
+
+def run_test(machine):
+    host = hosts.create_host(machine)
+    job.run_test('cellular_Callbox_AssertSMS', host=host)
+
+parallel_simple(run_test, machines)

@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/plotters-backend
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "plotters-backend"
+description: "Plotters Backend API"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 5
+  }
+  homepage: "https://crates.io/crates/plotters-backend"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/plotters-backend/plotters-backend-0.3.5.crate"
+    version: "0.3.5"
+  }
+}

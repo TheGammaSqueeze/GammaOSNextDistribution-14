@@ -1,0 +1,10 @@
+{
+  "features": [
+    "alloc",
+    "std"
+  ],
+  "product_available": false,
+  "run_cargo": false,
+  "tests": true,
+  "vendor_available": false
+}

@@ -1,0 +1,20 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index d33c2b6..39f5026 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -500,6 +500,7 @@ mod tests {
+ 
+     #[cfg(feature = "use_std")]
+     #[test]
++    #[ignore = "Android uses panic_abort"]
+     fn test_defer_success_2() {
+         let drops = Cell::new(0);
+         let _ = catch_unwind(AssertUnwindSafe(|| {
+@@ -511,6 +512,7 @@ mod tests {
+ 
+     #[cfg(feature = "use_std")]
+     #[test]
++    #[ignore = "Android uses panic_abort"]
+     fn test_defer_unwind_1() {
+         let drops = Cell::new(0);
+         let _ = catch_unwind(AssertUnwindSafe(|| {

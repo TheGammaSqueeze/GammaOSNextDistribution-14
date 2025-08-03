@@ -1,0 +1,12 @@
+{
+  "presubmit": [
+    {
+      "name": "fcp_plan_engine_test"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "fcp_plan_engine_test"
+    }
+  ]
+}

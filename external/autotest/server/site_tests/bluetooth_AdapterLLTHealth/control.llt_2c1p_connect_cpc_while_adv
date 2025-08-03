@@ -1,0 +1,33 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterLLTHealth.llt_2c1p_connect_cpc_while_adv'
+PURPOSE = ('Batch of Bluetooth LLT health tests')
+CRITERIA = 'Pass the health test'
+ATTRIBUTES = '' # TODO(b/186266241)
+TIME = 'MEDIUM'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:3'
+PY_VERSION = 3
+
+DOC = """
+      Tests link layer topology with three peer devices,
+      connects DUT as central and peripheral while advertising,
+      order of connection is central-peripheral-central
+      """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterLLTHealth', host=host,
+                  num_iterations=1, args_dict=args_dict,
+                  test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

@@ -1,0 +1,31 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, Chromium OS"
+NAME = "autoupdate_Lacros.m2n"
+TIME = "MEDIUM"
+PURPOSE = "Tests an M-to-N update and check rootfs-lacros."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:au-m2n"
+PY_VERSION = 3
+DOC = """
+Logs in and launches rootfs-lacros before and after a M-to-N autoupdate.
+
+Use the `running_at_desk` arg when testing locally.
+
+Example usage:
+test_that autoupdate_Lacros <DUT> --board=<board> --args="job_repo_url=http://<IP>:8082/static/<board>-release/RXX-XXXXX.X.X/autotest/packages running_at_desk=True"
+"""
+
+from autotest_lib.client.common_lib import utils
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('autoupdate_Lacros', host=host, full_payload=True, m2n=True,
+                 **args_dict)
+
+job.parallel_simple(run, machines)

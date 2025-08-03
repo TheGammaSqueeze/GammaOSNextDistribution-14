@@ -1,0 +1,49 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+from autotest_lib.server.site_tests.tast import tast
+
+AUTHOR = 'Chromium OS Firmware EngProd team'
+NAME = 'tast.firmware-smoke_usb'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'servo_state:WORKING, servo_usb_state:NORMAL'
+ATTRIBUTES = 'suite:faft_smoke'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+JOB_RETRIES = 0
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run Tast tests for basic firmware functionality.
+
+The tests are part of 'group:firmware'. The 'firmware_smoke' sub-attribute
+limits it to basic smoke-tests. The 'firmware_usb' sub-attribute further
+limits it to tests which require a working usb stick.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/
+for more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+command_args, varslist = tast.split_arguments(args)
+args_dict = utils.args_to_dict(command_args)
+assert 'servo_state:WORKING' in DEPENDENCIES
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine, servo_args=servo_args),
+                 test_exprs=['("group:firmware" && firmware_smoke && firmware_usb)'],
+                 ignore_test_failures=True, max_run_sec=10800,
+                 command_args=command_args,
+                 varslist=varslist,
+                 ephemeraldevserver='false')
+
+parallel_simple(run, machines)

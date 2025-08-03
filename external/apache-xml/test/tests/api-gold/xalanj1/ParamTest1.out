@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<outp>ABC,<B>ABC</B>; DEF,<B>DEF</B>; GHI,<B>GHI</B>; </outp>:
+   <outs>s1val,s1val; s2val,s2val; s3val,s3val; </outs>:
+   <outt>true,false,false,false,notset</outt>

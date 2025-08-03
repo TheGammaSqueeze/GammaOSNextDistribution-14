@@ -1,0 +1,37 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file has been automatically generated. Do not edit!
+
+AUTHOR = 'ARC++ Team'
+NAME = 'cheets_CTS_P.internal.arm.all.CtsViewTestCases_-_CtsViewTestCases.32'
+ATTRIBUTES = 'suite:arc-cts-qual'
+DEPENDENCIES = 'arc'
+JOB_RETRIES = 1
+TEST_TYPE = 'server'
+TIME = 'MEDIUM'
+MAX_RESULT_SIZE_KB = 512000
+PY_VERSION = 3
+DOC = 'Run module CtsViewTestCases of the Android Compatibility Test Suite (CTS) using arm ABI in the ARC++ container.'
+
+def run_TS(machine):
+    host_list = [hosts.create_host(machine)]
+    job.run_test(
+        'cheets_CTS_P',
+        hosts=host_list,
+        iterations=1,
+        max_retry=9,
+        tag='internal.arm.all.CtsViewTestCases_-_CtsViewTestCases.32',
+        test_name='cheets_CTS_P.internal.arm.all.CtsViewTestCases_-_CtsViewTestCases.32',
+        run_template=['run', 'commandAndExit', 'cts', '--module', 'CtsViewTestCases', '--logcat-on-failure', '--abi', 'armeabi-v7a', '--dynamic-config-url='],
+        retry_template=['run', 'commandAndExit', 'retry', '--retry', '{session_id}', '--dynamic-config-url='],
+        target_module='all.CtsViewTestCases_-_CtsViewTestCases',
+        target_plan=None,
+        bundle='arm',
+        extra_artifacts=['/storage/emulated/0/SurfaceViewSyncTest/'],
+        uri='LATEST',
+        precondition_commands=['sleep 60'],
+        timeout=3600)
+
+parallel_simple(run_TS, machines)

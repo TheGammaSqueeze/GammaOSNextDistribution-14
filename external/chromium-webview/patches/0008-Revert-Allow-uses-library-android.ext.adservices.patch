@@ -1,0 +1,237 @@
+From a89e1803ab1bcf6b1683d2a91ef159c8242e4b27 Mon Sep 17 00:00:00 2001
+From: "Kevin F. Haggerty" <haggertk@lineageos.org>
+Date: Sat, 2 Mar 2024 08:55:45 -0700
+Subject: [PATCH 08/12] Revert "Allow uses-library android.ext.adservices"
+
+This reverts commit 0c3ae92dd16b763625a4d8c3f05012d9813dee2d.
+---
+ ...view_32_64_bundle.AndroidManifest.expected |  1 -
+ ...webview_32_bundle.AndroidManifest.expected |  1 -
+ ...webview_64_bundle.AndroidManifest.expected |  1 -
+ ...em_webview_bundle.AndroidManifest.expected |  1 -
+ ...view_32_64_bundle.AndroidManifest.expected |  1 -
+ ...webview_32_bundle.AndroidManifest.expected |  1 -
+ ...view_64_32_bundle.AndroidManifest.expected |  1 -
+ ...webview_64_bundle.AndroidManifest.expected |  1 -
+ ...me_webview_bundle.AndroidManifest.expected |  1 -
+ ...blic_bundle__base.AndroidManifest.expected |  1 -
+ ...blic_bundle__base.AndroidManifest.expected |  1 -
+ ...blic_bundle__base.AndroidManifest.expected |  1 -
+ ...blic_bundle__base.AndroidManifest.expected |  1 -
+ ...blic_bundle__base.AndroidManifest.expected |  1 -
+ .../0_privacysandbox_AndroidManifest.xml      | 19 +++++++++++++++++++
+ third_party/androidx/customizations.gni       |  6 ++++++
+ 16 files changed, 25 insertions(+), 14 deletions(-)
+ create mode 100644 third_party/androidx/0_privacysandbox_AndroidManifest.xml
+
+diff --git a/android_webview/expectations/system_webview_32_64_bundle.AndroidManifest.expected b/android_webview/expectations/system_webview_32_64_bundle.AndroidManifest.expected
+index 34209168619c1..8346520904a5c 100644
+--- a/android_webview/expectations/system_webview_32_64_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/system_webview_32_64_bundle.AndroidManifest.expected
+@@ -509,7 +509,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+   </application>
+diff --git a/android_webview/expectations/system_webview_32_bundle.AndroidManifest.expected b/android_webview/expectations/system_webview_32_bundle.AndroidManifest.expected
+index f71c85ad0747f..bdf1799004424 100644
+--- a/android_webview/expectations/system_webview_32_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/system_webview_32_bundle.AndroidManifest.expected
+@@ -508,7 +508,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+   </application>
+diff --git a/android_webview/expectations/system_webview_64_bundle.AndroidManifest.expected b/android_webview/expectations/system_webview_64_bundle.AndroidManifest.expected
+index b51895e5a381f..c1f18f1f0b7b3 100644
+--- a/android_webview/expectations/system_webview_64_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/system_webview_64_bundle.AndroidManifest.expected
+@@ -508,7 +508,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+   </application>
+diff --git a/android_webview/expectations/system_webview_bundle.AndroidManifest.expected b/android_webview/expectations/system_webview_bundle.AndroidManifest.expected
+index a911dc1acef13..2efcdc11a2c62 100644
+--- a/android_webview/expectations/system_webview_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/system_webview_bundle.AndroidManifest.expected
+@@ -495,6 +495,5 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+   </application>
+ </manifest>
+diff --git a/android_webview/expectations/trichrome_webview_32_64_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_32_64_bundle.AndroidManifest.expected
+index 1735087043722..6d0edab38b9eb 100644
+--- a/android_webview/expectations/trichrome_webview_32_64_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_32_64_bundle.AndroidManifest.expected
+@@ -509,7 +509,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+     <uses-static-library android:name="org.chromium.trichromelibrary" android:certDigest="32a2fc74d731105859e5a85df16d95f102d85b22099b8064c5d8915c61dad1e0" android:version="OFFSET=31"/>
+diff --git a/android_webview/expectations/trichrome_webview_32_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_32_bundle.AndroidManifest.expected
+index e27e0c2995911..4e0e558593316 100644
+--- a/android_webview/expectations/trichrome_webview_32_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_32_bundle.AndroidManifest.expected
+@@ -508,7 +508,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+     <uses-static-library android:name="org.chromium.trichromelibrary" android:certDigest="32a2fc74d731105859e5a85df16d95f102d85b22099b8064c5d8915c61dad1e0" android:version="OFFSET=30"/>
+diff --git a/android_webview/expectations/trichrome_webview_64_32_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_64_32_bundle.AndroidManifest.expected
+index 8ef4098e97d80..862024cec5d8f 100644
+--- a/android_webview/expectations/trichrome_webview_64_32_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_64_32_bundle.AndroidManifest.expected
+@@ -508,7 +508,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+     <uses-static-library android:name="org.chromium.trichromelibrary" android:certDigest="32a2fc74d731105859e5a85df16d95f102d85b22099b8064c5d8915c61dad1e0" android:version="OFFSET=33"/>
+diff --git a/android_webview/expectations/trichrome_webview_64_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_64_bundle.AndroidManifest.expected
+index c7038df65ee7e..4aa98b7e1ffee 100644
+--- a/android_webview/expectations/trichrome_webview_64_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_64_bundle.AndroidManifest.expected
+@@ -508,7 +508,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+     <uses-static-library android:name="org.chromium.trichromelibrary" android:certDigest="32a2fc74d731105859e5a85df16d95f102d85b22099b8064c5d8915c61dad1e0" android:version="OFFSET=34"/>
+diff --git a/android_webview/expectations/trichrome_webview_bundle.AndroidManifest.expected b/android_webview/expectations/trichrome_webview_bundle.AndroidManifest.expected
+index 7a2f69cd394bd..fa04a2f98e392 100644
+--- a/android_webview/expectations/trichrome_webview_bundle.AndroidManifest.expected
++++ b/android_webview/expectations/trichrome_webview_bundle.AndroidManifest.expected
+@@ -495,7 +495,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-static-library android:name="org.chromium.trichromelibrary" android:certDigest="32a2fc74d731105859e5a85df16d95f102d85b22099b8064c5d8915c61dad1e0" android:version="OFFSET=31"/>
+   </application>
+ </manifest>
+diff --git a/chrome/android/expectations/monochrome_32_64_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_32_64_public_bundle__base.AndroidManifest.expected
+index 0e24fcec67def..380606ff48a22 100644
+--- a/chrome/android/expectations/monochrome_32_64_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_32_64_public_bundle__base.AndroidManifest.expected
+@@ -823,7 +823,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+     <uses-native-library android:name="libopenxr.google.so" android:required="false"/>
+diff --git a/chrome/android/expectations/monochrome_32_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_32_public_bundle__base.AndroidManifest.expected
+index 0f1674735632e..4765f574570b6 100644
+--- a/chrome/android/expectations/monochrome_32_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_32_public_bundle__base.AndroidManifest.expected
+@@ -822,7 +822,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+     <uses-native-library android:name="libopenxr.google.so" android:required="false"/>
+diff --git a/chrome/android/expectations/monochrome_64_32_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_64_32_public_bundle__base.AndroidManifest.expected
+index bbb97dc40f735..9a4f31377f37b 100644
+--- a/chrome/android/expectations/monochrome_64_32_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_64_32_public_bundle__base.AndroidManifest.expected
+@@ -822,7 +822,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+     <uses-native-library android:name="libopenxr.google.so" android:required="false"/>
+diff --git a/chrome/android/expectations/monochrome_64_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_64_public_bundle__base.AndroidManifest.expected
+index a688dc4b1b804..3e9f4500e9a45 100644
+--- a/chrome/android/expectations/monochrome_64_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_64_public_bundle__base.AndroidManifest.expected
+@@ -822,7 +822,6 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+     <uses-library android:name="androidx.window.extensions" android:required="false"/>
+     <uses-library android:name="com.android.extensions.xr" android:required="false"/>
+     <uses-native-library android:name="libopenxr.google.so" android:required="false"/>
+diff --git a/chrome/android/expectations/monochrome_public_bundle__base.AndroidManifest.expected b/chrome/android/expectations/monochrome_public_bundle__base.AndroidManifest.expected
+index f92eb5440458f..6776182bc3ee7 100644
+--- a/chrome/android/expectations/monochrome_public_bundle__base.AndroidManifest.expected
++++ b/chrome/android/expectations/monochrome_public_bundle__base.AndroidManifest.expected
+@@ -731,6 +731,5 @@
+         android:process=":sandboxed_process9"
+         android:visibleToInstantApps="true">
+     </service>  # DIFF-ANCHOR: e2f3bbbd
+-    <uses-library android:name="android.ext.adservices" android:required="false"/>
+   </application>
+ </manifest>
+diff --git a/third_party/androidx/0_privacysandbox_AndroidManifest.xml b/third_party/androidx/0_privacysandbox_AndroidManifest.xml
+new file mode 100644
+index 0000000000000..da6c78ff7b0cc
+--- /dev/null
++++ b/third_party/androidx/0_privacysandbox_AndroidManifest.xml
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="utf-8"?>
++<!--
++Copyright 2023 The Chromium Authors
++Use of this source code is governed by a BSD-style license that can be
++found in the LICENSE file.
++-->
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    package="org.chromium.privacysandbox.overrides">
++
++    <!-- Library needed for androidx.privacysandbox.ads:ads-adservices to work on Android R & S,
++      which we do not currently support. Removing out of caution to prevent the library from
++      slowing down renderer process start-up.
++      https://crbug.com/1448095
++    -->
++    <application>
++      <uses-library android:name="android.ext.adservices" tools:node="remove" />
++    </application>
++</manifest>
+diff --git a/third_party/androidx/customizations.gni b/third_party/androidx/customizations.gni
+index f4d453788030e..2d384df33ed5c 100644
+--- a/third_party/androidx/customizations.gni
++++ b/third_party/androidx/customizations.gni
+@@ -70,6 +70,12 @@ template("_androidx_prebuilt") {
+       # Replace broad library -keep rules with a more limited set in
+       # chrome/android/java/proguard.flags instead.
+       ignore_proguard_configs = true
++    } else if (target_name ==
++               "androidx_privacysandbox_ads_ads_adservices_java") {
++      if (!is_high_end_android) {
++        # https://crbug.com/1448095
++        mergeable_android_manifests = [ "0_privacysandbox_AndroidManifest.xml" ]
++      }
+     } else if (target_name == "androidx_startup_startup_runtime_java") {
+       # Keeps emoji2 code. See http://crbug.com/1205141
+       ignore_proguard_configs = true
+-- 
+2.50.0
+

@@ -1,0 +1,32 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+elf_symbol {
+  id: 0x60468be1
+  name: "_Z1av"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "a"
+}
+elf_symbol {
+  id: 0xfe73b6f7
+  name: "_Z1bv"
+  is_defined: true
+  symbol_type: FUNCTION
+  visibility: PROTECTED
+  type_id: 0x10985193
+  full_name: "b"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x60468be1
+  symbol_id: 0xfe73b6f7
+}

@@ -1,0 +1,11 @@
+{
+  "module_name_overrides": {
+    "libvm_memory": "libvm_memory_android"
+  },
+  "package": {
+    "virtio-vsock": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

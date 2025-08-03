@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/base64
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "base64"
+description: "encodes and decodes base64 as bytes or utf8"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 1
+    day: 31
+  }
+  homepage: "https://crates.io/crates/base64"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/base64/base64-0.21.7.crate"
+    version: "0.21.7"
+  }
+}

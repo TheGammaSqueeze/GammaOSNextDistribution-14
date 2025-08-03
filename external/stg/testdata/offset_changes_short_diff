@@ -1,0 +1,12 @@
+type 'struct A' changed
+  3 members ('int b' .. 'int d') changed
+    offset changed by 16
+  member 'struct { int a; int b; int c; } e' changed
+    type 'struct { int a; int b; int c; }' changed
+      2 members ('int b' .. 'int c') changed
+        offset changed by 16
+
+type 'struct B' changed
+  member 'int b' changed
+    offset changed by 16
+

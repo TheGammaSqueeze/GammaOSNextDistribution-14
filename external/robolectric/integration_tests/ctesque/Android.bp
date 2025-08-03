@@ -1,0 +1,32 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_robolectric_test {
+    name: "CtesqueRoboTests",
+    srcs: [
+        "src/sharedTest/**/*.java",
+        "src/sharedTest/**/*.kt",
+    ],
+    // TODO(b/325659920) To be add back once we properly support RNR in Android.
+    exclude_srcs: [
+        "src/sharedTest/java/android/database/SQLiteDatabaseTest.java",
+    ],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.test.uiautomator_uiautomator",
+        "androidx.test.espresso.core",
+        "androidx.test.ext.junit",
+        "androidx.test.ext.truth",
+    ],
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+        "android.test.mock",
+        "truth",
+        "guava",
+    ],
+    upstream: true,
+    java_resource_dirs: ["src/sharedTest/resources/android"],
+    instrumentation_for: "GlobalRobolectricTestStub",
+}

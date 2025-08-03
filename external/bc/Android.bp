@@ -1,0 +1,98 @@
+package {
+    default_applicable_licenses: ["external_bc_license"],
+}
+
+license {
+    name: "external_bc_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE.md",
+        "NOTICE.md",
+    ],
+}
+
+cc_defaults {
+  name: "bc-defaults",
+
+  cflags: [
+    "-include bc-version.h",
+    "-DBC_ENABLED=1",
+    "-DDC_ENABLED=0",
+    "-DBC_ENABLE_EXTRA_MATH=0",
+    "-DBC_ENABLE_HISTORY=0",
+    "-DBC_ENABLE_NLS=0",
+    "-Os",
+  ],
+  generated_headers: ["bc-version.h"],
+  local_include_dirs: ["include"],
+  srcs: [
+    "src/bc/*.c",
+    "src/*.c",
+    ":bc-bc_help.c",
+    ":bc-lib.c",
+  ],
+  stl: "none",
+}
+
+cc_binary_host {
+  name: "strgen",
+  local_include_dirs: ["include"],
+  srcs: ["gen/strgen.c"],
+}
+
+genrule {
+  name: "bc-lib.c",
+  srcs: ["gen/lib.bc"],
+  out: ["gen/lib.c"],
+  tools: ["strgen"],
+  cmd: "$(location strgen) $(in) $(out) 0 bc_lib bc_lib_name BC_ENABLED 1",
+}
+
+genrule {
+  name: "bc-bc_help.c",
+  srcs: ["gen/bc_help.txt"],
+  out: ["gen/bc_help.c"],
+  tools: ["strgen"],
+  cmd: "$(location strgen) $(in) $(out) 0 bc_help '' BC_ENABLED",
+}
+
+genrule {
+  name: "bc-version.h",
+  srcs: ["Makefile.in"],
+  out: ["bc-version.h"],
+  cmd: "sed -n 's/VERSION = /#define VERSION /p' $(in) > $(out)",
+}
+
+cc_binary {
+  name: "bc",
+  defaults: ["bc-defaults"],
+}
+
+cc_binary {
+  name: "bc_vendor",
+  defaults: ["bc-defaults"],
+  stem: "bc",
+  vendor: true,
+}
+
+cc_binary_host {
+  name: "gavinhoward-bc",
+  defaults: ["bc-defaults"],
+}
+
+sh_test {
+  name: "bc-tests",
+  src: "run-bc-tests-on-android.sh",
+  filename: "run-bc-tests-on-android.sh",
+  test_suites: ["general-tests"],
+  host_supported: true,
+  device_supported: false,
+  data: [
+    "scripts/*.sh",
+    "tests/**/*",
+  ],
+}

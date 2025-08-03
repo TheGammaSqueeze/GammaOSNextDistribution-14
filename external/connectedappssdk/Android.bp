@@ -1,0 +1,139 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "ConnectedAppsSDK_Annotations",
+    sdk_version: "core_current",
+    srcs: [
+        "annotations/src/main/java/**/*.java",
+    ],
+    host_supported: true,
+}
+
+java_library {
+    name: "ConnectedAppsSDK_Test_Annotations",
+    sdk_version: "core_current",
+    srcs: [
+        "testing/annotations/src/main/java/**/*.java",
+    ],
+    host_supported: true,
+}
+
+filegroup {
+    name: "ConnectedAppsSDK_Resources",
+
+    srcs: [
+        "processor/src/main/resources/**/*",
+    ],
+
+    path: "processor/src/main/resources",
+}
+
+java_plugin {
+    name: "ConnectedAppsSDK_Processor",
+    processor_class: "com.google.android.enterprise.connectedapps.processor.Processor",
+    static_libs: [
+        "javapoet",
+        "auto_service_annotations",
+        "ConnectedAppsSDK_Annotations",
+        "guava-android-annotation-stubs",
+        "auto_value_annotations",
+        "error_prone_annotations",
+        "guava",
+        "ConnectedAppsSDK_Annotations",
+        "ConnectedAppsSDK_Test_Annotations",
+    ],
+    srcs: [
+        "processor/src/main/java/**/*.java",
+    ],
+    java_resources: [
+        ":ConnectedAppsSDK_Resources",
+    ],
+    plugins: [
+        "auto_service_plugin",
+        "auto_value_plugin",
+    ],
+    generates_api: true,
+    use_tools_jar: true,
+}
+
+filegroup {
+    name: "ConnectedAppsSDK_AIDL",
+
+    srcs: [
+        "sdk/src/main/aidl/**/*.aidl",
+    ],
+
+    path: "sdk/src/main/aidl",
+}
+
+android_library {
+    name: "ConnectedAppsSDK",
+    sdk_version: "test_current",
+    srcs: [
+        "sdk/src/main/java/**/*.java",
+        ":ConnectedAppsSDK_AIDL",
+    ],
+    static_libs: [
+        "ConnectedAppsSDK_Annotations",
+        "guava-android-annotation-stubs",
+        "error_prone_annotations",
+    ],
+    manifest: "sdk/src/main/AndroidManifest.xml",
+    min_sdk_version: "28",
+}
+
+android_library {
+    name: "ConnectedAppsSDK_Testing",
+    sdk_version: "test_current",
+    srcs: [
+        "testing/sdk/src/main/java/**/*.java",
+    ],
+    static_libs: [
+        "ConnectedAppsSDK",
+        "androidx.test.ext.junit",
+    ],
+    manifest: "testing/sdk/src/main/AndroidManifest.xml",
+    min_sdk_version: "28",
+}
+
+android_library {
+    name: "ConnectedAppsSDK_SharedTestApp",
+    sdk_version: "test_current",
+    srcs: [
+        "tests/shared/src/main/java/**/*.java",
+    ],
+    manifest: "tests/shared/src/main/AndroidManifest.xml",
+    min_sdk_version: "28",
+    static_libs: [
+        "ConnectedAppsSDK_Annotations",
+        "ConnectedAppsSDK",
+        "guava",
+        "truth",
+    ],
+    plugins: ["ConnectedAppsSDK_Processor"],
+}
+
+// We only run instrumented tests in AOSP
+android_test {
+    name: "ConnectedAppsSDKTest",
+    srcs: [
+        "tests/instrumented/src/main/java/**/*.java",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    static_libs: [
+        "ConnectedAppsSDK",
+        "ConnectedAppsSDK_Annotations",
+        "ConnectedAppsSDK_SharedTestApp",
+        "ConnectedAppsSDK_Testing",
+        "androidx.test.ext.junit",
+        "ctstestrunner-axt",
+        "truth",
+        "testng", // for assertThrows
+    ],
+    manifest: "tests/instrumented/src/AndroidManifest.xml",
+    min_sdk_version: "28",
+}

@@ -1,0 +1,22 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'dbeckett'
+NAME = 'infra_CompanionDuts'
+TIME = 'SHORT'
+TEST_CATEGORY = 'General'
+TEST_CLASS = 'stub'
+TEST_TYPE = 'server'
+PY_VERSION = 3
+DOC = """
+Verify the companion dut flag reaches a test.
+"""
+
+
+def run(machine):
+    host = hosts.create_host(machine)
+    companions = hosts.create_companion_hosts(companion_hosts)
+    job.run_test('infra_CompanionDuts', host=host, companions=companions)
+
+parallel_simple(run, machines)

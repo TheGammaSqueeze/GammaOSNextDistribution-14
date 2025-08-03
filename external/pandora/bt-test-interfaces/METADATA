@@ -1,0 +1,10 @@
+name: "pandora/bt-test-interfaces"
+description:
+    "The Pandora Bluetooth test interfaces are Remote Procedure Call (RPC) "
+    "interfaces exposed to testing tools to trigger behaviors within a "
+    "Bluetooth stack under test."
+
+third_party: {
+  type: GOOGLE_INTERNAL
+  license_type: NOTICE
+}

@@ -1,0 +1,18 @@
+name: "jazzer-api"
+description:
+    "Jazzer is an open source fuzzing engine for Java code. This API provides "
+    "useful functions to write an effective fuzz target."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.code-intelligence.com/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/CodeIntelligenceTesting/jazzer"
+  }
+  version: "30decf81a147c66fa5a098072c38ab6924ba0aa6"
+  last_upgrade_date { year: 2023 month: 6 day: 14 }
+  license_type: NOTICE
+}

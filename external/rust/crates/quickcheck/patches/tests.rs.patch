@@ -1,0 +1,20 @@
+diff --git a/src/tests.rs b/src/tests.rs
+index 465ef15..6700f46 100644
+--- a/src/tests.rs
++++ b/src/tests.rs
+@@ -8,6 +8,7 @@ use std::path::PathBuf;
+ use super::{quickcheck, Gen, QuickCheck, TestResult};
+ 
+ #[test]
++#[cfg(not(target_os = "android"))]
+ fn prop_oob() {
+     fn prop() -> bool {
+         let zero: Vec<bool> = vec![];
+@@ -168,6 +169,7 @@ fn testable_unit() {
+ }
+ 
+ #[test]
++#[cfg(not(target_os = "android"))]
+ fn testable_unit_panic() {
+     fn panic() {
+         panic!()

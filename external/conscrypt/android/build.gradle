@@ -1,0 +1,177 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath libraries.android_tools
+    }
+}
+
+plugins {
+    id 'digital.wup.android-maven-publish' version '3.6.2'
+}
+
+description = 'Conscrypt: Android'
+
+ext {
+    androidHome = "$System.env.ANDROID_HOME"
+    androidSdkInstalled = file("$androidHome").exists()
+    androidVersionCode = 1
+    androidVersionName = "$version"
+    androidMinSdkVersion = 19
+    androidTargetSdkVersion = 26
+    androidNdkVersion = '25.2.9519653'
+    androidCmakeVersion = '3.22.1'
+}
+
+if (androidSdkInstalled) {
+    apply plugin: 'com.android.library'
+
+    // Since we're not taking a direct dependency on the constants module, we need to add an
+    // explicit task dependency to make sure the code is generated.
+    evaluationDependsOn(':conscrypt-constants')
+
+    android {
+        namespace "org.conscrypt"
+
+        compileSdkVersion androidTargetSdkVersion
+        ndkVersion androidNdkVersion
+
+        compileOptions {
+            sourceCompatibility androidMinJavaVersion
+            targetCompatibility androidMinJavaVersion
+        }
+
+        defaultConfig {
+            minSdkVersion androidMinSdkVersion
+            targetSdkVersion androidTargetSdkVersion
+            versionCode androidVersionCode
+            versionName androidVersionName
+
+            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+            consumerProguardFiles 'proguard-rules.pro'
+
+            externalNativeBuild {
+                cmake {
+                    arguments '-DANDROID=True',
+                            '-DANDROID_STL=c++_static',
+                            "-DBORINGSSL_HOME=$boringsslHome",
+                            "-DCMAKE_CXX_STANDARD=17"
+                    cFlags '-fvisibility=hidden',
+                            '-DBORINGSSL_SHARED_LIBRARY',
+                            '-DBORINGSSL_IMPLEMENTATION',
+                            '-DOPENSSL_SMALL',
+                            '-D_XOPEN_SOURCE=700',
+                            '-Wno-unused-parameter'
+                    targets 'conscrypt_jni'
+                    version androidCmakeVersion
+                }
+            }
+            ndk {
+                abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+            }
+        }
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            }
+        }
+        sourceSets.main {
+            java {
+                srcDirs = [
+                        "${rootDir}/common/src/main/java",
+                        "src/main/java"
+                ]
+                // Requires evaluationDependsOn(':conscrypt-constants') above.
+                srcDirs += project(':conscrypt-constants').sourceSets.main.java.srcDirs
+            }
+            resources {
+                srcDirs += "build/generated/resources"
+            }
+        }
+        externalNativeBuild {
+            cmake {
+                path 'CMakeLists.txt'
+                version androidCmakeVersion
+            }
+        }
+        lintOptions {
+            lintConfig file('lint.xml')
+        }
+    }
+
+    configurations {
+        publicApiDocs
+    }
+
+    preBuild {
+        dependsOn generateProperties
+    }
+
+    dependencies {
+        publicApiDocs project(':conscrypt-api-doclet')
+        androidTestImplementation('androidx.test.espresso:espresso-core:3.1.1', {
+            exclude module: 'support-annotations'
+            exclude module: 'support-v4'
+            exclude module: 'support-v13'
+            exclude module: 'recyclerview-v7'
+            exclude module: 'appcompat-v7'
+            exclude module: 'design'
+        })
+        compileOnly project(':conscrypt-android-stub')
+
+        // Adds the constants module as a dependency so that we can include its generated source
+        compileOnly project(':conscrypt-constants')
+    }
+
+    def configureJavaDocs = tasks.register("configureJavadocs") {
+        dependsOn configurations.publicApiDocs
+        doLast {
+            javadocs.options.docletpath = configurations.publicApiDocs.files as List
+        }
+    }
+
+    def javadocs = tasks.register("javadocs", Javadoc) {
+        dependsOn configureJavadocs
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator)) + project(':conscrypt-android-stub').sourceSets.main.output
+        // TODO(nmittler): Fix the javadoc errors.
+        failOnError false
+        options {
+            encoding = 'UTF-8'
+            links "https://docs.oracle.com/javase/7/docs/api/"
+            // TODO(prb): Update doclet to Java 11.
+            // doclet = "org.conscrypt.doclet.FilterDoclet"
+        }
+    }
+
+    def javadocsJar = tasks.register("javadocsJar", Jar) {
+        dependsOn javadocs
+        classifier = 'javadoc'
+        from {
+            javadocs.get().destinationDir
+        }
+    }
+
+    def sourcesJar = tasks.register("sourcesJar", Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.srcDirs
+    }
+
+    apply from: "$rootDir/gradle/publishing.gradle"
+    publishing.publications.maven {
+        from components.android
+        artifact sourcesJar.get()
+        artifact javadocsJar.get()
+    }
+} else {
+    logger.warn('Android SDK has not been detected. The Android module will not be built.')
+
+    // Disable all tasks
+    tasks.configureEach {
+        it.enabled = false
+    }
+}

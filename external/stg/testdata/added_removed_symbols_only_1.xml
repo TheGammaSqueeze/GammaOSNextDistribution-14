@@ -1,0 +1,13 @@
+<abi-corpus version='2.1' path='test.o' architecture='elf-amd-x86_64'>
+  <elf-variable-symbols>
+    <elf-symbol name='x' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='y' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='z' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='test.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <var-decl name='x' type-id='95e97e5e' mangled-name='x' visibility='default' elf-symbol-id='x'/>
+    <var-decl name='y' type-id='95e97e5e' mangled-name='y' visibility='default' elf-symbol-id='y'/>
+    <var-decl name='z' type-id='95e97e5e' mangled-name='z' visibility='default' elf-symbol-id='z'/>
+  </abi-instr>
+</abi-corpus>

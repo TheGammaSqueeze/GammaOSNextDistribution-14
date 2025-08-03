@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><out xmlns:common="http://exslt.org/common">
+     This is for finding the maximum value in the node-set b and printing it:
+     999
+     This is for finding the maximum value in the node-set c and printing it:
+     NaN
+     This is for finding the maximum value in the node-set d and printing it:
+     NaN</out>

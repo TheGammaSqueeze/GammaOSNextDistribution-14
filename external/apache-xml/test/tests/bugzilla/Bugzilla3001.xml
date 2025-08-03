@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<html xmlns="http://www.w3.org/TR/REC-html40">
+  <head>
+    <title>My Title</title>
+  </head>
+  <body>
+    <div>
+      <div>
+        <table>
+          <tr>
+            <td>
+              <h1><a name="prefix_1">My Title</a></h1>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+plugins {
+    id "java-library"
+    id "maven-publish"
+
+    id "com.google.protobuf"
+    id "ru.vyarus.animalsniffer"
+}
+
+description = "gRPC: Testing Protos"
+
+dependencies {
+    api project(':grpc-protobuf'),
+            project(':grpc-stub')
+    compileOnly libraries.javax.annotation
+    testImplementation libraries.truth
+    testRuntimeOnly libraries.javax.annotation
+    signature libraries.signature.java
+}
+
+configureProtoCompilation()

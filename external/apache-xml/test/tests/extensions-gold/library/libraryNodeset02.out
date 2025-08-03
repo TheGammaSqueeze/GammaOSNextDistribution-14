@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out><junk>$var1 summary: var1-begin
+      var1-first1var1-first2var1-second1
+$var2 summary: var2-begin
+      var2-first1var2-first2var2-second1</junk>
+The preceding::t1 elements in $var2 are var2-first1,</out>

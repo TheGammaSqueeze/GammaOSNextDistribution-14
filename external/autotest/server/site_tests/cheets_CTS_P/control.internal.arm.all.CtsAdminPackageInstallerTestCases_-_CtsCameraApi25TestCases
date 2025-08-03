@@ -1,0 +1,51 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file has been automatically generated. Do not edit!
+from autotest_lib.server import utils as server_utils
+
+AUTHOR = 'ARC++ Team'
+NAME = 'cheets_CTS_P.internal.arm.all.CtsAdminPackageInstallerTestCases_-_CtsCameraApi25TestCases'
+ATTRIBUTES = 'suite:arc-cts-qual'
+DEPENDENCIES = 'arc'
+JOB_RETRIES = 1
+TEST_TYPE = 'server'
+TIME = 'MEDIUM'
+MAX_RESULT_SIZE_KB = 512000
+PY_VERSION = 3
+DOC = 'Run module CtsAdminPackageInstallerTestCases, CtsAdminTestCases, CtsAlarmClockTestCases, CtsAlarmManagerTestCases, CtsAndroidAppTestCases, CtsAndroidTestBase27ApiSignatureTestCases, CtsAndroidTestMockCurrentApiSignatureTestCases, CtsAndroidTestRunnerCurrentApiSignatureTestCases, CtsAnimationTestCases, CtsApacheHttpLegacy27ApiSignatureTestCases, CtsApacheHttpLegacyCurrentApiSignatureTestCases, CtsApacheHttpLegacyUsesLibraryApiSignatureTestCases, CtsAppComponentFactoryTestCases, CtsAppSecurityHostTestCases, CtsAppTestCases, CtsAppUsageHostTestCases, CtsAppWidgetTestCases, CtsAslrMallocTestCases, CtsAssistTestCases, CtsAtraceHostTestCases, CtsAutoFillServiceTestCases, CtsBackgroundRestrictionsTestCases, CtsBackupHostTestCases, CtsBackupTestCases, CtsBatterySavingTestCases, CtsBionicTestCases, CtsBluetoothTestCases, CtsBootStatsTestCases, CtsCalendarcommon2TestCases, CtsCameraApi25TestCases of the Android Compatibility Test Suite (CTS) using arm ABI in the ARC++ container.'
+
+# For local debugging, if your test setup doesn't have servo, REMOVE these
+# two lines.
+args_dict = server_utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run_TS(machine):
+    # REMOVE 'servo_args=servo_args' arg for local debugging if your test
+    # setup doesn't have servo.
+    try:
+        host_list = [hosts.create_host(machine, servo_args=servo_args)]
+    except:
+        # Just ignore any servo setup flakiness.
+        host_list = [hosts.create_host(machine)]
+    job.run_test(
+        'cheets_CTS_P',
+        hosts=host_list,
+        iterations=1,
+        max_retry=9,
+        enable_default_apps=True,
+        tag='internal.arm.all.CtsAdminPackageInstallerTestCases_-_CtsCameraApi25TestCases',
+        test_name='cheets_CTS_P.internal.arm.all.CtsAdminPackageInstallerTestCases_-_CtsCameraApi25TestCases',
+        run_template=['run', 'commandAndExit', 'cts', '--include-filter', 'CtsAdminPackageInstallerTestCases', '--include-filter', 'CtsAdminTestCases', '--include-filter', 'CtsAlarmClockTestCases', '--include-filter', 'CtsAlarmManagerTestCases', '--include-filter', 'CtsAndroidAppTestCases', '--include-filter', 'CtsAndroidTestBase27ApiSignatureTestCases', '--include-filter', 'CtsAndroidTestMockCurrentApiSignatureTestCases', '--include-filter', 'CtsAndroidTestRunnerCurrentApiSignatureTestCases', '--include-filter', 'CtsAnimationTestCases', '--include-filter', 'CtsApacheHttpLegacy27ApiSignatureTestCases', '--include-filter', 'CtsApacheHttpLegacyCurrentApiSignatureTestCases', '--include-filter', 'CtsApacheHttpLegacyUsesLibraryApiSignatureTestCases', '--include-filter', 'CtsAppComponentFactoryTestCases', '--include-filter', 'CtsAppSecurityHostTestCases', '--include-filter', 'CtsAppTestCases', '--include-filter', 'CtsAppUsageHostTestCases', '--include-filter', 'CtsAppWidgetTestCases', '--include-filter', 'CtsAslrMallocTestCases', '--include-filter', 'CtsAssistTestCases', '--include-filter', 'CtsAtraceHostTestCases', '--include-filter', 'CtsAutoFillServiceTestCases', '--include-filter', 'CtsBackgroundRestrictionsTestCases', '--include-filter', 'CtsBackupHostTestCases', '--include-filter', 'CtsBackupTestCases', '--include-filter', 'CtsBatterySavingTestCases', '--include-filter', 'CtsBionicTestCases', '--include-filter', 'CtsBluetoothTestCases', '--include-filter', 'CtsBootStatsTestCases', '--include-filter', 'CtsCalendarcommon2TestCases', '--include-filter', 'CtsCameraApi25TestCases', '--logcat-on-failure', '--dynamic-config-url='],
+        retry_template=['run', 'commandAndExit', 'retry', '--retry', '{session_id}', '--dynamic-config-url='],
+        target_module='all.CtsAdminPackageInstallerTestCases_-_CtsCameraApi25TestCases',
+        target_plan=None,
+        bundle='arm',
+        uri='LATEST',
+        login_precondition_commands=['lsblk -do NAME,RM | sed -n s/1$//p | xargs -n1 eject'],
+        prerequisites=['bluetooth'],
+        hard_reboot_on_failure=True,
+        timeout=88200)
+
+parallel_simple(run_TS, machines)

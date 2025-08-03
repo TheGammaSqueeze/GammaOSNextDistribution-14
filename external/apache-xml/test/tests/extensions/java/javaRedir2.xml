@@ -1,0 +1,12 @@
+<?xml version="1.0"?> 
+<doc>
+  <list>
+    <item file="javaRedir2a-write1.out" append="false">javaRedir2a-write1 append A</item>
+    <item file="javaRedir2a-write1.out" append="true">javaRedir2a-write1 append B</item>
+  </list>
+  <list>
+    <item file="javaRedir2a-write2.out" append="true">javaRedir2a-write2 append 1</item>
+    <item file="javaRedir2a-write2.out">javaRedir2a-write2 append 2</item>
+    <item file="javaRedir2a-write2.out" append="yes">javaRedir2a-write2 append 3</item>
+  </list>
+</doc>

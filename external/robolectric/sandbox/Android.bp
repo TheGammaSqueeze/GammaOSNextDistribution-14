@@ -1,0 +1,69 @@
+//#############################################
+// Compile Robolectric sandbox
+//#############################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_robolectric_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+java_library_host {
+    name: "Robolectric_sandbox_upstream",
+    srcs: ["src/main/java/**/*.java"],
+    libs: [
+        "Robolectric_annotations_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_utils_reflector_upstream",
+        "Robolectric_utils_upstream",
+        "asm-commons-9.2",
+        "guava",
+        "asm-tree-9.2",
+        "asm-9.2",
+        "jsr305",
+    ],
+    plugins: [
+        "auto_service_plugin",
+        "auto_value_plugin",
+    ],
+    openjdk9: {
+        javacflags: [
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        ],
+    },
+}
+
+//#############################################
+// Compile Robolectric sandbox tests
+//#############################################
+
+java_test_host {
+    name: "Robolectric_sandbox_tests_upstream",
+    srcs: ["src/test/java/**/*.java"],
+    static_libs: [
+        "Robolectric_annotations_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_sandbox_upstream",
+        "Robolectric_utils_reflector_upstream",
+        "Robolectric_utils_upstream",
+        "Robolectric_junit_upstream",
+        "mockito",
+        "hamcrest",
+        "asm-commons-9.2",
+        "guava",
+        "objenesis",
+        "asm-tree-9.2",
+        "junit",
+        "truth",
+        "asm-9.2",
+        "jsr305",
+    ],
+    plugins: [
+        "auto_service_plugin",
+        "auto_value_plugin",
+    ],
+    test_suites: ["general-tests"],
+}

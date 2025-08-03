@@ -1,0 +1,13 @@
+diff --git b/rules.mk a/rules.mk
+index 25bd083..bd3edb9 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -12,8 +12,6 @@ MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="alloc"' \
+ 
+ MODULE_LIBRARY_DEPS := \
+-	external/rust/crates/base64ct \
+ 	external/rust/crates/der \
+-	external/rust/crates/sha2 \
+ 
+ include make/library.mk

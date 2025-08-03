@@ -1,0 +1,13 @@
+# HEAD
+ * 
+# 1.1.2
+ * Fixed ANR caused by locking in connection holders
+ * Fixed race condition in CrossProfileCallbackMultiMerger when using .both() on multiple threads
+ * Allow providers to be in a different package to cross profile types
+ * Support Drawable in cross-profile calls
+ * Fixed NPE caused when no manifest permissions are requested
+ * Fixed dependency issue with gradle builds
+# 1.1
+ * Added connection holders to allow for ongoing callbacks
+# 1.0
+ * First Release

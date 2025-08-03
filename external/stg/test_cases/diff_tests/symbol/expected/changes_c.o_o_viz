@@ -1,0 +1,11 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [color=red, label="removed(int removed)"]
+  "0" -> "1" [label=""]
+  "2" [color=red, label="added(int added)"]
+  "0" -> "2" [label=""]
+  "3" [label="'int diff' -> 'long diff'"]
+  "4" [color=red, label="'int' -> 'long'"]
+  "3" -> "4" [label=""]
+  "0" -> "3" [label=""]
+}

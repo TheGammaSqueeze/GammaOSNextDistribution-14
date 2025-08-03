@@ -1,0 +1,19 @@
+criteria {
+    name_regex: "minutes_tested"
+    test_name: "power_LoadTest"
+    lower_bound: {
+        bound: 0
+    }
+    upper_bound: {
+        bound: 100
+    }
+}
+criteria {
+    name_regex: "wh_energy_.*"
+    lower_bound: {
+        bound: -10
+    }
+    upper_bound: {
+        bound: 80
+    }
+}

@@ -1,0 +1,13 @@
+name: "yapf"
+description:
+    "A formatter for Python files"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/yapf.git"
+  }
+  version: "v0.32.0"
+  last_upgrade_date { year: 2022 month: 11 day: 2 }
+  license_type: NOTICE
+}

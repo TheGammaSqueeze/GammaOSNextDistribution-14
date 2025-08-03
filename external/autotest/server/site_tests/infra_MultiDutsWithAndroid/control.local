@@ -1,0 +1,36 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'xianuowang'
+NAME = 'infra_MultiDutsWithAndroid.local'
+TIME = 'SHORT'
+TEST_CATEGORY = 'General'
+TEST_CLASS = 'stub'
+TEST_TYPE = 'server'
+PY_VERSION = 3
+DOC = """
+The local version of infra_MultiDutsWithAndroid. Local in this context means
+run from a local autotest checkout(e.g. test_that), where the autoserv doesn't
+have access to host_info_store data read from fleet inventory.
+
+For more details, please see the DOC section in the file 'control'.
+
+Below args are expect to be added to test run:
+--args="phone_station=$PHONE_HOST android_serial=$ANDROID_SERIAL_NUMBER"
+
+When use port forwarding to locahost, the expect args are:
+--args="phone_station=locahost android_station_ssh_port=$FORWARDED_PORT android_serial=$ANDROID_SERIAL_NUMBER"
+"""
+
+args_dict = utils.args_to_dict(args)
+android_args = hosts.AndroidHost.get_android_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    companions = [hosts.AndroidHost('local_phone', android_args=android_args)]
+    job.run_test('infra_MultiDutsWithAndroid', host=host, companions=companions)
+
+parallel_simple(run, machines)

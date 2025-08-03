@@ -1,0 +1,31 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterSAHealth.sa_power_reset'
+PURPOSE = ('Repeated adapter power reset test')
+CRITERIA = 'Pass the repeated power reset test'
+ATTRIBUTES = 'suite:bluetooth_flaky'
+TIME = 'SHORT'  # less than 2 mins on zork
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth_state:NORMAL'
+PY_VERSION = 3
+
+DOC = """
+    This is a test about repeated Bluetooth adapter power reset.
+    It is supposed to be completed in a very short time likely in 2 mins.
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterSAHealth', host=host,
+                  num_iterations=1, test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

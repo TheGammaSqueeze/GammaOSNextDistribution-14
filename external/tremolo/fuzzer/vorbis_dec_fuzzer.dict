@@ -1,0 +1,5 @@
+# Start code (bytes 0-6)
+# The below 7 bytes correspond to byte containing value 01, followed by the 6 bytes of "vorbis"
+kw1="\x01\x76\x6F\x72\x62\x69\x73"
+# The below 7 bytes correspond to byte containing value 05, followed by the 6 bytes of "vorbis"
+kw2="\x05\x76\x6F\x72\x62\x69\x73"

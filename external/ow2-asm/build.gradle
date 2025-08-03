@@ -1,0 +1,446 @@
+// ASM: a very small and fast Java bytecode manipulation framework
+// Copyright (c) 2000-2011 INRIA, France Telecom
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+// 3. Neither the name of the copyright holders nor the names of its
+//    contributors may be used to endorse or promote products derived from
+//    this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+// THE POSSIBILITY OF SUCH DAMAGE.
+
+buildscript {
+  repositories { mavenCentral() }
+  dependencies { classpath 'org.netbeans.tools:sigtest-maven-plugin:1.5' }
+}
+
+plugins { id 'com.github.sherter.google-java-format' version '0.9' apply false }
+plugins { id 'me.champeau.jmh' version '0.6.8' apply false }
+plugins { id 'org.sonarqube' version '3.5.0.2730' apply false }
+
+description = 'ASM, a very small and fast Java bytecode manipulation framework'
+
+apply plugin: 'java-platform'
+dependencies {
+  constraints {
+    api project(':asm'), project(':asm-tree'), project(':asm-analysis')
+    api project(':asm-util'), project(':asm-commons')
+  }
+}
+
+allprojects {
+  group = 'org.ow2.asm'
+  version = '9.5' + (rootProject.hasProperty('release') ? '' : '-SNAPSHOT')
+}
+
+subprojects {
+  repositories { mavenCentral() }
+  apply plugin: 'java-library'
+  apply plugin: 'jacoco'
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
+  test { useJUnitPlatform() }
+  ext.provides = []  // The provided java packages, e.g. ['org.objectweb.asm']
+  ext.requires = []  // The required Gradle projects, e.g. [':asm-test']
+  ext.transitiveRequires = { ->
+    return requires.collect{project(it)}
+        .collect{it.transitiveRequires().plus(it.provides[0])}.flatten() as Set
+  }
+  ext.transitiveImports = { ->
+    return requires.collect{project(it)}
+        .collect{it.transitiveImports().plus(it.provides)}.flatten() as Set
+  }
+  ext.depends = []   // The external dependencies, e.g. ['junit:junit:4.12']
+  // Some external dependencies (such as Jacoco) depend transitively on ASM, and
+  // without this rule Gradle can mix ASM jars of different versions (e.g.
+  // asm-6.0.jar with the asm-tree.jar built locally).
+  configurations.all { resolutionStrategy { preferProjectModules() } }
+}
+
+// -----------------------------------------------------------------------------
+// Project descriptions
+// -----------------------------------------------------------------------------
+
+project(':asm') {
+  description = parent.description
+  provides = ['org.objectweb.asm', 'org.objectweb.asm.signature']
+}
+
+project(':asm-analysis') {
+  description = "Static code analysis API of ${parent.description}"
+  provides = ['org.objectweb.asm.tree.analysis']
+  requires = [':asm-tree']
+}
+
+project(':asm-commons') {
+  description = "Usefull class adapters based on ${parent.description}"
+  provides = ['org.objectweb.asm.commons']
+  requires = [':asm', ':asm-tree']
+  dependencies { testImplementation project(':asm-util') }
+}
+
+project(':asm-test') {
+  description = "Utilities for testing ${parent.description}"
+  provides = ['org.objectweb.asm.test']
+  depends = ['org.junit.jupiter:junit-jupiter-api:5.9.1',
+      'org.junit.jupiter:junit-jupiter-params:5.9.1']
+}
+
+project(':asm-tree') {
+  description = "Tree API of ${parent.description}"
+  provides = ['org.objectweb.asm.tree']
+  requires = [':asm']
+}
+
+project(':asm-util') {
+  description = "Utilities for ${parent.description}"
+  provides = ['org.objectweb.asm.util']
+  requires = [':asm', ':asm-tree', ':asm-analysis']
+  dependencies { testImplementation 'org.codehaus.janino:janino:3.1.9' }
+}
+
+// Use "gradle benchmarks:jmh [-PjmhInclude='<regex>']" to run the benchmarks.
+project(':benchmarks') {
+  description = "Benchmarks for ${rootProject.description}"
+  apply plugin: 'me.champeau.jmh'
+  dependencies {
+    implementation files('libs/csg-bytecode-1.0.0.jar', 'libs/jclasslib.jar')
+    jmh project(':asm'), project(':asm-tree') 
+  }
+  depends = [
+    'kawa:kawa:1.7',
+    'net.sf.jiapi:jiapi-reflect:0.5.2',
+    'net.sourceforge.serp:serp:1.15.1',
+    'org.apache.bcel:bcel:6.0',
+    'org.aspectj:aspectjweaver:1.8.10',
+    'org.cojen:cojen:2.2.5',
+    'org.javassist:javassist:3.21.0-GA',
+    'org.mozilla:rhino:1.7.7.1'
+  ]
+  ['4.0', '5.0.1', '6.0', '7.0', '8.0.1', '9.0'].each { version ->
+    configurations.create("asm${version}")
+    dependencies.add("asm${version}", "org.ow2.asm:asm:${version}@jar")
+    dependencies.add("asm${version}", "org.ow2.asm:asm-tree:${version}@jar")
+    task "asm${version}"(type: Copy) {
+      from configurations."asm${version}".collect{zipTree(it)}
+      into "${buildDir}/asm${version}"
+      duplicatesStrategy = DuplicatesStrategy.INCLUDE  // module-info.class
+    }
+    classes.dependsOn "asm${version}"
+  }
+  configurations.create('input-classes-java8')
+  dependencies.add('input-classes-java8', 'io.vavr:vavr:0.10.0@jar')
+  task copyInputClasses(type: Copy) {
+    from configurations.'input-classes-java8'.collect{zipTree(it)}
+    into "${buildDir}/input-classes-java8"
+  }
+  classes.dependsOn copyInputClasses
+  jmh {
+    jvmArgsAppend = ["-Duser.dir=${rootDir}"]
+    resultFormat = 'CSV'
+    profilers = ['org.objectweb.asm.benchmarks.MemoryProfiler']
+    if (rootProject.hasProperty('jmhInclude')) {
+      includes = [jmhInclude]
+    }
+  }
+}
+
+project(':tools') {
+  description = "Tools used to build ${parent.description}"
+}
+
+project(':tools:retrofitter') {
+  description = "JDK 1.5 class retrofitter based on ${rootProject.description}"
+  sourceCompatibility = '1.9'
+  targetCompatibility = '1.9'
+  // TODO: this compiles asm twice (here and in :asm).
+  sourceSets.main.java.srcDirs += project(':asm').sourceSets.main.java.srcDirs
+}
+
+// -----------------------------------------------------------------------------
+// Project tasks creation and configuration
+// -----------------------------------------------------------------------------
+
+// All projects are checked with googleJavaFormat, Checkstyle and PMD, 
+// and tested with :asm-test and JUnit.
+subprojects {
+  apply plugin: 'com.github.sherter.google-java-format'
+  googleJavaFormat.toolVersion = '1.15.0'
+  googleJavaFormat.exclude 'src/resources/java/**/*'
+  
+  // Check the coding style with Checkstyle. Fail in case of error or warning.
+  apply plugin: 'checkstyle'
+  checkstyle.configFile = file("${rootDir}/tools/checkstyle.xml")
+  checkstyle.maxErrors = 0
+  checkstyle.maxWarnings = 0
+  
+  // Check the code with PMD.
+  apply plugin: 'pmd'
+  pmd.ruleSets = []
+  pmd.ruleSetFiles = files("${rootDir}/tools/pmd.xml")
+  pmd.consoleOutput = true
+
+  dependencies {
+    requires.each { projectName -> api project(projectName) }
+    depends.each { artifactName -> api artifactName }
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1',
+        'org.junit.jupiter:junit-jupiter-params:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+    testImplementation project(':asm-test')
+  }
+
+  // Produce byte-for-byte reproducible archives.
+  tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    dirMode = 0775
+    fileMode = 0664
+  }
+}
+
+// Configure the projects with a non-empty 'provides' property. They must be
+// checked for code coverage and backward compatibility, retrofited to Java 1.5,
+// and packaged with generated module-info classes.
+configure(subprojects.findAll{it.provides}) {
+  // Code coverage configuration.
+  jacoco.toolVersion = '0.8.8'
+  jacocoTestReport {
+    reports { xml.required = true }
+    classDirectories.setFrom(sourceSets.main.output.classesDirs)
+  }
+  jacocoTestCoverageVerification {
+    classDirectories.setFrom(sourceSets.main.output.classesDirs)
+    violationRules.rule { limit { minimum = 0.95; counter = 'INSTRUCTION' } }
+  }
+  check.dependsOn jacocoTestCoverageVerification
+
+  // Retrofit the code in-place to Java 1.5 and generate a module-info class
+  // from the code content, in compileJava.doLast.
+  if (name != 'asm-test') {
+    compileJava.dependsOn ':tools:retrofitter:classes'
+    compileJava.doLast {
+      def path = project(':tools:retrofitter').sourceSets.main.runtimeClasspath
+      def loader = new URLClassLoader(path.collect {f -> f.toURL()} as URL[])
+      def retrofitter =
+          loader.loadClass('org.objectweb.asm.tools.Retrofitter').newInstance()
+      def classes = sourceSets.main.output.classesDirs.singleFile
+      def requires = transitiveRequires() as List
+      retrofitter.retrofit(classes, "${version}")
+      retrofitter.verify(classes, "${version}", provides, requires)
+    }
+  }
+
+  // Create one backward compatibility checking task for each 'sigtest-*' file
+  // in test/resources, and make the 'check' task depend on all these tasks.
+  if (file('src/test/resources/').exists()) {
+    file('src/test/resources/').eachFileMatch(~/sigtest-.*/) { f ->
+      task "${f.name}"(dependsOn: 'classes') {
+        inputs.files(f, sourceSets.main.java)
+        outputs.file("${buildDir}/${f.name}")
+        doLast {
+          def sigtest = new com.sun.tdk.signaturetest.SignatureTest()
+          def args = ['-ApiVersion', version, '-Backward', '-Static',
+              '-Mode', 'bin', '-FileName', f, '-Classpath',
+              project(':tools').file('jdk8-api.jar').path + File.pathSeparator +
+              sourceSets.main.output.classesDirs.asPath, '-Package'] + provides
+          outputs.getFiles()[0].withPrintWriter { printWriter -> 
+            sigtest.run(args as String[], printWriter, null)
+          }
+          if (!sigtest.isPassed()) throw new GradleException()
+        }
+      }
+      check.dependsOn f.name
+    }
+    // Define a task to create a sigtest file for the current version.
+    task "buildSigtest"(dependsOn: 'classes') {
+      inputs.files(sourceSets.main.java)
+      outputs.file("src/test/resources/sigtest-${version}.txt")
+      doLast {
+        def setup = new com.sun.tdk.signaturetest.Setup()
+        def args = ['-ApiVersion', version, '-FileName', outputs.getFiles()[0],
+            '-Classpath', project(':tools').file('jdk8-api.jar').path +
+            File.pathSeparator + sourceSets.main.output.classesDirs.asPath +
+            File.pathSeparator + sourceSets.main.compileClasspath.asPath,
+            '-Package'] + provides
+        setup.run(args as String[], new PrintWriter(System.err, true), null)
+        if (!setup.isPassed()) throw new GradleException()
+      }
+    }
+  }
+
+  jar.manifest.attributes(
+    'Implementation-Title': project.description,
+    'Implementation-Version': "${version}")
+  // Package the project as an OSGi bundle. Exclude the asm-test project (the
+  // DefaultPackage class prevents it from being a proper bundle).
+  if (name != 'asm-test') {
+    def imports = transitiveImports()
+    jar.manifest.attributes(
+      'Bundle-DocURL': 'http://asm.ow2.org',
+      'Bundle-License': 'BSD-3-Clause;link=https://asm.ow2.io/LICENSE.txt',
+      'Bundle-ManifestVersion': 2,
+      'Bundle-Name': provides[0],
+      'Bundle-RequiredExecutionEnvironment': 'J2SE-1.5',
+      'Bundle-SymbolicName': provides[0],
+      'Bundle-Version': "${version}",
+      'Export-Package':
+          provides.collect{"${it};version=\"${version}\""}.join(',') +
+              (imports ? ";uses:=\"${imports.join(',')}\"" : ""))
+    if (imports) {
+      jar.manifest.attributes(
+        'Import-Package':
+            imports.collect{"${it};version=\"${version}\""}.join(','),
+        'Module-Requires': 
+            transitiveRequires().collect{"${it};transitive=true"}.join(','))
+    }
+  }
+
+  // Apply the SonarQube plugin to monitor the code quality of the project.
+  // Use with 'gradlew sonarqube -Dsonar.host.url=https://sonarqube.ow2.org'.
+  apply plugin: 'org.sonarqube'
+  sonarqube {
+    properties { property 'sonar.projectKey', "ASM:${project.name}" }
+  }
+
+  // Add a task to generate a private javadoc and add it as a dependency of the
+  // 'check' task.
+  task privateJavadoc(type: Javadoc) {    
+    source = sourceSets.main.allJava
+    classpath = configurations.compileClasspath
+    destinationDir = file("${javadoc.destinationDir}-private")
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.addBooleanOption('Xdoclint:all,-missing', true)
+  }
+  check.dependsOn privateJavadoc
+
+  // Add tasks to generate the Javadoc and a source jar, to be uploaded to Maven
+  // together with the main jar (containing the compiled code).
+  task javadocJar(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+    classifier 'javadoc'
+  }
+  task sourcesJar(type: Jar, dependsOn: 'classes') {
+    from sourceSets.main.allSource
+    classifier 'sources'
+  }
+  java {
+    withJavadocJar()
+    withSourcesJar()
+  }
+}
+
+// Configure the root project, and those with a non-empty 'provides' property,
+// to be published in Maven with a POM.
+configure([rootProject] + subprojects.findAll { it.provides }) {
+  apply plugin: 'maven-publish'
+  apply plugin: 'signing'
+  publishing {
+    repositories {
+      maven {
+        def baseUrl = 'https://repository.ow2.org/nexus/'
+        def releasesUrl = baseUrl + 'service/local/staging/deploy/maven2'
+        def snapshotsUrl = baseUrl + 'content/repositories/snapshots'
+        name = 'nexus'
+        url = rootProject.hasProperty('release') ? releasesUrl : snapshotsUrl
+        credentials { 
+          username System.env.NEXUS_USER_NAME
+          password System.env.NEXUS_PASSWORD
+        }
+      }
+    }
+    publications {
+      maven(MavenPublication) {
+        def isRoot = project == rootProject
+        artifactId (isRoot ? 'asm-bom' : project.name)
+        from (isRoot ? components.javaPlatform : components.java)
+        pom.withXml {
+          def parent = asNode().appendNode('parent')
+          parent.appendNode('groupId', 'org.ow2')
+          parent.appendNode('artifactId', 'ow2')
+          parent.appendNode('version', '1.5.1')
+        }
+        pom {
+          name = artifactId
+          description = project.description
+          packaging 'jar'
+          inceptionYear = '2000'
+          licenses {
+            license {
+              name = 'BSD-3-Clause'
+              url = 'https://asm.ow2.io/license.html'
+            }
+          }
+          url = 'http://asm.ow2.io/'
+          mailingLists {
+            mailingList {
+              name = 'ASM Users List'
+              subscribe = 'https://mail.ow2.org/wws/subscribe/asm'
+              post = 'asm@objectweb.org'
+              archive = 'https://mail.ow2.org/wws/arc/asm/'
+            }
+            mailingList {
+              name = 'ASM Team List'
+              subscribe = 'https://mail.ow2.org/wws/subscribe/asm-team'
+              post = 'asm-team@objectweb.org'
+              archive = 'https://mail.ow2.org/wws/arc/asm-team/'
+            }
+          }
+          issueManagement {
+            url = 'https://gitlab.ow2.org/asm/asm/issues'
+          }
+          scm {
+            connection = 'scm:git:https://gitlab.ow2.org/asm/asm/'
+            developerConnection = 'scm:git:https://gitlab.ow2.org/asm/asm/'
+            url = 'https://gitlab.ow2.org/asm/asm/'
+          }
+          developers {
+            developer {
+              name = 'Eric Bruneton'
+              id = 'ebruneton'
+              email = 'ebruneton@free.fr'
+              roles = ['Creator', 'Java Developer']
+            }
+            developer {
+              name = 'Eugene Kuleshov'
+              id = 'eu'
+              email = 'eu@javatx.org'
+              roles = ['Java Developer']
+            }
+            developer {
+              name = 'Remi Forax'
+              id = 'forax'
+              email = 'forax@univ-mlv.fr'
+              roles = ['Java Developer']
+            }
+          }
+          organization {
+            name = 'OW2'
+            url = 'http://www.ow2.org/'
+          }
+        }
+      }
+    }
+  }
+  signing {
+    required rootProject.hasProperty('release')
+    sign publishing.publications.maven
+  }
+  tasks.withType(GenerateModuleMetadata) { enabled = false }
+}

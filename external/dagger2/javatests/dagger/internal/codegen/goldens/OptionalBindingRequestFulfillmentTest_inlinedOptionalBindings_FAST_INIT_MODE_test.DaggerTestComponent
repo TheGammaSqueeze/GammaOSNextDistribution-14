@@ -1,0 +1,114 @@
+package test;
+
+import com.google.common.base.Optional;
+import dagger.Lazy;
+import dagger.internal.DaggerGenerated;
+import dagger.internal.Preconditions;
+import dagger.internal.ProviderOfLazy;
+import javax.annotation.processing.Generated;
+import javax.inject.Provider;
+import other.DefinitelyNot;
+import other.Maybe;
+import other.Maybe_MaybeModule_ProvideMaybeFactory;
+
+@DaggerGenerated
+@Generated(
+    value = "dagger.internal.codegen.ComponentProcessor",
+    comments = "https://dagger.dev"
+)
+@SuppressWarnings({
+    "unchecked",
+    "rawtypes",
+    "KotlinInternal",
+    "KotlinInternalInJava"
+})
+final class DaggerTestComponent {
+  private DaggerTestComponent() {
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static TestComponent create() {
+    return new Builder().build();
+  }
+
+  static final class Builder {
+    private Builder() {
+    }
+
+    /**
+     * @deprecated This module is declared, but an instance is not used in the component. This method is a no-op. For more, see https://dagger.dev/unused-modules.
+     */
+    @Deprecated
+    public Builder maybeModule(Maybe.MaybeModule maybeModule) {
+      Preconditions.checkNotNull(maybeModule);
+      return this;
+    }
+
+    public TestComponent build() {
+      return new TestComponentImpl();
+    }
+  }
+
+  private static final class TestComponentImpl implements TestComponent {
+    private final TestComponentImpl testComponentImpl = this;
+
+    private Provider<Maybe> provideMaybeProvider;
+
+    private TestComponentImpl() {
+
+      initialize();
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initialize() {
+      this.provideMaybeProvider = new SwitchingProvider<>(testComponentImpl, 0);
+    }
+
+    @Override
+    public Optional<Maybe> maybe() {
+      return Optional.of(provideMaybeProvider.get());
+    }
+
+    @Override
+    public Optional<Provider<Lazy<Maybe>>> providerOfLazyOfMaybe() {
+      return Optional.of(ProviderOfLazy.create(provideMaybeProvider));
+    }
+
+    @Override
+    public Optional<DefinitelyNot> definitelyNot() {
+      return Optional.absent();
+    }
+
+    @Override
+    public Optional<Provider<Lazy<DefinitelyNot>>> providerOfLazyOfDefinitelyNot() {
+      return Optional.absent();
+    }
+
+    private static final class SwitchingProvider<T> implements Provider<T> {
+      private final TestComponentImpl testComponentImpl;
+
+      private final int id;
+
+      SwitchingProvider(TestComponentImpl testComponentImpl, int id) {
+        this.testComponentImpl = testComponentImpl;
+        this.id = id;
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T get() {
+        switch (id) {
+          case 0: // other.Maybe 
+          return (T) Maybe_MaybeModule_ProvideMaybeFactory.provideMaybe();
+
+          default: throw new AssertionError(id);
+        }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,12 @@
+package {
+    default_applicable_licenses: ["external_python_markupsafe_license"],
+}
+
+python_library {
+    name: "py-markupsafe",
+    host_supported: true,
+    srcs: [
+        "markupsafe/__init__.py",
+        "markupsafe/_native.py",
+    ],
+}

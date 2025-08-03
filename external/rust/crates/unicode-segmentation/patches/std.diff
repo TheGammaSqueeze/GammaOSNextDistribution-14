@@ -1,0 +1,13 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index f2f2962..83f3a22 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -55,7 +55,7 @@
+ 
+ #![no_std]
+ 
+-#[cfg(test)]
++// ANDROID: Always import std to enable building as a dylib
+ #[macro_use]
+ extern crate std;
+ 

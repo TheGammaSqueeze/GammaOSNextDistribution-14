@@ -1,0 +1,105 @@
+package {
+    default_applicable_licenses: ["external_tinyxml2_license"],
+}
+
+license {
+    name: "external_tinyxml2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Zlib",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE.txt",
+        "NOTICE",
+    ],
+}
+
+// The jquery stuff in docs/ is a bit ambiguous with its use of and/or when talking about the GPL,
+// so let's just make it clear that we don't use any of that stuff anyway...
+license {
+    name: "external_tinyxml2_docs_license",
+    license_kinds: ["SPDX-license-identifier-GPL"],
+    license_text: [
+        "LICENSE.txt",
+        "NOTICE",
+    ],
+}
+
+// ...and prevent anyone from trying to do so:
+filegroup {
+    name: "external_tinyxml2_docs",
+    srcs: ["docs/**/*"],
+    visibility: ["//visibility:private"],
+}
+
+cc_library {
+    name: "libtinyxml2",
+    host_supported: true,
+    vendor_available: true,
+    product_available: true,
+    recovery_available: true,
+    vndk: {
+        enabled: true,
+    },
+
+    srcs: ["tinyxml2.cpp"],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-implicit-fallthrough",
+        // tinyxml2.cpp line 436, 441, 446 have -Wimplicit-fallthrough.
+    ],
+
+    shared_libs: ["liblog"],
+
+    target: {
+        android: {
+            cflags: [
+                // LOG_TO_ANDROID_LOGCAT
+                "-DDEBUG",
+                "-DANDROID_NDK",
+            ],
+        },
+        windows: {
+            enabled: true,
+            shared: {
+                enabled: false,
+            },
+        },
+    },
+
+    export_include_dirs: ["."],
+
+    min_sdk_version: "S",
+
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.runtime", // used by linkerconfig
+        "//apex_available:platform", // For odsign.
+    ],
+}
+
+cc_test {
+    name: "tinyxml2-xmltest",
+    srcs: ["xmltest.cpp"],
+    shared_libs: ["libtinyxml2"],
+    data: [
+        "resources/**/*",
+    ],
+}
+
+sh_test {
+    name: "tinyxml2-tests",
+    src: "run-tinyxml2-tests-on-android.sh",
+    filename: "run-tinyxml2-tests-on-android.sh",
+    test_suites: ["general-tests"],
+    host_supported: true,
+    device_supported: false,
+    require_root: true,
+    target_required: ["tinyxml2-xmltest"],
+}

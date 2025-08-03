@@ -1,0 +1,14 @@
+Cargo automatically imports proc_macro in Rust 2018, but Soong only
+does this for rust_proc_macro targets.
+
+--- a/src/lib.rs	2023-11-06 16:32:46.480193187 +0100
++++ b/src/lib.rs	2023-11-06 16:29:38.743132168 +0100
+@@ -34,6 +34,8 @@
+ use crate::mock_item_struct::MockItemStruct;
+ use crate::mockable_item::MockableItem;
+ 
++extern crate proc_macro;
++
+ // Define deterministic aliases for these common types.
+ type HashMap<K, V> = std::collections::HashMap<K, V, BuildHasherDefault<std::collections::hash_map::DefaultHasher>>;
+ type HashSet<K> = std::collections::HashSet<K, BuildHasherDefault<std::collections::hash_map::DefaultHasher>>;

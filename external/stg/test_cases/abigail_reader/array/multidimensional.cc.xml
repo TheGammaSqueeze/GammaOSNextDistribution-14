@@ -1,0 +1,15 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='x' size='48' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='multidimensional.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='__ARRAY_SIZE_TYPE__' size-in-bits='64' id='7ff19f0f'/>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <array-type-def dimensions='3' type-id='95e97e5e' size-in-bits='384' id='9d3b8442'>
+      <subrange length='1' type-id='7ff19f0f' id='52f813b4'/>
+      <subrange length='4' type-id='7ff19f0f' id='16fe7105'/>
+      <subrange length='3' type-id='7ff19f0f' id='56f209d2'/>
+    </array-type-def>
+    <var-decl name='x' type-id='9d3b8442' mangled-name='x' visibility='default' elf-symbol-id='x'/>
+  </abi-instr>
+</abi-corpus>

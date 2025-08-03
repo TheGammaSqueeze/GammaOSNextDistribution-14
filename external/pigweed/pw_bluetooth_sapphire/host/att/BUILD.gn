@@ -1,0 +1,83 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+import("$dir_pw_unit_test/test.gni")
+
+dir_public_att = "../../public/pw_bluetooth_sapphire/internal/host/att"
+
+# Basic target with protocol definitions and no logic, suitable for test
+# emulation.
+pw_source_set("definitions") {
+  public = [
+    "$dir_public_att/att.h",
+    "$dir_public_att/packet.h",
+  ]
+
+  sources = [ "packet.cc" ]
+
+  public_deps = [
+    "$dir_pw_bluetooth_sapphire/host/common",
+    "$dir_pw_bluetooth_sapphire/host/hci-spec",
+    "$dir_pw_bluetooth_sapphire/host/l2cap:definitions",
+  ]
+}
+
+pw_source_set("att") {
+  public = [
+    "$dir_public_att/attribute.h",
+    "$dir_public_att/bearer.h",
+    "$dir_public_att/database.h",
+    "$dir_public_att/error.h",
+    "$dir_public_att/permissions.h",
+    "$dir_public_att/write_queue.h",
+  ]
+
+  sources = [
+    "attribute.cc",
+    "bearer.cc",
+    "database.cc",
+    "error.cc",
+    "permissions.cc",
+    "write_queue.cc",
+  ]
+
+  public_deps = [
+    ":definitions",
+    "$dir_pw_bluetooth_sapphire/host/l2cap",
+    "$dir_pw_bluetooth_sapphire/host/sm:definitions",
+    "$dir_pw_third_party/fuchsia:fit",
+  ]
+
+  deps = [ "$dir_pw_string" ]
+
+  public_configs = [ "$dir_pw_bluetooth_sapphire:public_include_path" ]
+}
+
+pw_test("tests") {
+  sources = [
+    "attribute_test.cc",
+    "bearer_test.cc",
+    "database_test.cc",
+    "error_test.cc",
+    "permissions_test.cc",
+  ]
+
+  deps = [
+    ":att",
+    "$dir_pw_bluetooth_sapphire/host/l2cap:testing",
+  ]
+
+  test_main = "$dir_pw_bluetooth_sapphire/host/testing:gtest_main"
+}

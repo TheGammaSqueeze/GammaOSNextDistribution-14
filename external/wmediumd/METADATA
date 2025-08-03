@@ -1,0 +1,13 @@
+name: "wmediumd"
+description:
+    "This is a wireless medium simulation tool for Linux."
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/bcopeland/wmediumd"
+  }
+  version: "717e5d7fcc23eecbc8e32bd897a8fd4b1e3ba640"
+  last_upgrade_date { year: 2021 month: 6 day: 24 }
+  license_type: RESTRICTED
+}

@@ -1,0 +1,139 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_tracers, tracefs_tracer_available, tracefs_get_clock, tracefs_list_free,
+tracefs_list_add, tracefs_list_size - Helper functions for working with trace file system.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+char pass:[*]pass:[*]*tracefs_tracers*(const char pass:[*]_tracing_dir_);
+bool *tracefs_tracer_available*(const char pass:[*]_tracing_dir_, const char pass:[*]_tracer_);
+char pass:[*]*tracefs_get_clock*(struct tracefs_instance pass:[*]_instance_);
+void *tracefs_list_free*(char pass:[*]pass:[*]_list_);
+char pass:[**]*tracefs_list_add*(char **_list_, const char *_string_);
+int *tracefs_list_size*(char pass:[**]_list_);
+--
+
+DESCRIPTION
+-----------
+Various useful functions for working with trace file system.
+
+The *tracefs_tracers()* function returns array of strings with the
+names of supported tracer plugins, located in the given _tracing_dir_
+directory. This could be NULL or the location of the tracefs mount point
+for the trace systems of the local machine, or it may be a path to a copy
+of the tracefs directory from another machine. The last entry in the array
+as a NULL pointer. The array must be freed with *tracefs_list_free()* API.
+
+The *tracefs_tracer_available()* returns true if the _tracer_ is available
+in the given _tracing_dir_director_, and false otherwise.
+
+The *tracefs_get_clock()* function returns name of the current trace clock,
+used in the given _instance_. If _instance_ is NULL, the clock of the main
+trace instance is returned. The returned string must be freed with free().
+
+The *tracefs_list_free()* function frees an array of strings, returned by
+*tracefs_event_systems()*, *tracefs_system_events()* and *tracefs_tracers()*
+APIs.
+
+The *tracefs_list_add()* function adds _string_ to the string _list_. If
+_list_ is NULL, then a new list is created with the first element a copy
+of _string_, and the second element will be a NULL pointer.  If _list_ is
+not NULL, then it is reallocated to include a new element and a NULL terminator,
+and the new allocated array is returned. The list passed in should be ignored,
+as it wil be freed if a new one was allocated.
+
+The *tracefs_list_size()* is a fast way to find out the number of elements
+in a string array that is to be freed with *tracefs_list_free()*. Note, this
+depends on meta data that is created for these lists and will not work on
+normal string arrays like argv.
+
+RETURN VALUE
+------------
+The *tracefs_tracers()* returns array of strings. The last element in that
+array is a NULL pointer. The array must be freed with *tracefs_list_free()* API.
+In case of an error, NULL is returned.
+
+The *tracefs_tracer_available()* returns true if the _tracer_ is available,
+and false otherwise.
+
+The *tracefs_get_clock()* returns string, that must be freed with free(), or NULL
+in case of an error.
+
+The *tracefs_list_add()* returns an allocated string array that must be freed
+with *tracefs_list_free()* on success or NULL on error. If NULL is returned,
+then the passed in _list_ is untouched. Thus, *tracefs_list_add()* should be
+treated similarly to *realloc*(3).
+
+The *tracefs_list_size()* returns the number of strings in the _list_. The
+passed in list must be one that is to be freed with *tracefs_list_free()*
+as the list has meta data that is used to determine the size and this does
+not work on any normal string array like argv.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+
+char **tracers = tracefs_tracers(NULL);
+
+	if (tracers) {
+		/* Got tracer plugins from the top trace instance */
+		...
+		tracefs_list_free(tracers);
+	}
+....
+char *clock = tracefs_get_clock(NULL);
+
+	if (clock) {
+		/* Got current trace clock of the top trace instance */
+		...
+		free(clock);
+	}
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

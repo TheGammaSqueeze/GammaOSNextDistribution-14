@@ -1,0 +1,23 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'struct X x'"]
+  "2" [shape=rectangle, label="'struct X'"]
+  "3" [color=red, label="'int a' -> 'int a:32'"]
+  "3" -> "3:0"
+  "3:0" [color=red, label="was not a bit-field, is now a bit-field"]
+  "2" -> "3" [label=""]
+  "4" [color=red, label="'int b:32' -> 'int b'"]
+  "4" -> "4:0"
+  "4:0" [color=red, label="was a bit-field, is now not a bit-field"]
+  "2" -> "4" [label=""]
+  "5" [color=red, label="'int c' -> 'int c:16'"]
+  "5" -> "5:0"
+  "5:0" [color=red, label="was not a bit-field, is now a bit-field"]
+  "2" -> "5" [label=""]
+  "6" [color=red, label="'int d:16' -> 'int d'"]
+  "6" -> "6:0"
+  "6:0" [color=red, label="was a bit-field, is now not a bit-field"]
+  "2" -> "6" [label=""]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

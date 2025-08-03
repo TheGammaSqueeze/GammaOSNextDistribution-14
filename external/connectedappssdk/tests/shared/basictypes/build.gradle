@@ -1,0 +1,58 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'com.android.library'
+}
+
+dependencies {
+    api deps.guava
+
+    implementation project(path: ':connectedapps')
+    implementation project(path: ':connectedapps-annotations')
+    implementation project(path: ':connectedapps-processor')
+    annotationProcessor project(path: ':connectedapps-processor')
+}
+
+android {
+    defaultConfig {
+        compileSdkVersion 30
+        minSdkVersion 26
+    }
+
+    testOptions.unitTests.includeAndroidResources = true
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = [file('../src/main/java')]
+            java.includes = [
+                    "com/google/android/enterprise/connectedapps/testapp/CustomRuntimeException.java",
+                    "com/google/android/enterprise/connectedapps/testapp/CustomError.java",
+                    "com/google/android/enterprise/connectedapps/testapp/CustomWrapper.java",
+                    "com/google/android/enterprise/connectedapps/testapp/CustomWrapper2.java",
+                    "com/google/android/enterprise/connectedapps/testapp/NonSimpleCallbackListener.java",
+                    "com/google/android/enterprise/connectedapps/testapp/NotReallySerializableObject.java",
+                    "com/google/android/enterprise/connectedapps/testapp/ParcelableObject.java",
+                    "com/google/android/enterprise/connectedapps/testapp/SerializableObject.java",
+                    "com/google/android/enterprise/connectedapps/testapp/SimpleFuture.java",
+                    "com/google/android/enterprise/connectedapps/testapp/StringWrapper.java",
+                    "com/google/android/enterprise/connectedapps/testapp/TestBooleanCallbackListener.java",
+                    "com/google/android/enterprise/connectedapps/testapp/TestCustomWrapperCallbackListener.java",
+                    "com/google/android/enterprise/connectedapps/testapp/TestNotReallySerializableObjectCallbackListener.java",
+                    "com/google/android/enterprise/connectedapps/testapp/TestStringCallbackListener.java",
+                    "com/google/android/enterprise/connectedapps/testapp/TestVoidCallbackListener.java",
+                    "com/google/android/enterprise/connectedapps/testapp/TestParcelableCallbackListener.java",
+                    "com/google/android/enterprise/connectedapps/testapp/ParcelableContainingBinder.java"
+            ]
+            manifest.srcFile 'AndroidManifest.xml'
+        }
+    }
+}

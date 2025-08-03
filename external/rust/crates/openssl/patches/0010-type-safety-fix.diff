@@ -1,0 +1,67 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index e8d07d8..cfc6efc 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -210,6 +210,15 @@ fn cvt_p<T>(r: *mut T) -> Result<*mut T, ErrorStack> {
+     }
+ }
+ 
++#[inline]
++fn cvt_p_const<T>(r: *const T) -> Result<*const T, ErrorStack> {
++    if r.is_null() {
++        Err(ErrorStack::get())
++    } else {
++        Ok(r)
++    }
++}
++
+ #[inline]
+ fn cvt(r: c_int) -> Result<c_int, ErrorStack> {
+     if r <= 0 {
+diff --git a/src/x509/mod.rs b/src/x509/mod.rs
+index a03a8aa..40e5022 100644
+--- a/src/x509/mod.rs
++++ b/src/x509/mod.rs
+@@ -35,7 +35,7 @@ use crate::ssl::SslRef;
+ use crate::stack::{Stack, StackRef, Stackable};
+ use crate::string::OpensslString;
+ use crate::util::{ForeignTypeExt, ForeignTypeRefExt};
+-use crate::{cvt, cvt_n, cvt_p};
++use crate::{cvt, cvt_n, cvt_p, cvt_p_const};
+ use openssl_macros::corresponds;
+ 
+ #[cfg(any(ossl102, libressl261))]
+diff --git a/src/x509/store.rs b/src/x509/store.rs
+index 418a8f2..2219cfc 100644
+--- a/src/x509/store.rs
++++ b/src/x509/store.rs
+@@ -49,6 +49,7 @@ use crate::error::ErrorStack;
+ #[cfg(not(boringssl))]
+ use crate::ssl::SslFiletype;
+ use crate::stack::StackRef;
++use crate::util::ForeignTypeRefExt;
+ #[cfg(any(ossl102, libressl261))]
+ use crate::x509::verify::{X509VerifyFlags, X509VerifyParamRef};
+ use crate::x509::{X509Object, X509};
+@@ -156,9 +157,7 @@ impl X509Lookup<HashDir> {
+     /// directory.
+     #[corresponds(X509_LOOKUP_hash_dir)]
+     pub fn hash_dir() -> &'static X509LookupMethodRef<HashDir> {
+-        // `*mut` cast is needed because BoringSSL returns a `*const`. This is
+-        // ok because we only return an immutable reference.
+-        unsafe { X509LookupMethodRef::from_ptr(ffi::X509_LOOKUP_hash_dir() as *mut _) }
++        unsafe { X509LookupMethodRef::from_const_ptr(ffi::X509_LOOKUP_hash_dir()) }
+     }
+ }
+ 
+@@ -190,9 +189,7 @@ impl X509Lookup<File> {
+     /// into memory at the time the file is added as a lookup source.
+     #[corresponds(X509_LOOKUP_file)]
+     pub fn file() -> &'static X509LookupMethodRef<File> {
+-        // `*mut` cast is needed because BoringSSL returns a `*const`. This is
+-        // ok because we only return an immutable reference.
+-        unsafe { X509LookupMethodRef::from_ptr(ffi::X509_LOOKUP_file() as *mut _) }
++        unsafe { X509LookupMethodRef::from_const_ptr(ffi::X509_LOOKUP_file()) }
+     }
+ }
+ 

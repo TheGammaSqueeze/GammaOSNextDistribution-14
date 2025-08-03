@@ -1,0 +1,11 @@
+function symbol 'long id2(small)' {_Z3id2s} was removed
+
+function symbol 'long id2(large)' {_Z3id2i} was added
+
+type 'struct foo' changed
+  byte size changed from 2 to 4
+  member changed from 'small x' to 'large x'
+    type changed from 'small' = 'short' to 'large' = 'int'
+      resolved type changed from 'short' to 'int'
+
+exit code 4

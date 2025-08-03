@@ -1,0 +1,229 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_iterate_raw_events, tracefs_iterate_stop, tracefs_follow_event, tracefs_follow_missed_events - Iterate over events in the ring buffer
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_iterate_raw_events*(struct tep_handle pass:[*]_tep_, struct tracefs_instance pass:[*]_instance_,
+				 cpu_set_t pass:[*]_cpus_, int _cpu_size_,
+				 int (pass:[*]_callback_)(struct tep_event pass:[*], struct tep_record pass:[*], int, void pass:[*]),
+				 void pass:[*]_callback_context_);
+void *tracefs_iterate_stop*(struct tracefs_instance pass:[*]_instance_);
+
+int *tracefs_follow_event*(struct tep_handle pass:[*]_tep_, struct tracefs_instance pass:[*]_instance_,
+			  const char pass:[*]_system_, const char pass:[*]_event_name_,
+			  int (pass:[*]_callback_)(struct tep_event pass:[*],
+					  struct tep_record pass:[*],
+					  int, void pass:[*]),
+			  void pass:[*]_callback_data_);
+int *tracefs_follow_missed_events*(struct tracefs_instance pass:[*]_instance_,
+			  int (pass:[*]_callback_)(struct tep_event pass:[*],
+					  struct tep_record pass:[*],
+					  int, void pass:[*]),
+			  void pass:[*]_callback_data_);
+--
+
+DESCRIPTION
+-----------
+Trace iterator over raw events.
+
+The *tracefs_iterate_raw_events()* function will read the tracefs raw
+data buffers and call the specified _callback_ function for every event it
+encounters. Events are iterated in sorted order: oldest first. An initialized
+_tep_ handler is required (See *tracefs_local_events*(3)). If _instance_ is
+NULL, then the toplevel tracefs buffer is used, otherwise the buffer for
+the corresponding _instance_ is read. To filter only on a subset of CPUs,
+_cpus_ and _cpu_size_ may be set to only call _callback_ with events that
+occurred on the CPUs specified, otherwise if _cpus_ is NULL then the _callback_
+function will be called for all events, and _cpu_size_ is ignored. The
+_callback_ function will be called with the following parameters: A
+pointer to a struct tep_event that corresponds to the type of event the
+record is; The record representing the event; The CPU that the event
+occurred on; and a pointer to user specified _callback_context_. If the _callback_
+returns non-zero, the iteration stops.
+
+Use *tracefs_iterate_stop()* to force a executing *tracefs_iterate_raw_events()*
+to halt. This can be called from either a callback that is called by
+the iterator (even though a return of non-zero will stop it), or from another
+thread.
+
+The *tracefs_follow_event()* is used with *tracefs_iterate_raw_events()* but
+intead of the callback being called for every event, it is only called for the
+specified _system_ / _event_name_ given to the function. The _callback_ is the
+same as for *tracefs_iterate_raw_events()*, and the passed in _callback_context_
+will be passed to the _callback_ as well. Note, if it returns something other
+than 0, it will stop the loop before the _callback_ of *tracefs_iterate_raw_events()*
+is called.
+
+The *tracefs_follow_missed_events()* will call the _callback_ when missed
+events are detected. It will set the _record_ parameter of the callback to the
+record that came after the missed events and _event_ will be of the type of
+event _record_ is. _cpu_ will be set to the CPU that missed the events, and
+_callback_data_ will be the content that was passed in to the function.
+
+RETURN VALUE
+------------
+The *tracefs_iterate_raw_events()* function returns -1 in case of an error or
+0 otherwise.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <unistd.h>
+#include <tracefs.h>
+#include <stdbool.h>
+#include <signal.h>
+
+struct my_struct {
+	bool		stopped;
+};
+
+#define MAX_COUNT 500000
+static int counter;
+
+static int callback(struct tep_event *event, struct tep_record *record,
+		    int cpu, void *data)
+{
+	struct my_struct *my_data = data;
+	static struct trace_seq seq;
+
+	if (counter++ > MAX_COUNT) {
+		my_data->stopped = true;
+		return 1;
+	}
+
+	if (!seq.buffer)
+		trace_seq_init(&seq);
+
+	tep_print_event(event->tep, &seq, record, "%16s-%-5d [%03d] %6.1000d %s: %s\n",
+			TEP_PRINT_COMM, TEP_PRINT_PID, TEP_PRINT_CPU,
+			TEP_PRINT_TIME, TEP_PRINT_NAME, TEP_PRINT_INFO);
+	trace_seq_terminate(&seq);
+	trace_seq_do_printf(&seq);
+	trace_seq_reset(&seq);
+	return 0;
+}
+
+static int sched_callback(struct tep_event *event, struct tep_record *record,
+			  int cpu, void *data)
+{
+	static struct tep_format_field *prev_pid;
+	static struct tep_format_field *next_pid;
+	unsigned long long pid;
+	int this_pid = *(int *)data;
+
+	if (!prev_pid) {
+		prev_pid = tep_find_field(event, "prev_pid");
+		next_pid = tep_find_field(event, "next_pid");
+		if (!prev_pid || !next_pid) {
+			fprintf(stderr, "No pid fields??\n");
+			return -1;
+		}
+	}
+
+	tep_read_number_field(prev_pid, record->data, &pid);
+	if (pid == this_pid)
+		printf("WE ARE LEAVING!\n");
+	tep_read_number_field(next_pid, record->data, &pid);
+	if (pid == this_pid)
+		printf("WE ARE ARRIVING!\n");
+	return 0;
+}
+
+static int missed_callback(struct tep_event *event, struct tep_record *record,
+			   int cpu, void *data)
+{
+	printf("OOPS! cpu %d dropped ", cpu);
+	if (record->missed_events > 0)
+		printf("%lld ", record->missed_events);
+	printf("events\n");
+	return 0;
+}
+
+static struct tracefs_instance *instance;
+static struct my_struct my_data;
+
+static void sig(int s)
+{
+	tracefs_iterate_stop(instance);
+	my_data.stopped = true;
+}
+
+int main (int argc, char **argv, char **env)
+{
+	struct tep_handle *tep;
+	int this_pid = getpid();
+
+	instance = tracefs_instance_create("my-buffer");
+	if (!instance)
+		return -1;
+
+	signal(SIGINT, sig);
+
+	tracefs_event_enable(instance, NULL, NULL);
+	sleep(1);
+	tracefs_event_disable(instance, NULL, NULL);
+	tep = tracefs_local_events(NULL);
+	tep_load_plugins(tep);
+	tracefs_follow_missed_events(instance, missed_callback, NULL);
+	tracefs_follow_event(tep, instance, "sched", "sched_switch", sched_callback, &this_pid);
+	tracefs_iterate_raw_events(tep, instance, NULL, 0, callback, &my_data);
+	tracefs_instance_destroy(instance);
+
+	if (my_data.stopped) {
+		if (counter > MAX_COUNT)
+			printf("Finished max count\n");
+		else
+			printf("Finished via signal\n");
+	}
+
+	return 0;
+}
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

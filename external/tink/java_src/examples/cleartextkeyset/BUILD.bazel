@@ -1,0 +1,30 @@
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+java_binary(
+    name = "cleartext_keyset_example",
+    srcs = ["CleartextKeysetExample.java"],
+    main_class = "cleartextkeyset.CleartextKeysetExample",
+    deps = [
+        "@tink_java//src/main/java/com/google/crypto/tink:aead",
+        "@tink_java//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "@tink_java//src/main/java/com/google/crypto/tink:key_templates",
+        "@tink_java//src/main/java/com/google/crypto/tink:registry_cluster",
+        "@tink_java//src/main/java/com/google/crypto/tink:tink_json_proto_keyset_format",
+        "@tink_java//src/main/java/com/google/crypto/tink/aead:aead_config",
+        "@tink_java//src/main/java/com/google/crypto/tink/aead:predefined_aead_parameters",
+    ],
+)
+
+sh_test(
+    name = "cleartext_keyset_example_test",
+    size = "small",
+    srcs = ["cleartext_keyset_example_test.sh"],
+    args = [
+        "$(rootpath :cleartext_keyset_example)",
+    ],
+    data = [
+        ":cleartext_keyset_example",
+    ],
+)

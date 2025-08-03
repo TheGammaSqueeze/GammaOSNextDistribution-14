@@ -1,0 +1,142 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "puthik"
+NAME = "PowerQual.lab"
+TIME = "LENGTHY"
+TEST_CATEGORY = "Stress"
+TEST_CLASS = "suite"
+TEST_TYPE = "server"
+EXTENDED_TIMEOUT = 58500  # 16 Hours + 900 second guard.
+PY_VERSION = 3
+
+DOC = """
+Lab version of PowerQual.full
+
+Difference from PowerQual.full
+- Allow ethernet for power_LoadTest
+- Do not use design capacity when determine target battery charge
+
+Mandatory tests
+- power_LoadTest (from full battery to 5%)
+- power_BatteryCharge (from 5% to full battery)
+- power_VideoPlayback (h264 1080p & vp9 1080p 1 hour each)
+- power_VideoCall (2 hours)
+
+Informational tests
+- power_Idle
+- power_VideoPlayback
+- power_VideoEncode
+- power_Display.brightness
+- power_Display.cabc
+"""
+
+import datetime
+from autotest_lib.client.common_lib import utils
+
+HOURS=60*60
+
+CLIENT_TESTS = [
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 20, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoCall', {
+        'tag' : 'powerqual_lab', 'force_discharge' : True,
+        'min_run_time_percent': 75}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 20, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoPlayback', {
+        'tag' : 'powerqual_lab', 'force_discharge' : True, 'secs_per_video' : 3600,
+        'videos' : [('h264_1080_30fps', ''), ('vp9_1080_30fps', '')]}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 20, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False}),
+    ('power_WaitForCoolDown', {}),
+    ('power_Idle', {
+        'tag' : 'powerqual_lab', 'force_discharge' : True}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 20, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoPlayback', {
+        'tag' : 'powerqual_lab_info', 'force_discharge' : True}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 20, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoEncode', {
+        'tag' : 'powerqual_lab', 'force_discharge' : True}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 20, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False}),
+    ('power_WaitForCoolDown', {}),
+    ('power_Display', {
+        'tag' : 'powerqual_lab_brightness', 'force_discharge' : True,
+        'brightness' : 'all', 'pages' : ['white', 'black', 'checker1'],
+        'secs_per_page' : 20, 'seconds_period' : 1}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 20, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False}),
+    ('power_WaitForCoolDown', {}),
+    ('power_Display', {
+        'tag' : 'powerqual_lab_cabc', 'force_discharge' : True,
+        'brightness' : 'max', 'secs_per_page' : 20, 'seconds_period' : 1,
+        'pages' : ['white', 'black',
+                   'white', 'grey10',
+                   'white', 'grey20',
+                   'white', 'grey30',
+                   'white', 'grey40',
+                   'white', 'grey50',
+                   'white', 'checker1',
+                   'white', 'checker90',
+                   'white', 'checker80',
+                   'white', 'checker70',
+                   'white', 'checker60',
+                   'white', 'checker50']}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 20, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False}),
+    ('power_WaitForCoolDown', {}),
+    ('power_LoadTest', {
+        'tag' : 'powerqual_lab', 'force_discharge' : True, 'loop_time' : HOURS,
+        'loop_count' : 24, 'test_low_batt_p' : 5, 'check_network' : False}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 100, 'max_run_time': 5 * HOURS,
+        'use_design_charge_capacity' : False, 'tag' : 'powerqual'}),
+    ('power_WaitForCoolDown', {}),
+    ('power_UiResume', {
+        'tag' : 'powerqual_lab'}),
+]
+
+# Workaround to make it compatible with moblab autotest UI.
+global args_dict
+try:
+    args_dict
+except NameError:
+    args_dict = utils.args_to_dict(args)
+
+# Use time as pdash_note if not supplied to track all tests in same suite.
+pdash_note = args_dict.get('pdash_note',
+                           NAME + '_' + datetime.datetime.utcnow().isoformat())
+
+def run_client_test(machine):
+    client = hosts.create_host(machine)
+    client_at = autotest.Autotest(client)
+
+    for test, argv in CLIENT_TESTS:
+        argv['pdash_note'] = pdash_note
+        client_at.run_test(test, timeout=EXTENDED_TIMEOUT, **argv)
+
+job.parallel_on_machines(run_client_test, machines)

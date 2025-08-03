@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/der
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "der"
+description: "Pure Rust embedded-friendly implementation of the Distinguished Encoding Rules (DER) for Abstract Syntax Notation One (ASN.1) as described in ITU X.690."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 12
+    day: 15
+  }
+  homepage: "https://crates.io/crates/der"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/der/der-0.7.8.crate"
+    version: "0.7.8"
+  }
+}

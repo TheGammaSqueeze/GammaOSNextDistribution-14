@@ -1,0 +1,255 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x2be339a0
+  kind: POINTER
+  pointee_type_id: 0x85cc001f
+}
+pointer_reference {
+  id: 0x2be35e80
+  kind: POINTER
+  pointee_type_id: 0x85cd9c9c
+}
+pointer_reference {
+  id: 0x2be52c8d
+  kind: POINTER
+  pointee_type_id: 0x85d454a8
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+member {
+  id: 0xab194353
+  name: "f01"
+  type_id: 0x2be52c8d
+}
+member {
+  id: 0xe7582706
+  name: "f02"
+  type_id: 0x2be52c8d
+  offset: 64
+}
+member {
+  id: 0x269f96e1
+  name: "f03"
+  type_id: 0x2be52c8d
+  offset: 128
+}
+member {
+  id: 0x6edf7381
+  name: "f04"
+  type_id: 0x2be35e80
+  offset: 192
+}
+member {
+  id: 0xae1e0655
+  name: "f05"
+  type_id: 0x2be35e80
+  offset: 256
+}
+member {
+  id: 0xec5d8fef
+  name: "f06"
+  type_id: 0x2be35e80
+  offset: 320
+}
+member {
+  id: 0x2d9d2928
+  name: "f07"
+  type_id: 0x2be35e80
+  offset: 384
+}
+member {
+  id: 0x7fd98f4c
+  name: "f08"
+  type_id: 0x2be35e80
+  offset: 448
+}
+member {
+  id: 0xbd1a65d0
+  name: "f09"
+  type_id: 0x2be339a0
+  offset: 512
+}
+member {
+  id: 0x15949fa0
+  name: "f10"
+  type_id: 0x2be339a0
+  offset: 576
+}
+member {
+  id: 0xd553c44f
+  name: "f11"
+  type_id: 0x2be339a0
+  offset: 640
+}
+member {
+  id: 0x94135c5f
+  name: "f12"
+  type_id: 0x2be339a0
+  offset: 704
+}
+struct_union {
+  id: 0xf57dfbfc
+  kind: STRUCT
+  name: "S"
+  definition {
+    bytesize: 96
+    member_id: 0xab194353
+    member_id: 0xe7582706
+    member_id: 0x269f96e1
+    member_id: 0x6edf7381
+    member_id: 0xae1e0655
+    member_id: 0xec5d8fef
+    member_id: 0x2d9d2928
+    member_id: 0x7fd98f4c
+    member_id: 0xbd1a65d0
+    member_id: 0x15949fa0
+    member_id: 0xd553c44f
+    member_id: 0x94135c5f
+  }
+}
+function {
+  id: 0x85cc001f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x85cd9c9c
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x85d454a8
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+elf_symbol {
+  id: 0x8bf70937
+  name: "f01"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85d454a8
+  full_name: "f01"
+}
+elf_symbol {
+  id: 0xcab4baef
+  name: "f02"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85d454a8
+  full_name: "f02"
+}
+elf_symbol {
+  id: 0x09745218
+  name: "f03"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85d454a8
+  full_name: "f03"
+}
+elf_symbol {
+  id: 0xb2312b1c
+  name: "f04"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+  full_name: "f04"
+}
+elf_symbol {
+  id: 0x76f6b896
+  name: "f05"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+  full_name: "f05"
+}
+elf_symbol {
+  id: 0x37b65de0
+  name: "f06"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+  full_name: "f06"
+}
+elf_symbol {
+  id: 0xf477c0b7
+  name: "f07"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+  full_name: "f07"
+}
+elf_symbol {
+  id: 0x4aca4031
+  name: "f08"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+  full_name: "f08"
+}
+elf_symbol {
+  id: 0x858be3e5
+  name: "f09"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cc001f
+  full_name: "f09"
+}
+elf_symbol {
+  id: 0x288f47a4
+  name: "f10"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cc001f
+  full_name: "f10"
+}
+elf_symbol {
+  id: 0xe9cfbccb
+  name: "f11"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cc001f
+  full_name: "f11"
+}
+elf_symbol {
+  id: 0xaf0c113b
+  name: "f12"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cc001f
+  full_name: "f12"
+}
+elf_symbol {
+  id: 0x3e4f6c44
+  name: "s"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf57dfbfc
+  full_name: "s"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x8bf70937
+  symbol_id: 0xcab4baef
+  symbol_id: 0x09745218
+  symbol_id: 0xb2312b1c
+  symbol_id: 0x76f6b896
+  symbol_id: 0x37b65de0
+  symbol_id: 0xf477c0b7
+  symbol_id: 0x4aca4031
+  symbol_id: 0x858be3e5
+  symbol_id: 0x288f47a4
+  symbol_id: 0xe9cfbccb
+  symbol_id: 0xaf0c113b
+  symbol_id: 0x3e4f6c44
+}

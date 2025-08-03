@@ -1,0 +1,14 @@
+name: "bazelbuild-rules_cc"
+description:
+    "A repository of Starlark implementation of C++ rules in Bazel"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/bazelbuild/rules_cc"
+  }
+  version: "34bcaf6223a39ec002efcf06e110871a6f562f44"
+  last_upgrade_date { year: 2023 month: 7 day: 14 }
+  license_type: NOTICE
+}
+

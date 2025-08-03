@@ -1,0 +1,40 @@
+# Copyright 2018 John McGehee. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+FROM fedora:latest
+MAINTAINER jmcgeheeiv@users.noreply.github.com
+
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+ARG github_repo=pytest-dev/pyfakefs
+ARG github_branch=main
+
+RUN dnf install -y python3-pip unzip wget
+
+RUN useradd -u 1000 pyfakefs
+
+RUN mkdir -p work \
+    && wget https://github.com/$github_repo/archive/$github_branch.zip -O archive.zip \
+    && unzip archive.zip -d work
+RUN WORK_DIR=`ls -d work/*`; mv $WORK_DIR work/pyfakefs
+RUN chown -R pyfakefs:pyfakefs work/pyfakefs
+WORKDIR work/pyfakefs
+RUN pip3 install -r requirements.txt
+RUN pip3 install -r extra_requirements.txt
+
+USER pyfakefs
+ENV PYTHONPATH work/pyfakefs
+ENV TEST_REAL_FS=1
+CMD ["python3", "-m", "pyfakefs.tests.all_tests"]

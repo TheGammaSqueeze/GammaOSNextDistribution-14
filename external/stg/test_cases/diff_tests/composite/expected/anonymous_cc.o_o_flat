@@ -1,0 +1,28 @@
+variable symbol 'struct Foo var' changed
+  type 'struct Foo' changed
+
+type 'struct Foo' changed
+  byte size changed from 16 to 32
+  member changed from 'struct { int x; } anon_class' to 'struct { long x; } anon_class'
+    type changed from 'struct { int x; }' to 'struct { long x; }'
+      byte size changed from 4 to 8
+      member changed from 'int x' to 'long x'
+        type changed from 'int' to 'long'
+  member changed from 'struct { int x; } anon_struct' to 'struct { long x; } anon_struct'
+    offset changed from 32 to 64
+    type changed from 'struct { int x; }' to 'struct { long x; }'
+      byte size changed from 4 to 8
+      member changed from 'int x' to 'long x'
+        type changed from 'int' to 'long'
+  member changed from 'union { int x; } anon_union' to 'union { long x; } anon_union'
+    offset changed from 64 to 128
+    type changed from 'union { int x; }' to 'union { long x; }'
+      byte size changed from 4 to 8
+      member changed from 'int x' to 'long x'
+        type changed from 'int' to 'long'
+  member changed from 'enum { X = 1, } anon_enum' to 'enum { X = 2, } anon_enum'
+    offset changed from 96 to 192
+    type changed from 'enum { X = 1, }' to 'enum { X = 2, }'
+      enumerator 'X' value changed from 1 to 2
+
+exit code 4

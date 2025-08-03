@@ -1,0 +1,365 @@
+.TH SG_VPD "8" "August 2022" "sg3_utils\-1.48" SG3_UTILS
+.SH NAME
+sg_vpd \- fetch SCSI VPD page and/or decode its response
+.SH SYNOPSIS
+.B sg_vpd
+[\fI\-\-all\fR] [\fI\-\-enumerate\fR] [\fI\-\-examine\fR] [\fI\-\-force\fR]
+[\fI\-\-help\fR] [\fI\-\-hex\fR] [\fI\-\-ident\fR] [\fI\-\-inhex=FN\fR]
+[\fI\-\-json[=JO]\fR] [\fI\-\-long\fR] [\fI\-\-maxlen=LEN\fR]
+[\fI\-\-page=PG\fR] [\fI\-\-quiet\fR] [\fI\-\-raw\fR]
+[\fI\-\-sinq_inraw=RFN\fR] [\fI\-\-vendor=VP\fR] [\fI\-\-verbose\fR]
+[\fI\-\-version\fR] [\fIDEVICE\fR]
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+This utility, when \fIDEVICE\fR is given, fetches a Vital Product Data (VPD)
+page and decodes it or outputs it in ASCII hexadecimal or binary. VPD pages
+are fetched with a SCSI INQUIRY command.
+.PP
+Alternatively the \fI\-\-inhex=FN\fR option can be given. In this case
+\fIFN\fR is assumed to be a file name ('\-' for stdin) containing ASCII
+hexadecimal representing a VPD page response. If the \fI\-\-raw\fR option
+is also given then binary input is assumed (rather than ASCII hexadecimal).
+.PP
+Probably the most important page is the Device Identification
+VPD page (page number: 0x83). Since SPC\-3, support for this page
+has been flagged as mandatory. This page can be fetched by
+using the \fI\-\-ident\fR option.
+.PP
+The reference document used for interpreting VPD pages (and the INQUIRY
+standard response) is T10/BSR INCITS 566 Revision 6 which is draft SPC\-6
+dated 22 October 2021. It can be found at https://www.t10.org .
+.PP
+When no options are given, other than a \fIDEVICE\fR, then the "Supported
+VPD pages" (0x0) VPD page is fetched and decoded.
+.SH OPTIONS
+Arguments to long options are mandatory for short options as well.
+The options are arranged in alphabetical order based on the long
+option name.
+.TP
+\fB\-a\fR, \fB\-\-all\fR
+decode all VPD pages. When used with \fIDEVICE\fR the pages to be decoded
+are found in the "Supported VPD pages" VPD page. Pages that cannot be
+decoded are displayed in hex; add the \fI\-\-long\fR option to have ASCII
+displayed to the right of each line of hex.
+.br
+If this option is used with the \fI\-\-inhex=FN\fR option then the file
+\fIFN\fR is assumed to contain 1 or more VPD pages (in ASCII hex or binary).
+Decoding continues until the file is exhausted (or an error occurs). Sanity
+checks are applied on each VPD page's length and the ascending order of VPD
+page numbers (required by SPC\-4) so bad data may be detected.
+.br
+If the \fI\-\-page=PG\fR option is also given then no VPD page whose page
+number is greater than \fIPG\fR (or its numeric equivalent) is decoded.
+.TP
+\fB\-e\fR, \fB\-\-enumerate\fR
+list the names of the known VPD pages, first the standard pages (i.e.
+those defined by T10), then the vendor specific pages. Each group is sorted
+in abbreviation order. The \fIDEVICE\fR and most other options are ignored
+and this utility exits after listing the VPD page names. May be used together
+with \fI\-\-page=PG\fR where \fIPG\fR is numeric. If so, it searches for the
+summary lines of all VPD pages whose number matches \fIPG\fR. May be used
+with \fI\-\-vendor=VP\fR to restrict output to known vendor specific pages
+for vendor/product \fIVP\fR.
+.TP
+\fB\-E\fR, \fB\-\-examine\fR
+scan part of all of the VPD space (page numbers 0x0 to 0xff) and output any
+pages found. If this option is given once, the scan starts at page 0x80;
+if it is given twice, the scan starts at 0x0; and if given three times the
+scan starts at 0xc0. This option takes no notice of the contents of VPD page
+0x0 which should contain a list of all supported VPD pages. Some vendors
+either forget to list some standard pages or perhaps purposely don't list
+vendor specific pages which are in the range 0xc0 to 0xff.
+.br
+If the \fI\-\-page=PG\fR option is not given then the scan finishes at page
+0xff. if the \fI\-\-page=PG\fR option is given then the scan finishes at
+page \fIPG\fR. A check is made before the scan to make sure the start page
+is less than or equal to the finish page; if not the start and finish page
+numbers are swapped.
+.br
+The sdparm utility which lists mode and VPD pages also has a \fB\-\-examine\fR
+option will similar functionility. Note that T10 has changed most of the
+pages that list supported pages (e.g. VPD, mode and log pages; supported
+commands) to add the weasel words "may or may not list all ...".
+.TP
+\fB\-f\fR, \fB\-\-force\fR
+As a sanity check, the normal action when fetching VPD pages other than
+page 0x0 (the "Supported VPD pages" VPD page), is to first fetch page 0x0
+and only if the requested page is one of the supported pages, to go ahead
+and fetch the requested page.
+.br
+When this option is given, skip checking of VPD page 0x0 before accessing
+the requested VPD page. The prior check of VPD page 0x0 is known to
+crash certain USB devices, so use with care.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+outputs the usage message summarizing command line options then exits.
+Ignores \fIDEVICE\fR if given.
+.TP
+\fB\-H\fR, \fB\-\-hex\fR
+outputs the requested VPD page in ASCII hexadecimal. Can be used multiple
+times, see section on the ATA information vpd page.
+.br
+To generate output suitable for placing in a file that can be used by a
+later invocation with the \fI\-\-inhex=FN\fR option, use the '\-HHHH'
+option (e.g. 'sg_vpd \-p di \-HHHH /dev/sg3 > dev_id.hex'). The
+reason '\-HHHH' is used is to flag that unadorned hexadecimal (without other
+text or address offsets) is sent to stdout.
+.TP
+\fB\-i\fR, \fB\-\-ident\fR
+decode the device identification (0x83) VPD page. When used once this option
+has the same effect as '\-\-page=di'. When use twice then the short form of
+the device identification VPD page's logical unit designator is decoded. In
+the latter case this option has the same effect as '\-\-quiet \-\-page=di_lu'.
+.TP
+\fB\-I\fR, \fB\-\-inhex\fR=\fIFN\fR
+\fIFN\fR is expected to be a file name (or '\-' for stdin) which contains
+ASCII hexadecimal or binary representing a VPD page (or a standard INQUIRY)
+response. This utility will then decode that response. It is preferable to
+also supply the \fI\-\-page=PG\fR option, if not this utility will attempt
+to guess which VPD page (or standard INQUIRY) the response is associated
+with. The hexadecimal should be arranged as 1 or 2 digits representing a
+byte each of which is whitespace or comma separated. Anything from and
+including a hash mark to the end of line is ignored. If the \fI\-\-raw\fR
+option is also given then \fIFN\fR is treated as binary.
+.TP
+\fB\-j\fR, \fB\-\-json[\fR=\fIJO\fR]
+output is in JSON format instead of human readable form. See sg3_utils_json
+manpage or use '?' for \fIJO\fR for a summary.
+.TP
+\fB\-l\fR, \fB\-\-long\fR
+when decoding some VPD pages, give a little more output. For example the ATA
+Information VPD page only shows the signature (in hex) and the IDENTIFY
+(PACKET) DEVICE (in hex) when this option is given.
+.TP
+\fB\-m\fR, \fB\-\-maxlen\fR=\fILEN\fR
+where \fILEN\fR is the (maximum) response length in bytes. It is placed in the
+cdb's "allocation length" field. If not given (or \fILEN\fR is zero) then
+252 is used (apart from the ATA Information VPD page which defaults to 572)
+and, if the response indicates this value is insufficient, another INQUIRY
+command is sent with a larger value in the cdb's "allocation length" field.
+If this option is given and \fILEN\fR is greater than 0 then only one INQUIRY
+command is sent. Since many simple devices implement the INQUIRY command
+badly (and do not support VPD pages) then the safest value to use for
+\fILEN\fR is 36. See the sg_inq(8) man page for the more information.
+.TP
+\fB\-p\fR, \fB\-\-page\fR=\fIPG\fR
+where \fIPG\fR is the VPD page to be decoded or output. The \fIPG\fR argument
+can either be an abbreviation, a number or a pair or numbers/abbreviations
+separated by a comma. The VPD page abbreviations can be seen by using the
+\fI\-\-enumerate\fR option. If a number is given it is assumed to be decimal
+unless it has a hexadecimal indicator which is either a leading '0x' or a
+trailing 'h'. If one number is given then it is assumed to be a VPD page
+number. If two numbers (or abbreviations) are given then the second one is
+the same as \fIVP\fR (see the \fI\-\-vendor=VP\fR option). If this option
+is not given (nor '\-i', '\-l' nor '\-V') then the "Supported VPD pages" (0x0)
+VPD page is fetched and decoded. If \fIPG\fR is '\-1' or 'sinq' then the
+standard INQUIRY response is output. This option may also be used with the
+\fI\-\-enumerate\fR (see its description).
+.br
+If \fIPG\fR is not found in the 'Supported VPD pages' VPD page (0x0) then
+EDOM is returned. To bypass this check use the \fI\-\-force\fR option.
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+suppress the amount of decoding output.
+.TP
+\fB\-r\fR, \fB\-\-raw\fR
+if not used with \fI\-\-inhex=FN\fR then output requested VPD page in binary.
+The output should be piped to a file or another utility when this option is
+used. The binary is sent to stdout, and errors are sent to stderr.
+.br
+if used with \fI\-\-inhex=FN\fR then the contents of \fIFN\fR is treated as
+binary.
+.TP
+\fB\-Q\fR, \fB\-\-sinq_inraw\fR=\fIRFN\fR
+where \fIRFN\fR is a filename containing binary standard INQUIRY response
+data that matches either \fIDEVICE\fR or \fIFN\fR. Linux places this
+standard INQUIRY response in its sysfs pseudo filesystem. A typical
+location is at /sys/class/scsi_disk/<hctl>/device/inquiry where <hctl> is
+a four part numeric tuple separated by colons. This tuple distinguishes
+the device from any others on the system. Linux also places some VPD page
+responses in binary in the same directory with names like "vpd_pg83" where
+the last two digits form the hexadecimal VPD page number whose binary
+contents are therein.
+.br
+Some VPD pages (e.g. the Extended Inquiry VPD page) depend on knowing
+the settings in the standard INQUIRY response to interpret the fields
+in that VPD page. This option together with the \fI\-\-all\fR,
+\fI\-\-examine\fR or \fI\-\-page=PG\fR allows this utility to process
+both the standard INQUIRY response and VPD pages in the same invocation. 
+.TP
+\fB\-M\fR, \fB\-\-vendor\fR=\fIVP\fR
+where \fIVP\fR is a vendor (e.g. "sea" for Seagate) or vendor/product
+acronym (e.g. "hp3par" for the 3PAR array from HP). Many vendors have
+re\-used the numbers at the beginning of the vendor specific VPD page
+range (e.g.  page 0xc0) and this option is a way of selecting only those
+which are of interest. Using a \fIVP\fR of "xxx" will list the available
+acronyms.
+.br
+If this option is used with \fI\-\-page=PG\fR and \fIPG\fR is an acronym
+then this option is ignored. If \fIPG\fR is a number (e.g. 0xc0) then
+\fIVP\fR is used to choose the which vendor specific page (e.g. sharing
+page number 0xc0) to decode.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+increases the level or verbosity.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+print out version string then exit.
+.SH ATA INFORMATION VPD PAGE
+This VPD page (0x89 or 'ai') is defined by the SCSI to ATA Translation
+standard. It contains information about the SAT layer, the "signature" of
+the ATA device and the response to the ATA IDENTIFY (PACKET) DEVICE
+command. The latter part has 512 bytes of identity, capability and
+settings data which the hdparm utility is capable of decoding (so this
+utility doesn't decode it).
+.PP
+To unclutter the output for this page, the signature and the IDENTIFY (PACKET)
+DEVICE response are not output unless the \fI\-\-long\fR option (or
+\fI\-\-hex\fR or \fI\-\-raw\fR) are given. When the \fI\-\-long\fR option
+is given the IDENTIFY (PACKET) DEVICE response is output as 256 (16 bit)
+words as is the fashion for ATA devices. To see that response as a string of
+bytes use the '\-HH' option. To format the output suitable for hdparm to
+decode use either the '\-HHH' or '\-rr' option. For example if 'dev/sdb' is
+a SATA disk behind a SAT layer then this
+command: 'sg_vpd \-p ai \-HHH /dev/sdb | hdparm \-\-Istdin'
+should decode the ATA IDENTIFY (PACKET) DEVICE response.
+.SH NOTES
+Since some VPD pages (e.g. the Extended INQUIRY page) depend on settings
+in the standard INQUIRY response, then the standard INQUIRY response is
+output as a pseudo VPD page when \fIPG\fR is set to '\-1' or 'sinq'. Also
+the decoding of some fields (e.g. the Extended INQUIRY page's SPT field)
+is expanded when the '\-\-long' option is given using the standard INQUIRY
+response information (e.g. the PDT and the PROTECT fields).
+.PP
+The \fIDEVICE\fR is opened with a read\-only flag (e.g. in Unix with the
+O_RDONLY flag).
+.SH EXIT STATUS
+The exit status of sg_vpd is 0 when it is successful. Otherwise see
+the sg3_utils(8) man page.
+.SH EXAMPLES
+The examples in this page use Linux device names. For suitable device
+names in other supported Operating Systems see the sg3_utils(8) man page.
+.PP
+To see the VPD pages that a device supports, use with no options. The
+command line invocation is shown first followed by a typical response:
+.PP
+   # sg_vpd /dev/sdb
+.br
+Supported VPD pages VPD page:
+.br
+  Supported VPD pages [sv]
+.br
+  Unit serial number [sn]
+.br
+  Device identification [di]
+.br
+  Extended inquiry data [ei]
+.br
+  Block limits (SBC) [bl]
+.PP
+To see the VPD page numbers associated with each supported page then
+add the '\-\-long' option to the above command line. To view a
+VPD page either its number or abbreviation can be given to
+the '\-\-page=' option. The page name abbreviations are shown within
+square brackets above. In the next example the Extended inquiry data
+VPD page is listed:
+.PP
+   # sg_vpd \-\-page=ei /dev/sdb
+.br
+extended INQUIRY data VPD page:
+.br
+  ACTIVATE_MICROCODE=0 SPT=0 GRD_CHK=0 APP_CHK=0 REF_CHK=0
+.br
+  UASK_SUP=0 GROUP_SUP=0 PRIOR_SUP=0 HEADSUP=1 ORDSUP=1 SIMPSUP=1
+.br
+  WU_SUP=0 CRD_SUP=0 NV_SUP=0 V_SUP=0
+.br
+  P_I_I_SUP=0 LUICLR=0 R_SUP=0 CBCS=0
+.br
+  Multi I_T nexus microcode download=0
+.br
+  Extended self\-test completion minutes=0
+.br
+  POA_SUP=0 HRA_SUP=0 VSA_SUP=0
+.PP
+To check if any protection types are supported by a disk use the '\-\-long'
+option on the Extended inquiry data VPD page:
+.PP
+   # sg_vpd \-\-page=ei \-\-long /dev/sdb
+.br
+   extended INQUIRY data VPD page:
+.br
+     ACTIVATE_MICROCODE=0
+.br
+     SPT=1 [protection types 1 and 2 supported]
+.br
+     GRD_CHK=1
+.br
+     ....
+.PP
+Search for the name (and acronym) of all pages that share VPD page number
+0xb0 .
+.PP
+   # sg_vpd \-\-page=0xb0 \-\-enumerate
+.br
+   Matching standard VPD pages:
+.br
+     bl         0xb0      Block limits (SBC)
+.br
+     oi         0xb0      OSD information
+.br
+     sad        0xb0      Sequential access device capabilities (SSC)
+.PP
+Some examples follow using the "\-\-all" option. Send an ASCII hexadecimal
+representation of all VPD pages to a file:
+.PP
+   # sg_vpd \-\-all \-HHHH /dev/sg3 > all_vpds.hex
+.PP
+At some later time that file could be decoded with:
+.PP
+   # sg_vpd \-\-all \-\-inhex=all_vpds.hex
+.PP
+To do the equivalent as the previous example but use a file containing
+binary:
+.PP
+   # sg_vpd \-\-all \-\-raw /dev/sg3 > all_vpds.bin
+.br
+   # sg_vpd \-\-all \-\-raw \-\-inhex=all_vpds.bin
+.PP
+Notice that "\-\-raw" must be given with the second (\-\-inhex) invocation
+to alert the utility that all_vpds.bin contains binary as it assumes ASCII
+hexadecimal by default. Next we only decode T10 specified VPD pages
+excluding vendor specific VPD pages that start at page number 0xc0:
+.PP
+   # sg_vpd \-\-all \-\-page=0xbf \-\-raw \-\-inhex=all_vpds.bin
+.PP
+In Linux, binary images of some important VPD page responses (e.g. 0, 80h
+and 83h) are cached in files within the sysfs pseudo file system. Since
+VPD pages hardly ever change their contents, decoding those files will
+give the same output as probing the device with the added benefit that
+decoding those files doesn't need root permissions. The long and short
+forms are shown:
+.PP
+   sg_vpd \-\-raw \-\-inhex=/sys/class/scsi_generic/sg3/device/vpd_pg83
+.PP
+   sg_vpd \-rI /sys/class/scsi_generic/sg3/device/vpd_pg83
+.PP
+If /dev/sg3 is a disk at 2:0:0:0 , then this invocation should give more
+verbose output but essentially the same as the previous two examples.
+.PP
+   sg_vpd \-v \-r \-I /sys/class/scsi_disk/2:0:0:0/device/vpd_pg83
+.PP
+Further examples can be found on the https://sg.danny.cz/sg/sg3_utils.html
+web page.
+.SH AUTHOR
+Written by Douglas Gilbert
+.SH "REPORTING BUGS"
+Report bugs to <dgilbert at interlog dot com>.
+.SH COPYRIGHT
+Copyright \(co 2006\-2022 Douglas Gilbert
+.br
+This software is distributed under a BSD\-2\-Clause license. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+.B sg_inq(sg3_utils), sg3_utils(sg3_utils), sdparm(sdparm), hdparm(hdparm)

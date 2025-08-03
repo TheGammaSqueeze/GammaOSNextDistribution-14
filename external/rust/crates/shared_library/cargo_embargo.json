@@ -1,0 +1,13 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "package": {
+    "shared_library": {
+      "no_presubmit": true
+    }
+  },
+  "run_cargo": false,
+  "tests": true
+}

@@ -1,0 +1,17 @@
+[package]
+name = "io_uring"
+version = "0.1.1"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[dependencies]
+libc = "0.2.93"
+remain = "0.2"
+sync = { path = "../common/sync" } # provided by ebuild
+base = { path = "../base" } # provided by ebuild
+thiserror = "1"
+
+[dev-dependencies]
+tempfile = "3"
+
+

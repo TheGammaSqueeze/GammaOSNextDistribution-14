@@ -1,0 +1,38 @@
+{
+  "name": "timezone-boundary-builder",
+  "version": "1.0.0",
+  "description": "Scripts to create a timezone shapefile from multiple sources",
+  "main": "index.js",
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "test": "standard && node lint-json.js"
+  },
+  "keywords": [
+    "timezone",
+    "shapefile"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evansiroky/timezone-boundary-builder.git"
+  },
+  "author": "Evan Siroky",
+  "license": "MIT",
+  "dependencies": {
+    "@mapbox/geojson-area": "^0.2.2",
+    "@mapbox/geojsonhint": "^3.0.0",
+    "@turf/bbox": "^6.0.1",
+    "@turf/helpers": "^6.1.4",
+    "async": "^3.2.0",
+    "follow-redirects": "^1.13.0",
+    "jsts": "^2.5.1",
+    "query-overpass": "^1.5.5",
+    "rimraf": "^3.0.2",
+    "shpjs": "^3.6.0",
+    "yargs": "^16.1.0"
+  },
+  "devDependencies": {
+    "standard": "^14.3.4"
+  }
+}

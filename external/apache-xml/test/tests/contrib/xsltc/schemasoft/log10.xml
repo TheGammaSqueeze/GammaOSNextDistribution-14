@@ -1,0 +1,44 @@
+
+<bugTotals>
+
+	<byState>
+		<open>
+			<total date="may 1" value="3"/>
+			<total date="may 2" value="13"/>
+			<total date="may 3" value="12"/>
+			<total date="may 4" value="22"/>
+			<total date="may 5" value="5"/>
+			<total date="may 6" value="8"/>
+			<total date="may 7" value="2"/>
+			<total date="may 8" value="4"/>
+			<total date="may 9" value="1"/>
+		</open>
+
+		<testing>
+			<total date="may 1" value="0"/>
+			<total date="may 2" value="3"/>
+			<total date="may 3" value="10"/>
+			<total date="may 4" value="2"/>
+			<total date="may 5" value="15"/>
+			<total date="may 6" value="4"/>
+			<total date="may 7" value="8"/>
+			<total date="may 8" value="2"/>
+			<total date="may 9" value="0"/>
+		</testing>
+
+		<closed>
+			<total date="may 1" value="0"/>
+			<total date="may 2" value="3"/>
+			<total date="may 3" value="4"/>
+			<total date="may 4" value="7"/>
+			<total date="may 5" value="15"/>
+			<total date="may 6" value="22"/>
+			<total date="may 7" value="22"/>
+			<total date="may 8" value="24"/>
+			<total date="may 9" value="28"/>
+		</closed>
+
+	</byState>
+
+</bugTotals>
+

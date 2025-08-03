@@ -1,0 +1,29 @@
+// Copyright 2019 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: [
+        "external_v4l2_codec2_license",
+    ],
+}
+
+android_test {
+    name: "C2E2ETest",
+    srcs: [
+        "src/**/*.java",
+    ],
+    resource_dirs: ["res"],
+    sdk_version: "26",
+    jni_libs: [
+        "libcodectest",
+    ],
+    compile_multilib: "both",
+    dist: {
+        targets: [
+            "dist_files",
+        ],
+    },
+}
+

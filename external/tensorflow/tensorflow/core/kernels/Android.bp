@@ -1,0 +1,70 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_tensorflow_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_tensorflow_license"],
+}
+
+filegroup(
+    name = "tensorflow_core_kernels_mobile_srcs",
+    srcs = [
+        "as_string_op.cc",
+        "bcast_ops.cc",
+        "concat_op.cc",
+        "concat_lib_cpu.cc",
+        "checkpoint_callback_manager.cc",
+        "constant_op.cc",
+        "example_parsing_ops.cc",
+        "function_ops.cc",
+        "fill_functor.cc",
+        "initializable_lookup_table.cc",
+        "inplace_ops.cc",
+        "lookup_util.cc",
+        "no_op.cc",
+        "pooling_ops_common.cc",
+        "relu_op.cc",
+        "save_restore_v2_ops.cc",
+        "save_restore_tensor.cc",
+        "save_op.cc",
+        "shape_ops.cc",
+        "split_op.cc",
+        "split_lib_cpu.cc",
+        "strided_slice_op.cc",
+        "strided_slice_op_inst_0.cc",
+        "strided_slice_op_inst_1.cc",
+        "strided_slice_op_inst_2.cc",
+        "strided_slice_op_inst_3.cc",
+        "strided_slice_op_inst_4.cc",
+        "strided_slice_op_inst_5.cc",
+        "strided_slice_op_inst_6.cc",
+        "strided_slice_op_inst_7.cc",
+        "strided_slice_op_inst_8.cc",
+        "string_to_hash_bucket_fast_op.cc",
+        "tensor_to_hash_bucket_op.cc",
+        "data/take_dataset_op.cc",
+        "data/map_dataset_op.cc",
+        "data/reduce_dataset_op.cc",
+        "data/iterator_ops.cc",
+        "data/prefetch_dataset_op.cc",
+        "data/prefetch_autotuner.cc",
+        "data/optional_ops.cc",
+        "data/optional_ops_util.cc",
+        "data/batch_dataset_op.cc",
+    ],
+)

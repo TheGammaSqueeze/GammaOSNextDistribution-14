@@ -1,0 +1,4 @@
+dEQP-GLES3.functional.shaders.metamorphic.bubblesort_flag.variant_1
+dEQP-GLES3.functional.shaders.metamorphic.bubblesort_flag.variant_2
+dEQP-GLES3.functional.shaders.metamorphic.synthetic.variant_1
+dEQP-GLES3.functional.shaders.metamorphic.synthetic.variant_3

@@ -1,0 +1,19 @@
+licenses(["notice"])
+
+package_group(
+    name = "internal_pkg",
+    packages = [
+        "//apps/...",
+        "//cc/...",
+        "//examples/...",
+        "//go/...",
+        "//java/...",
+        "//javascript/...",
+        "//objc/...",
+        "//proto/...",
+        "//python/...",
+        "//tools/...",
+    ],
+)
+
+package(default_visibility = ["//tools/build_defs:internal_pkg"])

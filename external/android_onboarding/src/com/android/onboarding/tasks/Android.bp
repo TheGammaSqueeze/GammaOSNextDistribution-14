@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.tasks",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "*.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "androidx.activity_activity-ktx",
+        "error_prone_annotations",
+        "kotlinx_coroutines",
+        "kotlinx_coroutines_guava",
+    ],
+}

@@ -1,0 +1,13 @@
+name: "notosansmedefaidrin"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Medefaidrin is an unmodulated (“sans serif”) design fortexts in the African Medefaidrin (Oberi Okaime) script. It hasmultiple weights and 97 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansmedefaidrin"
+  }
+  version: "1.001"
+  license_type: NOTICE
+  last_upgrade_date { year: 2020 month: 11 day: 7 }
+}

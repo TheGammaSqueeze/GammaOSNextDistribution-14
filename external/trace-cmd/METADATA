@@ -1,0 +1,13 @@
+name: "trace-cmd"
+description:
+    "trace-cmd is a front-end to the ftrace Linux kernel tracer."
+
+third_party {
+  url {
+    type: GIT
+    value: "https://git.kernel.org/pub/scm/utils/trace-cmd/trace-cmd.git"
+  }
+  version: "trace-cmd-v3.0.2"
+  last_upgrade_date { year: 2022 month: 5 day: 02 }
+  license_type: RESTRICTED
+}

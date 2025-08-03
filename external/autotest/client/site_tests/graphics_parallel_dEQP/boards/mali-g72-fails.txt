@@ -1,0 +1,7 @@
+dEQP-VK.api.device_init.create_device_unsupported_features,Fail
+dEQP-VK.api.version_check.version,Fail
+dEQP-VK.draw.renderpass.multiple_interpolation.separate.with_sample_decoration.4_samples,Fail
+dEQP-VK.info.instance_extensions,Fail
+dEQP-VK.pipeline.multisample_shader_builtin.write_sample_mask.1_samples,Fail
+dEQP-VK.transform_feedback.fuzz.2_level_struct_array.instance_array_vertex,Fail
+dEQP-VK.transform_feedback.fuzz.random_vertex.all_instance_array.76,Fail

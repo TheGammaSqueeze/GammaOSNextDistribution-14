@@ -1,0 +1,95 @@
+diff --git a/src/asn1.rs b/src/asn1.rs
+index b02f9ac..939a173 100644
+--- a/src/asn1.rs
++++ b/src/asn1.rs
+@@ -651,7 +651,7 @@ impl fmt::Debug for Asn1ObjectRef {
+ }
+ 
+ cfg_if! {
+-    if #[cfg(any(ossl110, libressl273))] {
++    if #[cfg(any(ossl110, libressl273, boringssl))] {
+         use ffi::ASN1_STRING_get0_data;
+     } else {
+         #[allow(bad_style)]
+diff --git a/src/dsa.rs b/src/dsa.rs
+index 5f59ba8..0aceeb5 100644
+--- a/src/dsa.rs
++++ b/src/dsa.rs
+@@ -7,6 +7,7 @@
+ 
+ use cfg_if::cfg_if;
+ use foreign_types::{ForeignType, ForeignTypeRef};
++#[cfg(not(boringssl))]
+ use libc::c_int;
+ use std::fmt;
+ use std::mem;
+@@ -283,7 +284,7 @@ impl<T> fmt::Debug for Dsa<T> {
+ }
+ 
+ cfg_if! {
+-    if #[cfg(any(ossl110, libressl273))] {
++    if #[cfg(any(ossl110, libressl273, boringssl))] {
+         use ffi::{DSA_get0_key, DSA_get0_pqg, DSA_set0_key, DSA_set0_pqg};
+     } else {
+         #[allow(bad_style)]
+@@ -462,7 +463,7 @@ impl DsaSigRef {
+ }
+ 
+ cfg_if! {
+-    if #[cfg(any(ossl110, libressl273))] {
++    if #[cfg(any(ossl110, libressl273, boringssl))] {
+         use ffi::{DSA_SIG_set0, DSA_SIG_get0};
+     } else {
+         #[allow(bad_style)]
+diff --git a/src/ecdsa.rs b/src/ecdsa.rs
+index 0a960e7..f3b27b3 100644
+--- a/src/ecdsa.rs
++++ b/src/ecdsa.rs
+@@ -110,7 +110,7 @@ impl EcdsaSigRef {
+ }
+ 
+ cfg_if! {
+-    if #[cfg(any(ossl110, libressl273))] {
++    if #[cfg(any(ossl110, libressl273, boringssl))] {
+         use ffi::{ECDSA_SIG_set0, ECDSA_SIG_get0};
+     } else {
+         #[allow(bad_style)]
+diff --git a/src/hash.rs b/src/hash.rs
+index 8e27505..7f6fa89 100644
+--- a/src/hash.rs
++++ b/src/hash.rs
+@@ -43,7 +43,7 @@ use crate::nid::Nid;
+ use crate::{cvt, cvt_p};
+ 
+ cfg_if! {
+-    if #[cfg(ossl110)] {
++    if #[cfg(any(ossl110, boringssl))] {
+         use ffi::{EVP_MD_CTX_free, EVP_MD_CTX_new};
+     } else {
+         use ffi::{EVP_MD_CTX_create as EVP_MD_CTX_new, EVP_MD_CTX_destroy as EVP_MD_CTX_free};
+diff --git a/src/md_ctx.rs b/src/md_ctx.rs
+index c4d3f06..156f3c2 100644
+--- a/src/md_ctx.rs
++++ b/src/md_ctx.rs
+@@ -93,7 +93,7 @@ use std::convert::TryFrom;
+ use std::ptr;
+ 
+ cfg_if! {
+-    if #[cfg(ossl110)] {
++    if #[cfg(any(ossl110, boringssl))] {
+         use ffi::{EVP_MD_CTX_free, EVP_MD_CTX_new};
+     } else {
+         use ffi::{EVP_MD_CTX_create as EVP_MD_CTX_new, EVP_MD_CTX_destroy as EVP_MD_CTX_free};
+diff --git a/src/rsa.rs b/src/rsa.rs
+index 68cf64b..f155b12 100644
+--- a/src/rsa.rs
++++ b/src/rsa.rs
+@@ -581,7 +581,7 @@ impl<T> fmt::Debug for Rsa<T> {
+ }
+ 
+ cfg_if! {
+-    if #[cfg(any(ossl110, libressl273))] {
++    if #[cfg(any(ossl110, libressl273, boringssl))] {
+         use ffi::{
+             RSA_get0_key, RSA_get0_factors, RSA_get0_crt_params, RSA_set0_key, RSA_set0_factors,
+             RSA_set0_crt_params,

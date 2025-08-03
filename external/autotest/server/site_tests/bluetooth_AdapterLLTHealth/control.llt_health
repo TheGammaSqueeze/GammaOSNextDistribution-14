@@ -1,0 +1,37 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterLLTHealth.llt_health'
+PURPOSE = ('Batch of Bluetooth LE LLT health tests')
+CRITERIA = 'Pass all health test'
+ATTRIBUTES = ''
+TIME = 'MEDIUM'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:3'
+PY_VERSION = 3
+
+DOC = """
+    A Batch of Bluetooth LE health tests. This test is written as a batch
+    of tests in order to reduce test time, since auto-test ramp up time is
+    costy. The batch is using BluetoothAdapterQuickTests wrapper methods to
+    start and end a test and a batch of tests.
+
+    This class can be called to run the entire test batch or to run a
+    specific test only - todo http://b/132199238 [autotest BT quick health]
+    add support for running a single test in quick test
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterLLTHealth', host=host,
+                  num_iterations=1, args_dict=args_dict)
+
+parallel_simple(run, machines)

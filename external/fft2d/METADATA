@@ -1,0 +1,26 @@
+# *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+#     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+#     DEPENDING ON IT IN YOUR PROJECT. ***
+name: "FFT"
+description:
+  "This directory contains the third-party one- and two-dimensional "
+  "fast Fourier transform and related sinusoidal transform code "
+  "written by Takuya Ooura."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "http://www.kurims.kyoto-u.ac.jp/~ooura/fft.html"
+  }
+  url {
+    type: ARCHIVE
+    value: "http://www.kurims.kyoto-u.ac.jp/~ooura/fft2d.tgz"
+  }
+  version: "2006/12/28"
+  last_upgrade_date { year: 2021 month: 2 day: 8 }
+
+  license_note: "explicitly approved by opensource-licensing@ on Feb. 12 2021.\n"
+    "Copyright(C) 1997,2001 Takuya OOURA (email: ooura@kurims.kyoto-u.ac.jp).\n"
+    "You may use, copy, modify this code for any purpose and without fee. You may distribute this ORIGINAL package."
+  license_type: BY_EXCEPTION_ONLY
+}

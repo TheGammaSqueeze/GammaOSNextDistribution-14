@@ -1,0 +1,23 @@
+type 'Scope::UnnamedClass' = 'struct { struct Scope::<unnamed struct>::Nested nested; }' changed
+  resolved type 'struct { struct Scope::<unnamed struct>::Nested nested; }' changed
+    byte size changed from 4 to 8
+
+type 'Scope::UnnamedStruct' = 'struct { struct Scope::<unnamed struct>::Nested nested; }' changed
+  resolved type 'struct { struct Scope::<unnamed struct>::Nested nested; }' changed
+    byte size changed from 4 to 8
+
+type 'Scope::UnnamedUnion' = 'union { struct Scope::<unnamed union>::Nested nested; }' changed
+  resolved type 'union { struct Scope::<unnamed union>::Nested nested; }' changed
+    byte size changed from 4 to 8
+
+type 'struct Scope::<unnamed struct>::Nested' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+type 'struct Scope::<unnamed union>::Nested' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+exit code 4

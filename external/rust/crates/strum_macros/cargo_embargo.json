@@ -1,0 +1,9 @@
+{
+  "package": {
+    "strum_macros": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false,
+  "tests": true
+}

@@ -1,0 +1,27 @@
+[cfi]
+# CFI blacklist for external/libhevc
+fun:ihevcd_inter_pred_ctb
+
+[integer]
+# decoder/ihevcd_bitstream.c:250: 0 - 16 cannot be represented in type 'unsigned int'
+# decoder/ihevcd_bitstream.c:251: 4294967280 + 32 cannot be represented in type 'unsigned int'
+fun:ihevcd_bits_seek
+# decoder/ihevcd_decode.c:190: 0 - 22 cannot be represented in type 'unsigned int'
+fun:ihevcd_fill_outargs
+# decoder/ihevcd_nal.c:304: 0 - 1 cannot be represented in type 'unsigned int'
+fun:ihevcd_nal_unit_header
+# fun:ihevcd_parse_coding_unit
+# decoder/ihevcd_parse_residual.c:724: 5 - 32 cannot be represented in type 'unsigned int'
+# decoder/ihevcd_parse_residual.c:886: 5 - 32 cannot be represented in type 'unsigned int'
+fun:ihevcd_parse_residual_coding
+# decoder/ihevcd_sao.c:672:36: 8 - 248 cannot be represented in type 'unsigned int'
+# decoder/ihevcd_sao.c:751:36: 8 - 248 cannot be represented in type 'unsigned int'
+# decoder/ihevcd_sao.c:3395:36: 8 - 248 cannot be represented in type 'unsigned int'
+# decoder/ihevcd_sao.c:3473:36: 8 - 248 cannot be represented in type 'unsigned int'
+fun:ihevcd_sao_shift_ctb
+# decoder/ihevcd_bitstream.c:517: 0 - 1 cannot be represented in type 'unsigned int'
+fun:ihevcd_uev
+
+# Performance related blacklists
+fun:ihevcd_deblk_ctb
+fun:ihevcd_get_mv_ctb

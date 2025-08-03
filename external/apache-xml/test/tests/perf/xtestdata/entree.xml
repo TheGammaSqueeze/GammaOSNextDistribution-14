@@ -1,0 +1,96 @@
+<?xml version="1.0" standalone="yes"?>
+<ingredient-list>
+  <compound-ingredient name="seasoned cooked beef sirloin tips and modified food starch product">
+    <constituent>beef sirloin</constituent>
+    <constituent>water</constituent>
+    <constituent>dextrose</constituent>
+    <constituent>modified food starch</constituent>
+    <constituent>soy protein concentrate</constituent>
+    <compound-constituent name="beef flavor">
+      <constituent>beef</constituent>
+      <compound-constituent name="soy sauce">
+        <constituent>water</constituent>
+        <constituent>wheat</constituent>
+        <constituent>soybeans</constituent>
+        <constituent>salt</constituent>
+      </compound-constituent>
+      <constituent>flavoring</constituent>
+      <constituent>beef fat</constituent>
+      <constituent>salt</constituent>
+      <constituent>beef extract</constituent>
+      <constituent>disodium phosphate</constituent>
+      <constituent>onion powder</constituent>
+      <constituent>autolyzed yeast extract</constituent>
+      <constituent>disodium guanylate</constituent>
+      <constituent>disodium inosinate</constituent>
+      <constituent>propylene glycol</constituent>
+    </compound-constituent>
+    <constituent>salt</constituent>
+    <constituent>potassium chloride</constituent>
+    <constituent>potassium phosphates</constituent>
+    <constituent>caramel color</constituent>
+    <constituent>spice extractives</constituent>
+  </compound-ingredient>
+  <ingredient>water</ingredient>
+  <ingredient>rice</ingredient>
+  <compound-ingredient name="tomatoes in juice">
+    <contains reason="preservative">calcium chloride</contains>
+    <contains reason="preservative">citric acid</contains>
+  </compound-ingredient>
+  <ingredient>tomato paste</ingredient>
+  <ingredient>corn</ingredient>
+  <ingredient>light brown sugar</ingredient>
+  <ingredient>black beans</ingredient>
+  <ingredient>red beans</ingredient>
+  <MARKER note="2% or less of each following"/>
+  <ingredient>green peppers</ingredient>
+  <ingredient>onions</ingredient>
+  <compound-ingredient name="chicken base">
+    <constituent reason="flavor">chicken flavor</constituent>
+    <constituent>salt</constituent>
+    <constituent>dried whey</constituent>
+    <constituent>chicken fat</constituent>
+    <constituent>monosodium glutamate</constituent>
+    <constituent>sugar</constituent>
+    <constituent>flavorings</constituent>
+  </compound-ingredient>
+  <ingredient>scallions</ingredient>
+  <ingredient>garlic</ingredient>
+  <ingredient>red peppers</ingredient>
+  <ingredient>sugar</ingredient>
+  <ingredient>mesquite smoke flavor</ingredient>
+  <ingredient>molasses</ingredient>
+  <ingredient>spices</ingredient>
+  <compound-ingredient name="chipotle pepper flavor">
+    <constituent>maltodextrin</constituent>
+    <constituent>water</constituent>
+    <constituent>chipotle pepper</constituent>
+    <constituent>corn oil</constituent>
+    <constituent>garlic powder</constituent>
+    <constituent>onion powder</constituent>
+    <constituent>salt</constituent>
+    <constituent>spice</constituent>
+    <constituent>herb</constituent>
+    <constituent>tomato paste</constituent>
+    <constituent>vinegar</constituent>
+    <constituent>flavoring</constituent>
+  </compound-ingredient>
+  <ingredient>caramel color</ingredient>
+  <compound-ingredient name="chili powder">
+    <constituent>chili pepper</constituent>
+    <constituent>spices</constituent>
+    <constituent>salt</constituent>
+    <constituent>garlic powder</constituent>
+    <constituent>silicon dioxide</constituent>
+    <constituent>ethoxyquin</constituent>
+  </compound-ingredient>
+  <ingredient>modified food starch</ingredient>
+  <ingredient>salt</ingredient>
+  <ingredient>cider vinegar</ingredient>
+  <ingredient>flavoring</ingredient>
+  <compound-ingredient name="carmine color">
+    <constituent>sugar</constituent>
+    <constituent>carmine</constituent>
+    <constituent>gelatin</constituent>
+  </compound-ingredient>
+</ingredient-list>

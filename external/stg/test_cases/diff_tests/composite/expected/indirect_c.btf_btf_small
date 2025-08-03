@@ -1,0 +1,7 @@
+type 'struct leaf' changed
+  byte size changed from 8 to 12
+  member changed from 'int numbers[2]' to 'int numbers[3]'
+    type changed from 'int[2]' to 'int[3]'
+      number of elements changed from 2 to 3
+
+exit code 4

@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/syn-mid
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "syn-mid"
+description: "Providing the features between \"full\" and \"derive\" of syn."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/syn-mid"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/syn-mid/syn-mid-0.6.0.crate"
+  }
+  version: "0.6.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 15
+  }
+}

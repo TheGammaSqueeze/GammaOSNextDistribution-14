@@ -1,0 +1,22 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'seewaifu'
+NAME = 'infra_DutServers'
+TIME = 'SHORT'
+TEST_CATEGORY = 'General'
+TEST_CLASS = 'stub'
+TEST_TYPE = 'server'
+PY_VERSION = 3
+DOC = """
+Verify the dut server flag (--dut_servers) reaches a test.
+The following command should pass:
+  test_that --board=<board> <dut> infra_DutServers --dut_servers=<addr>
+"""
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('infra_DutServers', host=host, dut_servers=dut_servers)
+
+parallel_simple(run, machines)

@@ -1,0 +1,208 @@
+# Copyright 2022 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load("@com_google_emboss//:build_defs.bzl", "emboss_cc_library")
+load(
+    "//pw_build:pigweed.bzl",
+    "pw_cc_test",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+cc_library(
+    name = "pw_bluetooth",
+    hdrs = [
+        "public/pw_bluetooth/address.h",
+        "public/pw_bluetooth/assigned_uuids.h",
+        "public/pw_bluetooth/constants.h",
+        "public/pw_bluetooth/controller.h",
+        "public/pw_bluetooth/gatt/client.h",
+        "public/pw_bluetooth/gatt/constants.h",
+        "public/pw_bluetooth/gatt/error.h",
+        "public/pw_bluetooth/gatt/server.h",
+        "public/pw_bluetooth/gatt/types.h",
+        "public/pw_bluetooth/host.h",
+        "public/pw_bluetooth/internal/hex.h",
+        "public/pw_bluetooth/internal/raii_ptr.h",
+        "public/pw_bluetooth/low_energy/advertising_data.h",
+        "public/pw_bluetooth/low_energy/bond_data.h",
+        "public/pw_bluetooth/low_energy/central.h",
+        "public/pw_bluetooth/low_energy/connection.h",
+        "public/pw_bluetooth/low_energy/peripheral.h",
+        "public/pw_bluetooth/low_energy/security_mode.h",
+        "public/pw_bluetooth/pairing_delegate.h",
+        "public/pw_bluetooth/peer.h",
+        "public/pw_bluetooth/result.h",
+        "public/pw_bluetooth/types.h",
+        "public/pw_bluetooth/uuid.h",
+        "public/pw_bluetooth/vendor.h",
+    ],
+    includes = ["public"],
+    deps = [
+        "//pw_chrono:system_clock",
+        "//pw_containers",
+        "//pw_function",
+        "//pw_status",
+        "//pw_string:string",
+    ],
+)
+
+pw_cc_test(
+    name = "address_test",
+    srcs = [
+        "address_test.cc",
+    ],
+    deps = [
+        ":pw_bluetooth",
+    ],
+)
+
+pw_cc_test(
+    name = "api_test",
+    srcs = [
+        "api_test.cc",
+    ],
+    deps = [
+        ":pw_bluetooth",
+    ],
+)
+
+pw_cc_test(
+    name = "result_test",
+    srcs = [
+        "result_test.cc",
+    ],
+    deps = [
+        ":pw_bluetooth",
+    ],
+)
+
+pw_cc_test(
+    name = "uuid_test",
+    srcs = [
+        "uuid_test.cc",
+    ],
+    deps = [
+        ":pw_bluetooth",
+    ],
+)
+
+emboss_cc_library(
+    name = "_emboss_hci_common",
+    srcs = ["public/pw_bluetooth/hci_common.emb"],
+    visibility = ["//visibility:private"],
+)
+
+# emboss_cc_library doesn't support includes, so we need to wrap it.
+cc_library(
+    name = "emboss_hci_common",
+    includes = ["public"],
+    deps = [":_emboss_hci_common"],
+)
+
+emboss_cc_library(
+    name = "_emboss_hci_commands",
+    srcs = ["public/pw_bluetooth/hci_commands.emb"],
+    visibility = ["//visibility:private"],
+    deps = [":_emboss_hci_common"],
+)
+
+cc_library(
+    name = "emboss_hci_commands",
+    includes = ["public"],
+    deps = [":_emboss_hci_commands"],
+)
+
+emboss_cc_library(
+    name = "_emboss_hci_events",
+    srcs = ["public/pw_bluetooth/hci_events.emb"],
+    visibility = ["//visibility:private"],
+    deps = [":_emboss_hci_common"],
+)
+
+cc_library(
+    name = "emboss_hci_events",
+    includes = ["public"],
+    deps = [":_emboss_hci_events"],
+)
+
+emboss_cc_library(
+    name = "_emboss_hci_vendor",
+    srcs = ["public/pw_bluetooth/hci_vendor.emb"],
+    visibility = ["//visibility:private"],
+    deps = [":_emboss_hci_common"],
+)
+
+cc_library(
+    name = "emboss_hci_vendor",
+    includes = ["public"],
+    deps = [":_emboss_hci_vendor"],
+)
+
+emboss_cc_library(
+    name = "_emboss_hci_test",
+    srcs = ["public/pw_bluetooth/hci_test.emb"],
+    visibility = ["//visibility:private"],
+    deps = [":_emboss_hci_common"],
+)
+
+cc_library(
+    name = "emboss_hci_test",
+    includes = ["public"],
+    deps = [":_emboss_hci_test"],
+)
+
+emboss_cc_library(
+    name = "_emboss_l2cap_frames",
+    srcs = ["public/pw_bluetooth/l2cap_frames.emb"],
+    visibility = ["//visibility:private"],
+)
+
+cc_library(
+    name = "emboss_l2cap_frames",
+    includes = ["public"],
+    deps = [":_emboss_l2cap_frames"],
+)
+
+cc_library(
+    name = "emboss_hci",
+    deps = [
+        ":emboss_hci_commands",
+        ":emboss_hci_common",
+        ":emboss_hci_events",
+        ":emboss_hci_vendor",
+    ],
+)
+
+pw_cc_test(
+    name = "emboss_test",
+    srcs = ["emboss_test.cc"],
+    deps = [
+        ":emboss_hci",
+        ":emboss_hci_test",
+        ":emboss_l2cap_frames",
+    ],
+)
+
+# Bazel support for Emboss has not been fully configured yet, but we need to
+# satisfy presubmit.
+filegroup(
+    name = "emboss_files",
+    srcs = [
+        "size_report/make_2_views_and_write.cc",
+        "size_report/make_view_and_write.cc",
+    ],
+)

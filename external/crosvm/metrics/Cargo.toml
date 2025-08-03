@@ -1,0 +1,25 @@
+[package]
+name = "metrics"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[dependencies]
+anyhow = "*"
+base = { path = "../base" }
+cfg-if = "*"
+libc = { version = "*", optional = true }
+protobuf = "3.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "*", optional = true }
+sync = { path = "../common/sync" }
+
+[target.'cfg(windows)'.dependencies]
+chrono = { version = "0.4.19" }
+winapi = { version = "*" }
+win_util = { path = "../win_util" }
+wmi = { version = "^0.9" }
+
+
+[build-dependencies]
+proto_build_tools = { path = "../proto_build_tools" }

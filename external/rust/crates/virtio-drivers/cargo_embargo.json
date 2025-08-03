@@ -1,0 +1,17 @@
+{
+  "features": [
+    "alloc"
+  ],
+  "package": {
+    "virtio-drivers": {
+      "force_rlib": true,
+      "host_supported": false,
+      "no_std": true,
+      "patch": "patches/Android.bp.patch"
+    }
+  },
+  "product_available": false,
+  "run_cargo": false,
+  "tests": true,
+  "vendor_available": false
+}

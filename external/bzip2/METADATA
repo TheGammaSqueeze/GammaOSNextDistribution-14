@@ -1,0 +1,11 @@
+name: "bzip2"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://sourceware.org/git/bzip2.git"
+  }
+  version: "bzip2-1.0.8"
+  license_type: NOTICE
+  last_upgrade_date { year: 2021 month: 12 day: 8 }
+}

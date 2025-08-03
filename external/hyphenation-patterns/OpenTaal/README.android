@@ -1,0 +1,9 @@
+URL: https://github.com/OpenTaal/opentaal-hunspell
+Version: ad0351b7c1a862f05d88131046a054f1cc84944a
+License: various
+License File: LICENSE
+
+The package contains hyphenation patterns under BSD licenses.
+
+Description:
+Dutch hyphenation patterns

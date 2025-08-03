@@ -1,0 +1,13 @@
+import org.robolectric.gradle.RoboJavaModulePlugin
+
+apply plugin: RoboJavaModulePlugin
+
+dependencies {
+    api project(":robolectric")
+    api libs.junit4
+    compileOnly AndroidSdk.MAX_SDK.coordinates
+
+    testRuntimeOnly AndroidSdk.MAX_SDK.coordinates
+    testImplementation libs.truth
+    testImplementation libs.libphonenumber
+}

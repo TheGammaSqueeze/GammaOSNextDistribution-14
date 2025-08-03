@@ -1,0 +1,359 @@
+mtools (4.0.37) stable; urgency=low
+
+  * Removed mclasserase commands, which doesn't fit the coding
+    structure of the rest of mtools
+  * Add support to -i option to mcd
+  * Document -i in mtools.1
+  * Fix a missing commad error in floppyd_io.c
+
+ -- Alain Knaff <alain@knaff.lu>  Sun, 26 Dec 2021 18:57:02 +0100
+mtools (4.0.36) stable; urgency=low
+
+  * Fix error status of recursive listing of empty root directory
+  * If recursive listing, also show matched files at level one
+  * Use "seekless" reads & write internally, where possible
+  * Text mode conversion refactoring
+  * Misc refactoring
+
+ -- Alain Knaff <alain@knaff.lu>  Sun, 21 Nov 2021 16:41:10 +0100
+mtools (4.0.35) stable; urgency=low
+
+  * Fix cluster padding at end of file in batch mode, and add comments
+    about what happens here
+
+ -- Alain Knaff <alain@knaff.lu>  Fri,  6 Aug 2021 20:13:59 +0200
+mtools (4.0.34) stable; urgency=low
+
+  *  Fix mcopy -s issue
+
+  -- Alain Knaff <alain@knaff.lu>  Fri, 23 Jul 2021 12:41:11 +0200
+mtools (4.0.33) stable; urgency=low
+
+  * Fix support for partitions (broken in 4.0.30)
+  * Portability fixes for Solaris 10 and 11
+  * General simplification of configure script, and largefile handling
+  * Tested and fixed for platforms *without* largefile support
+  * In cases where lseek works with 32-bit offsets, prefer lseek64 over llseek
+  * Fixed floppy sector size handling on platforms that are not Linux
+  * Added support for image files on command line to mcat
+
+ -- Alain Knaff <alain@knaff.lu>  Sat, 17 Jul 2021 18:31:38 +0200
+mtools (4.0.32) stable; urgency=low
+
+  * Simplify algorithm that choses filesystem parameters for format, and align
+    it more closely with what Win7 does
+
+  * Fix mformatting XDF when XDF not explicitly specified on mformat command
+    line
+
+  * easier way to enter sizes on mformat command line (mformat -C -T 1440K)
+
+  * For small sizes, mformat assumes floppy geometries (heads 1 or 2,
+    tracks 40 or 80)
+
+  * Handle attempts to mformat too small filesystems more gracefully
+
+  * Enable minfo to print out additional mformat command line parameters, if
+    the present filesystem uses non-default values for these
+
+  * minfo no longer prints bigsect if smallsect is set
+
+  * for remap filter, error when trying to write non-zero data to unmapped
+    sectors
+
+  * Fix misc compilation warnings occuring when disabling certain features
+    (largefiles, raw-term)
+
+ -- Alain Knaff <alain@knaff.lu>  Sat, 10 Jul 2021 14:31:23 +0200
+mtools (4.0.31) stable; urgency=low
+
+  * Move Linux-specific block device sizing code into
+    linux-specific section of devices.c
+  * Error messages for all failure cases on fs_init failure
+  * Fix compilation without XDF support (OpenImage signature)
+  * Fix polarity of format_xdf command-line parameter of mformat
+  * In XDF_IO retry enough times to actually succeed, even if
+    FDC was in a bad state before
+  * Remove useless buffer flushing triggered when giving up a
+    reference to a stream node that is still referenced
+    elsewhere.
+  * Clearer error message if neither size nor geometry of drive
+    to be mformatted is known
+  * In mformat, make Fs dynamically allocated rather than
+    on-stack, so as to be able to use utilities supplied by
+    stream.c
+  * Remove duplicate writing of backup boot sector
+  * Allow to infer geometry if only size is specified
+  * Protect against attempt to create zero-sized buffer
+  * Code simplification in mattrib
+  * Remove dead code in mpartition
+
+ -- Alain Knaff <alain@knaff.lu>  Sat, 19 Jun 2021 17:22:27 +0200
+mtools (4.0.30) stable; urgency=low
+
+  * Fixed XDF floppy disk access
+  * Fixed faulty behavior at end of image in mcat
+  * Device/Image size handling refactoring
+  * allow remap to write to zero-backed sectors (may happen if
+    buffer is flushed, and is not an error in that case)
+  * Raise an error when trying to mcopy multiple source files
+    over a single destination file (rather than directory)
+  * fix handling of "hidden" sectors (is a 2 byte quantity on
+    small disks, not 4 byte as previously assumed)
+  * Modernize partition support. Tuned consistency check to
+    actually check about important issues (such as overlapping
+    partitions) rather than stuff nobody else cares about
+    (alignment on entire cylinder boundaries)
+  * Move various "filter" options (partition, offset, swap,
+    scsi) into separate classes, rather than leaving almost
+    everything in plain_io
+  * Simplify and centralize geometry handling and LBA code
+  * Fix some more more compiler warnings
+
+ -- Alain Knaff <alain@knaff.lu>  Thu, 17 Jun 2021 22:23:39 +0200
+mtools (4.0.29) stable; urgency=low
+
+  * -Fix bug in cluster preallocation, which was accidentally introduced by compiler warning "fixes" from v4_0_28
+
+ -- Alain Knaff <alain@knaff.lu>  Mon, 31 May 2021 19:07:43 +0200
+mtools (4.0.28) stable; urgency=low
+
+  * Support remapping of data (for not-quite linear floppy image files)
+  * Re-open floppy devices read-write if geometry parameters need to be changed
+  * relax consistency checks in mpartition (partitions created by current fdisk would almost never pass these checks)
+  * Fix some compiler warnings
+
+ -- Alain Knaff <alain@knaff.lu>  Sun, 30 May 2021 18:33:09 +0200
+mtools (4.0.27) stable; urgency=low
+  * Fix type error in calls to iconv functions
+
+ -- Alain Knaff <alain@knaff.lu>  Fri, 16 Apr 2021 20:54:49 +0200
+mtools (4.0.26) stable; urgency=low
+  * Fix compilation on Macintosh
+  * Ignore image file locking errors if we are performing a read-only access anyways
+  * Minor man-page fixes
+ -- Alain Knaff <alain@knaff.lu>  Sat, 28 Nov 2020 12:46:04 +0100
+mtools (4.0.25) stable; urgency=low
+  * Preserve non-updated contents of info sector, just in case it contains program code
+  * When parsing config file, always use "C" locale for case-insensitive comparisons
+ -- Alain Knaff <alain@knaff.lu>  Sat, 24 Oct 2020 16:53:52 +0200
+mtools (4.0.24) stable; urgency=low
+  * Spelling fixes in documentation
+  * Permit calling "make install" with >= -j2
+  * Added AC_SYS_LARGEFILE, needed for compiling on certain ARM procs
+
+ -- Alain Knaff <alain@knaff.lu>  Sun, 22 Mar 2020 07:45:19 +0100
+mtools (4.0.23) stable; urgency=low
+  * Address lots of compiler warnings (assignments between different types)
+  * Network speedup fixes for floppyd (TCP_CORK)
+  * Typo fixes
+  * Explicitly pass available target buffer size for character set conversions
+
+ -- Alain Knaff <alain@knaff.lu>  Sun,  9 Dec 2018 23:26:50 +0100
+mtools (4.0.22) stable; urgency=low
+  * Fixed -f flag for mformat (size is KBytes, rather than sectors)
+  * Fixed toupper/tolower usage (unsigned char rather than plain signed)
+ -- Alain Knaff <alain@knaff.lu>  Sun,  2 Dec 2018 18:29:59 +0100
+
+mtools (4.0.21) stable; urgency=low
+  * Fixed compilation for MingW
+  * After MingW compilation, make sure executable has .exe extension
+  * Addressed compiler warnings
+  * Fixed length handling in character set conversion (Unicode file names)
+  * Fixed matching of character range, when containing Unicode characters (mdir "c:test[α-ω].exe")
+  * Fixed initialization of my_scsi_cmd constructor
+ -- Alain Knaff <alain@knaff.lu>  Sat, 24 Nov 2018 09:50:03 +0100
+
+mtools (4.0.20) stable; urgency=low
+  * initialize directory entries to 0
+  * bad message "Too few sectors" replaced with "Too many sectors"
+  * apostrophe in mlabel no longer causes generation of long entry
+  * option to fake system date for file creation using the SOURCE_DATE_EPOCH environment variables
+  * can now be compiled with "clang" compiler
+  * fallback function for strndup, for those platforms that don't have it
+  * fixed a number of -Wextra warnings
+  * new compressed archive formats for uz/lz
+  * allow to specify number of reserved sectors for FAT32.
+  * file/device locking with timeout (rather than immediate failure)
+  * fixed support for BPB-less legacy formats.
+  * removed check that disk must be an integer number of tracks.
+  * removed .eh/.oh macros from manual pages
+ -- Alain Knaff <alain@knaff.lu>  Sun, 11 Nov 2018 14:56:06 +0100
+
+mtools (4.0.19) stable; urgency=low
+  * Fix for short file names starting with character 0xE5
+  (by remapping it to 0x5)
+  * mpartition: Partition types closer to what Microsoft uses
+  * mformat: figure out LBA geometry as last resort if geometry
+  * is neither specified in config and/or commandline, nor can be
+  * queried from the device
+  * mformat: use same default cluster size by size as Microsoft
+  for FAT32
+  * additional sanity checks
+  * document how cluster size is picked in mformat.c man page
+  * document how partition types are picked in mpartition.c man page
+ -- Alain Knaff <alain@knaff.lu>  Thu, 29 Sep 2018 12:00:00 +0200
+mtools (4.0.18) stable; urgency=low
+  * Fix for names of iconv encodings on AIX
+  * Fix mt_size_t on NetBSD
+  * Fixed compilation on Mingw
+  * Fixed doc (especially mformat)
+  * Fix mformat'ing of FAT12 filesystems with huge cluster sizes
+  * Minfo prints image file name in mformat command line if an image
+  * file name was given
+  * Always generate gzip-compressed RPMs, in order to remain
+  * compatible with older distributions
+  * Fixed buffer overflow with drive letter in mclasserase
+ -- Alain Knaff <alain@knaff.lu>  Wed,  9 Jan 2013 00:21:20 +0200
+mtools (4.0.17) stable; urgency=low
+
+  * mbadblocks now takes a list of bad blocks (either as sectors
+    or as clusters)
+  * mbadblocks now is able to do write scanning for bad blocks
+  * mshowfat can show cluster of specific offset
+  * Enable mtools to deal with very small sector sizes...
+  * Fixed encoding of all-lowercase names (no need to mangle
+    these)
+  * Consider every directory entry after an ENDMARK (0x00) to be deleted
+  * After writing a new entry at end of a directory, be sure to also add
+    an ENDMARK (0x00)
+  * Deal with possibility of a NULL pointer being returned by
+    localtime during timestamp conversion
+ -- Alain Knaff <alain@knaff.lu>  Wed, 29 Jun 2011 00:21:20 +0200
+mtools (4.0.16) stable; urgency=low
+
+  * configure.in fixes
+  * fixed formatting of fat_size_calculation.tex document
+  * compatibility with current autoconfig versions
+  * Make it clear that label is limited to 11 characters
+  * Fixed typo in initialization of FAT32 info sector
+
+ -- Alain Knaff <alain@knaff.lu>  Sat, 16 Apr 2011 18:00:30 +0200
+mtools (4.0.15) stable; urgency=low
+
+  * Added missing -i option to mshortname
+  * Split .deb package into mtools and floppyd in order to
+    match Ubuntu
+
+ -- Alain Knaff <alain@knaff.lu>  Sun, 17 Oct 2010 19:42:46 +0200
+mtools (4.0.14) stable; urgency=low
+
+  * New mshortname command
+  * Fix floppyd for disks bigger than 2 Gig
+  * Remove obsolete -z flag
+  * Remove now unsupported AC_USE_SYSTEM_EXTENSIONS
+  * Fixed output formatting of mdir if MTOOLS_DOTTED_DIR is set
+  * Mformat now correctly writes backup boot sector
+  * Fixed signedness of serial number in mlabel
+  * Fixed buffer size problem in mlabel
+  * Make mlabel write backup boot sector if FAT32
+  * Catch situation where both clear and new label are given to mlabel
+  * Quote filename parameters to scripts
+  * Mformat: Close file descriptor for boot sector
+  * Added lzip support to scripts/uz
+  * Added Tot_sectors option to mformat
+  * Fixed hidden sector handling in mformat
+  * Minfo generates mformat command lines containing new -T option
+  * Mlabel prints error if label too long
+
+ -- Alain Knaff <alain@knaff.lu>  Tue, 12 Oct 2010 00:19:48 +0200
+mtools (4.0.13) stable; urgency=low
+
+  * Merged Debian patches
+
+ -- Alain Knaff <alain@knaff.lu>  Sun, 28 Feb 2010 15:33:45 +0100
+mtools (4.0.12) stable; urgency=low
+
+  * Mingw compatibility fixes
+
+ -- Alain Knaff <alain@knaff.lu>  Tue,  3 Nov 2009 21:26:58 +0100
+mtools (4.0.11) stable; urgency=low
+
+  * Fixed compiler in mlabel.c and elsewhere
+  * Fixed h flag in mattrib.c
+  * Added missing error checking in floppyd and elsewhere
+
+ -- Alain Knaff <alain@knaff.lu>  Sat, 29 Aug 2009 14:38:19 +0200
+mtools (4.0.10) stable; urgency=low
+
+  * More copyright stuff
+  * Fixed issues with max filesize (was 2GB instead of 4GB, and
+    warned only after copying the beginning)
+
+ -- Alain Knaff <alain@knaff.lu>  Tue,  3 Mar 2009 22:14:04 +0100
+mtools (4.0.9) stable; urgency=low
+
+  * More copyright stuff
+
+ -- Alain Knaff <alain@knaff.lu>  Mon,  2 Mar 2009 22:15:54 +0100
+mtools (4.0.8) stable; urgency=low
+
+  * Copyright notices
+
+ -- Alain Knaff <alain@knaff.lu>  Sun,  1 Mar 2009 00:36:22 +0100
+mtools (4.0.7) stable; urgency=low
+
+  * Fixed conversion to native on OS/2
+  * Fix parsing of --help flag
+
+ -- Alain Knaff <alain@knaff.lu>  Tue, 24 Feb 2009 19:55:46 +0100
+mtools (4.0.6) stable; urgency=low
+
+  * Fallback for missing wchar_t iconv codepage on OS/2
+  * Fixes for LSEEK64 support
+  * Support for --help that returns a 0 exit status
+
+ -- Alain Knaff <alain@knaff.lu>  Sun, 22 Feb 2009 02:04:32 +0100
+mtools (4.0.5) stable; urgency=low
+
+  * Make setpgrp() usage in floppyd conditional
+  * Re-instate PACKED around structure (ARM)
+  * LSEEK64
+
+ -- Alain Knaff <alain@knaff.lu>  Thu, 19 Feb 2009 23:55:04 +0100
+mtools (4.0.4) stable; urgency=low
+
+  * BSD support: SCSI, use getuserid/getgroupid in floppyd
+  * Another attempt at putwc fix for OS/2
+  * Further GNU fixes
+  * Fallback for putwc if there is wchar (OS/2)
+
+ -- Alain Knaff <alain@knaff.lu>  Sun, 15 Feb 2009 16:18:32 +0100
+mtools (4.0.3) stable; urgency=low
+
+  * Fix multipart pathname parsing bug in vfat.c (forgot limited length)
+  * Supplied fallback define for putwc
+  * Copyright notices in all sources
+
+ -- Alain Knaff <alain@knaff.lu>  Mon,  9 Feb 2009 21:46:01 +0100
+mtools (4.0.2) stable; urgency=low
+
+  * Fixed off-by-2 error in unix_name in file_name.c
+
+ -- Alain Knaff <alain@knaff.lu>  Mon, 26 Jan 2009 22:58:06 +0100
+mtools (4.0.1) stable; urgency=low
+
+  * Missing functions on Solaris
+
+ -- Alain Knaff <alain@knaff.lu>  Sun,  7 Dec 2008 21:38:55 +0100
+mtools (4.0.0) stable; urgency=low
+
+  * Offset for -i-specified image files
+
+ -- Alain Knaff <alain@knaff.lu>  Sat, 29 Nov 2008 09:20:30 +0100
+mtools (4.0.0-pre2) stable; urgency=low
+
+  * Use transliteration to represent characters which don't exist in
+  target set
+
+ -- Alain Knaff <alain@knaff.lu>  Tue, 18 Nov 2008 22:42:23 +0100
+mtools (4.0.0-pre1) stable; urgency=low
+
+  * Unicode support
+
+ -- Alain Knaff <alain@knaff.lu>  Sat,  1 Nov 2008 20:52:58 +0100
+mtools (3.9.11-20071226) stable; urgency=low
+
+  * first release of debian package
+
+ -- Alain Knaff <alain@knaff.lu>  Tue, 28 Aug 2007 23:23:37 +0100

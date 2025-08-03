@@ -1,0 +1,8 @@
+-keepclasseswithmembers class com.google.android.enterprise.connectedapps.internal.BundleCallReceiver {
+  android.os.Bundle getPreparedCall(long, int, byte[]);
+  byte[] prepareResponse(long, android.os.Bundle);
+}
+
+-keepclasseswithmembers class com.google.android.enterprise.connectedapps.internal.CrossProfileBundleCallSender {
+  android.os.Bundle makeBundleCall(android.os.Bundle);
+}

@@ -1,0 +1,29 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "cellular_SuspendResume.amarisoft"
+PURPOSE = "Test cellular modem state after suspend/resume"
+CRITERIA = """
+    Check the cellular modem state of the device after suspend and resume.
+    Verify that cellular_modem can be enabled under all situations after resuming of device from suspend state.
+    Verify if modem autoconnects after resuming when autoconnect is turned ON.
+"""
+ATTRIBUTES = "suite:cellular_ota_flaky"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "network"
+TEST_TYPE = "client"
+DEPENDENCIES = "carrier:amarisoft"
+PY_VERSION = 3
+
+DOC = """
+    Verify that cellular_modem can be enabled under all suspend/resume scenarios.
+"""
+
+# Run all scenarios twice, first with autoconnect off, then with it on
+job.run_test('cellular_SuspendResume',
+             autoconnect=False, tag='autoconnect_off')
+job.run_test('cellular_SuspendResume',
+             autoconnect=True, tag='autoconnect_on')

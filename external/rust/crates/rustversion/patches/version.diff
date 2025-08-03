@@ -1,0 +1,53 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 2e8f1b9..e826b25 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -182,7 +182,16 @@ use crate::error::Error;
+ use crate::version::Version;
+ use proc_macro::TokenStream;
+ 
+-const RUSTVERSION: Version = include!(concat!(env!("OUT_DIR"), "/version.expr"));
++// ANDROID: Soong is providing the version of rustc via an env variable.
++const ANDROID_RUSTVERSION: Option<&str> = option_env!("ANDROID_RUST_VERSION");
++fn rust_version() -> Version {
++    let v: Vec<&str> = ANDROID_RUSTVERSION.unwrap().split('.').collect();
++    Version {
++        minor: v[1].parse().unwrap(),
++        patch: v[2].parse().unwrap(),
++        channel: version::Channel::Stable,
++    }
++}
+ 
+ #[proc_macro_attribute]
+ pub fn stable(args: TokenStream, input: TokenStream) -> TokenStream {
+@@ -239,7 +248,7 @@ pub fn cfg(input: TokenStream) -> TokenStream {
+         let ref mut args = iter::new(input);
+         let expr = expr::parse(args)?;
+         token::parse_end(args)?;
+-        let boolean = expr.eval(RUSTVERSION);
++        let boolean = expr.eval(rust_version());
+         let ident = Ident::new(&boolean.to_string(), Span::call_site());
+         Ok(TokenStream::from(TokenTree::Ident(ident)))
+     })()
+diff --git a/src/expand.rs b/src/expand.rs
+index 813ba85..3d4e314 100644
+--- a/src/expand.rs
++++ b/src/expand.rs
+@@ -23,7 +23,7 @@ fn try_cfg(introducer: &str, args: TokenStream, input: TokenStream) -> Result<To
+     let expr = expr::parse(full_args)?;
+     token::parse_end(full_args)?;
+ 
+-    if expr.eval(crate::RUSTVERSION) {
++    if expr.eval(crate::rust_version()) {
+         Ok(input)
+     } else {
+         Ok(TokenStream::new())
+@@ -31,7 +31,7 @@ fn try_cfg(introducer: &str, args: TokenStream, input: TokenStream) -> Result<To
+ }
+ 
+ pub fn try_attr(args: attr::Args, input: TokenStream) -> Result<TokenStream> {
+-    if !args.condition.eval(crate::RUSTVERSION) {
++    if !args.condition.eval(crate::rust_version()) {
+         return Ok(input);
+     }
+ 

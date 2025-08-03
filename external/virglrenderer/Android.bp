@@ -1,0 +1,178 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["external_virglrenderer_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_virglrenderer_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-BSL-1.0",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "COPYING",
+        "LICENSE",
+        "NOTICE",
+    ],
+}
+
+cc_library_headers {
+  name: "virgl_headers",
+  host_supported: true,
+  export_include_dirs: ["src"],
+}
+
+cc_library {
+    name: "libvirglrenderer",
+    host_supported: true,
+    cflags: [
+        "-DHAVE_CONFIG_H",
+        "-include prebuilt-intermediates/config.h",
+        "-Wno-unused-parameter",
+    ],
+    local_include_dirs: [
+        "prebuilt-intermediates",
+        "src",
+        "src/drm",
+        "src/gallium/auxiliary",
+        "src/gallium/auxiliary/util",
+        "src/gallium/include",
+        "src/mesa",
+        "src/mesa/compat",
+        "src/mesa/pipe",
+        "src/mesa/util",
+        "src/venus",
+    ],
+    srcs: [
+        "prebuilt-intermediates/src/u_format_table.c",
+        "src/gallium/auxiliary/cso_cache/cso_cache.c",
+        "src/gallium/auxiliary/cso_cache/cso_hash.c",
+        "src/gallium/auxiliary/tgsi/tgsi_build.c",
+        "src/gallium/auxiliary/tgsi/tgsi_dump.c",
+        "src/gallium/auxiliary/tgsi/tgsi_info.c",
+        "src/gallium/auxiliary/tgsi/tgsi_iterate.c",
+        "src/gallium/auxiliary/tgsi/tgsi_parse.c",
+        "src/gallium/auxiliary/tgsi/tgsi_sanity.c",
+        "src/gallium/auxiliary/tgsi/tgsi_scan.c",
+        "src/gallium/auxiliary/tgsi/tgsi_strings.c",
+        "src/gallium/auxiliary/tgsi/tgsi_text.c",
+        "src/gallium/auxiliary/tgsi/tgsi_util.c",
+        "src/gallium/auxiliary/util/u_debug_describe.c",
+        "src/gallium/auxiliary/util/u_format.c",
+        "src/gallium/auxiliary/util/u_hash_table.c",
+        "src/gallium/auxiliary/util/u_texture.c",
+        "src/mesa/util/anon_file.c",
+        "src/mesa/util/bitscan.c",
+        "src/mesa/util/hash_table.c",
+        "src/mesa/util/os_file.c",
+        "src/mesa/util/os_misc.c",
+        "src/mesa/util/ralloc.c",
+        "src/mesa/util/u_cpu_detect.c",
+        "src/mesa/util/u_debug.c",
+        "src/mesa/util/u_math.c",
+        "src/iov.c",
+        "src/virgl_context.c",
+        "src/virglrenderer.c",
+        "src/virgl_resource.c",
+        "src/virgl_util.c",
+        "src/vrend_blitter.c",
+        "src/vrend_debug.c",
+        "src/vrend_decode.c",
+        "src/vrend_formats.c",
+        "src/vrend_object.c",
+        "src/vrend_renderer.c",
+        "src/vrend_shader.c",
+        "src/vrend_tweaks.c",
+        "src/vrend_winsys.c",
+        "src/vrend_winsys_egl.c",
+        "src/vrend_winsys_gbm.c",
+    ],
+    target: {
+        host_linux: {
+            shared_libs: [
+                "libdrm",
+                "libepoxy",
+                "libgbm",
+            ],
+        },
+        linux_glibc: {
+            cflags: [
+                "-Wno-#warnings",
+                // FIXME: Figure out how to get C protos for asprintf,
+                // pthread_setname_np and sched_getcpu from glibc sysroot
+                "-Wno-error=implicit-function-declaration",
+            ],
+            // Avoid linking to another host copy of libdrm; this library will cause
+            // binary GPU drivers to be loaded from the host, which might be linked
+            // to a system copy of libdrm, which conflicts with the AOSP one
+            allow_undefined_symbols: true,
+            header_libs: ["libdrm_headers"],
+            exclude_shared_libs: [
+                "libdrm",
+            ],
+        },
+        linux_bionic: {
+            cflags: [
+                // Provide a C proto for memfd_create
+                "-D__USE_GNU",
+                "-DHAVE_MEMFD_CREATE=1",
+            ],
+        },
+        android: {
+            cflags: [
+                // Provide a C proto for memfd_create
+                "-D__USE_GNU",
+                "-DHAVE_MEMFD_CREATE=1",
+            ],
+            shared_libs: [
+                "libcutils",
+                "libdrm",
+                "liblog",
+            ],
+            static_libs: [
+                "libepoxy",
+                "libgbm",
+            ],
+        },
+    },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}

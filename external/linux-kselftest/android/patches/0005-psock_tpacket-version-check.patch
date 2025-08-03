@@ -1,0 +1,81 @@
+From fbf1bad8fe8fc8a779668287abfe48af20359350 Mon Sep 17 00:00:00 2001
+From: Edward Liaw <edliaw@google.com>
+Date: Tue, 19 Apr 2022 22:54:43 +0000
+Subject: [PATCH 05/20] psock_tpacket: version check
+
+TX_RING support for TPACKET_V3 was added in this commit:
+
+commit 7f953ab2ba46e8649537942c0a64668ca2ce5cc5
+Author: Sowmini Varadhan <sowmini.varadhan@oracle.com>
+Date:   Tue Jan 3 06:31:47 2017 -0800
+
+    af_packet: TX_RING support for TPACKET_V3
+
+which first appeared in 4.11. Do not attempt to test TX_RING
+support for TPACKET_V3 on kernels earlier than this.
+
+(cherry picked from commit 1584e465aa445831fc93bcd64d560ab5b89cb55d)
+---
+ tools/testing/selftests/net/psock_tpacket.c | 29 ++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
+
+diff --git a/tools/testing/selftests/net/psock_tpacket.c b/tools/testing/selftests/net/psock_tpacket.c
+index 4d5f317ab42c..9696c9e484d5 100644
+--- a/tools/testing/selftests/net/psock_tpacket.c
++++ b/tools/testing/selftests/net/psock_tpacket.c
+@@ -28,6 +28,7 @@
+ #include <sys/stat.h>
+ #include <sys/socket.h>
+ #include <sys/mman.h>
++#include <sys/utsname.h>
+ #include <linux/if_packet.h>
+ #include <linux/filter.h>
+ #include <ctype.h>
+@@ -832,9 +833,34 @@ static int test_tpacket(int version, int type)
+ 	return 0;
+ }
+ 
++void get_kernel_version(int *version, int *patchlevel)
++{
++	int ret, sublevel;
++	struct utsname utsname;
++
++	ret = uname(&utsname);
++	if (ret) {
++		perror("uname");
++		exit(1);
++	}
++
++	ret = sscanf(utsname.release, "%d.%d.%d", version, patchlevel,
++		     &sublevel);
++	if (ret < 0) {
++		perror("sscanf");
++		exit(1);
++	} else if (ret != 3) {
++		printf("Malformed kernel version %s\n", &utsname.release);
++		exit(1);
++	}
++}
++
+ int main(void)
+ {
+ 	int ret = 0;
++	int version, patchlevel;
++
++	get_kernel_version(&version, &patchlevel);
+ 
+ 	ret |= test_tpacket(TPACKET_V1, PACKET_RX_RING);
+ 	ret |= test_tpacket(TPACKET_V1, PACKET_TX_RING);
+@@ -843,7 +869,8 @@ int main(void)
+ 	ret |= test_tpacket(TPACKET_V2, PACKET_TX_RING);
+ 
+ 	ret |= test_tpacket(TPACKET_V3, PACKET_RX_RING);
+-	ret |= test_tpacket(TPACKET_V3, PACKET_TX_RING);
++	if (version > 4 || (version == 4 && patchlevel >= 11))
++		ret |= test_tpacket(TPACKET_V3, PACKET_TX_RING);
+ 
+ 	if (ret)
+ 		return 1;
+-- 
+2.42.0.609.gbb76f46606-goog
+

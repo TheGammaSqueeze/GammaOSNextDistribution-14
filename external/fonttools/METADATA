@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update fonttools
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "fonttools"
+description: "fontTools is a library for manipulating fonts, written in Python."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/fonttools/fonttools"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://github.com/fonttools/fonttools/archive/4.44.0.zip"
+  }
+  version: "4.44.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 10
+  }
+}

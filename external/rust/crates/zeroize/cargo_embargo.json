@@ -1,0 +1,25 @@
+{
+  "features": [
+    "alloc",
+    "zeroize_derive"
+  ],
+  "min_sdk_version": "Tiramisu",
+  "variants": [
+    {
+      "tests": true
+    },
+    {
+      "module_name_overrides": {
+        "libzeroize": "libzeroize_nostd"
+      },
+      "package": {
+        "zeroize": {
+          "alloc": true,
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

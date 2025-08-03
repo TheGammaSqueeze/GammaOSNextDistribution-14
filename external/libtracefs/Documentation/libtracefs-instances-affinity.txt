@@ -1,0 +1,200 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_instance_set_affinity, tracefs_instance_set_affinity_set, tracefs_instance_set_affinity_raw,
+tracefs_instance_get_affinity, tracefs_instance_get_affinity_set, tracefs_instance_get_affinity_raw
+- Sets or retrieves the affinity for an instance or top level for what CPUs enable tracing.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_instance_set_affinity*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_cpu_str_);
+int *tracefs_instance_set_affinity_set*(struct tracefs_instance pass:[*]_instance_, cpu_set_t pass:[*]_set_, size_t _set_size_);
+int *tracefs_instance_set_affinity_raw*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_mask_);
+
+char pass:[*]*tracefs_instance_get_affinity*(struct tracefs_instance pass:[*]_instance_);
+int *tracefs_instance_get_affinity_set*(struct tracefs_instance pass:[*]_instance_, cpu_set_t pass:[*]_set_, size_t _set_size_);
+char pass:[*]*tracefs_instance_get_affinity_raw*(struct tracefs_instance pass:[*]_instance_);
+--
+
+DESCRIPTION
+-----------
+These functions set or retrieve the CPU affinity that limits what CPUs will have tracing enabled
+for a given instance defined by the _instance_ parameter. If _instance_ is NULL, then
+the top level instance is affected.
+
+The *tracefs_instance_set_affinity()* function takes a string _cpu_str_ that is a
+list of CPUs to set the affinity for. If _cpu_str_ is NULL, then all the CPUs in
+the system will be set. The format of _cpu_str_ is a comma delimited string of
+decimal numbers with no spaces. A range may be specified by a hyphen.
+
+For example: "1,4,6-8"
+
+The numbers do not need to be in order except for ranges, where the second number
+must be equal to or greater than the first.
+
+The *tracefs_instance_set_affinity_set()* function takes a CPU set defined by
+*CPU_SET*(3). The size of the set defined by _set_size_ is the size in bytes of
+_set_. If _set_ is NULL then all the CPUs on the system will be set, and _set_size_
+is ignored.
+
+The *tracefs_instance_set_affinity_raw()* function takes a string that holds
+a hexidecimal bitmask, where each 32 bits is separated by a comma. For a
+machine with more that 32 CPUs, to set CPUS 1-10 and CPU 40:
+
+ "100,000007fe"
+
+Where the above is a hex representation of bits 1-10 and bit 40 being set.
+
+The *tracefs_instance_get_affinity()* will retrieve the affinity in a human readable
+form.
+
+For example: "1,4,6-8"
+
+The string returned must be freed with *free*(3).
+
+The *tracefs_instance_get_affinity_set()* will set all the bits in the passed in
+cpu set (from *CPU_SET*(3)). Note it will not clear any bits that are already set
+in the set but the CPUs are not. If only the bits for the CPUs that are enabled
+should be set, a CPU_ZERO_S() should be performed on the set before calling this
+function.
+
+The *tracefs_instance_get_affinity_raw()* will simply read the instance tracing_cpumask
+and return that string. The returned string must be freed with *free*(3).
+
+RETURN VALUE
+------------
+All the set functions return 0 on success and -1 on error.
+
+The functions *tracefs_instance_get_affinity()* and *tracefs_instance_get_affinity_raw()*
+returns an allocated string that must be freed with *free*(3), or NULL on error.
+
+The function *tracefs_instance_get_affinity_set()* returns the number of CPUs that
+were found set, or -1 on error.
+
+
+ERRORS
+------
+The following errors are for all the above calls:
+
+*EFBIG* if a CPU is set that is greater than what is in the system.
+
+*EINVAL* One of the parameters was invalid.
+
+The following errors are for *tracefs_instance_set_affinity*() and *tracefs_instance_set_affinity_set*():
+
+*ENOMEM* Memory allocation error.
+
+*ENODEV* dynamic events of requested type are not configured for the running kernel.
+
+The following errors are just for *tracefs_instance_set_affinity*()
+
+*EACCES* The _cpu_str_ was modified by another thread when processing it.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <sched.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <tracefs.h>
+
+int main (int argc, char **argv)
+{
+	struct trace_seq seq;
+	cpu_set_t *set;
+	size_t set_size;
+	char *c;
+	int cpu1;
+	int cpu2;
+	int i;
+
+	c = tracefs_instance_get_affinity(NULL);
+	printf("The affinity was %s\n", c);
+	free(c);
+
+	if (argc < 2) {
+		tracefs_instance_set_affinity(NULL, NULL);
+		exit(0);
+	}
+	/* Show example using a set */
+	if (argc == 2 && !strchr(argv[1],',')) {
+		cpu1 = atoi(argv[1]);
+		c = strchr(argv[1], '-');
+		if (c++)
+			cpu2 = atoi(c);
+		else
+			cpu2 = cpu1;
+		if (cpu2 < cpu1) {
+			fprintf(stderr, "Invalid CPU range\n");
+			exit(-1);
+		}
+		set = CPU_ALLOC(cpu2 + 1);
+		set_size = CPU_ALLOC_SIZE(cpu2 + 1);
+		CPU_ZERO_S(set_size, set);
+		for ( ; cpu1 <= cpu2; cpu1++)
+			CPU_SET(cpu1, set);
+		tracefs_instance_set_affinity_set(NULL, set, set_size);
+		CPU_FREE(set);
+		exit(0);
+	}
+
+	trace_seq_init(&seq);
+	for (i = 1; i < argc; i++) {
+		if (i > 1)
+			trace_seq_putc(&seq, ',');
+		trace_seq_puts(&seq, argv[i]);
+	}
+	trace_seq_terminate(&seq);
+	tracefs_instance_set_affinity(NULL, seq.buffer);
+	trace_seq_destroy(&seq);
+	exit(0);
+
+	return 0;
+}
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

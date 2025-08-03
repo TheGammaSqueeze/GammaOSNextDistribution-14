@@ -1,0 +1,19 @@
+name: "piex"
+description: "The Preview Image Extractor (PIEX) is designed to find and extract the largest JPEG compressed preview image contained in a RAW file."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/piex"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/piex/"
+  }
+  version: "v0.27"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 9
+    day: 20
+  }
+}

@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/libfuzzer-sys
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "libfuzzer-sys"
+description: "A wrapper around LLVM\'s libFuzzer runtime."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 2
+  }
+  homepage: "https://crates.io/crates/libfuzzer-sys"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/libfuzzer-sys/libfuzzer-sys-0.4.7.crate"
+    version: "0.4.7"
+  }
+}

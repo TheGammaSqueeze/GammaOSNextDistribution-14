@@ -1,0 +1,24 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_Z3id13foo' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3id2i' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='simple.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <typedef-decl name='large' type-id='95e97e5e' id='e800a71b'/>
+    <class-decl name='foo' size-in-bits='32' is-struct='yes' visibility='default' id='3f46facf'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='e800a71b' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <function-decl name='id1' mangled-name='_Z3id13foo' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3id13foo'>
+      <parameter type-id='3f46facf' name='q'/>
+      <return type-id='c2ecdf53'/>
+    </function-decl>
+    <function-decl name='id2' mangled-name='_Z3id2i' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3id2i'>
+      <parameter type-id='e800a71b' name='q'/>
+      <return type-id='c2ecdf53'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

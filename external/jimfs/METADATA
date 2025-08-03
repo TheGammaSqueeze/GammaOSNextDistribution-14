@@ -1,0 +1,22 @@
+name: "Jimfs"
+description:
+    "Jimfs is an in-memory file system for Java 7 and above, implementing the "
+    "java.nio.file abstract file system APIs. "
+    "Note that it may not directly mimic all file system behavior (e.g. SELinux "
+    "access control, emulated storage, etc.). The initial intention to add this "
+    "project to Android is to fake host side disk access in unit tests, and not "
+    "the device itself."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/jimfs"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/jimfs.git"
+  }
+  version: "v1.2"
+  last_upgrade_date { year: 2022 month: 11 day: 2 }
+  license_type: NOTICE
+}

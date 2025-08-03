@@ -1,0 +1,14 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_clang_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-NCSA
+    default_applicable_licenses: ["external_clang_license"],
+}
+
+cc_library_static {
+    name: "libclangARCMigrate",
+    defaults: ["clang-defaults"],
+    srcs: ["*.cpp"],
+}

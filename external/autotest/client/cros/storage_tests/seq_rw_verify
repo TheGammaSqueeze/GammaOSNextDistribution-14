@@ -1,0 +1,27 @@
+; Copyright 2021 The Chromium Authors. All rights reserved.
+; Use of this source code is governed by a BSD-style license that can be
+; found in the LICENSE file.
+;
+; Sequential write performance at the front of the disk
+;
+
+[seq_rw_verify]
+filename=${FILENAME}
+size=${FILESIZE}
+verify_only=${VERIFY_ONLY}
+
+time_based
+runtime=5m
+
+ioengine=libaio
+iodepth=1
+direct=1
+
+readwrite=rw
+rwmixread=10
+bs=512k
+
+do_verify=1
+verify=md5
+verify_dump=1
+continue_on_error=${CONTINUE_ERRORS}

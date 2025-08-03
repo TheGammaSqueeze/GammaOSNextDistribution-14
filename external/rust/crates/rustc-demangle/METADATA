@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/rustc-demangle
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "rustc-demangle"
+description: "Rust compiler symbol demangling."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 8
+  }
+  homepage: "https://crates.io/crates/rustc-demangle"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/rustc-demangle/rustc-demangle-0.1.23.crate"
+    version: "0.1.23"
+  }
+}

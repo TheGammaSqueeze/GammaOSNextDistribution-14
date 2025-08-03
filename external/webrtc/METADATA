@@ -1,0 +1,19 @@
+name: "webrtc"
+description: "WebRTC is a free, open software project that provides browsers and mobile applications with Real-Time Communications (RTC) capabilities via simple APIs."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://webrtc.org/"
+  }
+  url {
+    type: GIT
+    value: "https://webrtc.googlesource.com/src/"
+  }
+  version: "cc57b935cdd19bc78352ab7e3091b2b3ad653074"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 6
+    day: 26
+  }
+}

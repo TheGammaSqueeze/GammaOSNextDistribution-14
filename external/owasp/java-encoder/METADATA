@@ -1,0 +1,20 @@
+name: "owasp-java-encoder"
+description:
+    "The OWASP Java Encoder is a Java 1.5+ simple-to-use drop-in "
+    "high-performance encoder class with no dependencies and little baggage. "
+    "This project will help Java web developers defend against Cross Site "
+    "Scripting!"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://owasp.org/www-project-java-encoder/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/OWASP/owasp-java-encoder.git"
+  }
+  version: "6309c0ad5d5a339f41dfa94384930f630d46bc4a"
+  last_upgrade_date { year: 2023 month: 2 day: 14 }
+  license_type: NOTICE
+}

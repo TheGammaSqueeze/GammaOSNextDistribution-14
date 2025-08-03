@@ -1,0 +1,132 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    default_applicable_licenses: ["external_noto-fonts_emoji_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_noto-fonts_emoji_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Unicode-DFS",
+        "SPDX-license-identifier-OFL", // by exception only
+    ],
+    license_text: [
+        "LICENSE_OFL",
+        "LICENSE_UNICODE",
+    ],
+}
+
+soong_config_module_type {
+    name: "prebuilt_emoji_font",
+    module_type: "prebuilt_font",
+    config_namespace: "emoji_font",
+    value_variables: ["emoji_font_version"],
+    properties: ["src"],
+}
+
+prebuilt_emoji_font {
+    name: "NotoColorEmoji.ttf",
+    dist: {
+        targets: ["droidcore"],
+    },
+    // Need a default value because SDK build doesn't include fonts.mk.
+    src: "font/2.042/Noto-COLRv1-noflags.ttf",
+    soong_config_variables: {
+        emoji_font_version: {
+            src: "font/%s/Noto-COLRv1-noflags.ttf",
+        },
+    },
+}
+
+soong_config_module_type {
+    name: "prebuilt_flag_emoji_font",
+    module_type: "prebuilt_font",
+    config_namespace: "flag_emoji_font",
+    value_variables: ["flag_emoji_font_version"],
+    properties: ["src"],
+}
+
+prebuilt_flag_emoji_font {
+    name: "NotoColorEmojiFlags.ttf",
+    dist: {
+        targets: ["droidcore"],
+    },
+    // Need a default value because SDK build doesn't include fonts.mk.
+    src: "font/2.042/NotoColorEmoji-flagsonly.ttf",
+    soong_config_variables: {
+        flag_emoji_font_version: {
+            src: "font/%s/NotoColorEmoji-flagsonly.ttf",
+        },
+    },
+}
+
+prebuilt_font {
+    name: "NotoColorEmojiLegacy.ttf",
+    src: "font/2.042/NotoColorEmoji-noflags.ttf",
+    dist: {
+        targets: ["droidcore"],
+    },
+}
+
+android_test {
+    name: "EmojiCompatTest",
+
+    srcs: [
+        "tests/src/**/*.kt",
+        "tests/src/**/*.java",
+    ],
+
+    libs: [
+        "android.test.runner",
+        "android.test.base",
+    ],
+
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.runner",
+        "androidx.test.rules",
+        "androidx.emoji_emoji",
+        "mockito-target",
+        "truth",
+    ],
+
+    test_suites: ["general-tests"],
+
+    asset_dirs: [
+        "font",
+        "supported-emojis",
+    ],
+
+    manifest: "tests/AndroidManifest.xml",
+    test_config: "tests/AndroidTest.xml",
+}

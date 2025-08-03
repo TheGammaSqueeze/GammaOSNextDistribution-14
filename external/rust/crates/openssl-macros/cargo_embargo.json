@@ -1,0 +1,8 @@
+{
+  "package": {
+    "openssl-macros": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

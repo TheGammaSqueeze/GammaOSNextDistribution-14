@@ -1,0 +1,16 @@
+name: "ZXing"
+description: "Zebra Crossing - barcode scanning library for Java, Android"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/zxing/zxing.git"
+  }
+  license_type: NOTICE
+  version: "zxing-3.5.2"
+  last_upgrade_date {
+    year: 2023
+    month: 9
+    day: 26
+  }
+}

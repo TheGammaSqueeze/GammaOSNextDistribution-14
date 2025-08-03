@@ -1,0 +1,45 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+namespace libtextclassifier3.test;
+
+table TestData {
+  byte_field: byte;
+  ubyte_field: ubyte;
+  int_field: int;
+  uint_field: uint;
+  long_field: int64;
+  ulong_field: uint64;
+  bool_field: bool;
+  float_field: float;
+  double_field: double;
+  string_field: string;
+  nested_field: TestData;
+
+  repeated_byte_field: [byte];
+  repeated_ubyte_field: [ubyte];
+  repeated_int_field: [int];
+  repeated_uint_field: [uint];
+  repeated_long_field: [int64];
+  repeated_ulong_field: [uint64];
+  repeated_bool_field: [bool];
+  repeated_float_field: [float];
+  repeated_double_field: [double];
+  repeated_string_field: [string];
+  repeated_nested_field: [TestData];
+}
+
+root_type libtextclassifier3.test.TestData;

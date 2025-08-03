@@ -1,0 +1,6 @@
+# Android folks:
+include platform/system/core:/janitors/OWNERS
+# ARC++ folks:
+prabirmsp@google.com
+xutan@google.com
+yhanada@google.com

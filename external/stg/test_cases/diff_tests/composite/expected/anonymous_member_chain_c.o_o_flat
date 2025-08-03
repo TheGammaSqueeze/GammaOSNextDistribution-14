@@ -1,0 +1,16 @@
+function symbol 'struct A foo()' changed
+  type 'struct A()' changed
+    return type 'struct A' changed
+
+type 'struct A' changed
+  byte size changed from 8 to 4
+  member changed from 'union { struct { int x; }; struct { long y; }; }' to 'union { struct { int x; }; struct { char y; }; }'
+    type changed from 'union { struct { int x; }; struct { long y; }; }' to 'union { struct { int x; }; struct { char y; }; }'
+      byte size changed from 8 to 4
+      member changed from 'struct { long y; }' to 'struct { char y; }'
+        type changed from 'struct { long y; }' to 'struct { char y; }'
+          byte size changed from 8 to 1
+          member changed from 'long y' to 'char y'
+            type changed from 'long' to 'char'
+
+exit code 4

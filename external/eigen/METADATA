@@ -1,0 +1,17 @@
+name: "eigen"
+description:
+    "C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://eigen.tuxfamily.org/"
+  }
+  url {
+    type: GIT
+    value: "https://gitlab.com/libeigen/eigen.git"
+  }
+  version: "3.4.0"
+  last_upgrade_date { year: 2022 month: 2 day: 25 }
+  license_type: RECIPROCAL
+}

@@ -1,0 +1,24 @@
+[package]
+name = "crosvm_control"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[features]
+pci-hotplug = ["vm_control/pci-hotplug"]
+registered_events = ["vm_control/registered_events"]
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+base = { path = "../base" }
+libc = "0.2.65"
+swap = { path = "../swap", default-features = false }
+vm_control = { path = "../vm_control", features = [ "balloon" ] }
+
+[build-dependencies]
+anyhow = "*"
+cbindgen = "0.24.3"
+cc = "*"
+tempfile = "*"

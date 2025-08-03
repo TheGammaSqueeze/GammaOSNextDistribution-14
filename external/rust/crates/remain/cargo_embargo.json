@@ -1,0 +1,14 @@
+{
+  "module_blocklist": [
+    "remain_test_tests_compiletest"
+  ],
+  "package": {
+    "remain": {
+      "dep_blocklist": [
+        "libtrybuild"
+      ],
+      "device_supported": false
+    }
+  },
+  "tests": true
+}

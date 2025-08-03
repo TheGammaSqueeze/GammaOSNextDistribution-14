@@ -1,0 +1,63 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [color=red, label="removed(void VirtualToNon::VirtualToNon(struct VirtualToNon*) {_ZN12VirtualToNonC1Ev})"]
+  "0" -> "1" [label=""]
+  "2" [color=red, label="removed(_ZTI12VirtualToNon)"]
+  "0" -> "2" [label=""]
+  "3" [color=red, label="removed(_ZTS12VirtualToNon)"]
+  "0" -> "3" [label=""]
+  "4" [color=red, label="removed(_ZTT12VirtualToNon)"]
+  "0" -> "4" [label=""]
+  "5" [color=red, label="removed(_ZTV12VirtualToNon)"]
+  "0" -> "5" [label=""]
+  "6" [color=red, label="added(void NonToVirtual::NonToVirtual(struct NonToVirtual*) {_ZN12NonToVirtualC1Ev})"]
+  "0" -> "6" [label=""]
+  "7" [color=red, label="added(_ZTI12NonToVirtual)"]
+  "0" -> "7" [label=""]
+  "8" [color=red, label="added(_ZTS12NonToVirtual)"]
+  "0" -> "8" [label=""]
+  "9" [color=red, label="added(_ZTT12NonToVirtual)"]
+  "0" -> "9" [label=""]
+  "10" [color=red, label="added(_ZTV12NonToVirtual)"]
+  "0" -> "10" [label=""]
+  "11" [label="'struct NonToVirtual non_to_virtual'"]
+  "12" [color=red, shape=rectangle, label="'struct NonToVirtual'"]
+  "12" -> "12:0"
+  "12:0" [color=red, label="byte size changed from 2 to 16"]
+  "13" [color=red, label="'struct A'"]
+  "13" -> "13:0"
+  "13:0" [color=red, label="inheritance changed from non-virtual to virtual"]
+  "13" -> "13:1"
+  "13:1" [color=red, label="offset changed from 0 to 192"]
+  "12" -> "13" [label=""]
+  "14" [color=red, label="'struct B'"]
+  "14" -> "14:0"
+  "14:0" [color=red, label="inheritance changed from non-virtual to virtual"]
+  "14" -> "14:1"
+  "14:1" [color=red, label="offset changed from 8 to 256"]
+  "12" -> "14" [label=""]
+  "15" [color=red, label="added(int(** _vptr$NonToVirtual)())"]
+  "12" -> "15" [label=""]
+  "11" -> "12" [label=""]
+  "0" -> "11" [label=""]
+  "16" [label="'struct VirtualToNon virtual_to_non'"]
+  "17" [color=red, shape=rectangle, label="'struct VirtualToNon'"]
+  "17" -> "17:0"
+  "17:0" [color=red, label="byte size changed from 16 to 2"]
+  "18" [color=red, label="'struct A'"]
+  "18" -> "18:0"
+  "18:0" [color=red, label="inheritance changed from virtual to non-virtual"]
+  "18" -> "18:1"
+  "18:1" [color=red, label="offset changed from 192 to 0"]
+  "17" -> "18" [label=""]
+  "19" [color=red, label="'struct B'"]
+  "19" -> "19:0"
+  "19:0" [color=red, label="inheritance changed from virtual to non-virtual"]
+  "19" -> "19:1"
+  "19:1" [color=red, label="offset changed from 256 to 8"]
+  "17" -> "19" [label=""]
+  "20" [color=red, label="removed(int(** _vptr$VirtualToNon)())"]
+  "17" -> "20" [label=""]
+  "16" -> "17" [label=""]
+  "0" -> "16" [label=""]
+}

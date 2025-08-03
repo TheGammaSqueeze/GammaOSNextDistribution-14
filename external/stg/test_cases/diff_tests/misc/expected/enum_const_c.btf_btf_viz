@@ -1,0 +1,18 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'Foo getEnum(Foo)' -> 'Foo getEnum(const Foo)'"]
+  "2" [label="'Foo(Foo)' -> 'Foo(const Foo)'"]
+  "3" [shape=rectangle, label="'Foo' = 'enum Foo'"]
+  "4" [color=red, shape=rectangle, label="'enum Foo'"]
+  "4" -> "4:0"
+  "4:0" [color=red, label="enumerator 'FOO_TWO' value changed from 100 to 2"]
+  "3" -> "4" [label="resolved"]
+  "2" -> "3" [label="return"]
+  "5" [color=red, label="'Foo' = 'enum Foo' -> 'const Foo'"]
+  "5" -> "5:0"
+  "5:0" [color=red, label="qualifier const added"]
+  "5" -> "3" [label="underlying"]
+  "2" -> "5" [label="parameter 1"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

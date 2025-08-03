@@ -1,0 +1,10 @@
+name: "pandora/mmi2grpc"
+description:
+    "MMI-to-gRPC is a translation layer which maps Bluetooth Profile Tuning "
+    "Suite (PTS) Man Machine Interfaces (MMI) to Pandora gRPC Bluetooth test "
+    "interfaces, removing the need for a human to operate the PTS"
+
+third_party: {
+  type: GOOGLE_INTERNAL
+  license_type: NOTICE
+}

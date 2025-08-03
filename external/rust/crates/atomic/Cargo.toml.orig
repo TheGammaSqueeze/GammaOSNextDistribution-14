@@ -1,0 +1,22 @@
+[package]
+name = "atomic"
+version = "0.6.0"
+edition = "2018"
+authors = ["Amanieu d'Antras <amanieu@gmail.com>"]
+description = "Generic Atomic<T> wrapper type"
+license = "Apache-2.0/MIT"
+repository = "https://github.com/Amanieu/atomic-rs"
+readme = "README.md"
+keywords = ["atomic", "no_std"]
+
+[features]
+default = ["fallback"]
+std = []
+fallback = []
+nightly = []
+
+[dependencies]
+bytemuck = "1.13.1"
+
+[dev-dependencies]
+bytemuck = { version = "1.13.1", features = ["derive"] }

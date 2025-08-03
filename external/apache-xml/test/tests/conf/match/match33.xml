@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+  <child>
+     <child-foo>
+        <name>John Doe</name>
+        <child>
+          <name>Jane Doe</name>
+        </child>
+     </child-foo>
+  </child>
+</doc>

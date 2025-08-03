@@ -1,0 +1,96 @@
+<?xml version="1.0"  standalone="yes"?>
+<doc>
+   <item id="book">
+      <book>
+         <title>Romeo and Juliet</title>
+      </book>
+      <author>
+         <firstname>William</firstname>
+         <lastname>Shakespeare</lastname>
+      </author>
+   </item>
+   <item id="magazine">
+      <magazine>
+         <title>People</title>
+      </magazine>
+      <edition subcat1="month" subcat2="year">
+         <month>June</month>
+         <year>2004</year>
+      </edition>
+   </item>
+   <item id="magazine">
+      <magazine>
+         <title>National Geographic</title>
+      </magazine>
+      <edition subcat1="month" subcat2="year">
+         <month>May</month>
+         <year>1999</year>
+      </edition>
+   </item>
+   <item id="DVD">
+      <DVD>
+         <title>Elmo's First Day at School</title>
+      </DVD>
+      <rating cat1="category" lang="language" subt="subtitles">
+         <category>Childrens</category>
+         <language>English</language>
+         <subtitles>yes</subtitles>
+      </rating>
+   </item>
+   <item id="book">
+      <book orig="yes">
+         <title>Farewell to Arms</title>
+      </book>
+      <author>
+         <firstname>Ernest</firstname>
+         <lastname>Hemingway</lastname>
+      </author>
+   </item>
+   <item id="book">
+      <book orig="yes">
+         <title>Superfudge</title>
+      </book>
+      <author>
+         <firstname>Judy</firstname>
+         <lastname>Blume</lastname>
+      </author>
+   </item>
+   <item id="DVD">
+      <DVD>
+         <title>Cinderella</title>
+      </DVD>
+      <rating cat1="category" lang="language" subt="subtitles">
+         <category>Childrens</category>
+         <language>French</language>
+         <subtitles>no</subtitles>
+      </rating>
+   </item>
+   <item id="magazine">
+      <magazine>
+         <title>Canadian House and Home</title>
+      </magazine>
+      <edition subcat1="month" subcat2="year">
+         <month>January</month>
+         <year>2001</year>
+      </edition>
+   </item>
+   <item id="DVD">
+      <DVD>
+         <title>World War I &amp; II</title>
+      </DVD>
+      <rating cat1="category" lang="language" subt="subtitles">
+         <category>History</category>
+         <language>German</language>
+         <subtitles>no</subtitles>
+      </rating>
+   </item>
+   <item id="book">
+      <book orig="no">
+         <title>World Maps</title>
+      </book>
+      <author>
+         <firstname>J.P. </firstname>
+         <lastname>Douglas</lastname>
+      </author>
+   </item>
+</doc>

@@ -1,0 +1,13 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='numbers' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='simple_array.c' language='LANG_C11'>
+    <type-decl name='__ARRAY_SIZE_TYPE__' size-in-bits='64' id='7ff19f0f'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='f0981eeb'/>
+    <array-type-def dimensions='1' type-id='f0981eeb' size-in-bits='64' id='0d532ec1'>
+      <subrange length='2' type-id='7ff19f0f' id='52efc4ef'/>
+    </array-type-def>
+    <var-decl name='numbers' type-id='0d532ec1' mangled-name='numbers' visibility='default' elf-symbol-id='numbers'/>
+  </abi-instr>
+</abi-corpus>

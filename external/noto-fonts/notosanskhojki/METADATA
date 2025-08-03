@@ -1,0 +1,13 @@
+name: "notosanskhojki"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Khojki is an unmodulated (“sans serif”) design for textsin the Indic Khojki script. It has 177 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanskhojki"
+  }
+  version: "2.001"
+  license_type: NOTICE
+  last_upgrade_date { year: 2020 month: 2 day: 10 }
+}

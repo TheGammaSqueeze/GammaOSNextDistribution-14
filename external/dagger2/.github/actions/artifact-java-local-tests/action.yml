@@ -1,0 +1,25 @@
+name: 'Artifact Java local tests'
+description: 'Runs java local tests on the Dagger LOCAL-SNAPSHOT artifacts.'
+
+runs:
+  using: "composite"
+  steps:
+    - name: 'Check out repository'
+      uses: actions/checkout@v3
+    - name: 'Cache Gradle files'
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    - name: 'Download local snapshot for tests'
+      uses: actions/download-artifact@v3
+      with:
+        name: local-snapshot
+        path: ~/.m2/repository/com/google/dagger
+    - name: 'Gradle Java local tests'
+      run: ./util/run-local-gradle-tests.sh
+      shell: bash

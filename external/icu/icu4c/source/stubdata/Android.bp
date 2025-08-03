@@ -1,0 +1,65 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_java_core_libraries",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_icu_icu4c_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["external_icu_icu4c_license"],
+}
+
+// Derive a string like 'icudt 48l.dat' from a path like
+// 'external/icu/icu4c/source/stubdata/icudt 48l.dat'
+dat_file = "icu*.dat"
+
+prebuilt_etc {
+    name: "apex_icu.dat",
+    src: dat_file,
+    filename_from_src: true,
+    sub_dir: "icu",
+    installable: false,
+}
+
+prebuilt_root_host {
+    name: "icu-data_host_i18n_apex",
+    src: dat_file,
+    filename_from_src: true,
+    relative_install_path: "com.android.i18n/etc/icu",
+    visibility: [
+        "//frameworks/layoutlib",
+    ],
+    dist: {
+        targets: ["layoutlib"],
+        dir: "layoutlib_native/icu",
+    },
+}
+
+// Module definition producing ICU .dat prebuilt files in
+// /system/etc/icu for standalone ART testing purposes. This is a
+// temporary change needed until the ART Buildbot and Golem both fully
+// support the ART APEX (see b/121117762). This module should never
+// be shipped by default (i.e. should never be part of
+// `PRODUCT_PACKAGE`.)
+//
+// TODO(b/121117762): Remove this module definition when the ART
+// Buildbot and Golem have full support for the ART APEX.
+prebuilt_etc {
+    name: "icu-data-art-test-i18n",
+    src: dat_file,
+    filename_from_src: true,
+    relative_install_path: "i18n_module/etc/icu",
+}

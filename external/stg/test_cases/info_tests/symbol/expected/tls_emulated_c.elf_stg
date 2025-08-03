@@ -1,0 +1,26 @@
+version: 0x00000002
+root_id: 0x84ea5130
+elf_symbol {
+  id: 0x688c97e0
+  name: "__emutls_t.var2"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xa2dcdaef
+  name: "__emutls_v.var1"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xe19c7b87
+  name: "__emutls_v.var2"
+  is_defined: true
+  symbol_type: OBJECT
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x688c97e0
+  symbol_id: 0xa2dcdaef
+  symbol_id: 0xe19c7b87
+}

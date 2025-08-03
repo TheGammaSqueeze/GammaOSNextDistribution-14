@@ -1,0 +1,4 @@
+third_party {
+  license_note: "would be NOTICE save for: templates/ and templates-sdk/"
+  license_type: RESTRICTED
+}

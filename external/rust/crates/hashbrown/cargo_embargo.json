@@ -1,0 +1,16 @@
+{
+  "features": [
+    "ahash",
+    "default",
+    "inline-more",
+    "raw"
+  ],
+  "package": {
+    "hashbrown": {
+      "dep_blocklist": [
+        "libdoc_comment"
+      ]
+    }
+  },
+  "tests": true
+}

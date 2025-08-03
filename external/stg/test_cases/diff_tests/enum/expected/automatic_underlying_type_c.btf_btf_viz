@@ -1,0 +1,29 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'unsigned int fun(enum A, enum B, enum C, enum D)'"]
+  "2" [label="'unsigned int(enum A, enum B, enum C, enum D)'"]
+  "3" [color=red, shape=rectangle, label="'enum A'"]
+  "4" [color=red, label="'enum-underlying-unsigned-32' -> 'enum-underlying-unsigned-64'"]
+  "3" -> "4" [label="underlying"]
+  "3" -> "3:0"
+  "3:0" [color=red, label="enumerator 'Ae' value changed from 16777216 to 281474976710656"]
+  "2" -> "3" [label="parameter 1"]
+  "5" [color=red, shape=rectangle, label="'enum B'"]
+  "5" -> "5:0"
+  "5:0" [color=red, label="enumerator 'Be' value changed from 2147483647 to 2147483648"]
+  "2" -> "5" [label="parameter 2"]
+  "6" [color=red, shape=rectangle, label="'enum C'"]
+  "7" [color=red, label="'enum-underlying-signed-64' -> 'enum-underlying-unsigned-64'"]
+  "6" -> "7" [label="underlying"]
+  "6" -> "6:0"
+  "6:0" [color=red, label="enumerator 'Ce' value changed from -9223372036854775808 to -1"]
+  "2" -> "6" [label="parameter 3"]
+  "8" [color=red, shape=rectangle, label="'enum D'"]
+  "9" [color=red, label="'enum-underlying-signed-32' -> 'enum-underlying-unsigned-32'"]
+  "8" -> "9" [label="underlying"]
+  "8" -> "8:0"
+  "8:0" [color=red, label="enumerator 'De' value changed from -1 to 1"]
+  "2" -> "8" [label="parameter 4"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

@@ -1,0 +1,8 @@
+{
+  "package": {
+    "tokio-macros": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

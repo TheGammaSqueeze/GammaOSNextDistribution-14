@@ -1,0 +1,21 @@
+name: "RenderScript Intrinsics Replacement Toolkit"
+description:
+    "RenderScript Intrinsics Replacement Toolkit provides a collection of "
+    "high-performance image manipulation functions like blur, blend, and "
+    "resize. It can be used as a stand-alone replacement for most of the "
+    "deprecated RenderScript Intrinsics functions."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/android/renderscript-intrinsics-replacement-toolkit"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/android/renderscript-intrinsics-replacement-toolkit.git"
+  }
+  version: "344be3f6bf03fb6b63a80b36f08f8dccac59d784"
+  last_upgrade_date { year: 2022 month: 2 day: 23 }
+  license_type: NOTICE
+}
+

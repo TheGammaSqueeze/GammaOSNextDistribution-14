@@ -1,0 +1,52 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS PVS Team"
+NAME = "power_FastLoadTest"
+PURPOSE = "power_Dummy orchestrated with wrappers for qualification"
+CRITERIA = "This test is a benchmark."
+TIME = "SHORT"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "server"
+ATTRIBUTES = ""
+PY_VERSION = 3
+DOC = """
+This is a power_QualTestWrapped example, which uses the QualTestWrapper
+implementation to call a power test, after first calling the standard
+prefix tests for the power_qual sequence. QualTestWrapper inherits from
+pvs.test_with_pass_criteria, which uses either pass criteria passed
+on the command line or the default pass criteria below to pass/fail tests
+based on their key value results written to the results directory.
+
+To create new wrapped Qual Tests, please copy this example file, and
+fill out the TEST_NAME you intend to call, as well as the TEST_ARGS
+dict to be passed to that test.
+"""
+
+from autotest_lib.server import utils
+from autotest_lib.server.cros.pvs import wrapper_job_with_name
+
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+TEST_NAME = "power_LoadTest"
+TEST_ARGS = {"loop_time":120,"loop_count":1,"check_network":False,"ac_ok":True,
+            "gaia_login":False}
+
+DEFAULT_PASS_CRITERIA = {"wh_energy_used":(0,None)}
+
+def run(machine):
+    args_dict["percent_target_charge"] = 65
+
+    # Setup the client machine.
+    host = hosts.create_host(machine, servo_args=servo_args)
+    wrapper_job = wrapper_job_with_name.wrapper_job_with_name(job=job,
+                                    job_name=NAME,
+                                    wrapper_url="power_QualTestWrapper",
+                                    args_dict=args_dict,
+                                    default_pass_criteria=DEFAULT_PASS_CRITERIA)
+    wrapper_job.run(host=host, test_to_wrap=TEST_NAME, wrap_args=TEST_ARGS)
+
+parallel_simple(run, machines)

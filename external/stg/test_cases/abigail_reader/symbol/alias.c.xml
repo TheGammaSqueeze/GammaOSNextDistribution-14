@@ -1,0 +1,19 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='a' type='func-type' binding='global-binding' visibility='default-visibility' alias='b,c' is-defined='yes'/>
+    <elf-symbol name='b' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='c' type='func-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='x' size='4' type='object-type' binding='global-binding' visibility='default-visibility' alias='y,z' is-defined='yes'/>
+    <elf-symbol name='y' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='z' size='4' type='object-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='alias.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <var-decl name='x' type-id='95e97e5e' mangled-name='x' visibility='default' elf-symbol-id='x'/>
+    <function-decl name='a' mangled-name='a' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='a'>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

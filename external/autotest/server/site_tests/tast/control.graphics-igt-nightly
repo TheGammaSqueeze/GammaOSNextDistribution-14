@@ -1,0 +1,40 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Chromium OS Display team'
+NAME = 'tast.graphics-igt-nightly'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:graphics_per-day'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the Tast graphics-igt test suite.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+This test runs igt-gpu-tools against a remote DUT.
+Separate control files are needed because Tast doesn't isolate tests from each
+other and a clean device state is needed by rebooting before running a
+different graphics suite.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+def run(machine):
+    host=hosts.create_host(machine)
+    host.reboot()
+    job.run_test('tast',
+                 host=host,
+                 test_exprs=['("group:graphics" && graphics_nightly && graphics_igt)'],
+                 ignore_test_failures=True, max_run_sec=21600,
+                 command_args=args)
+
+parallel_simple(run, machines)

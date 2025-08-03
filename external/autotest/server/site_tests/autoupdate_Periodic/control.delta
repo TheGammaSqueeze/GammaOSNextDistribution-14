@@ -1,0 +1,30 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, Chromium OS"
+NAME = "autoupdate_Periodic.delta"
+TIME = "MEDIUM"
+PURPOSE = "Tests periodic update with test-update-check-interval-timeout pref."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:au-perbuild"
+PY_VERSION = 3
+DOC = """
+Tests that the DUT makes periodic update checks. On test images, periodic
+checks are disabled but by using a pref (test-update-check-interval-timeout) we
+can simulate it. We do periodic checks 5 seconds apart. The first will return
+no update, the second will return an update.
+"""
+
+from autotest_lib.client.common_lib import utils
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('autoupdate_Periodic', host=host, full_payload=False,
+                 **args_dict)
+
+job.parallel_simple(run, machines)

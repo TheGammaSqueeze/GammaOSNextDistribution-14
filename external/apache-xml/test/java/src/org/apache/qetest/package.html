@@ -1,0 +1,90 @@
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the  "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<!-- $Id$ -->
+<html>
+  <title>XSL-TEST Reporter package.</title>
+  <body>
+    <p>This package is an independent framework for writing automated test scripts in Java.</p>  
+    <dl>
+      <dt><b>Author: </b></dt><dd><a href="mailto:shane_curcuru@lotus.com">Shane_Curcuru@lotus.com</a></dd>
+      <dt><b>Program(s) Under Test: </b></dt>
+      <dd><a href="http://xml.apache.org/xalan-j" target="_top">Xalan-J 2.x XSLT Processor</a></dd>
+      <dd><a href="http://xml.apache.org/xalan" target="_top">Xalan-J 1.x XSLT Processor</a></dd>
+      <dd><a href="http://xml.apache.org/xalan-c" target="_top">Xalan-C 1.x XSLT Processor</a></dd>
+      <dt><b>Goals: </b></dt><dd>
+        <ul>
+          <li>Provide a solid, independent test framework.</li>
+          <li>Encourage good testing/verification practices.</li>
+          <li>Enable quicker generation of Xalan test cases.</li>
+          <li>Simplify maintenance of test cases.</li>
+          <li>Provide basic test results analysis frameworks.</li>
+        </ul>
+      </dd>
+    </dl>
+    <p>This package is primarily focused on the quality 
+    engineer, and system or integration level tests that are to be 
+    shared with a larger audience, rather than on a developer who 
+    writes unit tests primarily for their own use.</p>
+    <ul>A few of the basic design patterns/principles used:
+    <li>Most objects can be initialized either through their 
+    constructor or an initialize() method with a Properties 
+    block of name=value pairs to setup their internal state 
+    from.  Composite objects will typically pass their entire 
+    Properties block to sub-objects or contained objects for 
+    their own initializations.  One future drawback: need to 
+    ensure the namespace doesn't have collisions between tests, 
+    reporters, and loggers. Eventually I'd like to have a 
+    'namespace' for just the tests themselves.</li>
+    <li>Test, TestImpl, FileBasedTest: these all provide structure 
+    and utility methods useful for testing in general.</li>
+    <li>Testlet, Datalet: these small, focused mini-tests 
+    that encourage creating data driven tests and allow you 
+    to separate the specific testing algorithim used from 
+    the set of data to execute it on.</li>
+    <li>User subclasses of the Test classes should simply focus on 
+    manipulating the product under test and calling log*() or check*() 
+    methods to report information.  They shouldn't worry about the 
+    external environment or managing their reporter unless they have 
+    a specific reason to.</li>
+    <li>Loggers simply provide a mechanisim to output data in a manner 
+    so that the test doesn't have to manage the output at all.  They 
+    ensure that all tests produce output in a common format, making it 
+    easier to evaluate test results across many tests or products.  
+    Loggers generally don't keep track of the test's result state, 
+    relying on the user to analyze the result set later.</li>
+    <li>Reporters act as a composite of Loggers, as well as providing 
+    various useful utilities.  Reporters also keep a running track of 
+    the pass/fail state of a Test during execution, as well as reporting 
+    it out using their Loggers.</li>
+    <li>CheckService is a generic service for checking 'equivalence' 
+    of two objects and reporting the pass/fail/other result thereof.  
+    A SimpleFileCheckService implementation is provided as an 
+    example; we have plans to add various other kinds of checkers, 
+    perhaps a DOMCheckService.</li>
+    <li>OutputNameManager is a cheap-o helper for tests that create 
+    a large number of consecutive output files.</li>
+    <li>TestfileInfo is a simple data-holding class to store info 
+    about a test data file.  It is used in FileBasedTest, which may 
+    be a useful base class for your tests.  This should probably be 
+    replaced with a Datalet which, along with Testlets, provides a 
+    lighter-weight way to write tests.</li>
+    </ul>
+  </body>
+</html>
+
+

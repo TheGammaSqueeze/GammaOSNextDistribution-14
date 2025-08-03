@@ -1,0 +1,20 @@
+name: "okio"
+description:
+    "Okio is a library that complements java.io and java.nio to make it much "
+    "easier to access, store, and process your data. It started as a component "
+    "of OkHttp, the capable HTTP client included in Android. It's "
+    "well-exercised and ready to solve new problems."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://square.github.io/okio/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/square/okio/"
+  }
+  version: "3.7.0"
+  last_upgrade_date { year: 2024 month: 1 day: 3 }
+  license_type: NOTICE
+}

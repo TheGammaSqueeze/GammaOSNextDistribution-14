@@ -1,0 +1,23 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='var' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='bit_field.c' language='LANG_C11'>
+    <type-decl name='short' size-in-bits='16' id='ba226bd5'/>
+    <class-decl name='Foo' size-in-bits='32' is-struct='yes' visibility='default' id='a44bfb6f'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='rest_of_the_struct' type-id='ba226bd5' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='16'>
+        <var-decl name='x' type-id='ba226bd5' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='21'>
+        <var-decl name='y' type-id='ba226bd5' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='27'>
+        <var-decl name='z' type-id='ba226bd5' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='var' type-id='a44bfb6f' mangled-name='var' visibility='default' elf-symbol-id='var'/>
+  </abi-instr>
+</abi-corpus>

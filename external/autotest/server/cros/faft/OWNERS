@@ -1,0 +1,7 @@
+set noparent
+include /FIRMWARE_OWNERS
+include /ENGPROD_OWNERS
+
+per-file fingerprint* = file:/FINGERPRINT_OWNERS
+per-file futility = file:/FINGERPRINT_OWNERS
+per-file gen_test_images.sh = file:/FINGERPRINT_OWNERS

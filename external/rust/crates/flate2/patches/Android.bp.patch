@@ -1,0 +1,42 @@
+--- Android.bp	2023-11-10 17:11:23.235848680 +0000
++++ Android.bp.new	2023-11-10 17:11:11.483678524 +0000
+@@ -39,7 +39,6 @@
+ 
+ rust_test {
+     name: "flate2_test_src_lib",
+-    host_supported: true,
+     crate_name: "flate2",
+     cargo_env_compat: true,
+     cargo_pkg_version: "1.0.25",
+@@ -65,7 +64,6 @@
+ 
+ rust_test {
+     name: "flate2_test_tests_early-flush",
+-    host_supported: true,
+     crate_name: "early_flush",
+     cargo_env_compat: true,
+     cargo_pkg_version: "1.0.25",
+@@ -92,7 +90,6 @@
+ 
+ rust_test {
+     name: "flate2_test_tests_empty-read",
+-    host_supported: true,
+     crate_name: "empty_read",
+     cargo_env_compat: true,
+     cargo_pkg_version: "1.0.25",
+@@ -119,7 +116,6 @@
+ 
+ rust_test {
+     name: "flate2_test_tests_gunzip",
+-    host_supported: true,
+     crate_name: "gunzip",
+     cargo_env_compat: true,
+     cargo_pkg_version: "1.0.25",
+@@ -153,7 +149,6 @@
+ 
+ rust_test {
+     name: "flate2_test_tests_zero-write",
+-    host_supported: true,
+     crate_name: "zero_write",
+     cargo_env_compat: true,
+     cargo_pkg_version: "1.0.25",

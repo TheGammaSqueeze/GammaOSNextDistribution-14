@@ -1,0 +1,13 @@
+name: "notosanslycian"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Lycian is an unmodulated (“sans serif”) design for textsin the historical European Lycian script. It has 34 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanslycian"
+  }
+  version: "1.040"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

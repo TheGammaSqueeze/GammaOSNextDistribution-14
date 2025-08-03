@@ -1,0 +1,22 @@
+name: "dnsmasq"
+description: "Dnsmasq provides network infrastructure for small networks."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://thekelleys.org.uk/dnsmasq/"
+  }
+  url {
+    type: ARCHIVE
+    value: "http://www.thekelleys.org.uk/dnsmasq/dnsmasq-2.51.tar.gz"
+  }
+  version: "2.51"
+  license_type: RESTRICTED
+  security {
+    tag: "NVD-CPE2.3:cpe:/a:thekelleys:dnsmasq:2.51"
+  }
+  last_upgrade_date {
+    year: 2010
+    month: 1
+    day: 20
+  }
+}

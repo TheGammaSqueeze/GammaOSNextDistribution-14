@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<first worksCorrectly="YES"><bang>
+    <bat>1</bat>
+  </bang><bang>
+    <bat>3</bat>
+  </bang></first><second worksCorrectly="YES! (should do the same thing)"><bang>
+    <bat>1</bat>
+  </bang><bang>
+    <bat>3</bat>
+  </bang></second>

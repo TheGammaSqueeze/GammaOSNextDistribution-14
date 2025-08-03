@@ -1,0 +1,317 @@
+package {
+    default_applicable_licenses: ["external_open_dice_license"],
+}
+
+license {
+    name: "external_open_dice_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["LICENSE"],
+}
+
+cc_defaults {
+    name: "libopen_dice.cc_defaults",
+    defaults_visibility: ["//visibility:private"],
+    host_supported: true,
+    vendor_available: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.compos",
+        "com.android.virt",
+    ],
+}
+
+cc_library_headers {
+    name: "libopen_dice_headers",
+    defaults: ["libopen_dice.cc_defaults"],
+    export_include_dirs: ["include"],
+}
+
+cc_library_headers {
+    name: "libopen_dice_boringssl_ed25519_headers",
+    defaults: ["libopen_dice.cc_defaults"],
+    export_include_dirs: ["include/dice/config/boringssl_ed25519"],
+}
+
+cc_library_headers {
+    name: "libopen_dice_boringssl_ecdsa_p384_headers",
+    defaults: ["libopen_dice.cc_defaults"],
+    export_include_dirs: ["include/dice/config/boringssl_ecdsa_p384"],
+}
+
+filegroup {
+    name: "libopen_dice_common_srcs",
+    srcs: [
+        "src/clear_memory.c",
+        "src/dice.c",
+        "src/utils.c",
+    ],
+}
+
+filegroup {
+    name: "libopen_dice_cbor_common_srcs",
+    srcs: [
+        "src/boringssl_hash_kdf_ops.c",
+        "src/cbor_cert_op.c",
+        "src/cbor_writer.c",
+    ],
+}
+
+filegroup {
+    name: "libopen_dice_cbor_ed25519_srcs",
+    srcs: [
+        "src/boringssl_ed25519_ops.c",
+        "src/cbor_ed25519_cert_op.c",
+    ],
+}
+
+filegroup {
+    name: "libopen_dice_cbor_p384_srcs",
+    srcs: [
+        "src/boringssl_ecdsa_utils.c",
+        "src/boringssl_p384_ops.c",
+        "src/cbor_p384_cert_op.c",
+    ],
+}
+
+cc_library {
+    name: "libopen_dice_cbor",
+    defaults: ["libopen_dice.cc_defaults"],
+    srcs: [
+        ":libopen_dice_cbor_common_srcs",
+        ":libopen_dice_cbor_ed25519_srcs",
+        ":libopen_dice_common_srcs",
+    ],
+    header_libs: [
+        "libopen_dice_boringssl_ed25519_headers",
+        "libopen_dice_headers",
+    ],
+    export_header_lib_headers: [
+        "libopen_dice_boringssl_ed25519_headers",
+        "libopen_dice_headers",
+    ],
+    shared_libs: ["libcrypto"],
+}
+
+cc_library_static {
+    name: "libopen_dice_cbor_p384",
+    defaults: ["libopen_dice.cc_defaults"],
+    srcs: [
+        ":libopen_dice_cbor_common_srcs",
+        ":libopen_dice_cbor_p384_srcs",
+        ":libopen_dice_common_srcs",
+    ],
+    header_libs: [
+        "libopen_dice_boringssl_ecdsa_p384_headers",
+        "libopen_dice_headers",
+    ],
+    export_header_lib_headers: [
+        "libopen_dice_boringssl_ecdsa_p384_headers",
+        "libopen_dice_headers",
+    ],
+    shared_libs: ["libcrypto"],
+}
+
+// Version of the library missing DiceClearMemory, for baremetal client code.
+cc_library_static {
+    name: "libopen_dice_cbor_baremetal",
+    srcs: [
+        ":libopen_dice_cbor_common_srcs",
+        ":libopen_dice_cbor_ed25519_srcs",
+        ":libopen_dice_common_srcs",
+    ],
+    exclude_srcs: ["src/clear_memory.c"],
+    allow_undefined_symbols: true,
+    header_libs: [
+        "libopen_dice_boringssl_ed25519_headers",
+        "libopen_dice_headers",
+    ],
+    export_header_lib_headers: [
+        "libopen_dice_boringssl_ed25519_headers",
+        "libopen_dice_headers",
+    ],
+    static_libs: ["libcrypto_baremetal"],
+}
+
+filegroup {
+    name: "libopen_dice_android_srcs",
+    srcs: [
+        "src/cbor_reader.c",
+        "src/android.c",
+    ],
+}
+
+cc_library {
+    name: "libopen_dice_android",
+    defaults: ["libopen_dice.cc_defaults"],
+    srcs: [":libopen_dice_android_srcs"],
+    export_shared_lib_headers: ["libopen_dice_cbor"],
+    shared_libs: [
+        "libcrypto",
+        "libopen_dice_cbor",
+    ],
+}
+
+cc_library_static {
+    name: "libopen_dice_android_baremetal",
+    srcs: [":libopen_dice_android_srcs"],
+    export_static_lib_headers: ["libopen_dice_cbor_baremetal"],
+    static_libs: [
+        "libcrypto_baremetal",
+        "libopen_dice_cbor_baremetal",
+    ],
+}
+
+cc_library_static {
+    name: "libopen_dice_android_p384",
+    defaults: ["libopen_dice.cc_defaults"],
+    srcs: [
+        "src/cbor_reader.c",
+        "src/android.c",
+    ],
+    static_libs: ["libopen_dice_cbor_p384"],
+    export_static_lib_headers: ["libopen_dice_cbor_p384"],
+    shared_libs: ["libcrypto"],
+}
+
+cc_test {
+    name: "libopen_dice_test",
+    host_supported: true,
+    cflags: ["-DDICE_USE_GTEST"],
+    srcs: [
+        ":libopen_dice_common_srcs",
+        "src/dice_test.cc",
+    ],
+    header_libs: [
+        "libopen_dice_boringssl_ed25519_headers",
+        "libopen_dice_headers",
+    ],
+    shared_libs: ["libcrypto"],
+}
+
+cc_test {
+    name: "libopen_dice_p384_test",
+    host_supported: true,
+    cflags: ["-DDICE_USE_GTEST"],
+    srcs: [
+        ":libopen_dice_common_srcs",
+        "src/dice_test.cc",
+    ],
+    header_libs: [
+        "libopen_dice_boringssl_ecdsa_p384_headers",
+        "libopen_dice_headers",
+    ],
+    shared_libs: ["libcrypto"],
+}
+
+cc_test {
+    name: "libopen_dice_cbor_writer_test",
+    host_supported: true,
+    cflags: ["-DDICE_USE_GTEST"],
+    srcs: ["src/cbor_writer_test.cc"],
+    static_libs: ["libopen_dice_cbor"],
+}
+
+cc_test {
+    name: "libopen_dice_cbor_writer_p384_test",
+    host_supported: true,
+    cflags: ["-DDICE_USE_GTEST"],
+    srcs: ["src/cbor_writer_test.cc"],
+    static_libs: ["libopen_dice_cbor_p384"],
+}
+
+cc_test {
+    name: "libopen_dice_cbor_reader_test",
+    host_supported: true,
+    cflags: ["-DDICE_USE_GTEST"],
+    srcs: ["src/cbor_reader_test.cc"],
+    static_libs: ["libopen_dice_android"],
+}
+
+cc_test {
+    name: "libopen_dice_cbor_reader_p384_test",
+    host_supported: true,
+    cflags: ["-DDICE_USE_GTEST"],
+    srcs: ["src/cbor_reader_test.cc"],
+    static_libs: ["libopen_dice_android_p384"],
+}
+
+cc_test {
+    name: "libopen_dice_android_test",
+    host_supported: true,
+    cflags: ["-DDICE_USE_GTEST"],
+    srcs: ["src/android_test.cc"],
+    static_libs: [
+        "libopen_dice_android",
+        "libopen_dice_cbor",
+    ],
+    shared_libs: ["libcrypto"],
+}
+
+// TODO: cbor_cert_op_test after resolving COSE dependency
+
+cc_fuzz {
+    name: "libopen_dice_cbor_writer_fuzzer",
+    host_supported: true,
+    srcs: ["src/cbor_writer_fuzzer.cc"],
+    static_libs: ["libopen_dice_cbor"],
+}
+
+cc_fuzz {
+    name: "libopen_dice_cbor_writer_p384_fuzzer",
+    host_supported: true,
+    srcs: ["src/cbor_writer_fuzzer.cc"],
+    static_libs: ["libopen_dice_cbor_p384"],
+}
+
+cc_fuzz {
+    name: "libopen_dice_cbor_reader_fuzzer",
+    host_supported: true,
+    srcs: ["src/cbor_reader_fuzzer.cc"],
+    static_libs: ["libopen_dice_android"],
+}
+
+cc_fuzz {
+    name: "libopen_dice_cbor_reader_p384_fuzzer",
+    host_supported: true,
+    srcs: ["src/cbor_reader_fuzzer.cc"],
+    static_libs: ["libopen_dice_android_p384"],
+}
+
+cc_fuzz {
+    name: "libopen_dice_cbor_fuzzer",
+    host_supported: true,
+    srcs: ["src/fuzzer.cc"],
+    static_libs: ["libopen_dice_cbor"],
+    shared_libs: ["libcrypto"],
+}
+
+cc_fuzz {
+    name: "libopen_dice_cbor_p384_fuzzer",
+    host_supported: true,
+    srcs: ["src/fuzzer.cc"],
+    static_libs: ["libopen_dice_cbor_p384"],
+    shared_libs: ["libcrypto"],
+}
+
+cc_fuzz {
+    name: "libopen_dice_android_fuzzer",
+    host_supported: true,
+    srcs: ["src/android_fuzzer.cc"],
+    static_libs: [
+        "libopen_dice_android",
+        "libopen_dice_cbor",
+    ],
+    shared_libs: ["libcrypto"],
+}
+
+cc_fuzz {
+    name: "libopen_dice_android_p384_fuzzer",
+    host_supported: true,
+    srcs: ["src/android_fuzzer.cc"],
+    static_libs: [
+        "libopen_dice_android_p384",
+        "libopen_dice_cbor_p384",
+    ],
+    shared_libs: ["libcrypto"],
+}

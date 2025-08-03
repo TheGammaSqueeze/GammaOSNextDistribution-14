@@ -1,0 +1,35 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='diff_size' size='16' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='same_size' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='base_class_size.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='f0981eeb'/>
+    <class-decl name='A' size-in-bits='32' is-struct='yes' visibility='default' id='3ed987a4'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='f0981eeb' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='B' size-in-bits='64' is-struct='yes' visibility='default' id='41d98c5d'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='y' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='SameSize' size-in-bits='64' is-struct='yes' visibility='default' id='1e346a52'>
+      <base-class access='public' layout-offset-in-bits='0' type-id='3ed987a4'/>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='z' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='DiffSize' size-in-bits='128' is-struct='yes' visibility='default' id='7ce119fb'>
+      <base-class access='public' layout-offset-in-bits='0' type-id='41d98c5d'/>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='z' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='same_size' type-id='1e346a52' mangled-name='same_size' visibility='default' elf-symbol-id='same_size'/>
+    <var-decl name='diff_size' type-id='7ce119fb' mangled-name='diff_size' visibility='default' elf-symbol-id='diff_size'/>
+  </abi-instr>
+</abi-corpus>

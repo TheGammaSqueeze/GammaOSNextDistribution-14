@@ -1,0 +1,45 @@
+import org.gradle.internal.jvm.Jvm
+import org.robolectric.gradle.DeployedRoboJavaModulePlugin
+import org.robolectric.gradle.RoboJavaModulePlugin
+
+apply plugin: RoboJavaModulePlugin
+apply plugin: DeployedRoboJavaModulePlugin
+
+// Disable annotation processor for tests
+compileTestJava {
+    options.compilerArgs.add("-proc:none")
+}
+
+test {
+    enabled = false
+}
+
+dependencies {
+    // Project dependencies
+    implementation project(":annotations")
+    implementation project(":shadowapi")
+
+    // Compile dependencies
+    implementation libs.error.prone.annotations
+    implementation libs.error.prone.refaster
+    implementation libs.error.prone.check.api
+    compileOnly libs.auto.service.annotations
+    compileOnly(AndroidSdk.MAX_SDK.coordinates)
+
+    annotationProcessor libs.auto.service
+    annotationProcessor libs.error.prone.core
+
+    // in jdk 9, tools.jar disappears!
+    def toolsJar = Jvm.current().getToolsJar()
+    if (toolsJar != null) {
+        compile files(toolsJar)
+    }
+
+    // Testing dependencies
+    testImplementation libs.junit4
+    testImplementation libs.truth
+    testImplementation(libs.error.prone.test.helpers) {
+        exclude group: 'junit', module: 'junit' // because it depends on a snapshot!?
+    }
+    testCompileOnly(AndroidSdk.MAX_SDK.coordinates)
+}

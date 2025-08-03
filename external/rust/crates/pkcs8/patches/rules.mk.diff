@@ -1,0 +1,14 @@
+diff --git b/rules.mk a/rules.mk
+index c7476cb..0257d05 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -13,9 +13,6 @@ MODULE_RUSTFLAGS += \
+ 
+ MODULE_LIBRARY_DEPS := \
+ 	external/rust/crates/der \
+-	external/rust/crates/pkcs5 \
+-	external/rust/crates/rand_core \
+ 	external/rust/crates/spki \
+-	external/rust/crates/subtle \
+ 
+ include make/library.mk

@@ -1,0 +1,119 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x03bcc221
+  kind: POINTER
+  pointee_type_id: 0x24b3ee1b
+}
+pointer_reference {
+  id: 0x0717146f
+  kind: POINTER
+  pointee_type_id: 0x361cb720
+}
+pointer_reference {
+  id: 0x24b3ee1b
+  kind: POINTER
+  pointee_type_id: 0xb88f5ef1
+}
+pointer_reference {
+  id: 0x361cb720
+  kind: POINTER
+  pointee_type_id: 0xf2323a1e
+}
+qualified {
+  id: 0xf2323a1e
+  qualifier: CONST
+  qualified_type_id: 0xb88f5ef1
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+member {
+  id: 0xa04e65cb
+  name: "x"
+  type_id: 0xfc0e1dbd
+}
+struct_union {
+  id: 0xb88f5ef1
+  kind: STRUCT
+  name: "foo"
+  definition {
+    bytesize: 8
+    member_id: 0xa04e65cb
+  }
+}
+elf_symbol {
+  id: 0xa7b0241d
+  name: "a"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x6720d32f
+  full_name: "a"
+}
+elf_symbol {
+  id: 0xe371117a
+  name: "b"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xb88f5ef1
+  full_name: "b"
+}
+elf_symbol {
+  id: 0x2230fb28
+  name: "c"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x24b3ee1b
+  full_name: "c"
+}
+elf_symbol {
+  id: 0xa2b65a7e
+  name: "e"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x03bcc221
+  full_name: "e"
+}
+elf_symbol {
+  id: 0x213764e1
+  name: "g"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf2323a1e
+  full_name: "g"
+}
+elf_symbol {
+  id: 0x68f3ac2c
+  name: "h"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x361cb720
+  full_name: "h"
+}
+elf_symbol {
+  id: 0xe98c5fb8
+  name: "j"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x0717146f
+  full_name: "j"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xa7b0241d
+  symbol_id: 0xe371117a
+  symbol_id: 0x2230fb28
+  symbol_id: 0xa2b65a7e
+  symbol_id: 0x213764e1
+  symbol_id: 0x68f3ac2c
+  symbol_id: 0xe98c5fb8
+}

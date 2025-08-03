@@ -1,0 +1,138 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_auto_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_auto_license"],
+}
+
+filegroup {
+    name: "auto_value_plugin_resources",
+    path: "src/main/java",
+    srcs: ["src/main/java/com/google/auto/value/processor/*.vm"],
+}
+
+java_library_host {
+    name: "libauto_value_plugin",
+    srcs: ["src/main/java/com/google/auto/value/processor/**/*.java"],
+    java_resources: [":auto_value_plugin_resources"],
+    static_libs: [
+        "auto_android_annotation_stubs",
+        "auto_service_annotations",
+        "error_prone_annotations",
+
+        "asm-9.2",
+        "auto_common",
+        "auto_value_extension",
+        "escapevelocity",
+        "guava",
+        "javapoet",
+        "kotlin-stdlib",
+        "kotlinx_metadata_jvm",
+    ],
+    visibility: ["//visibility:public"],
+}
+
+java_library_host {
+    name: "auto_value_extension",
+    srcs: ["src/main/java/com/google/auto/value/extension/*.java"],
+    libs: [
+        "guava",
+    ],
+    visibility: ["//visibility:public"],
+}
+
+
+java_library {
+    name: "auto_value_annotations",
+    host_supported: true,
+    srcs: ["src/main/java/com/google/auto/value/*.java"],
+    sdk_version: "core_current",
+    // AutoValue is a pure java library without any dependency on android framework, however due to
+    // a dependency from an apex it is required to have a min_sdk_version
+    min_sdk_version: "19",
+    visibility: ["//visibility:public"],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.extservices",
+        "com.android.adservices",
+    ],
+}
+
+java_plugin {
+    name: "auto_value_plugin",
+    static_libs: ["libauto_value_plugin"],
+    processor_class: "com.google.auto.value.processor.AutoValueProcessor",
+    visibility: ["//visibility:public"],
+}
+
+java_plugin {
+    name: "auto_value_builder_plugin",
+    static_libs: ["libauto_value_plugin"],
+    processor_class: "com.google.auto.value.processor.AutoBuilderProcessor",
+    visibility: ["//visibility:public"],
+}
+
+java_plugin {
+    name: "auto_oneof_plugin",
+    static_libs: [
+        "libauto_value_plugin",
+
+        "auto_android_annotation_stubs",
+        "auto_common",
+        "libauto_service_plugin",
+        "auto_value_extension",
+        "escapevelocity",
+        "guava",
+        "javapoet",
+    ],
+    processor_class: "com.google.auto.value.processor.AutoOneOfProcessor",
+    visibility: ["//visibility:public"],
+}
+
+java_plugin {
+    name: "auto_annotation_plugin",
+    static_libs: [
+        "libauto_value_plugin",
+
+        "auto_android_annotation_stubs",
+        "auto_common",
+        "libauto_service_plugin",
+        "auto_value_extension",
+        "escapevelocity",
+        "guava",
+        "javapoet",
+    ],
+    processor_class: "com.google.auto.value.processor.AutoAnnotationProcessor",
+    visibility: ["//visibility:public"],
+}
+
+java_library {
+    name: "auto_value_memoized_extension_annotations",
+    host_supported: true,
+    srcs: ["src/main/java/com/google/auto/value/extension/memoized/*.java"],
+    sdk_version: "core_current",
+    visibility: ["//visibility:public"],
+}
+
+java_plugin {
+    name: "auto_value_memoized_extension_plugin",
+    srcs: ["src/main/java/com/google/auto/value/extension/memoized/processor/*.java"],
+    static_libs: [
+        "auto_android_annotation_stubs",
+        "auto_common",
+        "auto_service_annotations",
+        "auto_value_extension",
+        "error_prone_annotations",
+        "escapevelocity",
+        "guava",
+        "javapoet",
+        "jsr305",
+    ],
+    plugins: ["auto_service_plugin"],
+    processor_class: "com.google.auto.value.extension.memoized.processor.MemoizedValidator",
+    visibility: ["//visibility:public"],
+}

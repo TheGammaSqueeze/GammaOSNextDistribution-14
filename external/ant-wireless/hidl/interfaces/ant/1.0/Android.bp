@@ -1,0 +1,13 @@
+hidl_interface {
+    name: "com.dsi.ant@1.0",
+    root: "com.dsi.ant",
+    srcs: [
+        "types.hal",
+        "IAnt.hal",
+        "IAntCallbacks.hal",
+    ],
+    interfaces: [
+        "android.hidl.base@1.0",
+    ],
+    gen_java: true,
+}

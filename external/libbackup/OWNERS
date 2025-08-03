@@ -1,0 +1,7 @@
+# used by the Dialer app
+include platform/packages/apps/Dialer:/OWNERS
+
+martinoh@google.com
+rthakohov@google.com
+hadfieldp@google.com
+jstemmer@google.com

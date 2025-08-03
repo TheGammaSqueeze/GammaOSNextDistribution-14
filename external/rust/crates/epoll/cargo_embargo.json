@@ -1,0 +1,8 @@
+{
+  "package": {
+    "epoll": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

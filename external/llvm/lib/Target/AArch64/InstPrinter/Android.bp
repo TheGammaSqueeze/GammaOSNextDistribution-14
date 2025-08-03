@@ -1,0 +1,17 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_llvm_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-NCSA
+    default_applicable_licenses: ["external_llvm_license"],
+}
+
+cc_library_static {
+    name: "libLLVMAArch64AsmPrinter",
+    defaults: [
+        "llvm-lib-defaults",
+        "llvm-aarch64-defaults",
+    ],
+    srcs: ["*.cpp"],
+}

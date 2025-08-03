@@ -1,0 +1,23 @@
+diff --git a/Android.bp b/Android.bp
+index e2b5dd5..6132b98 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -30,8 +30,8 @@ rust_library_rlib {
+     features: ["alloc"],
+     rustlibs: [
+         "libbitflags",
+-        "liblog_rust",
+-        "libzerocopy",
++        "liblog_rust_nostd",
++        "libzerocopy_nostd",
+     ],
+     apex_available: [
+         "//apex_available:platform",
+@@ -58,6 +58,6 @@ rust_test {
+     rustlibs: [
+         "libbitflags",
+         "liblog_rust",
+-        "libzerocopy",
++        "libzerocopy_nostd",
+     ],
+ }

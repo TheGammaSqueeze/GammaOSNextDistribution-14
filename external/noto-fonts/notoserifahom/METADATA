@@ -1,0 +1,13 @@
+name: "notoserifahom"
+description:
+    "Noto is a global font collection for writing in all modern and ancient languages. Noto Serif Ahom is a modulated (“serif”) design for texts in the Southeast Asian Ahom script. It has 76 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/notofonts/ahom"
+  }
+  version: "2.000"
+  license_type: NOTICE
+  last_upgrade_date { year: 2018 month: 3 day: 19 }
+}

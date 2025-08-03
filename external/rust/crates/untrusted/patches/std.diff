@@ -1,0 +1,15 @@
+diff --git a/src/untrusted.rs b/src/untrusted.rs
+index 2f88bb4..b9f1439 100644
+--- a/src/untrusted.rs
++++ b/src/untrusted.rs
+@@ -102,6 +102,9 @@
+ )]
+ #![no_std]
+ 
++// ANDROID: use std to allow building as a dylib.
++#[cfg(android_dylib)]
++extern crate std;
++
+ /// A wrapper around `&'a [u8]` that helps in writing panic-free code.
+ ///
+ /// No methods of `Input` will ever panic.

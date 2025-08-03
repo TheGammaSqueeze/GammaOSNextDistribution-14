@@ -1,0 +1,16 @@
+python_test_host {
+    name: "opencl_cts",
+    main: "scripts/test_opencl_cts.py",
+    srcs: [ "scripts/test_opencl_cts.py" ],
+    data: [ "scripts/test_opencl_cts.xml" ],
+    test_config: "scripts/test_opencl_cts.xml",
+    test_options: {
+        unit_test: false,
+    },
+}
+
+python_test {
+    name: "run_conformance",
+    main: "test_conformance/run_conformance.py",
+    srcs: [ "test_conformance/run_conformance.py" ],
+}

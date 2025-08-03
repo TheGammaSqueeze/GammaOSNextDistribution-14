@@ -1,0 +1,14 @@
+filegroup {
+    name: "tink-java-x25519-sources",
+    srcs: [
+        "java_src/src/main/java/com/google/crypto/tink/annotations/Alpha.java",
+        "java_src/src/main/java/com/google/crypto/tink/internal/Curve25519.java",
+        "java_src/src/main/java/com/google/crypto/tink/internal/Field25519.java",
+        "java_src/src/main/java/com/google/crypto/tink/internal/Random.java",
+        "java_src/src/main/java/com/google/crypto/tink/subtle/Bytes.java",
+        "java_src/src/main/java/com/google/crypto/tink/subtle/Hex.java",
+        "java_src/src/main/java/com/google/crypto/tink/subtle/Random.java",
+        "java_src/src/main/java/com/google/crypto/tink/subtle/X25519.java",
+    ],
+}
+

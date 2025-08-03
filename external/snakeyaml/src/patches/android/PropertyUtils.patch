@@ -1,0 +1,83 @@
+diff --git a/src/main/java/org/yaml/snakeyaml/introspector/PropertyUtils.java b/src/main/java/org/yaml/snakeyaml/introspector/PropertyUtils.java
+index 8afc5761..208c9351 100644
+--- a/src/main/java/org/yaml/snakeyaml/introspector/PropertyUtils.java
++++ b/src/main/java/org/yaml/snakeyaml/introspector/PropertyUtils.java
+@@ -13,12 +13,7 @@
+  */
+ package org.yaml.snakeyaml.introspector;
+ 
+-import java.beans.FeatureDescriptor;
+-import java.beans.IntrospectionException;
+-import java.beans.Introspector;
+-import java.beans.PropertyDescriptor;
+ import java.lang.reflect.Field;
+-import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
+ import java.util.Collection;
+ import java.util.HashMap;
+@@ -65,47 +60,14 @@ public class PropertyUtils {
+     }
+ 
+     Map<String, Property> properties = new LinkedHashMap<String, Property>();
+-    boolean inaccessableFieldsExist = false;
+-    if (bAccess == BeanAccess.FIELD) {
+-      for (Class<?> c = type; c != null; c = c.getSuperclass()) {
++    for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+         for (Field field : c.getDeclaredFields()) {
+-          int modifiers = field.getModifiers();
+-          if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)
+-              && !properties.containsKey(field.getName())) {
+-            properties.put(field.getName(), new FieldProperty(field));
+-          }
+-        }
+-      }
+-    } else {// add JavaBean properties
+-      try {
+-        for (PropertyDescriptor property : Introspector.getBeanInfo(type)
+-            .getPropertyDescriptors()) {
+-          Method readMethod = property.getReadMethod();
+-          if ((readMethod == null || !readMethod.getName().equals("getClass"))
+-              && !isTransient(property)) {
+-            properties.put(property.getName(), new MethodProperty(property));
+-          }
+-        }
+-      } catch (IntrospectionException e) {
+-        throw new YAMLException(e);
+-      }
+-
+-      // add public fields
+-      for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+-        for (Field field : c.getDeclaredFields()) {
+-          int modifiers = field.getModifiers();
+-          if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
+-            if (Modifier.isPublic(modifiers)) {
+-              properties.put(field.getName(), new FieldProperty(field));
+-            } else {
+-              inaccessableFieldsExist = true;
+-            }
+-          }
+-        }
+-      }
+-    }
+-    if (properties.isEmpty() && inaccessableFieldsExist) {
+-      throw new YAMLException("No JavaBean properties found in " + type.getName());
++            int modifiers = field.getModifiers();
++            if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)
++                    && !properties.containsKey(field.getName())) {
++                properties.put(field.getName(), new FieldProperty(field));
++             }
++         }
+     }
+     propertiesCache.put(type, properties);
+     return properties;
+@@ -113,10 +75,6 @@ public class PropertyUtils {
+ 
+   private static final String TRANSIENT = "transient";
+ 
+-  private boolean isTransient(FeatureDescriptor fd) {
+-    return Boolean.TRUE.equals(fd.getValue(TRANSIENT));
+-  }
+-
+   public Set<Property> getProperties(Class<? extends Object> type) {
+     return getProperties(type, beanAccess);
+   }

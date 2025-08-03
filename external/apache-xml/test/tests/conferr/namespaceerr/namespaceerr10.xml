@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<doc xmlns:xem="http://www.psol.com/xtension/1.0"
+   xmlns:l="http://xsl.lotus.com"/>
+  <foo>xyz</foo>
+  <xem:foo>found</xem:foo>
+  <l:foo>zyx</foo>
+</doc>

@@ -1,0 +1,296 @@
+package {
+    default_applicable_licenses: ["external_zstd_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_zstd_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-CC0-1.0",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-GPL-3.0",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Zlib",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "COPYING",
+        "LICENSE",
+    ],
+}
+
+cc_binary {
+    name: "zstd",
+
+    cflags: [
+        "-DZSTD_GZCOMPRESS",
+        "-DZSTD_GZDECOMPRESS",
+        "-DZSTD_LZ4COMPRESS",
+        "-DZSTD_LZ4DECOMPRESS",
+        "-DZSTD_MULTITHREAD",
+        "-Wall",
+        "-Werror",
+    ],
+
+    shared_libs: [
+        "liblz4",
+        "libz",
+        "libzstd",
+    ],
+
+    srcs: ["programs/*.c"],
+    system_ext_specific: true,
+
+    required: ["zstdgrep", "zstdless"],
+
+    symlinks: [
+        "zstdcat",
+        "zstdmt",
+        "unzstd",
+    ],
+}
+
+sh_binary {
+    name: "zstdgrep",
+    src: "programs/zstdgrep",
+    system_ext_specific: true,
+}
+
+sh_binary {
+    name: "zstdless",
+    src: "programs/zstdless",
+    system_ext_specific: true,
+}
+
+cc_library {
+    name: "libzstd",
+    min_sdk_version: "apex_inherit",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adbd",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.runtime",
+    ],
+    visibility: [
+        "//bootable/recovery:__subpackages__",
+        "//device/google/contexthub/util/nanoapp_postprocess:__subpackages__",
+        "//external/bcc/libbpf-tools:__subpackages__",
+        "//external/bpftool:__subpackages__",
+        "//external/dwarves:__subpackages__",
+        "//external/elfutils:__subpackages__",
+        "//external/libbpf:__subpackages__",
+        "//external/rsync:__subpackages__",
+        "//external/squashfs-tools/squashfs-tools:__subpackages__",
+        "//external/stg:__subpackages__",
+        "//frameworks/libs/binary_translation/tools:__subpackages__",
+        "//packages/modules/adb:__subpackages__",
+        "//system/logging/logd:__subpackages__",
+        "//system/update_engine:__subpackages__",
+        "//system/core/fs_mgr/libsnapshot:__subpackages__",
+        "//system/core/init:__subpackages__",
+        "//system/core/fastboot:__subpackages__",
+        "//system/extras/partition_tools:__subpackages__",
+        "//system/unwinding/libunwindstack:__subpackages__",
+    ],
+    product_available: true,
+    recovery_available: true,
+    vendor_available: true,
+    system_ext_specific: true,
+    host_supported: true,
+    native_bridge_supported: true,
+    ramdisk_available: true,
+    vendor_ramdisk_available: true,
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+    srcs: ["lib/*/*.c"],
+    arch: {
+        x86_64: {
+            cflags: ["-DZSTD_DISABLE_ASM"],
+        },
+    },
+    cflags: ["-Wall", "-Werror"],
+    local_include_dirs: ["lib/common"],
+    export_include_dirs: ["lib"],
+}
+
+cc_defaults {
+    name: "zstd_fuzz_defaults",
+    static_libs: [
+        "libzstd",
+    ],
+    srcs: [
+        "contrib/externalSequenceProducer/sequence_producer.c",
+        "tests/fuzz/fuzz_data_producer.c",
+        "tests/fuzz/fuzz_helpers.c",
+        "tests/fuzz/zstd_helpers.c",
+    ],
+    local_include_dirs: [
+        "contrib/externalSequenceProducer",
+        "lib/common",
+        "lib/compress",
+        "lib/dictBuilder",
+        "tests/fuzz",
+    ],
+    system_ext_specific: true,
+    cflags: [
+        "-Wno-error",
+        "-Wno-pointer-arith",
+    ],
+    host_supported: true,
+}
+
+cc_fuzz {
+    name: "zstd_block_decompress_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/block_decompress.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_block_round_trip_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/block_round_trip.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_dict_decompress_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/dictionary_decompress.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_dict_loader_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/dictionary_loader.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_dict_round_trip_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/dictionary_round_trip.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_dict_stream_round_trip_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/dictionary_stream_round_trip.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_raw_dict_round_trip_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/raw_dictionary_round_trip.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_simple_compress_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/simple_compress.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_simple_decompress_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/simple_decompress.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_simple_round_trip_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/simple_round_trip.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_stream_decompress_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/stream_decompress.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_stream_round_trip_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/stream_round_trip.c",
+    ],
+}
+
+cc_fuzz {
+    name: "zstd_frame_info_fuzzer",
+    defaults: [
+        "zstd_fuzz_defaults",
+    ],
+    srcs: [
+        "tests/fuzz/zstd_frame_info.c",
+    ],
+}

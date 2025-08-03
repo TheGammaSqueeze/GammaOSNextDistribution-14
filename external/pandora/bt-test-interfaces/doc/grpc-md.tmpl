@@ -1,0 +1,85 @@
+{{range .Files}}
+# {{.Name | base | replace ".proto" "" | upper}} API
+
+## Index
+
+{{range .Services -}}
+* <code><a href=#{{.FullName}}>{{.Name}}</a></code> (interface)
+{{end}}
+{{range .Messages -}}
+* <code><a href=#{{.FullName}}>{{.Name}}</a></code> (message)
+{{end}}
+{{range .Enums -}}
+* <code><a href=#{{.FullName}}>{{.Name}}</a></code> (enum)
+{{end}}
+
+{{range .Services -}}
+<a name="{{.FullName}}"></a>
+## {{.Name}}
+
+{{.Description}}
+
+{{range .Methods -}}
+### {{.Name}}
+<code> rpc {{.Name}}({{if .RequestStreaming}}stream {{end}}<a href=#{{.RequestFullType}}>{{.RequestLongType}}</a>) returns ({{if .ResponseStreaming}}stream {{end}}<a href=#{{.ResponseFullType}}>{{.ResponseLongType}}</a>)</code>
+
+{{.Description}}
+
+{{end}} <!-- end Methods -->
+
+{{end}} <!-- end Services -->
+
+{{range .Messages -}}
+<a name="{{.FullName}}"></a>
+## {{.Name}}
+
+{{.Description}}
+
+{{if .HasFields}}
+<table class="properties responsive">
+    <thead>
+        <tr><th colspan="2">Fields</th></tr>
+    </thead>
+    <tbody>
+    {{range .Fields -}}
+        <tr>
+            <td><code>{{if .IsOneof}}<a href=https://developers.google.com/protocol-buffers/docs/proto3#oneof>oneof</a> {{.OneofDecl}}.{{end}}{{.Name}}</code></td>
+            <td>
+                <code><a href=#{{.FullType}}>{{.LongType}}</a></code>
+                <br><br>
+                {{.Description}}
+                {{if .DefaultValue}}<br><br>Default: <code>{{.DefaultValue}}</code>{{end}}
+            </td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+{{end}}
+
+{{end}} <!-- end Messages-->
+
+{{range .Enums -}}
+<a name="{{.FullName}}"></a>
+## {{.LongName}}
+
+<table class="constants responsive">
+    <thead>
+        <tr><th colspan="2">Enums</th></tr>
+    </thead>
+    <tbody>
+    {{range .Values -}}
+        <tr>
+            <td><code>{{.Name}}</code></td>
+            <td>
+                <code>{{.Number}}</code>
+                <br><br>
+                {{.Description}}
+            </td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+
+{{end}} <!-- end Enums -->
+
+{{end}} <!-- end Files -->

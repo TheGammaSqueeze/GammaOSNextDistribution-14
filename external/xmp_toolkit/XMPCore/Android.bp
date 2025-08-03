@@ -1,0 +1,29 @@
+package {
+    default_applicable_licenses: ["external_xmp_toolkit_XMPCore_license"],
+}
+
+// Added automatically by a large-scale-change
+// http://go/android-license-faq
+license {
+    name: "external_xmp_toolkit_XMPCore_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+java_library {
+    name: "xmp_toolkit",
+    host_supported: true,
+    // Include all the java files.
+    srcs: ["src/**/*.java"],
+    sdk_version: "current",
+    errorprone: {
+        javacflags: [
+            "-Xep:ComparableType:WARN",
+        ],
+    },
+}

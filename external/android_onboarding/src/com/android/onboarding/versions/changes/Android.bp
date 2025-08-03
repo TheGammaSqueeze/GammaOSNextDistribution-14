@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.versions.changes",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "*.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "android_onboarding.versions.annotations",
+    ],
+    plugins: ["android_onboarding.versions.change_collector"],
+}

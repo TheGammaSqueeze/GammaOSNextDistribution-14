@@ -1,0 +1,23 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_Z3fun1A1B' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='fixed_underlying_type.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='unnamed-enum-underlying-type-64' is-anonymous='yes' size-in-bits='64' alignment-in-bits='64' id='94b8df49'/>
+    <type-decl name='unnamed-enum-underlying-type-8' is-anonymous='yes' size-in-bits='8' alignment-in-bits='8' id='4aba8549'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='f0981eeb'/>
+    <enum-decl name='A' id='c2c319f3'>
+      <underlying-type type-id='4aba8549'/>
+      <enumerator name='Ae' value='0'/>
+    </enum-decl>
+    <enum-decl name='B' id='c3c31b86'>
+      <underlying-type type-id='94b8df49'/>
+      <enumerator name='Be' value='0'/>
+    </enum-decl>
+    <function-decl name='fun' mangled-name='_Z3fun1A1B' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3fun1A1B'>
+      <parameter type-id='c2c319f3' name='a'/>
+      <parameter type-id='c3c31b86' name='b'/>
+      <return type-id='f0981eeb'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

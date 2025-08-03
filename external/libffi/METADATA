@@ -1,0 +1,20 @@
+name: "libffi"
+description: "A portable foreign-function interface library."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/libffi/libffi.git"
+  }
+  version: "v3.3"
+  license_note: "would be NOTICE save for:\n"
+  "   .travis/\n"
+  "   testsuite/lib*/\n"
+  "   libtool-ldflags\n"
+  "   LICENSE-BUILDTOOLS"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2020
+    month: 3
+    day: 26
+  }
+}

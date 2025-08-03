@@ -1,0 +1,20 @@
+name: "fxhash"
+description: "A fast, non-secure, hashing algorithm derived from an internal hasher used in FireFox and Rustc."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/fxhash"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/fxhash/fxhash-0.2.1.crate"
+  }
+  version: "0.2.1"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 7
+    day: 21
+  }
+}

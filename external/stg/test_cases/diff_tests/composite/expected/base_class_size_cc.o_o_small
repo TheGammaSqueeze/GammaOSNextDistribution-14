@@ -1,0 +1,15 @@
+type 'struct DiffSize' changed
+  byte size changed from 8 to 16
+  member 'int z' changed
+    offset changed from 32 to 64
+
+type 'struct B' changed
+  byte size changed from 4 to 8
+  member changed from 'int y' to 'long y'
+    type changed from 'int' to 'long'
+
+type 'struct A' changed
+  member changed from 'int x' to 'unsigned int x'
+    type changed from 'int' to 'unsigned int'
+
+exit code 4

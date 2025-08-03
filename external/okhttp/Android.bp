@@ -1,0 +1,252 @@
+//
+// Copyright (C) 2012 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_team: "trendy_team_java_core_libraries",
+    default_visibility: ["//visibility:private"],
+    default_applicable_licenses: ["external_okhttp_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_okhttp_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE.txt",
+    ],
+}
+
+java_defaults {
+    name: "okhttp_errorprone_defaults",
+    errorprone: {
+        javacflags: [
+            "-Xep:InvalidTimeZoneID:WARN",
+            "-Xep:TryFailThrowable:WARN",
+        ],
+    },
+}
+
+// The source files that contribute to Android's core library APIs.
+filegroup {
+    name: "okhttp_api_files",
+    visibility: ["//libcore"],
+    // Use the repackaged version of android as that is what is used by Android core library
+    // APIs.
+    srcs: ["repackaged/android/src/main/java/com/android/okhttp/internalandroidapi/**/*.java"],
+}
+
+nojarjar_visibility = [
+    "//art/build/sdk",
+    "//cts/tests/libcore/okhttp",
+]
+
+// non-jarjar'd version of okhttp to compile the tests against
+java_library {
+    name: "okhttp-nojarjar",
+    defaults: ["okhttp_errorprone_defaults"],
+    visibility: nojarjar_visibility,
+    srcs: [
+        "android/src/main/java/**/*.java",
+        "okhttp/src/main/java/**/*.java",
+        "okhttp-urlconnection/src/main/java/**/*.java",
+        "okhttp-android-support/src/main/java/**/*.java",
+        "okio/okio/src/main/java/**/*.java",
+    ],
+    exclude_srcs: ["okhttp/src/main/java/com/squareup/okhttp/internal/Platform.java"],
+
+    hostdex: true,
+
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+    libs: [
+        "conscrypt.module.intra.core.api",
+    ],
+    java_version: "1.7",
+}
+
+// The source implementation files, used to build okhttp and core-all. It is
+// used in the latter case to break the cycle where okhttp depends on core-all
+// and core-all depends on okhttp. By including the source into core-all it
+// ensures that the code can all build correctly and then that is used to build
+// the separate parts.
+filegroup {
+    name: "okhttp_impl_files",
+    visibility: ["//libcore"],
+    srcs: [
+        // Although some of the classes in the android/ directory are already in the correct
+        // package and do not need to be moved to another package they are transformed as they
+        // reference other classes that do require repackaging.
+        "repackaged/android/src/main/java/**/*.java",
+        "repackaged/okhttp/src/main/java/**/*.java",
+        "repackaged/okhttp-urlconnection/src/main/java/**/*.java",
+        "repackaged/okhttp-android-support/src/main/java/**/*.java",
+        "repackaged/okio/okio/src/main/java/**/*.java",
+    ],
+}
+
+java_library {
+    name: "okhttp",
+    defaults: ["okhttp_errorprone_defaults"],
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//external/grpc-grpc-java/okhttp",
+        "//external/robolectric-shadows",
+        "//external/robolectric",
+        "//libcore:__subpackages__",
+        "//packages/modules/ArtPrebuilt",
+    ],
+    srcs: [
+        ":okhttp_impl_files",
+    ],
+
+    hostdex: true,
+    installable: true,
+
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+    libs: [
+        "conscrypt.module.intra.core.api",
+    ],
+    java_version: "1.7",
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    min_sdk_version: "31",
+}
+
+// Java library for use on host, e.g. by robolectric.
+java_library {
+    name: "okhttp-for-host",
+    visibility: [
+        "//art/build/sdk",
+        "//external/robolectric-shadows",
+        "//external/robolectric",
+    ],
+    static_libs: [
+        "okhttp",
+    ],
+    sdk_version: "none",
+    system_modules: "none",
+}
+
+// Java Library for both Host and Android that does not use the repackaged okhttp libraries
+// (com.android.okhttp) and instead uses the original (com.squareup.okhttp) packages.
+// This should not end up on the bootclasspath and instead should only be used to build
+// third-party or unbundled applications or libraries that require OkHttp.
+java_library {
+    name: "okhttp-norepackage",
+    defaults: ["okhttp_errorprone_defaults"],
+    host_supported: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adservices",
+        "com.android.devicelock",
+        "com.android.extservices",
+        "com.android.ondevicepersonalization",
+    ],
+    visibility: [
+        "//art/build/sdk",
+        "//external/grpc-grpc-java/okhttp",
+    ],
+
+    srcs: [
+        "okhttp/src/main/java/**/*.java",
+        "okhttp-urlconnection/src/main/java/**/*.java",
+        ":okhttp_version.java",
+    ],
+
+    libs: [
+        // Building against "core_current" means that the android.util.Log API
+        // is not available. This provides stubs for it which allows the code to
+        // compile.
+        "okhttp-android-util-log",
+    ],
+
+    static_libs: [
+        "okio-lib",
+    ],
+
+    installable: true,
+    // Build against a "core_current" as it cannot use "current" as it has to
+    // build in manifests without frameworks/base.
+    sdk_version: "core_current",
+    // Make sure that this will be added to the sdk snapshot for S.
+    min_sdk_version: "30",
+    // This jar is packaged as part of the ART module host exports, use -target 8 so that it works
+    // with old JDKs.
+    java_version: "1.8",
+}
+
+// Generate Version.java based on the version number from pom.xml.
+genrule {
+    name: "okhttp_version.java",
+    srcs: [
+        "okhttp/src/main/java-templates/com/squareup/okhttp/internal/Version.java",
+        "okhttp/pom.xml",
+    ],
+    out: ["com/squareup/okhttp/internal/Version.java"],
+    cmd: "grep \"<version>\" $(location okhttp/pom.xml) | head -1 |" +
+        " sed -e \"s/\\s*<version>\\(.*\\)<\\/version>/\\1/\" > $(genDir)/version && " +
+        "sed -e \"s/\\$${project.version}/$$(cat $(genDir)/version)/\" " +
+        " $(location okhttp/src/main/java-templates/com/squareup/okhttp/internal/Version.java) " +
+        "> $(out)",
+}
+
+// A library to provide a stub android.util.Log symbol for
+// okhttp/src/main/java/com/squareup/okhttp/internal/Platform.java
+java_library {
+    name: "okhttp-android-util-log",
+    host_supported: true,
+    srcs: ["okhttp-android-util-log/src/main/java/**/*.java"],
+    sdk_version: "core_current",
+}
+
+java_library {
+    name: "okhttp-tests-nojarjar",
+    defaults: ["okhttp_errorprone_defaults"],
+    visibility: nojarjar_visibility,
+    srcs: [
+        "android/test/java/**/*.java",
+        "okhttp-android-support/src/test/java/**/*.java",
+        "okhttp-testing-support/src/main/java/**/*.java",
+        "okhttp-tests/src/test/java/**/*.java",
+        "okhttp-urlconnection/src/test/java/**/*.java",
+        "okhttp-ws/src/main/java/**/*.java",
+        "okhttp-ws-tests/src/test/java/**/*.java",
+        "okio/okio/src/test/java/**/*.java",
+        "mockwebserver/src/main/java/**/*.java",
+        "mockwebserver/src/test/java/**/*.java",
+    ],
+    // Exclude test Android currently has problems with due to @Parameterized (requires JUnit 4.11).
+    exclude_srcs: ["okhttp-tests/src/test/java/com/squareup/okhttp/WebPlatformUrlTest.java"],
+
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+    libs: [
+        "okhttp-nojarjar",
+        "junit",
+        "conscrypt.module.intra.core.api",
+        "bouncycastle-unbundled",
+    ],
+
+    java_version: "1.7",
+}

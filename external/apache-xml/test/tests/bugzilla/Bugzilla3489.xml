@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!-- Reproducing Bugzilla 3489 -->
+- <workspace banner-image="http://jakarta.apache.org/images/jakarta-logo.gif" banner-link="http://jakarta.apache.org" logdir="o:\desproto\ichannel/log" build-sequence="bulk" version="0.2" basedir="o:\desproto\ichannel" viewdir="../../.." outputdir="o:\desproto\ichannel\build\results\sb_desproto">
+  <property name="build.sysclasspath" value="only" /> 
+  <property name="deprecation" value="no" /> 
+  <property name="lib.ext" value="${lib.ext}" /> 
+  <property name="build.number" value="Nightly.Build" /> 
+  <property name="build.author" value="Unknown" /> 
+  <property name="implementation.version" value="X.X.X" /> 
+- <project name="activation" defined-in="activation" srcdir="./lib/javamail" tag="">
+  <description>Activation</description> 
+  <jar name="activation-1.0.1.jar" /> 
+  <home>o:\desproto\ichannel/./lib/javamail</home> 
+  </project>
+- <project name="crimson" defined-in="crimson" srcdir="./lib/crimson" tag="">
+  <description>crimson</description> 
+  <jar name="crimson.jar" /> 
+  <home>o:\desproto\ichannel/./lib/crimson</home> 
+  </project>
+- <project name="ecs" defined-in="ecs" srcdir="./lib/ecs" tag="">
+  <description>ecs</description> 
+  <jar name="ecs-1.4.1.jar" /> 
+  <home>o:\desproto\ichannel/./lib/ecs</home> 
+  </project>
+- <project name="httpclient" defined-in="httpclient" srcdir="./lib/http-client" tag="">
+  <description>http client</description> 
+  <jar name="http-client.jar" /> 
+  <home>o:\desproto\ichannel/./lib/http-client</home> 
+  </project>
+- <project name="javamail" defined-in="javamail" srcdir="./lib/javamail" tag="">
+  <description>javamail</description> 
+  <jar name="mail-1.2.jar" /> 
+  <home>o:\desproto\ichannel/./lib/javamail</home> 
+  </project>
+- <project name="jaxp" defined-in="jaxp" srcdir="./lib/crimson" tag="">
+  <description>jaxp</description> 
+  <jar name="jaxp.jar" /> 
+  <home>o:\desproto\ichannel/./lib/crimson</home> 
+  </project>
+- <project name="jcert" defined-in="jcert" srcdir="./lib/jsse" tag="">
+  <description>jcert</description> 
+  <jar name="jcert.jar" /> 
+  <home>o:\desproto\ichannel/./lib/jsse</home> 
+  </project>
+- <project name="jdbc20-stdext" defined-in="jdbc20-stdext" srcdir="./lib/jdbc-ext" tag="">
+  <description>jdbc20-stdext</description> 
+  <jar name="jdbc2_0-stdext.jar" /> 
+  <home>o:\desproto\ichannel/./lib/jdbc-ext</home> 
+  </project>
+- <project name="jnet" defined-in="jnet" srcdir="./lib/jsse" tag="">
+  <description>jnet</description> 
+  <jar name="jnet.jar" /> 
+  <home>o:\desproto\ichannel/./lib/jsse</home> 
+  </project>
+- <project name="jsse" defined-in="jsse" srcdir="./lib/jsse" tag="">
+  <description>jsse</description> 
+  <jar name="jsse.jar" /> 
+  <home>o:\desproto\ichannel/./lib/jsse</home> 
+  </project>
+- <project name="junit" defined-in="junit" srcdir="./lib/junit" tag="">
+  <description>Junit</description> 
+  <jar name="junit.jar" /> 
+  <home>o:\desproto\ichannel/./lib/junit</home> 
+  </project>
+- <project name="log4j" defined-in="log4j" srcdir="./lib/log4j" tag="">
+  <description>log4j</description> 
+  <jar name="log4j-1.1.jar" /> 
+  <home>o:\desproto\ichannel/./lib/log4j</home> 
+  </project>
+- <project name="oracle-jdbc" defined-in="oracle-jdbc" srcdir="./lib/oracle" tag="">
+  <description>oracle-jdbc</description> 
+  <jar name="classes12.jar" /> 
+  <home>o:\desproto\ichannel/./lib/oracle</home> 
+  </project>
+- <project name="servlet" defined-in="servlet" srcdir="./lib/servlet" tag="">
+  <description>servlet</description> 
+  <jar name="servlet.jar" /> 
+  <home>o:\desproto\ichannel/./lib/servlet</home> 
+  </project>
+- <project name="turbine" defined-in="turbine" srcdir="./lib/turbine/turbine-2.2b1" tag="">
+  <description>Jakarta Turbine</description> 
+  <jar name="turbine-2.2b1.jar" /> 
+  <home>o:\desproto\ichannel/./lib/turbine/turbine-2.2b1</home> 
+  </project>
+- <project name="velocity" defined-in="velocity" srcdir="./lib/velocity" tag="">
+  <description>Jakarta Velocity</description> 
+  <jar name="velocity-1.2-dev.jar" /> 
+  <home>o:\desproto\ichannel/./lib/velocity</home> 
+  </project>
+- <project name="village" defined-in="village" srcdir="./lib/village" tag="">
+  <description>village</description> 
+  <jar name="village-1.5.1.jar" /> 
+  <home>o:\desproto\ichannel/./lib/village</home> 
+  </project>
+- <project name="xerces" defined-in="xerces" srcdir="./lib/xerces" tag="">
+  <description>xerces</description> 
+  <jar name="xerces.jar" /> 
+  <home>o:\desproto\ichannel/./lib/xerces</home> 
+  </project>
+- <project name="waf" defined-in="imediation-waf" srcdir="./projects/waf" tag="">
+  <description>Web Application Framework</description> 
+  <depend project="village" /> 
+  <depend project="turbine" /> 
+  <depend project="velocity" /> 
+  <depend project="servlet" /> 
+  <depend project="ecs" /> 
+  <depend project="activation" /> 
+  <depend project="jdbc20-stdext" /> 
+  <ant buildpath="build/build.xml" buildfile="build/build.xml" target="dist" /> 
+  <jar name="./target/dist/waf.jar" /> 
+  <home>o:\desproto\ichannel/./projects/waf</home> 
+  </project>
+  </workspace>

@@ -1,0 +1,136 @@
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//visibility:private"])
+
+licenses(["notice"])
+
+py_library(
+    name = "create_keyset",
+    srcs = ["create_keyset.py"],
+    deps = [
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+    ],
+)
+
+py_test(
+    name = "create_keyset_test",
+    srcs = ["create_keyset_test.py"],
+    python_version = "PY3",
+    deps = [
+        requirement("absl-py"),
+        ":create_keyset",
+        "@tink_py//tink/aead",
+    ],
+)
+
+py_library(
+    name = "load_cleartext_keyset",
+    srcs = ["load_cleartext_keyset.py"],
+    deps = [
+        "@tink_py//tink:cleartext_keyset_handle",
+        "@tink_py//tink:tink_python",
+    ],
+)
+
+py_test(
+    name = "load_cleartext_keyset_test",
+    srcs = ["load_cleartext_keyset_test.py"],
+    python_version = "PY3",
+    deps = [
+        requirement("absl-py"),
+        ":load_cleartext_keyset",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+    ],
+)
+
+py_library(
+    name = "load_encrypted_keyset",
+    srcs = ["load_encrypted_keyset.py"],
+    deps = [
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+    ],
+)
+
+py_test(
+    name = "load_encrypted_keyset_test",
+    srcs = ["load_encrypted_keyset_test.py"],
+    python_version = "PY3",
+    deps = [
+        requirement("absl-py"),
+        ":load_encrypted_keyset",
+        "@tink_py//tink:cleartext_keyset_handle",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+        "@tink_py//tink/testing:fake_kms",
+    ],
+)
+
+py_library(
+    name = "obtain_and_use_a_primitive",
+    srcs = ["obtain_and_use_a_primitive.py"],
+    deps = [
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+    ],
+)
+
+py_test(
+    name = "obtain_and_use_a_primitive_test",
+    srcs = ["obtain_and_use_a_primitive_test.py"],
+    python_version = "PY3",
+    deps = [
+        requirement("absl-py"),
+        ":load_cleartext_keyset",
+        ":obtain_and_use_a_primitive",
+        "@tink_py//tink/aead",
+    ],
+)
+
+py_library(
+    name = "write_keyset",
+    srcs = ["write_keyset.py"],
+    deps = [
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+    ],
+)
+
+py_test(
+    name = "write_keyset_test",
+    srcs = ["write_keyset_test.py"],
+    deps = [
+        ":create_keyset",
+        ":load_encrypted_keyset",
+        ":write_keyset",
+        requirement("absl-py"),
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+        "@tink_py//tink/testing:fake_kms",
+    ],
+)
+
+py_library(
+    name = "write_cleartext_keyset",
+    srcs = ["write_cleartext_keyset.py"],
+    deps = [
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink:cleartext_keyset_handle",
+    ],
+)
+
+py_test(
+    name = "write_cleartext_keyset_test",
+    srcs = ["write_cleartext_keyset_test.py"],
+    deps = [
+        ":create_keyset",
+        ":load_cleartext_keyset",
+        ":write_cleartext_keyset",
+        requirement("absl-py"),
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+    ],
+)

@@ -1,0 +1,38 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='bar' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='bar_2' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='baz' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='quux' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='useless.c' language='LANG_C11'>
+    <class-decl name='foo' is-struct='yes' visibility='default' id='3f46facf'/>
+    <qualified-type-def type-id='65779605' const='yes' id='0b539cfc'/>
+    <qualified-type-def type-id='457037f1' const='yes' id='cdc82e58'/>
+    <pointer-type-def type-id='cdc82e58' size-in-bits='64' id='64211d76'/>
+    <pointer-type-def type-id='3f46facf' size-in-bits='64' id='8750e847'/>
+    <pointer-type-def type-id='40437d1b' size-in-bits='64' id='a36e1def'/>
+    <qualified-type-def type-id='a36e1def' volatile='yes' id='65779605'/>
+    <qualified-type-def type-id='3f46facf' volatile='yes' id='457037f1'/>
+    <function-decl name='bar_2' mangled-name='bar_2' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='bar_2'>
+      <parameter type-id='8750e847' name='y'/>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <function-decl name='bar' mangled-name='bar' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='bar'>
+      <parameter type-id='64211d76' name='y'/>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <function-decl name='baz' mangled-name='baz' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='baz'>
+      <parameter type-id='0b539cfc' name='y'/>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <var-decl name='quux' type-id='0b539cfc' mangled-name='quux' visibility='default' elf-symbol-id='quux'/>
+    <function-type size-in-bits='64' id='40437d1b'>
+      <parameter type-id='64211d76'/>
+      <return type-id='48b5725f'/>
+    </function-type>
+    <type-decl name='void' id='48b5725f'/>
+  </abi-instr>
+</abi-corpus>

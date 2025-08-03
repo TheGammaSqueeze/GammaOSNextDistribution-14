@@ -1,0 +1,21 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='bar' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='foo' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='struct_union.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='Struct' size-in-bits='32' is-struct='yes' visibility='default' id='377b1168'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <union-decl name='Union' size-in-bits='32' visibility='default' id='1026a3db'>
+      <data-member access='public'>
+        <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </union-decl>
+    <var-decl name='foo' type-id='377b1168' mangled-name='foo' visibility='default' elf-symbol-id='foo'/>
+    <var-decl name='bar' type-id='1026a3db' mangled-name='bar' visibility='default' elf-symbol-id='bar'/>
+  </abi-instr>
+</abi-corpus>

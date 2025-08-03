@@ -1,0 +1,11 @@
+Android requires all libraries using abseil to have the source code local to the library's code. The
+SHA hash below is the abseil-cpp hash that is in openscreen's DEPS file. The code is copied locally
+in openscreen/third-party/abseil/src.
+
+e19260fd7dbef881492fd73891e0be5bd4a09b95
+
+How to update abseil local copy:
+
+> git clone https://github.com/abseil/abseil-cpp.git src && cd src
+> git checkout <hash>
+> rm -rf .git .gitignore .github

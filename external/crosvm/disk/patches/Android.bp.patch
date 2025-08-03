@@ -1,0 +1,54 @@
+diff --git a/disk/Android.bp b/disk/Android.bp
+index ab4c44322..75dbbb9d5 100644
+--- a/disk/Android.bp
++++ b/disk/Android.bp
+@@ -26,19 +26,24 @@ rust_test {
+     edition: "2021",
+     features: [
+         "android-sparse",
++        "composite-disk", // Added manually
+         "qcow",
+     ],
+     rustlibs: [
+         "libbase_rust",
+         "libcfg_if",
++        "libcrc32fast", // Added manually
+         "libcros_async",
+         "libdata_model",
+         "libfutures",
+         "liblibc",
++        "libprotobuf", // Added manually
++        "libprotos", // Added manually
+         "libserde",
+         "libsync_rust",
+         "libtempfile",
+         "libthiserror",
++        "libuuid", // Added manually
+         "libvm_memory",
+         "libzerocopy",
+     ],
+@@ -59,19 +64,24 @@ rust_library {
+     edition: "2021",
+     features: [
+         "android-sparse",
++        "composite-disk", // Added manually
+         "qcow",
+     ],
+     rustlibs: [
+         "libbase_rust",
+         "libcfg_if",
++        "libcrc32fast", // Added manually
+         "libcros_async",
+         "libdata_model",
+         "libfutures",
+         "liblibc",
++        "libprotobuf", // Added manually
++        "libprotos", // Added manually
+         "libserde",
+         "libsync_rust",
+         "libtempfile",
+         "libthiserror",
++        "libuuid", // Added manually
+         "libvm_memory",
+         "libzerocopy",
+     ],

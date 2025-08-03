@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc xmlns:xf="http://xml.apache.org/cocoon/xmlform/2002">
+  <xf:output form="form1">with form attribute</xf:output>
+  <xf:output>no form attribute</xf:output>
+  <notxf>not in xf namespace</notxf>
+</doc>

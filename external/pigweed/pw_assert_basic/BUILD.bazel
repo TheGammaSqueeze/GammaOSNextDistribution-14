@@ -1,0 +1,89 @@
+# Copyright 2020 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load(
+    "//pw_build:pigweed.bzl",
+    "pw_cc_facade",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+# Note: to avoid circular dependencies, this target only includes the headers
+# for pw_assert_basic. The source file and its dependencies are in the separate
+# ":impl" target.
+#
+# If you point @pigweed//targets:pw_assert_backend to //pw_assert_basic, then
+# @pigweed//targets:pw_assert_backend_impl should point to
+# //pw_assert_basic:impl.
+cc_library(
+    name = "pw_assert_basic",
+    hdrs = [
+        "public/pw_assert_basic/assert_basic.h",
+        "public_overrides/pw_assert_backend/check_backend.h",
+    ],
+    includes = [
+        "public",
+        "public_overrides",
+    ],
+    deps = [
+        ":handler_facade",
+        "//pw_assert:assert_compatibility_backend",
+        "//pw_preprocessor",
+    ],
+)
+
+cc_library(
+    name = "impl",
+    srcs = [
+        "assert_basic.cc",
+    ],
+    deps = [
+        ":pw_assert_basic",
+        ":pw_assert_basic_handler",
+        "//pw_assert:facade",
+        "//pw_preprocessor",
+    ],
+    # Other libraries may not always depend on this library, even if it is
+    # necessary at link time.
+    alwayslink = 1,
+)
+
+pw_cc_facade(
+    name = "handler_facade",
+    hdrs = [
+        "public/pw_assert_basic/handler.h",
+    ],
+    deps = [
+        "//pw_preprocessor",
+    ],
+)
+
+cc_library(
+    name = "pw_assert_basic_handler",
+    srcs = [
+        "basic_handler.cc",
+    ],
+    deps = [
+        ":handler_facade",
+        ":pw_assert_basic",
+        "//pw_preprocessor",
+        "//pw_string:builder",
+        "//pw_sys_io",
+    ],
+    # Other libraries may not always depend on this library, even if it is
+    # necessary at link time.
+    alwayslink = 1,
+)

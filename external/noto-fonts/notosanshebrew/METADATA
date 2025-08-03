@@ -1,0 +1,13 @@
+name: "notosanshebrew"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Hebrew is an unmodulated (“sans serif”) design for textsin the Middle Eastern Hebrew script. It has multiple weights andwidths, and 149 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanshebrew"
+  }
+  version: "1.040"
+  license_type: NOTICE
+  last_upgrade_date { year: 2017 month: 5 day: 5 }
+}

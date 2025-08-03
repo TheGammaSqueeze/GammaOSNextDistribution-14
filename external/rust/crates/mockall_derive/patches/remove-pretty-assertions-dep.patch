@@ -1,0 +1,12 @@
+Not actually needed if the tests pass...
+
+--- a/src/automock.rs	2006-07-24 03:21:28.000000000 +0200
++++ b/src/automock.rs	2023-11-06 14:54:02.079601472 +0100
+@@ -280,7 +280,6 @@
+ #[cfg(test)]
+ mod t {
+     use super::super::*;
+-    use pretty_assertions::assert_eq;
+ 
+     fn check_substitute_type(
+         attrs: TokenStream,

@@ -1,0 +1,12 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name='Simple Project for AGP test'
+include ':app'
+include ':feature'

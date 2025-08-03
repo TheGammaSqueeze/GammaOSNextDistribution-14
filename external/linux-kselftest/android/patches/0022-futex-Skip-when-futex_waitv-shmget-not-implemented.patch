@@ -1,0 +1,100 @@
+From cd15fde3f6ff9bff56b04090c1fde3cc40378453 Mon Sep 17 00:00:00 2001
+From: Edward Liaw <edliaw@google.com>
+Date: Fri, 6 Oct 2023 20:04:21 +0000
+Subject: [PATCH] futex: Skip when futex_waitv/shmget not implemented
+
+getshm and futex_waitv are not implemented in Android.  These rely on
+System V shared memory functions which is disallowed by selinux.
+
+Bug: 234151152
+Test: atest vts_linux_kselftest_arm_64:futex_functional_run.sh_arm_64
+Signed-off-by: Edward Liaw <edliaw@google.com>
+---
+ .../testing/selftests/futex/functional/futex_wait.c |  5 +++++
+ .../selftests/futex/functional/futex_wait_timeout.c | 11 ++++++++---
+ .../futex/functional/futex_wait_wouldblock.c        | 13 +++++++++----
+ tools/testing/selftests/futex/functional/run.sh     |  6 ++----
+ 4 files changed, 24 insertions(+), 11 deletions(-)
+
+diff --git a/tools/testing/selftests/futex/functional/futex_wait.c b/tools/testing/selftests/futex/functional/futex_wait.c
+index 685140d9b93d..6267680c3567 100644
+--- a/tools/testing/selftests/futex/functional/futex_wait.c
++++ b/tools/testing/selftests/futex/functional/futex_wait.c
+@@ -96,6 +96,11 @@ int main(int argc, char *argv[])
+ 	/* Testing an anon page shared memory */
+ 	shm_id = shmget(IPC_PRIVATE, 4096, IPC_CREAT | 0666);
+ 	if (shm_id < 0) {
++		if (errno == ENOSYS) {
++			ksft_test_result_skip("shmget returned: %d %s",
++					      errno, strerror(errno));
++			exit(KSFT_SKIP);
++		}
+ 		perror("shmget");
+ 		exit(1);
+ 	}
+diff --git a/tools/testing/selftests/futex/functional/futex_wait_timeout.c b/tools/testing/selftests/futex/functional/futex_wait_timeout.c
+index 3651ce17beeb..cff38f9de0ca 100644
+--- a/tools/testing/selftests/futex/functional/futex_wait_timeout.c
++++ b/tools/testing/selftests/futex/functional/futex_wait_timeout.c
+@@ -61,9 +61,14 @@ void *get_pi_lock(void *arg)
+ static void test_timeout(int res, int *ret, char *test_name, int err)
+ {
+ 	if (!res || errno != err) {
+-		ksft_test_result_fail("%s returned %d\n", test_name,
+-				      res < 0 ? errno : res);
+-		*ret = RET_FAIL;
++		if (errno == ENOSYS) {
++			ksft_test_result_skip("%s returned %d\n", test_name,
++					      errno);
++		} else {
++			ksft_test_result_fail("%s returned %d\n", test_name,
++					      res < 0 ? errno : res);
++			*ret = RET_FAIL;
++		}
+ 	} else {
+ 		ksft_test_result_pass("%s succeeds\n", test_name);
+ 	}
+diff --git a/tools/testing/selftests/futex/functional/futex_wait_wouldblock.c b/tools/testing/selftests/futex/functional/futex_wait_wouldblock.c
+index 7d7a6a06cdb7..7606440e01a0 100644
+--- a/tools/testing/selftests/futex/functional/futex_wait_wouldblock.c
++++ b/tools/testing/selftests/futex/functional/futex_wait_wouldblock.c
+@@ -98,10 +98,15 @@ int main(int argc, char *argv[])
+ 	info("Calling futex_waitv on f1: %u @ %p with val=%u\n", f1, &f1, f1+1);
+ 	res = futex_waitv(&waitv, 1, 0, &to, CLOCK_MONOTONIC);
+ 	if (!res || errno != EWOULDBLOCK) {
+-		ksft_test_result_pass("futex_waitv returned: %d %s\n",
+-				      res ? errno : res,
+-				      res ? strerror(errno) : "");
+-		ret = RET_FAIL;
++		if (errno == ENOSYS) {
++			ksft_test_result_skip("futex_waitv returned %d\n",
++					      errno);
++		} else {
++			ksft_test_result_fail("futex_waitv returned: %d %s\n",
++					      res ? errno : res,
++					      res ? strerror(errno) : "");
++			ret = RET_FAIL;
++		}
+ 	} else {
+ 		ksft_test_result_pass("futex_waitv\n");
+ 	}
+diff --git a/tools/testing/selftests/futex/functional/run.sh b/tools/testing/selftests/futex/functional/run.sh
+index f7bd16078707..82ccc3f04d33 100755
+--- a/tools/testing/selftests/futex/functional/run.sh
++++ b/tools/testing/selftests/futex/functional/run.sh
+@@ -84,10 +84,8 @@ echo
+ run_test ./futex_wait_uninitialized_heap $COLOR
+ run_test ./futex_wait_private_mapped_file $COLOR
+ 
+-# b/234151152
+-# Disable because system v shared memory not available
+-#echo
+-#run_test ./futex_wait $COLOR
++echo
++run_test ./futex_wait $COLOR
+ 
+ echo
+ run_test ./futex_requeue $COLOR
+-- 
+2.42.0.609.gbb76f46606-goog
+

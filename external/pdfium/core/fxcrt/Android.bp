@@ -1,0 +1,44 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_pdfium_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_pdfium_license"],
+}
+
+cc_library_static {
+    name: "libpdfium-fxcrt",
+    defaults: ["pdfium-core"],
+
+    visibility: ["//external/pdfium:__subpackages__", "//cts/hostsidetests/securitybulletin/securityPatch/CVE-2016-8332"],
+
+    export_shared_lib_headers: [
+        "libicu",
+    ],
+
+    static_libs: [
+        "libpdfium-third_party-base",
+    ],
+
+    shared_libs: [
+        "libicu",
+    ],
+
+    exclude_srcs: [
+        // is_win
+        "cfx_fileaccess_windows.cpp",
+        "fx_folder_windows.cpp",
+        // pdf_enable_xfa
+        "cfx_memorystream.cpp",
+        // pdf_use_partition_alloc
+        "fx_memory_pa.cpp",
+        // test module
+        "fake_time_test.cpp",
+    ],
+
+    srcs: [
+        "*.cpp",
+        "xml/*.cpp",
+    ],
+}

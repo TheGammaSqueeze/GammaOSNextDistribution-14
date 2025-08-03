@@ -1,0 +1,17 @@
+[symbol_list]
+#
+# bad
+# blank line follows
+
+# just a space
+ 
+one
+  # next is with leading and trailing spaces
+  two  
+  # indented comment
+[other_section]
+bad
+[symbol_list)
+bad
+(symbol_list]
+bad

@@ -1,0 +1,10 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsIcu4cTestCases"
+    },
+    {
+      "name": "minikin_tests"
+    }
+  ]
+}

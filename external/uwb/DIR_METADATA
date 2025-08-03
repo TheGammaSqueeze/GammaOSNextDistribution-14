@@ -1,0 +1,4 @@
+buganizer {
+  component_id: 1042770  # Android > Android OS & Apps > Systems > UWB
+}
+team_email: "android-uwb-team@google.com"

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xsl/foo.xsl"?>
+<foo:document xmlns:foo="http://apache.org/foo" xmlns:bar="http://apache.org/bar" file-name="test" file-path="work" creation-date="971255692078">
+<bar>
+<param-val>hello to me!, text from my-var in inc2.xsl</param-val>
+<data>MyBar</data>
+</bar>
+</foo:document>

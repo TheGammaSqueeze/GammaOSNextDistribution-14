@@ -1,0 +1,15 @@
+variable symbol 'struct AddRemove add_remove' changed
+  type 'struct AddRemove' changed
+    base class 'struct A' was removed
+    base class 'struct C' changed
+      offset changed from 32 to 0
+    base class 'struct B' was added
+
+variable symbol 'struct DiffOrder diff_order' changed
+  type 'struct DiffOrder' changed
+    base class 'struct A' changed
+      offset changed from 0 to 32
+    base class 'struct B' changed
+      offset changed from 32 to 0
+
+exit code 4

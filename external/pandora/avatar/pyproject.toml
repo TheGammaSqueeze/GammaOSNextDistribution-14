@@ -1,0 +1,95 @@
+[project]
+name = "pandora-avatar"
+authors = [{name = "Pandora", email = "pandora-core@google.com"}]
+readme = "README.md"
+dynamic = ["version", "description"]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: Apache Software License"
+]
+dependencies = [
+    "bt-test-interfaces",
+    "bumble==0.0.170",
+    "protobuf==4.24.2",
+    "grpcio==1.57",
+    "mobly==1.12.2",
+    "portpicker>=1.5.2",
+]
+
+[project.urls]
+Source = "https://github.com/google/avatar"
+
+[project.scripts]
+avatar = "avatar:main"
+
+[project.optional-dependencies]
+dev = [
+    "rootcanal==1.3.0",
+    "grpcio-tools>=1.57",
+    "pyright==1.1.298",
+    "mypy==1.5.1",
+    "black==23.7.0",
+    "isort==5.12.0",
+    "types-psutil==5.9.5.16",
+    "types-setuptools==68.1.0.1",
+    "types-protobuf==4.24.0.1"
+]
+
+[tool.flit.module]
+name = "avatar"
+
+[tool.flit.sdist]
+include = ["doc/"]
+
+[tool.black]
+line-length = 119
+target-version = ["py38", "py39", "py310", "py311"]
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
+line_length = 119
+no_sections = true
+lines_between_types = 1
+force_single_line = true
+single_line_exclusions = ["typing", "typing_extensions", "collections.abc"]
+
+[tool.pyright]
+include = ["avatar"]
+exclude = ["**/__pycache__", "**/*_pb2.py"]
+typeCheckingMode = "strict"
+useLibraryCodeForTypes = true
+verboseOutput = false
+reportMissingTypeStubs = false
+reportUnknownLambdaType = false
+reportImportCycles = false
+reportPrivateUsage = false
+
+[tool.mypy]
+strict = true
+warn_unused_ignores = false
+files = ["avatar"]
+
+[[tool.mypy.overrides]]
+module = "grpc.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "google.protobuf.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mobly.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "portpicker.*"
+ignore_missing_imports = true
+
+[tool.pytype]
+inputs = ['avatar']
+
+[build-system]
+requires = ["flit_core==3.7.1"]
+build-backend = "flit_core.buildapi"

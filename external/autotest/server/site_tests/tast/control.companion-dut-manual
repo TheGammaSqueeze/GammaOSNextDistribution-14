@@ -1,0 +1,52 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# The following library is not need because this test
+# is intented to run in the developer environment only.
+# from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'seewaifu'
+NAME = 'tast.companion_dut_manual'
+TIME = 'SHORT'
+TEST_TYPE = 'Server'
+# The following DEPENDENCIES variable is not appliable this test
+# because this test is intented to run in the developer environment only.
+# DEPENDENCIES = 'servo_state:WORKING'
+#
+# The following ATTRIBUTES variable is not appliable this test
+# because this test is intented to run in the developer environment only.
+# This test should not be run in any CQ.
+# ATTRIBUTES = 'suite:bvt-tast-cq'
+MAX_RESULT_SIZE_KB = 256 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Verify the companion dut flag reaches Tast.
+'''
+
+# Since we are not using servo for this test, we do not need following
+# three lines.
+# args_dict = utils.args_to_dict(args)
+# assert 'servo_state:WORKING' in DEPENDENCIES
+# servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    companions = hosts.create_companion_hosts(companion_hosts)
+    job.run_test('tast',
+                 # We do not need to specify servo_args because we only
+                 # run this test in developer environment.
+                 # host=hosts.create_host(machine, servo_args=servo_args),
+                 host=hosts.create_host(machine),
+                 test_exprs=['meta.CompanionDUTs'],
+                 ignore_test_failures=False, max_run_sec=1800,
+                 companion_duts={'cd1':companions[0], 'cd2':companions[1]},
+                 command_args=args,
+                 # setting clear_tpm to False because we only run this test
+                 # in developer environment.
+                 clear_tpm=False)
+
+parallel_simple(run, machines)

@@ -1,0 +1,69 @@
+package {
+    default_applicable_licenses: ["external_libtracefs_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "external_libtracefs_license",
+
+    visibility: [":__subpackages__"],
+
+    license_kinds: [
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-GPL-2.0-only",
+        "SPDX-license-identifier-GPL-2.0+",
+        "SPDX-license-identifier-GPL-2.0-or-later",
+        "SPDX-license-identifier-GPL-3.0",
+        "SPDX-license-identifier-LGPL-2.1",
+        "SPDX-license-identifier-LGPL-2.1+",
+    ],
+
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library {
+    name: "libtracefs",
+
+    // Restrict visibility due to GPL license
+    visibility: [
+        "//external/trace-cmd:__subpackages__",
+    ],
+
+    local_include_dirs: [
+        "include",
+        "src",
+    ],
+
+    export_include_dirs: [
+        "include",
+    ],
+
+    srcs: ["src/*.c"],
+
+    shared: {
+        shared_libs: [
+            "libtraceevent",
+        ],
+        export_shared_lib_headers: [
+            "libtraceevent",
+        ],
+    },
+
+    static: {
+        static_libs: [
+            "libtraceevent",
+        ],
+        export_static_lib_headers: [
+            "libtraceevent",
+        ],
+    },
+
+    cflags: [
+        "-D_GNU_SOURCE",
+        "-Wno-unused-parameter",
+    ],
+
+    c_std: "gnu99",
+}

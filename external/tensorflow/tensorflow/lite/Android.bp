@@ -1,0 +1,218 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_tensorflow_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-MIT
+    default_applicable_licenses: ["external_tensorflow_license"],
+}
+
+cc_defaults {
+    name: "tflite_defaults",
+    vendor_available: true,
+    host_supported: true,
+    header_libs: [
+        "tensorflow_headers",
+    ],
+    cflags: [
+        "-DTF_LITE_DISABLE_X86_NEON",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-unused-parameter",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+}
+
+cc_library_static {
+    name: "libtflite_context",
+    defaults: ["tflite_defaults"],
+    srcs: ["c/common.cc"],
+    cflags: [
+        "-Wno-typedef-redefinition",
+        "-Wno-visibility",
+    ],
+}
+
+cc_library_static {
+    name: "libtflite_framework",
+    defaults: ["tflite_defaults"],
+    srcs: [
+        "allocation.cc",
+        "arena_planner.cc",
+        "core/api/error_reporter.cc",
+        "core/api/flatbuffer_conversions.cc",
+        "core/api/op_resolver.cc",
+        "core/api/tensor_utils.cc",
+        "core/subgraph.cc",
+        "delegates/nnapi/nnapi_delegate.cc",
+        "delegates/nnapi/quant_lstm_sup.cc",
+        "delegates/serialization.cc",
+        "delegates/utils.cc",
+        "experimental/resource/initialization_status.cc",
+        "experimental/resource/resource_variable.cc",
+        "experimental/resource/static_hashtable.cc",
+        "external_cpu_backend_context.cc",
+        "graph_info.cc",
+        "interpreter.cc",
+        "interpreter_builder.cc",
+        "interpreter_experimental.cc",
+        "kernels/assign_variable.cc",
+        "kernels/broadcast_args.cc",
+        "kernels/conv3d_transpose.cc",
+        "kernels/cpu_backend_context.cc",
+        "kernels/cpu_backend_gemm_eigen.cc",
+        "kernels/eigen_support.cc",
+        "kernels/hashtable.cc",
+        "kernels/hashtable_find.cc",
+        "kernels/hashtable_import.cc",
+        "kernels/hashtable_size.cc",
+        "kernels/internal/utils/sparsity_format_converter.cc",
+        "kernels/read_variable.cc",
+        "kernels/var_handle.cc",
+        "minimal_logging.cc",
+        "minimal_logging_android.cc",
+        "mmap_allocation.cc",
+        "model_builder.cc",
+        "mutable_op_resolver.cc",
+        "nnapi/nnapi_implementation.cc",
+        "nnapi/nnapi_util.cc",
+        "optional_debug_tools.cc",
+        "profiling/atrace_profiler.cc",
+        "profiling/platform_profiler.cc",
+        "profiling/root_profiler.cc",
+        "schema/schema_utils.cc",
+        "signature_runner.cc",
+        "simple_memory_arena.cc",
+        "stderr_reporter.cc",
+        "string_util.cc",
+        "tflite_with_xnnpack_optional.cc",
+        "util.cc",
+    ],
+    include_dirs: [
+        "external/FP16",
+        "external/libtextclassifier/native/",
+    ],
+    generated_headers: ["libtflite_mutable_schema"],
+    whole_static_libs: [
+        "libtextclassifier_hash_static",
+    ],
+    header_libs: [
+        "flatbuffer_headers",
+        "fp16_headers",
+        "gemmlowp_headers",
+        "libbase_headers",
+        "libeigen",
+        "libruy_headers",
+    ],
+    cflags: [
+        "-DNAMESPACE_FOR_HASH_FUNCTIONS=farmhash",
+        "-Wno-deprecated-declarations",
+        "-Wno-extern-c-compat",
+        "-Wno-ignored-attributes",
+        "-Wno-invalid-partial-specialization",
+        "-Wno-mismatched-tags",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare",
+        "-Wno-unused-const-variable",
+        "-Wno-unused-function",
+        "-Wno-unused-lambda-capture",
+        "-Wno-user-defined-warnings",
+    ],
+}
+
+cc_library_shared {
+    name: "libtflite",
+    defaults: ["tflite_defaults"],
+    shared_libs: [
+        "libflatbuffers-cpp",
+        "libruy",
+        "libtextclassifier_hash",
+    ],
+    whole_static_libs: [
+        "libfft2d",
+        "libtflite_context",
+        "libtflite_framework",
+        "libtflite_kernels",
+    ],
+    stl: "libc++_static",
+}
+
+cc_library_shared {
+    name: "libtensorflowlite_jni",
+    sdk_version: "current",
+    min_sdk_version: "30",
+    export_include_dirs: [
+        "delegates/nnapi/java/src/main/native/",
+        "java/src/main/native/",
+    ],
+    srcs: [
+        "delegates/nnapi/java/src/main/native/*.cc",
+        "java/src/main/native/*.cc",
+    ],
+    header_libs: [
+        "flatbuffer_headers",
+        "jni_headers",
+        "tensorflow_headers",
+    ],
+    static_libs: [
+        "libruy_static",
+        "libtflite_static",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    cflags: [
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+    ],
+    ldflags: [
+        // Allow (benign) missing symbols referenced in the version script.
+        "-Wl,--undefined-version",
+    ],
+    version_script: "java/tflite_version_script.lds",
+    stl: "libc++_static",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adservices",
+        "com.android.extservices",
+    ],
+}
+
+cc_library_static {
+    name: "tflite_mutable_op_resolver",
+    defaults: ["tflite_defaults"],
+    srcs: [
+        "mutable_op_resolver.cc"
+    ],
+    header_libs: [
+        "flatbuffer_headers",
+    ],
+    stl: "libc++",
+    sdk_version: "current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.adservices",
+    ],
+}
+
+build = [
+    "tflite_static.bp",
+]

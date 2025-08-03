@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc att="top" cat="top">
+  <?a-pi some data?>
+  <!-- This is the 1st comment -->
+  <begin bat="fob">text-in-begin1
+    <inner blat="blob">inner-text<!-- This is the 2nd comment --></inner>
+    text-in-begin2
+  </begin>
+  text-in-doc
+</doc>

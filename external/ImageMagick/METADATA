@@ -1,0 +1,22 @@
+name: "ImageMagick"
+description: "Use ImageMagick to create, edit, compose, or convert bitmap images."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.imagemagick.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/ImageMagick/ImageMagick.git"
+  }
+  version: "74fb410f055fccce104a181b525a4dfc74c3b3f7"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 4
+    day: 12
+  }
+  security {
+      tag: "NVD-CPE2.3:cpe:/a:imagemagick:imagemagick:7.0.11-0"
+  }
+}

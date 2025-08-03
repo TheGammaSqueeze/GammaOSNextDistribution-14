@@ -1,0 +1,7 @@
+{
+  "imports": [
+    {
+      "path": "external/ot-br-posix"
+    }
+  ]
+}

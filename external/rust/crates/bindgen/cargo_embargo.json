@@ -1,0 +1,15 @@
+{
+  "features": [
+    "__cli",
+    "experimental",
+    "runtime",
+    "which-rustfmt"
+  ],
+  "package": {
+    "bindgen": {
+      "copy_out": true,
+      "device_supported": false,
+      "host_first_multilib": true
+    }
+  }
+}

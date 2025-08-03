@@ -1,0 +1,9 @@
+[package]
+name = "vfio_sys"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[dependencies]
+base = { path = "../base" }
+zerocopy = { version = "0.7", features = ["derive"] }

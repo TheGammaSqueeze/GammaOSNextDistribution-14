@@ -1,0 +1,23 @@
+--- libicu/ndk_headers/unicode/putil.h	2023-01-16 18:01:19.507127460 +0000
++++ libicu/ndk_headers/unicode/putil.h	2023-01-16 17:30:51.983422939 +0000
+@@ -56,12 +56,6 @@
+ #endif  /* U_HIDE_INTERNAL_API */
+ 
+ 
+-/**
+- * @{
+- * Filesystem file and path separator characters.
+- * Example: '/' and ':' on Unix, '\\' and ';' on Windows.
+- * \xrefitem stable "Stable" "Stable List" ICU 2.0
+- */
+ #if U_PLATFORM_USES_ONLY_WIN32_API
+ #   define U_FILE_SEP_CHAR '\\'
+ #   define U_FILE_ALT_SEP_CHAR '/'
+@@ -78,7 +72,6 @@
+ #   define U_PATH_SEP_STRING ":"
+ #endif
+ 
+-/** @} */
+ 
+ 
+ 

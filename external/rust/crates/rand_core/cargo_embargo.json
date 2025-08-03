@@ -1,0 +1,11 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "features": [
+    "std"
+  ],
+  "run_cargo": false,
+  "tests": true
+}

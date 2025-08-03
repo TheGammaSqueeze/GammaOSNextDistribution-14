@@ -1,0 +1,2 @@
+dEQP-GLES31.functional.image_load_store.2d_array.atomic.exchange_r32f_return_value,Fail
+dEQP-GLES31.functional.image_load_store.3d.atomic.exchange_r32f_return_value,Fail

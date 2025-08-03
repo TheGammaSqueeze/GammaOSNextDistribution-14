@@ -1,0 +1,19 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update libepoxy
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "libepoxy"
+description: "Epoxy is a library for handling OpenGL function pointers"
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/anholt/libepoxy.git"
+  }
+  version: "1.5.10"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 11
+    day: 28
+  }
+}

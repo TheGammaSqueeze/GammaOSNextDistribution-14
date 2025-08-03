@@ -1,0 +1,13 @@
+name: "notosansmyanmar"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Myanmar is an unmodulated (“sans serif”) design for textsin the Southeast Asian Myanmar script. It has 610 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansmyanmar"
+  }
+  version: "2.001"
+  license_type: NOTICE
+  last_upgrade_date { year: 2018 month: 5 day: 4 }
+}

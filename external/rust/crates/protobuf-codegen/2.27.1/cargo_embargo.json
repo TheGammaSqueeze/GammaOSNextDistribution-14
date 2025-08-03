@@ -1,0 +1,18 @@
+{
+  "module_blocklist": [
+    "protobuf_bin_gen_rust_do_not_use"
+  ],
+  "module_name_overrides": {
+    "libprotobuf": "libprotobuf_deprecated",
+    "libprotobuf_codegen": "libprotobuf_codegen_deprecated",
+    "protobuf-codegen_test_src_lib": "protobuf-codegen_deprecated_test_src_lib",
+    "protoc_gen_rust": "protoc-gen-rust-deprecated"
+  },
+  "package": {
+    "protobuf-codegen": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false,
+  "tests": true
+}

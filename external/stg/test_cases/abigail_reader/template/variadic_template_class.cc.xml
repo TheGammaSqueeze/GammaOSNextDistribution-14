@@ -1,0 +1,9 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='x' size='1' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='variadic_template_class.cc' language='LANG_C_plus_plus_14'>
+    <class-decl name='Smith&lt;int, bool, char&gt;' size-in-bits='8' is-struct='yes' visibility='default' id='36f8b189'/>
+    <var-decl name='x' type-id='36f8b189' mangled-name='x' visibility='default' elf-symbol-id='x'/>
+  </abi-instr>
+</abi-corpus>

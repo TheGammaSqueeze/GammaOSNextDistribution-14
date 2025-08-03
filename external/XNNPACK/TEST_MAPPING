@@ -1,0 +1,210 @@
+{
+  "presubmit": [
+    {
+      "name": "xnnpack_abs_nc_test"
+    },
+    {
+      "name": "xnnpack_add_nd_test"
+    },
+    {
+      "name": "xnnpack_argmax_pooling_nhwc_test"
+    },
+    {
+      "name": "xnnpack_average_pooling_nhwc_test"
+    },
+    {
+      "name": "xnnpack_bankers_rounding_nc_test"
+    },
+    {
+      "name": "xnnpack_channel_shuffle_nc_test"
+    },
+    {
+      "name": "xnnpack_clamp_nc_test"
+    },
+    {
+      "name": "xnnpack_constant_pad_nd_test"
+    },
+    {
+      "name": "xnnpack_convolution_nhwc_test"
+    },
+    {
+      "name": "xnnpack_convolution_nchw_test"
+    },
+    {
+      "name": "xnnpack_copy_nc_test"
+    },
+    {
+      "name": "xnnpack_deconvolution_nhwc_test"
+    },
+    {
+      "name": "xnnpack_divide_nd_test"
+    },
+    {
+      "name": "xnnpack_fully_connected_nc_test"
+    },
+    {
+      "name": "xnnpack_floor_nc_test"
+    },
+    {
+      "name": "xnnpack_global_average_pooling_nwc_test"
+    },
+    {
+      "name": "xnnpack_global_average_pooling_ncw_test"
+    },
+    {
+      "name": "xnnpack_hardswish_nc_test"
+    },
+    {
+      "name": "xnnpack_leaky_relu_nc_test"
+    },
+    {
+      "name": "xnnpack_max_pooling_nhwc_test"
+    },
+    {
+      "name": "xnnpack_maximum_nd_test"
+    },
+    {
+      "name": "xnnpack_minimum_nd_test"
+    },
+    {
+      "name": "xnnpack_multiply_nd_test"
+    },
+    {
+      "name": "xnnpack_negate_nc_test"
+    },
+    {
+      "name": "xnnpack_prelu_nc_test"
+    },
+    {
+      "name": "xnnpack_resize_bilinear_nhwc_test"
+    },
+    {
+      "name": "xnnpack_sigmoid_nc_test"
+    },
+    {
+      "name": "xnnpack_softmax_nc_test"
+    },
+    {
+      "name": "xnnpack_square_nc_test"
+    },
+    {
+      "name": "xnnpack_square_root_nc_test"
+    },
+    {
+      "name": "xnnpack_square_difference_nd_test"
+    },
+    {
+      "name": "xnnpack_subtract_nd_test"
+    },
+    {
+      "name": "xnnpack_truncation_nc_test"
+    },
+    {
+      "name": "xnnpack_unpooling_nhwc_test"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "xnnpack_abs_nc_test"
+    },
+    {
+      "name": "xnnpack_add_nd_test"
+    },
+    {
+      "name": "xnnpack_argmax_pooling_nhwc_test"
+    },
+    {
+      "name": "xnnpack_average_pooling_nhwc_test"
+    },
+    {
+      "name": "xnnpack_bankers_rounding_nc_test"
+    },
+    {
+      "name": "xnnpack_channel_shuffle_nc_test"
+    },
+    {
+      "name": "xnnpack_clamp_nc_test"
+    },
+    {
+      "name": "xnnpack_constant_pad_nd_test"
+    },
+    {
+      "name": "xnnpack_convolution_nhwc_test"
+    },
+    {
+      "name": "xnnpack_convolution_nchw_test"
+    },
+    {
+      "name": "xnnpack_copy_nc_test"
+    },
+    {
+      "name": "xnnpack_deconvolution_nhwc_test"
+    },
+    {
+      "name": "xnnpack_divide_nd_test"
+    },
+    {
+      "name": "xnnpack_fully_connected_nc_test"
+    },
+    {
+      "name": "xnnpack_floor_nc_test"
+    },
+    {
+      "name": "xnnpack_global_average_pooling_nwc_test"
+    },
+    {
+      "name": "xnnpack_global_average_pooling_ncw_test"
+    },
+    {
+      "name": "xnnpack_hardswish_nc_test"
+    },
+    {
+      "name": "xnnpack_leaky_relu_nc_test"
+    },
+    {
+      "name": "xnnpack_max_pooling_nhwc_test"
+    },
+    {
+      "name": "xnnpack_maximum_nd_test"
+    },
+    {
+      "name": "xnnpack_minimum_nd_test"
+    },
+    {
+      "name": "xnnpack_multiply_nd_test"
+    },
+    {
+      "name": "xnnpack_negate_nc_test"
+    },
+    {
+      "name": "xnnpack_prelu_nc_test"
+    },
+    {
+      "name": "xnnpack_resize_bilinear_nhwc_test"
+    },
+    {
+      "name": "xnnpack_sigmoid_nc_test"
+    },
+    {
+      "name": "xnnpack_softmax_nc_test"
+    },
+    {
+      "name": "xnnpack_square_nc_test"
+    },
+    {
+      "name": "xnnpack_square_root_nc_test"
+    },
+    {
+      "name": "xnnpack_square_difference_nd_test"
+    },
+    {
+      "name": "xnnpack_subtract_nd_test"
+    },
+    {
+      "name": "xnnpack_truncation_nc_test"
+    },
+    {
+      "name": "xnnpack_unpooling_nhwc_test"
+    }
+  ]
+}

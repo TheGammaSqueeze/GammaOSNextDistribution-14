@@ -1,0 +1,41 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "chromeos-chameleon"
+NAME = "audio_AudioNoiseCancellation.quiet_env"
+PURPOSE = "Remotely controlled input noise cancellation audio test."
+CRITERIA = "This test will fail if the captured audio quality is degraded by NC in a quiet place."
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "audio"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:audio_advanced"
+DEPENDENCIES = "board:volteer, audio_box"
+JOB_RETRIES = 1
+PY_VERSION = 3
+
+DOC = """
+This test checks if the speech quality is not degraded by NC when the input is clean. During
+the test, the speech file will be played by Chameleon, while DUT records via the internal mic
+with NC enabled and disabled respectively. The score difference calculated by ViSQOL with the
+speech file as reference should not be less than the threshold specified in test_data.
+"""
+
+args_dict = utils.args_to_dict(args)
+chameleon_args = hosts.CrosHost.get_chameleon_arguments(args_dict)
+
+# Test files are located in gs://chromeos-localmirror/distfiles/test_noise_cancellation
+# The speech file is 15-second, 1-channel, 16k-rate.
+# The threshold is negative because we can tolerate the slight degradation as the side effect
+# of NC.
+test_data = dict(speech_file='speech_ref.wav',
+	   	 threshold=-0.05)
+
+def run(machine):
+    host = hosts.create_host(machine, chameleon_args=chameleon_args)
+    job.run_test("audio_AudioNoiseCancellation", host=host, test_data=test_data, tag='quiet_env')
+
+parallel_simple(run, machines)

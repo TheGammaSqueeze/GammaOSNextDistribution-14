@@ -1,0 +1,48 @@
+From 5c872199efc522c08cc34b4763edec861f87abfc Mon Sep 17 00:00:00 2001
+From: Edward Liaw <edliaw@google.com>
+Date: Thu, 28 Jul 2022 00:26:52 +0000
+Subject: [PATCH 20/20] userfaultfd: don't use unsupported feature
+
+UFFD_FEATURE_PAGEFAULT_FLAG_WP was added in linux 5.7 and currently
+unsupported in Android >5.10.
+
+Bug: 234150821
+Test: atest vts_linux_kselftest_x86_64:vm_userfaultfd_anon_x86_64#vm_userfaultfd_anon_x86_64
+Test: atest vts_linux_kselftest_x86_64:vm_userfaultfd_shmem_x86_64#vm_userfaultfd_shmem_x86_64
+Signed-off-by: Edward Liaw <edliaw@google.com>
+---
+ tools/testing/selftests/vm/userfaultfd.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
+index e905bb502667..02cc35b65a7a 100644
+--- a/tools/testing/selftests/vm/userfaultfd.c
++++ b/tools/testing/selftests/vm/userfaultfd.c
+@@ -1784,7 +1784,24 @@ static void set_test_type(const char *type)
+ static void parse_test_type_arg(const char *raw_type)
+ {
+ 	char *buf = strdup(raw_type);
++	/* b/234150821
++	 * UFFD_FEATURE_PAGEFAULT_FLAG_WP unsupported in kernel <5.7
++	 */
++#ifdef __ANDROID__
++	uint64_t features = (
++		UFFD_FEATURE_EVENT_FORK |        \
++		UFFD_FEATURE_EVENT_REMAP |       \
++		UFFD_FEATURE_EVENT_REMOVE |      \
++		UFFD_FEATURE_EVENT_UNMAP |       \
++		UFFD_FEATURE_MISSING_HUGETLBFS | \
++		UFFD_FEATURE_MISSING_SHMEM |     \
++		UFFD_FEATURE_SIGBUS |            \
++		UFFD_FEATURE_THREAD_ID |         \
++		UFFD_FEATURE_MINOR_HUGETLBFS |   \
++		UFFD_FEATURE_MINOR_SHMEM);
++#else
+ 	uint64_t features = UFFD_API_FEATURES;
++#endif
+ 
+ 	while (buf) {
+ 		const char *token = strsep(&buf, ":");
+-- 
+2.42.0.609.gbb76f46606-goog
+

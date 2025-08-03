@@ -1,0 +1,37 @@
+package {
+    default_applicable_licenses: ["external_double_conversion_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "external_double_conversion_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD-3-Clause",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_static {
+    name: "libdoubleconversion",
+    export_include_dirs: ["."],
+    srcs: [
+        "double-conversion/bignum.cc",
+        "double-conversion/bignum-dtoa.cc",
+        "double-conversion/cached-powers.cc",
+        "double-conversion/double-to-string.cc",
+        "double-conversion/fast-dtoa.cc",
+        "double-conversion/fixed-dtoa.cc",
+        "double-conversion/string-to-double.cc",
+        "double-conversion/strtod.cc",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    stl: "libc++_static",
+    visibility: [
+        "//external/tensorflow:__subpackages__",
+    ],
+    apex_available: ["com.android.ondevicepersonalization"],
+}

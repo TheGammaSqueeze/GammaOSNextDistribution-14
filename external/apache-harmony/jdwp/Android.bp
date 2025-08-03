@@ -1,0 +1,63 @@
+package {
+    default_applicable_licenses: ["external_apache-harmony_jdwp_license"],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_apache-harmony_jdwp_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "COPYRIGHT.txt",
+        "LICENSE.txt",
+        "NOTICE.txt",
+    ],
+}
+
+java_genrule {
+    name: "SourceDebugExtensionMockClass_gen",
+    host_supported: true,
+    srcs: ["src/test/resources/org/apache/harmony/jpda/tests/jdwp/Events/SourceDebugExtensionMockClass.class"],
+    tools: ["soong_zip"],
+    cmd: "$(location soong_zip) -jar -o $(out) -C external/apache-harmony/jdwp/src/test/resources -f $(in)",
+    out: ["SourceDebugExtensionMockClass_gen.jar"],
+}
+
+java_test {
+    name: "apache-harmony-jdwp-tests",
+    visibility: [
+        "//art/build/sdk",
+        "//cts/tests/jdwp",
+    ],
+    hostdex: true,
+    host_supported: true,
+    srcs: ["src/test/java/**/*.java"],
+    static_libs: ["SourceDebugExtensionMockClass_gen"],
+
+    libs: ["junit"],
+
+    sdk_version: "none",
+    system_modules: "core-all-system-modules",
+    target: {
+        host: {
+            exclude_srcs: ["src/test/java/org/apache/harmony/jpda/tests/jdwp/DDM/**/*.java"],
+        },
+    },
+
+    errorprone: {
+        javacflags: [
+            "-Xep:MissingOverride:OFF", // b/73499927
+            "-Xep:ReturnValueIgnored:WARN",
+        ],
+    },
+
+    jarjar_rules: "jarjar-rules.txt",
+}

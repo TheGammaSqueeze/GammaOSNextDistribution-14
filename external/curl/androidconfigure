@@ -1,0 +1,99 @@
+#!/bin/bash
+
+set -e
+
+if [[ "${TARGET_PRODUCT}" != "aosp_arm" ]]; then
+  # Some of the include paths below assume that this is an arm 32bit configure
+  # run.
+  echo "Run 'lunch aosp_arm-eng' and build the current version first." >&2
+  exit 1
+fi
+
+T="${ANDROID_BUILD_TOP}"
+cd $(dirname "$0")
+
+# Build all the dependencies we'll need, so we can find them under
+# /system/lib in the out directory.
+source ${T}/build/envsetup.sh
+mm
+
+HOST="arm-linux-androideabi"
+CLANG_VERSION="$(exec ${T}/build/soong/scripts/get_clang_version.py)"
+export CC="${T}/prebuilts/clang/host/linux-x86/${CLANG_VERSION}/bin/clang"
+export LD="${T}/prebuilts/clang/host/linux-x86/${CLANG_VERSION}/bin/lld"
+
+CFLAGS=(
+  # We don't have an NDK sysroot prebuilt in AOSP, so we'll have use
+  # soong's.
+  "--sysroot ${T}/out/soong/ndk/sysroot/"
+  # We also need zlib. (We don't have to do anything for boringssl here,
+  # because we provide that path directly on the configure command line.)
+  "-I${T}/external/zlib/"
+  # We don't have target-specific clang binaries like the NDK, so provide
+  # a target. The "34" here is arbitrary.
+  "--target=armv7a-linux-androideabi34"
+)
+CFLAGS="${CFLAGS[@]}"
+
+LDFLAGS=(
+  # We need the device zlib and openssl/boringssl libraries, so tell ld
+  # where they are.
+  "-L${ANDROID_PRODUCT_OUT}/system/lib/"
+)
+LDFLAGS="${LDFLAGS[@]}"
+
+CONFIGURE_ARGS=(
+  --host="${HOST}"
+  CFLAGS="${CFLAGS}"
+  CPPFLAGS="${CFLAGS}"
+  LDFLAGS="${LDFLAGS}"
+
+  # Disable NTLM delegation to winbind's ntlm_auth.
+  --disable-ntlm-wb
+
+  ### Disable many protocols unused in Android systems:
+  --disable-telnet
+  --disable-tftp
+  --disable-smb
+  --disable-gopher
+
+  # Disable FTP and FTPS support.
+  --disable-ftp
+
+  # Disable LDAP and LDAPS support.
+  --disable-ldap
+  --disable-ldaps
+
+  # Disable mail protocols (IMAP, POP3).
+  --disable-pop3
+  --disable-imap
+  --disable-smtp
+
+  # Disable RTSP support (RFC 2326 / 7826).
+  --disable-rtsp
+
+  # Disable DICT support (RFC 2229).
+  --disable-dict
+
+  ### Enable HTTP and FILE explicitly. These are enabled by default but
+  # listed here as documentation.
+  --enable-http
+  --enable-file
+  --enable-proxy
+
+  # Enabled IPv6.
+  --enable-ipv6
+
+  --with-ssl="${T}/external/boringssl"
+  --with-zlib
+  --with-ca-path="/system/etc/security/cacerts"
+)
+
+# Show the commands on the terminal.
+set -x
+
+./buildconf
+./configure "${CONFIGURE_ARGS[@]}"
+
+# Apply local changes to the default configure output.
+patch -p1 --no-backup-if-mismatch < local-configure.patch

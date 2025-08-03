@@ -1,0 +1,63 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+from autotest_lib.server.hosts import gsc_devboard_host
+
+AUTHOR = 'Chromium OS BaseOS Engprod'
+NAME = 'tast.firmware-Ti50Demo'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+MAX_RESULT_SIZE_KB = 50 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run firmware.Ti50Demo test.
+
+Args:
+    ti50_build: ti50 build location -> gs://chromeos-releases/firmware-ti50-postsubmit/<build>
+    service_debugger_serial: serial of debugger connected to devboard, defaults to the first one found on the container
+    service_ip: devboard service ip, default is to start a new container
+    service_port: devboard service port, defaults to 39999
+
+Examples:
+
+    # To run test on a devboard connected to workstation:
+    #   Have setup SatLab gcr access according to official instructions.
+    #   docker installed outside of chroot
+    #   inside chroot, run src/third_party/autotest/files/utils/install_docker_chroot.sh
+    #   devboard connected to workstation, fake dut ssh fowarded on localhost:2222
+    #   outside chroot, start dockerd on local tcp port: dockerd -H tcp://127.0.0.1:2375
+    test_that --autotest_dir <path/to/autotest/files> --fast --args "ti50_build=gs://chromeos-releases/firmware-ti50-postsubmit/<build> service_debugger_serial=<serial>"  localhost:2222 tast.firmware-Ti50Demo
+
+    # To run test on a devboard connected to SatLab:
+    #   Have setup complete SatLab according to official instructions.
+    #   inside chroot, run src/third_party/autotest/files/utils/install_docker_chroot.sh
+    #   devboard connected to SatLab, fake dut ssh fowarded on localhost:2222
+    #   outside chroot, forward SatLab docker host: ssh -L 2377:192.168.231.1:2375 -N <mysatlab>
+    #   start service manually on SatLab, note the printed service ip and port: DOCKER_HOST=127.0.0.1:2377 python -m utils.start_gsc_devboard_host
+    #   outside chroot, forward service port: ssh -L 39999:<service ip>:<service port> -N <mysatlab>
+    test_that --autotest_dir <path/to/autotest/files> --fast --args "ti50_build=gs://chromeos-releases/firmware-ti50-postsubmit/<build> service_ip=<service ip> service_port=<service port>" localhost:2222 tast.firmware-Ti50Demo
+'''
+
+def run(machine):
+    args_dict = utils.args_to_dict(args)
+    devboard = hosts.create_host(machine, host_class=gsc_devboard_host.GSCDevboardHost, **args_dict)
+
+    with devboard.service_context() as service_ep:
+        varslist = ['devboardsvc=' + service_ep]
+        buildurl = args_dict.get('ti50_build')
+        if buildurl is not None:
+            varslist += ['buildurl=' + buildurl]
+        job.run_test('tast',
+                     host=hosts.create_host(machine),
+                     max_run_sec=10800,
+                     test_exprs=['firmware.Ti50Demo'],
+                     varslist=varslist,
+                     command_args=args)
+
+parallel_simple(run, machines)

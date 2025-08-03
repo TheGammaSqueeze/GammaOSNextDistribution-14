@@ -1,0 +1,56 @@
+//#############################################
+// Compile Robolectric utils
+//#############################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_robolectric_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+java_library_host {
+    name: "Robolectric_utils_upstream",
+    srcs: ["src/main/java/**/*.java"],
+    common_srcs: ["src/main/java/**/*.kt"],
+    plugins: ["auto_service_plugin"],
+    static_libs: [
+        "robolectric-javax.annotation-api-1.2",
+        "Robolectric_annotations_upstream",
+        "Robolectric_pluginapi_upstream",
+        "error_prone_annotations",
+        "guava",
+        "jsr330",
+        "jsr305",
+        "asm-9.2",
+        "auto_service_annotations",
+    ],
+}
+
+//#############################################
+// Compile Robolectric utils tests
+//#############################################
+
+java_test_host {
+    name: "Robolectric_utils_tests_upstream",
+    srcs: [
+        "src/test/java/**/*.java",
+        "src/test/java/**/*.kt",
+    ],
+    plugins: [
+        "auto_service_plugin",
+    ],
+    static_libs: [
+        "Robolectric_utils_upstream",
+        "hamcrest",
+        "guava",
+        "junit",
+        "error_prone_core",
+        "truth",
+        "asm-9.2",
+        "mockito",
+    ],
+    test_suites: ["general-tests"],
+}

@@ -1,0 +1,12 @@
+function symbol 'Foo getEnum(Foo)' changed
+  type 'Foo(Foo)' changed
+    return type 'Foo' = 'enum Foo' changed
+    parameter 1 type 'Foo' = 'enum Foo' changed
+
+type 'Foo' = 'enum Foo' changed
+  resolved type 'enum Foo' changed
+
+type 'enum Foo' changed
+  enumerator 'FOO_TWO' value changed from 100 to 2
+
+exit code 4

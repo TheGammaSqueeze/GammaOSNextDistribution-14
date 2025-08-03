@@ -1,0 +1,33 @@
+package {
+    default_applicable_licenses: ["external_libconfig_license"],
+}
+
+license {
+    name: "external_libconfig_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-LGPL-2.1",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_host_static {
+    name: "libconfig",
+    srcs: [
+        "lib/*.c"
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+        "-DHAVE_USELOCALE",
+        "-DHAVE_FREELOCALE",
+        "-DHAVE_NEWLOCALE",
+    ],
+    export_include_dirs: [
+        "lib",
+    ],
+    visibility: [
+        "//external/wmediumd",
+    ],
+}

@@ -1,0 +1,9 @@
+{
+  "min_sdk_version": "29",
+  "package": {
+    "android_log-sys": {
+      "add_module_block": "cargo2android_glibc.bp"
+    }
+  },
+  "run_cargo": false
+}

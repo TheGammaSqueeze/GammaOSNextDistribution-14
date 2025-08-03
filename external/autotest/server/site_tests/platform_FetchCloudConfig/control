@@ -1,0 +1,24 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "abergman, chromeos-engprod-platform-syd"
+NAME = "platform_FetchCloudConfig"
+TIME = "SHORT"
+TEST_CATEGORY = "Stress"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+
+DOC = """
+This test doesn't run any actual tests, but rather loads a fresh copy of the
+performance CUJ config from the cloud.
+
+This test is supposed to run in the beginning of performance CUJ test suite, to
+ensure it always overrides cached configuration with the fresh one.
+"""
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('platform_FetchCloudConfig', host=host, disable_sysinfo=True)
+
+parallel_simple(run, machines)

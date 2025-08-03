@@ -1,0 +1,134 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+base_class {
+  id: 0x1fbc7d3f
+  type_id: 0x207acb9f
+  offset: 32
+  inheritance: NON_VIRTUAL
+}
+base_class {
+  id: 0x1fbc7d40
+  type_id: 0x207acb9f
+  inheritance: NON_VIRTUAL
+}
+base_class {
+  id: 0x27aeadc1
+  type_id: 0xc0318865
+  inheritance: NON_VIRTUAL
+}
+base_class {
+  id: 0x27aeadc2
+  type_id: 0xc0318865
+  offset: 64
+  inheritance: NON_VIRTUAL
+}
+base_class {
+  id: 0x27e7d0b7
+  type_id: 0xc1147dbd
+  offset: 32
+  inheritance: NON_VIRTUAL
+}
+member {
+  id: 0x8dbf34b3
+  name: "m"
+  type_id: 0x6720d32f
+  offset: 96
+}
+member {
+  id: 0x8dbf39d1
+  name: "m"
+  type_id: 0x6720d32f
+  offset: 64
+}
+member {
+  id: 0xa0d54b05
+  name: "x"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0xff142a57
+  name: "y"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0x21525565
+  name: "z"
+  type_id: 0x6720d32f
+}
+struct_union {
+  id: 0xc1147dbd
+  kind: STRUCT
+  name: "A"
+  definition {
+    bytesize: 4
+    member_id: 0xa0d54b05
+  }
+}
+struct_union {
+  id: 0x69557e8a
+  kind: STRUCT
+  name: "AddRemove"
+  definition {
+    bytesize: 12
+    base_class_id: 0x27aeadc1
+    base_class_id: 0x1fbc7d3f
+    member_id: 0x8dbf39d1
+  }
+}
+struct_union {
+  id: 0x207acb9f
+  kind: STRUCT
+  name: "B"
+  definition {
+    bytesize: 4
+    member_id: 0xff142a57
+  }
+}
+struct_union {
+  id: 0xc0318865
+  kind: STRUCT
+  name: "C"
+  definition {
+    bytesize: 4
+    member_id: 0x21525565
+  }
+}
+struct_union {
+  id: 0x4e854f8f
+  kind: STRUCT
+  name: "DiffOrder"
+  definition {
+    bytesize: 16
+    base_class_id: 0x1fbc7d40
+    base_class_id: 0x27e7d0b7
+    base_class_id: 0x27aeadc2
+    member_id: 0x8dbf34b3
+  }
+}
+elf_symbol {
+  id: 0x4a0401b7
+  name: "add_remove"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x69557e8a
+  full_name: "add_remove"
+}
+elf_symbol {
+  id: 0x18b35aa3
+  name: "diff_order"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x4e854f8f
+  full_name: "diff_order"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x4a0401b7
+  symbol_id: 0x18b35aa3
+}

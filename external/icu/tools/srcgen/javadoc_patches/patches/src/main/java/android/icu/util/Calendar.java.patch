@@ -1,0 +1,20 @@
+--- android_icu4j/src/main/java/android/icu/util/Calendar.java	2021-01-19 16:26:22.958638565 +0000
++++ android_icu4j/src/main/java/android/icu/util/Calendar.java	2021-01-19 16:26:51.334839996 +0000
+@@ -4516,8 +4516,6 @@
+      * @param date the date and time
+      * @return true if the given date and time is part of the
+      * weekend
+-     * @see #getDayOfWeekType
+-     * @see #getWeekendTransition
+      * @see #isWeekend()
+      */
+     public boolean isWeekend(Date date) {
+@@ -4530,8 +4528,6 @@
+      * this calendar system.
+      * @return true if the given date and time is part of the
+      * weekend
+-     * @see #getDayOfWeekType
+-     * @see #getWeekendTransition
+      * @see #isWeekend(Date)
+      */
+     public boolean isWeekend() {

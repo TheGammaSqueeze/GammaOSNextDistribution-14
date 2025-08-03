@@ -1,0 +1,16 @@
+function symbol 'int deleted_fun()' {_Z11deleted_funv} was removed
+
+variable symbol 'int deleted_var' was removed
+
+function symbol 'long added_fun()' {_Z9added_funv} was added
+
+variable symbol 'long added_var' was added
+
+function symbol changed from 'int changed_fun()' {_Z11changed_funv} to 'long changed_fun()' {_Z11changed_funv}
+  type changed from 'int()' to 'long()'
+    return type changed from 'int' to 'long'
+
+variable symbol changed from 'int changed_var' to 'long changed_var'
+  type changed from 'int' to 'long'
+
+exit code 4

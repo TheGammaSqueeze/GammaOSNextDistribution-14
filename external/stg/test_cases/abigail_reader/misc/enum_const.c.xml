@@ -1,0 +1,20 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='getEnum' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='enum_const.c' language='LANG_C11'>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='9cac1fee'/>
+    <enum-decl name='Foo' id='9f978138'>
+      <underlying-type type-id='9cac1fee'/>
+      <enumerator name='FOO_ONE' value='1'/>
+      <enumerator name='FOO_TWO' value='2'/>
+      <enumerator name='FOO_THREE' value='3'/>
+    </enum-decl>
+    <typedef-decl name='Foo' type-id='9f978138' id='49153c04'/>
+    <qualified-type-def type-id='49153c04' const='yes' id='bcf65af4'/>
+    <function-decl name='getEnum' mangled-name='getEnum' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='getEnum'>
+      <parameter type-id='bcf65af4' name='foo_enum'/>
+      <return type-id='49153c04'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

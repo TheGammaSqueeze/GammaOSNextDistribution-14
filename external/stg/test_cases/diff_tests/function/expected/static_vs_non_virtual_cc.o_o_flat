@@ -1,0 +1,31 @@
+variable symbol 'int StaticToNormal::st' {_ZN14StaticToNormal2stE} was removed
+
+variable symbol 'int NormalToStatic::st' {_ZN14NormalToStatic2stE} was added
+
+function symbol changed from 'int NormalToStatic::print(struct NormalToStatic*)' {_ZN14NormalToStatic5printEv} to 'int NormalToStatic::print()' {_ZN14NormalToStatic5printEv}
+  type changed from 'int(struct NormalToStatic*)' to 'int()'
+    parameter 1 of type 'struct NormalToStatic*' was removed
+
+function symbol changed from 'int StaticToNormal::print()' {_ZN14StaticToNormal5printEv} to 'int StaticToNormal::print(struct StaticToNormal*)' {_ZN14StaticToNormal5printEv}
+  type changed from 'int()' to 'int(struct StaticToNormal*)'
+    parameter 1 of type 'struct StaticToNormal*' was added
+
+variable symbol 'struct NormalToStatic normal_to_static' changed
+  type 'struct NormalToStatic' changed
+
+variable symbol 'struct StaticToNormal static_to_normal' changed
+  type 'struct StaticToNormal' changed
+
+type 'struct NormalToStatic' changed
+  byte size changed from 8 to 4
+  member 'int st' was removed
+  member 'int m' changed
+    offset changed from 32 to 0
+
+type 'struct StaticToNormal' changed
+  byte size changed from 4 to 8
+  member 'int st' was added
+  member 'int m' changed
+    offset changed from 0 to 32
+
+exit code 4

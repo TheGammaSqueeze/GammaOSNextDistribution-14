@@ -1,0 +1,11 @@
+function symbol changed from 'void my_func()' to 'void my_func(int)'
+  type changed from 'void()' to 'void(int)'
+    parameter 1 of type 'int' was added
+
+function symbol changed from 'void(* resolve_func())()' to 'void(* resolve_func())(int)'
+  type changed from 'void(*())()' to 'void(*())(int)'
+    return type changed from 'void(*)()' to 'void(*)(int)'
+      pointed-to type changed from 'void()' to 'void(int)'
+        parameter 1 of type 'int' was added
+
+exit code 4

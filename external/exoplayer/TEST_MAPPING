@@ -1,0 +1,35 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsMediaMuxerTestCases"
+    },
+    {
+      "name": "CtsMediaParserTestCases"
+    },
+    {
+      "name": "CtsMediaParserHostTestCases"
+    },
+    {
+      "name": "MediaProviderTests"
+    },
+    {
+      "name": "CtsPhotoPickerTest",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.LargeTest"
+        }
+      ]
+    },
+    {
+      "name": "clockwork-retail-attract-loop-robotests"
+    }
+  ],
+  "postsubmit": [
+    {
+      "name": "CtsPhotoPickerTest"
+    },
+    {
+      "name": "clockwork-retail-attract-loop-robotests"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<embedded-relative-level2>
+  <item>Xalan-J 1.x</item>
+  <item>Xalan-J 2.x</item>
+  <item>Xalan-C 1.x</item>
+  
+    <item>Xalan documentation</item>
+    <item>Xalan tests</item>
+  
+</embedded-relative-level2>

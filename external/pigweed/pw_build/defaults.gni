@@ -1,0 +1,99 @@
+# Copyright 2020 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+
+# Default configs and dependencies provided by the toolchain. These
+# are applied to all of the pw_* target types. These are set from a toolchain's
+# toolchain_args scope with the following argument names:
+#
+#   default_configs
+#   default_public_deps
+#   remove_default_configs
+#   remove_default_public_deps
+#
+# Because of how GN handles default vs non-default toolchains, these only apply
+# for for non-default toolchains. A non-default toolchain invocation occurs
+# when a toolchain is specified in parenthesis after the name of a build target
+# in a dependency list. For example:
+#
+#   group("foo_group") {
+#     deps = [ //pw_some_module(//pw_toolchain:not_default) ]
+#   }
+#
+# The default toolchain is never used by Pigweed to build C/C++ since
+# toolchain_args of that toolchain are ignored by GN.
+#
+# DO NOT RELY ON THIS: Use pw_build_defaults instead!
+# This is exposed as public because it is needed by both defaults.gni and
+# build_target.gni, and it helps surface the design of the GN build
+# architecture.
+pw_build_INTERNAL_DEFAULTS = {
+  # This is a little odd, but it's done for backwards compatibility. See the
+  # referenced .gni file if you want more information.
+  import("$dir_pw_build/gn_internal/defaults.gni")
+}
+
+declare_args() {
+  # Controls the default visibility of C/C++ libraries and executables
+  # (pw_source_set, pw_static_library, pw_shared_library pw_executable). This
+  # can be "*" or a list of paths.
+  #
+  # This is useful for limiting usage of Pigweed modules via an explicit
+  # allowlist. For the GN build to work, pw_build_DEFAULT_VISIBILITY must always
+  # at least include the Pigweed repository ("$dir_pigweed/*").
+  #
+  # Explicitly setting a target's visibility overrides this default.
+  pw_build_DEFAULT_VISIBILITY = [ "*" ]
+
+  # Controls whether compilers and other tools are told to use colorized output.
+  pw_build_COLORIZE_OUTPUT = true
+}
+
+# These are the default configs automatically applied to every pw_* C/C++ build
+# step regardless of toolchain. If you want to omit one of these from your
+# toolchain, add the undesired config to pw_build_REMOVE_DEFAULT_CONFIGS.
+#
+# This is not the default value of pw_build_DEFAULT_CONFIGS because it would
+# be too easy to accidentally clobber.
+pigweed_default_configs = [
+  "$dir_pw_build:colorize_output",
+  "$dir_pw_build:debugging",
+  "$dir_pw_build:reduced_size",
+  "$dir_pw_build:strict_warnings",
+  "$dir_pw_build:toolchain_cpp_standard",
+  "$dir_pw_build:relative_paths",
+  "$dir_pw_build:enable_clang_fixed_point_types",
+]
+
+# Some Projects rely on this, so it is being retained for backwards
+# compatibilty. Using these is not recommended; prefer to use the pw_* target
+# types directly.
+pw_build_defaults = {
+  configs = pw_build_INTERNAL_DEFAULTS.default_configs
+  public_deps = pw_build_INTERNAL_DEFAULTS.default_public_deps
+  if (pw_build_INTERNAL_DEFAULTS.remove_default_configs != []) {
+    # Add them first to ensure they are present to be removed.
+    configs += pw_build_INTERNAL_DEFAULTS.remove_default_configs
+    configs -= pw_build_INTERNAL_DEFAULTS.remove_default_configs
+  }
+  if (pw_build_INTERNAL_DEFAULTS.remove_default_public_deps != []) {
+    # Add them first to ensure they are present to be removed.
+    public_deps += pw_build_INTERNAL_DEFAULTS.remove_default_public_deps
+    public_deps -= pw_build_INTERNAL_DEFAULTS.remove_default_public_deps
+  }
+  if (pw_build_DEFAULT_VISIBILITY != [ "*" ]) {
+    visibility = pw_build_DEFAULT_VISIBILITY
+  }
+}

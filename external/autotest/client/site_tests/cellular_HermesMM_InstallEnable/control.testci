@@ -1,0 +1,33 @@
+# Copyright (c) 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "cellular_HermesMM_InstallEnable.testci"
+PURPOSE = "Verify that a failed hermes MM Install Enable attempt reported"
+CRITERIA = """
+This test will fail if could not able to Install & Enable given Euicc through
+Hermes dbus daemon or the enabled profile SIM details not appeared on MM
+"""
+ATTRIBUTES = "suite:cellular_ota_flaky"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "network"
+TEST_TYPE = "client"
+DEPENDENCIES = "carrier:testesim"
+PY_VERSION = 3
+DOC = """
+  Tests that Hermes Profile Install & Enable/Disable and validates the same on
+  Modem Manager
+
+  This test will fail if failed to Install & Enable Profile OR could not able
+  to connect to Hermes dbus daemon OR validation of SIM detail fail on MM
+  It requires a dut with a modem and euicc
+"""
+
+from autotest_lib.client.cros.cellular import test_environment
+
+test_env = test_environment.CellularESIMTestEnvironment()
+job.run_test('cellular_HermesMM_InstallEnable', test_env=test_env,
+            is_prod_ci=False)
+

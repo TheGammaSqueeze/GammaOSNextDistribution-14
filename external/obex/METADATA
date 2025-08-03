@@ -1,0 +1,13 @@
+name: "obex"
+description:
+    "A library with utility classes for the OBject EXchange (OBEX) protocol."
+
+third_party {
+  url {
+    type: OTHER
+    value: "Moved from frameworks/base/obex. The library was contributed to AOSP in 2009."
+  }
+  version: ""
+  last_upgrade_date { year: 2022 month: 2 day: 14 }
+  license_type: NOTICE
+}

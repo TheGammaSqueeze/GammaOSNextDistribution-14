@@ -1,0 +1,24 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "asavery"
+NAME = "hardware_StorageQualBase.test_nonroot"
+TIME = "LONG"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "suite"
+TEST_TYPE = "server"
+PY_VERSION = 3
+FAST = False
+
+DOC = """
+Check the test hardware_StorageQualBase is working as expected for
+nonroot storage devices.
+"""
+
+def run_server_tests(machine):
+    job.run_test('hardware_StorageQualBase', client_ip=machine,
+                 client_tag='test', nonroot=True)
+
+parallel_simple(run_server_tests, machines)
+

@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update bcc
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "BCC"
+description: "BCC is a toolkit for creating efficient kernel tracing and manipulation programs"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/iovisor/bcc"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/iovisor/bcc.git"
+  }
+  version: "b1bd28e785b4231aba99dd02a239102db56564af"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 16
+  }
+}

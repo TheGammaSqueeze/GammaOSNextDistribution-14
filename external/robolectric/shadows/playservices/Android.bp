@@ -1,0 +1,22 @@
+//#############################################
+// Compile Robolectric shadows playservices
+//#############################################
+
+//java_library_host {
+//    name: "Robolectric_shadows_playservices_upstream",
+//    libs: [
+//        "Robolectric_shadows_framework_upstream",
+//        "Robolectric_annotations_upstream",
+//        "Robolectric_shadowapi_upstream",
+//        "robolectric-javax.annotation-api-1.2",
+//        "guava",
+//        "robolectric-host-android_all",
+
+//   compileOnly "com.android.support:support-fragment:28.0.0"
+//   compileOnly "com.google.android.gms:play-services-base:8.4.0"
+//   compileOnly "com.google.android.gms:play-services-basement:8.4.0"
+//    ],
+//    plugins: ["Robolectric_processor_upstream"],
+//    javacflags: ["-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric.shadows.gms"],
+//    srcs: ["src/main/java/**/*.java"],
+//}

@@ -1,0 +1,29 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, kyleshima, Chromium OS"
+NAME = "rlz_CheckPing"
+PURPOSE = "Tests that CAI and CAF RLZ pings are sent on first use."
+TIME = "Short"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:rlz"
+PY_VERSION = 3
+DOC = """
+This tests the RLZ client install (CAI) and first-use event (CAF) pings are
+sent on first use of the device. Also checks that the CAF ping is not resent
+when another user signs in and uses the device.
+"""
+
+import datetime
+
+def run(machine):
+    host = hosts.create_host(machine)
+    rlz_embargo_end_date = (datetime.date.today() - datetime.timedelta(days=2))
+    job.run_test('rlz_CheckPing', host=host,
+                 rlz_embargo_end_date=rlz_embargo_end_date,
+                 check_ping_not_resent=True)
+
+job.parallel_simple(run, machines)

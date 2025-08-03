@@ -1,0 +1,11 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [color=red, label="removed(void c())"]
+  "0" -> "1" [label=""]
+  "2" [color=red, label="removed(void d())"]
+  "0" -> "2" [label=""]
+  "3" [color=red, label="'void b()'"]
+  "3" -> "3:0"
+  "3:0" [color=red, label="visibility changed from default to protected"]
+  "0" -> "3" [label=""]
+}

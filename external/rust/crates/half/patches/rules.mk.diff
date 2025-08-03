@@ -1,0 +1,15 @@
+diff --git b/rules.mk a/rules.mk
+index 3e8e111..4e542db 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -14,10 +14,6 @@ MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="std"' \
+ 
+ MODULE_LIBRARY_DEPS := \
+-	external/rust/crates/bytemuck \
+-	external/rust/crates/num-traits \
+ 	external/rust/crates/serde \
+-	external/rust/crates/zerocopy \
+-	external/rust/crates/crunchy \
+ 
+ include make/library.mk

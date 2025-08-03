@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/nix
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "nix"
+description: "Rust friendly bindings to *nix APIs"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/nix"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/nix/nix-0.27.1.crate"
+  }
+  version: "0.27.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 14
+  }
+}

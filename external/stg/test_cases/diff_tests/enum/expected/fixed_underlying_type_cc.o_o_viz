@@ -1,0 +1,15 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'unsigned int fun(enum A, enum B)' {_Z3fun1A1B}"]
+  "2" [label="'unsigned int(enum A, enum B)'"]
+  "3" [shape=rectangle, label="'enum A'"]
+  "4" [color=red, label="'signed char' -> 'unsigned char'"]
+  "3" -> "4" [label="underlying"]
+  "2" -> "3" [label="parameter 1"]
+  "5" [shape=rectangle, label="'enum B'"]
+  "6" [color=red, label="'signed char' -> 'unsigned long'"]
+  "5" -> "6" [label="underlying"]
+  "2" -> "5" [label="parameter 2"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

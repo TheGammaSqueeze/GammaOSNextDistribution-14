@@ -1,0 +1,189 @@
+// Copyright 2021 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/status.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// TODO(b/305098009): fix byte size vs size naming issue.
+
+// Next tag: 10
+message NamespaceStorageInfoProto {
+  // Name of the namespace
+  optional string namespace = 1;
+
+  // Number of alive documents in this namespace.
+  optional int32 num_alive_documents = 2;
+
+  // NOTE: We don't have stats on number of deleted documents in a namespace
+  // since we completely erase all data on a document when it's deleted. And we
+  // can't figure out which namespace it belonged to.
+
+  // Number of expired documents in this namespace.
+  optional int32 num_expired_documents = 3;
+
+  // LINT.IfChange(namespace_storage_info_usage_types)
+  // Number of alive documents that have a UsageReport.usage_type reported
+  optional int32 num_alive_documents_usage_type1 = 4;
+  optional int32 num_alive_documents_usage_type2 = 5;
+  optional int32 num_alive_documents_usage_type3 = 6;
+
+  // Number of expired documents that have a UsageReport.usage_type reported
+  optional int32 num_expired_documents_usage_type1 = 7;
+  optional int32 num_expired_documents_usage_type2 = 8;
+  optional int32 num_expired_documents_usage_type3 = 9;
+  // LINT.ThenChange()
+}
+
+// Next tag: 15
+message DocumentStorageInfoProto {
+  // Total number of alive documents.
+  optional int32 num_alive_documents = 1;
+
+  // Total number of deleted documents.
+  optional int32 num_deleted_documents = 2;
+
+  // Total number of expired documents.
+  optional int32 num_expired_documents = 3;
+
+  // Total size of the document store in bytes. Will be set to -1 if an IO error
+  // is encountered while calculating this field.
+  optional int64 document_store_size = 4;
+
+  // Total size of the ground truth in bytes. The ground truth may
+  // include deleted or expired documents. Will be set to -1 if an IO error is
+  // encountered while calculating this field.
+  optional int64 document_log_size = 5;
+
+  // Size of the key mapper in bytes. Will be set to -1 if an IO error is
+  // encountered while calculating this field.
+  optional int64 key_mapper_size = 6;
+
+  // Size of the document id mapper in bytes. Will be set to -1 if an IO error
+  // is encountered while calculating this field.
+  optional int64 document_id_mapper_size = 7;
+
+  // Size of the score cache in bytes. Will be set to -1 if an IO error is
+  // encountered while calculating this field.
+  optional int64 score_cache_size = 8;
+
+  // Size of the filter cache in bytes. Will be set to -1 if an IO error is
+  // encountered while calculating this field.
+  optional int64 filter_cache_size = 9;
+
+  // Size of the corpus mapper in bytes. Will be set to -1 if an IO error is
+  // encountered while calculating this field.
+  optional int64 corpus_mapper_size = 10;
+
+  // Size of the corpus score cache in bytes. Will be set to -1 if an IO error
+  // is encountered while calculating this field.
+  optional int64 corpus_score_cache_size = 11;
+
+  // Size of the namespace id mapper in bytes. Will be set to -1 if an IO error
+  // is encountered while calculating this field.
+  optional int64 namespace_id_mapper_size = 12;
+
+  // Number of namespaces seen from the current documents.
+  //
+  // TODO(cassiewang): This isn't technically needed anymore since clients can
+  // get this number from namespace_storage_info. Consider removing this.
+  optional int32 num_namespaces = 13;
+
+  // Storage information of each namespace.
+  repeated NamespaceStorageInfoProto namespace_storage_info = 14;
+}
+
+// Next tag: 5
+message SchemaStoreStorageInfoProto {
+  // Size of the schema store in bytes. Will be set to -1 if an IO error is
+  // encountered while calculating this field.
+  optional int64 schema_store_size = 1;
+
+  // Total number of schema types.
+  optional int32 num_schema_types = 2;
+
+  // Total number of all sections across all types
+  optional int32 num_total_sections = 3;
+
+  // Total number of types at the current section limit.
+  optional int32 num_schema_types_sections_exhausted = 4;
+}
+
+// Next tag: 9
+message IndexStorageInfoProto {
+  // Total size of the index in bytes. Will be set to -1 if an IO error is
+  // encountered while calculating this field.
+  optional int64 index_size = 1;
+
+  // Size of the lite index lexicon in bytes. Will be set to -1 if an IO error
+  // is encountered while calculating this field.
+  optional int64 lite_index_lexicon_size = 2;
+
+  // Size of the lite index hit buffer in bytes. Will be set to -1 if an IO
+  // error is encountered while calculating this field.
+  optional int64 lite_index_hit_buffer_size = 3;
+
+  // Size of the main index lexicon in bytes. Will be set to -1 if an IO error
+  // is encountered while calculating this field.
+  optional int64 main_index_lexicon_size = 4;
+
+  // Size of the main index storage in bytes. Will be set to -1 if an IO error
+  // is encountered while calculating this field.
+  optional int64 main_index_storage_size = 5;
+
+  // Size of one main index block in bytes.
+  optional int64 main_index_block_size = 6;
+
+  // Number of main index blocks.
+  optional int32 num_blocks = 7;
+
+  // Percentage of the main index blocks that are free, assuming
+  // allocated blocks are fully used.
+  optional float min_free_fraction = 8;
+}
+
+// Next tag: 5
+message StorageInfoProto {
+  // Total size of Icing’s storage in bytes. Will be set to -1 if an IO error is
+  // encountered while calculating this field.
+  optional int64 total_storage_size = 1;
+
+  // Storage information of the document store.
+  optional DocumentStorageInfoProto document_storage_info = 2;
+
+  // Storage information of the schema store.
+  optional SchemaStoreStorageInfoProto schema_store_storage_info = 3;
+
+  // Storage information of the index.
+  optional IndexStorageInfoProto index_storage_info = 4;
+}
+
+// Next tag: 3
+message StorageInfoResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //
+  // See status.proto for more details.
+  optional StatusProto status = 1;
+
+  // Storage information of Icing.
+  optional StorageInfoProto storage_info = 2;
+}

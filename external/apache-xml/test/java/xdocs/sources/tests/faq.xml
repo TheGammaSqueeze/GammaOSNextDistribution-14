@@ -1,0 +1,191 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE s1 SYSTEM "sbk:/style/dtd/document.dtd">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the  "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<s1 title="Frequently asked questions">
+
+  <s2 title="In progress">
+    <p>We need to start a FAQ for testing Xalan, unfortunately the faq doctype 
+    doesn't properly work in this tree, so I'm using an s1/s2 doc instead temporarily.
+    Some topics include:</p>
+<ul>
+<li><link anchor="viewresults">Pretty-printing results</link></li>
+<li><link anchor="debug">Run tests in a debugger, etc.</link></li>
+</ul>
+  </s2>
+  <s2 title="Prepare to run tests">
+    <p>CVSROOT=:pserver:<em>user</em>@cvs.apache.org:/home/cvs etc.<br/>
+    or CVSROOT=:pserver:anoncvs@cvs.apache.org:/home/cvspublic etc.<br/>
+    cvs checkout xml-xalan/java<br/>
+    cvs checkout xml-xalan/test<br/>
+    cd xml-xalan/java<br/>
+    build jar<br/>
+    cd ../test<br/>
+    build jar<br/>
+    build -projecthelp  - to get a list of targets<br/>
+    </p>
+  </s2>
+
+  <s2 title="Run conformance tests">
+    <p>The conf set of tests can be run in a variety of ways, especially with each different flavor.
+    For a list of flavors, see xml-xalan/test/java/src/org/apache/qetest/xslwrapper/TransformWrapperFactory.properties</p>
+    <ul>
+    <li><source>build conf</source>  (default: trax.systemId)<br/><br/></li>
+    <li><source>build conf -Dconf.flavor=trax.sax</source>   (uses SAX IMPORTANT!)<br/><br/></li>
+    <li><source>build conf -Dconf.flavor=trax.dom</source>   (uses dom IMPORTANT!)<br/><br/></li>
+    <li>trax.file - File object instead of systemId<br/><br/></li>
+    <li>trax.stream - InputStreams - IMPORTANT!<br/><br/></li>
+    <li>trax.localPath - uses local paths instead of URLs, experimental<br/><br/></li>
+    <li>trax.systemId3 - does systemId transform three times in a row, experimental<br/><br/></li>
+    <li>process - uses command line class - IMPORTANT!<br/><br/></li>
+    </ul>
+  </s2>
+
+  <s2 title="Run contrib/perf tests">
+    <p>Same as running conf tests, except substitute 'contrib' for 'conf' everywhere, 
+    or 'perf' instead.  Note that 'perf' uses a custom Testlet testing algorithim
+    that iterates several times and outputs custom perf elements.</p>
+    <ul>
+    <li><source>build contrib -Dcontrib.flavor=trax.sax</source><br/><br/></li>
+    <li><source>build perf -Dperf.flavor=trax.stream</source><br/><br/></li>
+    </ul>
+  </s2>
+
+  <anchor name="xsltc"/>
+  <s2 title="Run XSLTC-related tests">
+    <p>Note that currently some of the XSLTC-specific tests are 
+    built with separate targets; in the future as the XSLTC engine 
+    is more completely integrated into the Xalan core, we hope to 
+    merge the tests as well.</p>
+    <p>Note that many of the tests that use TrAX/JAXP should work 
+    equally well with XSLTC since they have their own version of 
+    a TransformerFactory; remember to set the appropriate system 
+    property or classpath appropriately.  The various org.apache.qetest.trax 
+    API tests should also work normally with XSLTC.</p>
+  </s2>
+
+  <anchor name="xsltmark"/>
+  <s2 title="Run XSLTMARK perf tests">
+    <p>Xalan has it's own more detailed automation harness for running 
+    stylesheet tests and capturing performance metrics.  You can run the XSLTMARK 
+    set of stylesheets using Xalan's harness to see more detailed performance 
+    data.</p>
+    <ul>
+    <li>Copy xsltmark/testcases to xml-xalan/test (so it's xml-xalan/test/testcases)<br/><br/></li>
+    <li>Copy xsltmark/testcases/default.conf to xml-xalan/test/xsltmark.filelist<br/><br/></li>
+    <li>cd xml-xalan/test<br/><br/></li>
+    <li>Search-and-replace xsltmark.filelist 't=' 't=testcases/'<br/><br/></li>
+    <li>Search-and-replace xsltmark.filelist 'e=' 'e=testcases/'<br/><br/></li>
+    <li><source>build perf -Dperf.fileList=xsltmark.filelist</source><br/><br/></li>
+    <li><source>java -classpath blah org.apache.xalan.xslt.Process -in results-perf/results.xml -xsl PerfScanner.xsl -out results-perf/PerfReport.html</source><br/><br/></li>
+    <li>(where blah includes xml-apis.jar;xalan.jar;xercesImpl.jar)<br/><br/></li>
+    </ul>
+  </s2>
+
+  <anchor name="viewresults"/>
+  <s2 title="View results in HTML">
+    <p>Every test creates a results.xml (or TestName.xml) file of all the results 
+    the test has performed - no need to examine the console, since all the info will 
+    be here.  We have a couple of prototype stylesheets to view the results in a 
+    semi-pretty HTML style.</p>
+    <p>There is also a tableResults.xsl stylesheet for creating a table of conformance
+      test results. For documentation on how to use the stylesheet, please consult the section
+      <link idref="run" anchor="how-to-view-results">How-to: View Results</link>.
+    </p>
+    <ul>
+    <li><source>build perf</source><br/>
+    (Creates results-perf/results.xml)<br/></li>
+    <li><source>java -classpath blah org.apache.xalan.xslt.Process -in results-perf/results.xml -xsl FailScanner.xsl -out results-perf/FailReport.html</source><br/><br/></li>
+    <li><source>java -classpath blah org.apache.xalan.xslt.Process -in results-perf/results.xml -xsl PerfScanner.xsl -out results-perf/PerfReport.html</source><br/><br/></li>
+    <li><source>build alltest</source><br/>
+    (Creates a <b>LOT</b> of results in results-alltest/**)<br/></li>
+    <li><source>build scan</source><br/>
+    (Runs ResultScanner by default on results-alltest/**)<br/></li>
+    <li><source>build scan -Dscan.outputDir=results-perf</source>  etc.<br/></li>
+    <li><source>java -classpath blah;testxsl.jar org.apache.qetest.xsl.ResultScanner results-alltest</source><br/>
+    (This uses ResultScanner.xsl to style <b>all</b> results in the whole tree under 
+    results-alltest into a single ResultReport.html in the current directory; it currently 
+    uses FailScanner.xsl to only include fail results)<br/></li>
+    </ul>
+  </s2>
+
+  <s2 title="Include/Exclude tests">
+    <p>Run just a subset of tests, or exclude tests using simple command line options.</p>
+    <ul>
+    <li><source>build conf -Dconf.category=axes;boolean</source> - Only run those directories<br/><br/></li>
+    <li><source>build conf -Dconf.excludes=axes107.xsl;boolean12.xsl</source> - Skip those explicit xsl filenames<br/><br/></li>
+    </ul>
+  </s2>
+
+  <anchor name="conf.one"/>
+  <s2 title="Run a single conf test">
+    <ul>
+    <li><source>build conf.one -Dconf.test=axes44 -Dconf.flavor=trax.stream</source><br/>
+    This will run just the axes44.xsl test, using the normal Testlet algorithim <b>and</b> 
+    using whatever flavor you choose (which makes it easy to see if single tests 
+    run properly using SAX, DOM, streams, whatever)<br/></li>
+    </ul>
+  </s2>
+
+  <s2 title="Run all API tests">
+    <ul>
+    <li><source>build api -DtestClass=TransformerAPITest</source><br/></li>
+    <li>This runs all the available specific API tests, which includes all the 
+    API tests in the smoketest, plus other tests that fail due to known bugzilla reports.<br/></li>
+    <li>Note that in the case of <source>testClass</source>, you do <b>not</b> 
+    prefix the name of the option with conf,api,perf,etc.<br/><br/></li>
+    </ul>
+  </s2>
+
+  <s2 title="Run a LOT tests">
+    <ul>
+    <li><source>build alltest</source> (runs all,alltest.other,alltest.conf,alltest.contrib)<br/></li>
+    <li><source>build alltest.other</source> runs all API tests, extensions, bugzilla, threading, and perf tests<br/></li>
+    <li><source>build alltest.conf</source> run all flavors of conf tests<br/></li>
+    <li><source>build alltest.contrib</source>  run all flavors of contrib tests<br/></li>
+    <li><source>build alltest.features</source> run all conf and contrib tests, 
+    matrixed over all flavors, twice: once with the feature incremental set to true, 
+    once with optimize set to false (note: not all features matter with all flavors, 
+    but we run them all anyway.  Several meg of output!)<br/></li>
+    </ul>
+  </s2>
+
+  <anchor name="debug"/>
+  <s2 title="Debug the tests">
+    <p>It's quite simple to run the tests standalone, without using Ant - this is 
+    suitable for running in your debugger or what-not (or in environments where 
+    you feel that the overhead of running Ant might interfere with the test).</p>
+    <p>Normally, we have the build.bat/.sh files and the Ant script build.xml 
+    manage parsing the command line and setting up the CLASSPATH and options for 
+    running tests.  However all tests can be run on the command line, and will 
+    accept options in either a -load file.properties block, or on the command line itself.</p>
+    <ul>
+    <li><source>debugapi.bat org.apache.qetest.trax.TransformerAPITest</source><br/>
+    Runs just one API test without using Ant; edit debugapi.properties to 
+    change parameters passed to the test.<br/></li>
+    <li><source>debugconf.bat [options]</source><br/>
+    Runs a set of conf/ stylesheet tests using the normal StylesheetTestletDriver; 
+    see debugconf.properties for settable options.  Note that this method does not 
+    directly support 'conf.one' to run only a <b>single</b> test.<br/></li>
+    <li>Setup everything manually.  Minimal setup is: CLASSPATH has 
+    xalan.jar;serializer.jar,xercesImpl.jar;xml-apis.jar;testxsl.jar, command line parameters or 
+    -load file.properties includes other test properties, like inputDir, goldDir, 
+    outputDir, logFile, etc.</li>
+    </ul>
+  </s2>
+</s1>

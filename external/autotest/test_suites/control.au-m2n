@@ -1,0 +1,29 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "David Haddock <dhaddock@chromium.org>"
+NAME = "au-m2n"
+PURPOSE = "Suite for M->N autoupdate tests."
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite runs various autoupdate tests M to N. This means the tests will
+update from a previous milestone to the current milestone.
+
+Most autoupdate tests go N->N and update from a version to itself. This M->N
+suite should catch regressions that are missed by N->N tests.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['add_experimental'] = True
+args_dict['max_runtime_mins'] = 60
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

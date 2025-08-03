@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/rusqlite
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "rusqlite"
+description: "Ergonomic wrapper for SQLite"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/rusqlite"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/rusqlite/rusqlite-0.29.0.crate"
+  }
+  version: "0.29.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 5
+    day: 25
+  }
+}

@@ -1,0 +1,16 @@
+This package is imported to Android and uses Android's external/grpc-grpc
+header files and compilation flags to generate bindings.
+
+The Android.bp file is manually written due to:
+    1. Binding to Android's existing copy of grpc instead of
+       the copy that is bundled within the crate.
+    2. The crates customized grpc_wrap.cc file that provides
+       additional translation logic.
+    3. A lot of bindgen customizations in build.rs.
+
+The following line is added to android/bindgen_wrapper.h. It's unclear why this
+is necessary, but building the grpcio crate fails without it.
+#include <grpc/support/cpu.h>
+
+If features are changed for the grpcio-sys crate, please ensure those
+features are changed in the grpcio_bindgen module.

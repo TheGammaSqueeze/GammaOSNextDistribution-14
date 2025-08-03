@@ -1,0 +1,11 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'struct S1 v1' -> 'struct { int a1; int b1; } v1'"]
+  "2" [color=red, label="'struct S1' -> 'struct { int a1; int b1; }'"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+  "3" [label="'struct { int a2; } v2' -> 'struct S2 v2'"]
+  "4" [color=red, label="'struct { int a2; }' -> 'struct S2'"]
+  "3" -> "4" [label=""]
+  "0" -> "3" [label=""]
+}

@@ -1,0 +1,111 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'abergman, chromeos-engprod-platform-syd'
+NAME = 'ui_QuickCheckCUJ2_basic_wakeup'
+ATTRIBUTES = 'suite:performance_cuj_experimental'
+TIME = 'long'
+TEST_CATEGORY = 'Stress'
+TEST_CLASS = 'Hardware'
+TEST_TYPE = 'Server'
+PRIORITY = 4989
+MAX_RESULT_SIZE_KB = 1024 * 1024
+JOB_RETRIES = 5
+REQUIRE_SSP = True
+DEPENDENCIES = ''
+PY_VERSION = 3
+
+DOC = '''
+Run the Tast-based MTBF performance CUJ test.
+
+Tast is an integration-testing framework analogous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+import common
+import json
+import logging
+import tempfile
+from six.moves import urllib
+import yaml
+
+from autotest_lib.client.common_lib import utils
+from autotest_lib.client.common_lib.cros import dev_server
+from autotest_lib.site_utils.deployment.prepare import dut
+from autotest_lib.utils import labellib
+
+test_args = dict()
+test_args['test_version'] = 1
+
+def report_host_info(host):
+  labels = labellib.LabelsMapping(host.host_info_store.get().labels)
+  labels['test'] = 'ui.QuickCheckCUJ2.basic_wakeup'
+  labels['test_iteration'] = '1'
+  utils.write_keyval(job.resultdir, labels)
+  # Try to retrieve and report DUT HWID and serial number.
+  try:
+    dut.setup_hwid_and_serialnumber(host)
+    logging.info("Host info store: %s", host.host_info_store.get())
+    utils.write_keyval(job.resultdir, host.host_info_store.get().attributes)
+  except Exception as e:
+    logging.warning("Failed retrieving DUT host info: %s", e)
+
+def parse_config(config_url):
+  response = urllib.request.urlopen(config_url)
+  vars = json.loads(response.read())
+  for key in vars:
+    test_args[key] = vars[key]
+  logging.info('Read %d values from remote configuration.', len(vars))
+
+def stage_config(host):
+  devservers = dev_server.ImageServer.get_available_devservers()
+  devserver_url = devservers[0][0]
+  if devserver_url:
+    logging.info('Using devserver: %s', devserver_url)
+    labels = host.host_info_store.get().labels
+    build = labellib.LabelsMapping(labels).get(labellib.Key.CROS_VERSION)
+    if not build:
+      # Not able to detect build, means not running on Moblab.
+      return
+    ds = dev_server.ImageServer(devserver_url)
+    gs_bucket = dev_server._get_image_storage_server()
+    if gs_bucket:
+      config_path = 'config/perf_cuj/'
+      config_file = 'perf_cuj.config'
+      archive_url = gs_bucket + config_path
+      logging.info('Staging configuration from %s.', gs_bucket)
+      try:
+        ds.stage_artifacts(build,
+                          archive_url = archive_url,
+                          files = [config_file])
+      except Exception as e:
+          logging.error('Staging artifacts failed: %s', str(e))
+      else:
+        logging.info('Parsing configuration from %s.', archive_url)
+        parse_config(devserver_url + '/static/' + config_path + config_file)
+
+def run(machine):
+  with tempfile.NamedTemporaryFile(mode='w+', encoding='utf-8', suffix='.yaml') as temp_file:
+      host=hosts.create_host(machine)
+      report_host_info(host)
+      stage_config(host)
+
+      # Writing all test arguments to yaml file.
+      yaml.safe_dump(test_args,
+                    stream=temp_file,
+                    default_flow_style=False,
+                    allow_unicode=True)
+      job.run_test('tast',
+                  host=host,
+                  test_exprs=['ui.QuickCheckCUJ2.basic_wakeup'],
+                  clear_tpm=False,
+                  ignore_test_failures=False,
+                  max_run_sec=3600,
+                  command_args=args,
+                  varsfiles=[temp_file.name])
+
+parallel_simple(run, machines)

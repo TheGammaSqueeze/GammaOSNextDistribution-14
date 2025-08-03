@@ -1,0 +1,20 @@
+name: "threadpool"
+description: "A thread pool for running a number of jobs on a fixed set of worker threads."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/threadpool"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/threadpool/threadpool-1.8.1.crate"
+  }
+  version: "1.8.1"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 4
+    day: 19
+  }
+}

@@ -1,0 +1,227 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x01ec39fc
+  kind: POINTER
+  pointee_type_id: 0x2df0016c
+}
+pointer_reference {
+  id: 0x2df0016c
+  kind: POINTER
+  pointee_type_id: 0x9d80e32f
+}
+pointer_reference {
+  id: 0x37376ce6
+  kind: POINTER
+  pointee_type_id: 0xf69d5505
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+base_class {
+  id: 0x1fbc7d3f
+  type_id: 0x207acb9f
+  offset: 8
+  inheritance: NON_VIRTUAL
+}
+base_class {
+  id: 0x27e7d0b7
+  type_id: 0xc1147dbd
+  inheritance: NON_VIRTUAL
+}
+base_class {
+  id: 0x35d2bca3
+  type_id: 0x89c1cdee
+  inheritance: NON_VIRTUAL
+}
+base_class {
+  id: 0xc09b23a0
+  type_id: 0x207acb9f
+  offset: 256
+  inheritance: VIRTUAL
+}
+base_class {
+  id: 0xf8c08e28
+  type_id: 0xc1147dbd
+  offset: 192
+  inheritance: VIRTUAL
+}
+member {
+  id: 0x79277fbd
+  name: "_vptr$NonToVirtual"
+  type_id: 0x01ec39fc
+}
+struct_union {
+  id: 0xc1147dbd
+  kind: STRUCT
+  name: "A"
+  definition {
+    bytesize: 1
+    base_class_id: 0x35d2bca3
+  }
+}
+struct_union {
+  id: 0x207acb9f
+  kind: STRUCT
+  name: "B"
+  definition {
+    bytesize: 1
+    base_class_id: 0x35d2bca3
+  }
+}
+struct_union {
+  id: 0x89c1cdee
+  kind: STRUCT
+  name: "Base"
+  definition {
+    bytesize: 1
+  }
+}
+struct_union {
+  id: 0xf69d5505
+  kind: STRUCT
+  name: "NonToVirtual"
+  definition {
+    bytesize: 16
+    base_class_id: 0xf8c08e28
+    base_class_id: 0xc09b23a0
+    member_id: 0x79277fbd
+  }
+}
+struct_union {
+  id: 0x61cd3569
+  kind: STRUCT
+  name: "VirtualToNon"
+  definition {
+    bytesize: 2
+    base_class_id: 0x27e7d0b7
+    base_class_id: 0x1fbc7d3f
+  }
+}
+function {
+  id: 0x1d558aaa
+  return_type_id: 0x48b5725f
+  parameter_id: 0x37376ce6
+}
+function {
+  id: 0x9d80e32f
+  return_type_id: 0x6720d32f
+}
+elf_symbol {
+  id: 0x2ee62e36
+  name: "_ZN12NonToVirtualC1Ev"
+  is_defined: true
+  symbol_type: FUNCTION
+  binding: WEAK
+  type_id: 0x1d558aaa
+  full_name: "NonToVirtual::NonToVirtual"
+}
+elf_symbol {
+  id: 0x61d9eaff
+  name: "_ZTI12NonToVirtual"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0x6cd6c36e
+  name: "_ZTI1A"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0xa299f851
+  name: "_ZTI1B"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0x24d58148
+  name: "_ZTI4Base"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0x4beeefa7
+  name: "_ZTS12NonToVirtual"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0x4681bdd1
+  name: "_ZTS1A"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0x19ce5ac1
+  name: "_ZTS1B"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0xbc82394c
+  name: "_ZTS4Base"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0xd4bd55f3
+  name: "_ZTT12NonToVirtual"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0xdebc2088
+  name: "_ZTV12NonToVirtual"
+  is_defined: true
+  symbol_type: OBJECT
+  binding: WEAK
+}
+elf_symbol {
+  id: 0x486f617d
+  name: "non_to_virtual"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf69d5505
+  full_name: "non_to_virtual"
+}
+elf_symbol {
+  id: 0x2d368ead
+  name: "virtual_to_non"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x61cd3569
+  full_name: "virtual_to_non"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x2ee62e36
+  symbol_id: 0x61d9eaff
+  symbol_id: 0x6cd6c36e
+  symbol_id: 0xa299f851
+  symbol_id: 0x24d58148
+  symbol_id: 0x4beeefa7
+  symbol_id: 0x4681bdd1
+  symbol_id: 0x19ce5ac1
+  symbol_id: 0xbc82394c
+  symbol_id: 0xd4bd55f3
+  symbol_id: 0xdebc2088
+  symbol_id: 0x486f617d
+  symbol_id: 0x2d368ead
+}

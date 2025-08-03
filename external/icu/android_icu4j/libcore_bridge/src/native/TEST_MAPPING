@@ -1,0 +1,7 @@
+{
+  "imports": [
+    {
+      "path": "external/icu/android_icu4j/libcore_bridge/src/java/com/android/icu/util/regex"
+    }
+  ]
+}

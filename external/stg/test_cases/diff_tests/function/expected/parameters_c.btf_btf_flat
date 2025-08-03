@@ -1,0 +1,29 @@
+function symbol changed from 'int f01(int, int, int)' to 'int f01(int, int)'
+  type changed from 'int(int, int, int)' to 'int(int, int)'
+    parameter 3 of type 'int' was removed
+
+function symbol changed from 'int f02(int, int, int)' to 'int f02(int, int)'
+  type changed from 'int(int, int, int)' to 'int(int, int)'
+    parameter 3 of type 'int' was removed
+
+function symbol changed from 'int f03(int, int, int)' to 'int f03(int, int)'
+  type changed from 'int(int, int, int)' to 'int(int, int)'
+    parameter 3 of type 'int' was removed
+
+function symbol changed from 'int f09(int, int, int)' to 'int f09(int, int, int, int)'
+  type changed from 'int(int, int, int)' to 'int(int, int, int, int)'
+    parameter 4 of type 'int' was added
+
+function symbol changed from 'int f10(int, int, int)' to 'int f10(int, int, int, int)'
+  type changed from 'int(int, int, int)' to 'int(int, int, int, int)'
+    parameter 4 of type 'int' was added
+
+function symbol changed from 'int f11(int, int, int)' to 'int f11(int, int, int, int)'
+  type changed from 'int(int, int, int)' to 'int(int, int, int, int)'
+    parameter 4 of type 'int' was added
+
+function symbol changed from 'int f12(int, int, int)' to 'int f12(int, int, int, int)'
+  type changed from 'int(int, int, int)' to 'int(int, int, int, int)'
+    parameter 4 of type 'int' was added
+
+exit code 4

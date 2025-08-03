@@ -1,0 +1,14 @@
+java_plugin {
+    name: "android_onboarding.versions.change_collector",
+    processor_class: "com.android.onboarding.versions.change_collector.ChangeCollector",
+    static_libs: [
+        "android_onboarding.versions.annotations_host",
+        "auto_service_annotations",
+        "kotlinpoet",
+    ],
+    srcs: [
+        "ChangeCollector.kt",
+    ],
+    plugins: ["auto_service_plugin"],
+    generates_api: true,
+}

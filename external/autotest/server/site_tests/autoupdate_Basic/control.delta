@@ -1,0 +1,43 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, Chromium OS"
+NAME = "autoupdate_Basic.delta"
+TIME = "MEDIUM"
+PURPOSE = "Tests an N-to-N update with Nebraska."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:au-perbuild"
+PY_VERSION = 3
+DOC = """
+This tests an N-to-N update. That means it will update to the same version
+that the DUT was provisioned with. This test will be used in the CQ to ensure
+changes don't break autoupdate.
+
+In the lab, a job_repo_url will be passed directly to the test. It contains
+information about the build to use and the IP address of lab cache server to
+download update payloads from. Local runs can use cache servers as well but
+the setup is fairly complicated.
+
+Instead you can use the `running_at_desk` arg when running tests locally to
+avoid the extra setup needed to access cache servers from your workstation.
+`running_at_desk` will copy payloads from gs://chromeos-image-archive/ to a
+public bucket that is accessible without additional configuration.
+
+Example usage:
+
+The current version on the DUT will be used for the update:
+test_that <DUT> autoupdate_Basic.delta --board=<board> --args="running_at_desk=True"
+"""
+
+from autotest_lib.client.common_lib import utils
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('autoupdate_Basic', host=host, full_payload=False,
+                 **args_dict)
+
+job.parallel_simple(run, machines)

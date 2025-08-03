@@ -1,0 +1,10 @@
+{
+  "package": {
+    "rand_xorshift": {
+      "dep_blocklist": [
+        "libbincode"
+      ]
+    }
+  },
+  "tests": true
+}

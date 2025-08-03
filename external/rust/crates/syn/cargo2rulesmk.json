@@ -1,0 +1,4 @@
+{
+  "features": "default,full,visit,visit-mut,extra-traits",
+  "patch": "patches/rules.mk.diff"
+}

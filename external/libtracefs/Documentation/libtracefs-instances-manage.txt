@@ -1,0 +1,150 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_instance_create, tracefs_instance_destroy, tracefs_instance_alloc, tracefs_instance_free,
+tracefs_instance_is_new, tracefs_instances - Manage trace instances.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+struct tracefs_instance pass:[*]*tracefs_instance_create*(const char pass:[*]_name_);
+int *tracefs_instance_destroy*(struct tracefs_instance pass:[*]_instance_);
+struct tracefs_instance pass:[*]*tracefs_instance_alloc*(const char pass:[*]_tracing_dir_, const char pass:[*]_name_);
+void *tracefs_instance_free*(struct tracefs_instance pass:[*]_instance_);
+bool *tracefs_instance_is_new*(struct tracefs_instance pass:[*]_instance_);
+char pass:[**]*tracefs_instances*(const char pass:[*]_regex_);
+
+--
+
+DESCRIPTION
+-----------
+This set of functions can be used to manage trace instances. A trace
+instance is a sub buffer used by the Linux tracing system. Given a unique
+name, the events enabled in an instance do not affect the main tracing
+system, nor other instances, as events enabled in the main tracing system
+or other instances do not affect the given instance.
+
+The *tracefs_instance_create()* function allocates and initializes a new
+tracefs_instance structure and returns it. If the instance with _name_ does
+not yet exist in the system, it will be created. The _name_ could be NULL,
+then the new tracefs_instance structure is initialized for the top instance.
+Note that the top instance cannot be created in the system, if it does not
+exist.
+
+The *tracefs_instance_destroy()* removes the instance from the system, but
+does not free the structure. *tracefs_instance_free()* must still be called
+on _instance_.
+
+The tracefs_instance_alloc()* function allocates a new tracefs_instance structure
+for existing trace instance. If the instance does not exist in the system, the function
+fails. The _tracing_dir_ parameter points to the system trace directory. It can be
+NULL, then default system trace directory is used. This parameter is useful to allocate
+instances to trace directories, copied from another machine. The _name_ is the name of
+the instance, or NULL for the top instance in the given _tracing_dir_.
+
+The *tracefs_instance_free()* function frees the tracefs_instance structure,
+without removing the trace instance from the system.
+
+The *tracefs_instance_is_new()* function checks if the given _instance_ is
+newly created by *tracefs_instance_create()*, or it has been in the system
+before that.
+
+The *tracefs_instances*() function returns a list of instances that exist in
+the system that match the regular expression _regex_. If _regex_ is NULL, then
+it will match all instances that exist. The returned list must be freed with
+*tracefs_list_free*(3). Note, if no instances are found an empty list is returned
+and that too needs to be free with *tracefs_list_free*(3).
+
+RETURN VALUE
+------------
+The *tracefs_instance_create()* and *tracefs_instance_alloc()* functions return a pointer to
+a newly allocated tracefs_instance structure. It must be freed with *tracefs_instance_free()*.
+
+The *tracefs_instance_destroy()* function returns 0 if it succeeds to remove
+the instance, otherwise it returns -1 if the instance does not exist or it
+fails to remove it.
+
+The *tracefs_instance_is_new()* function returns true if the
+*tracefs_instance_create()* that allocated _instance_ also created the
+trace instance in the system, or false if the trace instance already
+existed in the system when _instance_ was allocated by
+*tracefs_instance_create()* or *tracefs_instance_alloc()*.
+
+The *tracefs_instances()* returns a list of instance names that exist on the system.
+The list must be freed with *tracefs_list_free*(3). An empty list is returned if
+no instance exists that matches _regex_, and this needs to be freed with
+*tracefs_list_free*(3) as well. NULL is returned on error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+
+struct tracefs_instance *inst = tracefs_instance_create("foo");
+	if (!inst) {
+		/* Error creating a new trace instance */
+		...
+	}
+
+	...
+
+	if (tracefs_instance_is_new(inst))
+		tracefs_instance_destroy(inst);
+	tracefs_instance_free(inst);
+...
+
+struct tracefs_instance *inst = tracefs_instance_alloc(NULL, "bar");
+	if (!inst) {
+		/* Error allocating 'bar' trace instance */
+		...
+	}
+
+	...
+
+	tracefs_instance_free(inst);
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

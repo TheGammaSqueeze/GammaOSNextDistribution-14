@@ -1,0 +1,22 @@
+name: 'Performs prechecks before running other actions.'
+description: 'Validates that the Dagger version in the config.yml file is the latest version of Dagger released.'
+
+runs:
+  using: "composite"
+  steps:
+    # Cancel previous runs on the same branch to avoid unnecessary parallel
+    # runs of the same job. See https://github.com/google/go-github/pull/1821
+    - name: Cancel previous
+      uses: styfle/cancel-workflow-action@0.11.0
+      with:
+        access_token: ${{ github.token }}
+    - name: 'Check out gh-pages repository'
+      uses: actions/checkout@v3
+      with:
+        ref: 'refs/heads/gh-pages'
+        path: gh-pages
+    - name: 'Validate latest Dagger version'
+      run: ./gh-pages/.github/scripts/validate-latest-dagger-version.sh gh-pages/_config.yml
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}

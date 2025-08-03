@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- jwalters@computer.org (Jay Walters) -->
+<!-- Note: bug did not have .dtd attached; skipping
+    <!DOCTYPE application SYSTEM "intermediate.dtd">
+-->
+<application name="cart" package="com.netnumina.cart">
+    <component datasource="cartDs" name="cart" package="com.netnumina.cart">
+        <dependent id="xmi.9" name="Address" plural="Addresses" smart-type="Object">
+            <description/>
+            <fields>
+                <field fkey="true" idref="xmi.2" name="orderId" type="int"/>
+                <field key="1" name="addressId" type="int"/>
+                <field name="street_1" type="String"/>
+                <field name="street_2" type="String"/>
+                <field name="postalCode" type="String"/>
+                <field descr="6" list="2" name="city" type="String"/>
+                <field descr="7" list="3" name="state" type="String"/>
+            </fields>
+            <associations>
+                <parent idref="xmi.2" name="undefined">
+                    <fields>
+                        <field key="1" name="orderId" type="int"/>
+                    </fields>
+                </parent>
+            </associations>
+        </dependent>
+        <entity id="xmi.2" name="Order" plural="Orders" type="bmp">
+            <description/>
+            <fields>
+                <field descr="1" key="1" list="1" name="orderId" type="int"/>
+                <field descr="2" list="2" name="orderDate" type="Date"/>
+            </fields>
+            <constructors/>
+            <methods/>
+            <associations>
+                <child idref="xmi.9" name="shipTo" smart-type="Object">
+                    <fields>
+                        <field key="1" name="orderId" type="int"/>
+                    </fields>
+                </child>
+            </associations>
+        </entity>
+    </component>
+</application>

@@ -1,0 +1,213 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/logging.proto";
+import "icing/proto/status.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// Next tag: 7
+message IcingSearchEngineFeatureInfoProto {
+  // REQUIRED: Enum representing an IcingLib feature flagged using
+  // IcingSearchEngineOptions
+  optional FlaggedFeatureType feature_type = 1;
+
+  enum FlaggedFeatureType {
+    // This value should never purposely be used. This is used for backwards
+    // compatibility reasons.
+    UNKNOWN = 0;
+
+    // Feature for flag
+    // IcingSearchEngineOptions::build_property_existence_metadata_hits.
+    //
+    // This feature covers the kHasPropertyFunctionFeature advanced query
+    // feature, and related metadata hits indexing used for property existence
+    // check.
+    FEATURE_HAS_PROPERTY_OPERATOR = 1;
+  }
+
+  // Whether the feature requires the document store to be rebuilt.
+  // The default value is false.
+  optional bool needs_document_store_rebuild = 2;
+
+  // Whether the feature requires the schema store to be rebuilt.
+  // The default value is false.
+  optional bool needs_schema_store_rebuild = 3;
+
+  // Whether the feature requires the term index to be rebuilt.
+  // The default value is false.
+  optional bool needs_term_index_rebuild = 4;
+
+  // Whether the feature requires the integer index to be rebuilt.
+  // The default value is false.
+  optional bool needs_integer_index_rebuild = 5;
+
+  // Whether the feature requires the qualified id join index to be rebuilt.
+  // The default value is false.
+  optional bool needs_qualified_id_join_index_rebuild = 6;
+}
+
+// Next tag: 4
+message IcingSearchEngineVersionProto {
+  // version and max_version are from the original version file.
+  optional int32 version = 1;
+  optional int32 max_version = 2;
+  // Features that are enabled in an icing version at initialization.
+  repeated IcingSearchEngineFeatureInfoProto enabled_features = 3;
+}
+
+// Next tag: 16
+message IcingSearchEngineOptions {
+  // Directory to persist files for Icing. Required.
+  // If Icing was previously initialized with this directory, it will reload
+  // the index saved by the last instance.
+  optional string base_dir = 1;
+
+  // The maximum allowable token length. All tokens in excess of this size
+  // will be truncated to max_token_length before being indexed.
+  //
+  // Clients may use this option to prevent unnecessary indexing of long tokens.
+  // Depending on the use case, indexing all of
+  // 'Supercalifragilisticexpialidocious' may be unnecessary - a user is
+  // unlikely to type that entire query. So only indexing the first n bytes may
+  // still provide the desired behavior without wasting resources.
+  //
+  // Valid values: [1, INT_MAX]
+  // Optional.
+  optional int32 max_token_length = 3 [default = 30];
+
+  // The size (measured in bytes) at which Icing's internal indices should be
+  // merged. Icing buffers changes together before merging them into a more
+  // compact format. When the buffer exceeds index_merge_size during a Put
+  // operation, the buffer is merged into the larger, more compact index.
+  //
+  // This more compact index is more efficient to search over as the index
+  // grows larger and has smaller system health impact.
+  //
+  // Setting a low index_merge_size increases the frequency of merges -
+  // increasing indexing-time latency and flash wear. Setting a high
+  // index_merge_size leads to larger resource usage and higher query latency.
+  // Valid values: [1, INT_MAX]
+  // Optional.
+  optional int32 index_merge_size = 4 [default = 1048576];  // 1 MiB
+
+  // Whether to use namespace id or namespace name to build up fingerprint for
+  // document_key_mapper_ and corpus_mapper_ in document store.
+  // TODO(b/259969017) Flip the default value of this flag to true at the time
+  // when we switch to use persistent hash map for document_key_mapper_ so that
+  // we just need one reconstruction of the internal mappers.
+  optional bool document_store_namespace_id_fingerprint = 5;
+
+  // The threshold of the percentage of invalid documents to rebuild index
+  // during optimize, i.e. we rebuild index if and only if
+  // |invalid_documents| / |all_documents| >= optimize_rebuild_index_threshold
+  //
+  // Rebuilding the index could be faster than optimizing the index if we have
+  // removed most of the documents.
+  // Based on benchmarks, 85%~95% seems to be a good threshold for most cases.
+  //
+  // Default to 0 for better rollout of the new index optimize.
+  optional float optimize_rebuild_index_threshold = 6 [default = 0.0];
+
+  // Level of compression, NO_COMPRESSION = 0, BEST_SPEED = 1,
+  // BEST_COMPRESSION = 9
+  // Valid values: [0, 9]
+  // Optional.
+  optional int32 compression_level = 7 [default = 3];
+
+  // OPTIONAL: Whether to allow circular references between schema types for
+  // the schema definition.
+  //
+  // Even when set to true, circular references are still not allowed in the
+  // following cases:
+  //    1. All edges of a cycle have index_nested_properties=true
+  //    2. One of the types in the cycle has a joinable property, or depends on
+  //       a type with a joinable property.
+  // This is because such a cycle would lead to an infinite number of
+  // indexed/joinable properties:
+  //
+  // The default value is false.
+  optional bool allow_circular_schema_definitions = 8;
+
+  // Whether memory map max possible file size for FileBackedVector before
+  // growing the actual file size.
+  optional bool pre_mapping_fbv = 9;
+
+  // Whether use persistent hash map as the key mapper (if false, then fall back
+  // to dynamic trie key mapper).
+  optional bool use_persistent_hash_map = 10;
+
+  // Integer index bucket split threshold.
+  optional int32 integer_index_bucket_split_threshold = 11 [default = 65536];
+
+  // Whether Icing should sort and merge its lite index HitBuffer unsorted tail
+  // at indexing time.
+  //
+  // If set to true, the HitBuffer will be sorted at indexing time after
+  // exceeding the sort threshold. If false, the HifBuffer will be sorted at
+  // querying time, before the first query after inserting new elements into the
+  // HitBuffer.
+  //
+  // The default value is false.
+  optional bool lite_index_sort_at_indexing = 12;
+
+  // Size (in bytes) at which Icing's lite index should sort and merge the
+  // HitBuffer's unsorted tail into the sorted head for sorting at indexing
+  // time. Size specified here is the maximum byte size to allow for the
+  // unsorted tail section.
+  //
+  // Setting a lower sort size reduces querying latency at the expense of
+  // indexing latency.
+  optional int32 lite_index_sort_size = 13 [default = 8192];  // 8 KiB
+
+  optional bool use_new_qualified_id_join_index = 14;
+
+  // Whether to build the metadata hits used for property existence check, which
+  // is required to support the hasProperty function in advanced query.
+  optional bool build_property_existence_metadata_hits = 15;
+
+  reserved 2;
+}
+
+// Result of a call to IcingSearchEngine.Initialize
+// Next tag: 3
+message InitializeResultProto {
+  // Status code can be one of:
+  //   OK
+  //   WARNING_DATA_LOSS
+  //   INVALID_ARGUMENT
+  //   NOT_FOUND
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  //
+  // TODO(b/147699081): Fix error codes: +ABORTED, -NOT_FOUND.
+  // go/icing-library-apis.
+  optional StatusProto status = 1;
+
+  // Stats of the function call. Inside InitializeStatsProto, the function call
+  // latency 'latency_ms' will always be populated. The other fields will be
+  // accurate only when the status above is OK or WARNING_DATA_LOSS. See
+  // logging.proto for details.
+  optional InitializeStatsProto initialize_stats = 2;
+
+  // TODO(b/147699081): Add a field to indicate lost_schema and lost_documents.
+  // go/icing-library-apis.
+}

@@ -1,0 +1,48 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='bar' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='foo' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='quux' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='spong' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='wibble' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='l' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='array_parameter.c' language='LANG_C11'>
+    <type-decl name='char' size-in-bits='8' id='a84c031d'/>
+    <type-decl name='double' size-in-bits='64' id='a0eb0f08'/>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <type-decl name='unsigned int' size-in-bits='32' id='f0981eeb'/>
+    <type-decl name='unsigned long' size-in-bits='64' id='3aa0f67c'/>
+    <pointer-type-def type-id='a84c031d' size-in-bits='64' id='26a90f95'/>
+    <qualified-type-def type-id='3aa0f67c' const='yes' id='1b8728ff'/>
+    <pointer-type-def type-id='a0eb0f08' size-in-bits='64' id='7408d286'/>
+    <pointer-type-def type-id='c2ecdf53' size-in-bits='64' id='53e3cb7b'/>
+    <var-decl name='l' type-id='1b8728ff' mangled-name='l' visibility='default' elf-symbol-id='l'/>
+    <function-decl name='foo' mangled-name='foo' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='foo'>
+      <parameter type-id='53e3cb7b' name='arr'/>
+      <return type-id='a84c031d'/>
+    </function-decl>
+    <function-decl name='bar' mangled-name='bar' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='bar'>
+      <parameter type-id='53e3cb7b' name='baz'/>
+      <return type-id='a84c031d'/>
+    </function-decl>
+    <function-decl name='quux' mangled-name='quux' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='quux'>
+      <parameter type-id='f0981eeb' name='m'/>
+      <parameter type-id='7408d286' name='d'/>
+      <return type-id='a84c031d'/>
+    </function-decl>
+    <function-decl name='spong' mangled-name='spong' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='spong'>
+      <parameter type-id='f0981eeb' name='m'/>
+      <parameter type-id='7408d286' name='d'/>
+      <return type-id='a84c031d'/>
+    </function-decl>
+    <function-decl name='wibble' mangled-name='wibble' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='wibble'>
+      <parameter type-id='f0981eeb' name='a'/>
+      <parameter type-id='f0981eeb' name='b'/>
+      <parameter type-id='26a90f95' name='arr'/>
+      <return type-id='a84c031d'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

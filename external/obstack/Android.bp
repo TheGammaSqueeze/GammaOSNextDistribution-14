@@ -1,0 +1,31 @@
+package {
+    default_applicable_licenses: ["external_obstack_license"],
+}
+
+license {
+    name: "external_obstack_license",
+    license_kinds: ["SPDX-license-identifier-LGPL-2.1"],
+    license_text: ["LICENSE"],
+}
+
+cc_library_host_static {
+    name: "libobstack",
+    enabled: false,
+    target: {
+        musl: {
+            enabled: true,
+        },
+    },
+    srcs: [
+        "libiberty/obstack.c",
+        "android/obstack_printf.c",
+    ],
+    local_include_dirs: ["android"],
+    export_include_dirs: [
+        "android/include",
+        "include",
+    ],
+    visibility: [
+        "//external/elfutils:__subpackages__",
+    ],
+}

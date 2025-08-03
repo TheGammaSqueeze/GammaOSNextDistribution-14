@@ -1,0 +1,7 @@
+field:android.icu.text.StringPrep#DEFAULT
+field:android.icu.text.StringPrep#RFC3920_RESOURCEPREP
+method:android.icu.text.DateFormatSymbols#getAmpmNarrowStrings()
+method:android.icu.text.DateTimePatternGenerator#getBestPattern(String,int,boolean)
+method:android.icu.text.StringPrep#getInstance(int)
+method:android.icu.text.StringPrep#prepare(String,int)
+type:android.icu.text.StringPrep

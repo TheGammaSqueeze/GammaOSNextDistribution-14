@@ -1,0 +1,8 @@
+{
+  "package": {
+    "toml": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

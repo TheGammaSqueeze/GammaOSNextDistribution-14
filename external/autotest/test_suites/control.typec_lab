@@ -1,0 +1,35 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "typec_lab"
+PURPOSE = 'Tests the end to end Tast tests in the "typec-lab" category.'
+
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+Run Tast tests for basic typec/TBT functionality.
+
+The tests are part of 'group:typec'. The 'typec_lab' sub-attribute
+limits it to typec tests.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/
+for more information.
+
+See http://go/tast-failures for information about investigating failures.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['max_runtime_mins'] = 30
+args_dict['timeout_mins'] = 60
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

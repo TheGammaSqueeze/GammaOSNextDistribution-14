@@ -1,0 +1,19 @@
+name: "rsa"
+description: "Python-RSA is a pure-Python RSA implementation. It supports encryption and decryption, signing and verifying signatures, and key generation according to PKCS#1 version 1.5."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://stuvel.eu/rsa"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/sybrenstuvel/python-rsa/"
+  }
+  version: "version-4.7"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 1
+    day: 11
+  }
+}

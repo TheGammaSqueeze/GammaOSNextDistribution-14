@@ -1,0 +1,62 @@
+<?xml version='1.0'?>
+<!-- Commented out for IE5 which doesn't understand :
+<!DOCTYPE schema SYSTEM "http://www.w3.org/TR/2000/WD-xmlschema-1-20000225/structures.dtd" >
+--> 
+
+<!-- Uncomment to format with CSS: <?xml-stylesheet href="limits-mess.css" type="text/css"?> -->
+
+<messagesList xmlns='urn:bigtrust:bizmess:limits:V0.0'>
+
+<schema targetNS='urn:bigtrust:bizmess:limits:V0.0' version="M.n" 
+  xmlns="http://www.w3.org/1999/XMLSchema" 
+  xmlns:bm="urn:bigtrust:bizmess:limits:V0.0"
+  xmlns:html="html" >
+
+ <documentation xmlns:dc="http://www.w3.org/TR/1999/PR-rdf-schema-19990303#" >
+
+<html:p>Definition of limit messages for bizmess</html:p>
+
+A message of bizmess is simply a list of fields, a field being essentially a pair name-value. For performance across network, the messages are sent in a binary form, in form of a pair index-value. Messages sent are constrained by an initial list of fields and messages coming from the server (or in a config. file). This initial message is itself being defined here. 
+<dc:Author>J.M. Vanel</dc:Author> 
+<dc:date>2000-01-18</dc:date> 
+</documentation>
+
+ <!-- Abstract types -->
+
+ <complexType name='genericMessage'><documentation>Abstract type for all the bizmess messages</documentation></complexType>
+ <complexType name='genericField'>
+  <documentation>Abstract type for all the fields in bizmess messages</documentation>
+ </complexType>
+
+ <!-- fields -->
+
+  <complexType name='InstrumentType' source='genericField' derivedBy='extension' type='string' >
+   <documentation><html:b>Type of Instrument</html:b> (bond, etc) ... [any html content]</documentation>
+   <!-- For implementation of binary messages : -->
+   <id>0</id>
+   <size>32</size>
+  </complexType>
+
+  <complexType name='CounterParty' source='genericField' derivedBy='extension' type='string' >
+   <documentation><html:b>Counter-party name</html:b> ... [any html content]</documentation>
+   <id>1</id>
+   <size>64</size>
+  </complexType>
+
+ <!-- messages -->
+
+ <complexType name='enquiry' source='genericMessage' derivedBy='extension'>
+  <documentation><html:b>enquiry</html:b> about ... [any html content]</documentation>
+  <element name='InstrumentType' type='bm:InstrumentType'></element> 
+  <element name='CounterParty' type='bm:CounterParty' ></element> 
+ </complexType>
+
+ <!-- root element -->
+ <element name="bizmess">
+  <complexType>
+   <element type='bm:enquiry' name='enquiry' /> 
+   <element name='reference' type='string' /> 
+  </complexType>
+ </element> 
+</schema>
+</messagesList>

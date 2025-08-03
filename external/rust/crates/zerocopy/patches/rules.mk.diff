@@ -1,0 +1,14 @@
+diff --git a/rules.mk b/rules.mk
+index 05e4383..9e71d6d 100644
+--- a/rules.mk
++++ b/rules.mk
+@@ -8,8 +8,8 @@ MODULE_SRCS := \
+ 	$(LOCAL_DIR)/src/lib.rs \
+ 
+ MODULE_RUST_EDITION := 2018
++# TODO(b/316076550): Remove rules.mk patch when cargo2rulesmk.py is fixed
+ MODULE_RUSTFLAGS += \
+-	--cfg 'feature="byteorder"' \
+ 	--cfg 'feature="default"' \
+ 	--cfg 'feature="derive"' \
+ 	--cfg 'feature="zerocopy-derive"' \

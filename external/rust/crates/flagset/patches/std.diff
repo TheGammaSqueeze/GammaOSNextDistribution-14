@@ -1,0 +1,14 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 220af6b..cd5cca0 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -247,6 +247,10 @@ appropriate `repr` attribute:
+ #![warn(clippy::all)]
+ #![no_std]
+ 
++/// Local Android change: Use std to allow building as a dylib.
++#[cfg(android_dylib)]
++extern crate std;
++
+ use core::fmt::{Debug, Formatter, Result};
+ use core::ops::*;

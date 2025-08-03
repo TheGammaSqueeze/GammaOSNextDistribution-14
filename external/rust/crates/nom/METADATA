@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/nom
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "nom"
+description: "A byte-oriented, zero-copy, parser combinators library"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/nom"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/nom/nom-7.1.3.crate"
+  }
+  version: "7.1.3"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 2
+    day: 3
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "features": [],
+  "run_cargo": false,
+  "variants": [
+    {
+      "package": {
+        "x509-cert": {
+          "add_module_block": "cargo2android_viz.bp"
+        }
+      }
+    },
+    {
+      "module_name_overrides": {
+        "libconst_oid": "libconst_oid_nostd",
+        "libder": "libder_nostd",
+        "libflagset": "libflagset_nostd",
+        "libspki": "libspki_nostd",
+        "libx509_cert": "libx509_cert_nostd"
+      },
+      "package": {
+        "x509-cert": {
+          "add_module_block": "cargo2android_viz.bp",
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

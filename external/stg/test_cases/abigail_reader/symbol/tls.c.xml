@@ -1,0 +1,12 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='var1' size='4' type='tls-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='var2' size='8' type='tls-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='tls.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <var-decl name='var1' type-id='95e97e5e' mangled-name='var1' visibility='default' elf-symbol-id='var1'/>
+    <var-decl name='var2' type-id='c2ecdf53' mangled-name='var2' visibility='default' elf-symbol-id='var2'/>
+  </abi-instr>
+</abi-corpus>

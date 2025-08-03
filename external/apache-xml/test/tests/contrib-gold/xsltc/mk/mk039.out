@@ -1,0 +1,30 @@
+<html><body><h1>Hotels</h1>
+<h2>Grand Hotel</h2>
+<p>Address:  . . . </p>
+<p>Stars: 5</p>
+<p>Resort: <a href="#N4">Amsterdam</a>
+</p>
+<h2>Central Hotel</h2>
+<p>Address:  . . . </p>
+<p>Stars: 5</p>
+<p>Resort: <a href="#N37">Bruges</a>
+</p>
+<h2>Less Grand Hotel</h2>
+<p>Address:  . . . </p>
+<p>Stars: 2</p>
+<p>Resort: <a href="#N4">Amsterdam</a>
+</p>
+<h2>Peripheral Hotel</h2>
+<p>Address:  . . . </p>
+<p>Stars: 2</p>
+<p>Resort: <a href="#N37">Bruges</a>
+</p>
+<h1>Resorts</h1>
+<h2><a name="N4">Amsterdam</a>
+</h2>
+<p>A wordy description of Amsterdam</p>
+<h2><a name="N37">Bruges</a>
+</h2>
+<p>An eloquent description of Bruges</p>
+</body>
+</html>

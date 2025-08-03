@@ -1,0 +1,7 @@
+{
+  "tests": true,
+  "features": [
+    "unicode"
+  ],
+  "run_cargo": false
+}

@@ -1,0 +1,41 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "shafit, Chromium OS, chromeos-cross-device-eng@google.com"
+NAME = 'bluetooth_FastPair.fast_pair_subsequent_pairing_test'
+PURPOSE = ('Tests for the Fast Pair feature subsequent pairing')
+CRITERIA = """
+This test will run through the Fast Pair pairing scenarios and confirm the
+device is paired by using the Fast Pair protocol
+"""
+ATTRIBUTES = 'suite:bluetooth, suite:bluetooth_flaky'
+TIME = 'MEDIUM'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+This test runs through the Fast Pair subsequent pairing scenario. This server test is responsible
+for setting up the BT peer device and then invoking the bluetooth_FastPairUI
+client test to click through the UI and attempt to pair the device.
+
+If running locally, required args:
+  - fast_pair_antispoofing_key_pem: Base64 encoded EC Key Pem for the BT peer.
+  - fast_pair_account_key: Base64 encoded account key linked to user.
+  - fast_pair_username: Username to log in to.
+  - fast_pair_password: Password for log in.
+"""
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_FastPair', host=host, num_iterations=1,
+    args_dict=args_dict, test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

@@ -1,0 +1,55 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+syntax = "proto2";
+
+package textclassifier.tcs;
+
+option java_package = "com.android.textclassifier.downloader";
+option java_multiple_files = true;
+
+// Manifest for a download task.
+message ModelManifest {
+  message Model {
+    optional string url = 1;
+    optional int64 size_in_bytes = 2;
+    optional string fingerprint = 3;
+    // ModelUsage enum used to assign usage to Model files.
+    // Model file could have one of {DARK, LIVE, UNKNOWN} usage value.
+    enum ModelUsage {
+      UNKNOWN_USAGE = 0;
+      LIVE_MODEL = 1;
+      DARK_MODEL = 2;
+    }
+    optional ModelUsage usage = 4;
+  }
+  // All models to download in this task. Currently the size is always one.
+  repeated Model models = 1;
+  // Consistent with androidx.work.NetworkType.
+  enum NetworkType {
+    UNMETERED = 0;
+    METERED = 1;
+    NOT_REQUIRED = 2;
+    NOT_ROAMING = 3;
+    CONNECTED = 4;
+  }
+  // Notice: all fields below are not used currently
+  optional NetworkType required_network_type = 2;
+  optional bool requires_battery_not_low = 3;
+  optional bool requires_charging = 4;
+  optional bool requires_device_idle = 5;
+  optional bool requires_storage_not_low = 6;
+}

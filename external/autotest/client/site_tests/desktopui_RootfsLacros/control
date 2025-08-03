@@ -1,0 +1,16 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, Chromium OS"
+NAME = "desktopui_RootfsLacros"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "client"
+PURPOSE = "Get rootfs-lacros version."
+TIME = "SHORT"
+ATTRIBUTES = "suite:bvt-perbuild"
+PY_VERSION = 3
+DOC = """ Tests launching rootfs-lacros and checking version number. """
+
+job.run_test('desktopui_RootfsLacros')

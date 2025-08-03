@@ -1,0 +1,19 @@
+name: "protobuf-codegen"
+description: "Code generator for rust-protobuf.  Includes a library and `protoc-gen-rust` binary.  See `protoc-rust` and `protobuf-codegen-pure` crates."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/protobuf-codegen"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/protobuf-codegen/protobuf-codegen-2.27.1.crate"
+  }
+  version: "2.27.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 3
+    day: 1
+  }
+}

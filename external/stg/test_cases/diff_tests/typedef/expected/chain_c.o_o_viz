@@ -1,0 +1,16 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'int func(struct foo)' -> 'unsigned int func(struct foo)'"]
+  "2" [label="'int(struct foo)' -> 'unsigned int(struct foo)'"]
+  "3" [color=red, label="'int' -> 'unsigned int'"]
+  "2" -> "3" [label="return"]
+  "4" [shape=rectangle, label="'struct foo'"]
+  "5" [label="'INT_3 x'"]
+  "6" [shape=rectangle, label="'INT_3' = 'INT_2' = 'INT_1' = 'int' -> 'INT_3' = 'INT_2' = 'INT_1' = 'unsigned int'"]
+  "6" -> "3" [label="resolved"]
+  "5" -> "6" [label=""]
+  "4" -> "5" [label=""]
+  "2" -> "4" [label="parameter 1"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

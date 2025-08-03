@@ -1,0 +1,12 @@
+name: "federated-compute"
+description:
+    "This repository contains client code for executing federated computations."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/federated-compute"
+  }
+  version: "30c3b60781f6d89cf5c401b2c392408ddcd04eab"
+  last_upgrade_date { year: 2023 month: 5 day: 4 }
+  license_type: NOTICE
+}

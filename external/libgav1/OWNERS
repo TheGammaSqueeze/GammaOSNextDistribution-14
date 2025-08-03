@@ -1,0 +1,5 @@
+# for external/libgav1
+include platform/frameworks/av:/media/janitors/avic_OWNERS
+include platform/frameworks/av:/media/janitors/codec_OWNERS
+jzern@google.com
+vigneshv@google.com

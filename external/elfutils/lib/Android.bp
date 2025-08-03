@@ -1,0 +1,14 @@
+package {
+    default_applicable_licenses: ["external_elfutils_license"],
+}
+
+cc_library_host_static {
+    name: "libeu",
+    defaults: ["elfutils_defaults"],
+    srcs: ["*.c"],
+    exclude_srcs: [
+        "color.c", // uses argp
+        "dynamicsizehash*.c",
+        "printversion.c", // uses argp
+    ],
+}

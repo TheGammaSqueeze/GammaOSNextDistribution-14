@@ -1,0 +1,45 @@
+<html><body><h1>A list of books</h1>
+<table width="640">
+	<tr><td>1</td>
+
+		<td>Nigel Rees</td>
+
+		<td>Sayings of the Century</td>
+
+		<td>8.95</td>
+
+	</tr>
+
+	<tr><td>2</td>
+
+		<td>Evelyn Waugh</td>
+
+		<td>Sword of Honour</td>
+
+		<td>12.99</td>
+
+	</tr>
+
+	<tr><td>3</td>
+
+		<td>Herman Melville</td>
+
+		<td>Moby Dick</td>
+
+		<td>8.99</td>
+
+	</tr>
+
+	<tr><td>4</td>
+
+		<td>J. R. R. Tolkien</td>
+
+		<td>The Lord of the Rings</td>
+
+		<td>22.99</td>
+
+	</tr>
+
+</table>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsLibcoreTestCases",
+      "options": [
+        {
+          "include-filter": "com.android.org.conscrypt"
+        },
+        {
+          "include-filter": "libcore.java.security"
+        },
+        {
+          "include-filter": "libcore.javax.net"
+        },
+        {
+          "include-filter": "libcore.java.net"
+        }
+      ]
+    }
+  ]
+}

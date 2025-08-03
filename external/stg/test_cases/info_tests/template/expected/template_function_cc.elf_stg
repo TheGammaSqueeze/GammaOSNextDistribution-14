@@ -1,0 +1,48 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0xde581bbb
+  kind: LVALUE_REFERENCE
+  pointee_type_id: 0x6720d32f
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+function {
+  id: 0x270e577d
+  return_type_id: 0x48b5725f
+  parameter_id: 0xde581bbb
+}
+elf_symbol {
+  id: 0x8a449676
+  name: "_Z4funcIiLi17EEvRT_"
+  is_defined: true
+  symbol_type: FUNCTION
+  binding: WEAK
+  type_id: 0x270e577d
+  full_name: "func<int, 17>"
+}
+elf_symbol {
+  id: 0x9fd01bb1
+  name: "_Z7triggerv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "trigger"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x8a449676
+  symbol_id: 0x9fd01bb1
+}

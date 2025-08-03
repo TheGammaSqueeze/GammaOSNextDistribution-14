@@ -1,0 +1,69 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/status.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// Representation of a usage report that is generated from the client and sent
+// to Icing.
+// Next tag: 5
+message UsageReport {
+  // Namespace of the document.
+  optional string document_namespace = 1;
+
+  // Uri of the document.
+  optional string document_uri = 2;
+
+  // Timestamp in milliseconds of when the usage happens.
+  optional int64 usage_timestamp_ms = 3;
+
+  // LINT.IfChange
+  // Next tag: 3
+  enum UsageType {
+    // A custom usage type that clients can assign a meaning to. UsageReports of
+    // the same type are combined to provide usage counts that clients may use
+    // in scoring.
+    USAGE_TYPE1 = 0;
+
+    // Same as above.
+    USAGE_TYPE2 = 1;
+
+    // Same as above.
+    USAGE_TYPE3 = 2;
+  }
+  // LINT.ThenChange(
+  //   //depot/google3/icing/store/usage-store.h:UsageScores,
+  //   //depot/google3/icing/proto/\
+  //     storage.proto:namespace_storage_info_usage_types)
+  optional UsageType usage_type = 4;
+}
+
+// Result of a call to IcingSearchEngine.ReportUsage
+// Next tag: 2
+message ReportUsageResultProto {
+  // Status code can be one of:
+  //   OK
+  //   NOT_FOUND
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  optional StatusProto status = 1;
+}

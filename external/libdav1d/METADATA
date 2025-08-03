@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/libdav1d
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "libdav1d"
+description: "An AV1 cross-platform decoder, open-source, and focused on speed and correctness."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 14
+  }
+  homepage: "https://code.videolan.org/videolan/dav1d/"
+  identifier {
+    type: "Git"
+    value: "https://code.videolan.org/videolan/dav1d.git"
+    version: "1.4.0"
+  }
+}

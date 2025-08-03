@@ -1,0 +1,13 @@
+diff --git b/rules.mk a/rules.mk
+index ccb9711..8005071 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -9,8 +9,6 @@ MODULE_SRCS := \
+ 
+ MODULE_RUST_EDITION := 2021
+ MODULE_LIBRARY_DEPS := \
+-	external/rust/crates/arbitrary \
+-	external/rust/crates/bytemuck \
+ 	trusty/user/base/lib/libcompiler_builtins-rust \
+ 	trusty/user/base/lib/libcore-rust \
+ 	external/rust/crates/serde \

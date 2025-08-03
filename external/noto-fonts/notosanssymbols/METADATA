@@ -1,0 +1,13 @@
+name: "notosanssymbols"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Symbols is an unmodulated (“sans serif”) design for textsin Symbols. It has multiple weights and 1,224 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanssymbols"
+  }
+  version: "1.090"
+  license_type: NOTICE
+  last_upgrade_date { year: 2017 month: 3 day: 18 }
+}

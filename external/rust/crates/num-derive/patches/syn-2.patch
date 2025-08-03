@@ -1,0 +1,106 @@
+From 1d2c6fa2ea2f3ab560c30c631fdde0034f5789a4 Mon Sep 17 00:00:00 2001
+From: Matthew Maurer <mmaurer@google.com>
+Date: Mon, 3 Apr 2023 16:13:04 +0000
+Subject: [PATCH] Update to syn-2
+
+Bug: 276463929
+Test: m
+Change-Id: If2f4b9e451716cae4e7cc5d037764de4582aa761
+---
+ src/lib.rs        | 20 ++++++++------------
+ src/test.rs       | 31 -------------------------------
+ tests/issue-16.rs |  9 +++++++++
+ 3 files changed, 17 insertions(+), 43 deletions(-)
+ delete mode 100644 src/test.rs
+ create mode 100644 tests/issue-16.rs
+
+diff --git a/src/lib.rs b/src/lib.rs
+index ef55e4b..0b821f9 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -170,16 +170,14 @@ impl NumTraits {
+         // retrieve its value, and use it to create an `Ident` to be used
+         // to import the `num_traits` crate.
+         for attr in &ast.attrs {
+-            if let Ok(syn::Meta::NameValue(mnv)) = attr.parse_meta() {
+-                if mnv.path.is_ident("num_traits") {
+-                    if let syn::Lit::Str(lit_str) = mnv.lit {
+-                        return NumTraits {
+-                            import: syn::Ident::new(&lit_str.value(), lit_str.span()),
+-                            explicit: true,
+-                        };
+-                    } else {
+-                        panic!("#[num_traits] attribute value must be a str");
+-                    }
++            if attr.path().is_ident("num_traits") {
++                if let syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Str(ref lit_str), .. }) = attr.meta.require_name_value().unwrap().value {
++                  return NumTraits {
++                      import: syn::Ident::new(&lit_str.value(), lit_str.span()),
++                      explicit: true,
++                  }
++                } else {
++                    panic!("#[num_traits] attribute value must be a str");
+                 }
+             }
+         }
+@@ -954,5 +952,3 @@ pub fn float(input: TokenStream) -> TokenStream {
+ 
+     import.wrap("Float", &name, impl_).into()
+ }
+-
+-mod test;
+diff --git a/src/test.rs b/src/test.rs
+deleted file mode 100644
+index c4cd7fe..0000000
+--- a/src/test.rs
++++ /dev/null
+@@ -1,31 +0,0 @@
+-//! This module uses doc-tests on modules for `compile_fail`
+-
+-// We need "syn/full" to parse macros.
+-// Use `--nocapture` to check the quality of the error message.
+-#[cfg(not(feature = "full-syntax"))]
+-/// ```compile_fail
+-/// macro_rules! get_an_isize {
+-///     () => (0_isize)
+-/// }
+-///
+-/// #[derive(num_derive::FromPrimitive)]
+-/// pub enum CLikeEnum {
+-///     VarA = get_an_isize!(), // error without "syn/full"
+-///     VarB = 2,
+-/// }
+-/// ```
+-mod issue16 {}
+-
+-#[cfg(feature = "full-syntax")]
+-/// ```
+-/// macro_rules! get_an_isize {
+-///     () => (0_isize)
+-/// }
+-///
+-/// #[derive(num_derive::FromPrimitive)]
+-/// pub enum CLikeEnum {
+-///     VarA = get_an_isize!(), // ok with "syn/full"
+-///     VarB = 2,
+-/// }
+-/// ```
+-mod issue16 {}
+diff --git a/tests/issue-16.rs b/tests/issue-16.rs
+new file mode 100644
+index 0000000..0db3b6f
+--- /dev/null
++++ b/tests/issue-16.rs
+@@ -0,0 +1,9 @@
++macro_rules! get_an_isize {
++    () => (0_isize)
++}
++
++#[derive(num_derive::FromPrimitive)]
++pub enum CLikeEnum {
++    VarA = get_an_isize!(),
++    VarB = 2,
++}
+-- 
+2.40.0.348.gf938b09366-goog
+

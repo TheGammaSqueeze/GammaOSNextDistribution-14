@@ -1,0 +1,12 @@
+diff --git b/rules.mk a/rules.mk
+index 481dd29..329d328 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -15,7 +15,5 @@ MODULE_RUSTFLAGS += \
+ MODULE_LIBRARY_DEPS := \
+ 	external/rust/crates/cfg-if \
+ 	external/rust/crates/serde \
+-	external/rust/crates/sval \
+-	external/rust/crates/value-bag \
+ 
+ include make/library.mk

@@ -1,0 +1,15 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'void foo(const enum Colour&)' {_Z3fooRK6Colour}"]
+  "2" [label="'void(const enum Colour&)'"]
+  "3" [label="'const enum Colour&'"]
+  "4" [label="'const enum Colour'"]
+  "5" [shape=rectangle, label="'enum Colour'"]
+  "6" [color=red, label="'unsigned int' -> 'unsigned char'"]
+  "5" -> "6" [label="underlying"]
+  "4" -> "5" [label="underlying"]
+  "3" -> "4" [label="referred-to"]
+  "2" -> "3" [label="parameter 1"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

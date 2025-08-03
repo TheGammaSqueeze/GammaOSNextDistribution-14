@@ -1,0 +1,27 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "telemetry_Check"
+PURPOSE = "Run telemetry_check.py."
+CRITERIA = """
+Test will fail if telemetry_check fails.
+"""
+# crbug.com/1188852: Test fails on novato consistently.
+ATTRIBUTES = "suite:bvt-perbuild"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "login"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test runs telemetry_check.py
+"""
+
+job.run_test('telemetry_Check',
+             count=1,
+             run_cryptohome=True,
+             run_incognito=False,  # crbug.com/970065.
+             run_screenlock=True)

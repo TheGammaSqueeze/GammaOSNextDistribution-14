@@ -1,0 +1,35 @@
+spec/!opengl es 2.0/draw_buffers_gles2: pass
+spec/!opengl es 2.0/fbo_discard_gles2: pass
+spec/!opengl es 2.0/invalid-es3-queries_gles2: skip
+spec/!opengl es 2.0/minmax_gles2: pass
+spec/!opengl es 2.0/multiple-shader-objects_gles2: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-blend-api_gles2: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-builtins_gles2: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-fbo-extended-blend-pattern_gles2: pass
+spec/egl_khr_create_context/valid debug flag gles2: pass
+spec/ext_frag_depth/fragdepth_gles2: pass
+spec/ext_polygon_offset_clamp/ext_polygon_offset_clamp-draw_gles2/negative clamp: fail
+spec/ext_polygon_offset_clamp/ext_polygon_offset_clamp-draw_gles2/positive clamp: fail
+spec/ext_shader_framebuffer_fetch/execution/gles2/mrt: skip
+spec/ext_shader_framebuffer_fetch/execution/gles2/nonuniform-ss: skip
+spec/ext_shader_framebuffer_fetch/execution/gles2/nonuniform-ss-redecl-highp: skip
+spec/ext_shader_framebuffer_fetch/execution/gles2/nonuniform-ss-redecl-lowp: skip
+spec/ext_shader_framebuffer_fetch/execution/gles2/simple-ss: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles2/mrt: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles2/nonuniform-ss: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles2/nonuniform-ss-redecl-highp: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles2/nonuniform-ss-redecl-lowp: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles2/simple-ss: skip
+spec/ext_texture_compression_bptc/bptc-api_gles2: pass
+spec/ext_texture_compression_rgtc/rgtc-api_gles2: pass
+spec/ext_texture_compression_s3tc/s3tc-errors_gles2: pass
+spec/ext_texture_compression_s3tc/s3tc-teximage_gles2: pass
+spec/ext_texture_compression_s3tc/s3tc-texsubimage_gles2: pass
+spec/intel_blackhole_render/intel_blackhole-blit_gles2: skip
+spec/intel_blackhole_render/intel_blackhole-draw_gles2: skip
+spec/khr_debug/object-label_gles2: pass
+spec/khr_debug/push-pop-group_gles2: pass
+spec/khr_parallel_shader_compile/basic_gles2: pass
+spec/oes_packed_depth_stencil/depth_stencil texture gles2: pass
+spec/oes_vertex_half_float/draw-vertices-half-float-user_gles2: pass
+spec/oes_vertex_half_float/draw-vertices-half-float_gles2: pass

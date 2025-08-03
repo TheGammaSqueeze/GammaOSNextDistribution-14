@@ -1,0 +1,28 @@
+{
+  "presubmit": [
+    {
+      "name": "gtest_isolated_tests"
+    },
+    {
+      // Confirm GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST behavior
+      "name": "VtsHalBluetoothA2dpV1_0TargetTest"
+    },
+    {
+      // Confirm VTS test can pass
+      "name": "VtsHalPowerStatsV1_0TargetTest"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "gtest_isolated_tests"
+    },
+    {
+      // Confirm GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST behavior
+      "name": "VtsHalBluetoothA2dpV1_0TargetTest"
+    },
+    {
+      // Confirm VTS test can pass
+      "name": "VtsHalPowerStatsV1_0TargetTest"
+    }
+  ]
+}

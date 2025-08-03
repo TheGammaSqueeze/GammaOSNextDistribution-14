@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE list 
+[
+  <!ENTITY copy   "&#169;" >
+  <!ENTITY test-ent   "an-xml-entity" >
+  <!ELEMENT list (item* | list*)>
+  <!ATTLIST list 
+            name CDATA #IMPLIED
+  >
+  <!ELEMENT item (#PCDATA)>
+]>
+
+<list>
+  <item>Xalan-J&copy; 1.x</item>
+  <item>Xalan-J&test-ent; 2.x</item>
+  <item>Xalan-C 1.x</item>
+  <list>
+    <item>Xalan <![CDATA[this is a CDATA section blah<?<!/>blah]]> documentation</item>
+    <item>Xalan <!-- This is a comment --> tests</item>
+  </list>
+</list>

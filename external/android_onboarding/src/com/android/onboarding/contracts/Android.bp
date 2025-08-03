@@ -1,0 +1,23 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.contracts",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "*.kt",
+    ],
+    optimize: {
+        proguard_flags_files: ["proguard.pgcfg"],
+    },
+    dont_merge_manifests: true,
+    static_libs: [
+        "androidx.activity_activity-ktx",
+        "android_onboarding.contracts.annotations",
+        "android_onboarding.nodes",
+        "android_onboarding.bedsteadonboarding.contract_eligibility_checker",
+        "error_prone_annotations",
+        "jsr330",
+    ],
+}

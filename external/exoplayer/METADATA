@@ -1,0 +1,22 @@
+name: "ExoPlayer"
+description:
+    "ExoPlayer is an application level media player for Android. It provides an"
+    "alternative to Android’s MediaPlayer API for playing audio and video both"
+    "locally and over the Internet. ExoPlayer supports features not currently"
+    "supported by Android’s MediaPlayer API, including DASH and SmoothStreaming"
+    "adaptive playbacks. Unlike the MediaPlayer API, ExoPlayer is easy to"
+    "customize and extend, and can be updated through Play Store application"
+    "updates."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://exoplayer.dev/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/ExoPlayer.git"
+  }
+  version: "8e57d3715f9092d5ec54ebe2e538f34bfcc34479"
+  last_upgrade_date { year: 2022 month: 4 day: 11 }
+  license_type: NOTICE
+}

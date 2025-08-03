@@ -1,0 +1,20 @@
+name: "shFlags"
+description:
+    "shFlags is a port of the Google gflags library for Unix shell. The code is "
+    "written in a way to be as portable as possible to work across a wide array "
+    "of Unix variants. It is also tested with shUnit2 to maintain code quality."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/kward/shflags/wiki"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/kward/shflags"
+  }
+  version: "7d0daf1b3b3163c34e0108cdb439e2cd2f148152"
+  last_upgrade_date { year: 2020 month: 5 day: 18 }
+  license_type: NOTICE
+}
+

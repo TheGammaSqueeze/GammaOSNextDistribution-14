@@ -1,0 +1,119 @@
+package {
+    default_applicable_licenses: ["external_iproute2_ip_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_iproute2_ip_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_binary {
+    name: "ip",
+    defaults: ["iproute2_defaults"],
+
+    // ordering affects link order, so cannot be quite fully sorted
+    srcs: [
+        "ip6tunnel.c",
+        "ipaddress.c",
+        "ipaddrlabel.c",
+        "ip.c",
+        "ipfou.c",
+        "ipila.c",
+        "ipl2tp.c",
+        "iplink_bond.c",
+        "iplink_bond_slave.c",
+        "iplink_bridge.c",
+        "iplink_bridge_slave.c",
+        "iplink.c",
+        "iplink_can.c",
+        "iplink_dummy.c",
+        "iplink_geneve.c",
+        "iplink_hsr.c",
+        "iplink_ifb.c",
+        "iplink_ipoib.c",
+        "iplink_ipvlan.c",
+        "iplink_macvlan.c",
+        "iplink_nlmon.c",
+        "iplink_team.c",
+        "iplink_vcan.c",
+        "iplink_vlan.c",
+        "iplink_vrf.c",
+        "iplink_vxcan.c",
+        "iplink_vxlan.c",
+        "iplink_xdp.c",
+        "iplink_xstats.c",
+        "ipmacsec.c",
+        "ipmaddr.c",
+        "ipmonitor.c",
+        "ipmroute.c",
+        "ipneigh.c",
+        "ipnetconf.c",
+        "ipnetns.c",
+        "ipntable.c",
+        "ipprefix.c",
+        "iproute.c",
+        "iproute_lwtunnel.c",
+        "iprule.c",
+        "ipseg6.c",
+        "iptoken.c",
+        "iptunnel.c",
+        "iptuntap.c",
+        "ipvrf.c",
+        "ipxfrm.c",
+        "link_gre6.c",
+        "link_gre.c",
+        "link_ip6tnl.c",
+        "link_iptnl.c",
+        "link_veth.c",
+        "link_vti6.c",
+        "link_vti.c",
+        "rtm_map.c",
+        "static-syms.c",
+        "tcp_metrics.c",
+        "tunnel.c",
+        "xfrm_monitor.c",
+        "xfrm_policy.c",
+        "xfrm_state.c",
+    ],
+
+    shared_libs: [
+        "libiprouteutil",
+        "libnetlink",
+    ],
+
+    cflags: [
+        "-Wno-implicit-function-declaration",
+        "-Wno-int-conversion",
+        "-Wno-missing-field-initializers",
+        "-D_GNU_SOURCE",
+        "-DNETNS_RUN_DIR=\"" + NETNS_RUN_DIR + "\"",
+    ],
+
+    ldflags: [
+        "-Wl,-export-dynamic",
+        "-Wl,--no-gc-sections",
+    ],
+}

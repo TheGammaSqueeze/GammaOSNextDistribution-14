@@ -1,0 +1,137 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_error_last, tracefs_error_all, tracefs_error_clear -
+functions to read and clear the tracefs error log.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+char pass:[*]*tracefs_error_last*(struct tracefs_instance pass:[*]_instance_);
+char pass:[*]*tracefs_error_all*(struct tracefs_instance pass:[*]_instance_);
+int *tracefs_error_clear*(struct tracefs_instance pass:[*]_instance_);
+--
+
+DESCRIPTION
+-----------
+The *tracefs_error_last*() returns the last error message in the tracefs
+error log. Several actions that require proper syntax written into the
+tracefs file system may produce error messages in the error log. This
+function will show the most recent error in the error log.
+
+The *tracefs_error_all*() returns all messages saved in the error log.
+Note, this may not be all messages that were ever produced, as the kernel
+only keeps a limited amount of messages, and older ones may be discarded
+by the kernel.
+
+The *tracefs_error_clear*() will clear the error log.
+
+RETURN VALUE
+------------
+Both *tracefs_error_last*() and *tracefs_error_all*() will return an allocated
+string an error exists in the log, otherwise NULL is returned. If an error
+occurs, errno will be set, otherwise if there is no error messages to display
+then errno is not touched.
+
+*tracefs_error_clear*() returns 0 on success or -1 on error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+
+#include <tracefs.h>
+
+int main (int argc, char **argv, char **env)
+{
+	struct tracefs_dynevent *kevent;
+	char *system = NULL;
+	char *kprobe;
+	char *format;
+	char *addr;
+	int arg = 1;
+	int ret;
+
+	if (argc < 4) {
+		printf("usage: %s [system] kprobe addr fmt\n", argv[0]);
+		exit(-1);
+	}
+
+	if (argc > 5)
+		system = argv[arg++];
+
+	kprobe = argv[arg++];
+	addr = argv[arg++];
+	format = argv[arg++];
+
+	tracefs_error_clear(NULL);
+	kevent = tracefs_dynevent_get(TRACEFS_DYNEVENT_KPROBE, system, kprobe);
+	if (kevent) {
+		tracefs_dynevent_destroy(kevent, true);
+		tracefs_dynevent_free(kevent);
+	}
+
+	ret = tracefs_kprobe_raw(system, kprobe, addr, format);
+	if (ret < 0) {
+		char *err;
+
+		perror("Failed creating kprobe");
+		errno = 0;
+		err = tracefs_error_last(NULL);
+		if (err)
+			fprintf(stderr, "%s\n", err);
+		else if (errno)
+			perror("Failed reading error log");
+		free(err);
+	}
+
+	exit(ret);
+}
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/userfaultfd
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "userfaultfd"
+description: "Rust bindings for the Linux userfaultfd functionality"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 12
+    day: 16
+  }
+  homepage: "https://crates.io/crates/userfaultfd"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/userfaultfd/userfaultfd-0.7.0.crate"
+    version: "0.7.0"
+  }
+}

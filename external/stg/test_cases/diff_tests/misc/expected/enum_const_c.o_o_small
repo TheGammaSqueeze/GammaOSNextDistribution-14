@@ -1,0 +1,4 @@
+type 'enum Foo' changed
+  enumerator 'FOO_TWO' value changed from 100 to 2
+
+exit code 4

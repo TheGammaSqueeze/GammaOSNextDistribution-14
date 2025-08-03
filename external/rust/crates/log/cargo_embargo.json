@@ -1,0 +1,30 @@
+{
+  "min_sdk_version": "29",
+  "variants": [
+    {
+      "features": [
+        "std"
+      ],
+      "module_name_overrides": {
+        "liblog": "liblog_rust"
+      },
+      "package": {
+        "log": {
+          "add_module_block": "android_impl.bp"
+        }
+      }
+    },
+    {
+      "module_name_overrides": {
+        "liblog": "liblog_rust_nostd"
+      },
+      "package": {
+        "log": {
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

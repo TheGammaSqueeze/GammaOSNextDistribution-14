@@ -1,0 +1,13 @@
+name: "notosanslaoui"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Lao UI is an unmodulated (“sans serif”) design in themore modern, loopless variant of the Southeast Asian Lao script,suitable for app and website user interfaces in the Lao script. It hasmultiple weights and widths, and 118 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanslaoui"
+  }
+  version: "1.030"
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 7 day: 4 }
+}

@@ -1,0 +1,13 @@
+package {
+    default_applicable_licenses: ["external_python_jinja_license"],
+}
+
+python_library {
+    name: "py-jinja",
+    host_supported: true,
+    srcs: ["jinja2/*.py"],
+    libs: [
+        "py-markupsafe",
+        "py-setuptools",
+    ],
+}

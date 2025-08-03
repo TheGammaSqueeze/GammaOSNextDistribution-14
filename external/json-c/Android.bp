@@ -1,0 +1,25 @@
+cc_library_shared {
+
+    name: "libjson",
+    vendor: true,
+
+    shared_libs: ["libcutils", "libutils"],
+    cflags: [
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    export_include_dirs: ["."],
+    srcs: [
+        "arraylist.c",
+        "debug.c",
+        "json_c_version.c",
+        "json_object.c",
+        "json_object_iterator.c",
+        "json_tokener.c",
+        "json_util.c",
+        "libjson.c",
+        "linkhash.c",
+        "printbuf.c",
+        "random_seed.c",
+    ],
+}

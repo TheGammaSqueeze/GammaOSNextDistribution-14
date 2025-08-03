@@ -1,0 +1,19 @@
+name: "downcast"
+description: "Trait for downcasting trait objects back to their original types."
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/downcast"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/downcast/downcast-0.11.0.crate"
+  }
+  version: "0.11.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 6
+  }
+}

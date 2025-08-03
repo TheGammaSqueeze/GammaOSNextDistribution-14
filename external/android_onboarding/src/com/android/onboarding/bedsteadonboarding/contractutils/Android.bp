@@ -1,0 +1,27 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.bedsteadonboarding.contract_eligibility_checker",
+    manifest: ":android_onboarding.bedsteadonboarding.AndroidManifest",
+    srcs: [
+        "ContractExecutionEligibilityChecker.kt",
+    ],
+    static_libs: [
+        "android_onboarding.bedsteadonboarding.providers",
+        "android_onboarding.bedsteadonboarding.contractutils",
+    ],
+}
+
+android_library {
+    name: "android_onboarding.bedsteadonboarding.contractutils",
+    manifest: ":android_onboarding.bedsteadonboarding.AndroidManifest",
+    srcs: [
+        "ContractUtils.kt",
+    ],
+    static_libs: [
+        "android_onboarding.contracts.annotations",
+        "android_onboarding.nodes",
+    ],
+}

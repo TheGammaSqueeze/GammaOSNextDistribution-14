@@ -1,0 +1,65 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_v4l2_codec2_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_v4l2_codec2_license"],
+}
+
+cc_defaults {
+    name: "libv4l2_codec2_service",
+
+    defaults: [
+        "hidl_defaults",
+        "libcodec2-hidl-defaults",
+    ],
+    vendor: true,
+    relative_install_path: "hw",
+
+    srcs: [
+        "service.cpp",
+    ],
+
+    shared_libs: [
+        "libv4l2_codec2_v4l2",
+        "libv4l2_codec2_components",
+        "libavservices_minijail",
+        "libchrome",
+        "libcutils",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+
+    required: ["android.hardware.media.c2-default-seccomp_policy"],
+}
+
+cc_binary {
+    name: "android.hardware.media.c2@1.2-service-v4l2",
+
+    defaults: [
+        "libv4l2_codec2_service",
+    ],
+
+    shared_libs: [
+        "libv4l2_codec2_v4l2",
+    ],
+
+    cflags: [
+        "-DV4L2_CODEC2_SERVICE_V4L2_STORE",
+    ],
+
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "-32",
+            init_rc: ["android.hardware.media.c2@1.2-service-v4l2-32.rc"],
+        },
+        lib64: {
+            suffix: "-64",
+            init_rc: ["android.hardware.media.c2@1.2-service-v4l2-64.rc"],
+        },
+    },
+    vintf_fragments: ["android.hardware.media.c2@1.2-service-v4l2.xml"],
+}

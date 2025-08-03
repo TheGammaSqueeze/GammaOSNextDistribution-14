@@ -1,0 +1,63 @@
+/*
+ * ANT Android Host Stack
+ *
+ * Copyright 2018 Dynastream Innovations
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dsi.ant@1.0;
+
+/**
+ * Status codes returned from most interface functions. The only requirement is that 0 indicates success.
+ * Otherwise all values are specific to the HAL implementation.
+ */
+typedef int32_t Status;
+
+/**
+ * Status code 0 is used to indicate success. All other status codes are vendor-defined and
+ * can be converted to a string description using translateStatus in IAnt.
+ */
+enum CommonStatusCodes : Status {
+    OK = 0,
+};
+
+/**
+ * Various flags that can be used by the server to modify the behavior of the ANTHALService.
+ * These should be static for a given implementation.
+ */
+enum OptionFlags : uint32_t {
+    /**
+     * This flag indicates that keep alive should be used. When the ANT transport is idle
+     * for an extended period of time the ANTHALService will use a ping message to verify
+     * that the stack is still responding.
+     */
+    USE_KEEPALIVE = 1 << 0,
+    /**
+     * Whether the data channel flow control is encapsulated in ANT message. The value to
+     * set for this depends on the ANT protocol stack implementation being used.
+     */
+    USE_ANT_FLOW_CONTROL = 1 << 1,
+};
+
+/**
+ * A set of properties describing the vendor implementation of the HAL. These will be requested
+ * by the ANTHALService on startup.
+ */
+struct ImplProps {
+    /** A version string describing the implementation. Should be unique for every public release */
+    string version;
+    /** Flags to modify ANTHALService behavior */
+    bitfield<OptionFlags> options;
+};
+

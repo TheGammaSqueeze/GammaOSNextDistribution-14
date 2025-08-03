@@ -1,0 +1,355 @@
+package {
+    default_applicable_licenses: ["external_llvm_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+//
+// large-scale-change filtered out the below license kinds as false-positives:
+//   SPDX-license-identifier-GPL
+//   SPDX-license-identifier-GPL-3.0
+// See: http://go/android-license-faq
+license {
+    name: "external_llvm_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-NCSA",
+        "legacy_permissive",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE.TXT",
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "llvm-defaults",
+    defaults: ["llvm-defaults-no-generated-headers"],
+    header_libs: ["llvm-headers"],
+    tidy_checks: [
+        "-google-build-*",
+        "-google-global-*",
+    ],
+    sanitize: {
+        hwaddress: false, // code size b/112437884
+    },
+    arch: {
+        riscv64: {
+            enabled: false,
+        },
+    },
+}
+
+// This module defines all of the defaults used to compiled llvm, except for
+// the generated headers.  It is necessary to avoid a circular dependency
+// from the tblgen tool used to generate the headers to the generated headers.
+llvm_defaults {
+    name: "llvm-defaults-no-generated-headers",
+
+    host_supported: true,
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+
+    cflags: [
+        "-D_GNU_SOURCE",
+        "-D__STDC_LIMIT_MACROS",
+        "-D__STDC_CONSTANT_MACROS",
+        "-D__STDC_FORMAT_MACROS",
+        "-fomit-frame-pointer",
+        "-Wall",
+        "-W",
+        "-Wno-cast-qual",
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+        "-Wno-maybe-uninitialized",
+        "-Wno-missing-field-initializers",
+        "-Wno-implicit-fallthrough",
+        "-Wwrite-strings",
+        "-Werror",
+        "-Dsprintf=sprintf",
+    ],
+
+    cppflags: [
+        "-Wno-sign-promo",
+        "-std=c++11",
+    ],
+
+    tidy_checks: [
+        "-google-build-*",
+        "-google-global-*",
+    ],
+
+    header_libs: ["llvm-headers-no-generated-headers"],
+
+    target: {
+        android: {
+            cflags: [
+                "-finline-functions",
+            ],
+        },
+        linux: {
+            cppflags: [
+                "-Woverloaded-virtual",
+            ],
+        },
+        host: {
+            cppflags: [
+                "-fno-rtti",
+                "-fno-exceptions",
+            ],
+        },
+        windows: {
+            // Disable certain warnings for use with mingw.
+            // We also must undefine WIN32_LEAN_AND_MEAN, since it is being passed globally
+            // on the command line, and LLVM defines this internally itself.
+            cflags: [
+                "-Wno-array-bounds",
+                "-Wno-comment",
+                "-UWIN32_LEAN_AND_MEAN",
+            ],
+
+            host_ldlibs: ["-luuid"],
+        },
+        linux_glibc: {
+            host_ldlibs: [
+                "-lgcc_s",
+            ],
+        },
+        darwin: {
+            cppflags: [
+                "-Wno-deprecated-declarations",
+                "-Woverloaded-virtual",
+            ],
+        },
+    },
+}
+
+cc_library_headers {
+    name: "llvm-headers-no-generated-headers",
+    vendor_available: true,
+    product_available: true,
+    host_supported: true,
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+    export_include_dirs: ["include"],
+    target: {
+        android: {
+            export_include_dirs: ["device/include"],
+        },
+        host: {
+            export_include_dirs: ["host/include"],
+        },
+        linux_bionic: {
+            enabled: true,
+        },
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+cc_library_headers {
+    name: "llvm-headers",
+    vendor_available: true,
+    product_available: true,
+    host_supported: true,
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+    header_libs: ["llvm-headers-no-generated-headers"],
+    export_header_lib_headers: ["llvm-headers-no-generated-headers"],
+    generated_headers: [
+        "llvm-gen-attributes",
+        "llvm-gen-intrinsics",
+    ],
+    export_generated_headers: [
+        "llvm-gen-attributes",
+        "llvm-gen-intrinsics",
+    ],
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+}
+
+llvm_tblgen {
+    name: "llvm-gen-attributes",
+    in: "include/llvm/IR/Attributes.td",
+    outs: ["llvm/IR/Attributes.inc"],
+}
+
+llvm_tblgen {
+    name: "llvm-gen-intrinsics",
+    in: "include/llvm/IR/Intrinsics.td",
+    outs: ["llvm/IR/Intrinsics.gen"],
+}
+
+force_build_llvm_components_defaults {
+    name: "force_build_llvm_components",
+    // Host build disabled by soong/llvm.go unless FORCE_BUILD_LLVM_COMPONENTS
+    // environment variable is set
+}
+
+// LLVM shared library build
+
+llvm_arm_static_libraries = [
+    "libLLVMARMCodeGen",
+    "libLLVMARMAsmParser",
+    "libLLVMARMAsmPrinter",
+    "libLLVMARMInfo",
+    "libLLVMARMDesc",
+    "libLLVMARMDisassembler",
+]
+
+llvm_x86_static_libraries = [
+    "libLLVMX86CodeGen",
+    "libLLVMX86Info",
+    "libLLVMX86Desc",
+    "libLLVMX86AsmParser",
+    "libLLVMX86AsmPrinter",
+    "libLLVMX86Utils",
+    "libLLVMX86Disassembler",
+]
+
+llvm_mips_static_libraries = [
+    "libLLVMMipsCodeGen",
+    "libLLVMMipsInfo",
+    "libLLVMMipsDesc",
+    "libLLVMMipsAsmParser",
+    "libLLVMMipsAsmPrinter",
+    "libLLVMMipsDisassembler",
+]
+
+llvm_aarch64_static_libraries = [
+    "libLLVMAArch64CodeGen",
+    "libLLVMAArch64Info",
+    "libLLVMAArch64Desc",
+    "libLLVMAArch64AsmParser",
+    "libLLVMAArch64AsmPrinter",
+    "libLLVMAArch64Utils",
+    "libLLVMAArch64Disassembler",
+]
+
+cc_library {
+    host_supported: true,
+    name: "libLLVM_android",
+    vendor_available: true,
+    product_available: true,
+    defaults: [
+        "llvm-defaults",
+        "force_build_llvm_components",
+    ],
+
+    whole_static_libs: [
+        // pre static libraries
+        "libLLVMLinker",
+        "libLLVMipo",
+        "libLLVMDebugInfoDWARF",
+        "libLLVMDebugInfoPDB",
+        "libLLVMSymbolize",
+        "libLLVMIRReader",
+        "libLLVMBitWriter",
+        "libLLVMBitReader",
+
+        // post static libraries
+        "libLLVMLTO",
+        "libLLVMAsmPrinter",
+        "libLLVMSelectionDAG",
+        "libLLVMCodeGen",
+        "libLLVMDebugInfoCodeView",
+        "libLLVMObject",
+        "libLLVMScalarOpts",
+        "libLLVMInstCombine",
+        "libLLVMInstrumentation",
+        "libLLVMTransformObjCARC",
+        "libLLVMTransformUtils",
+        "libLLVMAnalysis",
+        "libLLVMTarget",
+        "libLLVMGlobalISel",
+        "libLLVMMCDisassembler",
+        "libLLVMMC",
+        "libLLVMMCParser",
+        "libLLVMCore",
+        "libLLVMAsmParser",
+        "libLLVMOption",
+        "libLLVMSupport",
+        "libLLVMVectorize",
+        "libLLVMProfileData",
+        "libLLVMProfileDataCoverage",
+        "libLLVMLibDriver",
+        "libLLVMExecutionEngine",
+        "libLLVMRuntimeDyld",
+        "libLLVMMCJIT",
+        "libLLVMOrcJIT",
+    ],
+
+    export_include_dirs: ["include"],
+
+    target: {
+        host: {
+            // Host build pulls in all ARM, Mips, X86 components.
+           whole_static_libs: llvm_arm_static_libraries +
+                llvm_aarch64_static_libraries +
+                llvm_mips_static_libraries +
+                llvm_x86_static_libraries,
+            export_include_dirs: ["host/include"],
+        },
+        windows: {
+            enabled: true,
+            host_ldlibs: [
+                "-limagehlp",
+                "-lpsapi",
+                "-lole32",
+                "-lversion",
+            ],
+        },
+        android: {
+            export_include_dirs: ["device/include"],
+        },
+        android_arm: {
+            whole_static_libs: llvm_arm_static_libraries +
+                llvm_aarch64_static_libraries,
+        },
+        android_x86: {
+            whole_static_libs: llvm_x86_static_libraries +
+                llvm_arm_static_libraries +
+                llvm_aarch64_static_libraries,
+        },
+        android_x86_64: {
+            whole_static_libs: llvm_x86_static_libraries +
+                llvm_arm_static_libraries +
+                llvm_aarch64_static_libraries,
+        },
+        android_arm64: {
+            whole_static_libs: llvm_aarch64_static_libraries +
+                llvm_arm_static_libraries,
+        },
+    },
+}
+
+subdirs = [
+    "soong",
+    "lib",
+    "tools/*",
+    "utils/*",
+]

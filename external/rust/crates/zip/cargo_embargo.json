@@ -1,0 +1,15 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "features": [
+    "deflate-zlib"
+  ],
+  "package": {
+    "zip": {
+      "patch": "patches/Android.bp.diff"
+    }
+  },
+  "run_cargo": false
+}

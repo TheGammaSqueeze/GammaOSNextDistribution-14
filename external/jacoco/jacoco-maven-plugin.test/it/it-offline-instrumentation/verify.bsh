@@ -1,0 +1,29 @@
+/*******************************************************************************
+ * Copyright (c) 2009, 2021 Mountainminds GmbH & Co. KG and Contributors
+ * This program and the accompanying materials are made available under
+ * the terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Evgeny Mandrikov - initial API and implementation
+ *
+ *******************************************************************************/
+import java.io.*;
+import org.codehaus.plexus.util.*;
+
+File file = new File( basedir, "child/target/generated-classes/jacoco/Example.class" );
+if ( !file.isFile() ) {
+    throw new RuntimeException( "Could not find backup of instrumented class: " + file );
+}
+file = new File( basedir, "child/target/generated-classes/jacoco/DoNotInstrument.class" );
+if ( file.isFile() ) {
+    throw new RuntimeException( "Excluded file should not be instrumented: " + file );
+}
+
+file = new File( basedir, "child/target/coverage.exec" );
+if ( !file.isFile() )
+{
+    throw new FileNotFoundException( "Could not find generated dump: " + file );
+}

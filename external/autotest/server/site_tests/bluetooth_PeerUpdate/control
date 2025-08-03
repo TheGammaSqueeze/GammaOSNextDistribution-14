@@ -1,0 +1,61 @@
+# Copyright 2019 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_PeerUpdate'
+PURPOSE = 'Update chameleond on Bluetooth peer device'
+CRITERIA = 'Bluetooth peer should be present'
+ATTRIBUTES = 'suite:bluetooth, suite:bluetooth_wifi_testbed_update'
+TIME = 'SHORT'    # This test takes about 1 minutes while running locally
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+
+This is not a test. This 'test' checks the chameleond version on the
+Bluetooth peer and updates if it is less that expected version in the test.
+
+Use this test if you have made a change to chameleond which should be deployed
+in the lab.
+
+Please follow the steps to update chameleond version in the lab.
+
+1) Test and update chameleond code
+- Deploy the change in chameleon in a local bt peer
+  and run bluetooth_AdapterQuickHealth against it.
+- Merge the changes
+
+2) After chameleond changes are merged
+- run make in chameleon folder
+- get the git commit using the command 'git log HEAD^..HEAD --pretty=format:"%h"'
+- rename the dist/chameleond-0.0.2.tar.gz to chameleond-0.0.2-<git commit>.tar.gz
+- create a text file named 'latest_bluetooth_commit' with following format
+'
+commit : <git commit>
+'
+- upload the latest file and  chameleond-0.0.2-<git commit>.tar.gz to
+  https://pantheon.corp.google.com/storage/browser/chromeos-localmirror/distfiles/bluetooth_peer_bundle
+
+Once the files are uploaded, the test will start updating the peers in the lab.
+
+Note: Due to way the scheduler works, if there is more than one DUT of same
+model, test will be run only on one of them. Thus the process is indeterministic
+now but over a large period of time all the peer devices in the lab should(?)
+be updated.
+
+"""
+
+args_dict = utils.args_to_dict(args)
+btpeer_args = hosts.CrosHost.get_btpeer_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_PeerUpdate', host=host, btpeer_args=btpeer_args)
+
+parallel_simple(run, machines)

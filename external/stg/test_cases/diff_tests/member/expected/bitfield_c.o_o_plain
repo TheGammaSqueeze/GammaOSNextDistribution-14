@@ -1,0 +1,31 @@
+function symbol 'void fun(const struct B*)' changed
+  type 'void(const struct B*)' changed
+    parameter 1 type 'const struct B*' changed
+      pointed-to type 'const struct B' changed
+        underlying type 'struct B' changed
+          member changed from 'unsigned long long b:1' to 'unsigned long long b:2'
+            bit-field size changed from 1 to 2
+          member changed from 'unsigned long long c:2' to 'unsigned long long c:3'
+            offset changed from 2 to 3
+            bit-field size changed from 2 to 3
+          member changed from 'unsigned long long d:3' to 'unsigned long long d:5'
+            offset changed from 4 to 6
+            bit-field size changed from 3 to 5
+          member changed from 'unsigned long long e:5' to 'unsigned long long e:8'
+            offset changed from 7 to 11
+            bit-field size changed from 5 to 8
+          member changed from 'unsigned long long f:8' to 'unsigned long long f:13'
+            offset changed from 12 to 19
+            bit-field size changed from 8 to 13
+          member changed from 'unsigned long long g:13' to 'unsigned long long g:21'
+            offset changed from 20 to 32
+            bit-field size changed from 13 to 21
+          member changed from 'unsigned long long h:21' to 'unsigned long long h:34'
+            offset changed from 33 to 64
+            bit-field size changed from 21 to 34
+          member changed from 'unsigned long long i:34' to 'unsigned long long i:55'
+            offset changed from 64 to 128
+            bit-field size changed from 34 to 55
+          member 'unsigned long long j:55' was removed
+
+exit code 4

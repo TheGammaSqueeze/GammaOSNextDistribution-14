@@ -1,0 +1,387 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x0b5e55a4
+  kind: POINTER
+  pointee_type_id: 0x0739b00c
+}
+pointer_reference {
+  id: 0x13580d6c
+  kind: POINTER
+  pointee_type_id: 0x6720d32f
+}
+pointer_reference {
+  id: 0x1945b139
+  kind: POINTER
+  pointee_type_id: 0x4f562278
+}
+pointer_reference {
+  id: 0x2df0016c
+  kind: POINTER
+  pointee_type_id: 0x9d80e32f
+}
+pointer_reference {
+  id: 0x2f8903cb
+  kind: POINTER
+  pointee_type_id: 0x9464e9b2
+}
+pointer_reference {
+  id: 0x3f6521e6
+  kind: POINTER
+  pointee_type_id: 0xd7d46104
+}
+pointer_to_member {
+  id: 0x25925b84
+  containing_type_id: 0x8f5f455e
+  pointee_type_id: 0x384f7d7c
+}
+pointer_to_member {
+  id: 0x50f283da
+  containing_type_id: 0x329a7805
+  pointee_type_id: 0x6720d32f
+}
+pointer_to_member {
+  id: 0x7867bbed
+  containing_type_id: 0x0739b00c
+  pointee_type_id: 0x6720d32f
+}
+pointer_to_member {
+  id: 0x7867c9c8
+  containing_type_id: 0x0739b00c
+  pointee_type_id: 0x15053314
+}
+pointer_to_member {
+  id: 0x7867cf1e
+  containing_type_id: 0x0739b00c
+  pointee_type_id: 0x13d347b6
+}
+pointer_to_member {
+  id: 0x7bd84cb2
+  containing_type_id: 0xfa4f7de5
+  pointee_type_id: 0x6720d32f
+}
+pointer_to_member {
+  id: 0xd7d4157c
+  containing_type_id: 0x4f562278
+  pointee_type_id: 0x13580d6c
+}
+pointer_to_member {
+  id: 0xd7d42bd4
+  containing_type_id: 0x4f562278
+  pointee_type_id: 0x2df0016c
+}
+pointer_to_member {
+  id: 0xd7d46104
+  containing_type_id: 0x4f562278
+  pointee_type_id: 0x6720d32f
+}
+pointer_to_member {
+  id: 0xd7d47722
+  containing_type_id: 0x4f562278
+  pointee_type_id: 0x7106acfa
+}
+pointer_to_member {
+  id: 0xd7d49df5
+  containing_type_id: 0x4f562278
+  pointee_type_id: 0x9bd18f61
+}
+pointer_to_member {
+  id: 0xd7d4c3fd
+  containing_type_id: 0x4f562278
+  pointee_type_id: 0xc5d9d969
+}
+qualified {
+  id: 0xa1e34272
+  qualifier: VOLATILE
+  qualified_type_id: 0xd7d4c3fd
+}
+qualified {
+  id: 0xc5d9d969
+  qualifier: CONST
+  qualified_type_id: 0x6720d32f
+}
+primitive {
+  id: 0x15053314
+  name: "double"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+array {
+  id: 0x5d3b8070
+  number_of_elements: 7
+  element_type_id: 0xd7d46104
+}
+array {
+  id: 0x7106acfa
+  number_of_elements: 7
+  element_type_id: 0x6720d32f
+}
+member {
+  id: 0x80bcb4cd
+  name: "a"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0xabd8f37a
+  name: "t"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0xec187cbe
+  name: "u"
+  type_id: 0x6720d32f
+}
+struct_union {
+  id: 0x329a7805
+  kind: STRUCT
+  definition {
+    bytesize: 4
+    member_id: 0xabd8f37a
+  }
+}
+struct_union {
+  id: 0x4f562278
+  kind: STRUCT
+  name: "S"
+}
+struct_union {
+  id: 0xfa4f7de5
+  kind: UNION
+  name: "U"
+  definition {
+    bytesize: 4
+    member_id: 0xec187cbe
+  }
+}
+struct_union {
+  id: 0x0739b00c
+  kind: STRUCT
+  name: "X"
+  definition {
+    bytesize: 4
+    member_id: 0x80bcb4cd
+  }
+}
+struct_union {
+  id: 0x8f5f455e
+  kind: STRUCT
+  name: "Y"
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+function {
+  id: 0x13d347b6
+  return_type_id: 0x48b5725f
+  parameter_id: 0x0b5e55a4
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x9464e9b2
+  return_type_id: 0xd7d46104
+}
+function {
+  id: 0x9bd18f61
+  return_type_id: 0x6720d32f
+  parameter_id: 0x1945b139
+}
+function {
+  id: 0x9d80e32f
+  return_type_id: 0x6720d32f
+}
+function {
+  id: 0xa875fb6e
+  return_type_id: 0x6720d32f
+  parameter_id: 0xd7d46104
+}
+elf_symbol {
+  id: 0xba0e5cd0
+  name: "_Z2s2v"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9464e9b2
+  full_name: "s2"
+}
+elf_symbol {
+  id: 0x94e5eb64
+  name: "_Z3s10M1Si"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa875fb6e
+  full_name: "s10"
+}
+elf_symbol {
+  id: 0x13e4cc52
+  name: "_Z7pmz_funv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "pmz_fun"
+}
+elf_symbol {
+  id: 0x648621f2
+  name: "pmc"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x25925b84
+  full_name: "pmc"
+}
+elf_symbol {
+  id: 0xff819903
+  name: "pmcu"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x7bd84cb2
+  full_name: "pmcu"
+}
+elf_symbol {
+  id: 0x2ec71519
+  name: "pmd"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x7867c9c8
+  full_name: "pmd"
+}
+elf_symbol {
+  id: 0xa0583676
+  name: "pmf"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x7867cf1e
+  full_name: "pmf"
+}
+elf_symbol {
+  id: 0xfd020c80
+  name: "pmi"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x7867bbed
+  full_name: "pmi"
+}
+elf_symbol {
+  id: 0xf60097d9
+  name: "pmu"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x7bd84cb2
+  full_name: "pmu"
+}
+elf_symbol {
+  id: 0xc90bc4a4
+  name: "pmy"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x50f283da
+  full_name: "pmy"
+}
+elf_symbol {
+  id: 0xdaa14405
+  name: "s0"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd7d46104
+  full_name: "s0"
+}
+elf_symbol {
+  id: 0x1660e091
+  name: "s1"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x3f6521e6
+  full_name: "s1"
+}
+elf_symbol {
+  id: 0x9be13bad
+  name: "s3"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x2f8903cb
+  full_name: "s3"
+}
+elf_symbol {
+  id: 0xd5a33a44
+  name: "s4"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x5d3b8070
+  full_name: "s4"
+}
+elf_symbol {
+  id: 0x136353fe
+  name: "s5"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd7d4157c
+  full_name: "s5"
+}
+elf_symbol {
+  id: 0x57200721
+  name: "s6"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd7d42bd4
+  full_name: "s6"
+}
+elf_symbol {
+  id: 0x94e3994e
+  name: "s7"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd7d49df5
+  full_name: "s7"
+}
+elf_symbol {
+  id: 0xd0a5df97
+  name: "s8"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd7d47722
+  full_name: "s8"
+}
+elf_symbol {
+  id: 0x3065441f
+  name: "s9"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xa1e34272
+  full_name: "s9"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xba0e5cd0
+  symbol_id: 0x94e5eb64
+  symbol_id: 0x13e4cc52
+  symbol_id: 0x648621f2
+  symbol_id: 0xff819903
+  symbol_id: 0x2ec71519
+  symbol_id: 0xa0583676
+  symbol_id: 0xfd020c80
+  symbol_id: 0xf60097d9
+  symbol_id: 0xc90bc4a4
+  symbol_id: 0xdaa14405
+  symbol_id: 0x1660e091
+  symbol_id: 0x9be13bad
+  symbol_id: 0xd5a33a44
+  symbol_id: 0x136353fe
+  symbol_id: 0x57200721
+  symbol_id: 0x94e3994e
+  symbol_id: 0xd0a5df97
+  symbol_id: 0x3065441f
+}

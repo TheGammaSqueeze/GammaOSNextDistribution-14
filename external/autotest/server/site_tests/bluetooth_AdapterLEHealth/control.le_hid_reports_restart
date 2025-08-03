@@ -1,0 +1,50 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterLEHealth.le_hid_reports_restart'
+PURPOSE = ('Test bluetooth adapter receiving reports from '
+           'bluetooth LE HID devices after a bluetoothd restart.')
+CRITERIA = 'Adapter should receive LE HID events correctly.'
+# TODO: Remove ['Quick Health'] flag from AdapterLEHealth when moving to stable.
+ATTRIBUTES = 'suite:bluetooth_flaky'
+TIME = 'SHORT'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth_state:NORMAL, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+Verify that the bluetooth adapter of the DUT could receive LE HID
+reports sent from a connected bluetooth device correctly before and
+after a bluetoothd restart.
+
+Specifically, the following subtests are executed in this autotest.
+    - test_reset_on_adapter
+    - test_pairable
+    - test_discover_device
+    - test_pairing
+    - test_device_is_paired
+    - test_connection_by_adapter
+    - test_mouse_move_in_xy
+    - test_stop_bluetoothd
+    - test_start_bluetoothd
+    - test_device_is_connected
+    - test_mouse_move_in_xy
+    - test_disconnection_by_adapter
+    - test_remove_pairing
+"""
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterLEHealth', host=host,
+                 num_iterations=1, args_dict=args_dict,
+                 test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

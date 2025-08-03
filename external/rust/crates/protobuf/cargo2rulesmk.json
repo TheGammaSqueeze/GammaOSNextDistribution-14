@@ -1,0 +1,4 @@
+{
+  "copy-out": true,
+  "patch": "patches/rules.mk.diff"
+}

@@ -1,0 +1,35 @@
+variable symbol 'Scope::AnonClass anon_class' changed
+  type changed from 'Scope::AnonClass' = 'struct { int x; }' to 'Scope::AnonClass' = 'struct { long x; }'
+
+variable symbol 'Scope::AnonEnum anon_enum' changed
+  type changed from 'Scope::AnonEnum' = 'enum { X = 1, }' to 'Scope::AnonEnum' = 'enum { X = 2, }'
+
+variable symbol 'Scope::AnonStruct anon_struct' changed
+  type changed from 'Scope::AnonStruct' = 'struct { int x; }' to 'Scope::AnonStruct' = 'struct { long x; }'
+
+variable symbol 'Scope::AnonUnion anon_union' changed
+  type changed from 'Scope::AnonUnion' = 'union { int x; }' to 'Scope::AnonUnion' = 'union { long x; }'
+
+type changed from 'Scope::AnonClass' = 'struct { int x; }' to 'Scope::AnonClass' = 'struct { long x; }'
+  resolved type changed from 'struct { int x; }' to 'struct { long x; }'
+    byte size changed from 4 to 8
+    member changed from 'int x' to 'long x'
+      type changed from 'int' to 'long'
+
+type changed from 'Scope::AnonEnum' = 'enum { X = 1, }' to 'Scope::AnonEnum' = 'enum { X = 2, }'
+  resolved type changed from 'enum { X = 1, }' to 'enum { X = 2, }'
+    enumerator 'X' value changed from 1 to 2
+
+type changed from 'Scope::AnonStruct' = 'struct { int x; }' to 'Scope::AnonStruct' = 'struct { long x; }'
+  resolved type changed from 'struct { int x; }' to 'struct { long x; }'
+    byte size changed from 4 to 8
+    member changed from 'int x' to 'long x'
+      type changed from 'int' to 'long'
+
+type changed from 'Scope::AnonUnion' = 'union { int x; }' to 'Scope::AnonUnion' = 'union { long x; }'
+  resolved type changed from 'union { int x; }' to 'union { long x; }'
+    byte size changed from 4 to 8
+    member changed from 'int x' to 'long x'
+      type changed from 'int' to 'long'
+
+exit code 4

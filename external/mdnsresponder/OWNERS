@@ -1,0 +1,4 @@
+set noparent
+
+sanglardf@google.com
+include platform/packages/modules/adb:/OWNERS

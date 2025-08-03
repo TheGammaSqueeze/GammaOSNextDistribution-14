@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.onboarding.contracts.testing" >
+  <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="34"/>
+  <application android:supportsRtl="true">
+
+    <activity
+        android:name="com.android.onboarding.contracts.testing.TestAppCompatActivity"
+        android:exported="false" />
+
+  </application>
+</manifest>

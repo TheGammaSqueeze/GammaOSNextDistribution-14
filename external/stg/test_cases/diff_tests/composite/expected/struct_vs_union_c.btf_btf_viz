@@ -1,0 +1,13 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'void fun(const struct A*)' -> 'void fun(const union A*)'"]
+  "2" [label="'void(const struct A*)' -> 'void(const union A*)'"]
+  "3" [label="'const struct A*' -> 'const union A*'"]
+  "4" [label="'const struct A' -> 'const union A'"]
+  "5" [color=red, label="'struct A' -> 'union A'"]
+  "4" -> "5" [label="underlying"]
+  "3" -> "4" [label="pointed-to"]
+  "2" -> "3" [label="parameter 1"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<programme>
+	<opera>
+		<title>The Magic Flute</title>
+		<composer>Mozart</composer>
+        <date>1791</date>
+	</opera>
+	<opera>
+		<title>Don Giovanni</title>
+		<composer>Mozart</composer>
+        <date>1787</date>
+	</opera>
+	<opera>
+		<title>Ernani</title>
+		<composer>Verdi</composer>
+        <date>1843</date>
+	</opera>
+	<opera>
+		<title>Rigoletto</title>
+		<composer>Verdi</composer>
+        <date>1850</date>
+	</opera>
+	<opera>
+		<title>Tosca</title>
+		<composer>Puccini</composer>
+        <date>1897</date>
+	</opera>
+    <composer name="Mozart">
+        <fullname>Wolfgang Amadeus Mozart</fullname>
+        <born>1756</born>
+        <died>1791</died>
+    </composer>
+    <composer name="Verdi">
+        <fullname>Guiseppe Verdi</fullname>
+        <born>1813</born>
+        <died>1901</died>
+    </composer>
+    <composer name="Puccini">
+        <fullname>Giacomo Puccini</fullname>
+        <born>1858</born>
+        <died>1924</died>
+    </composer>
+</programme>
+

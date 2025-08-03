@@ -1,0 +1,80 @@
+{
+  "presubmit": [
+    {
+      "name": "TextClassifierServiceTest",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    },
+    {
+      "name": "libtextclassifier_tests-tplus"
+    },
+    {
+      "name": "libtextclassifier_tests-sminus"
+    },
+    {
+      "name": "libtextclassifier_java_tests"
+    },
+    {
+      "name": "TextClassifierNotificationTests"
+    },
+    {
+      "name": "TCSModelDownloaderIntegrationTest",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "TextClassifierServiceTest",
+      "options": [
+        {
+          "exclude-annotation": "androidx.test.filters.FlakyTest"
+        }
+      ]
+    },
+    {
+      "name": "libtextclassifier_tests-tplus"
+    },
+    {
+      "name": "libtextclassifier_tests-sminus"
+    },
+    {
+      "name": "libtextclassifier_java_tests"
+    },
+    {
+      "name": "TextClassifierNotificationTests"
+    }
+  ],
+  "mainline-presubmit": [
+    {
+      "name": "TextClassifierNotificationTests[com.google.android.extservices_tplus.apex]"
+    },
+    {
+      "name": "TextClassifierServiceTest[com.google.android.extservices_tplus.apex]"
+    },
+    {
+      "name": "libtextclassifier_tests-tplus[com.google.android.extservices_tplus.apex]"
+    },
+    {
+      "name": "libtextclassifier_java_tests[com.google.android.extservices_tplus.apex]"
+    },
+    {
+      "name": "TextClassifierNotificationTests[com.google.android.extservices.apex]"
+    },
+    {
+      "name": "TextClassifierServiceTest[com.google.android.extservices.apex]"
+    },
+    {
+      "name": "libtextclassifier_tests-sminus[com.google.android.extservices.apex]"
+    },
+    {
+      "name": "libtextclassifier_java_tests[com.google.android.extservices.apex]"
+    }
+  ]
+}

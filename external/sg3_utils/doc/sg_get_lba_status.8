@@ -1,0 +1,161 @@
+.TH SG_GET_LBA_STATUS "8" "August 2022" "sg3_utils\-1.48" SG3_UTILS
+.SH NAME
+sg_get_lba_status \- send SCSI GET LBA STATUS(16 or 32) command
+.SH SYNOPSIS
+.B sg_get_lba_status
+[\fI\-\-16\fR] [\fI\-\-32\fR] [\fI\-\-blockhex\fR] [\fI\-\-brief\fR]
+[\fI\-\-element-id=EI\fR] [\fI\-\-help\fR] [\fI\-\-hex\fR]
+[\fI\-\-inhex=FN\fR] [\fI\-\-json[=JO\fR]] [\fI\-\-lba=LBA\fR]
+[\fI\-\-maxlen=LEN\fR] [\fI\-\-raw\fR] [\fI\-\-readonly\fR]
+[\fI\-\-report\-type=RT\fR] [\fI\-\-scan-len=SL\fR] [\fI\-\-verbose\fR]
+[\fI\-\-version\fR] \fIDEVICE\fR
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+Send the SCSI GET LBA STATUS(16) or GET LBA STATUS(32) command to the
+\fIDEVICE\fR and output the response. The 16 byte command variant was
+introduced in (draft) SBC\-3 revision 20 and devices that support logical
+block provisioning should support this command. The GET LBA STATUS(32)
+command was added in (draft) SBC\-4 revision 14.
+.PP
+The default action is to decode the response into one LBA status descriptor
+per line then output a header and the status descriptors to stdout. The
+descriptor LBA is output in hex (prefixed by '0x') and the number of blocks
+is output in decimal followed by the provisioning status and additional status
+in decimal. The provisioning status can be in the range 0 to 15 of which only
+0 (mapped or unknown), 1 (unmapped), 2 (anchored), 3 (mapped) and 4 (unknown)
+are used currently. The amount of output can be reduced by the
+\fI\-\-brief\fR option.
+.PP
+Rather than send this SCSI command to \fIDEVICE\fR, if the \fI\-\-inhex=FN\fR
+option is given, then the contents of the file named \fIFN\fR are decoded
+as ASCII hex and then processed if it was the response of this command.
+.SH OPTIONS
+Arguments to long options are mandatory for short options as well.
+.TP
+\fB\-S\fR, \fB\-\-16\fR
+send SCSI GET LBA STATUS(16) command which is the 16 byte variant. In the
+absence of the \fI\-\-16\fR or the \fI\-\-32\fR options the SCSI GET LBA
+STATUS(16) command is sent. If both \fI\-\-16\fR and the \fI\-\-32\fR options
+are given then the GET LBA STATUS(16) command is sent.
+.TP
+\fB\-T\fR, \fB\-\-32\fR
+send SCSI GET LBA STATUS(32) command which is the 32 byte variant. When
+given together with the \fI\-\-16\fR option then this option is ignored (so
+the GET LBA STATUS(16) command is sent).
+.TP
+\fB\-b\fR, \fB\-\-brief\fR
+when use once then one LBA status descriptor per line is output to stdout.
+Each line has this
+format: "0x<descriptor_LBA>  0x<blocks> <provisioning_status>
+<additional_status>". So the descriptor's starting LBA and number of blocks
+are output in hex while the provisioning status and additional status are
+in decimal. When used twice (e.g. '\-bb' or '\-\-brief \-\-brief') then the
+provisioning status of the given \fILBA\fR (or LBA 0 if the \fI\-\-lba\fR
+option is not given) is output to stdout. A check is made that the given
+\fILBA\fR lies in the range of the first returned LBA status descriptor (as
+it should according to SBC\-3 revision 20) and warnings are sent to stderr
+if it doesn't.
+.TP
+\fB\-B\fR, \fB\-\-blockhex\fR
+the number of blocks in each LBA status descriptor is usually displayed in
+decimal. An exception is when the \fI\-\-brief\fR option is given in which
+case it is shown in hexadecimal. When the option is given once, both cases
+are output in hexadecimal. When the option is given twice, both cases are
+output in decimal.
+.TP
+\fB\-e\fR, \fB\-\-element\-id\fR=\fIEI\fR
+where \fIEI\fR is the element identifier of the physical element for which
+the LBAs shall be reported based on the value in the report type field (i.e.
+\fIRT\fR). This option is only active with the SCSI GET LBA STATUS(32)
+command (i.e. it is ignored if the GET LBA STATUS(16) command is sent).
+.br
+Valid element identifiers are non\-zero. The default value of \fIEI\fR is 0
+which means in the context that no element identifier is specified.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+output the usage message then exit.
+.TP
+\fB\-H\fR, \fB\-\-hex\fR
+output response to this command in ASCII hex.
+.TP
+\fB\-i\fR, \fB\-\-inhex\fR=\fIFN\fR
+where \fIFN\fR is a filename whose contents are assumed to be ASCII
+hexadecimal bytes. See the "FORMAT OF FILES CONTAINING ASCII HEX" section
+in the sg3_utils manpage for more information. If \fIDEVICE\fR is also
+given then it is ignored. If the \fI\-\-raw\fR option is also given then
+the contents of \fIFN\fR are treated as binary.
+.TP
+\fB\-j\fR, \fB\-\-json[\fR=\fIJO\fR]
+output is in JSON format instead of human readable form. See sg3_utils_json
+manpage or use '?' for \fIJO\fR for a summary.
+.TP
+\fB\-l\fR, \fB\-\-lba\fR=\fILBA\fR
+where \fILBA\fR is the starting Logical Block Address (LBA) to check the
+provisioning status for. Note that the \fIDEVICE\fR chooses how many
+following blocks that it will return provisioning status for.
+.TP
+\fB\-m\fR, \fB\-\-maxlen\fR=\fILEN\fR
+where \fILEN\fR is the (maximum) response length in bytes. It is placed in
+the cdb's "allocation length" field. If not given then 24 is used. 24 is
+enough space for the response header and one LBA status descriptor.
+\fILEN\fR should be 8 plus a multiple of 16 (e.g. 24, 40, and 56 are suitable).
+.TP
+\fB\-r\fR, \fB\-\-raw\fR
+output response in binary (to stdout) unless the \fI\-\-inhex=FN\fR option
+is also given. In that case the input file name (\fIFN\fR) is decoded as
+binary (and the output is _not_ in binary).
+.TP
+\fB\-R\fR, \fB\-\-readonly\fR
+open the \fIDEVICE\fR read\-only (e.g. in Unix with the O_RDONLY flag).
+The default is to open it read\-write.
+.TP
+\fB\-t\fR, \fB\-\-report\-type\fR=\fIRT\fR
+where \fIRT\fR is 0 for report all LBAs; 1 for report LBAs using non\-zero
+provisioning status; 2 for report LBAs that are mapped; 3 for report LBAs
+that are de\-allocated; 4 for report LBAs that are anchored; 16 for report
+LBAs that may return an unrecovered error. The REPORT TYPE field was added
+to the GET LBA STATUS cdb in sbc4r12.
+.br
+Since the REPORT TYPE field is newer than the command, the response contains
+the RTP bit to indicate whether or not the \fIDEVICE\fR acts on the REPORT
+TYE field (set when it does act on it, clear otherwise).
+.TP
+\fB\-s\fR, \fB\-\-scan\-len\fR=\fISL\fR
+where \fISL\fR is the scan length which is the maximum number of contiguous
+logical blocks to be scanned for logical blocks that meet the given report
+type (i.e. \fIRT\fR). This option is only active with the SCSI GET LBA
+STATUS(32) command (i.e. it is ignored if the GET LBA STATUS(16) command is
+sent).
+.br
+The default value of \fISL\fR is 0 which should be interpreted by the
+\fIDEVICE\fR as there is no limits to the number of LBAs that shall be
+scanned.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+increase the level of verbosity, (i.e. debug output). Additional output
+caused by this option is sent to stderr.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+print the version string and then exit.
+.SH NOTES
+In SBC\-3 revision 25 the calculation associated with the Parameter Data
+Length field in the response was modified. Prior to that the byte offset
+was 8 and in revision 25 it was changed to 4.
+.PP
+For a discussion of logical block provisioning see section 4.7 of sbc4r14.pdf
+at https://www.t10.org (or the corresponding section of a later draft).
+.SH EXIT STATUS
+The exit status of sg_get_lba_status is 0 when it is successful. Otherwise
+see the sg3_utils(8) man page.
+.SH AUTHORS
+Written by Douglas Gilbert.
+.SH "REPORTING BUGS"
+Report bugs to <dgilbert at interlog dot com>.
+.SH COPYRIGHT
+Copyright \(co 2009\-2022 Douglas Gilbert
+.br
+This software is distributed under a BSD\-2\-Clause license. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+.B sg_write_same,sg_unmap,sg3_utils,sg3_utils_json(sg3_utils)

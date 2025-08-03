@@ -1,0 +1,23 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "android_onboarding.contracts.annotations",
+    srcs: [
+        "*.kt",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+    ],
+}
+
+java_library_host {
+    name: "android_onboarding.contracts.annotations_host",
+    srcs: [
+        "*.kt",
+    ],
+    static_libs: [
+        "androidx.annotation_annotation",
+    ],
+}

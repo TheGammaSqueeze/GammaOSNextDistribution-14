@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Date: Thu, 29 Jul 2021 13:58:11 GMT
+Server: Apache/2.4.6 (CentOS) mod_jk/1.2.41 OpenSSL/1.0.1e-fips
+Last-Modified: Thu, 29 Jul 2021 01:06:41 GMT
+ETag: "7a81d5-5c838b7413794"
+Accept-Ranges: bytes
+Content-Length: 8028629
+Content-Type: application/zip
+

@@ -1,0 +1,40 @@
+# Copyright 2017 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "chromeos-lab-infrastructure"
+NAME = "provision_Cr50Update"
+PURPOSE = "Provision a system to the correct firmware version."
+TIME = "MEDIUM"
+TEST_CATEGORY = "System"
+TEST_CLASS = "provision"
+TEST_TYPE = "Server"
+DEPENDENCIES = "servo_state:WORKING,cr50-ro-keyid:prod"
+PY_VERSION = 3
+
+DOC = """
+This is a test used by the provision control segment in autoserv to set the
+cr50-version label of a host to the desired setting. This test attempts to
+reprogram the cr50 firmware and set the cr50 chip board id. Use the args
+from Cr50Test to specify the release image: release_ver, release_path, or
+the version saved in chromeos_cr50-QUAL_VERSION.
+
+@param release_path: local path to release image
+@param release_ver: release version 'RW/BID'
+@param cr50_dbg_image_path: local path to DBG image
+"""
+
+from autotest_lib.client.common_lib import utils
+
+if 'args_dict' not in locals():
+    args_dict = {}
+
+args_dict.update(utils.args_to_dict(args))
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test('provision_Cr50Update', host=host, cmdline_args=args,
+                 full_args=args_dict)
+
+job.parallel_simple(run, machines)

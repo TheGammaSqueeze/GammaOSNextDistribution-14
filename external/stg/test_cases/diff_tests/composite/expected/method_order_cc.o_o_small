@@ -1,0 +1,7 @@
+type 'struct S' changed
+  method 'y {_ZN1S1yEv}' changed
+    vtable offset changed from 1 to 2
+  method 'x {_ZN1S1xEv}' changed
+    vtable offset changed from 2 to 1
+
+exit code 4

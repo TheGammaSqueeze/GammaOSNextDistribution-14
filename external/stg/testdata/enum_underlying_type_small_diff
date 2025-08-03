@@ -1,0 +1,4 @@
+variable symbol 'enum { a = 1, } x' changed
+  type 'enum { a = 1, }' changed
+    underlying type changed from 'bob' to 'alice'
+

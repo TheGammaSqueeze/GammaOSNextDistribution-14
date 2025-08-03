@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<test desc="simple string, default separators">onetwothree, one</test>
+<test desc="simple string, colon separator">one  twothree, one  two</test>
+<test desc="blank string, default separators">, </test>
+<test desc="blank string, blank separators">, </test>
+<test desc="blank string, colon, x are separators">, </test>
+<test desc="all delimiter string, default separators">, </test>
+<test desc="all delimiter string, colon, x are separators">, </test>
+</out>

@@ -1,0 +1,834 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Lloyd Pique <lpique@google.com>
+Date: Thu, 10 Mar 2022 17:44:32 -0800
+Subject: [PATCH 2/6] client: Add message observer interface
+
+Client message observers 2/6
+
+Introduce a client message observer interface, strongly resembling the server
+protocol logger interface added in commit 450f06e2.
+
+This means a new pair of public API functions:
+
+* wl_display_create_client_observer(): allows a client to register an observer
+  function, which is called for messages that are received or sent.
+
+* wl_client_observer_destroy() which destroys the observer created by the prior
+  function.
+
+With these changes, a client can set and clear an observer at run-time, and can
+use it to log client messages to a location other than stderr.
+
+The existing protocol-logger-test has also been revised and extended to demonstrate
+using the new API for test use, to validate the sequence of messages sent and
+received by the client, on top of the existing checks to do the same for the
+server messages.
+
+Signed-off-by: Lloyd Pique <lpique@google.com>
+
+diff --git a/src/wayland-client-core.h b/src/wayland-client-core.h
+index ce91a6f..2aa72a4 100644
+--- a/src/wayland-client-core.h
++++ b/src/wayland-client-core.h
+@@ -285,6 +285,104 @@ wl_display_read_events(struct wl_display *display);
+ void
+ wl_log_set_handler_client(wl_log_func_t handler);
+ 
++/**
++ * The message type.
++ */
++enum wl_client_message_type {
++	/** The message is a request */
++	WL_CLIENT_MESSAGE_REQUEST,
++
++	/** The message is an event */
++	WL_CLIENT_MESSAGE_EVENT,
++};
++
++/**
++ * The message discard reason codes.
++ */
++enum wl_client_message_discarded_reason {
++	/** The message was handled normally, and not discarded. */
++	WL_CLIENT_MESSAGE_NOT_DISCARDED = 0,
++
++	/** The target was not alive at dispatch time */
++	WL_CLIENT_MESSAGE_DISCARD_DEAD_PROXY_ON_DISPATCH,
++
++	/** The target had no listener or dispatcher */
++	WL_CLIENT_MESSAGE_DISCARD_NO_LISTENER_ON_DISPATCH,
++};
++
++/**
++ * The structure used to communicate details about an observed message to the
++ * registered observers.
++ */
++struct wl_client_observed_message {
++	/** The target for the message */
++	struct wl_proxy *proxy;
++
++	/** The message opcode */
++	int message_opcode;
++
++	/** The protocol message structure */
++	const struct wl_message *message;
++
++	/** The count of arguments to the message */
++	int arguments_count;
++
++	/** The argument array for the messagge */
++	const union wl_argument *arguments;
++
++	/** The discard reason code */
++	enum wl_client_message_discarded_reason discarded_reason;
++
++	/**
++	 * The discard reason string, or NULL if the event was not discarded.
++	 *
++	 * This string is only for convenience for a observer that does
++	 * logging. The string values should not be considered stable, and
++	 * are not localized.
++	 */
++	const char *discarded_reason_str;
++};
++
++/**
++ * The signature for a client message observer function, as registered with
++ * wl_display_add_client_observer().
++ *
++ * \param user_data \c user_data pointer given when the observer was
++ *                  registered with \c wl_display_create_client_observer
++ * \param type      type of message
++ * \param message   details for the message
++ */
++typedef void (*wl_client_message_observer_func_t)(
++	void *user_data, enum wl_client_message_type type,
++	const struct wl_client_observed_message *message);
++
++/** \class wl_client_observer
++ *
++ * \brief Represents a client message observer
++ *
++ * A client observer allows the client to observe all request and event
++ * message traffic to and from the client. For events, the observer is
++ * also given a discard reason if the event wasn't handled.
++ *
++ * The typical use for the observer is to allow the client implementation to
++ * do its own debug logging, as the default when setting WAYLAND_DEBUG is to
++ * log to stderr.
++ *
++ * With this runtime call, the client can also enable and disable the observer
++ * at any time.
++ *
++ * The protocol-logger-test.c file has an example of a logger implementation.
++ */
++struct wl_client_observer;
++
++struct wl_client_observer *
++wl_display_create_client_observer(struct wl_display *display,
++				  wl_client_message_observer_func_t observer,
++				  void *user_data);
++
++void
++wl_client_observer_destroy(struct wl_client_observer *observer);
++
+ #ifdef  __cplusplus
+ }
+ #endif
+diff --git a/src/wayland-client.c b/src/wayland-client.c
+index ae47307..04b4f60 100644
+--- a/src/wayland-client.c
++++ b/src/wayland-client.c
+@@ -109,10 +109,19 @@ struct wl_display {
+ 	int reader_count;
+ 	uint32_t read_serial;
+ 	pthread_cond_t reader_cond;
++
++	struct wl_list observers;
+ };
+ 
+ /** \endcond */
+ 
++struct wl_client_observer {
++	struct wl_list link;
++	struct wl_display *display;
++	wl_client_message_observer_func_t func;
++	void *user_data;
++};
++
+ static int debug_client = 0;
+ 
+ /**
+@@ -151,6 +160,28 @@ adjust_closure_args_for_logging(struct wl_closure *closure, bool send)
+ 	}
+ }
+ 
++/**
++ * Maps the \c discard_reason to a string suitable for logging.
++ *
++ * \param discarded_reason  reason for discard
++ * \return A string describing the reason, or NULL.
++ *
++ */
++static const char *
++get_discarded_reason_str(
++	enum wl_client_message_discarded_reason discarded_reason)
++{
++	switch (discarded_reason) {
++	case WL_CLIENT_MESSAGE_NOT_DISCARDED:
++		return NULL;
++	case WL_CLIENT_MESSAGE_DISCARD_DEAD_PROXY_ON_DISPATCH:
++		return "dead proxy on dispatch";
++	case WL_CLIENT_MESSAGE_DISCARD_NO_LISTENER_ON_DISPATCH:
++		return "no listener on dispatch";
++	}
++	return NULL;
++}
++
+ /**
+  * This function helps log closures from the client, assuming logging is
+  * enabled.
+@@ -158,16 +189,18 @@ adjust_closure_args_for_logging(struct wl_closure *closure, bool send)
+  * \param closure    closure for the message
+  * \param proxy      proxy for the message
+  * \param send       true if this is closure is for a request
+- * \param discarded  true if this is message is being discarded
+- *
++ * \param discarded_reason  reason if the message is being discarded, or
++ *                          WL_CLIENT_MESSAGE_NOT_DISCARDED
+  */
+ static void
+ closure_log(struct wl_closure *closure, struct wl_proxy *proxy, bool send,
+-	    bool discarded)
++	    enum wl_client_message_discarded_reason discarded_reason)
+ {
++	struct wl_display *display = proxy->display;
++	const char *discarded_reason_str;
+ 	struct wl_closure adjusted_closure = { 0 };
+ 
+-	if (!debug_client)
++	if (!debug_client && wl_list_empty(&display->observers))
+ 		return;
+ 
+ 	// Note: The real closure has extra data (referenced by its args
+@@ -178,8 +211,30 @@ closure_log(struct wl_closure *closure, struct wl_proxy *proxy, bool send,
+ 	// Adjust the closure arguments.
+ 	adjust_closure_args_for_logging(&adjusted_closure, send);
+ 
+-	wl_closure_print(&adjusted_closure, &proxy->object, send,
+-			 discarded ? "" : NULL);
++	discarded_reason_str = get_discarded_reason_str(discarded_reason);
++
++	if (debug_client)
++		wl_closure_print(&adjusted_closure, &proxy->object, send,
++				 discarded_reason_str);
++
++	if (!wl_list_empty(&display->observers)) {
++		enum wl_client_message_type type =
++			send ? WL_CLIENT_MESSAGE_REQUEST
++			     : WL_CLIENT_MESSAGE_EVENT;
++		struct wl_client_observer *observer;
++		struct wl_client_observed_message message;
++
++		message.proxy = proxy;
++		message.message_opcode = adjusted_closure.opcode;
++		message.message = adjusted_closure.message;
++		message.arguments_count = adjusted_closure.count;
++		message.arguments = adjusted_closure.args;
++		message.discarded_reason = discarded_reason;
++		message.discarded_reason_str = discarded_reason_str;
++		wl_list_for_each(observer, &display->observers, link) {
++			observer->func(observer->user_data, type, &message);
++		}
++	}
+ }
+ 
+ /**
+@@ -952,7 +1007,7 @@ wl_proxy_marshal_array_flags(struct wl_proxy *proxy, uint32_t opcode,
+ 		goto err_unlock;
+ 	}
+ 
+-	closure_log(closure, proxy, true, false);
++	closure_log(closure, proxy, true, WL_CLIENT_MESSAGE_NOT_DISCARDED);
+ 
+ 	if (wl_closure_send(closure, proxy->display->connection)) {
+ 		wl_log("Error sending request: %s\n", strerror(errno));
+@@ -1259,6 +1314,7 @@ wl_display_connect_to_fd(int fd)
+ 	pthread_mutex_init(&display->mutex, NULL);
+ 	pthread_cond_init(&display->reader_cond, NULL);
+ 	display->reader_count = 0;
++	wl_list_init(&display->observers);
+ 
+ 	if (wl_map_insert_at(&display->objects, 0, 0, NULL) == -1)
+ 		goto err_connection;
+@@ -1388,6 +1444,7 @@ wl_display_disconnect(struct wl_display *display)
+ 	wl_map_release(&display->objects);
+ 	wl_event_queue_release(&display->default_queue);
+ 	wl_event_queue_release(&display->display_queue);
++	wl_list_remove(&display->observers);
+ 	pthread_mutex_destroy(&display->mutex);
+ 	pthread_cond_destroy(&display->reader_cond);
+ 	close(display->fd);
+@@ -1663,25 +1720,29 @@ dispatch_event(struct wl_display *display, struct wl_event_queue *queue)
+ 	proxy = closure->proxy;
+ 	proxy_destroyed = !!(proxy->flags & WL_PROXY_FLAG_DESTROYED);
+ 	if (proxy_destroyed) {
+-		closure_log(closure, proxy, false, true);
+-		destroy_queued_closure(closure);
+-		return;
+-	}
+-
+-	pthread_mutex_unlock(&display->mutex);
++		closure_log(closure, proxy, false,
++			    WL_CLIENT_MESSAGE_DISCARD_DEAD_PROXY_ON_DISPATCH);
++	} else if (proxy->dispatcher) {
++		closure_log(closure, proxy, false,
++			    WL_CLIENT_MESSAGE_NOT_DISCARDED);
+ 
+-	if (proxy->dispatcher) {
+-		closure_log(closure, proxy, false, false);
++		pthread_mutex_unlock(&display->mutex);
+ 		wl_closure_dispatch(closure, proxy->dispatcher,
+ 				    &proxy->object, opcode);
++		pthread_mutex_lock(&display->mutex);
+ 	} else if (proxy->object.implementation) {
+-		closure_log(closure, proxy, false, false);
++		closure_log(closure, proxy, false,
++			    WL_CLIENT_MESSAGE_NOT_DISCARDED);
++
++		pthread_mutex_unlock(&display->mutex);
+ 		wl_closure_invoke(closure, WL_CLOSURE_INVOKE_CLIENT,
+ 				  &proxy->object, opcode, proxy->user_data);
++		pthread_mutex_lock(&display->mutex);
++	} else {
++		closure_log(closure, proxy, false,
++			    WL_CLIENT_MESSAGE_DISCARD_NO_LISTENER_ON_DISPATCH);
+ 	}
+ 
+-	pthread_mutex_lock(&display->mutex);
+-
+ 	destroy_queued_closure(closure);
+ }
+ 
+@@ -2538,3 +2599,64 @@ wl_log_set_handler_client(wl_log_func_t handler)
+ {
+ 	wl_log_handler = handler;
+ }
++
++/** Creates an client message observer.
++ *
++ * Note that the observer can potentially start receiving traffic immediately
++ * after being created, and even before this call returns.
++ *
++ * \param display    client display to register with
++ * \param func       function to call when client messages are observed
++ * \param user_data  \c user_data pointer to pass to the observer
++ *
++ * \return The created observer, or NULL.
++ *
++ * \sa wl_client_observer_destroy
++ *
++ * \memberof wl_display
++ */
++
++WL_EXPORT struct wl_client_observer *
++wl_display_create_client_observer(struct wl_display *display,
++				  wl_client_message_observer_func_t func,
++				  void *user_data)
++{
++	struct wl_client_observer *observer;
++
++	observer = malloc(sizeof *observer);
++	if (!observer)
++		return NULL;
++
++	observer->display = display;
++	observer->func = func;
++	observer->user_data = user_data;
++
++	pthread_mutex_lock(&display->mutex);
++
++	wl_list_insert(&display->observers, &observer->link);
++
++	pthread_mutex_unlock(&display->mutex);
++
++	return observer;
++}
++
++/** Destroys a client message obsever.
++ *
++ * This function destroys a client message observer, and removes it from the
++ * display it was added to with \c wl_display_create_client_observer.
++ *
++ * \param observer observer to destroy.
++ *
++ * \memberof wl_client_observer
++ */
++WL_EXPORT void
++wl_client_observer_destroy(struct wl_client_observer *observer)
++{
++	pthread_mutex_lock(&observer->display->mutex);
++
++	wl_list_remove(&observer->link);
++
++	pthread_mutex_unlock(&observer->display->mutex);
++
++	free(observer);
++}
+diff --git a/tests/protocol-logger-test.c b/tests/protocol-logger-test.c
+index a0ebd22..3b9dc3e 100644
+--- a/tests/protocol-logger-test.c
++++ b/tests/protocol-logger-test.c
+@@ -29,12 +29,15 @@
+ #include <string.h>
+ #include <stdio.h>
+ #include <sys/un.h>
++#include <time.h>
+ #include <unistd.h>
+ 
+ #include "wayland-client.h"
+ #include "wayland-server.h"
+ #include "test-runner.h"
+ 
++#define ARRAY_LENGTH(a) (sizeof(a) / sizeof(a)[0])
++
+ /* Ensure the connection doesn't fail due to lack of XDG_RUNTIME_DIR. */
+ static const char *
+ require_xdg_runtime_dir(void)
+@@ -45,57 +48,146 @@ require_xdg_runtime_dir(void)
+ 	return val;
+ }
+ 
++struct expected_compositor_message {
++	enum wl_protocol_logger_type type;
++	const char *class;
++	int opcode;
++	const char *message_name;
++	int args_count;
++};
++
+ struct compositor {
+ 	struct wl_display *display;
+ 	struct wl_event_loop *loop;
+-	int message;
++	struct wl_protocol_logger *logger;
++
++	struct expected_compositor_message *expected_msg;
++	int expected_msg_count;
++	int actual_msg_count;
+ 	struct wl_client *client;
+ };
+ 
+-struct message {
+-	enum wl_protocol_logger_type type;
++struct expected_client_message {
++	enum wl_client_message_type type;
++	enum wl_client_message_discarded_reason discarded_reason;
+ 	const char *class;
+ 	int opcode;
+ 	const char *message_name;
+ 	int args_count;
+-} messages[] = {
+-	{
+-		.type = WL_PROTOCOL_LOGGER_REQUEST,
+-		.class = "wl_display",
+-		.opcode = 0,
+-		.message_name = "sync",
+-		.args_count = 1,
+-	},
+-	{
+-		.type = WL_PROTOCOL_LOGGER_EVENT,
+-		.class = "wl_callback",
+-		.opcode = 0,
+-		.message_name = "done",
+-		.args_count = 1,
+-	},
+-	{
+-		.type = WL_PROTOCOL_LOGGER_EVENT,
+-		.class = "wl_display",
+-		.opcode = 1,
+-		.message_name = "delete_id",
+-		.args_count = 1,
+-	},
+ };
+ 
++struct client {
++	struct wl_display *display;
++	struct wl_callback *cb;
++	struct wl_client_observer *sequence_observer;
++
++	struct expected_client_message *expected_msg;
++	int expected_msg_count;
++	int actual_msg_count;
++};
++
++#define ASSERT_LT(arg1, arg2, ...)                                            \
++	if (arg1 >= arg2)                                                     \
++		fprintf(stderr, __VA_ARGS__);                                 \
++	assert(arg1 < arg2)
++
++#define ASSERT_EQ(arg1, arg2, ...)                                            \
++	if (arg1 != arg2)                                                     \
++		fprintf(stderr, __VA_ARGS__);                                 \
++	assert(arg1 == arg2)
++
++#define ASSERT_STR_EQ(arg1, arg2, ...)                                        \
++	if (strcmp(arg1, arg2) != 0)                                          \
++		fprintf(stderr, __VA_ARGS__);                                 \
++	assert(strcmp(arg1, arg2) == 0)
++
+ static void
+-logger_func(void *user_data, enum wl_protocol_logger_type type,
+-	    const struct wl_protocol_logger_message *message)
++compositor_sequence_observer_func(
++	void *user_data, enum wl_protocol_logger_type actual_type,
++	const struct wl_protocol_logger_message *actual_msg)
+ {
+ 	struct compositor *c = user_data;
+-	struct message *msg = &messages[c->message++];
++	struct expected_compositor_message *expected_msg;
++	int actual_msg_count = c->actual_msg_count++;
++	char details_msg[256];
++
++	c->client = wl_resource_get_client(actual_msg->resource);
++
++	if (!c->expected_msg)
++		return;
++
++	ASSERT_LT(actual_msg_count, c->expected_msg_count,
++		  "actual count %d exceeds expected count %d\n",
++		  actual_msg_count, c->expected_msg_count);
++
++	expected_msg = &c->expected_msg[actual_msg_count];
++
++	snprintf(details_msg, sizeof details_msg,
++		 "compositor msg %d of %d actual [%d, '%s', %d, '%s', %d] vs "
++		 "expected [%d, '%s', %d, '%s', %d]\n",
++		 c->actual_msg_count, c->expected_msg_count, actual_type,
++		 wl_resource_get_class(actual_msg->resource),
++		 actual_msg->message_opcode, actual_msg->message->name,
++		 actual_msg->arguments_count, expected_msg->type,
++		 expected_msg->class, expected_msg->opcode,
++		 expected_msg->message_name, expected_msg->args_count);
+ 
+-	assert(msg->type == type);
+-	assert(strcmp(msg->class, wl_resource_get_class(message->resource)) == 0);
+-	assert(msg->opcode == message->message_opcode);
+-	assert(strcmp(msg->message_name, message->message->name) == 0);
+-	assert(msg->args_count == message->arguments_count);
++	ASSERT_EQ(expected_msg->type, actual_type, "type mismatch: %s",
++		  details_msg);
++	ASSERT_STR_EQ(expected_msg->class,
++		      wl_resource_get_class(actual_msg->resource),
++		      "class mismatch: %s", details_msg);
++	ASSERT_EQ(expected_msg->opcode, actual_msg->message_opcode,
++		  "opcode mismatch: %s", details_msg);
++	ASSERT_STR_EQ(expected_msg->message_name, actual_msg->message->name,
++		      "message name mismatch: %s", details_msg);
++	ASSERT_EQ(expected_msg->args_count, actual_msg->arguments_count,
++		  "arg count mismatch: %s", details_msg);
++}
++
++static void
++client_sequence_observer_func(
++	void *user_data, enum wl_client_message_type actual_type,
++	const struct wl_client_observed_message *actual_msg)
++{
++	struct client *c = user_data;
++	struct expected_client_message *expected_msg;
++	int actual_msg_count = c->actual_msg_count++;
++	char details_msg[256];
++
++	if (!c->expected_msg)
++		return;
++
++	ASSERT_LT(actual_msg_count, c->expected_msg_count,
++		  "actual count %d exceeds expected count %d\n",
++		  actual_msg_count, c->expected_msg_count);
++	expected_msg = &c->expected_msg[actual_msg_count];
+ 
+-	c->client = wl_resource_get_client(message->resource);
++	snprintf(details_msg, sizeof details_msg,
++		 "client msg %d of %d actual [%d, %d, '%s', %d, '%s', %d] vs "
++		 "expected [%d, %d, '%s', %d, '%s', %d]\n",
++		 c->actual_msg_count, c->expected_msg_count, actual_type,
++		 actual_msg->discarded_reason,
++		 wl_proxy_get_class(actual_msg->proxy),
++		 actual_msg->message_opcode, actual_msg->message->name,
++		 actual_msg->arguments_count, expected_msg->type,
++		 expected_msg->discarded_reason, expected_msg->class,
++		 expected_msg->opcode, expected_msg->message_name,
++		 expected_msg->args_count);
++
++	ASSERT_EQ(expected_msg->type, actual_type, "type mismatch: %s",
++		  details_msg);
++	ASSERT_EQ(expected_msg->discarded_reason, actual_msg->discarded_reason,
++		  "discarded reason mismatch: %s", details_msg);
++	ASSERT_STR_EQ(expected_msg->class,
++		      wl_proxy_get_class(actual_msg->proxy),
++		      "class mismatch: %s", details_msg);
++	ASSERT_EQ(expected_msg->opcode, actual_msg->message_opcode,
++		  "opcode mismatch: %s", details_msg);
++	ASSERT_STR_EQ(expected_msg->message_name, actual_msg->message->name,
++		      "message name mismatch: %s", details_msg);
++	ASSERT_EQ(expected_msg->args_count, actual_msg->arguments_count,
++		  "arg count mismatch: %s", details_msg);
+ }
+ 
+ static void
+@@ -108,41 +200,236 @@ static const struct wl_callback_listener callback_listener = {
+ 	callback_done,
+ };
+ 
++static void
++logger_setup(struct compositor *compositor, struct client *client)
++{
++	const char *socket;
++
++	require_xdg_runtime_dir();
++
++	compositor->display = wl_display_create();
++	compositor->loop = wl_display_get_event_loop(compositor->display);
++	socket = wl_display_add_socket_auto(compositor->display);
++
++	compositor->logger = wl_display_add_protocol_logger(
++		compositor->display, compositor_sequence_observer_func,
++		compositor);
++
++	client->display = wl_display_connect(socket);
++	client->sequence_observer = wl_display_create_client_observer(
++		client->display, client_sequence_observer_func, client);
++}
++
++static void
++logger_teardown(struct compositor *compositor, struct client *client)
++{
++	wl_client_observer_destroy(client->sequence_observer);
++	wl_display_disconnect(client->display);
++
++	wl_client_destroy(compositor->client);
++	wl_protocol_logger_destroy(compositor->logger);
++	wl_display_destroy(compositor->display);
++}
++
+ TEST(logger)
+ {
+ 	test_set_timeout(1);
+ 
+-	const char *socket;
++	struct expected_compositor_message compositor_messages[] = {
++		{
++			.type = WL_PROTOCOL_LOGGER_REQUEST,
++			.class = "wl_display",
++			.opcode = 0,
++			.message_name = "sync",
++			.args_count = 1,
++		},
++		{
++			.type = WL_PROTOCOL_LOGGER_EVENT,
++			.class = "wl_callback",
++			.opcode = 0,
++			.message_name = "done",
++			.args_count = 1,
++		},
++		{
++			.type = WL_PROTOCOL_LOGGER_EVENT,
++			.class = "wl_display",
++			.opcode = 1,
++			.message_name = "delete_id",
++			.args_count = 1,
++		},
++	};
++	struct expected_client_message client_messages[] = {
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 0,
++			.message_name = "sync",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 1,
++			.message_name = "delete_id",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_callback",
++			.opcode = 0,
++			.message_name = "done",
++			.args_count = 1,
++		},
++	};
+ 	struct compositor compositor = { 0 };
+-	struct {
+-		struct wl_display *display;
+-		struct wl_callback *cb;
+-	} client;
+-	struct wl_protocol_logger *logger;
++	struct client client = { 0 };
+ 
+-	require_xdg_runtime_dir();
++	logger_setup(&compositor, &client);
+ 
+-	compositor.display = wl_display_create();
+-	compositor.loop = wl_display_get_event_loop(compositor.display);
+-	socket = wl_display_add_socket_auto(compositor.display);
++	compositor.expected_msg = &compositor_messages[0];
++	compositor.expected_msg_count = ARRAY_LENGTH(compositor_messages);
+ 
+-	logger = wl_display_add_protocol_logger(compositor.display,
+-						logger_func, &compositor);
++	client.expected_msg = &client_messages[0];
++	client.expected_msg_count = ARRAY_LENGTH(client_messages);
+ 
+-	client.display = wl_display_connect(socket);
+ 	client.cb = wl_display_sync(client.display);
+ 	wl_callback_add_listener(client.cb, &callback_listener, NULL);
+ 	wl_display_flush(client.display);
+ 
+-	while (compositor.message < 3) {
++	while (compositor.actual_msg_count < compositor.expected_msg_count) {
+ 		wl_event_loop_dispatch(compositor.loop, -1);
+ 		wl_display_flush_clients(compositor.display);
+ 	}
+ 
+-	wl_display_dispatch(client.display);
+-	wl_display_disconnect(client.display);
++	while (client.actual_msg_count < client.expected_msg_count) {
++		wl_display_dispatch(client.display);
++	}
++
++	logger_teardown(&compositor, &client);
++}
++
++TEST(client_discards_if_dead_on_dispatch)
++{
++	test_set_timeout(1);
++
++	struct expected_client_message client_messages[] = {
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 0,
++			.message_name = "sync",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 1,
++			.message_name = "delete_id",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason =
++				WL_CLIENT_MESSAGE_DISCARD_DEAD_PROXY_ON_DISPATCH,
++			.class = "wl_callback",
++			.opcode = 0,
++			.message_name = "done",
++			.args_count = 1,
++		},
++	};
++	struct compositor compositor = { 0 };
++	struct client client = { 0 };
++
++	logger_setup(&compositor, &client);
++
++	compositor.expected_msg_count = 3;
++
++	client.expected_msg = &client_messages[0];
++	client.expected_msg_count = ARRAY_LENGTH(client_messages);
++
++	client.cb = wl_display_sync(client.display);
++	wl_callback_add_listener(client.cb, &callback_listener, NULL);
++	wl_display_flush(client.display);
++
++	while (compositor.actual_msg_count < compositor.expected_msg_count) {
++		wl_event_loop_dispatch(compositor.loop, -1);
++		wl_display_flush_clients(compositor.display);
++	}
++
++	wl_display_prepare_read(client.display);
++	wl_display_read_events(client.display);
++
++	// To get a WL_CLIENT_MESSAGE_DISCARD_DEAD_PROXY_ON_DISPATCH, we
++	// destroy the callback after reading client events, but before
++	// dispatching them.
++	wl_callback_destroy(client.cb);
++
++	while (client.actual_msg_count < client.expected_msg_count) {
++		wl_display_dispatch(client.display);
++	}
++
++	logger_teardown(&compositor, &client);
++}
++
++TEST(client_discards_if_no_listener_on_dispatch)
++{
++	test_set_timeout(1);
++
++	struct expected_client_message client_messages[] = {
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 0,
++			.message_name = "sync",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 1,
++			.message_name = "delete_id",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason =
++				WL_CLIENT_MESSAGE_DISCARD_NO_LISTENER_ON_DISPATCH,
++			.class = "wl_callback",
++			.opcode = 0,
++			.message_name = "done",
++			.args_count = 1,
++		},
++	};
++	struct compositor compositor = { 0 };
++	struct client client = { 0 };
++
++	logger_setup(&compositor, &client);
++
++	compositor.expected_msg_count = 3;
++
++	client.expected_msg = &client_messages[0];
++	client.expected_msg_count = ARRAY_LENGTH(client_messages);
++
++	client.cb = wl_display_sync(client.display);
++	wl_display_flush(client.display);
++
++	while (compositor.actual_msg_count < compositor.expected_msg_count) {
++		wl_event_loop_dispatch(compositor.loop, -1);
++		wl_display_flush_clients(compositor.display);
++	}
++
++	while (client.actual_msg_count < client.expected_msg_count) {
++		wl_display_dispatch(client.display);
++	}
++
++	wl_callback_destroy(client.cb);
+ 
+-	wl_client_destroy(compositor.client);
+-	wl_protocol_logger_destroy(logger);
+-	wl_display_destroy(compositor.display);
++	logger_teardown(&compositor, &client);
+ }

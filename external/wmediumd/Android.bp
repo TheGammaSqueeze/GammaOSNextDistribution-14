@@ -1,0 +1,179 @@
+package {
+    default_applicable_licenses: ["external_wmediumd_license"],
+}
+
+license {
+    name: "external_wmediumd_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+wmediumd_version = "0.3.1"
+
+cc_binary_host {
+    name: "wmediumd_gen_config",
+    srcs: [
+        "util/wmediumd_gen_config.c",
+    ],
+    static_libs: [
+        "libconfig",
+    ],
+    visibility: [
+        "//device/google/cuttlefish/build",
+    ],
+}
+
+cc_library_host_static {
+    name: "libwmediumd_server",
+    shared_libs: [
+        "libgflags",
+        "libgrpc++_unsecure",
+        "libprotobuf-cpp-full",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    generated_headers: [
+        "WmediumdServerProto_h",
+    ],
+    generated_sources: [
+        "WmediumdServerProto_cc",
+    ],
+    export_generated_headers: [
+        "WmediumdServerProto_h",
+    ],
+}
+
+filegroup {
+    name: "WmediumdServerProto",
+    srcs: [
+        "wmediumd_server/wmediumd.proto",
+    ],
+}
+
+// TODO(278065934): Add a module type for grpc service
+genrule {
+    name: "WmediumdServerProto_h",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-cpp-plugin",
+    ],
+    cmd: "$(location aprotoc) -Iexternal/wmediumd/wmediumd_server -Iexternal/protobuf/src --plugin=protoc-gen-grpc=$(location protoc-gen-grpc-cpp-plugin) $(location :WmediumdServerProto) --grpc_out=$(genDir) --cpp_out=$(genDir)",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":WmediumdServerProto",
+    ],
+    out: [
+        "wmediumd.grpc.pb.h",
+        "wmediumd.pb.h",
+    ],
+}
+
+genrule {
+    name: "WmediumdServerProto_cc",
+    tools: [
+        "aprotoc",
+        "protoc-gen-grpc-cpp-plugin",
+    ],
+    cmd: "$(location aprotoc) -Iexternal/wmediumd/wmediumd_server -Iexternal/protobuf/src --plugin=protoc-gen-grpc=$(location protoc-gen-grpc-cpp-plugin) $(location :WmediumdServerProto) --grpc_out=$(genDir) --cpp_out=$(genDir)",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":WmediumdServerProto",
+    ],
+    out: [
+        "wmediumd.grpc.pb.cc",
+        "wmediumd.pb.cc",
+    ],
+}
+
+java_library_host {
+    name: "WmediumdServerProto_java",
+    srcs: [
+        ":WmediumdServerProto",
+    ],
+    static_libs: [
+        "libprotobuf-java-full",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+        type: "full",
+        include_dirs: [
+            "external/protobuf/src",
+        ],
+    },
+}
+
+cc_binary_host {
+    name: "wmediumd",
+    srcs: [
+        "main.cc",
+        "wmediumd_server/wmediumd_server.cc",
+        "wmediumd/*.c",
+        "wmediumd/lib/*.c",
+    ],
+    local_include_dirs: [
+        "wmediumd/inc",
+    ],
+    cflags: [
+        "-g",
+        "-Wno-unused-parameter",
+        "-Wno-format-zero-length",
+        "-DCONFIG_LIBNL30",
+        "-DVERSION_STR=\"" + wmediumd_version + "\"",
+        "-Wno-pointer-arith",
+        "-Wno-unused-result",
+        "-Wno-gnu-variable-sized-type-not-at-end",
+        "-Wno-unused-function",
+    ],
+    shared_libs: [
+        "libbase",
+        "libnl",
+        "libgflags",
+        "libgrpc++_unsecure",
+        "libprotobuf-cpp-full",
+    ],
+    static_libs: [
+        "libconfig",
+        "libgrpc++_reflection",
+        "libwmediumd_server",
+    ],
+    cpp_std: "c++17",
+    visibility: [
+        "//device/google/cuttlefish/build",
+    ],
+}
+
+cc_binary_host {
+    name: "wmediumd_ack_test_client",
+    srcs: [
+        "tests/wmediumd_ack_test_client.c",
+    ],
+    local_include_dirs: [
+        "wmediumd/inc",
+    ],
+    visibility: [
+        "//device/google/cuttlefish/build",
+    ],
+    stl: "none",
+    static_executable: true,
+}
+
+cc_library_headers {
+    name: "wmediumd_headers",
+    export_include_dirs: [
+        ".",
+    ],
+    visibility: [
+        "//device/google/cuttlefish/host/libs/wmediumd_controller",
+        "//device/google/cuttlefish/host/commands/wmediumd_control",
+    ],
+    stl: "none",
+    host_supported: true,
+    vendor_available: true,
+}

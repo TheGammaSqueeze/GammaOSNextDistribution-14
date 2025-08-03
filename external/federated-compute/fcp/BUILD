@@ -1,0 +1,21 @@
+# Description
+# Federated Computation Platform (FCP) is a computational framework,
+# which allows to orchestrate decentralized computations across
+# large set of dynamically available nodes (e.g. mobile devices).
+
+package(
+    default_visibility = [":internal"],
+)
+
+exports_files([
+    "LICENSE",
+])
+
+package_group(
+    name = "internal",
+    includes = [
+    ],
+    packages = [
+        "//fcp/...",
+    ],
+)

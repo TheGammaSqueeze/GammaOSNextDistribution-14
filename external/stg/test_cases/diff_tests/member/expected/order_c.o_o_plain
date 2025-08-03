@@ -1,0 +1,21 @@
+variable symbol changed from 'struct { int one; int two; int three; int four; int five; int six; } v' to 'struct { int zero; int one; int two; double e; int three; double pi; int four; int five; int six; double tau; } v'
+  type changed from 'struct { int one; int two; int three; int four; int five; int six; }' to 'struct { int zero; int one; int two; double e; int three; double pi; int four; int five; int six; double tau; }'
+    byte size changed from 24 to 64
+    member 'int zero' was added
+    member 'int one' changed
+      offset changed from 0 to 32
+    member 'int two' changed
+      offset changed from 32 to 64
+    member 'double e' was added
+    member 'int three' changed
+      offset changed from 64 to 192
+    member 'double pi' was added
+    member 'int four' changed
+      offset changed from 96 to 320
+    member 'int five' changed
+      offset changed from 128 to 352
+    member 'int six' changed
+      offset changed from 160 to 384
+    member 'double tau' was added
+
+exit code 4

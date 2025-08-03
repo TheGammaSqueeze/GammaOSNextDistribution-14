@@ -1,0 +1,38 @@
+# Copyright 2022 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load("@rules_rust//rust:defs.bzl", "rust_docs")
+
+rust_docs(
+    name = "docs",
+
+    # These need to be kept in dependency order for inter-crate linking to
+    # work.
+    #
+    # TODO: b/295227522 - Add support to `rust_docs` to automatically processs
+    # crates in topological order.
+    crates = [
+        "//pw_format/rust:pw_format",
+        "//pw_status/rust:pw_status",
+        "//pw_stream/rust:pw_stream",
+        "//pw_varint/rust:pw_varint",
+        "//pw_tokenizer/rust:pw_tokenizer_core",
+        "//pw_tokenizer/rust:pw_tokenizer",
+        "//pw_log/rust:pw_log_backend_println",
+        "//pw_log/rust:pw_log_backend_printf",
+        "//pw_log/rust:pw_log_backend_api",
+        "//pw_log/rust:pw_log",
+        "//pw_base64/rust:pw_base64",
+    ],
+)

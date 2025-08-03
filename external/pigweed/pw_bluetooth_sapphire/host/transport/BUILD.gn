@@ -1,0 +1,97 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+import("$dir_pw_build/target_types.gni")
+import("$dir_pw_unit_test/test.gni")
+
+dir_public_transport =
+    "../../public/pw_bluetooth_sapphire/internal/host/transport"
+
+pw_source_set("transport") {
+  public = [
+    "$dir_public_transport/acl_data_channel.h",
+    "$dir_public_transport/acl_data_packet.h",
+    "$dir_public_transport/command_channel.h",
+    "$dir_public_transport/control_packets.h",
+    "$dir_public_transport/data_buffer_info.h",
+    "$dir_public_transport/emboss_control_packets.h",
+    "$dir_public_transport/emboss_packet.h",
+    "$dir_public_transport/error.h",
+    "$dir_public_transport/link_type.h",
+    "$dir_public_transport/packet.h",
+    "$dir_public_transport/sco_data_channel.h",
+    "$dir_public_transport/sco_data_packet.h",
+    "$dir_public_transport/slab_allocators.h",
+    "$dir_public_transport/transport.h",
+  ]
+
+  sources = [
+    "acl_data_channel.cc",
+    "acl_data_packet.cc",
+    "command_channel.cc",
+    "control_packets.cc",
+    "emboss_control_packets.cc",
+    "error.cc",
+    "link_type.cc",
+    "sco_data_channel.cc",
+    "sco_data_packet.cc",
+    "transport.cc",
+  ]
+
+  public_deps = [
+    "$dir_pw_async:dispatcher",
+    "$dir_pw_async:task",
+    "$dir_pw_bluetooth",
+    "$dir_pw_bluetooth:emboss_hci_group",
+    "$dir_pw_bluetooth:emboss_hci_test",
+    "$dir_pw_bluetooth_sapphire/host/common",
+    "$dir_pw_bluetooth_sapphire/host/hci-spec",
+    "$dir_pw_third_party/fuchsia:fit",
+  ]
+
+  public_configs = [ "$dir_pw_bluetooth_sapphire:public_include_path" ]
+}
+
+pw_source_set("testing") {
+  public = [
+    "$dir_public_transport/fake_sco_data_channel.h",
+    "$dir_public_transport/mock_acl_data_channel.h",
+  ]
+  sources = [
+    "fake_sco_data_channel.cc",
+    "mock_acl_data_channel.cc",
+  ]
+
+  public_deps = [ ":transport" ]
+}
+
+pw_test("tests") {
+  sources = [
+    "acl_data_channel_test.cc",
+    "command_channel_test.cc",
+    "emboss_control_packets_test.cc",
+    "emboss_packet_test.cc",
+    "packet_test.cc",
+    "sco_data_channel_test.cc",
+    "sco_data_packet_test.cc",
+    "slab_allocators_test.cc",
+    "transport_test.cc",
+  ]
+
+  deps = [
+    ":transport",
+    "$dir_pw_bluetooth_sapphire/host/testing",
+  ]
+}

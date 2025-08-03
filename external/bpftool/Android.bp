@@ -1,0 +1,67 @@
+
+package {
+    default_applicable_licenses: ["external_bpftool_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "external_bpftool_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD-2-Clause",
+        "SPDX-license-identifier-GPL-2.0-only",
+    ],
+    license_text: [
+        "LICENSE.BSD-2-Clause",
+        "LICENSE.GPL-2.0",
+    ],
+}
+
+cc_binary {
+    name: "bpftool",
+    defaults: ["elfutils_transitive_defaults"],
+    host_supported: true,
+    srcs: [
+        "src/*.c",
+        "src/kernel/bpf/disasm.c",
+    ],
+    exclude_srcs: [
+        "src/jit_disasm.c",
+    ],
+    local_include_dirs: [
+        "include",
+        "include/uapi",
+        "src/kernel/bpf"
+    ],
+    target: {
+        // There is an unfortunate interaction between the bionic uapi headers
+        // (also used by musl) and the kernel headers distributed with bpftool.
+        // The bionic uapi headers include <linux/compiler_types.h>, which they
+        // expect to be resolved to their own copy of compiler_types.h that
+        // includes compiler.h.  It instead resolves to the bpftool copy,
+        // which includes compiler-gcc.h directly, triggering an error if
+        // the _LINUX_COMPILER_H_ header guard is not already defined.  Hack
+        // around it by always including linux/compiler.h from the command line.
+        musl: {
+
+            cflags: ["-include linux/compiler.h"],
+        },
+        bionic: {
+            cflags: ["-include linux/compiler.h"],
+        },
+    },
+    static_libs: [
+        "libbpf",
+        "libcap",
+        "libelf",
+        "libz",
+    ],
+    cflags: [
+        "-DBPFTOOL_WITHOUT_SKELETONS",
+        "-DBPFTOOL_VERSION=\"5.16.0-c446fdacb10d\"",
+        "-DUSE_LIBCAP",
+        "-Wno-missing-field-initializers",
+        "-Wno-pointer-arith",
+        "-Wno-unused-parameter",
+    ]
+}

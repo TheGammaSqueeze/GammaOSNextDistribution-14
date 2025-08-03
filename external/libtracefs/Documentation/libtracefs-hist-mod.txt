@@ -1,0 +1,540 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_hist_add_sort_key, tracefs_hist_set_sort_key, tracefs_hist_sort_key_direction,
+tracefs_hist_add_name, tracefs_hist_append_filter, tracefs_hist_echo_cmd, tracefs_hist_command,
+tracefs_hist_get_name, tracefs_hist_get_event, tracefs_hist_get_system - Update and describe an event histogram
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_hist_add_sort_key*(struct tracefs_hist pass:[*]_hist_,
+			      const char pass:[*]_sort_key_);
+
+int *tracefs_hist_set_sort_key*(struct tracefs_hist pass:[*]_hist_,
+			      const char pass:[*]_sort_key_, _..._);
+int *tracefs_hist_sort_key_direction*(struct tracefs_hist pass:[*]_hist_,
+				    const char pass:[*]_sort_key_,
+				    enum tracefs_hist_sort_direction _dir_);
+
+int *tracefs_hist_add_name*(struct tracefs_hist pass:[*]_hist_, const char pass:[*]_name_);
+
+int *tracefs_hist_append_filter*(struct tracefs_hist pass:[*]_hist_,
+			       enum tracefs_filter _type_,
+			       const char pass:[*]_field_,
+			       enum tracefs_compare _compare_,
+			       const char pass:[*]_val_);
+
+int *tracefs_hist_echo_cmd*(struct trace_seq pass:[*]_s_, struct tracefs_instance pass:[*]_instance_,
+			  struct tracefs_hist pass:[*]_hist_,
+			  enum tracefs_hist_command _command_);
+
+int *tracefs_hist_command*(struct tracefs_instance pass:[*]_instance_,
+			 struct tracefs_hist pass:[*]_hist_,
+			 enum tracefs_hist_command _command_);
+
+const char pass:[*]*tracefs_hist_get_name*(struct tracefs_hist pass:[*]_hist_);
+
+const char pass:[*]*tracefs_hist_get_event*(struct tracefs_hist pass:[*]_hist_);
+
+const char pass:[*]*tracefs_hist_get_system*(struct tracefs_hist pass:[*]_hist_);
+
+--
+
+DESCRIPTION
+-----------
+Event histograms are created by the trigger file in the event directory.
+The syntax can be complex and difficult to get correct. This API handles the
+syntax, and facilitates the creation and interaction with the event histograms.
+See https://www.kernel.org/doc/html/latest/trace/histogram.html for more information.
+
+*tracefs_hist_add_sort_key*() will add a key to sort on. The _hist_ is the
+histogram descriptor to add the sort key to. The _sort_key_ is a string
+that must match either an already defined key of the histogram, or an already
+defined value. If _hist_  already has sorting keys (previously added) the new
+_sort_key_ will have lower priority(be secondary or so on) when sorting.
+
+*tracefs_hist_set_sort_key*() will reset the list of key to sort on. The _hist_ is
+the histogram descriptor to reset the sort key to. The _sort_key_ is a string
+that must match either an already defined key of the histogram, or an already
+defined value. Multiple sort keys may be added to denote a secondary, sort order
+and so on, but all sort keys must match an existing key or value, or be
+TRACEFS_HIST_HITCOUNT. The last parameter of *tracefs_hist_add_sort_key*() must
+be NULL.
+
+*tracefs_hist_sort_key_direction*() allows to change the direction of an
+existing sort key of _hist_. The _sort_key_ is the sort key to change, and
+_dir_ can be either TRACEFS_HIST_SORT_ASCENDING or TRACEFS_HIST_SORT_DESCENDING,
+to make the direction of the sort key either ascending or descending respectively.
+
+*tracefs_hist_add_name*() adds a name to a histogram. A histogram may be
+named and if the name matches between more than one event, and they have
+compatible keys, the multiple histograms with the same name will be merged
+into a single histogram (shown by either event's hist file). The _hist_
+is the histogram to name, and the _name_ is the name to give it.
+
+*tracefs_hist_append_filter*() creates a filter or appends to it for the
+histogram  event. Depending on _type_, it will build a string of tokens for
+parenthesis or logic statements, or it may add a comparison of _field_
+to _val_ based on _compare_.
+
+If _type_ is:
+*TRACEFS_FILTER_COMPARE*     -  See below
+*TRACEFS_FILTER_AND*         -  Append "&&" to the filter
+*TRACEFS_FILTER_OR*          -  Append "||" to the filter
+*TRACEFS_FILTER_NOT*         -  Append "!" to the filter
+*TRACEFS_FILTER_OPEN_PAREN*  -  Append "(" to the filter
+*TRACEFS_FILTER_CLOSE_PAREN* -  Append ")" to the filter
+
+_field_, _compare_, and _val_ are ignored unless _type_ is equal to
+*TRACEFS_FILTER_COMPARE*, then _compare_ will be used for the following:
+
+*TRACEFS_COMPARE_EQ* - _field_ == _val_
+
+*TRACEFS_COMPARE_NE* - _field_ != _val_
+
+*TRACEFS_COMPARE_GT* - _field_ > _val_
+
+*TRACEFS_COMPARE_GE* - _field_ >= _val_
+
+*TRACEFS_COMPARE_LT* - _field_ < _val_
+
+*TRACEFS_COMPARE_LE* - _field_ <pass:[=] _val_
+
+*TRACEFS_COMPARE_RE* - _field_ ~ "_val_" : where _field_ is a string.
+
+*TRACEFS_COMPARE_AND* - _field_ & _val_ : where _field_ is a flags field.
+
+*trace_hist_echo_cmd*() prints the commands needed to create the given histogram
+in the given _instance_, or NULL for the top level, into the _seq_.
+The command that is printed is described by _command_ and shows the functionality
+that would be done by *tracefs_hist_command*(3).
+
+*tracefs_hist_command*() is called to process a command on the histogram
+_hist_ for its event in the given _instance_, or NULL for the top level.
+The _cmd_ can be one of:
+
+*TRACEFS_HIST_CMD_START* or zero to start execution of the histogram.
+
+*TRACEFS_HIST_CMD_PAUSE* to pause the given histogram.
+
+*TRACEFS_HIST_CMD_CONT* to continue a paused histogram.
+
+*TRACEFS_HIST_CMD_CLEAR* to reset the values of a histogram.
+
+*TRACEFS_HIST_CMD_DESTROY* to destroy the histogram (undo a START).
+
+The below functions are wrappers to tracefs_hist_command() to make the
+calling conventions a bit easier to understand what is happening.
+
+KEY TYPES
+---------
+
+*tracefs_hist_alloc_nd*() and *tracefs_hist_add_key*() both add a key and requires
+that key to have a type. The types may be:
+
+*TRACEFS_HIST_KEY_NORMAL* or zero (0) which is to not modify the type.
+
+*TRACEFS_HIST_KEY_HEX* to display the key in hex.
+
+*TRACEFS_HIST_KEY_SYM* to display the key as a kernel symbol (if found). If
+the key is an address, this is useful as it will display the function names instead
+of just a number.
+
+*TRACEFS_HIST_KEY_SYM_OFFSET* similar to *TRACEFS_HIST_KEY_SYM* but will also include
+the offset of the function to match the exact address.
+
+*TRACEFS_HIST_KEY_SYSCALL* If the key is a system call "id" (the number passed from user
+space to the kernel to tell it what system call it is calling), then the name of
+the system call is displayed.
+
+*TRACEFS_HIST_KEY_EXECNAME* If "common_pid" is the key (the pid of the executing task),
+instead of showing the number, show the name of the running task.
+
+*TRACEFS_HIST_KEY_LOG* will display the key in a binary logarithmic scale.
+
+*TRACEFS_HIST_KEY_USECS* for use with "common_timestamp" or TRACEFS_HIST_TIMESTAMP,
+in which case it will show the timestamp in microseconds instead of nanoseconds.
+
+RETURN VALUE
+------------
+*tracefs_hist_get_name*() returns the name of the histogram or NULL on error.
+The returned string belongs to the histogram object and is freed with the histogram
+by *tracefs_hist_free*().
+
+*tracefs_hist_get_event*() returns the event name of the histogram or NULL on error.
+The returned string belongs to the histogram object and is freed with the histogram
+by *tracefs_hist_free*().
+
+*tracefs_hist_get_system*() returns the system name of the histogram or NULL on error.
+The returned string belongs to the histogram object and is freed with the histogram
+by *tracefs_hist_free*().
+
+*tracefs_hist_alloc_nd*() returns an allocated histogram descriptor which must
+be freed by *tracefs_hist_free*() or NULL on error.
+
+*tracefs_hist_get_name*(), *tracefs_hist_get_event*() and *tracefs_hist_get_system*()
+return strings owned by the histogram object.
+
+All the other functions return zero on success or -1 on error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <stdlib.h>
+#include <unistd.h>
+#include <tracefs.h>
+
+enum commands {
+	START,
+	PAUSE,
+	CONT,
+	RESET,
+	DELETE,
+	SHOW,
+};
+
+static void parse_system_event(char *group, char **system, char **event)
+{
+	*system = strtok(group, "/");
+	*event = strtok(NULL, "/");
+	if (!*event) {
+		*event = *system;
+		*system = NULL;
+	}
+}
+
+static int parse_keys(char *keys, struct tracefs_hist_axis **axes)
+{
+	char *sav = NULL;
+	char *key;
+	int cnt = 0;
+
+	for (key = strtok_r(keys, ",", &sav); key; key = strtok_r(NULL, ",", &sav)) {
+		struct tracefs_hist_axis *ax;
+		char *att;
+
+		ax = realloc(*axes, sizeof(*ax) * (cnt + 2));
+		if (!ax) {
+			perror("Failed to allocate axes");
+			exit(-1);
+		}
+		ax[cnt].key = key;
+		ax[cnt].type = 0;
+		ax[cnt + 1].key = NULL;
+		ax[cnt + 1].type = 0;
+
+		*axes = ax;
+
+		att = strchr(key, '.');
+		if (att) {
+			*att++ = '\0';
+			if (strcmp(att, "hex") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_HEX;
+			else if (strcmp(att, "sym") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_SYM;
+			else if (strcmp(att, "sym_offset") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_SYM_OFFSET;
+			else if (strcmp(att, "syscall") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_SYSCALL;
+			else if (strcmp(att, "exec") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_EXECNAME;
+			else if (strcmp(att, "log") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_LOG;
+			else if (strcmp(att, "usecs") == 0)
+				ax[cnt].type = TRACEFS_HIST_KEY_USECS;
+			else {
+				fprintf(stderr, "Undefined attribute '%s'\n", att);
+				fprintf(stderr,"  Acceptable attributes:\n");
+				fprintf(stderr,"    hex, sym, sym_offset, syscall, exe, log, usecs\n");
+				exit(-1);
+			}
+		}
+		cnt++;
+	}
+	return cnt;
+}
+
+static void process_hist(enum commands cmd, const char *instance_name,
+			 char *group, char *keys, char *vals, char *sort,
+			 char *ascend, char *desc)
+{
+	struct tracefs_instance *instance = NULL;
+	struct tracefs_hist *hist;
+	struct tep_handle *tep;
+	struct tracefs_hist_axis *axes = NULL;
+	char *system;
+	char *event;
+	char *sav;
+	char *val;
+	int ret;
+	int cnt;
+
+	if (instance_name) {
+		instance = tracefs_instance_create(instance_name);
+		if (!instance) {
+			fprintf(stderr, "Failed instance create\n");
+			exit(-1);
+		}
+	}
+
+	tep = tracefs_local_events(NULL);
+	if (!tep) {
+		perror("Could not read events");
+		exit(-1);
+	}
+
+	parse_system_event(group, &system, &event);
+
+	if (cmd == SHOW) {
+		char *content;
+		content = tracefs_event_file_read(instance, system, event,
+						  "hist", NULL);
+		if (!content) {
+			perror("Reading hist file");
+			exit(-1);
+		}
+		printf("%s\n", content);
+		free(content);
+		return;
+	}
+
+	if (!keys) {
+		fprintf(stderr, "Command needs -k option\n");
+		exit(-1);
+	}
+
+	cnt = parse_keys(keys, &axes);
+	if (!cnt) {
+		fprintf(stderr, "No keys??\n");
+		exit(-1);
+	}
+
+	/* Show examples of hist1d and hist2d */
+	switch (cnt) {
+	case 1:
+		hist = tracefs_hist_alloc(tep, system, event,
+					  axes[0].key, axes[0].type);
+		break;
+	case 2:
+		hist = tracefs_hist_alloc_2d(tep, system, event,
+					     axes[0].key, axes[0].type,
+					     axes[1].key, axes[1].type);
+		break;
+	default:
+		/* Really, 1 and 2 could use this too */
+		hist = tracefs_hist_alloc_nd(tep, system, event, axes);
+	}
+	if (!hist) {
+		fprintf(stderr, "Failed hist create\n");
+		exit(-1);
+	}
+
+	if (vals) {
+		sav = NULL;
+		for (val = strtok_r(vals, ",", &sav); val; val = strtok_r(NULL, ",", &sav)) {
+			ret = tracefs_hist_add_value(hist, val);
+			if (ret) {
+				fprintf(stderr, "Failed to add value %s\n", val);
+				exit(-1);
+			}
+		}
+	}
+
+	if (sort) {
+		sav = NULL;
+		for (val = strtok_r(sort, ",", &sav); val; val = strtok_r(NULL, ",", &sav)) {
+			ret = tracefs_hist_add_sort_key(hist, val);
+			if (ret) {
+				fprintf(stderr, "Failed to add sort key/val %s\n", val);
+				exit(-1);
+			}
+		}
+	}
+
+	if (ascend) {
+		sav = NULL;
+		for (val = strtok_r(ascend, ",", &sav); val; val = strtok_r(NULL, ",", &sav)) {
+			ret = tracefs_hist_sort_key_direction(hist, val, TRACEFS_HIST_SORT_ASCENDING);
+			if (ret) {
+				fprintf(stderr, "Failed to add ascending key/val %s\n", val);
+				exit(-1);
+			}
+		}
+	}
+
+	if (desc) {
+		sav = NULL;
+		for (val = strtok_r(desc, ",", &sav); val; val = strtok_r(NULL, ",", &sav)) {
+			ret = tracefs_hist_sort_key_direction(hist, val, TRACEFS_HIST_SORT_DESCENDING);
+			if (ret) {
+				fprintf(stderr, "Failed to add descending key/val %s\n", val);
+				exit(-1);
+			}
+		}
+	}
+
+	tracefs_error_clear(instance);
+
+	switch (cmd) {
+	case START:
+		ret = tracefs_hist_start(instance, hist);
+		if (ret) {
+			char *err = tracefs_error_last(instance);
+			if (err)
+				fprintf(stderr, "\n%s\n", err);
+		}
+		break;
+	case PAUSE:
+		ret = tracefs_hist_pause(instance, hist);
+		break;
+	case CONT:
+		ret = tracefs_hist_continue(instance, hist);
+		break;
+	case RESET:
+		ret = tracefs_hist_reset(instance, hist);
+		break;
+	case DELETE:
+		ret = tracefs_hist_destroy(instance, hist);
+		break;
+	case SHOW:
+		/* Show was already done */
+		break;
+	}
+	if (ret)
+		fprintf(stderr, "Failed: command\n");
+	exit(ret);
+}
+
+int main (int argc, char **argv, char **env)
+{
+	enum commands cmd;
+	char *instance = NULL;
+	char *cmd_str;
+	char *event = NULL;
+	char *keys = NULL;
+	char *vals = NULL;
+	char *sort = NULL;
+	char *desc = NULL;
+	char *ascend = NULL;
+
+	if (argc < 2) {
+		fprintf(stderr, "usage: %s command [-B instance][-e [system/]event][-k keys][-v vals][-s sort]\n", argv[0]);
+		fprintf(stderr, "      [-a ascending][-d descending]\n");
+		exit(-1);
+	}
+
+	cmd_str = argv[1];
+
+	if (!strcmp(cmd_str, "start"))
+		cmd = START;
+	else if (!strcmp(cmd_str, "pause"))
+		cmd = PAUSE;
+	else if (!strcmp(cmd_str, "cont"))
+		cmd = CONT;
+	else if (!strcmp(cmd_str, "reset"))
+		cmd = RESET;
+	else if (!strcmp(cmd_str, "delete"))
+		cmd = DELETE;
+	else if (!strcmp(cmd_str, "show"))
+		cmd = SHOW;
+	else {
+		fprintf(stderr, "Unknown command %s\n", cmd_str);
+		exit(-1);
+	}
+
+	for (;;) {
+		int c;
+
+		c = getopt(argc - 1, argv + 1, "e:k:v:B:s:d:a:");
+		if (c == -1)
+			break;
+
+		switch (c) {
+		case 'e':
+			event = optarg;
+			break;
+		case 'k':
+			keys = optarg;
+			break;
+		case 'v':
+			vals = optarg;
+			break;
+		case 'B':
+			instance = optarg;
+			break;
+		case 's':
+			sort = optarg;
+			break;
+		case 'd':
+			desc = optarg;
+			break;
+		case 'a':
+			ascend = optarg;
+			break;
+		}
+	}
+	if (!event) {
+		event = "kmem/kmalloc";
+		if (!keys)
+			keys = "call_site.sym,bytes_req";
+		if (!vals)
+			vals = "bytes_alloc";
+		if (!sort)
+			sort = "bytes_req,bytes_alloc";
+		if (!desc)
+			desc = "bytes_alloc";
+	}
+	process_hist(cmd, instance, event, keys, vals, sort, ascend, desc);
+}
+--
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1),
+*tracefs_hist_pause*(3),
+*tracefs_hist_continue*(3),
+*tracefs_hist_reset*(3)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+*sameeruddin shaik* <sameeruddin.shaik8@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

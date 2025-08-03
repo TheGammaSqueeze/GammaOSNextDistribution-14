@@ -1,0 +1,19 @@
+name: "epoll"
+description: "Safe epoll interface."
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/epoll"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/epoll/epoll-4.3.3.crate"
+  }
+  version: "4.3.3"
+  license_type: RECIPROCAL
+  last_upgrade_date {
+    year: 2023
+    month: 8
+    day: 23
+  }
+}

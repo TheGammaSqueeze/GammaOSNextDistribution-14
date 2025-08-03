@@ -1,0 +1,35 @@
+From 87e967d443c698e097bfd35c53cdc6479ee92980 Mon Sep 17 00:00:00 2001
+From: Edward Liaw <edliaw@google.com>
+Date: Tue, 19 Apr 2022 23:06:36 +0000
+Subject: [PATCH 12/20] rtctest: Disable incompatible tests
+
+Do not run unnecessary or incompatible rtc tests on Android.
+
+(cherry picked from commit 95b95a72b438f8efc105091f6122d0e99fd880b0)
+---
+ tools/testing/selftests/rtc/rtctest.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/tools/testing/selftests/rtc/rtctest.c b/tools/testing/selftests/rtc/rtctest.c
+index 2b9d929a24ed..0d2674b43cad 100644
+--- a/tools/testing/selftests/rtc/rtctest.c
++++ b/tools/testing/selftests/rtc/rtctest.c
+@@ -115,6 +115,7 @@ TEST_F_TIMEOUT(rtc, date_read_loop, READ_LOOP_DURATION_SEC + 2) {
+ 	TH_LOG("Performed %ld RTC time reads.", iter_count);
+ }
+ 
++#ifndef __ANDROID__ // b/31578457
+ TEST_F_TIMEOUT(rtc, uie_read, NUM_UIE + 2) {
+ 	int i, rc, irq = 0;
+ 	unsigned long data;
+@@ -378,6 +379,7 @@ TEST_F_TIMEOUT(rtc, alarm_wkalm_set_minute, 65) {
+ 	new = timegm((struct tm *)&tm);
+ 	ASSERT_EQ(new, secs);
+ }
++#endif
+ 
+ static void __attribute__((constructor))
+ __constructor_order_last(void)
+-- 
+2.42.0.609.gbb76f46606-goog
+

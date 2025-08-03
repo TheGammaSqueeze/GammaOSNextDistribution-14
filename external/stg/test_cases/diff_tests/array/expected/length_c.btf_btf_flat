@@ -1,0 +1,13 @@
+function symbol 'void baz(const struct foo*)' changed
+  type 'void(const struct foo*)' changed
+    parameter 1 type 'const struct foo*' changed
+      pointed-to type 'const struct foo' changed
+        underlying type 'struct foo' changed
+
+type 'struct foo' changed
+  byte size changed from 4 to 8
+  member changed from 'int bar[1]' to 'int bar[2]'
+    type changed from 'int[1]' to 'int[2]'
+      number of elements changed from 1 to 2
+
+exit code 4

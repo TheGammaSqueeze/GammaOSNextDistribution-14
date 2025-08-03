@@ -1,0 +1,45 @@
+[package]
+name = "anes"
+version = "0.2.0"
+authors = [
+  "Robert Vojta <rvojta@me.com>",
+  "Andrew Walbran <qwandor@google.com>",
+]
+edition = "2021"
+description = "ANSI Escape Sequences provider & parser"
+repository = "https://github.com/qwandor/anes-rs"
+documentation = "https://docs.rs/anes/"
+license = "MIT OR Apache-2.0"
+categories = ["command-line-interface", "parser-implementations"]
+keywords = ["terminal", "ansi", "sequence", "code", "parser"]
+exclude = ["target", "Cargo.lock"]
+readme = "README.md"
+
+[lib]
+bench = false
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+default = []
+parser = ["bitflags"]
+
+[dependencies]
+bitflags = { version = "2.4.1", optional = true }
+
+[dev-dependencies]
+criterion = "0.5.1"
+libc = "0.2.150"
+
+[[bench]]
+name = "bench_main"
+harness = false
+required-features = ["parser"]
+
+[[example]]
+name = "parser"
+required-features = ["parser"]

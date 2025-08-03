@@ -1,0 +1,313 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licensNew.javaues/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This is manually maintained and automatically included into the Android.bp by the gn2bp script.
+
+license {
+    name: "external_cronet_license",
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-BSD-3-Clause",
+        "SPDX-license-identifier-BSD-Source-Code",
+        "SPDX-license-identifier-BSD-2-Clause",
+        "SPDX-license-identifier-BSD-4-Clause",
+        "SPDX-license-identifier-BSL-1.0",
+        "SPDX-license-identifier-ICU",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-MPL",
+        "SPDX-license-identifier-MPL-1.1",
+        "SPDX-license-identifier-MPL-2.0",
+        "SPDX-license-identifier-NCSA",
+        // "SPDX-license-identifier-GPL-2.0-with-autoconf-exception", // ICU TODO(aymanm): Reapply those once aosp/2470343 is merged
+        // "SPDX-license-identifier-GPL-3.0-with-autoconf-exception", // ICU TODO(aymanm): Reapply those once aosp/2470343 is merged
+        "SPDX-license-identifier-OpenSSL",
+        "SPDX-license-identifier-Unicode-DFS-2016",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+java_library {
+    // Don't change the name of the module.
+    name: "cronet_aml_api_java",
+    static_libs: [
+        "cronet_aml_components_cronet_android_cronet_api_java",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+        "//external/cronet/android:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+java_library {
+    // Don't change the name of the module.
+    name: "cronet_aml_java",
+    static_libs: [
+        "cronet_aml_components_cronet_android_cronet_impl_native_base_java",
+        "cronet_aml_components_cronet_android_cronet_jni_registration_java"
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+        "//external/cronet/android:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+java_library {
+    // Don't change the name of the module.
+    name: "cronet_aml_java__testing",
+    static_libs: [
+        "cronet_aml_components_cronet_android_cronet_impl_native_base_java__testing",
+        "cronet_aml_components_cronet_android_cronet_jni_registration_java__testing",
+        "cronet_aml_components_cronet_android_cronet_tests_jni_registration_java__testing"
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+        "//external/cronet/android:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+// ------------------------------ NATIVE TEST TARGETS --------------------------------------------
+
+java_defaults {
+    name: "cronet_native_unittests_defaults",
+    defaults: [
+        "mts-target-sdk-version-current",
+    ],
+    asset_dirs: [
+        "third_party/icu/android",
+    ],
+    aaptflags: ["-0 .dat"],
+    compile_multilib: "both",
+    min_sdk_version: "31", // b/270049141
+    static_libs: [
+        "cronet_aml_testing_android_native_test_native_test_java__testing",
+        "cronet_aml_java__testing",
+        "androidx.annotation_annotation",
+        "junit",
+    ],
+}
+
+java_library {
+    name: "cronet_for_testing_net_java",
+    static_libs: [
+        "cronet_aml_net_android_net_test_support_provider_java__testing",
+        "cronet_aml_net_android_net_java_test_support__testing",
+        "cronet_aml_net_android_net_tests_java__testing"
+    ],
+}
+
+filegroup {
+    name: "net_unittests_data",
+    srcs: [
+        "net/data/**/*",
+        "net/third_party/nist-pkits/**/*",
+        "net/third_party/quiche/src/quiche/common/platform/api/testdir/**/*",
+        "third_party/anonymous_tokens/src/anonymous_tokens/testdata/**/*",
+    ],
+}
+
+android_test_helper_app {
+    name: "cronet_tester_app",
+    defaults: [
+        "cronet_native_unittests_defaults",
+    ],
+    manifest: "test_runner/AndroidManifest.xml",
+    jni_libs: [
+        "cronet_aml_components_cronet_android_cronet_unittests_android__library__testing",
+    ],
+    static_libs: ["cronet_aml_java__testing"],
+}
+
+android_test_helper_app {
+    name: "cronet_net_tester_app",
+    defaults: [
+        "cronet_native_unittests_defaults",
+    ],
+    manifest: "test_runner/AndroidNetManifest.xml",
+    jni_libs: [
+        "cronet_aml_net_net_unittests__library__testing",
+    ],
+    static_libs: ["cronet_for_testing_net_java"],
+    resource_dirs : [
+        "net/android/unittest_support/res",
+    ],
+}
+
+filegroup {
+  name: "cronet_javatests_resources",
+  srcs: [
+    "net/data/ssl/certificates/**/*",
+    "components/cronet/testing/test_server/data/**/*",
+  ],
+  visibility: [
+      "//packages/modules/Connectivity:__subpackages__",
+  ],
+}
+
+android_library {
+    name: "cronet_java_tests",
+    manifest: "components/cronet/android/test/src/org/chromium/net/AndroidManifest.xml",
+    srcs: [
+        ":cronet_logger_tests_sources",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    static_libs: [
+        "cronet_aml_components_cronet_android_cronet_javatests__testing",
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "cronet_aml_java__testing",
+        "cronet_experimental_options",
+        "cronet_rate_limiter",
+        "cronet_size_buckets",
+        "cronetstatslog_autogenerated_methods",
+        "guava",
+        "hamcrest-library",
+        "junit",
+        "net-tests-utils",
+        "truth",
+    ],
+    libs: [
+        "android.test.base",
+        "cronet_aml_api_java",
+        "framework-connectivity",
+        "framework-connectivity-pre-jarjar",
+        // android.net.TrafficStats apis
+        "framework-connectivity-t",
+        "guava",
+    ],
+    lint: { test: true },
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+    ],
+}
+
+// ------------------------------ TELEMETRY TARGETS --------------------------------------------
+
+genrule {
+  name: "statslog-cronet-java-gen",
+  tools: ["stats-log-api-gen"],
+  cmd: "$(location stats-log-api-gen) --java $(out) --module cronet --javaPackage android.net.http --javaClass CronetStatsLog",
+  out: ["android/net/http/CronetStatsLog.java"],
+}
+
+java_library {
+    name: "cronetstatslog_autogenerated_methods",
+    srcs: [
+        ":statslog-cronet-java-gen",
+    ],
+    libs: [
+        "framework-statsd",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+java_library {
+    name: "cronet_experimental_options",
+    srcs: [
+        "android/java/src/android/net/http/ExperimentalOptions.java",
+    ],
+    libs: [
+        "cronetstatslog_autogenerated_methods",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+java_library {
+    name: "cronet_rate_limiter",
+    srcs: [
+        "android/java/src/android/net/http/RateLimiter.java",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+java_library {
+    name: "cronet_size_buckets",
+    srcs: [
+        "android/java/src/android/net/http/SizeBuckets.java",
+    ],
+    libs: [
+        "cronetstatslog_autogenerated_methods",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.tethering",
+    ],
+}
+
+java_library {
+    name: "http_client_logging",
+    srcs: [
+        "android/java/src/android/net/http/CronetLoggerImpl.java",
+    ],
+    static_libs: [
+        "cronetstatslog_autogenerated_methods",
+        "cronet_experimental_options",
+        "cronet_rate_limiter",
+        "cronet_size_buckets",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "cronet_aml_java",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.tethering",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+    ],
+}
+
+filegroup {
+   name: "cronet_logger_tests_sources",
+   srcs: [
+        "android/javatests/src/android/net/http/SizeBucketsTest.java",
+        "android/javatests/src/android/net/http/RateLimiterTest.java",
+        "android/javatests/src/android/net/http/ExperimentalOptionsTest.java",
+    ],
+}

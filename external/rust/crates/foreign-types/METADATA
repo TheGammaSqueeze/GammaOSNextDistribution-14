@@ -1,0 +1,20 @@
+name: "foreign-types"
+description: "A framework for Rust wrappers over C APIs"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/foreign-types"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/foreign-types/foreign-types-0.3.1.crate"
+  }
+  version: "0.3.1"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 4
+    day: 27
+  }
+}

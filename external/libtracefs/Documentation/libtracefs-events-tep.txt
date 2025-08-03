@@ -1,0 +1,148 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_local_events, tracefs_local_events_system, tracefs_fill_local_events,
+tracefs_load_cmdlines -
+Initialize a tep handler with trace events from the local system.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+struct tep_handle pass:[*]*tracefs_local_events*(const char pass:[*]_tracing_dir_);
+struct tep_handle pass:[*]*tracefs_local_events_system*(const char pass:[*]_tracing_dir_, const char pass:[*] const pass:[*]_sys_names_);
+int *tracefs_fill_local_events*(const char pass:[*]_tracing_dir_, struct tep_handle pass:[*]_tep_, int pass:[*]_parsing_failures_);
+int *tracefs_load_cmdlines*(const char pass:[*]_tracing_dir_, struct tep_handle pass:[*]_tep_);
+--
+
+DESCRIPTION
+-----------
+Functions for initializing a tep handler with trace events from the local system.
+
+The *tracefs_local_events()* function allocates a new _tep_ handler and
+initializes it with events from all trace systems, located in the given
+_tracing_dir_ directory. This could be NULL or the location of the tracefs
+mount point for the trace systems of the local machine, or it may be a path
+to a copy of the tracefs directory from another machine.
+
+The *tracefs_local_events_system()* function allocates a new _tep_ handler
+and initializes it with events from specified trace systems _sys_names_,
+located in the given _tracing_dir_ directory. This could be NULL or the
+location of the tracefs mount point for the trace systems of the local
+machine, or it may be a path to a copy of the tracefs directory from another
+machine. The _sys_names_ argument is an array of trace system names, that
+will be used for _tep_ handler initialization. The last element in that
+array must be a NULL pointer.
+
+The *tracefs_fill_local_events()* function initializes already allocated _tep_
+handler with events from all trace systems, located in the given _tracing_dir_
+directory. This could be NULL or the location of the tracefs mount point
+for the trace systems of the local machine, or it may be a path to a copy
+of the tracefs directory from another machine. The _tep_ argument must be
+a pointer to already allocated tep handler, that is going to be initialized.
+The _parsing_failures_ argument could be NULL or a pointer to an integer,
+where the number of failures while parsing the event files are returned.
+
+The above functions will also load the mappings between pids and the process
+command line names. In some cases the _tep_ handle is created with one
+of the above before tracing begins. As the mappings get updated during the
+trace, there may be a need to read the mappings again after the trace.
+The *tracefs_load_cmdlines()* does just that. The _tracing_dir_ is
+the directory of the mount point to load from, or NULL to use the
+mount point of the tracefs file system.
+
+RETURN VALUE
+------------
+The *tracefs_local_events()* and *tracefs_local_events_system()* functions
+return pointer to allocated and initialized _tep_ handler, or NULL in
+case of an error. The returned _tep_ handler must be freed with *tep_free*(3).
+
+The *tracefs_fill_local_events()* function returns -1 in case of an error or
+0 otherwise.
+
+The *tracefs_load_cmdlines()* function returns -1 in case of an error, or
+0 otherwise.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+
+struct tep_handle *tep;
+...
+	tep = tracefs_local_events(NULL);
+	if (!tep) {
+		/* Failed to initialise tep handler with local events from top instance */
+		...
+	}
+...
+	tep_free(tep);
+...
+	const char *systems[] = {"ftrace", "irq", NULL};
+	tep = tracefs_local_events_system(NULL, systems);
+	if (!tep) {
+		/* Failed to initialise tep handler with local events from
+		 * ftrace and irq systems in top instance.
+		 */
+		...
+	}
+...
+	tep_free(tep);
+...
+	int parsing_failures;
+	tep = tep_alloc();
+	if (!tep) {
+		/* Failed to allocate a tep handler */
+		...
+	}
+	if (tracefs_fill_local_events(NULL, tep, &parsing_failures) < 0) {
+		/* Failed to initialise tep handler with local events from top instance */
+	}
+	tracefs_load_cmdlines(NULL, tep);
+...
+	tep_free(tep);
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

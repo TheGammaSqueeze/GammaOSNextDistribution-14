@@ -1,0 +1,57 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/status.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// The type of persistence guarantee that PersistToDisk should provide.
+// Next tag: 3
+message PersistType {
+  enum Code {
+    // Default. Should never be used.
+    UNKNOWN = 0;
+
+    // Only persist the ground truth. A successful PersistToDisk(LITE) should
+    // ensure that no data is lost the next time Icing initializes. This
+    // should be called after each batch of mutations.
+    LITE = 1;
+
+    // Persists all data in internal Icing components. A successful
+    // PersistToDisk(FULL) should not only ensure no data loss like
+    // PersistToDisk(LITE), but also prevent the need to recover internal data
+    // structures the next time Icing initializes. This should be called at
+    // some point before the app terminates.
+    FULL = 2;
+  }
+  optional Code code = 1;
+}
+
+// Result of a call to IcingSearchEngine.Persist
+// Next tag: 2
+message PersistToDiskResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  optional StatusProto status = 1;
+}

@@ -1,0 +1,210 @@
+package {
+    default_applicable_licenses: ["external_openscreen_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change filtered out the below license kinds as false-positives:
+//   SPDX-license-identifier-GPL-2.0
+//   SPDX-license-identifier-LGPL-2.1
+//   SPDX-license-identifier-MPL
+// See: http://go/android-license-faq
+license {
+    name: "external_openscreen_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-NCSA",
+        "SPDX-license-identifier-OpenSSL",
+        "SPDX-license-identifier-Zlib",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "openscreen_defaults",
+
+    cflags: [
+        "-O2",
+        "-g",
+        "-fno-strict-aliasing",
+        "-W",
+        "-Wall",
+        "-Wextra",
+        "-Wno-address-of-packed-member",
+        "-Wno-array-bounds",
+        "-Wno-pointer-sign",
+        "-Wno-unused",
+        "-Wno-unused-but-set-variable",
+        "-Wno-unused-parameter",
+        "-Wno-missing-field-initializers",
+        "-Werror=implicit-function-declaration",
+        "-D_DEBUG",
+        "-DOPENSCREEN_TEST_DATA_DIR=\"$ANDROID_BUILD_TOP/external/openscreen/test/data/\"",
+    ],
+    cppflags: [
+        "-fno-exceptions",
+        "-fno-unwind-tables",
+        "-fno-asynchronous-unwind-tables",
+    ],
+    header_libs: [
+        "libopenscreen_absl_headers",
+    ],
+
+//    cpp_std: "c++17",
+}
+
+osp_discovery_srcs = [
+    "discovery/dnssd/impl/conversion_layer.cc",
+    "discovery/dnssd/impl/dns_data_graph.cc",
+    "discovery/dnssd/impl/instance_key.cc",
+    "discovery/dnssd/impl/network_interface_config.cc",
+    "discovery/dnssd/impl/publisher_impl.cc",
+    "discovery/dnssd/impl/querier_impl.cc",
+    "discovery/dnssd/impl/service_dispatcher.cc",
+    "discovery/dnssd/impl/service_instance.cc",
+    "discovery/dnssd/impl/service_key.cc",
+    "discovery/dnssd/public/dns_sd_instance.cc",
+    "discovery/dnssd/public/dns_sd_instance_endpoint.cc",
+    "discovery/dnssd/public/dns_sd_txt_record.cc",
+    "discovery/mdns/mdns_probe.cc",
+    "discovery/mdns/mdns_probe_manager.cc",
+    "discovery/mdns/mdns_publisher.cc",
+    "discovery/mdns/mdns_querier.cc",
+    "discovery/mdns/mdns_reader.cc",
+    "discovery/mdns/mdns_receiver.cc",
+    "discovery/mdns/mdns_records.cc",
+    "discovery/mdns/mdns_responder.cc",
+    "discovery/mdns/mdns_sender.cc",
+    "discovery/mdns/mdns_service_impl.cc",
+    "discovery/mdns/mdns_trackers.cc",
+    "discovery/mdns/mdns_writer.cc",
+    "discovery/mdns/public/mdns_service.cc",
+]
+
+osp_discovery_testing_srcs = [
+    "discovery/dnssd/testing/fake_dns_record_factory.cc",
+    "discovery/mdns/testing/mdns_test_util.cc",
+]
+
+osp_discovery_unittest_srcs = [
+    "discovery/dnssd/impl/conversion_layer_unittest.cc",
+    "discovery/dnssd/impl/dns_data_graph_unittest.cc",
+    "discovery/dnssd/impl/instance_key_unittest.cc",
+    "discovery/dnssd/impl/publisher_impl_unittest.cc",
+    "discovery/dnssd/impl/querier_impl_unittest.cc",
+    "discovery/dnssd/impl/service_key_unittest.cc",
+    "discovery/dnssd/public/dns_sd_instance_endpoint_unittest.cc",
+    "discovery/dnssd/public/dns_sd_instance_unittest.cc",
+    "discovery/dnssd/public/dns_sd_txt_record_unittest.cc",
+    "discovery/mdns/mdns_probe_manager_unittest.cc",
+    "discovery/mdns/mdns_probe_unittest.cc",
+    "discovery/mdns/mdns_publisher_unittest.cc",
+    "discovery/mdns/mdns_querier_unittest.cc",
+    "discovery/mdns/mdns_random_unittest.cc",
+    "discovery/mdns/mdns_reader_unittest.cc",
+    "discovery/mdns/mdns_receiver_unittest.cc",
+    "discovery/mdns/mdns_records_unittest.cc",
+    "discovery/mdns/mdns_responder_unittest.cc",
+    "discovery/mdns/mdns_sender_unittest.cc",
+    "discovery/mdns/mdns_trackers_unittest.cc",
+    "discovery/mdns/mdns_writer_unittest.cc",
+    "discovery/public/dns_sd_service_watcher_unittest.cc",
+]
+
+osp_platform_base_srcs = [
+    "platform/base/error.cc",
+    "platform/base/interface_info.cc",
+    "platform/base/ip_address.cc",
+    "platform/base/udp_packet.cc",
+]
+
+osp_platform_api_srcs = [
+    "platform/api/udp_socket.cc",
+]
+
+osp_util_srcs = [
+    "util/alarm.cc",
+    "util/big_endian.cc",
+]
+
+//#########################
+
+// This library contains reference implementations for the platform api, and may not be
+// optimal for every embedder's needs. Only files added are for adb (the only embedder ATM).
+cc_library_host_static {
+    name: "libopenscreen-platform-impl",
+    defaults: ["openscreen_defaults"],
+    stl: "libc++_static",
+
+    srcs: [
+        "platform/impl/time.cc",
+        "platform/impl/network_interface.cc",
+    ],
+
+
+    target: {
+        linux: {
+            srcs: [
+                "platform/impl/network_interface_linux.cc",
+            ],
+        },
+        darwin: {
+            srcs: [
+                "platform/impl/network_interface_mac.cc",
+            ],
+            cflags: [
+                // Required, to use the new IPv6 Sockets options introduced by RFC 3542.
+                "-D__APPLE_USE_RFC_3542",
+            ],
+        },
+        windows: {
+            enabled: true,
+            srcs: [
+                "platform/impl/network_interface_win.cc",
+            ],
+        },
+    },
+
+    export_include_dirs: ["."],
+}
+
+// TODO: enable the osp discovery unittests
+cc_library_host_static {
+    name: "libopenscreen-discovery",
+    defaults: ["openscreen_defaults"],
+    stl: "libc++_static",
+
+    srcs: osp_platform_api_srcs +
+          osp_platform_base_srcs +
+          osp_util_srcs +
+          osp_discovery_srcs,
+
+    whole_static_libs: [
+        "libopenscreen_absl",
+    ],
+
+    target: {
+        windows: {
+            enabled: true,
+        },
+    }
+}

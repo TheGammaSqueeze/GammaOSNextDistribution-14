@@ -1,0 +1,37 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "coconutruben"
+NAME = "servo_LogGrab"
+PURPOSE = "Validate ServoHost grabs all the right logs on the labstation."
+TIME = "SHORT"
+ATTRIBUTES = "suite:servo_lab"
+CRITERIA="Run on DUT with a servo attached and a functional DUT on the servo."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "servo"
+TEST_TYPE = "server"
+PY_VERSION = 3
+
+DOC = """
+
+This test uses a servo host to make sure that servo.py's grab_logs
+- grabs all logs pertaining to one instance (even if more than one)
+- properly decompresses logs if some of those logs were compressed.
+"""
+
+# Workaround to make it compatible with moblab autotest UI.
+global args_dict
+try:
+    args_dict
+except NameError:
+    args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test("servo_LogGrab", host=host, disable_sysinfo=True)
+
+parallel_simple(run, machines)

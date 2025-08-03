@@ -1,0 +1,159 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_options - ftrace options, that can be controlled using tracefs library.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+enum tracefs_option_id {
+	*TRACEFS_OPTION_INVALID*,
+	*TRACEFS_OPTION_ANNOTATE*,
+	*TRACEFS_OPTION_BIN*,
+	*TRACEFS_OPTION_BLK_CGNAME*,
+	*TRACEFS_OPTION_BLK_CGROUP*,
+	*TRACEFS_OPTION_BLK_CLASSIC*,
+	*TRACEFS_OPTION_BLOCK*,
+	*TRACEFS_OPTION_CONTEXT_INFO*,
+	*TRACEFS_OPTION_DISABLE_ON_FREE*,
+	*TRACEFS_OPTION_DISPLAY_GRAPH*,
+	*TRACEFS_OPTION_EVENT_FORK*,
+	*TRACEFS_OPTION_FGRAPH_ABSTIME*,
+	*TRACEFS_OPTION_FGRAPH_CPU*,
+	*TRACEFS_OPTION_FGRAPH_DURATION*,
+	*TRACEFS_OPTION_FGRAPH_IRQS*,
+	*TRACEFS_OPTION_FGRAPH_OVERHEAD*,
+	*TRACEFS_OPTION_FGRAPH_OVERRUN*,
+	*TRACEFS_OPTION_FGRAPH_PROC*,
+	*TRACEFS_OPTION_FGRAPH_TAIL*,
+	*TRACEFS_OPTION_FUNC_STACKTRACE*,
+	*TRACEFS_OPTION_FUNCTION_FORK*,
+	*TRACEFS_OPTION_FUNCTION_TRACE*,
+	*TRACEFS_OPTION_GRAPH_TIME*,
+	*TRACEFS_OPTION_HEX*,
+	*TRACEFS_OPTION_IRQ_INFO*,
+	*TRACEFS_OPTION_LATENCY_FORMAT*,
+	*TRACEFS_OPTION_MARKERS*,
+	*TRACEFS_OPTION_OVERWRITE*,
+	*TRACEFS_OPTION_PAUSE_ON_TRACE*,
+	*TRACEFS_OPTION_PRINTK_MSG_ONLY*,
+	*TRACEFS_OPTION_PRINT_PARENT*,
+	*TRACEFS_OPTION_RAW*,
+	*TRACEFS_OPTION_RECORD_CMD*,
+	*TRACEFS_OPTION_RECORD_TGID*,
+	*TRACEFS_OPTION_SLEEP_TIME*,
+	*TRACEFS_OPTION_STACKTRACE*,
+	*TRACEFS_OPTION_SYM_ADDR*,
+	*TRACEFS_OPTION_SYM_OFFSET*,
+	*TRACEFS_OPTION_SYM_USEROBJ*,
+	*TRACEFS_OPTION_TRACE_PRINTK*,
+	*TRACEFS_OPTION_USERSTACKTRACE*,
+	*TRACEFS_OPTION_VERBOSE*,
+};
+--
+
+DESCRIPTION
+-----------
+This enum contains all ftrace options, that can be manipulated using tracefs library. More detailed
+information about each option is available in Documentation/trace/ftrace.rst from the Linux
+kernel tree, in the trace_options section. Note that some ftrace options cannot be manipulated by
+this library, as they are intended for internal, debug purposes. These options control the tracers
+or the trace output. All options have two states - on and off, the default state is different for
+each of them.
+[verse]
+--
+Common options for all tracers:
+	*TRACEFS_OPTION_INVALID* Not a valid ftrace option, used by the API to indicate an error.
+	*TRACEFS_OPTION_ANNOTATE* Display when a new CPU buffer started.
+	*TRACEFS_OPTION_BIN* Display the formats in raw binary.
+	*TRACEFS_OPTION_CONTEXT_INFO* Show only the event data. Hides the comm, PID, timestamp, CPU, and other useful data.
+	*TRACEFS_OPTION_BLOCK* When set, reading trace_pipe will not block when polled.
+	*TRACEFS_OPTION_DISABLE_ON_FREE* When the free_buffer is closed, tracing will stop.
+	*TRACEFS_OPTION_DISPLAY_GRAPH* When set, the latency tracers will use function graph tracing instead of function tracing.
+	*TRACEFS_OPTION_EVENT_FORK* When set, tasks with PIDs listed in set_event_pid will have the PIDs of their children added to set_event_pid when those tasks fork.
+	*TRACEFS_OPTION_FUNCTION_FORK* When set, tasks with PIDs listed in set_ftrace_pid will have the PIDs of their children added to set_ftrace_pid when those tasks fork.
+	*TRACEFS_OPTION_FUNCTION_TRACE* When enabled, the latency tracers will trace functions.
+	*TRACEFS_OPTION_HEX* Display numbers in a hexadecimal format.
+	*TRACEFS_OPTION_IRQ_INFO* Display the interrupt, preempt count, need resched data.
+	*TRACEFS_OPTION_LATENCY_FORMAT* Display additional information about the latency.
+	*TRACEFS_OPTION_MARKERS* When set, the trace_marker is enabled - writable (only by root).
+	*TRACEFS_OPTION_OVERWRITE* Controls what happens when the trace buffer is full. If set, the oldest events are discarded and overwritten. If disabled, then the newest events are discarded.
+	*TRACEFS_OPTION_PAUSE_ON_TRACE* When set, opening the trace file for read, will pause writing to the ring buffer. When the file is closed, tracing will be enabled again.
+	*TRACEFS_OPTION_PRINTK_MSG_ONLY* When set, trace_printk()s will only show the format and not their parameters.
+	*TRACEFS_OPTION_PRINT_PARENT* On function traces, display the calling (parent) function as well as the function being traced.
+	*TRACEFS_OPTION_RAW* Display raw numbers.
+	*TRACEFS_OPTION_RECORD_CMD* Save a mapping with a pid and corresponding command.
+	*TRACEFS_OPTION_RECORD_TGID* Save a mapping with a pid and corresponding Thread Group IDs.
+	*TRACEFS_OPTION_STACKTRACE* Record a stack trace after any trace event.
+	*TRACEFS_OPTION_SYM_ADDR* Display the function address as well as the function name.
+	*TRACEFS_OPTION_SYM_OFFSET* Display not only the function name, but also the offset in the function.
+	*TRACEFS_OPTION_SYM_USEROBJ* When *TRACEFS_OPTION_USERSTACKTRACE* is set, look up which object the address belongs to, and print the object and a relative address.
+	*TRACEFS_OPTION_TRACE_PRINTK* Disable trace_printk() from writing into the buffer.
+	*TRACEFS_OPTION_USERSTACKTRACE* Records a stack trace of the current user space thread after each trace event.
+	*TRACEFS_OPTION_VERBOSE* When *TRACEFS_OPTION_LATENCY_FORMAT* is enabled, print more detailed information.
+
+Options, specific to function tracer:
+	*TRACEFS_OPTION_FUNC_STACKTRACE* Record a stack trace after every function.
+
+Options, specific to function_graph tracer:
+	*TRACEFS_OPTION_FGRAPH_ABSTIME* Display the timestamp at each line.
+	*TRACEFS_OPTION_FGRAPH_CPU* Display the CPU number of the CPU where the trace occurred.
+	*TRACEFS_OPTION_FGRAPH_DURATION* Display the duration of the amount of time at the end of each function, in microseconds.
+	*TRACEFS_OPTION_FGRAPH_IRQS* Trace functions that happen inside an interrupt.
+	*TRACEFS_OPTION_FGRAPH_OVERHEAD* Display a marker if a function takes longer than a certain amount of time.
+	*TRACEFS_OPTION_FGRAPH_OVERRUN* Display "overrun" of the call graph, in the case of functions missed due to big callstack.
+	*TRACEFS_OPTION_FGRAPH_PROC* Display the command of each process at every line.
+	*TRACEFS_OPTION_FGRAPH_TAIL* Display the function name on its return.
+	*TRACEFS_OPTION_SLEEP_TIME* Account time the task has been scheduled out as part of the function call.
+	*TRACEFS_OPTION_GRAPH_TIME* Display the time to call nested functions, if function profiler is enabled.
+
+Options, specific to blk tracer:
+	*TRACEFS_OPTION_BLK_CGNAME*
+	*TRACEFS_OPTION_BLK_CGROUP*
+	*TRACEFS_OPTION_BLK_CLASSIC* Display a more minimalistic output.
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1),
+_Documentation/trace/ftrace.rst_ from the Linux kernel tree.
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2021 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

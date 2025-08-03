@@ -1,0 +1,62 @@
+package {
+    default_applicable_licenses: ["external_ow2_asm_license"],
+}
+
+license {
+    name: "external_ow2_asm_license",
+    license_kinds: ["SPDX-license-identifier-BSD-3-Clause"],
+    license_text: ["LICENSE.txt"],
+}
+
+java_library {
+    name: "ow2-asm",
+    host_supported: true,
+    srcs: ["asm/src/main/**/*.java"],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+    sdk_version: "core_current",
+}
+
+java_library {
+    name: "ow2-asm-analysis",
+    host_supported: true,
+    srcs: ["asm-analysis/src/main/**/*.java"],
+    libs: [
+        "ow2-asm",
+        "ow2-asm-tree",
+    ],
+    sdk_version: "core_current",
+}
+
+java_library {
+    name: "ow2-asm-commons",
+    host_supported: true,
+    srcs: ["asm-commons/src/main/**/*.java"],
+    libs: [
+        "ow2-asm",
+        "ow2-asm-tree",
+    ],
+    sdk_version: "core_current",
+}
+
+java_library {
+    name: "ow2-asm-tree",
+    host_supported: true,
+    srcs: ["asm-tree/src/main/**/*.java"],
+    libs: [
+        "ow2-asm",
+    ],
+    sdk_version: "core_current",
+}
+
+java_library {
+    name: "ow2-asm-util",
+    host_supported: true,
+    srcs: ["asm-util/src/main/**/*.java"],
+    libs: [
+        "ow2-asm",
+        "ow2-asm-tree",
+        "ow2-asm-analysis",
+    ],
+    sdk_version: "core_current",
+}

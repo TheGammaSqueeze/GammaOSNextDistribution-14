@@ -1,0 +1,365 @@
+//
+// Copyright (C) 2010 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_visibility: ["//visibility:private"],
+    default_applicable_licenses: ["external_bouncycastle_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_bouncycastle_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+java_defaults {
+    name: "bouncycastle-errorprone-defaults",
+    errorprone: {
+        javacflags: [
+            "-Xep:MissingOverride:OFF", // Ignore missing @Override.
+        ],
+    },
+}
+
+java_defaults {
+    name: "bouncycastle-defaults",
+    defaults: [
+        "bouncycastle-errorprone-defaults",
+    ],
+    hostdex: true,
+
+    lint: {
+        warning_checks: ["SuspiciousIndentation"],
+    },
+    errorprone: {
+        javacflags: [
+            "-Xep:BoxedPrimitiveEquality:WARN",
+            "-Xep:DoubleBraceInitialization:WARN",
+            "-Xep:HashtableContains:WARN",
+        ],
+    },
+}
+
+// The src files for bouncycastle, used to generate core platform / intra-core
+// API stubs.
+filegroup {
+    name: "bouncycastle_java_files",
+    visibility: [
+        "//libcore",
+    ],
+    srcs: ["repackaged/bcprov/src/main/java/**/*.java"],
+}
+
+// A bouncycastle library repackaged in com.android.org.bouncycastle for use
+// in the ART module. Repackaging is needed to avoid conflict with the
+// original org.bouncycastle package.
+java_library {
+    name: "bouncycastle",
+    // Restrict visibility to only those targets that need to access it.
+    visibility: [
+        "//art/build/apex",
+        "//art/build/sdk",
+        "//libcore:__subpackages__",
+        "//packages/modules/ArtPrebuilt",
+    ],
+    apex_available: [
+        "com.android.art",
+        "com.android.art.debug",
+    ],
+    min_sdk_version: "31",
+    defaults: ["bouncycastle-defaults"],
+    installable: true,
+
+    srcs: [":bouncycastle_java_files"],
+
+    libs: ["unsupportedappusage"],
+
+    optimize: {
+        enabled: true,
+        shrink: true,
+        optimize: true,
+        obfuscate: false,
+        proguard_compatibility: false,
+        ignore_warnings: false,
+        proguard_flags_files: ["proguard.flags"],
+    },
+
+    sdk_version: "none",
+    system_modules: "art-module-intra-core-api-stubs-system-modules",
+}
+
+java_library_static {
+    name: "bouncycastle-test-lib",
+    visibility: [
+        "//packages/modules/ArtPrebuilt",
+        "//external/bouncycastle/mts",
+    ],
+    srcs: [
+        "repackaged/bcprov/src/test/java/**/*.java",
+    ],
+    libs: ["bouncycastle"],
+    static_libs: [
+        "junit",
+        "platform-test-annotations",
+    ],
+    sdk_version: "none",
+    system_modules: "art-module-intra-core-api-stubs-system-modules",
+}
+
+// A bouncycastle library repackaged in com.android.internal.org.bouncycastle
+// for use in the Android platform where it is important not to conflict with
+// the original org.bouncycastle package or the one in the ART module.
+java_library {
+    name: "bouncycastle-repackaged-unbundled",
+    visibility: [
+        "//cts/tests/libcore/wycheproof-bc",
+        "//external/sl4a/Common",
+        "//external/wycheproof",
+        "//frameworks/base",
+        "//frameworks/base/packages/Connectivity/tests/unit",
+        "//frameworks/base/tests/net",
+        "//packages/modules/Connectivity/tests/unit",
+    ],
+    defaults: ["bouncycastle-defaults"],
+    installable: true,
+    sdk_version: "core_current",
+    srcs: [
+        "repackaged_platform/bcpkix/src/main/java/**/*.java",
+        "repackaged_platform/bcprov/src/main/java/**/*.java",
+    ],
+}
+
+unbundled_visibility = [
+    "//art/build/sdk",
+    "//build/make/tools/signapk",
+    "//build/make/tools/signtos",
+    "//cts/hostsidetests/devicepolicy/app/DeviceOwner",
+    "//cts/tests/libcore/okhttp",
+    "//cts/tests/security",
+    "//cts/tests/tests/keystore",
+    "//external/android-key-attestation",
+    "//external/conscrypt",
+    "//external/okhttp",
+    "//external/robolectric-shadows",
+    "//external/robolectric-shadows/robolectric",
+    "//external/robolectric-shadows/shadows/supportv4",
+    "//external/robolectric-shadows/shadows/httpclient",
+    "//external/robolectric",
+    "//external/robolectric/robolectric",
+    "//external/robolectric/shadows/supportv4",
+    "//external/robolectric/shadows/httpclient",
+    "//external/wycheproof",
+    "//frameworks/opt/net/wifi/service",
+    "//frameworks/opt/net/wifi/tests/wifitests",
+    "//packages/apps/CertInstaller",
+    "//packages/apps/KeyChain",
+    "//packages/apps/RemoteProvisioner/tests/unittests",
+    "//packages/modules/Connectivity/tests/cts/net",
+    "//packages/modules/RemoteKeyProvisioning/app/tests/unit",
+    "//packages/modules/Wifi/service",
+    "//packages/modules/Wifi/service/tests/wifitests",
+    "//libcore",
+    "//system/extras/verity",
+    "//system/security/identity/util",
+    "//tools/apksig",
+    "//tools/security/remote_provisioning/attestation_testing",
+    "//vendor:__subpackages__",
+]
+
+// A bouncycastle library in the original org.bouncycastle package for use
+// outside of the platform. e.g. for host or in unbundled apps.
+java_library {
+    name: "bouncycastle-unbundled",
+    visibility: unbundled_visibility,
+    defaults: ["bouncycastle-defaults"],
+    host_supported: true,
+
+    srcs: ["bcprov/src/main/java/**/*.java"],
+    exclude_srcs: [
+        "bcprov/src/main/java/org/bouncycastle/asn1/ocsp/**/*.java",
+    ],
+
+    sdk_version: "core_current",
+    min_sdk_version: "30",
+    java_version: "1.7",
+    apex_available: ["com.android.wifi"],
+}
+
+// Bouncycastle PKIX classes in the original org.bouncycastle package for use
+// outside of the platform. e.g. for host or in unbundled apps / CTS tests.
+java_library {
+    name: "bouncycastle-bcpkix-unbundled",
+    visibility: unbundled_visibility,
+    defaults: ["bouncycastle-defaults"],
+    host_supported: true,
+
+    srcs: ["bcpkix/src/main/java/**/*.java"],
+    exclude_srcs: ["bcpkix/src/main/java/org/bouncycastle/cert/ocsp/**/*.java"],
+    libs: ["bouncycastle-unbundled"],
+
+    sdk_version: "core_current",
+    // b/267608166: Allow to be used by components targeting Java 11.
+    java_version: "11",
+}
+
+// Bouncycastle OCSP classes in the original org.bouncycastle package for use
+// outside of the platform. e.g. for host or in unbundled apps / CTS tests.
+java_library_static {
+    name: "bouncycastle-ocsp-unbundled",
+    visibility: unbundled_visibility,
+    defaults: ["bouncycastle-defaults"],
+    host_supported: true,
+
+    srcs: [
+        "bcpkix/src/main/java/org/bouncycastle/cert/ocsp/**/*.java",
+        "bcprov/src/main/java/org/bouncycastle/asn1/ocsp/**/*.java",
+    ],
+    libs: [
+        "bouncycastle-unbundled",
+        "bouncycastle-bcpkix-unbundled",
+    ],
+
+    sdk_version: "core_current",
+}
+
+// For compatibility with old bouncycastle-host name.
+//
+// When converting .mk files to .bp files do not change the visibility of this
+// module, instead replace usages of this with bouncycastle-unbundled.
+java_library_host {
+    name: "bouncycastle-host",
+    static_libs: ["bouncycastle-unbundled"],
+}
+
+java_test_host {
+    name: "bouncycastle-host-tests",
+    srcs: [
+        "bcprov/src/test/java/**/*.java",
+    ],
+    static_libs: [
+        "bouncycastle-unbundled",
+        "junit",
+        "platform-test-annotations",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+    test_suites: ["general-tests"],
+}
+
+// Bouncycastle subset for use by frameworks/opt/net/ike project.
+//
+// Avoids including the whole of bouncycastle_unbundled in ike.
+//
+// Specifically, SHA1Digest and MD4Digest (and their dependencies) must be used by IKEv2 to support
+// legacy authentication methods.
+java_library {
+    name: "bouncycastle_ike_digests",
+    visibility: [
+        "//art/build/sdk",
+        "//packages/modules/IPsec",
+    ],
+    apex_available: [
+        "com.android.ipsec",
+        "test_com.android.ipsec",
+    ],
+    srcs: [
+        "bcprov/src/main/java/org/bouncycastle/crypto/Digest.java",
+        "bcprov/src/main/java/org/bouncycastle/crypto/ExtendedDigest.java",
+        "bcprov/src/main/java/org/bouncycastle/crypto/digests/EncodableDigest.java",
+        "bcprov/src/main/java/org/bouncycastle/crypto/digests/GeneralDigest.java",
+        "bcprov/src/main/java/org/bouncycastle/crypto/digests/MD4Digest.java",
+        "bcprov/src/main/java/org/bouncycastle/crypto/digests/SHA1Digest.java",
+        "bcprov/src/main/java/org/bouncycastle/util/Memoable.java",
+        "bcprov/src/main/java/org/bouncycastle/util/Pack.java",
+    ],
+    sdk_version: "core_current",
+}
+
+// Bouncycastle for use by packages/modules/ExtServices project.
+//
+// Excludes directories not needed for ASN1*.java and X509* sources.
+//
+java_library {
+    name: "bouncycastle-extservices-asn",
+    visibility: [
+        "//packages/modules/ExtServices",
+    ],
+    apex_available: [
+        "com.android.extservices",
+        "test_com.android.extservices",
+    ],
+    srcs: [
+        "bcprov/src/main/java/org/bouncycastle/**/*.java",
+    ],
+    exclude_srcs: [
+        "bcprov/src/main/java/org/bouncycastle/asn1/ocsp/**/*.java",
+        "bcprov/src/main/java/org/bouncycastle/iana/**/*.java",
+    ],
+    sdk_version: "core_current",
+    lint: {
+        warning_checks: ["SuspiciousIndentation"],
+    },
+}
+
+// Bouncycastle for use by packages/modules/Uwb project.
+//
+//Excludes directories not needed.
+java_library {
+    name: "bouncycastle-uwb",
+    visibility: [
+        "//packages/modules/Uwb/service",
+    ],
+    apex_available: [
+        "com.android.uwb",
+    ],
+    srcs: [
+        "bcprov/src/main/java/org/bouncycastle/**/*.java",
+        "bcpkix/src/main/java/org/bouncycastle/cert/**/*.java",
+        "bcpkix/src/main/java/org/bouncycastle/cms/**/*.java",
+        "bcpkix/src/main/java/org/bouncycastle/operator/**/*.java",
+    ],
+
+    exclude_srcs: [
+        "bcprov/src/main/java/org/bouncycastle/iana/**/*.java",
+        "bcprov/src/main/java/org/bouncycastle/its/**/*.java",
+    ],
+    sdk_version: "core_current",
+    lint: {
+        warning_checks: ["SuspiciousIndentation"],
+    },
+}

@@ -1,0 +1,23 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+elf_symbol {
+  id: 0x7709bd40
+  name: "x"
+  is_defined: true
+  symbol_type: FUNCTION
+  binding: WEAK
+  type_id: 0x10985193
+  full_name: "x"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x7709bd40
+}

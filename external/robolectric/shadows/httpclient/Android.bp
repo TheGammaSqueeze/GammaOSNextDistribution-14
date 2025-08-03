@@ -1,0 +1,78 @@
+//#############################################
+// Compile Robolectric shadows httpclient
+//#############################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_robolectric_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+java_library_host {
+    name: "Robolectric_shadows_httpclient_upstream",
+    libs: [
+        "Robolectric_shadows_framework_upstream",
+        "Robolectric_annotations_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_utils_upstream",
+        "robolectric-httpclient-4.0.3",
+        "robolectric-httpcore-4.0.1",
+        "robolectric-javax.annotation-api-1.2",
+        "robolectric-host-android_all",
+        "robolectric-host-org_apache_http_legacy_upstream",
+    ],
+    plugins: ["Robolectric_processor_upstream"],
+    javacflags: ["-Aorg.robolectric.annotation.processing.shadowPackage=org.robolectric.shadows.httpclient"],
+    srcs: ["src/main/java/**/*.java"],
+
+    errorprone: {
+        javacflags: ["-Xep:EqualsNull:WARN"],
+    },
+}
+
+//#############################################
+// Compile Robolectric shadows httpclient tests
+//#############################################
+
+java_test_host {
+    name: "Robolectric_shadows_httpclient_tests_upstream",
+    srcs: ["src/test/java/**/*.java"],
+    java_resource_dirs: ["src/test/resources"],
+    static_libs: [
+        "Robolectric_shadows_httpclient_upstream",
+        "Robolectric_shadows_framework_upstream",
+        "Robolectric_annotations_upstream",
+        "Robolectric_robolectric_upstream",
+        "Robolectric_resources_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_sandbox_upstream",
+        "Robolectric_junit_upstream",
+        "Robolectric_utils_upstream",
+        "robolectric-maven-ant-tasks-2.1.3",
+        "bouncycastle-unbundled",
+        "hamcrest",
+        "robolectric-httpclient-4.0.3",
+        "asm-commons-9.2",
+        "robolectric-httpcore-4.0.1",
+        "guava",
+        "asm-tree-9.2",
+        "junit",
+        "truth",
+        "robolectric-ant-1.8.0",
+        "asm-9.2",
+        "jsr305",
+        "grpc-java-netty-shaded",
+        //"grpc-netty-shaded-1.16.1-jar",
+        "robolectric-host-android_all",
+        "robolectric-host-org_apache_http_legacy_upstream",
+        "robolectric-host-androidx-test-ext-junit_upstream",
+    ],
+    test_suites: ["general-tests"],
+    //tradefed doesn't run these tests.
+    test_options: {
+        unit_test: false,
+    },
+}

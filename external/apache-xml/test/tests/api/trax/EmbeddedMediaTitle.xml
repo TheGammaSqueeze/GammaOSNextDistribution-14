@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet media="foo/media" title="foo-title" type="text/xsl" href="impincl/EmbeddedRelative.xsl"?>
+<?xml-stylesheet media="bar/media" title="bar-title" type="text/xml" href="../impincl/EmbeddedRelative.xsl"?>
+<?xml-stylesheet media="alt/media" alternate="no" title="alt-title" type="application/xml+xslt" href="NotFoundAlternate.xsl"?>
+<?xml-stylesheet media="alt/media" alternate="yes" title="alt-title" type="application/xml+xslt" href="systemid/impincl/EmbeddedRelative.xsl"?>
+<list>
+  <item>Xalan-J 1.x</item>
+  <item>Xalan-J 2.x</item>
+  <item>Xalan-C 1.x</item>
+  <list>
+    <item>Xalan documentation</item>
+    <item>Xalan tests</item>
+  </list>
+</list>

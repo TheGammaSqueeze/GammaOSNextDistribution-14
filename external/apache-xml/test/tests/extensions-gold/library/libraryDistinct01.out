@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<test desc="selects abc">
+<item>a</item>
+<item>b</item>
+<item>c</item>, a</test>
+<test desc="selects a from aaa">
+<item>a</item>
+</test>
+<test desc="selects xyz">
+<item>x</item>
+<item>y</item>
+<item>z</item>
+</test>
+<test desc="selects ab from aab">
+<item>a</item>
+<item>b</item>
+</test>
+<test desc="selects abc from abc|abc2">
+<item>a</item>
+<item>b</item>
+<item>c</item>
+</test>
+<test desc="selects abcxyz from abc|aab|xyz">
+<item>a</item>
+<item>b</item>
+<item>c</item>
+<item>x</item>
+<item>y</item>
+<item>z</item>
+</test>
+</out>

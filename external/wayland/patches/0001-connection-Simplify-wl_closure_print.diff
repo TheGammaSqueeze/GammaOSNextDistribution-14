@@ -1,0 +1,247 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Lloyd Pique <lpique@google.com>
+Date: Thu, 10 Mar 2022 14:56:02 -0800
+Subject: [PATCH 1/6] connection: Simplify wl_closure_print
+
+Client message observers 1/6
+
+Cleans up wl_closure_print(), and adds a client-private closure_log()
+intermediate function.
+
+This patch simplifies wl_closure_print() slightly by moving some client-only
+details to a new closure_log() intermediate function. This new function will
+also handle delivering messages to the new listener callback in a subsequent
+patch.
+
+closure_log() internally handles the check for logging being enabled,
+simplifying its callers, and returns early if logging is not enabled. This check
+becomes a bit more complex when there can be listeners.
+
+closure_log() also handles the work same transformation performed by
+id_from_object(), by making a copy of the args, and applying the transform to
+the copy before passing the arguments to wl_closure_print(). Doing it this way
+means the same arguments can also be passed to the eventual listeners.
+
+The boolean "discarded" argument for wl_closure_print() has been replaced by a
+"discarded_reason" string argument, allowing an arbitrary reason string to be
+passed in. For now only "discarded[]" is printed as an empty reason string is
+passed if the message was discarded, but that will also change.
+
+Signed-off-by: Lloyd Pique <lpique@google.com>
+
+diff --git a/COPYING b/COPYING
+index eb25a4e..843b844 100644
+--- a/COPYING
++++ b/COPYING
+@@ -2,6 +2,7 @@ Copyright © 2008-2012 Kristian Høgsberg
+ Copyright © 2010-2012 Intel Corporation
+ Copyright © 2011 Benjamin Franzke
+ Copyright © 2012 Collabora, Ltd.
++Copyright 2022 Google LLC
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a
+ copy of this software and associated documentation files (the "Software"),
+diff --git a/src/connection.c b/src/connection.c
+index ceaeac1..110b614 100644
+--- a/src/connection.c
++++ b/src/connection.c
+@@ -1264,7 +1264,7 @@ wl_closure_queue(struct wl_closure *closure, struct wl_connection *connection)
+ 
+ void
+ wl_closure_print(struct wl_closure *closure, struct wl_object *target,
+-		 int send, int discarded, uint32_t (*n_parse)(union wl_argument *arg))
++		 bool send, const char *discarded_reason)
+ {
+ 	int i;
+ 	struct argument_details arg;
+@@ -1283,9 +1283,11 @@ wl_closure_print(struct wl_closure *closure, struct wl_object *target,
+ 	clock_gettime(CLOCK_REALTIME, &tp);
+ 	time = (tp.tv_sec * 1000000L) + (tp.tv_nsec / 1000);
+ 
+-	fprintf(f, "[%7u.%03u] %s%s%s@%u.%s(",
++	fprintf(f, "[%7u.%03u] %s%s%s%s%s@%u.%s(",
+ 		time / 1000, time % 1000,
+-		discarded ? "discarded " : "",
++		(discarded_reason != NULL) ? "discarded[" : "",
++		(discarded_reason != NULL) ? discarded_reason : "",
++		(discarded_reason != NULL) ? "] " : "",
+ 		send ? " -> " : "",
+ 		target->interface->name, target->id,
+ 		closure->message->name);
+@@ -1330,10 +1332,7 @@ wl_closure_print(struct wl_closure *closure, struct wl_object *target,
+ 				fprintf(f, "nil");
+ 			break;
+ 		case 'n':
+-			if (n_parse)
+-				nval = n_parse(&closure->args[i]);
+-			else
+-				nval = closure->args[i].n;
++			nval = closure->args[i].n;
+ 
+ 			fprintf(f, "new id %s@",
+ 				(closure->message->types[i]) ?
+diff --git a/src/wayland-client.c b/src/wayland-client.c
+index 105f9be..ae47307 100644
+--- a/src/wayland-client.c
++++ b/src/wayland-client.c
+@@ -115,6 +115,73 @@ struct wl_display {
+ 
+ static int debug_client = 0;
+ 
++/**
++ * This helper function adjusts the closure arguments before they are logged.
++ * On the client, after the call to create_proxies(), NEW_ID arguments will
++ * point to a wl_proxy accessible via arg.o instead of being an int32
++ * accessible by arg.n, which is what wl_closure_print() attempts to print.
++ * This helper transforms the argument back into an id, so wl_closure_print()
++ * doesn't need to handle that as a special case.
++ *
++ * \param closure  closure to adjust
++ * \param send     if this is closure is for a request
++ *
++ */
++static void
++adjust_closure_args_for_logging(struct wl_closure *closure, bool send)
++{
++	int i;
++	struct argument_details arg;
++	const struct wl_proxy *proxy;
++	const char *signature = closure->message->signature;
++
++	// No adjustment needed for a send.
++	if (send)
++		return;
++
++	for (i = 0; i < closure->count; i++) {
++		signature = get_next_argument(signature, &arg);
++
++		switch (arg.type) {
++		case 'n':
++			proxy = (struct wl_proxy *)closure->args[i].o;
++			closure->args[i].n = proxy ? proxy->object.id : 0;
++			break;
++		}
++	}
++}
++
++/**
++ * This function helps log closures from the client, assuming logging is
++ * enabled.
++ *
++ * \param closure    closure for the message
++ * \param proxy      proxy for the message
++ * \param send       true if this is closure is for a request
++ * \param discarded  true if this is message is being discarded
++ *
++ */
++static void
++closure_log(struct wl_closure *closure, struct wl_proxy *proxy, bool send,
++	    bool discarded)
++{
++	struct wl_closure adjusted_closure = { 0 };
++
++	if (!debug_client)
++		return;
++
++	// Note: The real closure has extra data (referenced by its args
++	// immediately following the structure in memory, but we don't
++	// need to duplicate that.
++	memcpy(&adjusted_closure, closure, sizeof(struct wl_closure));
++
++	// Adjust the closure arguments.
++	adjust_closure_args_for_logging(&adjusted_closure, send);
++
++	wl_closure_print(&adjusted_closure, &proxy->object, send,
++			 discarded ? "" : NULL);
++}
++
+ /**
+  * This helper function wakes up all threads that are
+  * waiting for display->reader_cond (i. e. when reading is done,
+@@ -885,8 +952,7 @@ wl_proxy_marshal_array_flags(struct wl_proxy *proxy, uint32_t opcode,
+ 		goto err_unlock;
+ 	}
+ 
+-	if (debug_client)
+-		wl_closure_print(closure, &proxy->object, true, false, NULL);
++	closure_log(closure, proxy, true, false);
+ 
+ 	if (wl_closure_send(closure, proxy->display->connection)) {
+ 		wl_log("Error sending request: %s\n", strerror(errno));
+@@ -1579,19 +1645,6 @@ queue_event(struct wl_display *display, int len)
+ 	return size;
+ }
+ 
+-static uint32_t
+-id_from_object(union wl_argument *arg)
+-{
+-	struct wl_proxy *proxy;
+-
+-	if (arg->o) {
+-		proxy = (struct wl_proxy *)arg->o;
+-		return proxy->object.id;
+-	}
+-
+-	return 0;
+-}
+-
+ static void
+ dispatch_event(struct wl_display *display, struct wl_event_queue *queue)
+ {
+@@ -1610,8 +1663,7 @@ dispatch_event(struct wl_display *display, struct wl_event_queue *queue)
+ 	proxy = closure->proxy;
+ 	proxy_destroyed = !!(proxy->flags & WL_PROXY_FLAG_DESTROYED);
+ 	if (proxy_destroyed) {
+-		if (debug_client)
+-			wl_closure_print(closure, &proxy->object, false, true, id_from_object);
++		closure_log(closure, proxy, false, true);
+ 		destroy_queued_closure(closure);
+ 		return;
+ 	}
+@@ -1619,15 +1671,11 @@ dispatch_event(struct wl_display *display, struct wl_event_queue *queue)
+ 	pthread_mutex_unlock(&display->mutex);
+ 
+ 	if (proxy->dispatcher) {
+-		if (debug_client)
+-			wl_closure_print(closure, &proxy->object, false, false, id_from_object);
+-
++		closure_log(closure, proxy, false, false);
+ 		wl_closure_dispatch(closure, proxy->dispatcher,
+ 				    &proxy->object, opcode);
+ 	} else if (proxy->object.implementation) {
+-		if (debug_client)
+-			wl_closure_print(closure, &proxy->object, false, false, id_from_object);
+-
++		closure_log(closure, proxy, false, false);
+ 		wl_closure_invoke(closure, WL_CLOSURE_INVOKE_CLIENT,
+ 				  &proxy->object, opcode, proxy->user_data);
+ 	}
+diff --git a/src/wayland-private.h b/src/wayland-private.h
+index 9274f1b..66fc78f 100644
+--- a/src/wayland-private.h
++++ b/src/wayland-private.h
+@@ -211,9 +211,8 @@ int
+ wl_closure_queue(struct wl_closure *closure, struct wl_connection *connection);
+ 
+ void
+-wl_closure_print(struct wl_closure *closure,
+-		 struct wl_object *target, int send, int discarded,
+-		 uint32_t (*n_parse)(union wl_argument *arg));
++wl_closure_print(struct wl_closure *closure, struct wl_object *target,
++		 bool send, const char *discarded_reason);
+ 
+ void
+ wl_closure_destroy(struct wl_closure *closure);
+diff --git a/src/wayland-server.c b/src/wayland-server.c
+index d51acc6..be98f7d 100644
+--- a/src/wayland-server.c
++++ b/src/wayland-server.c
+@@ -157,7 +157,7 @@ log_closure(struct wl_resource *resource,
+ 	struct wl_protocol_logger_message message;
+ 
+ 	if (debug_server)
+-		wl_closure_print(closure, object, send, false, NULL);
++		wl_closure_print(closure, object, send, NULL);
+ 
+ 	if (!wl_list_empty(&display->protocol_loggers)) {
+ 		message.resource = resource;

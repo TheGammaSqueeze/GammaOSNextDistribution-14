@@ -1,0 +1,31 @@
+From 6f300ba0a9bc047c08c1bc63bdb831d56479815b Mon Sep 17 00:00:00 2001
+From: Chris Wailes <chriswailes@google.com>
+Date: Fri, 10 Feb 2023 12:12:30 -0800
+Subject: [PATCH] Update crate source to work with Rust 1.66.1
+
+This CL changes the name of a lint in an annotation to allow rustdoc to
+successfully process the crate.
+
+Test: RUST_PREBUILT_VERSION="1.66.1" m rustdoc
+Bug: 263153841
+Change-Id: If213ca89d296bb06d3bdeadb18b2c5b31ff36a2a
+---
+ src/untrusted.rs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/untrusted.rs b/src/untrusted.rs
+index a9d7f7b..5071fdd 100644
+--- a/src/untrusted.rs
++++ b/src/untrusted.rs
+@@ -102,7 +102,7 @@
+ )]
+ // ANDROID: This lint is included in warnings and thus forbidden, but this version of the library
+ // is not compatible with it.
+-#![allow(non_autolinks)]
++#![allow(rustdoc::bare_urls)]
+ #![no_std]
+ 
+ // ANDROID: Unconditionally use std to allow building as a dylib.
+-- 
+2.39.1.581.gbfd45094c4-goog
+

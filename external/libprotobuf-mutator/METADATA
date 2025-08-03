@@ -1,0 +1,15 @@
+name: "libprotobuf-mutator"
+description: "libprotobuf-mutator is a library to randomly mutate protobuffers. It could be used together with guided fuzzing engines, such as libFuzzer."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/libprotobuf-mutator"
+  }
+  version: "dbe588bfb6922060e557fe5b8ee27d2923000c1a"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 10
+    day: 19
+  }
+}

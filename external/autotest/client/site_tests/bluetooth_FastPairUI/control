@@ -1,0 +1,23 @@
+# Copyright (c) 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "shafit, Chromium OS, chromeos-cross-device-eng@google.com"
+NAME = "bluetooth_FastPairUI"
+PURPOSE = "To test the Fast Pair feature"
+CRITERIA = "Fail if any hang or crash"
+ATTRIBUTES = ''
+TIME = "MEDIUM"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "Bluetooth"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test is used in conjunction with the bluetoothFastPair server test. The
+server test sets up the enviornment (e.g. create a Fast Pair device and start
+scanning), and then invokes this test to run through the UI and attempt to pair
+the device.
+"""
+
+job.run_test("bluetooth_FastPairUI")

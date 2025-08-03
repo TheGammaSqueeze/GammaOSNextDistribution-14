@@ -1,0 +1,17 @@
+name: "remove_dir_all"
+description:
+    "Reliable and fast directory removal functions."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/remove_dir_all"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/remove_dir_all/remove_dir_all-0.7.0.crate"
+  }
+  version: "0.7.0"
+  last_upgrade_date { year: 2021 month: 10 day: 25 }
+  license_type: NOTICE
+}

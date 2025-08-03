@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<!-- Create an simplified output tree for each family -->
+   <Families>
+<Smith>
+<Parents>
+<Father>Lew Smith</Father>
+<Mother>Ruth Smith</Mother>
+</Parents>
+<Children number="5">
+<Male name="Andy" wife="Suzie" kids="2">
+<Kids>
+<Grandkid>Julie</Grandkid>
+<Grandkid>Daniel</Grandkid>
+</Kids>Andy</Male>
+<Male name="Thomas" wife="Margaret" kids="2">
+<Kids>
+<Grandkid>Joshua</Grandkid>
+<Grandkid>Lauren</Grandkid>
+</Kids>Thomas</Male>
+<Male name="Henry" wife="Elizbeth" kids="2">
+<Kids>
+<Grandkid>Nathaniel</Grandkid>
+<Grandkid>Samual</Grandkid>
+</Kids>Henry</Male>
+<Male name="Bruce" wife="Betsy" kids="3">
+<Kids>
+<Grandkid>Benjamin</Grandkid>
+<Grandkid>Lucy</Grandkid>
+<Grandkid>Jake</Grandkid>
+</Kids>Bruce</Male>
+<Male name="Joseph" wife="Lilla" kids="0">Joseph</Male>
+</Children>
+</Smith>
+</Families>
+The Smith
+The parents are: Lewis and Ruth Smith
+They have 9 grandchildren: Julie, Nathaniel, Joshua, Daniel, Samual, Lauren, Benjamin, Lucy, and Jake
+&#13;Andy Smith's phone number is 483-23-5432.
+He is 45. Andy is married to Suzie.
+Their children are Jules:9, and Daniel:8
+&#13;Bruce Smith's phone number is 213.457.2190.
+He is 38. Bruce is married to Betsy.
+Their children are Ben:5, Lucy:2, and Jake:1
+&#13;Henry Smith's phone number is 417.645.4954.
+He is 40. Henry is married to Beth.
+Their children are Nate:8, and Sam:7
+&#13;Joe Smith's phone number is 781.665.0539.
+He is 34. Joseph is married to Lilla.
+They have no kids
+			
+&#13;Tom Smith's phone number is 508.257.2754.
+He is 30. Thomas is married to Maggy.
+Their children are Joshua:7, and Lauren:5
+<!-- Create an simplified output tree for each family -->
+   <Families>
+<Westons>
+<Parents>
+<Father>Melvin Weston</Father>
+<Mother>Liz Harris</Mother>
+</Parents>
+<Children number="2">
+<Female name="Caroline" husband="" kids="0">Caroline</Female>
+<Female name="Betsy" husband="Bruce" kids="3">
+<Kids>
+<Grandkid>Benjamin</Grandkid>
+<Grandkid>Lucy</Grandkid>
+<Grandkid>Jake</Grandkid>
+</Kids>Betsy</Female>
+</Children>
+</Westons>
+</Families>
+The Westons
+The parents are: Melvin and Liz Harris
+They have 3 grandchildren: Benjamin, Lucy, and Jake
+&#13;Betsy Weston's phone number is 213.457.2190.
+She is 34. Betsy is married to Bruce.
+Their children are Ben:5, Lucy:2, and Jake:1
+&#13;Caroline Weston's phone number is 715.264.8205.
+She is 37. Caroline is not married. 
+		
+	</out>

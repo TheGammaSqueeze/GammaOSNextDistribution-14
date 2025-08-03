@@ -1,0 +1,218 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["external_brotli_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_brotli_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unlicense",
+        "legacy_permissive",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_static {
+    name: "libbrotli",
+    host_supported: true,
+    vendor_available: true,
+    recovery_available: true,
+    ramdisk_available: true,
+    vendor_ramdisk_available: true,
+
+    min_sdk_version: "apex_inherit",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adbd",
+    ],
+
+    visibility: [
+        "//bootable/recovery:__subpackages__",
+        "//external/bsdiff:__subpackages__",
+        "//external/puffin:__subpackages__",
+        "//packages/modules/adb:__subpackages__",
+        "//system/core/fs_mgr/libsnapshot:__subpackages__",
+        "//system/extras/partition_tools:__subpackages__",
+        "//system/update_engine:__subpackages__",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-O2",
+    ],
+    export_include_dirs: ["c/include"],
+    srcs: [
+        "c/common/*.c",
+        "c/dec/*.c",
+        "c/enc/*.c",
+    ],
+    target: {
+        linux_bionic: {
+            enabled: true,
+        },
+        windows: {
+            enabled: true,
+        },
+    },
+    stl: "none",
+}
+
+cc_binary {
+    name: "brotli",
+    host_supported: true,
+    cflags: ["-Werror"],
+    srcs: ["c/tools/brotli.c"],
+    target: {
+        linux_bionic: {
+            enabled: true,
+        },
+    },
+    static_libs: ["libbrotli"],
+    stl: "none",
+}
+
+cc_library_shared {
+    name: "libbrotli_encoder_jni",
+    host_supported: true,
+    srcs: [
+        "java/org/brotli/wrapper/enc/encoder_jni.cc",
+    ],
+    static_libs: [
+      "libnativehelper_lazy",
+      "libbrotli",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+}
+
+//
+// Support for brotli in java code.
+//
+
+java_library {
+    name: "brotli-java",
+    host_supported: true,
+    hostdex: true,
+    srcs: ["java/**/*.java"],
+    exclude_srcs: ["java/**/*Test.java"],
+    sdk_version: "current",
+    // TODO(b/237039251) use "apex_inherit" when Java modules support it
+    min_sdk_version: "29",
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+// TODO(b/171429704): Remove this genrule and use the fuzz_data.zip
+// directly in brotli-fuzzer when a corpus_zip option is available.
+genrule {
+    name: "brotli-fuzzer-corpus",
+    srcs: ["java/org/brotli/integration/fuzz_data.zip"],
+    cmd: "mkdir -p $(genDir)/c/fuzz && " +
+         "unzip -q $(in) -d $(genDir)/c/fuzz",
+    out: [
+        "c/fuzz/04bdd9f35a2881027adddb039026623cd2e86664",
+        "c/fuzz/04dc2c1dc1f4612d4dc4892f4444983f2064c252",
+        "c/fuzz/05a79f06cf3f67f726dae68d18a2290f6c9a50c9",
+        "c/fuzz/05b3606442abab241ede01c3b34d1d73afc580d1",
+        "c/fuzz/065977e9fc84bab81eada79880b4481fece00616",
+        "c/fuzz/08e61f98cc5e260e8d9b853bf9d5c1d9c7a9fc4d",
+        "c/fuzz/155b07e636d98a80a53e667caef9e11370cef995",
+        "c/fuzz/2ad192eab5c0f6e50f0c64777811ae9111bad918",
+        "c/fuzz/2b1cba1e32deab80f440d886d1be7ca43733e878",
+        "c/fuzz/2fe9bc36724f80651a75cde84233a4832afec947",
+        "c/fuzz/312287bfd6732b264b54f9d5eda69f79c73898da",
+        "c/fuzz/3254df93e6003641dfc55522f594335e2c871b8f",
+        "c/fuzz/35a8db906eb1834b8acefd0bb9236ab8dc2ebbfe",
+        "c/fuzz/3a8e0fefadd562f706a16ec84c67646ba7ddcf29",
+        "c/fuzz/3edbdb6fcdb1ff53428af36bc4982f4611303eae",
+        "c/fuzz/477f2aa9b6ca0ff2ef72365d227baabb4855646e",
+        "c/fuzz/49fab0752d21ca89e4da04bdbb86dc7abb6b77e9",
+        "c/fuzz/4b809bfcd95342116053b0c057c878f08c1178b9",
+        "c/fuzz/523dfcdc31b2cb3b0f4715faa2be89b3d0a1d373",
+        "c/fuzz/54fd1711209fb1c0781092374132c66e79e2241b",
+        "c/fuzz/5515e03743624befa68a626382b605829300448d",
+        "c/fuzz/5be2ace579d7b0d816c31db7e65dc3245f1e09a6",
+        "c/fuzz/6f672b1c3c8643ce5083f6efee790b29459cbb47",
+        "c/fuzz/6fb6157dc83d29ef5d4da645e4a078179f54f405",
+        "c/fuzz/70eaba097fdbde0c63159f194ec4cec0f201acd8",
+        "c/fuzz/725ce4c76aa864430d7f4cae9e4cc4fbdd889f5e",
+        "c/fuzz/73231c6592f195ffd41100b8706d1138ff6893b9",
+        "c/fuzz/754f38420c156404309fa05f1ed773be47336882",
+        "c/fuzz/7730f322fb995dd3495d6e69906ff1f5b3cd876f",
+        "c/fuzz/7b74620c59451546866d80c0629ec01221246f59",
+        "c/fuzz/7b9cde6a96a7446f6951cca66266284db28be916",
+        "c/fuzz/7cc01983b79447178179e59af8a56cf4f45b9f8f",
+        "c/fuzz/7d3783cb4414c6098f7ac49ebaa8d2122eb06a0e",
+        "c/fuzz/7ecfeb33839bb8cea5027eb9fc7e5689799e704c",
+        "c/fuzz/7f88ed32938bef52eeaf3d3defedbfd2df87f895",
+        "c/fuzz/90450c570b868c4db80473b978529f6ec6dde20d",
+        "c/fuzz/9590340f604e5c729dbf8b54e25715fd18adb318",
+        "c/fuzz/a3491e5bbd78932592cd02dbff09cd05ca36e2e9",
+        "c/fuzz/a848e83a76d026b01bdfc2c0a6ac841564a97347",
+        "c/fuzz/a8abd012eb59b862bf9bc1ea443d2f35a1a2e222",
+        "c/fuzz/abcaee2817f06af41383c41a7e0920f1cc5a14ec",
+        "c/fuzz/ac81161dd772b1c7a47aa5cefed1ec3d8ac442af",
+        "c/fuzz/aec354d02df9ddb8d4e9ebb0c2771f1325cc2b89",
+        "c/fuzz/c01afbfde5a6ff0e5b0873f9d1ab8742293a375e",
+        "c/fuzz/c18cc3b3c69a07404a2c3cc756ed2d18f3dd4348",
+        "c/fuzz/c46fa7f0b56a80fcf8b1a8a6cbc24e4139b59a6b",
+        "c/fuzz/c51ab436e7332470ea2fd3d68ddbc3d0c43cf7ea",
+        "c/fuzz/c95701b41f06e892874d3001b32c64510c33c178",
+        "c/fuzz/d2b552c1f35b645332e7f63dea404046fdc8577b",
+        "c/fuzz/d6b5b93e87be7082e917d4bcc4d3436f34978d4b",
+        "c/fuzz/d75a03333816807599eadcb043a298ffa8c83378",
+        "c/fuzz/da39a3ee5e6b4b0d3255bfef95601890afd80709",
+        "c/fuzz/dc37d2e46439be3aa4bf23102f0960adbf13aae1",
+        "c/fuzz/de7c798e9523bd7e8350f3a391248cc9700bc4b4",
+        "c/fuzz/e1346339b452f86470a562335958bb6729f66bb2",
+        "c/fuzz/e6d0943f26000ee2306f10b1c1d44ab23619b20a",
+        "c/fuzz/ed22dce9884f67e05bcc082ba9b11424cf6e0449",
+        "c/fuzz/f5c1dc2f4906adb429197a011692b71bc1db856a",
+        "c/fuzz/fb1d6415c35cf9d7807e05e14179537e2019e635",
+    ],
+}
+
+cc_fuzz {
+    name: "brotli-fuzzer",
+    static_libs: ["libbrotli"],
+    srcs: ["c/fuzz/decode_fuzzer.c"],
+    corpus: [":brotli-fuzzer-corpus"],
+    fuzz_config: {
+        componentid: 128577
+    },
+}

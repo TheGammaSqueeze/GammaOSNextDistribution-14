@@ -1,0 +1,41 @@
+name: 'Artifact Android local tests'
+description: 'Runs Android local tests on the Dagger LOCAL-SNAPSHOT artifacts.'
+
+inputs:
+  agp:
+    description: 'The version of AGP to test with.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: 'Check out repository'
+      uses: actions/checkout@v3
+    - name: 'Cache Gradle files'
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    - name: 'Download local snapshot for tests'
+      uses: actions/download-artifact@v3
+      with:
+        name: local-snapshot
+        path: ~/.m2/repository/com/google/dagger
+    - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
+      uses: actions/setup-java@v3
+      with:
+        distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
+        java-version: '${{ env.USE_JAVA_VERSION }}'
+    - name: 'Gradle Android local tests (AGP ${{ inputs.agp }})'
+      run: ./util/run-local-gradle-android-tests.sh "${{ inputs.agp }}"
+      shell: bash
+    - name: 'Upload test reports (AGP ${{ inputs.agp }})'
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: tests-reports-agp-${{ inputs.agp }}
+        path: ${{ github.workspace }}/**/build/reports/tests/*

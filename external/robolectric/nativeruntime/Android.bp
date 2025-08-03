@@ -1,0 +1,46 @@
+//#############################################
+// Compile Robolectric shadows framework
+//#############################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_robolectric_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+java_library_host {
+    name: "Robolectric_nativeruntime_upstream",
+    libs: [
+        "Robolectric_annotations_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_sandbox_upstream",
+        "Robolectric_resources_upstream",
+        "Robolectric_pluginapi_upstream",
+        "Robolectric_utils_upstream",
+        "Robolectric_utils_reflector_upstream",
+        "robolectric-accessibility-test-framework-2.1",
+        "robolectric-javax.annotation-api-1.2",
+        "hamcrest-library",
+        "hamcrest",
+        "robolectric-sqlite4java-0.282",
+        "guava",
+        //"icu4j",
+        "jsr305",
+        "error_prone_annotations",
+        "auto_service_annotations",
+        // "jsr330",
+        "robolectric-host-android_all",
+    ],
+    static_libs: [
+        "robolectric_nativeruntime_native_prebuilt",
+    ],
+    plugins: ["auto_service_plugin"],
+    srcs: [
+        "src/main/java/**/*.java",
+        "src/main/java/**/*.kt",
+    ],
+    java_resource_dirs: ["src/main/resources"],
+}

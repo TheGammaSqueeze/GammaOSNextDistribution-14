@@ -1,0 +1,68 @@
+.TH SG_READ_BLOCK_LIMITS "8" "November 2022" "sg3_utils\-1.48" SG3_UTILS
+.SH NAME
+sg_read_block_limits \- send SCSI READ BLOCK LIMITS command
+.SH SYNOPSIS
+.B sg_read_block_limits
+[\fI\-\-help\fR] [\fI\-\-hex\fR] [--mloi] [\fI\-\-raw\fR]
+[\fI\-\-readonly\fR] [\fI\-\-verbose\fR] [\fI\-\-version\fR]
+\fIDEVICE\fR
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+Send a SCSI READ BLOCK LIMITS command to \fIDEVICE\fR and outputs the
+response. This command is defined for tape (drives) and its description
+is found in the SSC documents at https://www.t10.org .
+.SH OPTIONS
+Arguments to long options are mandatory for short options as well.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+output the usage message then exit.
+.TP
+\fB\-H\fR, \fB\-\-hex\fR
+output response in hex (rather than decode it).
+.TP
+\fB\-m\fR, \fB\-\-mloi\fR
+sets the MLOI bit in the READ BLOCK LIMITS command and if that
+succeeds, prints out the Maximum Logical Object Identifier (MLOI)
+value. The MLOI bit was introduced in the ssc4r02.pdf draft.
+.TP
+\fB\-r\fR, \fB\-\-raw\fR
+output response in binary to stdout.
+.TP
+\fB\-R\fR, \fB\-\-readonly\fR
+open \fIDEVICE\fR in read\-only mode. The default is to open it in
+read\-write mode.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+increase the level of verbosity, (i.e. debug output).
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+print the version string and then exit.
+.SH EXIT STATUS
+The exit status of sg_read_block_limits is 0 when it is successful. Otherwise
+see the sg3_utils(8) man page.
+.SH EXAMPLES
+It is usually okay to use no options. Here is an invocation (on the first
+line following the "#" command prompt) followed by some typical output:
+.PP
+   # sg_read_block_limits /dev/st0
+.br
+Read Block Limits results:
+.br
+    Minimum block size: 1 byte(s)
+.br
+    Maximum block size: 16777215 byte(s), 16383 KB, 15 MB
+.br
+    Granularity: 0
+.br
+.SH AUTHORS
+Written by Douglas Gilbert.
+.SH "REPORTING BUGS"
+Report bugs to <dgilbert at interlog dot com>.
+.SH COPYRIGHT
+Copyright \(co 2009\-2022 Douglas Gilbert
+.br
+This software is distributed under a BSD\-2\-Clause license. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+.B sg3_utils(sg3_utils)

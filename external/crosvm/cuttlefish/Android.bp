@@ -1,0 +1,28 @@
+// wrapper script to run crosvm for cuttlefish
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_crosvm_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_crosvm_license"],
+}
+
+sh_binary_host {
+    name: "common_crosvm",
+    filename: "crosvm",
+    target: {
+        linux_glibc: {
+            src: "crosvm",
+        },
+        linux_musl: {
+            src: "crosvm_musl",
+        },
+        darwin: {
+            src: "crosvm",
+        },
+        linux_bionic: {
+            src: "crosvm_bionic",
+        },
+    },
+}

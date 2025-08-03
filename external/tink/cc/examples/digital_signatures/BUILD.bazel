@@ -1,0 +1,41 @@
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+filegroup(
+    name = "digital_signature_keyset",
+    srcs = [
+        "digital_signature_private_keyset.json",
+        "digital_signature_public_keyset.json",
+    ],
+)
+
+cc_binary(
+    name = "digital_signatures_cli",
+    srcs = ["digital_signatures_cli.cc"],
+    deps = [
+        "//util",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/log:check",
+        "@tink_cc//:keyset_handle",
+        "@tink_cc//:public_key_sign",
+        "@tink_cc//:public_key_verify",
+        "@tink_cc//signature:signature_config",
+        "@tink_cc//util:status",
+    ],
+)
+
+sh_test(
+    name = "digital_signatures_cli_test",
+    size = "small",
+    srcs = ["digital_signatures_cli_test.sh"],
+    args = [
+        "$(rootpath :digital_signatures_cli)",
+        "$(rootpaths :digital_signature_keyset)",
+    ],
+    data = [
+        ":digital_signature_keyset",
+        ":digital_signatures_cli",
+    ],
+)

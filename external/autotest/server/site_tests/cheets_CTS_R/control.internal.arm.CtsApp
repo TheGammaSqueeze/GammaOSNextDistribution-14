@@ -1,0 +1,50 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file has been automatically generated. Do not edit!
+from autotest_lib.server import utils as server_utils
+
+AUTHOR = 'ARC++ Team'
+NAME = 'cheets_CTS_R.internal.arm.CtsApp'
+ATTRIBUTES = 'suite:arc-cts, suite:arc-cts-r, suite:arc-cts-unibuild'
+DEPENDENCIES = 'arc'
+JOB_RETRIES = 1
+TEST_TYPE = 'server'
+TIME = 'MEDIUM'
+MAX_RESULT_SIZE_KB = 512000
+PY_VERSION = 3
+DOC = 'Run module CtsAppBindingHostTestCases, CtsAppBindingHostTestCases[secondary_user], CtsAppCompatHostTestCases, CtsAppCompatHostTestCases[instant], CtsAppCompatHostTestCases[secondary_user], CtsAppComponentFactoryTestCases, CtsAppComponentFactoryTestCases[instant], CtsAppComponentFactoryTestCases[secondary_user], CtsAppEnumerationTestCases, CtsAppEnumerationTestCases[secondary_user], CtsAppExitTestCases, CtsAppExitTestCases[instant], CtsAppExitTestCases[secondary_user], CtsAppIntegrityDeviceTestCases, CtsAppOpsTestCases, CtsAppOpsTestCases[instant], CtsAppOpsTestCases[secondary_user], CtsAppPredictionServiceTestCases, CtsAppPredictionServiceTestCases[secondary_user], CtsAppSecurityHostTestCases, CtsAppSecurityHostTestCases[secondary_user], CtsAppTestCases, CtsAppTestCases[instant], CtsAppTestCases[secondary_user], CtsAppUsageHostTestCases, CtsAppUsageHostTestCases[instant], CtsAppUsageHostTestCases[secondary_user], CtsAppWidgetTestCases, CtsAppWidgetTestCases[instant], CtsAppWidgetTestCases[secondary_user] of the Android Compatibility Test Suite (CTS) using arm ABI in the ARC++ container.'
+
+# For local debugging, if your test setup doesn't have servo, REMOVE these
+# two lines.
+args_dict = server_utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run_TS(machine):
+    # REMOVE 'servo_args=servo_args' arg for local debugging if your test
+    # setup doesn't have servo.
+    try:
+        host_list = [hosts.create_host(machine, servo_args=servo_args)]
+    except:
+        # Just ignore any servo setup flakiness.
+        host_list = [hosts.create_host(machine)]
+    job.run_test(
+        'cheets_CTS_R',
+        hosts=host_list,
+        iterations=1,
+        enable_default_apps=True,
+        tag='internal.arm.CtsApp',
+        test_name='cheets_CTS_R.internal.arm.CtsApp',
+        run_template=['run', 'commandAndExit', 'cts', '--include-filter', 'CtsAppBindingHostTestCases', '--include-filter', 'CtsAppBindingHostTestCases[secondary_user]', '--include-filter', 'CtsAppCompatHostTestCases', '--include-filter', 'CtsAppCompatHostTestCases[instant]', '--include-filter', 'CtsAppCompatHostTestCases[secondary_user]', '--include-filter', 'CtsAppComponentFactoryTestCases', '--include-filter', 'CtsAppComponentFactoryTestCases[instant]', '--include-filter', 'CtsAppComponentFactoryTestCases[secondary_user]', '--include-filter', 'CtsAppEnumerationTestCases', '--include-filter', 'CtsAppEnumerationTestCases[secondary_user]', '--include-filter', 'CtsAppExitTestCases', '--include-filter', 'CtsAppExitTestCases[instant]', '--include-filter', 'CtsAppExitTestCases[secondary_user]', '--include-filter', 'CtsAppIntegrityDeviceTestCases', '--include-filter', 'CtsAppOpsTestCases', '--include-filter', 'CtsAppOpsTestCases[instant]', '--include-filter', 'CtsAppOpsTestCases[secondary_user]', '--include-filter', 'CtsAppPredictionServiceTestCases', '--include-filter', 'CtsAppPredictionServiceTestCases[secondary_user]', '--include-filter', 'CtsAppSecurityHostTestCases', '--include-filter', 'CtsAppSecurityHostTestCases[secondary_user]', '--include-filter', 'CtsAppTestCases', '--include-filter', 'CtsAppTestCases[instant]', '--include-filter', 'CtsAppTestCases[secondary_user]', '--include-filter', 'CtsAppUsageHostTestCases', '--include-filter', 'CtsAppUsageHostTestCases[instant]', '--include-filter', 'CtsAppUsageHostTestCases[secondary_user]', '--include-filter', 'CtsAppWidgetTestCases', '--include-filter', 'CtsAppWidgetTestCases[instant]', '--include-filter', 'CtsAppWidgetTestCases[secondary_user]', '--logcat-on-failure'],
+        retry_template=['run', 'commandAndExit', 'retry', '--retry', '{session_id}'],
+        target_module='CtsApp',
+        target_plan=None,
+        bundle='arm',
+        uri='DEV',
+        login_precondition_commands=['lsblk -do NAME,RM | sed -n s/1$//p | xargs -n1 eject'],
+        use_jdk9=True,
+        hard_reboot_on_failure=True,
+        timeout=61200)
+
+parallel_simple(run_TS, machines)

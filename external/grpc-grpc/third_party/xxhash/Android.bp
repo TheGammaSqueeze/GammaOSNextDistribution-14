@@ -1,0 +1,20 @@
+package {
+    default_applicable_licenses: ["external_grpc-grpc_third_party_xxhash_license"],
+}
+
+license {
+    name: "external_grpc-grpc_third_party_xxhash_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD-3-Clause",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_headers {
+    name: "libgrpc_third_party_xxhash",
+    defaults: ["grpc_deps_defaults"],
+    export_include_dirs: ["."],
+}

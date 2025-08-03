@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/argh_derive
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "argh_derive"
+description: "Derive-based argument parsing optimized for code size"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/argh_derive"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/argh_derive/argh_derive-0.1.12.crate"
+  }
+  version: "0.1.12"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 11
+  }
+}

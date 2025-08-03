@@ -1,0 +1,271 @@
+diff --git a/.cargo/config.toml b/.cargo/config.toml
+new file mode 100644
+index 0000000..e2b197d
+--- /dev/null
++++ b/.cargo/config.toml
+@@ -0,0 +1,2 @@
++[patch.crates-io]
++bssl-sys = { version = "0.1.0", path = "../../../boringssl/src/rust/bssl-sys", optional=true }
+diff --git a/src/cipher.rs b/src/cipher.rs
+index ab5f49d..84a8265 100644
+--- a/src/cipher.rs
++++ b/src/cipher.rs
+@@ -208,6 +208,7 @@ impl Cipher {
+         unsafe { CipherRef::from_ptr(ffi::EVP_aes_192_cfb1() as *mut _) }
+     }
+ 
++    #[cfg(not(boringssl))]
+     pub fn aes_192_cfb128() -> &'static CipherRef {
+         unsafe { CipherRef::from_ptr(ffi::EVP_aes_192_cfb128() as *mut _) }
+     }
+@@ -253,6 +254,7 @@ impl Cipher {
+         unsafe { CipherRef::from_ptr(ffi::EVP_aes_256_cfb1() as *mut _) }
+     }
+ 
++    #[cfg(not(boringssl))]
+     pub fn aes_256_cfb128() -> &'static CipherRef {
+         unsafe { CipherRef::from_ptr(ffi::EVP_aes_256_cfb128() as *mut _) }
+     }
+@@ -282,11 +284,13 @@ impl Cipher {
+     }
+ 
+     #[cfg(not(osslconf = "OPENSSL_NO_BF"))]
++    #[cfg(not(boringssl))]
+     pub fn bf_cbc() -> &'static CipherRef {
+         unsafe { CipherRef::from_ptr(ffi::EVP_bf_cbc() as *mut _) }
+     }
+ 
+     #[cfg(not(osslconf = "OPENSSL_NO_BF"))]
++    #[cfg(not(boringssl))]
+     pub fn bf_ecb() -> &'static CipherRef {
+         unsafe { CipherRef::from_ptr(ffi::EVP_bf_ecb() as *mut _) }
+     }
+diff --git a/src/encrypt.rs b/src/encrypt.rs
+index 3cb10fc..34a9eb8 100644
+--- a/src/encrypt.rs
++++ b/src/encrypt.rs
+@@ -148,7 +148,7 @@ impl<'a> Encrypter<'a> {
+     /// This corresponds to [`EVP_PKEY_CTX_set_rsa_oaep_md`].
+     ///
+     /// [`EVP_PKEY_CTX_set_rsa_oaep_md`]: https://www.openssl.org/docs/manmaster/man3/EVP_PKEY_CTX_set_rsa_oaep_md.html
+-    #[cfg(any(ossl102, libressl310))]
++    #[cfg(any(ossl102, libressl310, boringssl))]
+     pub fn set_rsa_oaep_md(&mut self, md: MessageDigest) -> Result<(), ErrorStack> {
+         unsafe {
+             cvt(ffi::EVP_PKEY_CTX_set_rsa_oaep_md(
+@@ -352,7 +352,7 @@ impl<'a> Decrypter<'a> {
+     /// This corresponds to [`EVP_PKEY_CTX_set_rsa_oaep_md`].
+     ///
+     /// [`EVP_PKEY_CTX_set_rsa_oaep_md`]: https://www.openssl.org/docs/manmaster/man3/EVP_PKEY_CTX_set_rsa_oaep_md.html
+-    #[cfg(any(ossl102, libressl310))]
++    #[cfg(any(ossl102, libressl310, boringssl))]
+     pub fn set_rsa_oaep_md(&mut self, md: MessageDigest) -> Result<(), ErrorStack> {
+         unsafe {
+             cvt(ffi::EVP_PKEY_CTX_set_rsa_oaep_md(
+diff --git a/src/lib.rs b/src/lib.rs
+index 891651e..f149bfd 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -120,6 +120,9 @@
+ #![doc(html_root_url = "https://docs.rs/openssl/0.10")]
+ #![warn(rust_2018_idioms)]
+ 
++#[cfg(all(soong, boringssl))]
++extern crate bssl_sys as ffi;
++
+ #[doc(inline)]
+ pub use ffi::init;
+ 
+@@ -155,6 +158,10 @@ pub mod ex_data;
+ #[cfg(not(any(libressl, ossl300)))]
+ pub mod fips;
+ pub mod hash;
++#[cfg(boringssl)]
++pub mod hkdf;
++#[cfg(boringssl)]
++pub mod hmac;
+ #[cfg(ossl300)]
+ pub mod lib_ctx;
+ pub mod md;
+diff --git a/src/pkey.rs b/src/pkey.rs
+index 7d438eb..7eaf068 100644
+--- a/src/pkey.rs
++++ b/src/pkey.rs
+@@ -47,7 +47,7 @@ use crate::dh::Dh;
+ use crate::dsa::Dsa;
+ use crate::ec::EcKey;
+ use crate::error::ErrorStack;
+-#[cfg(ossl110)]
++#[cfg(any(boringssl, ossl110))]
+ use crate::pkey_ctx::PkeyCtx;
+ use crate::rsa::Rsa;
+ use crate::symm::Cipher;
+@@ -89,11 +89,11 @@ impl Id {
+     #[cfg(ossl110)]
+     pub const HKDF: Id = Id(ffi::EVP_PKEY_HKDF);
+ 
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub const ED25519: Id = Id(ffi::EVP_PKEY_ED25519);
+     #[cfg(ossl111)]
+     pub const ED448: Id = Id(ffi::EVP_PKEY_ED448);
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub const X25519: Id = Id(ffi::EVP_PKEY_X25519);
+     #[cfg(ossl111)]
+     pub const X448: Id = Id(ffi::EVP_PKEY_X448);
+@@ -243,7 +243,7 @@ where
+     /// This function only works for algorithms that support raw public keys.
+     /// Currently this is: [`Id::X25519`], [`Id::ED25519`], [`Id::X448`] or [`Id::ED448`].
+     #[corresponds(EVP_PKEY_get_raw_public_key)]
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn raw_public_key(&self) -> Result<Vec<u8>, ErrorStack> {
+         unsafe {
+             let mut len = 0;
+@@ -294,7 +294,7 @@ where
+     /// This function only works for algorithms that support raw private keys.
+     /// Currently this is: [`Id::HMAC`], [`Id::X25519`], [`Id::ED25519`], [`Id::X448`] or [`Id::ED448`].
+     #[corresponds(EVP_PKEY_get_raw_private_key)]
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn raw_private_key(&self) -> Result<Vec<u8>, ErrorStack> {
+         unsafe {
+             let mut len = 0;
+@@ -475,7 +475,7 @@ impl PKey<Private> {
+         ctx.keygen()
+     }
+ 
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     fn generate_eddsa(id: Id) -> Result<PKey<Private>, ErrorStack> {
+         let mut ctx = PkeyCtx::new_id(id)?;
+         ctx.keygen_init()?;
+@@ -505,7 +505,7 @@ impl PKey<Private> {
+     /// assert_eq!(secret.len(), 32);
+     /// # Ok(()) }
+     /// ```
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn generate_x25519() -> Result<PKey<Private>, ErrorStack> {
+         PKey::generate_eddsa(Id::X25519)
+     }
+@@ -559,7 +559,7 @@ impl PKey<Private> {
+     /// assert_eq!(signature.len(), 64);
+     /// # Ok(()) }
+     /// ```
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn generate_ed25519() -> Result<PKey<Private>, ErrorStack> {
+         PKey::generate_eddsa(Id::ED25519)
+     }
+@@ -709,7 +709,7 @@ impl PKey<Private> {
+     ///
+     /// Algorithm types that support raw private keys are HMAC, X25519, ED25519, X448 or ED448
+     #[corresponds(EVP_PKEY_new_raw_private_key)]
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn private_key_from_raw_bytes(
+         bytes: &[u8],
+         key_type: Id,
+@@ -750,7 +750,7 @@ impl PKey<Public> {
+     ///
+     /// Algorithm types that support raw public keys are X25519, ED25519, X448 or ED448
+     #[corresponds(EVP_PKEY_new_raw_public_key)]
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn public_key_from_raw_bytes(
+         bytes: &[u8],
+         key_type: Id,
+diff --git a/src/sign.rs b/src/sign.rs
+index 457ff12..4de8ad0 100644
+--- a/src/sign.rs
++++ b/src/sign.rs
+@@ -290,7 +290,7 @@ impl<'a> Signer<'a> {
+         self.len_intern()
+     }
+ 
+-    #[cfg(not(ossl111))]
++    #[cfg(not(any(boringssl, ossl111)))]
+     fn len_intern(&self) -> Result<usize, ErrorStack> {
+         unsafe {
+             let mut len = 0;
+@@ -303,7 +303,7 @@ impl<'a> Signer<'a> {
+         }
+     }
+ 
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     fn len_intern(&self) -> Result<usize, ErrorStack> {
+         unsafe {
+             let mut len = 0;
+@@ -360,7 +360,7 @@ impl<'a> Signer<'a> {
+     /// OpenSSL documentation at [`EVP_DigestSign`].
+     ///
+     /// [`EVP_DigestSign`]: https://www.openssl.org/docs/man1.1.1/man3/EVP_DigestSign.html
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn sign_oneshot(
+         &mut self,
+         sig_buf: &mut [u8],
+@@ -382,7 +382,7 @@ impl<'a> Signer<'a> {
+     /// Returns the signature.
+     ///
+     /// This is a simple convenience wrapper over `len` and `sign_oneshot`.
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn sign_oneshot_to_vec(&mut self, data_buf: &[u8]) -> Result<Vec<u8>, ErrorStack> {
+         let mut sig_buf = vec![0; self.len()?];
+         let len = self.sign_oneshot(&mut sig_buf, data_buf)?;
+@@ -594,7 +594,7 @@ impl<'a> Verifier<'a> {
+     /// OpenSSL documentation at [`EVP_DigestVerify`].
+     ///
+     /// [`EVP_DigestVerify`]: https://www.openssl.org/docs/man1.1.1/man3/EVP_DigestVerify.html
+-    #[cfg(ossl111)]
++    #[cfg(any(boringssl, ossl111))]
+     pub fn verify_oneshot(&mut self, signature: &[u8], buf: &[u8]) -> Result<bool, ErrorStack> {
+         unsafe {
+             let r = ffi::EVP_DigestVerify(
+diff --git a/src/symm.rs b/src/symm.rs
+index c75bbc0..beff5fc 100644
+--- a/src/symm.rs
++++ b/src/symm.rs
+@@ -119,6 +119,7 @@ impl Cipher {
+         unsafe { Cipher(ffi::EVP_aes_128_cfb1()) }
+     }
+ 
++    #[cfg(not(boringssl))]
+     pub fn aes_128_cfb128() -> Cipher {
+         unsafe { Cipher(ffi::EVP_aes_128_cfb128()) }
+     }
+@@ -164,6 +165,7 @@ impl Cipher {
+         unsafe { Cipher(ffi::EVP_aes_192_cfb1()) }
+     }
+ 
++    #[cfg(not(boringssl))]
+     pub fn aes_192_cfb128() -> Cipher {
+         unsafe { Cipher(ffi::EVP_aes_192_cfb128()) }
+     }
+@@ -214,6 +216,7 @@ impl Cipher {
+         unsafe { Cipher(ffi::EVP_aes_256_cfb1()) }
+     }
+ 
++    #[cfg(not(boringssl))]
+     pub fn aes_256_cfb128() -> Cipher {
+         unsafe { Cipher(ffi::EVP_aes_256_cfb128()) }
+     }
+@@ -242,12 +245,12 @@ impl Cipher {
+         unsafe { Cipher(ffi::EVP_aes_256_ocb()) }
+     }
+ 
+-    #[cfg(not(osslconf = "OPENSSL_NO_BF"))]
++    #[cfg(not(any(boringssl, osslconf = "OPENSSL_NO_BF")))]
+     pub fn bf_cbc() -> Cipher {
+         unsafe { Cipher(ffi::EVP_bf_cbc()) }
+     }
+ 
+-    #[cfg(not(osslconf = "OPENSSL_NO_BF"))]
++    #[cfg(not(any(boringssl, osslconf = "OPENSSL_NO_BF")))]
+     pub fn bf_ecb() -> Cipher {
+         unsafe { Cipher(ffi::EVP_bf_ecb()) }
+     }

@@ -1,0 +1,16 @@
+name: "bazelbuild-rules_rust"
+description: "Bazel rules for building Rust code."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/bazelbuild/rules_rust"
+    primary_source: true
+  }
+  version: "0.39.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 16
+  }
+}

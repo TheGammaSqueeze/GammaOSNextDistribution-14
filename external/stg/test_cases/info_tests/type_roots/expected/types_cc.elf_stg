@@ -1,0 +1,116 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x1200d1dc
+  kind: POINTER
+  pointee_type_id: 0x6243a1ef
+}
+pointer_reference {
+  id: 0x20b816bd
+  kind: POINTER
+  pointee_type_id: 0xa8a0bc6a
+}
+pointer_reference {
+  id: 0x2be23006
+  kind: POINTER
+  pointee_type_id: 0x85c82684
+}
+typedef {
+  id: 0xe9e9f0af
+  name: "T1"
+  referred_type_id: 0x5d8155a5
+}
+typedef {
+  id: 0xab298d57
+  name: "T2"
+  referred_type_id: 0x186c44db
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+struct_union {
+  id: 0x186c44db
+  kind: STRUCT
+  definition {
+    bytesize: 1
+  }
+}
+struct_union {
+  id: 0x59489d72
+  kind: STRUCT
+  name: "S1"
+  definition {
+    bytesize: 1
+  }
+}
+struct_union {
+  id: 0x6243a1ef
+  kind: STRUCT
+  name: "S2"
+}
+struct_union {
+  id: 0x264d3dec
+  kind: UNION
+  name: "U1"
+  definition {
+    bytesize: 1
+  }
+}
+struct_union {
+  id: 0xa8a0bc6a
+  kind: UNION
+  name: "U2"
+}
+enumeration {
+  id: 0xb06ea7a9
+  name: "E1"
+  definition {
+    underlying_type_id: 0x4585663f
+  }
+}
+enumeration {
+  id: 0x85c82684
+  name: "E2"
+}
+function {
+  id: 0x3c3a5242
+  return_type_id: 0x48b5725f
+  parameter_id: 0xb06ea7a9
+  parameter_id: 0x2be23006
+  parameter_id: 0x59489d72
+  parameter_id: 0x1200d1dc
+  parameter_id: 0xe9e9f0af
+  parameter_id: 0xab298d57
+  parameter_id: 0x264d3dec
+  parameter_id: 0x20b816bd
+}
+elf_symbol {
+  id: 0xedaed4d8
+  name: "_Z4func2E1P2E22S1P2S2h2T22U1P2U2"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x3c3a5242
+  full_name: "func"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xedaed4d8
+  type_id: 0xe9e9f0af
+  type_id: 0xab298d57
+  type_id: 0xb06ea7a9
+  type_id: 0x59489d72
+  type_id: 0x264d3dec
+}

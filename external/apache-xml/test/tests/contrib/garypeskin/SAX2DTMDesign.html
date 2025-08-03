@@ -1,0 +1,169 @@
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the  "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<html><head><title></title></head><body>
+<center><h1>SAX2DTM Design Notes</h1></center>
+<p>The current implementation is subject to change and this class
+should be accessed only through published interface methods.  However,
+the following information is provided to aid in an understanding of how this
+class currently works and is provided for debugging purposes only.
+This implementation stores information about each node in a series of arrays.  Conceptually,
+the arrays can be thought of as either <code>String</code> Vectors or <code>int</code>
+Vectors although they are implemented using some internal classes. The <code>m_chars</code>
+array is conceptually a Vector of <code>chars</code>.  The chief arrays of
+interest are shown in the following table:</p>
+
+<table border="1"
+summary="Key arrays used: the first cell contains the array name and the second contains the
+ conceptual type, and the third contains the description of the contents">
+<tr>
+<th>Array Name</th>
+<th>Array Type</th>
+<th>Contents</th>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1"><code>m_exptype</code></td>
+<td rowspan="1" colspan="1">int</td>
+<td rowspan="1" colspan="1">An integer representing a unique value for a Node.  The first 6
+bits represent the Node type, as shown below.  The next 10 bits represent an index
+into m_namespaceNames.  The remaining 16 bits represent an index into m_locNamesPool.
+<b>Start here.</b>  This Vector represents the list of Nodes.</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1"><code>m_locNamesPool</code></td>
+<td rowspan="1" colspan="1">String</td>
+<td rowspan="1" colspan="1">Local (prefixed) names.  Field of m_expandedNameTable.</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1"><code>m_namespaceNames</code></td>
+<td rowspan="1" colspan="1">String</td>
+<td rowspan="1" colspan="1">Namespace URIs.  Field of m_expandedNameTable.</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1"><code>m_dataOrQName</code></td>
+<td rowspan="1" colspan="1">int</td>
+<td rowspan="1" colspan="1">An index into either m_data or m_valuesOrPrefixes, as explained
+in the next table.</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1"><code>m_valuesOrPrefixes</code></td>
+<td rowspan="1" colspan="1">String</td>
+<td rowspan="1" colspan="1">Values and prefixes.</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1"><code>m_data</code></td>
+<td rowspan="1" colspan="1">int</td>
+<td rowspan="1" colspan="1">Entries here occur in pairs.  The use of this array is explained
+in the next table.</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1"><code>m_chars</code></td>
+<td rowspan="1" colspan="1">char</td>
+<td rowspan="1" colspan="1">Characters used to form Strings as explained in the next table.</td>
+</tr>
+</table>
+
+<p>This table shows how the array values are used for each type of Node supported by
+this implementation.  An <i>n</i> represents an index into <code>m_namespaceNames</code>
+for the namespace URI associated with the attribute or element.  It actually consists
+of the 10 bits, including the rightmost two bits of the leftmost byte.  The <i>eeee</i>
+represents an index into <code>m_locNamesPool</code> for the value indicated in the table.</p>
+
+<table border="1"
+summary="Node table">
+<tr>
+<th>NodeType</th>
+<th>m_exptype</th>
+<th>m_dataOrQName</th>
+<th>m_data</th>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1">Attr</td>
+<td rowspan="1" colspan="1">&nbsp;08<i>neeee</i><br>-0b<i>neeee</i><br>
+<i>eeee</i> is local name of attribute.</td>
+<td rowspan="1" colspan="1"><b>No namespace</b>: an index into
+<code>m_valuesOrPrefixes</code> pointing to the attribute value.
+<br><b>Namespace</b>: a negative number, the absolute value of which is an index
+into m_data.</td>
+<td rowspan="1" colspan="1"><b>index</b>: an int containing the index into
+<code>m_valuesOrPrefixes</code> for the Attr QName.
+<br><b>index+1</b>: an int
+containing the index into <code>m_valuesOrPrefixes</code> for the attribute value.</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1">Comment</td>
+<td rowspan="1" colspan="1">&nbsp;20000000</td>
+<td rowspan="1" colspan="1">index into <code>m_valuesOrPrefixes</code>
+for comment text.</td>
+<td rowspan="1" colspan="1">unused</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1">Document</td>
+<td rowspan="1" colspan="1">&nbsp;24000000</td>
+<td rowspan="1" colspan="1">0</td>
+<td rowspan="1" colspan="1">unused</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1">Element</td>
+<td rowspan="1" colspan="1">&nbsp;04<i>neeee</i><br>-07<i>neeee</i><br>
+<i>eeee</i> is local name of element.</td>
+<td rowspan="1" colspan="1"><b>No namespace</b>: 0.
+<br><b>Namespace</b>: an index into
+<code>m_valuesOrPrefixes</code> pointing to the QName.</td>
+<td rowspan="1" colspan="1">unused</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1">Text</td>
+<td rowspan="1" colspan="1">&nbsp;0C000000</td>
+<td rowspan="1" colspan="1">an index into m_data.</td>
+<td rowspan="1" colspan="1"><b>index</b>: an int containing starting subscript in
+<code>m_chars</code> for the text.
+<br><b>index+1</b>: an int
+containing the length of the text.</td>
+
+<tr>
+<td rowspan="1" colspan="1">ProcessingInstruction</td>
+<td rowspan="1" colspan="1">&nbsp;1C0<i>eeee</i>
+<br><i>eeee</i> is the target name.</td>
+<td rowspan="1" colspan="1">index into <code>m_valuesOrPrefixes</code>
+for PI data.</td>
+<td rowspan="1" colspan="1">unused</td>
+</tr>
+
+<tr>
+<td rowspan="1" colspan="1">Namespace</td>
+<td rowspan="1" colspan="1">&nbsp;34<i>neeee</i><br>
+<i>eeee</i> is namespace prefix.</td>
+<td rowspan="1" colspan="1">index into
+<code>m_valuesOrPrefixes</code> pointing to the namespace URI.</td>
+<td rowspan="1" colspan="1">unused</td>
+</tr>
+
+</table>
+</body>

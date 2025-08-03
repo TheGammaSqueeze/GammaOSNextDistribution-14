@@ -1,0 +1,36 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "features": [
+    "alloc"
+  ],
+  "run_cargo": false,
+  "variants": [
+    {
+      "package": {
+        "pkcs1": {
+          "add_module_block": "cargo2android_viz.bp"
+        }
+      }
+    },
+    {
+      "module_name_overrides": {
+        "libder": "libder_nostd",
+        "libpkcs1": "libpkcs1_nostd",
+        "libpkcs8": "libpkcs8_nostd",
+        "libspki": "libspki_nostd",
+        "libzeroize": "libzeroize_nostd"
+      },
+      "package": {
+        "pkcs1": {
+          "add_module_block": "cargo2android_viz.bp",
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

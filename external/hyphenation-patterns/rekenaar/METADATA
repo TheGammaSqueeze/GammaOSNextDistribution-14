@@ -1,0 +1,13 @@
+name: "rekenaar"
+description:
+    "Afrikaans hyphenation patterns"
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/rekenaar/AfrHyphenation"
+  }
+  version: "8a5c654ae9ce5e20152b4a7f398d4ab3cc723ea9"
+  last_upgrade_date { year: 2023 month: 5 day: 10 }
+  license_type: NOTICE
+}

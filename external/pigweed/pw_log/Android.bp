@@ -1,0 +1,183 @@
+// Copyright 2022 The Pigweed Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+package {
+    default_applicable_licenses: ["external_pigweed_license"],
+}
+
+cc_library_headers {
+    name: "pw_log_headers",
+    cpp_std: "c++20",
+    vendor_available: true,
+    export_include_dirs: ["public"],
+    host_supported: true,
+}
+
+cc_library_headers {
+    name: "pw_log_pwpb_headers",
+    cpp_std: "c++20",
+    vendor_available: true,
+    header_libs: [
+        "pw_toolchain",
+    ],
+    export_header_lib_headers: [
+        "pw_toolchain",
+    ],
+    host_supported: true,
+    generated_headers: [
+        "google_protobuf_descriptor_pwpb_h",
+        "pw_log_log_proto_pwpb_h",
+        "pw_log_log_rpc_pwpb_h",
+        "pw_log_log_raw_rpc_h",
+        "pw_protobuf_protos_common_pwpb_h",
+        "pw_tokenizer_proto_options_pwpb_h",
+    ],
+    export_generated_headers: [
+        "google_protobuf_descriptor_pwpb_h",
+        "pw_log_log_proto_pwpb_h",
+        "pw_log_log_rpc_pwpb_h",
+        "pw_log_log_raw_rpc_h",
+        "pw_protobuf_protos_common_pwpb_h",
+        "pw_tokenizer_proto_options_pwpb_h",
+    ],
+}
+
+// Copies the proto files to a prefix directory to add the prefix to the
+// compiled proto. The prefix is taken from the directory name of the first
+// item listen in out.
+genrule_defaults {
+    name: "pw_log_add_prefix_to_proto",
+    cmd: "out_files=($(out)); prefix=$$(dirname $${out_files[0]}); " +
+         "mkdir -p $${prefix}; cp -t $${prefix} $(in);"
+}
+
+genrule {
+    name: "pw_log_log_proto_with_prefix",
+    defaults: ["pw_log_add_prefix_to_proto"],
+    srcs: [
+        "log.proto",
+    ],
+    out: [
+        "pw_log/proto/log.proto",
+    ],
+}
+
+genrule {
+    name: "pw_log_log_proto_pwpb_h",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":pw_log_log_proto_with_prefix",
+        ":pw_protobuf_common_proto",
+        ":pw_tokenizer_proto_options_proto",
+    ],
+    cmd: "python3 $(location pw_protobuf_compiler_py) " +
+         "--proto-path=external/pigweed/pw_protobuf/ " +
+         "--proto-path=external/pigweed/pw_tokenizer/ " +
+         "--proto-path=$$(dirname $$(dirname $$(dirname $(location :pw_log_log_proto_with_prefix)))) " +
+         "--proto-path=external/protobuf/src/ " +
+         "--out-dir=$(genDir) " +
+         "--plugin-path=$(location pw_protobuf_plugin_py) " +
+         "--compile-dir=$(genDir) " +
+         "--sources $(location :pw_log_log_proto_with_prefix) " +
+         "--language pwpb " +
+         "--no-experimental-proto3-optional " +
+         "--protoc=$(location aprotoc) && " +
+         // TODO(b/308678575) - Ideally the previous command would create the file at the right location,
+         // but following all the layers of pigweed wrappers around protoc is too difficult.
+         "python3 -c \"import os; import shutil; " +
+         "shutil.copy2(os.path.splitext('$(location :pw_log_log_proto_with_prefix)')[0]+'.pwpb.h', '$(out)')\"",
+    out: [
+        "pw_log/proto/log.pwpb.h",
+    ],
+    tools: [
+        "aprotoc",
+        "pw_protobuf_plugin_py",
+        "pw_protobuf_compiler_py",
+    ],
+}
+
+genrule {
+    name: "pw_log_log_rpc_pwpb_h",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":pw_log_log_proto_with_prefix",
+        ":pw_protobuf_common_proto",
+        ":pw_tokenizer_proto_options_proto",
+    ],
+    cmd: "python3 $(location pw_protobuf_compiler_py) " +
+         "--proto-path=external/pigweed/pw_protobuf/ " +
+         "--proto-path=external/pigweed/pw_tokenizer/ " +
+         "--proto-path=$$(dirname $$(dirname $$(dirname $(location :pw_log_log_proto_with_prefix)))) " +
+         "--proto-path=external/protobuf/src/ " +
+         "--out-dir=$(genDir) " +
+         "--plugin-path=$(location pw_rpc_plugin_pwpb_py) " +
+         "--compile-dir=$(genDir) " +
+         "--sources $(location :pw_log_log_proto_with_prefix) " +
+         "--language pwpb_rpc " +
+         "--no-experimental-proto3-optional " +
+         "--protoc=$(location aprotoc) && " +
+         // TODO(b/308678575) - Ideally the previous command would create the file at the right location,
+         // but following all the layers of pigweed wrappers around protoc is too difficult.
+         "python3 -c \"import os; import shutil; " +
+         "shutil.copy2(os.path.splitext('$(location :pw_log_log_proto_with_prefix)')[0]+'.rpc.pwpb.h', '$(out)')\"",
+    out: [
+        "pw_log/proto/log.rpc.pwpb.h",
+    ],
+    tools: [
+        "aprotoc",
+        "pw_protobuf_compiler_py",
+        "pw_rpc_plugin_pwpb_py",
+    ],
+}
+
+genrule {
+    name: "pw_log_log_raw_rpc_h",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        ":pw_log_log_proto_with_prefix",
+        ":pw_protobuf_common_proto",
+        ":pw_tokenizer_proto_options_proto",
+    ],
+    cmd: "python3 $(location pw_protobuf_compiler_py) " +
+         "--proto-path=external/pigweed/pw_protobuf/ " +
+         "--proto-path=external/pigweed/pw_tokenizer/ " +
+         "--proto-path=$$(dirname $$(dirname $$(dirname $(location :pw_log_log_proto_with_prefix)))) " +
+         "--proto-path=external/protobuf/src/ " +
+         "--out-dir=$(genDir) " +
+         "--plugin-path=$(location pw_rpc_plugin_rawpb_py) " +
+         "--compile-dir=$(genDir) " +
+         "--sources $(location :pw_log_log_proto_with_prefix) " +
+         "--language raw_rpc " +
+         "--no-experimental-proto3-optional " +
+         "--protoc=$(location aprotoc) && " +
+         // TODO(b/308678575) - Ideally the previous command would create the file at the right location,
+         // but following all the layers of pigweed wrappers around protoc is too difficult.
+         "python3 -c \"import os; import shutil; " +
+         "shutil.copy2(os.path.splitext('$(location :pw_log_log_proto_with_prefix)')[0]+'.raw_rpc.pb.h', '$(out)')\"",
+    out: [
+        "pw_log/proto/log.raw_rpc.pb.h",
+    ],
+    tools: [
+        "aprotoc",
+        "pw_protobuf_compiler_py",
+        "pw_rpc_plugin_rawpb_py",
+    ],
+}
+
+android_library {
+    name: "pw_log_android_java",
+    srcs: ["java/android_main/dev/pigweed/pw_log/*.java"],
+    visibility: ["//visibility:public"],
+    sdk_version: "current",
+}

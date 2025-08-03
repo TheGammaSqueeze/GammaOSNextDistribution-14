@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<doc>
+   <matcher name="referer-match" src="org.apache.cocoon.matching.WildcardHeaderMatcherFactory">
+      <parameter-name>referer</parameter-name>
+   </matcher>
+</doc>

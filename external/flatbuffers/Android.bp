@@ -1,0 +1,175 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_flatbuffers_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_flatbuffers_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-Zlib",
+    ],
+    license_text: [
+        "LICENSE",
+        "LICENSE.txt",
+    ],
+}
+
+cc_library_headers {
+    name: "flatbuffer_headers",
+    export_include_dirs: ["include"],
+    vendor_available: true,
+    host_supported: true,
+    sdk_version: "current",
+    min_sdk_version: "apex_inherit",
+    apex_available: [
+        "com.android.adservices",
+        "com.android.extservices",
+        "com.android.neuralnetworks",
+        "com.android.ondevicepersonalization",
+        "test_com.android.neuralnetworks",
+        "//apex_available:platform",
+    ],
+}
+
+cc_binary_host {
+    name: "flatc",
+
+    cppflags: [
+        "-fsigned-char",
+        "-pedantic",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Werror=shadow",
+        "-Wno-implicit-fallthrough", // in reflection.cpp
+    ],
+
+    local_include_dirs: [
+        "grpc",
+        "include",
+    ],
+
+    srcs: [
+        "src/*.cpp",
+        "grpc/src/compiler/*.cc",
+    ],
+    exclude_srcs: [
+        "src/flathash.cpp",
+    ],
+}
+
+java_library {
+    name: "flatbuffers-java",
+    srcs: ["java/**/*.java"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+
+    java_version: "1.8",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.ondevicepersonalization",
+    ],
+}
+
+cc_library {
+    name: "libflatbuffers-cpp",
+    export_include_dirs: ["include"],
+    sdk_version: "current",
+    stl: "libc++_static",
+    host_supported: true,
+    vendor_available: true,
+    local_include_dirs: [
+        "include",
+    ],
+    srcs: [
+        "src/code_generators.cpp",
+        "src/idl_gen_fbs.cpp",
+        "src/idl_gen_text.cpp",
+        "src/idl_parser.cpp",
+        "src/reflection.cpp",
+        "src/util.cpp",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.extservices",
+    ],
+    min_sdk_version: "30",
+}
+
+cc_defaults {
+    name: "flatbuffers_fuzzer_defaults",
+    srcs: [
+        "tests/test_assert.cpp",
+    ],
+    shared_libs: [
+        "liblog",
+        "libflatbuffers-cpp"
+    ],
+    local_include_dirs: [
+        "tests",
+        "tests/fuzzer",
+    ],
+    fuzz_config: {
+        componentid: 87896
+    }
+}
+
+cc_fuzz {
+    name: "flatbuffers_parser_fuzzer",
+    defaults: ["flatbuffers_fuzzer_defaults"],
+    srcs: [
+        "tests/fuzzer/flatbuffers_parser_fuzzer.cc"
+    ],
+}
+
+cc_fuzz {
+    name: "flatbuffers_scalar_fuzzer",
+    defaults: ["flatbuffers_fuzzer_defaults"],
+    srcs: [
+        "tests/fuzzer/flatbuffers_scalar_fuzzer.cc"
+    ],
+}
+
+cc_fuzz {
+    name: "flatbuffers_verifier_fuzzer",
+    defaults: ["flatbuffers_fuzzer_defaults"],
+    srcs: [
+        "tests/fuzzer/flatbuffers_verifier_fuzzer.cc"
+    ],
+}

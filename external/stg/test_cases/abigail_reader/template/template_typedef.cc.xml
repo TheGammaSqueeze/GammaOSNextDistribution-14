@@ -1,0 +1,21 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='x' size='68' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='y' size='17' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='template_typedef.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='__ARRAY_SIZE_TYPE__' size-in-bits='64' id='7ff19f0f'/>
+    <type-decl name='bool' size-in-bits='8' id='c894953d'/>
+    <array-type-def dimensions='1' type-id='c894953d' size-in-bits='136' id='88afa815'>
+      <subrange length='17' type-id='7ff19f0f' id='888ad0ed'/>
+    </array-type-def>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <array-type-def dimensions='1' type-id='95e97e5e' size-in-bits='544' id='b7c5660e'>
+      <subrange length='17' type-id='7ff19f0f' id='888ad0ed'/>
+    </array-type-def>
+    <typedef-decl name='A&lt;bool, 17&gt;' type-id='88afa815' id='ccc093dd'/>
+    <typedef-decl name='A&lt;int, 17&gt;' type-id='b7c5660e' id='3e03cf90'/>
+    <var-decl name='x' type-id='3e03cf90' mangled-name='x' visibility='default' elf-symbol-id='x'/>
+    <var-decl name='y' type-id='ccc093dd' mangled-name='y' visibility='default' elf-symbol-id='y'/>
+  </abi-instr>
+</abi-corpus>

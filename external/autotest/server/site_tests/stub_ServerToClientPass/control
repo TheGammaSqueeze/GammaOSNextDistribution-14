@@ -1,0 +1,23 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'dbeckett'
+NAME = 'stub_ServerToClientPass'
+TIME = 'SHORT'
+TEST_CATEGORY = 'General'
+TEST_CLASS = 'stub'
+TEST_TYPE = 'server'
+ATTRIBUTES = 'suite:infra_qual, suite:py3-beta, suite:cft-beta'
+PY_VERSION = 3
+
+DOC = """
+Stub to verify a client test can be kicked off and passes from a server test.
+"""
+
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('stub_ServerToClientPass', host=host)
+
+parallel_simple(run, machines)

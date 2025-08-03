@@ -1,0 +1,7 @@
+cc_library_static {
+    name: "libuserfaultfd_sys_consts",
+    host_supported: true,
+    srcs: ["src/consts.c"],
+    vendor_available: true,
+    product_available: true,
+}

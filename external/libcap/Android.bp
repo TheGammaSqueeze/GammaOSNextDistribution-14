@@ -1,0 +1,143 @@
+package {
+    default_applicable_licenses: ["external_libcap_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change filtered out the below license kinds as false-positives:
+//   SPDX-license-identifier-GPL
+//   SPDX-license-identifier-GPL-2.0
+//   SPDX-license-identifier-LGPL
+// See: http://go/android-license-faq
+license {
+    name: "external_libcap_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-BSD-3-Clause",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "libcap_defaults",
+    cflags: [
+        "-Wno-pointer-arith",
+        "-Wno-tautological-compare",
+        "-Wno-unused-parameter",
+        "-Wno-unused-result",
+        "-Wno-unused-variable",
+    ],
+}
+
+cc_library {
+    name: "libcap",
+    host_supported: true,
+    vendor_available: true,
+    product_available: true,
+    ramdisk_available: true,
+    recovery_available: true,
+    vndk: {
+        enabled: true,
+    },
+    defaults: ["libcap_defaults"],
+
+    srcs: [
+        "libcap/cap_alloc.c",
+        "libcap/cap_extint.c",
+        "libcap/cap_file.c",
+        "libcap/cap_flag.c",
+        "libcap/cap_proc.c",
+        "libcap/cap_text.c",
+    ],
+    generated_headers: ["cap_names.h"],
+
+    local_include_dirs: ["libcap/include"],
+    export_include_dirs: ["libcap/include"],
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        linux_bionic: {
+            enabled: true,
+        },
+        linux_glibc: {
+            local_include_dirs: ["libcap/include/uapi"],
+        },
+    },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adbd",
+        "com.android.art",
+        "com.android.art.debug",
+        "com.android.compos",
+        "com.android.media.swcodec",
+        "com.android.virt",
+    ],
+    min_sdk_version: "29",
+}
+
+cc_binary {
+    name: "getcap",
+    defaults: ["libcap_defaults"],
+    srcs: ["progs/getcap.c"],
+    static_libs: [
+        "libcap",
+    ],
+}
+
+cc_binary {
+    name: "setcap",
+    defaults: ["libcap_defaults"],
+    srcs: ["progs/setcap.c"],
+    static_libs: [
+        "libcap",
+    ],
+}
+
+//
+// Generate cap_names.list.h from the <linux/capability.h> header (using awk).
+//
+
+genrule {
+    name: "cap_names.list.h",
+    srcs: ["libcap/include/uapi/linux/capability.h"],
+    out: ["cap_names.list.h"],
+    tool_files: ["generate_cap_names_list.awk"],
+    cmd: "awk -f $(location generate_cap_names_list.awk) $(in) > $(out)",
+}
+
+//
+// Generate cap_names.h from cap_names.list.h (using _makenames).
+//
+
+genrule {
+    name: "cap_names.h",
+    out: ["cap_names.h"],
+    tools: [":_makenames"],
+    cmd: "$(location :_makenames) > $(out)",
+}
+
+cc_binary {
+    name: "_makenames",
+    defaults: ["libcap_defaults"],
+    srcs: ["libcap/_makenames.c"],
+    generated_headers: ["cap_names.list.h"],
+    host_supported: true,
+}

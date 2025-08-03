@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no' ?>
+<SubPlan version="2.0">
+  <!--
+    Unless there's special reason, the entries can be removed only
+    when the DEV version bundle's provisional version number (like 9.0r13)
+    is incremented. Otherwise the computation for the canonical list
+    of test cases is confused. See b/151779432.
+  -->
+  <Entry include="CtsAppTestCases android.app.cts.DisplayTest#testRotation" />
+  <Entry include="CtsAppTestCases[instant] android.app.cts.DisplayTest#testRotation" />
+  <Entry include="CtsAutoFillServiceTestCases android.autofillservice.cts.MultiWindowLoginActivityTest#testSplitWindow" />
+  <Entry include="CtsIcuTestCases android.icu.dev.test.timezone.TimeZoneTest#TestCanonicalID" />
+  <Entry include="CtsStatsdHostTestCases android.cts.statsd.alert.AnomalyDetectionTests#testPulledAnomalyDetection" />
+  <Entry include="CtsStatsdHostTestCases[instant] android.cts.statsd.alert.AnomalyDetectionTests#testPulledAnomalyDetection" />
+  <Entry include="CtsStatsdHostTestCases android.cts.statsd.metric.MetricActivationTests#testMultipleActivations" />
+  <Entry include="CtsStatsdHostTestCases[instant] android.cts.statsd.metric.MetricActivationTests#testMultipleActivations" />
+  <Entry include="CtsWindowManagerDeviceTestCases android.server.wm.AppConfigurationTests#testSameConfigurationSplitFullSplitRelaunch" />
+</SubPlan>

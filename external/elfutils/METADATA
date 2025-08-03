@@ -1,0 +1,19 @@
+name: "elfutils"
+description: "elfutils is a collection of utilities and libraries to read, create and modify ELF binary files, find and handle DWARF debug data, symbols, thread state and stacktraces for processes and core files on GNU/Linux."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://sourceware.org/elfutils/"
+  }
+  url {
+    type: GIT
+    value: "git://sourceware.org/git/elfutils.git"
+  }
+  version: "elfutils-0.190"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2024
+    month: 01
+    day: 24
+  }
+}

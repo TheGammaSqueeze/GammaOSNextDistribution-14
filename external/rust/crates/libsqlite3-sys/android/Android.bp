@@ -1,0 +1,21 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_rust_crates_libsqlite3-sys_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-MIT
+    default_applicable_licenses: [
+        "external_rust_crates_libsqlite3-sys_license",
+    ],
+}
+
+rust_binary_host {
+    name: "sqlite3_bindgen_build",
+    srcs: ["build.rs"],
+    rustlibs: [
+        "libbindgen",
+        "libbindgen_cmd",
+    ],
+    lints: "android",
+    clippy_lints: "android",
+}

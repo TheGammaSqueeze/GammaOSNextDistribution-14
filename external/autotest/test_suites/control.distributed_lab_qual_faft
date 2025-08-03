@@ -1,0 +1,26 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Distributed Fleet Platform"
+NAME = "distributed_lab_qual_faft"
+PURPOSE = "Test Distributed Lab stability with faft tests"
+
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite is used to qualify new Distributed Lab containers with faft tests.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['max_runtime_mins'] = 20
+args_dict['timeout_mins'] = 1440
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

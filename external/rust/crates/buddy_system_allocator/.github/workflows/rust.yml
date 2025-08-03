@@ -1,0 +1,26 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: 
+        - stable
+        - nightly-2022-08-11
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use ${{ matrix.rust }}
+      run: rustup default ${{ matrix.rust }}
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose

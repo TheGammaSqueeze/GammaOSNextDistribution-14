@@ -1,0 +1,2 @@
+[patch.crates-io]
+bssl-sys = { version = "0.1.0", path = "../../../boringssl/src/rust/bssl-sys", optional=true }

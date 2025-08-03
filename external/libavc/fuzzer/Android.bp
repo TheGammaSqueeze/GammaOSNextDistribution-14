@@ -1,0 +1,108 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_libavc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_libavc_license"],
+}
+
+cc_defaults {
+    name: "libavc_fuzzer_defaults",
+    host_supported: true,
+    static_libs: ["liblog"],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    fuzz_config: {
+        cc: [
+            "android-media-fuzzing-reports@google.com",
+        ],
+        componentid: 155276,
+        hotlists: [
+            "4593311",
+            "2281331",
+        ],
+        description: "The fuzzers target the APIs of libavc",
+        service_privilege: "constrained",
+        users: "multi_user",
+    },
+
+}
+
+cc_fuzz {
+    name: "avc_dec_fuzzer",
+    defaults: ["libavc_fuzzer_defaults"],
+    srcs: [
+        "avc_dec_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libavcdec",
+    ],
+    fuzz_config: {
+        fuzzed_code_usage: "shipped",
+        vector: "remote",
+    },
+}
+
+cc_fuzz {
+    name: "mvc_dec_fuzzer",
+    defaults: ["libavc_fuzzer_defaults"],
+    srcs: [
+        "mvc_dec_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libmvcdec",
+    ],
+    fuzz_config: {
+        fuzzed_code_usage: "experimental",
+        vector: "remote",
+    },
+}
+
+cc_fuzz {
+    name: "avc_enc_fuzzer",
+    defaults: ["libavc_fuzzer_defaults"],
+    srcs: [
+        "avc_enc_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libavcenc",
+    ],
+    fuzz_config: {
+        fuzzed_code_usage: "shipped",
+        vector: "local_no_privileges_required",
+    },
+}
+
+cc_fuzz {
+    name: "svc_enc_fuzzer",
+    defaults: ["libavc_fuzzer_defaults"],
+    srcs: [
+        "svc_enc_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libsvcenc",
+    ],
+    fuzz_config: {
+        fuzzed_code_usage: "experimental",
+        vector: "local_no_privileges_required",
+    },
+}
+
+cc_fuzz {
+    name: "svc_dec_fuzzer",
+    defaults: ["libavc_fuzzer_defaults"],
+    srcs: [
+        "svc_dec_fuzzer.cpp",
+    ],
+    static_libs: [
+        "libsvcdec",
+    ],
+    fuzz_config: {
+        fuzzed_code_usage: "experimental",
+        vector: "remote",
+    },
+}

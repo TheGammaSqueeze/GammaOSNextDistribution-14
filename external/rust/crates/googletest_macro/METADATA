@@ -1,0 +1,24 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/googletest_macro
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "googletest_macro"
+description: "Procedural macros for GoogleTest Rust"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 2
+  }
+  identifier {
+    type: "crates.io"
+    value: "https://static.crates.io/crates/googletest_macro/googletest_macro-0.11.0.crate"
+    version: "0.10.0"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/googletest_macro/googletest_macro-0.10.0.crate"
+    version: "0.11.0"
+  }
+}

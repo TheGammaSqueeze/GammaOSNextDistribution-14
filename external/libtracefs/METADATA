@@ -1,0 +1,19 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update libtracefs
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "libtracefs"
+description: "libtracefs is a library that provides APIs to access to the Linux kernel tracefs file system"
+third_party {
+  url {
+    type: GIT
+    value: "https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git"
+  }
+  version: "libtracefs-1.6.4"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2023
+    month: 1
+    day: 18
+  }
+}

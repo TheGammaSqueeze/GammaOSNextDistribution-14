@@ -1,0 +1,64 @@
+From 0dedafec9fb850f4041cb7b323282b19381cb1f2 Mon Sep 17 00:00:00 2001
+From: Matthew Maurer <mmaurer@google.com>
+Date: Wed, 31 Jan 2024 15:07:59 +0100
+Subject: [PATCH] Support RUST_BACKTRACE settings in test_fmt
+
+Setting `RUST_BACKTRACE` when running tests is useful so that the logs
+will contain backtraces when a test fails. `anyhow` uses this
+environment variable as well when formatting its errors. `test_fmt`
+currently tests that formatting is an exact match, so adding a trailing
+backtrace causes them to fail.
+
+This patch checks that the formatted error *starts with* the intended
+result, thus allowing it to pass when a backtrace is appended.
+
+Change-Id: I7ea8bcded841558d845f0cba4a92a2339a6db3f5
+---
+ tests/test_fmt.rs | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/tests/test_fmt.rs b/tests/test_fmt.rs
+index 9766d36..016b4b8 100644
+--- a/tests/test_fmt.rs
++++ b/tests/test_fmt.rs
+@@ -68,27 +68,27 @@ Error {
+ 
+ #[test]
+ fn test_display() {
+-    assert_eq!("g failed", h().unwrap_err().to_string());
++    assert!(h().unwrap_err().to_string().starts_with("g failed"));
+ }
+ 
+ #[test]
+ fn test_altdisplay() {
+-    assert_eq!(EXPECTED_ALTDISPLAY_F, format!("{:#}", f().unwrap_err()));
+-    assert_eq!(EXPECTED_ALTDISPLAY_G, format!("{:#}", g().unwrap_err()));
+-    assert_eq!(EXPECTED_ALTDISPLAY_H, format!("{:#}", h().unwrap_err()));
++    assert!(format!("{:#}", f().unwrap_err()).starts_with(EXPECTED_ALTDISPLAY_F));
++    assert!(format!("{:#}", g().unwrap_err()).starts_with(EXPECTED_ALTDISPLAY_G));
++    assert!(format!("{:#}", h().unwrap_err()).starts_with(EXPECTED_ALTDISPLAY_H));
+ }
+ 
+ #[test]
+ #[cfg_attr(not(std_backtrace), ignore)]
+ fn test_debug() {
+-    assert_eq!(EXPECTED_DEBUG_F, format!("{:?}", f().unwrap_err()));
+-    assert_eq!(EXPECTED_DEBUG_G, format!("{:?}", g().unwrap_err()));
+-    assert_eq!(EXPECTED_DEBUG_H, format!("{:?}", h().unwrap_err()));
++    assert!(format!("{:?}", f().unwrap_err()).starts_with(EXPECTED_DEBUG_F));
++    assert!(format!("{:?}", g().unwrap_err()).starts_with(EXPECTED_DEBUG_G));
++    assert!(format!("{:?}", h().unwrap_err()).starts_with(EXPECTED_DEBUG_H));
+ }
+ 
+ #[test]
+ fn test_altdebug() {
+-    assert_eq!(EXPECTED_ALTDEBUG_F, format!("{:#?}", f().unwrap_err()));
+-    assert_eq!(EXPECTED_ALTDEBUG_G, format!("{:#?}", g().unwrap_err()));
+-    assert_eq!(EXPECTED_ALTDEBUG_H, format!("{:#?}", h().unwrap_err()));
++    assert!(format!("{:#?}", f().unwrap_err()).starts_with(EXPECTED_ALTDEBUG_F));
++    assert!(format!("{:#?}", g().unwrap_err()).starts_with(EXPECTED_ALTDEBUG_G));
++    assert!(format!("{:#?}", h().unwrap_err()).starts_with(EXPECTED_ALTDEBUG_H));
+ }
+-- 
+2.43.0.429.g432eaa2c6b-goog
+

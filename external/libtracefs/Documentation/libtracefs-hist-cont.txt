@@ -1,0 +1,222 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_hist_start, tracefs_hist_destroy, tracefs_hist_pause,
+tracefs_hist_continue, tracefs_hist_reset - Pause, continue, or clear an existing histogram
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_hist_start*(struct tracefs_instance pass:[*]_instance_, struct tracefs_hist pass:[*]_hist_);
+int *tracefs_hist_destroy*(struct tracefs_instance pass:[*]_instance_, struct tracefs_hist pass:[*]_hist_);
+int *tracefs_hist_pause*(struct tracefs_instance pass:[*]_instance_, struct tracefs_hist pass:[*]_hist_);
+int *tracefs_hist_continue*(struct tracefs_instance pass:[*]_instance_, struct tracefs_hist pass:[*]_hist_);
+int *tracefs_hist_reset*(struct tracefs_instance pass:[*]_instance_, struct tracefs_hist pass:[*]_hist_);
+
+--
+
+DESCRIPTION
+-----------
+
+*tracefs_hist_start()* is called to actually start the histogram _hist_.
+The _instance_ is the instance to start the histogram in, NULL if it
+should start at the top level.
+
+*tracefs_hist_pause()* is called to pause the histogram _hist_.
+The _instance_ is the instance to pause the histogram in, NULL if it
+is in the top level.
+
+*tracefs_hist_continue()* is called to continue a paused histogram _hist_.
+The _instance_ is the instance to continue the histogram, NULL if it
+is in the top level.
+
+*tracefs_hist_reset()* is called to clear / reset the histogram _hist_.
+The _instance_ is the instance to clear the histogram, NULL if it
+is in the top level.
+
+*tracefs_hist_destroy()* is called to delete the histogram where it will no longer
+exist.  The _instance_ is the instance to delete the histogram from, NULL if it
+is in the top level.
+
+RETURN VALUE
+------------
+All the return zero on success or -1 on error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <stdlib.h>
+#include <tracefs.h>
+
+enum commands {
+	START,
+	PAUSE,
+	CONT,
+	RESET,
+	DELETE,
+	SHOW,
+};
+
+int main (int argc, char **argv, char **env)
+{
+	struct tracefs_instance *instance;
+	struct tracefs_hist *hist;
+	struct tep_handle *tep;
+	enum commands cmd;
+	char *cmd_str;
+	int ret;
+
+	if (argc < 2) {
+		fprintf(stderr, "usage: %s command\n", argv[0]);
+		exit(-1);
+	}
+
+	cmd_str = argv[1];
+
+	if (!strcmp(cmd_str, "start"))
+		cmd = START;
+	else if (!strcmp(cmd_str, "pause"))
+		cmd = PAUSE;
+	else if (!strcmp(cmd_str, "cont"))
+		cmd = CONT;
+	else if (!strcmp(cmd_str, "reset"))
+		cmd = RESET;
+	else if (!strcmp(cmd_str, "delete"))
+		cmd = DELETE;
+	else if (!strcmp(cmd_str, "show"))
+		cmd = SHOW;
+	else {
+		fprintf(stderr, "Unknown command %s\n", cmd_str);
+		exit(-1);
+	}
+
+	tep = tracefs_local_events(NULL);
+	if (!tep) {
+		perror("Reading tracefs");
+		exit(-1);
+	}
+
+	instance = tracefs_instance_create("hist_test");
+	if (!instance) {
+		fprintf(stderr, "Failed instance create\n");
+		exit(-1);
+	}
+
+	hist = tracefs_hist_alloc_2d(tep, "kmem", "kmalloc",
+				     "call_site",TRACEFS_HIST_KEY_SYM,
+				     "bytes_req", 0);
+	if (!hist) {
+		fprintf(stderr, "Failed hist create\n");
+		exit(-1);
+	}
+
+	ret = tracefs_hist_add_value(hist, "bytes_alloc");
+	ret |= tracefs_hist_add_sort_key(hist, "bytes_req");
+	ret |= tracefs_hist_add_sort_key(hist, "bytes_alloc");
+
+	ret |= tracefs_hist_sort_key_direction(hist, "bytes_alloc",
+					       TRACEFS_HIST_SORT_DESCENDING);
+	if (ret) {
+		fprintf(stderr, "Failed modifying histogram\n");
+		exit(-1);
+	}
+
+	tracefs_error_clear(instance);
+
+	switch (cmd) {
+	case START:
+		ret = tracefs_hist_start(instance, hist);
+		if (ret) {
+			char *err = tracefs_error_last(instance);
+			if (err)
+				fprintf(stderr, "\n%s\n", err);
+		}
+		break;
+	case PAUSE:
+		ret = tracefs_hist_pause(instance, hist);
+		break;
+	case CONT:
+		ret = tracefs_hist_continue(instance, hist);
+		break;
+	case RESET:
+		ret = tracefs_hist_reset(instance, hist);
+		break;
+	case DELETE:
+		ret = tracefs_hist_destroy(instance, hist);
+		break;
+	case SHOW: {
+		char *content;
+		content = tracefs_event_file_read(instance, "kmem", "kmalloc",
+						  "hist", NULL);
+		ret = content ? 0 : -1;
+		if (content) {
+			printf("%s\n", content);
+			free(content);
+		}
+		break;
+	}
+	}
+	if (ret)
+		fprintf(stderr, "Failed: command\n");
+	exit(ret);
+}
+
+--
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1),
+*tracefs_hist_alloc*(3),
+*tracefs_hist_alloc_2d*(3),
+*tracefs_hist_alloc_nd*(3),
+*tracefs_hist_free*(3),
+*tracefs_hist_add_key*(3),
+*tracefs_hist_add_value*(3),
+*tracefs_hist_add_name*(3),
+*tracefs_hist_start*(3),
+*tracefs_hist_destory*(3),
+*tracefs_hist_add_sort_key*(3),
+*tracefs_hist_sort_key_direction*(3)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+*sameeruddin shaik* <sameeruddin.shaik8@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

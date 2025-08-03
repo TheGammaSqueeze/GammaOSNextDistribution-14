@@ -1,0 +1,43 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.typec-lab'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'servo_state:WORKING'
+ATTRIBUTES = 'suite:typec_lab'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run Tast tests for basic typec/TBT functionality.
+
+The tests are part of 'group:typec'. The 'typec_lab' sub-attribute
+limits it to typec tests.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/
+for more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+args_dict = utils.args_to_dict(args)
+assert 'servo_state:WORKING' in DEPENDENCIES
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine, servo_args=servo_args),
+                 test_exprs=['("group:typec" && typec_lab)'],
+                 ignore_test_failures=True, max_run_sec=10800,
+                 command_args=args)
+
+parallel_simple(run, machines)

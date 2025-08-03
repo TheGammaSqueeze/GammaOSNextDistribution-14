@@ -1,0 +1,51 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x15053314
+  name: "double"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+array {
+  id: 0xc178c235
+  element_type_id: 0x15053314
+}
+member {
+  id: 0x9cebeb53
+  name: "bar"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0x964b7931
+  name: "baz"
+  type_id: 0xc178c235
+  offset: 64
+}
+struct_union {
+  id: 0xb88f5ef1
+  kind: STRUCT
+  name: "foo"
+  definition {
+    bytesize: 8
+    member_id: 0x9cebeb53
+    member_id: 0x964b7931
+  }
+}
+elf_symbol {
+  id: 0x7709bd40
+  name: "x"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xb88f5ef1
+  full_name: "x"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x7709bd40
+}

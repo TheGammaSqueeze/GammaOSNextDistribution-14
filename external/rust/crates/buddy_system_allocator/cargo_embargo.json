@@ -1,0 +1,15 @@
+{
+  "module_name_overrides": {
+    "libbyteorder": "libbyteorder_nostd",
+    "libspin": "libspin_nostd"
+  },
+  "package": {
+    "buddy_system_allocator": {
+      "alloc": true,
+      "host_supported": false,
+      "force_rlib": true,
+      "no_std": true
+    }
+  },
+  "run_cargo": false
+}

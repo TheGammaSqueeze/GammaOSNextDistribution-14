@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/num-integer
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "num-integer"
+description: "Integer traits and functions"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/num-integer"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/num-integer/num-integer-0.1.45.crate"
+  }
+  version: "0.1.45"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 12
+    day: 13
+  }
+}

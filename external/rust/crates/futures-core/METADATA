@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/futures-core
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "futures-core"
+description: "The core traits and types in for the `futures` library."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 1
+  }
+  homepage: "https://crates.io/crates/futures-core"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/futures-core/futures-core-0.3.30.crate"
+    version: "0.3.30"
+  }
+}

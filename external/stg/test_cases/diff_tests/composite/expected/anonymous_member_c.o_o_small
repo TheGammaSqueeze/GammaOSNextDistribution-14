@@ -1,0 +1,10 @@
+variable symbol changed from 'struct { struct { int one; }; struct { int two; }; struct { int four; }; struct { int eight; }; } v' to 'struct { struct { int zero; }; struct { int two; }; struct { int four; }; struct { int six; }; struct { int eight; }; } v'
+  type changed from 'struct { struct { int one; }; struct { int two; }; struct { int four; }; struct { int eight; }; }' to 'struct { struct { int zero; }; struct { int two; }; struct { int four; }; struct { int six; }; struct { int eight; }; }'
+    byte size changed from 16 to 20
+    member 'struct { int zero; }' was added
+    member 'struct { int one; }' was removed
+    member 'struct { int six; }' was added
+    member 'struct { int eight; }' changed
+      offset changed from 96 to 128
+
+exit code 4

@@ -1,0 +1,12 @@
+variable symbol 'struct X x' changed
+  type 'struct X' changed
+    member changed from 'int a' to 'int a:32'
+      was not a bit-field, is now a bit-field
+    member changed from 'int b:32' to 'int b'
+      was a bit-field, is now not a bit-field
+    member changed from 'int c' to 'int c:16'
+      was not a bit-field, is now a bit-field
+    member changed from 'int d:16' to 'int d'
+      was a bit-field, is now not a bit-field
+
+exit code 4

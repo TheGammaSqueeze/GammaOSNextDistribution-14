@@ -1,0 +1,13 @@
+name: "anonymous-counting-tokens"
+description:
+""
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/anonymous-counting-tokens"
+  }
+  version: "827d2aa796804f9ed28fc1c35ada56e0c62800be"
+  last_upgrade_date { year: 2023 month: 4 day: 25 }
+  license_type: NOTICE
+}

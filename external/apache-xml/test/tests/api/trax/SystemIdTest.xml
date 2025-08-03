@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Filename: SystemIdTest.xml -->
+<list>
+  <item>Xalan-J 1.x</item>
+  <item>Xalan-J 2.x</item>
+  <item>Xalan-C 1.x</item>
+  <list>
+    <item>Xalan documentation</item>
+    <item>Xalan tests</item>
+  </list>
+</list>

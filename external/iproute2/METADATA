@@ -1,0 +1,22 @@
+name: "iproute2"
+description: "This is a set of utilities for Linux networking."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://git.kernel.org/pub/scm/network/iproute2/iproute2.git"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://git.kernel.org/pub/scm/network/iproute2/iproute2.git/snapshot/iproute2-4.14.1.tar.gz"
+  }
+  version: "v4.14.1"
+  license_type: RESTRICTED
+  security {
+    tag: "NVD-CPE2.3:cpe:/a:iproute2_project:iproute2:3.4.0"
+  }
+  last_upgrade_date {
+    year: 2017
+    month: 11
+    day: 17
+  }
+}

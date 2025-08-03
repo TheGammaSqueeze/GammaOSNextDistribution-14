@@ -1,0 +1,84 @@
+package {
+    default_applicable_licenses: ["external_libldac_license"],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_libldac_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "libldacBT_enc",
+    vendor_available: true,
+    product_available: true,
+    vndk: {
+        enabled: true,
+    },
+    host_supported: true,
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    export_include_dirs: ["inc"],
+    srcs: [
+        "src/ldaclib.c",
+        "src/ldacBT.c",
+    ],
+    // -D_32BIT_FIXED_POINT should be added to cflags for devices without a FPU
+    // unit such as ARM Cortex-R series or external 32-bit DSPs.
+    cflags: ["-O2", "-Werror", "-Wall", "-Wextra"],
+    min_sdk_version: "Tiramisu",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+    visibility: [
+        "//external/libldac/fuzzer",
+        "//external/oss-fuzz",
+        "//packages/modules/Bluetooth:__subpackages__",
+        "//packages/modules/vndk/apex",
+    ],
+}
+
+cc_library {
+    name: "libldacBT_abr",
+    vendor_available: true,
+    product_available: true,
+    vndk: {
+        enabled: true,
+    },
+    host_supported: true,
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    export_include_dirs: ["abr/inc"],
+    srcs: ["abr/src/ldacBT_abr.c"],
+    static_libs: ["libldacBT_enc"],
+    cflags: ["-O2", "-Werror", "-Wall", "-Wextra"],
+    min_sdk_version: "Tiramisu",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+    ],
+    visibility: [
+        "//packages/modules/Bluetooth:__subpackages__",
+        "//packages/modules/vndk/apex",
+    ],
+}

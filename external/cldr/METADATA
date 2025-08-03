@@ -1,0 +1,17 @@
+name: "cldr"
+description:
+    "CLDR data and tools"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.unicode.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/unicode-org/cldr"
+  }
+  version: "42.0"
+  last_upgrade_date { year: 2022 month: 11  day: 1 }
+  license_type: NOTICE
+}

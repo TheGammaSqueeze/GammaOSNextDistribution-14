@@ -1,0 +1,37 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "power_LoadTest.force_discharge_eth_1hr"
+PURPOSE = "Measure power draw when system is under load."
+CRITERIA = "This test is a benchmark."
+TIME = "LENGTHY"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "client"
+EXTENDED_TIMEOUT = 4500
+PY_VERSION = 3
+
+DOC = """
+This test runs a load test consisting of cycling though web pages, playing
+videos, etc. and measures battery power draw. The duration of this test is
+determined by loop_time * loop_cnt.
+
+
+This version of test allows:
+  - AC is connected. Test will use EC command to force DUT to discharge.
+  - Ethernet is connected.
+"""
+
+# TODO (bleung): Find a way to do automatic Facebook login for test account.
+
+loop_time = 3600
+loop_count = 1
+
+args_dict = utils.args_to_dict(args)
+pdash_note = args_dict.get('pdash_note', '')
+job.run_test('power_LoadTest', loop_time=loop_time, loop_count=loop_count,
+             test_low_batt_p=5, ac_ok=True, force_discharge=True,
+             check_network=False, tag=NAME.split('.')[1],
+             pdash_note=pdash_note)

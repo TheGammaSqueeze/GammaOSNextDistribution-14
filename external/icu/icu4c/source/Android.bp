@@ -1,0 +1,81 @@
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_java_core_libraries",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_icu_icu4c_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-ICU
+    //   SPDX-license-identifier-ISC
+    //   SPDX-license-identifier-MIT
+    //   SPDX-license-identifier-Unicode-DFS
+    //   legacy_unencumbered
+    default_applicable_licenses: ["external_icu_icu4c_license"],
+}
+
+subdirs = [
+    "common",
+    "i18n",
+    "test",
+    "tools/ctestfw",
+    "tools/toolutil",
+]
+
+cc_library {
+    name: "libicuuc_stubdata",
+    host_supported: true,
+    native_bridge_supported: true,
+    srcs: ["stubdata/stubdata.cpp"],
+    apex_available: [
+        "com.android.i18n",
+    ],
+    header_libs: [
+        "libicuuc_headers",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    target: {
+        windows: {
+            enabled: true,
+        },
+        windows_x86_64: {
+            dist: {
+                targets: ["layoutlib"],
+                dir: "layoutlib_native/windows",
+                tag: "stripped_all",
+            },
+        },
+        android: {
+            cflags: [
+                "-DANDROID_LINK_SHARED_ICU4C",
+            ],
+        },
+    },
+}
+
+genrule {
+    name: "icu4c_test_data",
+    srcs: [
+        "test/testdata/**/*",
+        "data/**/*",
+    ],
+    out: ["icu4c_test_data.zip"],
+    tools: ["soong_zip"],
+    cmd: "$(location soong_zip) -o $(out) -C external/icu/icu4c/source/ -D external/icu/icu4c/source/test/testdata -D external/icu/icu4c/source/data",
+}

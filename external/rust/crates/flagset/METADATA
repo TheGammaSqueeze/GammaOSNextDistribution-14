@@ -1,0 +1,19 @@
+name: "flagset"
+description: "Data types and a macro for generating enumeration-based bit flags"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/flagset"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/flagset/flagset-0.4.3.crate"
+  }
+  version: "0.4.3"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 8
+    day: 19
+  }
+}

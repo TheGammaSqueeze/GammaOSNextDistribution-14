@@ -1,0 +1,13 @@
+<sales>
+   <product>Windows 98
+      <period name="Q1">82</period>
+      <period name="Q2">64</period>
+      <period name="Q3">58</period>
+   </product>
+   <product>Windows NT
+      <period name="Q1">17</period>
+      <period name="Q2">44</period>
+      <period name="Q3">82</period>
+   </product>
+</sales>
+

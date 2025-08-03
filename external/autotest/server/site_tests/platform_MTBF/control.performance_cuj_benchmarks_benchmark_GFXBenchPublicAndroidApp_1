@@ -1,0 +1,54 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# TEST IS DISABLED UNTIL MIGRATED TO PYTHON 3.
+# For instructions on how to: go/tauto-py3-migration
+# To re-enable migrate to Python 3.
+# If the test is not migrated by 1/14/22 it will be deleted.
+
+AUTHOR = 'abergman, chromeos-engprod-platform-syd'
+NAME = 'benchmark_GFXBenchPublicAndroidApp_1'
+ATTRIBUTES = 'suite:performance_cuj_benchmarks'
+TIME = 'long'
+TEST_CATEGORY = 'Stress'
+TEST_CLASS = 'Hardware'
+TEST_TYPE = 'Server'
+PRIORITY = 4995
+MAX_RESULT_SIZE_KB = 1024 * 1024
+JOB_RETRIES = 2
+REQUIRE_SSP = True
+DEPENDENCIES = ''
+
+DOC = '''
+Run the Tast-based MTBF performance CUJ test.
+
+Tast is an integration-testing framework analogous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+from autotest_lib.client.common_lib import utils
+from autotest_lib.utils import labellib
+
+def report_host_info(host):
+  labels = labellib.LabelsMapping(host.host_info_store.get().labels)
+  labels['test_version'] = 1
+  labels['test'] = 'benchmark.GFXBenchPublicAndroidApp'
+  labels['test_iteration'] = '1'
+  utils.write_keyval(job.resultdir, labels)
+
+def run(machine):
+  host=hosts.create_host(machine)
+  report_host_info(host)
+  job.run_test('tast',
+              host=host,
+              test_exprs=['benchmark.GFXBenchPublicAndroidApp'],
+              ignore_test_failures=False,
+              max_run_sec=3600,
+              command_args=args,
+              vars_gs_path='config/perf_cuj/perf_cuj.config')
+
+parallel_simple(run, machines)

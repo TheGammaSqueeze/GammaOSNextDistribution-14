@@ -1,0 +1,19 @@
+[package]
+name = "vsock"
+version = "0.4.0"
+authors = ["fsyncd", "rust-vsock"]
+description = "Virtio socket support for Rust"
+repository = "https://github.com/rust-vsock/vsock-rs"
+homepage = "https://github.com/rust-vsock/vsock-rs"
+readme = "README.md"
+license = "Apache-2.0"
+edition = "2021"
+exclude = ["test_fixture"]
+
+[dependencies]
+libc = "0.2.150"
+nix = { version = "0.27.1", features = ["ioctl", "socket"] }
+
+[dev-dependencies]
+rand = "0.8.3"
+sha2 = ">=0.8.0"

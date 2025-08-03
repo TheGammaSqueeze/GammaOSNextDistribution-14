@@ -1,0 +1,32 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "gregorynisbet@chromium.org"
+NAME = "satlab-qual-bvt-cq"
+PURPOSE = "Tests functionality required by the Commit Queue for Satlab"
+
+TIME = "MEDIUM"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This is a fork of control.bvt-cq for Satlab qualification.
+
+The original is control.bvt-cq in the same directory as this file.
+
+https://chromium.googlesource.com/chromiumos/third_party/autotest/+/main/test_suites/control.bvt-cq
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['add_experimental'] = True
+args_dict['job'] = job
+args_dict['max_runtime_mins'] = 30
+args_dict['name'] = NAME
+# timeout_mins not present in original.
+args_dict['timeout_mins'] = 4 * 60
+
+dynamic_suite.reimage_and_run(**args_dict)

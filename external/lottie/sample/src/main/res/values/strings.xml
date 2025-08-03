@@ -1,0 +1,87 @@
+<resources>
+    <string name="app_name">Lottie</string>
+    <string name="invalid_assets">Unable to load assets</string>
+    <string name="permission_required">Camera permissions are required to use the QR Scanner</string>
+    <string name="scan_prompt">Scan QR Code from lottiefiles.com</string>
+    <string name="render_times_graph">Show real time render time graph</string>
+    <string name="hardware_acceleration">Use hardware acceleration</string>
+    <string name="enable_merge_paths">Enable merge paths (KK+ only)</string>
+    <string name="menu_item_visibility">Hide Controls</string>
+
+    <!-- Shortcuts -->
+    <string name="shortcut_animation_viewer">Animation Viewer</string>
+    <string name="shortcut_animation_viewer_short">Viewer</string>
+    <string name="shortcut_animated_typography">Animated Typography</string>
+    <string name="shortcut_animated_typography_short">Typography</string>
+    <string name="shortcut_animated_app_tutorial">Animated App Tutorial</string>
+    <string name="shortcut_animated_app_tutorial_short">App Tutorial</string>
+    <string name="shortcut_full_screen_animation">Full Screen Animation</string>
+    <string name="shortcut_full_screen_animation_short">Full Screen</string>
+    <string name="shortcut_disabled">Shortcut Disabled</string>
+    <string name="start_typing">Start typing!</string>
+    <string name="qr_code_overlay">QR code overlay</string>
+    <string name="qr_permission_denied">QR scanning requires the camera permission.</string>
+
+    <string name="scale">Scale</string>
+    <string name="background">Background</string>
+    <string name="ms">ms</string>
+
+    <string name="bottom_bar_showcase">Showcase</string>
+    <string name="bottom_bar_preview">Preview</string>
+    <string name="bottom_bar_lottiefiles">Lottiefiles</string>
+    <string name="bottom_bar_learn">Learn</string>
+
+    <string name="preview_title">Preview</string>
+    <string name="preview_qr">Scan a QR code</string>
+    <string name="preview_assets">Load from assets</string>
+    <string name="preview_file">Open a file</string>
+    <string name="preview_url">Enter a URL to a json or zip file</string>
+    <string name="preview_load">Load</string>
+    <string name="preview_cancel">Cancel</string>
+
+    <string name="composition_load_error">There was an error loading the composition</string>
+
+    <string name="control_bar_border">Border</string>
+    <string name="control_bar_background_color">Background</string>
+    <string name="control_bar_hardware_acceleration">Hardware Acceleration</string>
+    <string name="control_bar_render_graph">Render Graph</string>
+    <string name="control_bar_scale">Scale</string>
+    <string name="control_bar_masks_and_mattes">Outline Masks</string>
+    <string name="control_bar_trim">Trim</string>
+    <string name="control_bar_speed">Speed</string>
+    <string name="control_bar_key_paths">Show KeyPaths</string>
+    <string name="control_bar_merge_paths">Merge Paths (KitKat+)</string>
+    <string name="control_bar_apply_opacity_to_layers">Apply Opacity To Layers</string>
+
+    <string name="minus_one_x">-1x</string>
+    <string name="minus_half_x">-0.5x</string>
+    <string name="half_x">0.5x</string>
+    <string name="one_x">1x</string>
+    <string name="two_x">2x</string>
+
+    <string name="min_frame_dialog">Set min frame</string>
+    <string name="max_frame_dialog">Set max frame</string>
+    <string name="min_frame">Min frame: %1$d</string>
+    <string name="max_frame">Max frame: %1$d</string>
+
+    <string name="render_times_per_layer_button">View render times per layer</string>
+    <string name="lottie_version">Lottie %1$s</string>e
+    <string name="render_times_title">Render time per layer</string>
+    <string name="key_paths_title">KeyPaths in animation.\nUsed for dynamic properties.</string>
+    <string name="warnings_title">Warnings</string>
+
+    <string name="lottiefiles">Lottiefiles</string>
+    <string name="lottiefiles_airbnb">Lottiefiles is not affiliated with Airbnb</string>
+    <string name="popular">Popular</string>
+    <string name="recent">Recent</string>
+    <string name="search">Search</string>
+
+    <string name="anonymous">Anonymous</string>
+
+    <string name="showcase_item_bullseye">\nBullseye</string>
+    <string name="showcase_item_dynamic_properties">Dynamic\nProperties</string>
+    <string name="showcase_item_animated_text">Animated\nText</string>
+    <string name="showcase_item_dynamic_text">Dynamic\nText</string>
+    <string name="showcase_item_recycler_view">RecyclerView</string>
+    <string name="bullseye_drag_dot">Drag the blue dot</string>
+</resources>

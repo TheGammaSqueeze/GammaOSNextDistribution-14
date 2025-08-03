@@ -1,0 +1,31 @@
+# Copyright (c) 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "cellular_Hermes_SingleProfile.prodci"
+PURPOSE = "Verify that a failed hermes connect attempt reported"
+CRITERIA = """
+This test will fail if could not able to Enable/Disable a given Euicc through
+Hermes dbus daemon
+"""
+ATTRIBUTES = "suite:cellular_ota_flaky"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "network"
+TEST_TYPE = "client"
+DEPENDENCIES = "carrier:esim"
+PY_VERSION = 3
+DOC = """
+  Tests that Hermes Euicc Enable and Disable
+
+  This test will fail if failed to Enable/Disable Euicc OR could not able to
+  find and connect to Hermes dbus daemon
+  It requires a dut with a modem and euicc
+"""
+
+from autotest_lib.client.cros.cellular import test_environment
+
+test_env = test_environment.CellularESIMTestEnvironment()
+job.run_test('cellular_Hermes_SingleProfile', test_env=test_env,
+            is_prod_ci=True)

@@ -1,0 +1,69 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_openscreen_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   legacy_unencumbered
+    default_applicable_licenses: ["external_openscreen_license"],
+}
+
+cc_defaults {
+    name: "libopenscreen_absl_defaults",
+    visibility: [
+        "//external/openscreen:__subpackages__",
+    ],
+}
+
+cc_library_headers {
+    name: "libopenscreen_absl_headers",
+    defaults: ["libopenscreen_absl_defaults"],
+    device_supported: false,
+    host_supported: true,
+    export_include_dirs: ["src"],
+    target: {
+        windows: {
+            enabled: true,
+        },
+    }
+}
+
+// Source set from openscreen's third_party/abseil/BUILD.gn
+cc_library_host_static {
+    name: "libopenscreen_absl",
+    defaults: ["libopenscreen_absl_defaults"],
+    header_libs: [
+        "libopenscreen_absl_headers",
+    ],
+    srcs: [
+      "src/absl/base/internal/raw_logging.cc",
+      "src/absl/base/internal/throw_delegate.cc",
+      "src/absl/hash/internal/city.cc",
+      "src/absl/hash/internal/hash.cc",
+      "src/absl/numeric/int128.cc",
+      "src/absl/strings/ascii.cc",
+      "src/absl/strings/charconv.cc",
+      "src/absl/strings/escaping.cc",
+      "src/absl/strings/internal/charconv_bigint.cc",
+      "src/absl/strings/internal/charconv_parse.cc",
+      "src/absl/strings/internal/escaping.cc",
+      "src/absl/strings/internal/memutil.cc",
+      "src/absl/strings/internal/utf8.cc",
+      "src/absl/strings/match.cc",
+      "src/absl/strings/numbers.cc",
+      "src/absl/strings/str_cat.cc",
+      "src/absl/strings/str_replace.cc",
+      "src/absl/strings/str_split.cc",
+      "src/absl/strings/string_view.cc",
+      "src/absl/strings/substitute.cc",
+      "src/absl/types/bad_optional_access.cc",
+      "src/absl/types/bad_variant_access.cc",
+    ],
+
+    target: {
+        windows: {
+            enabled: true,
+        },
+    }
+}

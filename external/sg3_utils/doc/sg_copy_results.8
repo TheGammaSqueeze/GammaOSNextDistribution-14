@@ -1,0 +1,126 @@
+.TH SG_COPY_RESULTS "8" "September 2014" "sg3_utils\-1.40" SG3_UTILS
+.SH NAME
+sg_copy_results \- send SCSI RECEIVE COPY RESULTS command (XCOPY related)
+.SH SYNOPSIS
+.B sg_copy_results
+[\fI\-\-failed\fR|\fI\-\-params\fR|\fI\-\-receive\fR|\fI\-\-status\fR]
+[\fI\-\-help\fR] [\fI\-\-hex\fR] [\fI\-\-list_id=ID\fR] [\fI\-\-readonly\fR]
+[\fI\-\-verbose\fR] [\fI\-\-version\fR] [\fI\-\-xfer_len=BTL\fR] \fIDEVICE\fR
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+This utility is designed to query the status of the SCSI Extended
+Copy (XCOPY) facility (see SPC\-3 revision 23 sections 6.3 and 6.17), present
+in some modern storage arrays. This utility sends a SCSI RECEIVE COPY
+RESULTS command to the given \fIDEVICE\fR and displays the response.
+.PP
+During the draft stages of SPC\-4 the T10 committee has expanded the XCOPY
+command so that it now has two variants: "LID1" (for a List Identifier
+length of 1 byte) and "LID4" (for a List Identifier length of 4 bytes).
+This utility supports the older, LID1 variant which is also found in SPC\-3
+and earlier. While the LID1 variant in SPC\-4 is command level (binary)
+compatible with XCOPY as defined in SPC\-3, some of the command naming has
+changed. This utility uses the older, SPC\-3 XCOPY names.
+.PP
+The command has four distinct modes of operation, distinguished by
+the service action field:
+.TP
+\fBCOPY STATUS  [SPC\-4: RECEIVE COPY STATUS(LID1)]\fR
+Displays the current status of the EXTENDED COPY command identified by
+the list id field.
+.TP
+\fBRECEIVE DATA  [SPC\-4: RECEIVE COPY DATA(LID1)]\fR
+Return the held data read by the EXTENDED COPY command identified by
+the list id field. This option is only meaningful if the respective
+segment descriptor are supported.
+.TP
+\fBOPERATING PARAMETERS  [SPC\-4: RECEIVE COPY OPERATING PARAMETERS]\fR
+Return copy manager operating parameters. This option is also useful
+to determine if the SCSI Extended Copy facility is supported.
+.TP
+\fBFAILED SEGMENT DETAILS  [SPC\-4: RECEIVE COPY FAILURE DETAILS(LID1)]\fR
+Return copy target device sense data and other information about any
+failed segments.
+
+.SH OPTIONS
+Arguments to long options are mandatory for short options as well.
+.TP
+\fB\-f\fR, \fB\-\-failed\fR
+sets the service action field to FAILED SEGMENT DETAILS [4].
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+output the usage message then exit.
+.TP
+\fB\-H\fR, \fB\-\-hex\fR
+prints out the response buffer in hex.
+.TP
+\fB\-l\fR, \fB\-\-list_id\fR=\fIID\fR
+sets the list identifier field to \fIID\fR (default: 0).
+.TP
+\fB\-p\fR, \fB\-\-params\fR
+sets the service action field to OPERATING PARAMETERS [3].
+This is the default.
+.TP
+\fB\-R\fR, \fB\-\-readonly\fR
+open the \fIDEVICE\fR read\-only (e.g. in Unix with the O_RDONLY flag).
+The default is to open it read\-write.
+.TP
+\fB\-r\fR, \fB\-\-receive\fR
+sets the service action field to RECEIVE DATA [1].
+.TP
+\fB\-s\fR, \fB\-\-status\fR
+sets the service action field to COPY STATUS [0].
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+increase the level of verbosity, (i.e. debug output).
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+print the version string and then exit.
+.TP
+\fB\-x\fR, \fB\-\-xfer_len\fR=\fIBTL\fR
+sets the allocation length field to \fIBTL\fR. It is the byte transfer
+length and is the maximum (byte) size of the response. \fIBTL\fR must be
+less than 10000 and defaults to 520.
+.SH NOTES
+Decoding of \fIRECEIVE DATA\fR service action is not implemented.
+.PP
+In a similar way the functionality of sg_xcopy has been ported to the
+more general ddpt utility (and package), the functionality of this utility
+has been ported to the ddptctl utility.
+.SH EXAMPLES
+Query the operating parameters for a device:
+.PP
+# sg_copy_results \-p /dev/sdo
+.br
+Receive copy results (report operating parameters):
+    Supports no list identifier: no
+    Maximum target descriptor count: 2
+    Maximum segment descriptor count: 1
+    Maximum descriptor list length: 92 bytes
+    Maximum segment length: 33553920 bytes
+    Inline data not supported
+    Held data limit: 0 bytes
+    Maximum stream device transfer size: 0 bytes
+    Total concurrent copies: 0
+    Maximum concurrent copies: 255
+    Data segment granularity: 512 bytes
+    Inline data granularity: 1 bytes
+    Held data granularity: 1 bytes
+    Implemented descriptor list:
+        Segment descriptor 0x02: Copy from block device to block device
+        Target descriptor 0xe4: Identification descriptor
+
+.SH EXIT STATUS
+The exit status of sg_copy_results is 0 when it is successful. Otherwise see
+the sg3_utils(8) man page.
+.SH AUTHORS
+Written by Douglas Gilbert.
+.SH "REPORTING BUGS"
+Report bugs to <dgilbert at interlog dot com>.
+.SH COPYRIGHT
+Copyright \(co 2012\-2014 Hannes Reinecke and Douglas Gilbert
+.br
+This software is distributed under a BSD\-2\-Clause license. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+.B sg_xcopy(sg3_utils), ddpt,ddptctl(ddpt)

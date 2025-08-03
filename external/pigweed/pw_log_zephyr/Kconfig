@@ -1,0 +1,144 @@
+# Copyright 2021 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+menu "pw_log"
+
+choice PIGWEED_LOG
+    prompt "Logging backend used"
+    default PIGWEED_LOG_ZEPHYR if CPP
+    default PIGWEED_LOG_NONE
+    help
+      The type of Zephyr pw_log backend to use. See :ref:`module-pw_log` for
+      module details
+
+config PIGWEED_LOG_NONE
+    bool "Do not use Pigweed logging"
+    help
+      PW_LOG_ statements will not work.
+
+config PIGWEED_LOG_ZEPHYR
+    bool "Zephyr logging for PW_LOG_* statements"
+    select PIGWEED_PREPROCESSOR
+    help
+      Once the Pigweed logging is enabled, all Pigweed logs via PW_LOG_*() will
+      be routed to the Zephyr logging system. This means that:
+      - :c:macro:`PW_LOG_LEVEL_DEBUG` maps to Zephyr's LOG_LEVEL_DBG
+      - :c:macro:`PW_LOG_LEVEL_INFO` maps to Zephyr's LOG_LEVEL_INF
+      - :c:macro:`PW_LOG_LEVEL_WARN` maps to Zephyr's LOG_LEVEL_WRN
+      - :c:macro:`PW_LOG_LEVEL_ERROR` maps to Zephyr's LOG_LEVEL_ERR
+      - :c:macro:`PW_LOG_LEVEL_CRITICAL` maps to Zephyr's LOG_LEVEL_ERR
+      - :c:macro:`PW_LOG_LEVEL_FATAL` maps to Zephyr's LOG_LEVEL_ERR
+
+menuconfig PIGWEED_LOG_TOKENIZED
+    bool "Maps all Zephyr log macros to tokenized PW_LOG_* macros"
+    select PIGWEED_PREPROCESSOR
+    select PIGWEED_SYNC_INTERRUPT_SPIN_LOCK
+    select PIGWEED_SYS_IO
+    select PIGWEED_TOKENIZER
+    select LOG_CUSTOM_HEADER
+    help
+      Map all the Zephyr log macros to use Pigweed's then use the
+      :ref:`module-pw_log_tokenized` target as the logging backend in order to
+      automatically tokenize all the logging strings. This means that Pigweed
+      will also tokenize all of Zephyr's logging statements.
+
+config PIGWEED_LOG_TOKENIZED_LIB
+    bool "Tokenize logging and implement your own pw_log_tokenized_HandleLog"
+    select PIGWEED_TOKENIZER
+    select LOG_CUSTOM_HEADER
+    help
+      Same as PIGWEED_LOG_TOKENIZED but you'll need to implement
+      pw_log_tokenized_HandleLog. This gives you flexiblity to access handlers
+      outside of pigweed.
+
+config PIGWEED_LOG_NONE
+    bool "Do not use pigweed logging"
+    help
+      Pigweed log macros will not work unless the application manually
+      configures the logging backend.
+
+menuconfig PIGWEED_LOG_TOKENIZED_RPC
+    bool "Enables RPC tokenized logging"
+    select PIGWEED_SYNC_INTERRUPT_SPIN_LOCK
+    select PIGWEED_SYNC_THREAD_NOTIFICATION
+    select PIGWEED_SYNC_TIMED_THREAD_NOTIFICATION
+    select PIGWEED_SYSTEM_HDLC_RPC_SERVER
+    select PIGWEED_SYSTEM_LOG_BACKEND
+    select PIGWEED_SYSTEM_TARGET_HOOKS
+    select PIGWEED_THREAD
+    select PIGWEED_THREAD_ITERATION
+    select PIGWEED_TOKENIZER
+    select LOG_CUSTOM_HEADER
+    depends on CONSOLE_GETCHAR
+    help
+      Enable tokenized logging over RPC by using the system log backend.
+
+endchoice
+
+if PIGWEED_LOG_ZEPHYR || PIGWEED_LOG_TOKENIZED || PIGWEED_LOG_TOKENIZED_RPC
+
+choice "PIGWEED_LOG_LEVEL_CHOICE"
+	prompt "Max compiled-in log level for pigweed"
+	default PIGWEED_LOG_LEVEL_DEFAULT
+	depends on LOG
+
+config PIGWEED_LOG_LEVEL_OFF
+	bool "Off"
+	help
+	  Turn off all Pigweed logging.
+
+config PIGWEED_LOG_LEVEL_ERR
+	bool "Error"
+	help
+	  Only print error level log statements.
+
+config PIGWEED_LOG_LEVEL_WRN
+	bool "Warning"
+	help
+	  Only print warning level log statements and above.
+
+config PIGWEED_LOG_LEVEL_INF
+	bool "Info"
+	help
+	  Only print info level log statements and above.
+
+config PIGWEED_LOG_LEVEL_DBG
+	bool "Debug"
+	help
+	  Print all log statements.
+
+config PIGWEED_LOG_LEVEL_DEFAULT
+	bool "Default"
+	help
+	  Use Zephyr's ``LOG_DEFAULT_LEVEL`` as the log level.
+
+endchoice
+
+config PIGWEED_LOG_LEVEL
+	int
+	depends on LOG
+	default 0 if PIGWEED_LOG_LEVEL_OFF
+	default 1 if PIGWEED_LOG_LEVEL_ERR
+	default 2 if PIGWEED_LOG_LEVEL_WRN
+	default 3 if PIGWEED_LOG_LEVEL_INF
+	default 4 if PIGWEED_LOG_LEVEL_DBG
+	default LOG_DEFAULT_LEVEL if PIGWEED_LOG_LEVEL_DEFAULT
+
+endif # PIGWEED_LOG_ZEPHYR || PIGWEED_LOG_TOKENIZED || PIGWEED_LOG_TOKENIZED_RPC
+
+if PIGWEED_LOG_TOKENIZED
+rsource "Kconfig.tokenized"
+endif # PIGWEED_LOG_TOKENIZED
+
+endmenu

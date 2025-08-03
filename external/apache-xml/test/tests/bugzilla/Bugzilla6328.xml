@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+  <item num="1">This is a string</item>
+  <item num="2"> This is a string </item><!-- Spaces on each end -->
+  <item num="3">	This is a string	</item><!-- Tabs on each end -->
+  <item num="4">This	 is	 a	 string</item><!-- is tab space a -->
+  <item num="5">This  		is 	a	string 	 	 </item><!-- is space tab a -->
+  <item num="6">This  		is 
+  	a	string 	 	 </item><!-- Lots of misc whitespace and linefeed -->
+  <item num="7">This is &amp;a string</item>
+  <item num="8">This is &lt;a string</item>
+  <item num="9">This is &gt;a string</item>
+  <item num="10">This is &quot;a string</item>
+  <item num="11">This is &apos;a string</item>
+  <item num="12">This is &#169;a string</item>	<!-- Copyright -->
+  <item num="13">This is &#035;a string</item>	<!-- Hashmark -->
+  <item num="14">This is &#165;a string</item>	<!-- yen      -->
+  <item num="15">This is &#032;a string</item>
+  <item num="16">This is &#037;a string</item>	<!-- percent -->
+  <item num="17">This is &#009;a string</item>	<!-- tab    -->
+  <item num="18">This is &#127;a string</item>	<!-- delete  -->
+  <item num="19">This is &#209;a string</item>	<!-- N-tilde -->
+  <item num="20">This is &#338;a string</item>  <!-- OE Ligature -->
+  <item num="21">This is                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 a string</item>  <!-- manymany spaces -->
+</doc>

@@ -1,0 +1,32 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterQuickHealth.AVL5'
+PURPOSE = ('Package of Bluetooth quick health tests')
+CRITERIA = 'Pass all health test'
+ATTRIBUTES = 'suite:bluetooth_qualification'
+TIME = 'LONG' # Takes ~4 hours on kukui
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:2'
+PY_VERSION = 3
+
+DOC = """
+    The AVL test run a subset of tests in quick health.
+    Tests included here should be very robust and stable.
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterQuickHealth', host=host,
+                 num_iterations=5, args_dict=args_dict,
+                 flag='AVL')
+
+parallel_simple(run, machines)

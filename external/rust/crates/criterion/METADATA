@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/criterion
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "criterion"
+description: "Statistics-driven micro-benchmarking library"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/criterion"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/criterion/criterion-0.4.0.crate"
+  }
+  version: "0.4.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 2
+    day: 15
+  }
+}

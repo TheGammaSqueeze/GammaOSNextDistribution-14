@@ -1,0 +1,23 @@
+name: "exfatprogs"
+description:
+    "As new exfat filesystem is merged into linux-5.7 kernel, exfatprogs is "
+    "created as an official userspace utilities that contain all of the "
+    "standard "
+    "utilities for creating and fixing and debugging exfat filesystem in linux "
+    "system. The goal of exfatprogs is to provide high performance and quality "
+    "at the level of exfat utilities in windows. And this software is licensed "
+    "under the GNU General Public License Version 2."
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/exfatprogs/exfatprogs/"
+  }
+  version: "1.1.0"
+  last_upgrade_date {
+    year: 2021
+    month: 4
+    day: 9
+  }
+  license_type: RESTRICTED
+}

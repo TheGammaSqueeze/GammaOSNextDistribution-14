@@ -1,0 +1,8 @@
+variable symbol 'int removed' was removed
+
+variable symbol 'int added' was added
+
+variable symbol changed from 'int diff' to 'long diff'
+  type changed from 'int' to 'long'
+
+exit code 4

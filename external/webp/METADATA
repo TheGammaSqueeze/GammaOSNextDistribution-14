@@ -1,0 +1,19 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update webp
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "webp"
+description: "Android fork of the libwebp library."
+third_party {
+  url {
+    type: GIT
+    value: "https://chromium.googlesource.com/webm/libwebp"
+  }
+  version: "v1.3.2"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 1
+  }
+}

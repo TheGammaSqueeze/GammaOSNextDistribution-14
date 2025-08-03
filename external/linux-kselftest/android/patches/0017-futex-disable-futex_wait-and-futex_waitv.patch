@@ -1,0 +1,46 @@
+From 5a48d25f2347630ba465c0685d1e56243410cc35 Mon Sep 17 00:00:00 2001
+From: Edward Liaw <edliaw@google.com>
+Date: Wed, 22 Jun 2022 00:37:08 +0000
+Subject: [PATCH 17/20] futex: disable futex_wait and futex_waitv
+
+Both tests depend on System V shared memory functions which is
+disallowed on Android.  futex_waitv is implemented in 5.16 so it is
+currently not available on Android as well.
+
+Bug: 234151152
+Test: atest vts_linux_kselftest_x86_64:futex_functional_run.sh_x86_64#futex_functional_run.sh_x86_64
+Test: atest vts_linux_kselftest_x86_32:futex_functional_run.sh_x86_32#futex_functional_run.sh_x86_32
+Signed-off-by: Edward Liaw <edliaw@google.com>
+---
+ tools/testing/selftests/futex/functional/run.sh | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/tools/testing/selftests/futex/functional/run.sh b/tools/testing/selftests/futex/functional/run.sh
+index 942dab5b5879..f7bd16078707 100755
+--- a/tools/testing/selftests/futex/functional/run.sh
++++ b/tools/testing/selftests/futex/functional/run.sh
+@@ -84,13 +84,17 @@ echo
+ run_test ./futex_wait_uninitialized_heap $COLOR
+ run_test ./futex_wait_private_mapped_file $COLOR
+ 
+-echo
+-run_test ./futex_wait $COLOR
++# b/234151152
++# Disable because system v shared memory not available
++#echo
++#run_test ./futex_wait $COLOR
+ 
+ echo
+ run_test ./futex_requeue $COLOR
+ 
+-echo
+-run_test ./futex_waitv $COLOR
++# b/234151152
++# Disable because system v shared memory not available
++#echo
++#run_test ./futex_waitv $COLOR
+ 
+ exit $rc
+-- 
+2.42.0.609.gbb76f46606-goog
+

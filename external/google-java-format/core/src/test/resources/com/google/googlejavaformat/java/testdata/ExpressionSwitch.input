@@ -1,0 +1,41 @@
+class ExpressionSwitch {
+  boolean odd(int x) {
+    return switch (x) {
+      case 0 -> true;
+      case 1 -> false;
+      default -> odd(x - 1);
+    };
+  }
+
+  {
+    int f = switch (i) {
+      case 0 -> 0;
+      default -> {
+        yield n / i;
+      }
+    };
+
+    int g = switch (i) {
+      case 0: yield 0;
+      default: yield n/i;
+    };
+
+    switch (i) {
+      case 0 -> { System.out.println("0"); }
+      default -> System.out.println("default");
+    }
+  }
+
+  String breakLongCaseArgs(MyEnum e) {
+    return switch (e) {
+      case SOME_RATHER_LONG_NAME_1, SOME_RATHER_LONG_NAME_2, SOME_RATHER_LONG_NAME_3, SOME_RATHER_LONG_NAME_4, SOME_RATHER_LONG_NAME_5, SOME_RATHER_LONG_NAME_6, SOME_RATHER_LONG_NAME_7 -> {}
+      case SOME_RATHER_LONG_NAME_8 -> {}
+    };
+  }
+
+  String dontBreakShortCaseArgs(MyEnum e) {
+    return switch (e) {
+      case CASE_A, CASE_B -> {}
+    };
+  }
+}

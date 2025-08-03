@@ -1,0 +1,4 @@
+{
+    "module_add_implicit_deps": false,
+    "module_add_implicit_deps_reason": "# NOTE: This crate is a dependency of libstd, so we can't implicitly depend on\n# libstd as we would normally. The dependencies listed above are the ones\n# declared in the `Cargo.toml` when the `rustc-dep-of-std` feature is enabled."
+}

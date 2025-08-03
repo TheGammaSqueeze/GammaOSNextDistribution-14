@@ -1,0 +1,7 @@
+# Default code reviewers picked from top 3 or more developers.
+# Please update this list if you find better candidates.
+# Used only by frameworks/av/media/libstagefright?
+include platform/frameworks/av:/media/janitors/codec_OWNERS
+essick@google.com
+lajos@google.com
+wonsik@google.com

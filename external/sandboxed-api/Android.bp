@@ -1,0 +1,256 @@
+//
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Usage is only approved for sandboxing host-side Cuttlefish tools to run them
+// in Google's internal production environment.
+package {
+    default_visibility: [":__subpackages__"]
+}
+
+cc_defaults {
+    name: "sandboxed_api_defaults",
+    device_supported: false,
+    host_supported: true,
+}
+
+cc_library {
+    name: "sandboxed_api_proto",
+    srcs: [
+        "sandboxed_api/proto_arg.proto",
+        "sandboxed_api/sandbox2/comms_test.proto",
+        "sandboxed_api/sandbox2/forkserver.proto",
+        "sandboxed_api/sandbox2/logserver.proto",
+        "sandboxed_api/sandbox2/mount_tree.proto",
+        "sandboxed_api/sandbox2/violation.proto",
+        "sandboxed_api/sandbox2/unwind/unwind.proto",
+        "sandboxed_api/util/status.proto",
+    ],
+    proto: {
+        canonical_path_from_root: false,
+        export_proto_headers: true,
+        type: "full",
+    },
+    defaults: ["sandboxed_api_defaults"],
+}
+
+cc_defaults {
+    name: "sandboxed_api_cc_defaults",
+    static_libs: [
+        "libabsl_host",
+        "libcap",
+        "libprotobuf-cpp-full",
+        "sandboxed_api_proto",
+    ],
+    arch: {
+        x86: {
+            enabled: false,
+        },
+    },
+    target: {
+        linux_glibc: {
+            cflags: [
+                "-include android/sandboxed_api_glibc_compat.h",
+            ],
+        },
+        linux_musl: {
+            cflags: [
+                "-include android/sandboxed_api_musl_compat.h",
+            ],
+        },
+    },
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wno-missing-field-initializers", // for sandboxed_api/sandbox2/policy.cc
+        "-fbracket-depth=768", // for syscall_defs.cc
+    ],
+    defaults: ["sandboxed_api_defaults"],
+}
+
+cc_library {
+    name: "sandboxed_api_shared_with_filewrapper",
+    srcs: [
+        "sandboxed_api/util/file_helpers.cc",
+        "sandboxed_api/util/fileops.cc",
+        "sandboxed_api/util/path.cc",
+        "sandboxed_api/util/raw_logging.cc",
+        "sandboxed_api/util/status.cc",
+        "sandboxed_api/util/strerror.cc",
+    ],
+    defaults: ["sandboxed_api_cc_defaults"],
+}
+
+cc_binary {
+    name: "sandboxed_api_filewrapper",
+    srcs: [
+        "sandboxed_api/tools/filewrapper/filewrapper.cc",
+    ],
+    static_libs: [
+        "sandboxed_api_shared_with_filewrapper",
+    ],
+    defaults: ["sandboxed_api_cc_defaults"],
+}
+
+cc_library {
+    name: "sandboxed_api_shared_with_forkserver",
+    srcs: [
+        "android/unwind.cc",
+        "sandboxed_api/config.cc",
+        "sandboxed_api/sandbox2/bpfdisassembler.cc",
+        "sandboxed_api/sandbox2/buffer.cc",
+        "sandboxed_api/sandbox2/client.cc",
+        "sandboxed_api/sandbox2/comms.cc",
+        "sandboxed_api/sandbox2/fork_client.cc",
+        "sandboxed_api/sandbox2/forkserver.cc",
+        "sandboxed_api/sandbox2/ipc.cc",
+        "sandboxed_api/sandbox2/logserver.cc",
+        "sandboxed_api/sandbox2/logsink.cc",
+        "sandboxed_api/sandbox2/mounts.cc",
+        "sandboxed_api/sandbox2/namespace.cc",
+        "sandboxed_api/sandbox2/network_proxy/client.cc",
+        "sandboxed_api/sandbox2/regs.cc",
+        "sandboxed_api/sandbox2/result.cc",
+        "sandboxed_api/sandbox2/sanitizer.cc",
+        "sandboxed_api/sandbox2/syscall.cc",
+        "sandboxed_api/sandbox2/syscall_defs.cc",
+        "sandboxed_api/sandbox2/unwind/ptrace_hook.cc",
+        "sandboxed_api/sandbox2/unwind/unwind.cc",
+        "sandboxed_api/sandbox2/util.cc",
+        "sandboxed_api/sandbox2/util/bpf_helper.c",
+        "sandboxed_api/sandbox2/util/maps_parser.cc",
+        "sandboxed_api/sandbox2/util/minielf.cc",
+        "sandboxed_api/sandbox2/util/syscall_trap.cc",
+        "sandboxed_api/util/temp_file.cc",
+    ],
+    static_libs: [
+        "sandboxed_api_shared_with_filewrapper",
+    ],
+    defaults: ["sandboxed_api_cc_defaults"],
+}
+
+cc_binary {
+    name: "sandboxed_api_forkserver",
+    srcs: [
+        "sandboxed_api/sandbox2/forkserver_bin.cc",
+    ],
+    static_libs: [
+        "sandboxed_api_shared_with_filewrapper",
+        "sandboxed_api_shared_with_forkserver",
+    ],
+    stl: "libc++_static",
+    defaults: ["sandboxed_api_cc_defaults"],
+}
+
+cc_genrule {
+    name: "sandboxed_api_embed_forkserver_cc",
+    arch: { // `enabled: false` doesn't appear to work here
+        arm: {
+            srcs: ["android/placeholder_exe"],
+        },
+        arm64: {
+            srcs: [":sandboxed_api_forkserver"],
+        },
+        x86: {
+            srcs: ["android/placeholder_exe"],
+        },
+    },
+    target: {
+        linux_x86_64: {
+            srcs: [":sandboxed_api_forkserver"],
+        },
+        windows: {
+            srcs: ["android/placeholder_exe"],
+        },
+    },
+    cmd: "$(location sandboxed_api_filewrapper) " +
+         "'' " +
+         "forkserver_bin_embed " +
+         "'' " +
+         "$(genDir)/forkserver_bin_embed.h " +
+         "$(genDir)/forkserver_bin_embed.cc " +
+         "$(in)",
+    device_supported: false,
+    host_supported: true,
+    out: ["forkserver_bin_embed.cc"],
+    tools: ["sandboxed_api_filewrapper"],
+}
+
+cc_genrule {
+    name: "sandboxed_api_embed_forkserver_h",
+    arch: { // `enabled: false` doesn't appear to work here
+        arm: {
+            srcs: ["android/placeholder_exe"],
+        },
+        arm64: {
+            srcs: [":sandboxed_api_forkserver"],
+        },
+        x86: {
+            srcs: ["android/placeholder_exe"],
+        },
+    },
+    target: {
+        linux_x86_64: {
+            srcs: [":sandboxed_api_forkserver"],
+        },
+        windows: {
+            srcs: ["android/placeholder_exe"],
+        },
+    },
+    cmd: "mkdir -p $(genDir)/sandboxed_api/sandbox2/ && " +
+         "$(location sandboxed_api_filewrapper) " +
+         "'' " +
+         "forkserver_bin_embed " +
+         "'' " +
+         "$(genDir)/forkserver_bin_embed.h " +
+         "$(genDir)/forkserver_bin_embed.cc " +
+         "$(in) && " +
+         "cp $(genDir)/forkserver_bin_embed.h $(genDir)/sandboxed_api/sandbox2/",
+    device_supported: false,
+    host_supported: true,
+    out: [
+        "forkserver_bin_embed.h",
+        "sandboxed_api/sandbox2/forkserver_bin_embed.h",
+    ],
+    tools: ["sandboxed_api_filewrapper"],
+}
+
+cc_library {
+    name: "sandboxed_api_sandbox2",
+    export_include_dirs: ["."],
+    generated_headers: ["sandboxed_api_embed_forkserver_h"],
+    generated_sources: ["sandboxed_api_embed_forkserver_cc"],
+    srcs: [
+        "sandboxed_api/embed_file.cc",
+        "sandboxed_api/sandbox2/executor.cc",
+        "sandboxed_api/sandbox2/forkingclient.cc",
+        "sandboxed_api/sandbox2/global_forkclient.cc",
+        "sandboxed_api/sandbox2/monitor_base.cc",
+        "sandboxed_api/sandbox2/monitor_ptrace.cc",
+        "sandboxed_api/sandbox2/monitor_unotify.cc",
+        "sandboxed_api/sandbox2/policy.cc",
+        "sandboxed_api/sandbox2/policybuilder.cc",
+        "sandboxed_api/sandbox2/sandbox2.cc",
+        "sandboxed_api/sandbox2/stack_trace.cc",
+        "sandboxed_api/sandbox2/network_proxy/filtering.cc",
+        "sandboxed_api/sandbox2/network_proxy/server.cc",
+    ],
+    visibility: ["//device/google/cuttlefish:__subpackages__"],
+    whole_static_libs: [
+        "sandboxed_api_proto",
+        "sandboxed_api_shared_with_filewrapper",
+        "sandboxed_api_shared_with_forkserver",
+    ],
+    defaults: ["sandboxed_api_cc_defaults"],
+}
+

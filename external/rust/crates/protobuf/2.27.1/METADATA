@@ -1,0 +1,19 @@
+name: "protobuf"
+description: "Rust implementation of Google protocol buffers"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/protobuf"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/protobuf/protobuf-2.27.1.crate"
+  }
+  version: "2.27.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 3
+    day: 1
+  }
+}

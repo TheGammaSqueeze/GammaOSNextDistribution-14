@@ -1,0 +1,51 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_mesa3d_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-BSL-1.0
+    //   SPDX-license-identifier-ISC
+    //   SPDX-license-identifier-MIT
+    //   SPDX-license-identifier-Unlicense
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_notice
+    //   legacy_unencumbered
+    default_applicable_licenses: ["external_mesa3d_license"],
+}
+
+cc_library_headers {
+    name: "libmesa_glsl_utils_includes",
+    export_include_dirs: [
+        "compiler/nir",
+        "mapi",
+        "gallium/include",
+        "gallium/auxiliary",
+    ],
+    host_supported: true,
+    vendor: true,
+    visibility: [":__subpackages__"],
+}
+
+cc_library_headers {
+    name: "mesa_mapi_headers",
+    export_include_dirs: ["mapi"],
+    host_supported: true,
+    vendor: true,
+    visibility: [":__subpackages__"],
+}
+
+cc_library_headers {
+    name: "libmesa_sse41_includes",
+    export_include_dirs: [
+        "mapi",
+        "gallium/include",
+        "gallium/auxiliary",
+    ],
+    vendor: true,
+    visibility: [":__subpackages__"],
+}

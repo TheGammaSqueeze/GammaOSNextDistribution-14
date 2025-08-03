@@ -1,0 +1,3 @@
+# WARNING: This file is kept empty intentionally.
+# All @IntraCoreApi has been moved to com.android.icu package,
+# and we no longer patch ICU4J to add @IntraCoreApi.

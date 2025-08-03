@@ -1,0 +1,51 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x2a409878
+  kind: POINTER
+  pointee_type_id: 0x8342877c
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+member {
+  id: 0xb53d99d2
+  name: "head"
+  type_id: 0x6720d32f
+}
+member {
+  id: 0xeeb7e480
+  name: "tail"
+  type_id: 0x2a409878
+  offset: 64
+}
+struct_union {
+  id: 0x8342877c
+  kind: STRUCT
+  name: "M"
+  definition {
+    bytesize: 16
+    member_id: 0xb53d99d2
+    member_id: 0xeeb7e480
+  }
+}
+function {
+  id: 0x9710c531
+  return_type_id: 0x6720d32f
+  parameter_id: 0x2a409878
+}
+elf_symbol {
+  id: 0x6713ecab
+  name: "loop"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9710c531
+  full_name: "loop"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x6713ecab
+}

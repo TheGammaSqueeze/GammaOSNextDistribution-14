@@ -1,0 +1,12 @@
+name: "Cronet"
+description:
+  "Contains a subset of Chromium sources used to build Cronet from source "
+  "within Android."
+third_party {
+  license_type: RECIPROCAL
+  url {
+    type: GIT
+    value: "https://chromium.googlesource.com/chromium/src.git"
+  }
+  version: "110.0.5481.154"
+}

@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/serde_json
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "serde_json"
+description: "A JSON serialization file format"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/serde_json"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/serde_json/serde_json-1.0.94.crate"
+  }
+  version: "1.0.94"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 3
+    day: 20
+  }
+}

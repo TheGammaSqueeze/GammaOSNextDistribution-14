@@ -1,0 +1,196 @@
+package {
+    default_applicable_licenses: ["external_AFLplusplus_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_AFLplusplus_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "legacy_unencumbered",
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-CC0-1.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+  name: "afl-defaults",
+  export_include_dirs: [
+    "include",
+    "instrumentation",
+  ],
+  local_include_dirs: [
+    "include",
+    "instrumentation",
+  ],
+  cflags: [
+    "-funroll-loops",
+    "-Wno-pointer-sign",
+    "-Wno-pointer-arith",
+    "-Wno-sign-compare",
+    "-Wno-unused-parameter",
+    "-Wno-unused-function",
+    "-Wno-format",
+    "-Wno-user-defined-warnings",
+    "-DAFL_LLVM_USE_TRACE_PC=1",
+    "-DBIN_PATH=\"out/host/linux-x86/bin\"",
+    "-DDOC_PATH=\"out/host/linux-x86/shared/doc/afl\"",
+    "-DDEBUG_BUILD",
+    "-U_FORTIFY_SOURCE",
+    "-ggdb3",
+    "-g",
+    "-O0",
+     "-fno-omit-frame-pointer",
+    "-fPIC",
+   ],
+
+  target: {
+    android_arm64: {
+      cflags: [
+        "-D__ANDROID__",
+      ],
+    },
+    android_arm: {
+      cflags: [
+        "-D__ANDROID__",
+      ],
+    },
+    android_x86_64: {
+      cflags: [
+        "-D__ANDROID__",
+      ],
+    },
+    android_x86: {
+      cflags: [
+        "-D__ANDROID__",
+      ],
+    },
+  },
+}
+
+cc_binary {
+  name: "afl-fuzz",
+  host_supported: true,
+
+  defaults: [
+    "afl-defaults",
+  ],
+
+  srcs: [
+    "src/afl-fuzz*.c",
+    "src/afl-common.c",
+    "src/afl-sharedmem.c",
+    "src/afl-forkserver.c",
+    "src/afl-performance.c",
+  ],
+}
+
+cc_binary {
+  name: "afl-showmap",
+  static_executable: true,
+  host_supported: true,
+
+  defaults: [
+    "afl-defaults",
+  ],
+
+  srcs: [
+    "src/afl-showmap.c",
+    "src/afl-common.c",
+    "src/afl-sharedmem.c",
+    "src/afl-forkserver.c",
+    "src/afl-performance.c",
+    "src/afl-fuzz-mutators.c",
+    "src/afl-fuzz-python.c",
+  ],
+}
+
+cc_binary {
+  name: "afl-gotcpu",
+  static_executable: true,
+  host_supported: true,
+
+  defaults: [
+    "afl-defaults",
+  ],
+
+  srcs: [
+    "src/afl-gotcpu.c",
+    "src/afl-common.c",
+    "src/afl-sharedmem.c",
+    "src/afl-forkserver.c",
+    "src/afl-performance.c",
+  ],
+}
+
+cc_binary {
+  name: "afl-tmin",
+  static_executable: true,
+  host_supported: true,
+
+  defaults: [
+    "afl-defaults",
+  ],
+
+  srcs: [
+    "src/afl-tmin.c",
+    "src/afl-common.c",
+    "src/afl-sharedmem.c",
+    "src/afl-forkserver.c",
+    "src/afl-performance.c",
+  ],
+} 
+
+cc_object {
+  name: "aflpp_driver",
+  vendor_available: true,
+  host_supported: true,
+  srcs: [
+    "utils/aflpp_driver/aflpp_driver.c",
+  ],
+  defaults: ["afl-defaults"],
+}
+
+cc_object {
+  name: "afl-compiler-rt",
+  vendor_available: true,
+  host_supported: true,
+  cflags: [
+    "-fPIC",
+  ],
+  srcs: [
+    "instrumentation/afl-compiler-rt.o.c",
+  ],
+  defaults: ["afl-defaults"],
+}
+
+cc_library_headers {
+  name: "libafl_headers",
+  vendor_available: true,
+  host_supported: true,
+  export_include_dirs: [
+    "include",
+    "instrumentation",
+  ],
+}
+
+subdirs = [
+  "custom_mutators",
+]

@@ -1,0 +1,101 @@
+package {
+    default_applicable_licenses: ["external_libsrtp2_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_libsrtp2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_static {
+    host_supported: true,
+    // vendor needed for libpreprocessing effects.
+    vendor: true,
+    name: "libsrtp2",
+    srcs: [
+        "crypto/cipher/aes.c",
+        "crypto/cipher/aes_icm.c",
+        "crypto/cipher/cipher.c",
+        "crypto/cipher/null_cipher.c",
+        "crypto/hash/auth.c",
+        "crypto/hash/hmac.c",
+        "crypto/hash/null_auth.c",
+        "crypto/hash/sha1.c",
+        "crypto/kernel/alloc.c",
+        "crypto/kernel/crypto_kernel.c",
+        "crypto/kernel/err.c",
+        "crypto/kernel/key.c",
+        "crypto/math/datatypes.c",
+        "crypto/math/stat.c",
+        "crypto/replay/rdb.c",
+        "crypto/replay/rdbx.c",
+        "crypto/replay/ut_sim.c",
+        "srtp/ekt.c",
+        "srtp/srtp.c",
+    ],
+    local_include_dirs: [
+        "crypto/include",
+        "include",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wno-implicit-function-declaration",
+        "-DHAVE_CONFIG_H",
+    ],
+    export_include_dirs: [
+        "crypto/include",
+        "include",
+        "exported_include",
+    ],
+    visibility: [
+        "//external/webrtc:__subpackages__",
+        "//device/google/cuttlefish/host/frontend/webrtc:__subpackages__",
+    ],
+}
+
+cc_fuzz {
+    name: "libsrtp2-fuzzer",
+    host_supported: true,
+    vendor: true,
+    static_libs: ["libsrtp2"],
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    srcs: [
+        "fuzzer/fuzzer.c",
+        "fuzzer/mt19937.cpp",
+        "fuzzer/testmem.c",
+    ],
+    // There are so many corpus files that when all are used it
+    // exceeds the posix_spawn limit. So, only some of the files
+    // are used.
+    corpus: ["fuzzer/corpus/0*"],
+    fuzzing_frameworks: {
+      afl: false,
+    },
+    fuzz_config: {
+        componentid: 87896
+    }
+}

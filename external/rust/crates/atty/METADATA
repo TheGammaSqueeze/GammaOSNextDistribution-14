@@ -1,0 +1,19 @@
+name: "atty"
+description: "A simple interface for querying atty"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/atty"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/atty/atty-0.2.14.crate"
+  }
+  version: "0.2.14"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 12
+    day: 21
+  }
+}

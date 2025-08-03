@@ -1,0 +1,16 @@
+function symbol 'int deleted_fun()' was removed
+
+variable symbol 'int deleted_var' was removed
+
+function symbol 'long added_fun()' was added
+
+variable symbol 'long added_var' was added
+
+function symbol changed from 'int changed_fun()' to 'long changed_fun()'
+  type changed from 'int()' to 'long()'
+    return type changed from 'int' to 'long'
+
+variable symbol changed from 'int changed_var' to 'long changed_var'
+  type changed from 'int' to 'long'
+
+exit code 4

@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/data-encoding
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "data-encoding"
+description: "Efficient and customizable data-encoding functions like base64, base32, and hex"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 1
+  }
+  homepage: "https://crates.io/crates/data-encoding"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/data-encoding/data-encoding-2.5.0.crate"
+    version: "2.5.0"
+  }
+}

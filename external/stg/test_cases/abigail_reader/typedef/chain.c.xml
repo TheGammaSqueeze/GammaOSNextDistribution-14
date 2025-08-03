@@ -1,0 +1,20 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='func' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='chain.c' language='LANG_C11'>
+    <type-decl name='unsigned int' size-in-bits='32' id='f0981eeb'/>
+    <typedef-decl name='INT_1' type-id='f0981eeb' id='b98c513d'/>
+    <typedef-decl name='INT_2' type-id='b98c513d' id='b68c4c84'/>
+    <typedef-decl name='INT_3' type-id='b68c4c84' id='b78c4e17'/>
+    <class-decl name='foo' size-in-bits='32' is-struct='yes' visibility='default' id='3f46facf'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='b78c4e17' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <function-decl name='func' mangled-name='func' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='func'>
+      <parameter type-id='3f46facf' name='f'/>
+      <return type-id='f0981eeb'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns:cnn="http://www.cnn.com" ><data1 attr2="goodbye" attr1="hello">Ben-Herr</data1><data2 attr2="hello" attr1="goodbye"><cnn:data3 attr1="What in the world">DANIEL</cnn:data3></data2><data4 xmlns:xyz="http://www.xyz.com" xyz:attr2="eybdoog" attr1="olleh">DICK</data4>
+This is a test
+</root>

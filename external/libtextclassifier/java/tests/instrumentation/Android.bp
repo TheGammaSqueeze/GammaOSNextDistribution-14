@@ -1,0 +1,126 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_libtextclassifier_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_libtextclassifier_license"],
+}
+
+java_library {
+    name: "TextClassifierServiceTestingLib",
+
+    sdk_version: "test_current",
+
+    srcs: [
+        "src/com/android/textclassifier/testing/*.java",
+    ],
+
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "TextClassifierServiceLib",
+        "androidx.test.espresso.core",
+        "mockito-target-minus-junit4",
+        "compatibility-device-util-axt",
+    ],
+}
+
+android_test {
+    name: "TextClassifierServiceTest",
+
+    manifest: "AndroidManifest.xml",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    exclude_srcs: [
+        "src/**/ModelDownloaderIntegrationTest.java",
+        "src/com/android/textclassifier/testing/*.java",
+    ],
+
+
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.espresso.core",
+        "androidx.test.ext.truth",
+        "mockito-target-minus-junit4",
+        "testng",
+        "compatibility-device-util-axt",
+        "androidx.room_room-runtime",
+        "TextClassifierServiceLib",
+        "statsdprotolite",
+        "textclassifierprotoslite",
+        "TextClassifierCoverageLib",
+        "androidx.work_work-testing",
+        "TextClassifierServiceTestingLib",
+    ],
+
+    jni_libs: [
+        "libtextclassifier",
+        "libdexmakerjvmtiagent"
+    ],
+
+    test_suites: [
+        "general-tests", "mts-extservices"
+    ],
+
+    plugins: ["androidx.room_room-compiler-plugin",],
+    min_sdk_version: "30",
+    sdk_version: "system_current",
+    use_embedded_native_libs: true,
+    compile_multilib: "both",
+
+    instrumentation_for: "TextClassifierService",
+
+    data: ["testdata/*"],
+
+    test_config: "AndroidTest.xml",
+}
+
+android_test {
+    name: "TCSModelDownloaderIntegrationTest",
+
+    manifest: "AndroidManifest_TCSModelDownloaderIntegrationTest.xml",
+
+    srcs: [
+        "src/**/ModelDownloaderIntegrationTest.java",
+    ],
+
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.espresso.core",
+        "androidx.test.ext.truth",
+        "TextClassifierServiceTestingLib",
+    ],
+
+    jni_libs: [
+        "libtextclassifier",
+    ],
+
+    test_suites: [
+        "general-tests"
+    ],
+
+    min_sdk_version: "30",
+    sdk_version: "system_current",
+
+    test_config: "AndroidTest_TCSModelDownloaderIntegrationTest.xml",
+}

@@ -1,0 +1,13 @@
+name: "notosansolchiki"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Ol Chiki is an unmodulated (“sans serif”) design fortexts in the Indic Ol Chiki script. It has multiple weights and 55glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansolchiki"
+  }
+  version: "1.030"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

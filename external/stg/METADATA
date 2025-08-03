@@ -1,0 +1,19 @@
+name: "Symbol-Type Graph"
+description:
+    "The STG (symbol-type graph) is an ABI representation and this project "
+    "contains tools for the creation and comparison of such representations. "
+    "At present parsers exist for libabigail's ABI XML (C types only) and BTF. "
+    "The ABI diff tool, stgdiff, supports multiple reporting options. "
+    "This software currently depends on libabigail for ELF symbol "
+    "functionality, on libxml2 for XML parsing and on Linux UAPI headers for "
+    "BTF types."
+
+third_party {
+  url {
+    type: PIPER
+    value: "//depot/google3/third_party/stg"
+  }
+  version: ""
+  last_upgrade_date { year: 2023 month: 11 day: 07 }
+  license_type: NOTICE
+}

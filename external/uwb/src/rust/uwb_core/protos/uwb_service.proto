@@ -1,0 +1,670 @@
+// Copyright 2022, The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// This file defines the requests and responses of the UwbService's methods.
+// Most of the elements are referred to the FiRa Consortium UWB Command
+// Interface Generic Techinal Specification Version 1.1.0.
+//
+// Note: Due to the protobuf's restriction: the first field of enum must be
+// zero, the value of some enum fields are not the same as the UCI
+// specification. Also, the default value of some fields defined at UCI
+// specification is not zero. The client should set all the fields when creating
+// protobuf structure, instead of relying the default value of protobuf.
+
+syntax = "proto3";
+package uwb_core;
+
+// The status code of the method response, containing variants of error::Error
+// and OK.
+enum Status {
+  // The method is executed successfully.
+  OK = 0;
+
+  // The provided parameters are invalid, or the method is not allowed to be
+  // called in the current state.
+  BAD_PARAMETERS = 1;
+
+  // The maximum number of sessions has been reached.
+  MAX_SESSIONS_EXCEEDED = 2;
+
+  // Max ranging round retries reached.
+  MAX_RR_RETRY_REACHED = 3;
+
+  // Fails due to a protocol specific reason.
+  PROTOCOL_SPECIFIC = 4;
+
+  // The remote device has requested to change the session.
+  REMOTE_REQUEST = 5;
+
+  // The response or notification is not received in timeout.
+  TIMEOUT = 6;
+
+  // The command should be retried.
+  COMMAND_RETRY = 7;
+
+  // Duplicated SessionId.
+  DUPLICATED_SESSION_ID = 8;
+
+  //Regulation UWB off
+  REGULATION_UWB_OFF = 9;
+
+  // The unknown error.
+  UNKNOWN = 10;
+}
+
+// Represent uwb_uci_packets::StatusCode.
+enum StatusCode {
+  UCI_STATUS_OK = 0;
+  UCI_STATUS_REJECTED = 1;
+  UCI_STATUS_FAILED = 2;
+  UCI_STATUS_SYNTAX_ERROR = 3;
+  UCI_STATUS_INVALID_PARAM = 4;
+  UCI_STATUS_INVALID_RANGE = 5;
+  UCI_STATUS_INVALID_MSG_SIZE = 6;
+  UCI_STATUS_UNKNOWN_GID = 7;
+  UCI_STATUS_UNKNOWN_OID = 8;
+  UCI_STATUS_READ_ONLY = 9;
+  UCI_STATUS_COMMAND_RETRY = 10;
+  UCI_STATUS_UNKNOWN = 11;
+
+  UCI_STATUS_SESSION_NOT_EXIST = 17;
+  UCI_STATUS_SESSION_DUPLICATE = 18;
+  UCI_STATUS_SESSION_ACTIVE = 19;
+  UCI_STATUS_MAX_SESSIONS_EXCEEDED = 20;
+  UCI_STATUS_SESSION_NOT_CONFIGURED = 21;
+  UCI_STATUS_ACTIVE_SESSIONS_ONGOING = 22;
+  UCI_STATUS_MULTICAST_LIST_FULL = 23;
+  UCI_STATUS_ADDRESS_NOT_FOUND = 24;
+  UCI_STATUS_ADDRESS_ALREADY_PRESENT = 25;
+  UCI_STATUS_OK_NEGATIVE_DISTANCE_REPORT = 27;
+
+  UCI_STATUS_RANGING_TX_FAILED = 32;
+  UCI_STATUS_RANGING_RX_TIMEOUT = 33;
+  UCI_STATUS_RANGING_RX_PHY_DEC_FAILED = 34;
+  UCI_STATUS_RANGING_RX_PHY_TOA_FAILED = 35;
+  UCI_STATUS_RANGING_RX_PHY_STS_FAILED = 36;
+  UCI_STATUS_RANGING_RX_MAC_DEC_FAILED = 37;
+  UCI_STATUS_RANGING_RX_MAC_IE_DEC_FAILED = 38;
+  UCI_STATUS_RANGING_RX_MAC_IE_MISSING = 39;
+  UCI_STATUS_ERROR_ROUND_INDEX_NOT_ACTIVATED = 40;
+  UCI_STATUS_ERROR_NUMBER_OF_ACTIVE_RANGING_ROUNDS_EXCEEDED = 41;
+  UCI_STATUS_ERROR_DL_TDOA_DEVICE_ADDRESS_NOT_MATCHING_IN_REPLY_TIME_LIST = 42;
+
+  UCI_STATUS_DATA_MAX_TX_PSDU_SIZE_EXCEEDED = 48;
+  UCI_STATUS_DATA_RX_CRC_ERROR = 49;
+
+  UCI_STATUS_ERROR_CCC_SE_BUSY = 80;
+  UCI_STATUS_ERROR_CCC_LIFECYCLE = 81;
+  UCI_STATUS_ERROR_STOPPED_DUE_TO_OTHER_SESSION_CONFLICT = 82;
+  UCI_STATUS_REGULATION_UWB_OFF = 83;
+  // All vendor specific status code will be mapped to UCI_STATUS_VENDOR_SPECIFIC.
+  UCI_STATUS_RFU_OR_VENDOR_SPECIFIC = 255;
+}
+
+// Represent uwb_uci_packets::DeviceState.
+enum DeviceState {
+    DEVICE_STATE_READY = 0;
+    DEVICE_STATE_ACTIVE = 1;
+    DEVICE_STATE_ERROR = 2;
+}
+
+// Represent uwb_uci_packets::SessionState.
+enum SessionState {
+  INIT = 0;
+  DEINIT = 1;
+  ACTIVE = 2;
+  IDLE = 3;
+}
+
+// Represent uwb_uci_packets::ReasonCode.
+enum ReasonCode {
+  STATE_CHANGE_WITH_SESSION_MANAGEMENT_COMMANDS = 0;
+  MAX_RANGING_ROUND_RETRY_COUNT_REACHED = 1;
+  MAX_NUMBER_OF_MEASUREMENTS_REACHED = 2;
+  SESSION_SUSPENDED_DUE_TO_INBAND_SIGNAL = 3;
+  SESSION_RESUMED_DUE_TO_INBAND_SIGNAL = 4;
+  SESSION_STOPPED_DUE_TO_INBAND_SIGNAL = 5;
+  ERROR_INVALID_UL_TDOA_RANDOM_WINDOW = 29;
+  ERROR_MIN_RFRAMES_PER_RR_NOT_SUPPORTED = 30;
+  ERROR_TX_DELAY_NOT_SUPPORTED = 31;
+  ERROR_SLOT_LENGTH_NOT_SUPPORTED = 32;
+  ERROR_INSUFFICIENT_SLOTS_PER_RR = 33;
+  ERROR_MAC_ADDRESS_MODE_NOT_SUPPORTED = 34;
+  ERROR_INVALID_RANGING_DURATION = 35;
+  ERROR_INVALID_STS_CONFIG = 36;
+  ERROR_INVALID_RFRAME_CONFIG = 37;
+  ERROR_HUS_NOT_ENOUGH_SLOTS = 38;
+  ERROR_HUS_CFP_PHASE_TOO_SHORT = 39;
+  ERROR_HUS_CAP_PHASE_TOO_SHORT = 40;
+  ERROR_HUS_OTHERS = 41;
+  ERROR_STATUS_SESSION_KEY_NOT_FOUND = 42;
+  ERROR_STATUS_SUB_SESSION_KEY_NOT_FOUND = 43;
+  ERROR_INVALID_PREAMBLE_CODE_INDEX = 44;
+  ERROR_INVALID_SFD_ID = 45;
+  ERROR_INVALID_PSDU_DATA_RATE = 46;
+  ERROR_INVALID_PHR_DATA_RATE = 47;
+  ERROR_INVALID_PREAMBLE_DURATION = 48;
+  ERROR_INVALID_STS_LENGTH = 49;
+  ERROR_INVALID_NUM_OF_STS_SEGMENTS = 50;
+  ERROR_INVALID_NUM_OF_CONTROLEES = 51;
+  ERROR_MAX_RANGING_REPLY_TIME_EXCEEDED = 52;
+  ERROR_INVALID_DST_ADDRESS_LIST = 53;
+  ERROR_INVALID_OR_NOT_FOUND_SUB_SESSION_ID = 54;
+  ERROR_INVALID_RESULT_REPORT_CONFIG = 55;
+  ERROR_INVALID_RANGING_ROUND_CONTROL_CONFIG = 56;
+  ERROR_INVALID_RANGING_ROUND_USAGE = 57;
+  ERROR_INVALID_MULTI_NODE_MODE = 58;
+  ERROR_RDS_FETCH_FAILURE = 59;
+  ERROR_REF_UWB_SESSION_DOES_NOT_EXIST = 60;
+  ERROR_REF_UWB_SESSION_RANGING_DURATION_MISMATCH = 61;
+  ERROR_REF_UWB_SESSION_INVALID_OFFSET_TIME = 62;
+  ERROR_REF_UWB_SESSION_LOST = 63;
+  ERROR_INVALID_CHANNEL_WITH_AOA = 128;
+  ERROR_STOPPED_DUE_TO_OTHER_SESSION_CONFLICT = 129;
+  ERROR_DT_ANCHOR_RANGING_ROUNDS_NOT_CONFIGURED = 130;
+  ERROR_DT_TAG_RANGING_ROUNDS_NOT_CONFIGURED = 131;
+  // All vendor reason code will be mapped to ERROR_VENDOR_SPECIFIC.
+  ERROR_RFU_OR_VENDOR_SPECIFIC = 255;
+}
+
+// Represent uwb_uci_packets::RangingMeasurementType.
+enum RangingMeasurementType {
+  ONE_WAY = 0;
+  TWO_WAY = 1;
+  DL_TDOA = 2;
+  OWR_AOA = 3;
+}
+
+// Represent uwb_uci_packets::SessionType.
+enum SessionType {
+  FIRA_RANGING_SESSION = 0x00;
+  FIRA_RANGING_AND_IN_BAND_DATA_SESSION = 0x01;
+  FIRA_DATA_TRANSFER = 0x02;
+  FIRA_RANGING_ONLY_PHASE = 0x03;
+  FIRA_IN_BAND_DATA_PHASE = 0x04;
+  FIRA_RANGING_WITH_DATA_PHASE = 0x05;
+  CCC = 0xA0;
+  RADAR_SESSION = 0xA1;
+  ALIRO = 0xA2;
+  DEVICE_TEST_MODE = 0xD0;
+}
+
+// Represent uwb_uci_packets::UpdateMulticastListAction.
+enum UpdateMulticastListAction {
+  ADD_CONTROLEE = 0;
+  REMOVE_CONTROLEE = 1;
+  ADD_CONTROLEE_WITH_SHORT_SUB_SESSION_KEY = 2;
+  ADD_CONTROLEE_WITH_LONG_SUB_SESSION_KEY = 3;
+}
+
+// Represent uwb_core::params::fira_app_config_params::DeviceType.
+enum DeviceType {
+  CONTROLEE = 0;
+  CONTROLLER = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::RangingRoundUsage.
+enum RangingRoundUsage {
+  SS_TWR = 0;
+  DS_TWR = 1;
+  SS_TWR_NON = 2;
+  DS_TWR_NON = 3;
+}
+
+// Represent uwb_core::params::fira_app_config_params::StsConfig.
+enum StsConfig {
+  STATIC = 0;
+  DYNAMIC = 1;
+  DYNAMIC_FOR_CONTROLEE_INDIVIDUAL_KEY = 2;
+}
+
+// Represent uwb_core::params::fira_app_config_params::MultiNodeMode.
+enum MultiNodeMode {
+  UNICAST = 0;
+  ONE_TO_MANY = 1;
+  MANY_TO_MANY = 2;
+}
+
+// Represent uwb_core::params::fira_app_config_params::UwbChannel.
+enum UwbChannel {
+  CHANNEL_5 = 0;
+  CHANNEL_6 = 1;
+  CHANNEL_8 = 2;
+  CHANNEL_9 = 3;
+  CHANNEL_10 = 4;
+  CHANNEL_12 = 5;
+  CHANNEL_13 = 6;
+  CHANNEL_14 = 7;
+}
+
+// Represent uwb_core::params::fira_app_config_params::MacFcsType.
+enum MacFcsType {
+  CRC_16 = 0;
+  CRC_32 = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::AoaResultRequest.
+enum AoaResultRequest {
+  NO_AOA_REPORT = 0;
+  REQ_AOA_RESULTS = 1;
+  REQ_AOA_RESULTS_AZIMUTH_ONLY = 2;
+  REQ_AOA_RESULTS_ELEVATION_ONLY = 3;
+  REQ_AOA_RESULTS_INTERLEAVED = 4;
+}
+
+// Represent uwb_core::params::fira_app_config_params::RangeDataNtfConfig.
+enum RangeDataNtfConfig {
+  RANGE_DATA_NTF_CONFIG_DISABLE = 0;
+  RANGE_DATA_NTF_CONFIG_ENABLE = 1;
+  RANGE_DATA_NTF_CONFIG_ENABLE_PROXIMITY = 2;
+}
+
+// Represent uwb_core::params::fira_app_config_params::DeviceRole.
+enum DeviceRole {
+  RESPONDER = 0;
+  INITIATOR = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::RframeConfig.
+enum RframeConfig {
+  SP0 = 0;
+  SP1 = 1;
+  SP3 = 3;
+}
+
+// Represent uwb_core::params::fira_app_config_params::PsduDataRate.
+enum PsduDataRate {
+  RATE_6M_81 = 0;
+  RATE_7M_80 = 1;
+  RATE_27M_2 = 2;
+  RATE_31M_2 = 3;
+  RATE_850K = 4;
+}
+
+// Represent uwb_core::params::fira_app_config_params::PreambleDuration.
+enum PreambleDuration {
+  T32_SYMBOLS = 0;
+  T64_SYMBOLS = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::RangingTimeStruct.
+enum RangingTimeStruct {
+  INTERVAL_BASED_SCHEDULING = 0;
+  BLOCK_BASED_SCHEDULING = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::TxAdaptivePayloadPower.
+enum TxAdaptivePayloadPower {
+  TX_ADAPTIVE_PAYLOAD_POWER_DISABLE = 0;
+  TX_ADAPTIVE_PAYLOAD_POWER_ENABLE = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::PrfMode.
+enum PrfMode {
+  BPRF = 0;
+  HPRF_WITH_124_8_MHZ = 1;
+  HPRF_WITH_249_6_MHZ = 2;
+}
+
+// Represent uwb_core::params::fira_app_config_params::ScheduledMode.
+enum ScheduledMode {
+  TIME_SCHEDULED_RANGING = 0;
+}
+
+// Represent uwb_core::params::fira_app_config_params::KeyRotation.
+enum KeyRotation {
+  KEY_ROTATION_DISABLE = 0;
+  KEY_ROTATION_ENABLE = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::MacAddressMode.
+enum MacAddressMode {
+  MAC_ADDRESS_2_BYTES = 0;
+  MAC_ADDRESS_8_BYTES_2_BYTES_HEADER = 1;
+  MAC_ADDRESS_8_BYTES = 2;
+}
+
+// Represent uwb_core::params::fira_app_config_params::HoppingMode.
+enum HoppingMode {
+  HOPPING_MODE_DISABLE = 0;
+  FIRA_HOPPING_ENABLE = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::BprfPhrDataRate.
+enum BprfPhrDataRate {
+  BPRF_PHR_DATA_RATE_850K = 0;
+  BPRF_PHR_DATA_RATE_6M_81 = 1;
+}
+
+// Represent uwb_core::params::fira_app_config_params::StsLength.
+enum StsLength {
+  LENGTH_32 = 0;
+  LENGTH_64 = 1;
+  LENGTH_128 = 2;
+}
+
+// Represent uwb_core::uci::uci_logger::UciLoggerMode.
+enum UciLoggerMode {
+  UCI_LOGGER_MODE_DISABLED = 0;
+  UCI_LOGGER_MODE_UNFILTERED = 1;
+  UCI_LOGGER_MODE_FILTERED = 2;
+}
+
+// Represent uwb_core::params::fira_app_config_params::RangingRoundControl.
+message RangingRoundControl {
+  bool ranging_result_report_message = 1;
+  bool control_message = 2;
+  bool measurement_report_message = 3;
+}
+
+// Represent uwb_core::params::fira_app_config_params::ResultReportConfig.
+message ResultReportConfig {
+  bool tof = 1;
+  bool aoa_azimuth = 2;
+  bool aoa_elevation = 3;
+  bool aoa_fom = 4;
+}
+
+// Represent uwb_core::params::fira_app_config_params::FiraAppConfigParams.
+message FiraAppConfigParams {
+  DeviceType device_type = 1;
+  RangingRoundUsage ranging_round_usage = 2;
+  StsConfig sts_config = 3;
+  MultiNodeMode multi_node_mode = 4;
+  UwbChannel channel_number = 5;
+  bytes device_mac_address = 6;
+  repeated bytes dst_mac_address = 7;
+  uint32 slot_duration_rstu = 8;
+  uint32 ranging_duration_ms = 9;
+  MacFcsType mac_fcs_type = 10;
+  RangingRoundControl ranging_round_control = 11;
+  AoaResultRequest aoa_result_request = 12;
+  RangeDataNtfConfig range_data_ntf_config = 13;
+  uint32 range_data_ntf_proximity_near_cm = 14;
+  uint32 range_data_ntf_proximity_far_cm = 15;
+  DeviceRole device_role = 16;
+  RframeConfig rframe_config = 17;
+  uint32 preamble_code_index = 18;
+  uint32 sfd_id = 19;
+  PsduDataRate psdu_data_rate = 20;
+  PreambleDuration preamble_duration = 21;
+  RangingTimeStruct ranging_time_struct = 22;
+  uint32 slots_per_rr = 23;
+  TxAdaptivePayloadPower tx_adaptive_payload_power = 24;
+  uint32 responder_slot_index = 25;
+  PrfMode prf_mode = 26;
+  ScheduledMode scheduled_mode = 27;
+  KeyRotation key_rotation = 28;
+  uint32 key_rotation_rate = 29;
+  uint32 session_priority = 30;
+  MacAddressMode mac_address_mode = 31;
+  bytes vendor_id = 32;
+  bytes static_sts_iv = 33;
+  uint32 number_of_sts_segments = 34;
+  uint32 max_rr_retry = 35;
+  uint32 uwb_initiation_time_ms = 36;
+  HoppingMode hopping_mode = 37;
+  uint32 block_stride_length = 38;
+  ResultReportConfig result_report_config = 39;
+  uint32 in_band_termination_attempt_count = 40;
+  uint32 sub_session_id = 41;
+  BprfPhrDataRate bprf_phr_data_rate = 42;
+  uint32 max_number_of_measurements = 43;
+  StsLength sts_length = 44;
+  uint32 number_of_range_measurements = 45;
+  uint32 number_of_aoa_azimuth_measurements = 46;
+  uint32 number_of_aoa_elevation_measurements = 47;
+}
+
+// Represent uwb_uci_packets::Controlee.
+message Controlee {
+  uint32 short_address = 1;
+  uint32 subsession_id = 2;
+}
+
+// Represent uwb_uci_packets::ShortAddressTwoWayRangingMeasurement or
+// uwb_uci_packets::ExtendedAddressTwoWayRangingMeasurement.
+message TwoWayRangingMeasurement {
+  uint64 mac_address = 1;
+  StatusCode status = 2;
+  uint32 nlos = 3;
+  uint32 distance = 4;
+  uint32 aoa_azimuth = 5;
+  uint32 aoa_azimuth_fom = 6;
+  uint32 aoa_elevation = 7;
+  uint32 aoa_elevation_fom = 8;
+  uint32 aoa_destination_azimuth = 9;
+  uint32 aoa_destination_azimuth_fom = 10;
+  uint32 aoa_destination_elevation = 11;
+  uint32 aoa_destination_elevation_fom = 12;
+  uint32 slot_index = 13;
+  uint32 rssi = 14;
+}
+
+// Represent uwb_uci_packets::ShortAddressOwrAoaRangingMeasurement or
+// uwb_uci_packets::ExtendedAddressOwrAoaRangingMeasurement.
+message OwrAoaRangingMeasurement {
+  uint64 mac_address = 1;
+  StatusCode status = 2;
+  uint32 nlos = 3;
+  uint32 block_index = 4;
+  uint32 frame_sequence_number = 5;
+  uint32 aoa_azimuth = 6;
+  uint32 aoa_azimuth_fom = 7;
+  uint32 aoa_elevation = 8;
+  uint32 aoa_elevation_fom = 9;
+}
+
+// Represent uwb_uci_packets::ShortAddressDlTdoaRangingMeasurement or
+// uwb_uci_packets::ExtendedAddressDlTdoaRangingMeasurement.
+message DlTDoARangingMeasurement {
+  uint64 mac_address = 1;
+  StatusCode status = 2;
+  uint32 message_control = 3;
+  uint32 block_index = 4;
+  uint32 round_index = 5;
+  uint32 nlos = 6;
+  uint32 aoa_azimuth = 7;
+  uint32 aoa_azimuth_fom = 8;
+  uint32 aoa_elevation = 9;
+  uint32 aoa_elevation_fom = 10;
+  uint32 rssi = 11;
+  uint64 tx_timestamp = 12;
+  uint64 rx_timestamp = 13;
+  uint32 anchor_cfo = 14;
+  uint32 cfo = 15;
+  uint32 initiator_reply_time = 16;
+  uint32 responder_reply_time = 17;
+  uint32 initiator_responder_tof = 18;
+  repeated uint32 dt_anchor_location = 19;
+  repeated uint32 ranging_rounds = 20;
+}
+
+// Represent uwb_core::uci::notification::SessionRangeData;
+message SessionRangeData {
+  uint32 sequence_number = 1;
+  uint32 session_id = 2;
+  uint32 current_ranging_interval_ms = 3;
+  RangingMeasurementType ranging_measurement_type = 4;
+  repeated TwoWayRangingMeasurement twoway_ranging_measurements = 5;
+  repeated DlTDoARangingMeasurement dltdoa_ranging_measurements = 6;
+  OwrAoaRangingMeasurement owraoa_ranging_measurement = 7;
+}
+
+// Represent uwb_uci_packets::PowerStats;
+message PowerStats {
+  StatusCode status = 1;
+  uint32 idle_time_ms = 2;
+  uint32 tx_time_ms = 3;
+  uint32 rx_time_ms = 4;
+  uint32 total_wake_count = 5;
+}
+
+// Response of the UwbService::enable() method.
+message EnableResponse {
+  Status status = 1;
+}
+
+// Response of the UwbService::disable() method.
+message DisableResponse {
+  Status status = 1;
+}
+
+// Argument of the UwbService::SetLoggerMode() method.
+message SetLoggerModeRequest {
+  UciLoggerMode logger_mode = 1;
+}
+
+// Response of the UwbService::SetLoggerMode() method.
+message SetLoggerModeResponse {
+  Status status = 1;
+}
+
+// Argument of the UwbService::InitSession() method.
+message InitSessionRequest {
+  uint32 session_id = 1;
+  SessionType session_type = 2;
+  FiraAppConfigParams params = 3;
+}
+
+// Response of the UwbService::InitSession() method.
+message InitSessionResponse {
+  Status status = 1;
+}
+
+// Argument of the UwbService::DeinitSession() method.
+message DeinitSessionRequest {
+  uint32 session_id = 1;
+}
+
+// Response of the UwbService::DeinitSession() method.
+message DeinitSessionResponse {
+  Status status = 1;
+}
+
+// Argument of the UwbService::StartRanging() method.
+message StartRangingRequest {
+  uint32 session_id = 1;
+}
+
+// Response of the UwbService::StartRanging() method.
+message StartRangingResponse {
+  Status status = 1;
+}
+
+// Argument of the UwbService::StopRanging() method.
+message StopRangingRequest {
+  uint32 session_id = 1;
+}
+
+// Response of the UwbService::StopRanging() method.
+message StopRangingResponse {
+  Status status = 1;
+}
+
+// Argument of the UwbService::SessionParams() method.
+message SessionParamsRequest {
+  uint32 session_id = 1;
+}
+
+// Response of the UwbService::SessionParams() method.
+message SessionParamsResponse {
+  Status status = 1;
+  FiraAppConfigParams params = 2;
+}
+
+// Argument of the UwbService::Reconfigure() method.
+message ReconfigureRequest {
+  uint32 session_id = 1;
+  FiraAppConfigParams params = 2;
+}
+
+// Response of the UwbService::Reconfigure() method.
+message ReconfigureResponse {
+  Status status = 1;
+}
+
+// Argument of the UwbService::UpdateControllerMulticastList() method.
+message UpdateControllerMulticastListRequest {
+  uint32 session_id = 1;
+  UpdateMulticastListAction action = 2;
+  repeated Controlee controlees = 3;
+}
+
+// Response of the UwbService::UpdateControllerMulticastList() method.
+message UpdateControllerMulticastListResponse {
+  Status status = 1;
+}
+
+// Argument of the UwbService::AndroidSetCountryCode() method.
+message AndroidSetCountryCodeRequest {
+  string country_code = 1;
+}
+
+// Response of the UwbService::AndroidSetCountryCode() method.
+message AndroidSetCountryCodeResponse {
+  Status status = 1;
+}
+
+// Response of the UwbService::AndroidGetPowerStats() method.
+message AndroidGetPowerStatsResponse {
+  Status status = 1;
+  PowerStats power_stats = 2;
+}
+
+// Argument of the UwbService::SendVendorCmd() method.
+message SendVendorCmdRequest {
+  uint32 gid = 1;
+  uint32 oid = 2;
+  bytes payload = 3;
+  uint32 mt = 4;
+}
+
+// Response of the UwbService::SendVendorCmd() method.
+message SendVendorCmdResponse {
+  Status status = 1;
+  uint32 gid = 2;
+  uint32 oid = 3;
+  bytes payload = 4;
+}
+
+// Argument of the UwbServiceCallback::onServiceReset() method.
+message ServiceResetSignal {
+  bool success = 1;
+}
+
+// Argument of the UwbServiceCallback::onUciDeviceStatusChanged() method.
+message UciDeviceStatusChangedSignal {
+  DeviceState state = 1;
+}
+
+// Argument of the UwbServiceCallback::onSessionStateChanged() method.
+message SessionStateChangedSignal {
+  uint32 session_id = 1;
+  SessionState session_state = 2;
+  ReasonCode reason_code = 3;
+}
+
+// Argument of the UwbServiceCallback::onRangeDataReceived() method.
+message RangeDataReceivedSignal {
+  uint32 session_id = 1;
+  SessionRangeData range_data = 2;
+}
+
+// Argument of the UwbServiceCallback::onVendorNotificationReceived() method.
+message VendorNotificationReceivedSignal {
+  uint32 gid = 1;
+  uint32 oid = 2;
+  bytes payload = 3;
+}

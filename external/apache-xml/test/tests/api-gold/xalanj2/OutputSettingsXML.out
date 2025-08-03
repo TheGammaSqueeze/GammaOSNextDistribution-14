@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE out PUBLIC "this-is-doctype-public" "this-is-doctype-system">
+<out>
+<header>
+<title>title-tag:text</title>xsl:text within head tag</header>
+<document>
+<p>P-tag:beginCDATA? or not?</p>
+<ul>
+<ul-tag>
+      <li-tag number="1">li-tag:one</li-tag>
+      <li-tag value="two">li-tag:two</li-tag>
+    </ul-tag>
+</ul><p>fake 'p' element</p>
+<entities>" &amp; &lt; &gt;</entities>
+</document>
+</out>

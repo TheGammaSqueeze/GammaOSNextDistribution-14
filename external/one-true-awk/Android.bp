@@ -1,0 +1,126 @@
+package {
+    default_applicable_licenses: ["external_one-true-awk_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_one-true-awk_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "awk-flags",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        // Ignore a few harmless idioms widely used in this code.
+        "-Wno-missing-field-initializers",
+        "-Wno-self-assign",
+        "-Wno-unused-parameter",
+        // A loop to UCHAR_MAX in `b.c`.
+        "-Wno-sign-compare",
+        // And one less harmless used with strtod(3) in `lex.c`.
+        "-Wno-unused-result",
+        // Also ignore harmless macro redefinitions: glibc 2.17 #defines dprintf
+        // in stdio2.h, and this #defines it in awk.h
+        "-Wno-macro-redefined",
+    ],
+    stl: "none",
+    yacc: {
+        flags: [
+            "-y",
+        ],
+    },
+}
+
+genrule {
+    name: "awkgram.tab.c",
+    cmd: "M4=$(location m4) $(location bison) -y --no-lines --output=$(genDir)/awkgram.tab.c $(in)",
+    out: ["awkgram.tab.c"],
+    srcs: ["awkgram.y"],
+    tools: [
+        "bison",
+        "m4",
+    ],
+}
+
+genrule {
+    name: "awkgram.tab.h",
+    cmd: "M4=$(location m4) $(location bison) -y --no-lines --defines=$(genDir)/awkgram.tab.h --output=$(genDir)/awkgram.tab.c $(in)",
+    out: ["awkgram.tab.h"],
+    srcs: ["awkgram.y"],
+    tools: [
+        "bison",
+        "m4",
+    ],
+}
+
+genrule {
+    name: "proctab.c",
+    tools: ["awk-maketab"],
+    cmd: "$(location awk-maketab) $(in) > $(genDir)/proctab.c",
+    out: ["proctab.c"],
+    srcs: [":awkgram.tab.h"],
+}
+
+cc_binary_host {
+    name: "awk-maketab",
+    defaults: ["awk-flags"],
+    generated_headers: ["awkgram.tab.h"],
+    srcs: ["maketab.c"],
+}
+
+cc_defaults {
+    name: "awk-defaults",
+    defaults: ["awk-flags"],
+    generated_headers: ["awkgram.tab.h"],
+    srcs: [
+        "b.c",
+        "lex.c",
+        "lib.c",
+        "main.c",
+        "parse.c",
+        ":proctab.c",
+        "run.c",
+        "tran.c",
+        ":awkgram.tab.c",
+    ],
+}
+
+cc_binary {
+    name: "awk",
+    defaults: ["awk-defaults"],
+}
+
+cc_binary {
+    name: "awk_vendor",
+    defaults: ["awk-defaults"],
+    stem: "awk",
+    vendor: true,
+}
+
+cc_binary_host {
+    name: "one-true-awk",
+    defaults: ["awk-defaults"],
+}

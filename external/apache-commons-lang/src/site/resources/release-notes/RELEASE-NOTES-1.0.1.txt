@@ -1,0 +1,63 @@
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+=============================================================================
+
+			Commons Lang Package
+			   Version 1.0.1
+			    Release Notes
+
+
+INTRODUCTION:
+
+This document contains the release notes for this version of the Commons
+Lang package. Commons Lang is a set of utility functions and reusable 
+components that should be a help in any Java environment.
+
+NEW FEATURES:
+
+This release is a bugfix release for the Lang 1.0 release. There are no new features.
+
+BUG FIXES:
+
+#14062:     StringUtils.split fails to handle (String, null, int) correctly.
+            This results in the String "null" appearing in the split text, when 
+            the text is not entirely consumed in the split, ie) int is less 
+            than the number of whitespace tokens in the String.
+            Fix is courtesy of Mark McDowell.
+
+#-    :     SystemUtils.isJavaVersionAtLeast made static.
+
+#-    :     NumberUtils test fails in JDK 1.2 due to lack of 1.2 support for 
+            "1.1E-700F". Fix is to use SystemUtils to protect it for the moment.
+
+#-    :     ToStringStyle did not compile under JDK 1.2 due to inner class 
+            issues. Added explicit 'this.' prefixes to make this so.
+
+#14566:     NumberRange.getMaximum was returning the minimum.
+            Bug reported by Kasper Ronning.
+
+#13527:     ExceptionUtils now handles getCausedByException and getRootCause 
+            from EJBException and ServletException, as reported by Lars Beuster.
+
+#14334:     NestableDelegate now implements Serializable, as reported by 
+            Max Rydahl Andersen.
+
+#13568:     Enums cannot now be created with the same name as an already 
+            existing Enum. Enum now compiles under JDK 1.2.
+
+DEPRECATIONS:
+
+Solely a bugfix version.

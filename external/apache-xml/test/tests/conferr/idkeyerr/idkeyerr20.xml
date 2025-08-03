@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<doc>
+  <div allow="yes">
+    <title>Introduction</title>
+    <p>Intro Section.</p>
+  </div>
+  
+  <div allow="yes">
+    <title>Stylesheet Structure</title>
+    <p>SS Section.</p>
+  </div>
+  
+  <div allow="no">
+    <title>Expressions</title>
+    <p>Exp Section.</p>
+  </div>
+</doc>

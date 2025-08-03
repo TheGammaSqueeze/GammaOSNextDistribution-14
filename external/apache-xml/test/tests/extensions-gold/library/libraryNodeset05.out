@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out><junk>$top1 summary: Wrong variable, can you dig it?
+        
+$top2 summary: Dig we must!
+        </junk>
+The center nodes in $top2 are center,
+
+W01: center/child::* nodes in $top2 are t2-near-south,
+W02: center/descendant::* nodes in $top2 are t2-near-south,t2-south,t2-far-south,
+W03: center/parent::* nodes in $top2 are t2-near-north,
+W04: center/ancestor::* nodes in $top2 are t2-far-north,t2-north,t2-near-north,
+W05: center/following-sibling::* nodes in $top2 are t2-near-east,t2-east,t2-far-east,
+W06: center/preceding-sibling::* nodes in $top2 are t2-far-west,t2-west,t2-near-west,
+W07: center/following::* nodes in $top2 are t2-near-east,t2-east,t2-far-east,
+W08: center/preceding::* nodes in $top2 are t2-far-west,t2-west,t2-near-west,
+W09: center/attribute::* nodes in $top2 are center-attr-1,
+W10: center/namespace::* nodes in $top2 are n,
+W11: center/self::* nodes in $top2 are center,
+W12: center/descendant-or-self::* nodes in $top2 are center,t2-near-south,t2-south,t2-far-south,
+W13: center/ancestor-or-self::* nodes in $top2 are t2-far-north,t2-north,t2-near-north,center,
+
+N01: center/child::t2-near-south nodes in $top2 are t2-near-south,
+N02: center/descendant::t2-south nodes in $top2 are t2-south,
+N03: center/parent::t2-near-north nodes in $top2 are t2-near-north,
+N04: center/ancestor::t2-north nodes in $top2 are t2-north,
+N05: center/following-sibling::t2-east nodes in $top2 are t2-east,
+N06: center/preceding-sibling::t2-west nodes in $top2 are t2-west,
+N07: center/following::t2-east nodes in $top2 are t2-east,
+N08: center/preceding::t2-west nodes in $top2 are t2-west,
+N09: center/attribute::center-attr-1 nodes in $top2 are center-attr-1,
+N10: center/self::center nodes in $top2 are center,
+N11: center/descendant-or-self::t2-south nodes in $top2 are t2-south,
+N12: center/ancestor-or-self::t2-north nodes in $top2 are t2-north,
+</out>

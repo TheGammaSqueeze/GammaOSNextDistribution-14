@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Lloyd Pique <lpique@google.com>
+Date: Fri, 11 Mar 2022 19:10:07 -0800
+Subject: [PATCH 5/6] server: Safe cast a "wl_object *" to "wl_resource *"
+
+Client message observers 5/6
+
+When given an array of wl_arguments for a wl_closure, the .o field is an
+opaque wl_object pointer, which the server implementation cannot really do
+anything with, without a potentially unsafe cast that assumes details about the
+internal implementation.
+
+By adding a wl_resource_from_object() function to the client interface, the client
+can safely get the wl_resource pointer.
+
+This can be used by server protocol loggers in particular to get the resource id
+and class name, for logging those details
+
+Signed-off-by: Lloyd Pique <lpique@google.com>
+
+diff --git a/src/wayland-server-core.h b/src/wayland-server-core.h
+index df95821..63c6a62 100644
+--- a/src/wayland-server-core.h
++++ b/src/wayland-server-core.h
+@@ -608,6 +608,9 @@ struct wl_listener *
+ wl_resource_get_destroy_listener(struct wl_resource *resource,
+ 				 wl_notify_func_t notify);
+ 
++struct wl_resource *
++wl_resource_from_object(struct wl_object *object);
++
+ #define wl_resource_for_each(resource, list)					\
+ 	for (resource = 0, resource = wl_resource_from_link((list)->next);	\
+ 	     wl_resource_get_link(resource) != (list);				\
+diff --git a/src/wayland-server.c b/src/wayland-server.c
+index be98f7d..468322d 100644
+--- a/src/wayland-server.c
++++ b/src/wayland-server.c
+@@ -866,6 +866,28 @@ wl_resource_get_class(struct wl_resource *resource)
+ 	return resource->object.interface->name;
+ }
+ 
++/** Safely converts an object into its corresponding resource
++ *
++ * \param object object to get the resource for
++ * \return A corresponding resource, or NULL on failure
++ *
++ * Safely converts an object into its corresponding resource.
++ *
++ * This is useful for implementing functions that are given a \c wl_argument
++ * array, and that need to do further introspection on the ".o" field, as it
++ * is otherwise an opaque type.
++ *
++ * \memberof wl_resource
++ */
++WL_EXPORT struct wl_resource *
++wl_resource_from_object(struct wl_object *object)
++{
++	struct wl_resource *resource;
++	if (object == NULL)
++		return NULL;
++	return wl_container_of(object, resource, object);
++}
++
+ /**
+  * Add a listener to be called at the beginning of wl_client destruction
+  *

@@ -1,0 +1,6 @@
+<shapes>
+<rectangle width="10" height="30"/>
+<square side="15"/>
+<rectangle width="3" height="80"/>
+<circle radius="10"/>
+</shapes>

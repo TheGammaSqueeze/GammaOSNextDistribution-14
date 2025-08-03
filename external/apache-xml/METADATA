@@ -1,0 +1,6 @@
+third_party {
+  license_type: NOTICE
+  security {
+      tag: "NVD-CPE2.3:cpe:/a:apache:xalan-java:2.7.1"
+  }
+}

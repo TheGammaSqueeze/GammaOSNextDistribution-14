@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?><out>
+
+      ArcTan value of zero is:
+      0<br/>
+      ArcTan value of nzero is:
+      0<br/>
+      ArcTan value of num1 is:
+      1.1051406883644943<br/>
+      ArcTan value of num2 is:
+      1.2627426592770932<br/>
+      ArcTan value of temp1 is:
+      -1.4288992721907328<br/>
+      ArcTan value of temp2 is:
+      -1.4711275752937356<br/>
+      ArcTan value of rad1 is:
+      0.7853981633974483<br/>
+      ArcTan value of rad2 is:
+      1.5308176396716067<br/>
+      ArcTan value of rad3 is:
+      0.2478001933774758<br/>
+      ArcTan value of rad4 is:
+      -0.726145569734016<br/>
+      ArcTan value of input1 number is:
+      1.5707963267947052<br/>
+      ArcTan value of input2 number is:
+      NaN<br/>
+      ArcTan value of input3 number is:
+      1.5707963267948966</out>

@@ -1,0 +1,271 @@
+libvsomeip_srcs = [
+    "implementation/endpoints/**/*.cpp",
+    "implementation/logging/**/*.cpp",
+    "implementation/tracing/**/*.cpp",
+    "implementation/message/**/*.cpp",
+    "implementation/routing/**/*.cpp",
+    "implementation/runtime/**/*.cpp",
+    "implementation/utility/**/*.cpp",
+    "implementation/plugin/**/*.cpp",
+    "implementation/security/**/*.cpp",
+    "implementation/logger/**/*.cpp",
+]
+
+libvsomeip_cfg_srcs = [
+    "implementation/configuration/src/*.cpp",
+]
+
+libvsomeip_e2e_srcs = [
+    "implementation/e2e_protection/src/*.cpp",
+]
+
+libvsomeip_sd_srcs = [
+    "implementation/service_discovery/src/*.cpp",
+]
+
+cc_defaults {
+    name: "vsomeip_defaults",
+
+    header_libs: [
+        "libboost_library_headers",
+    ],
+
+    local_include_dirs: [
+        "interface",
+        "implementation/helper/1.76",
+    ],
+
+    rtti: true,
+
+    host_supported: true,
+
+    cppflags: [
+        "-std=c++11",
+        "-fexceptions",
+        "-Wno-non-virtual-dtor",
+        "-Wno-unused-const-variable",
+        "-Wno-unused-parameter",
+        "-Wno-unused-private-field",
+        "-Wno-unused-lambda-capture",
+        "-Wno-unused-variable",
+        "-Wno-unused-local-typedef",
+        "-Wno-sign-compare",
+        "-Wno-format",
+        "-Wno-header-guard",
+        "-Wno-overloaded-virtual",
+        "-Wno-implicit-fallthrough",
+        "-Wno-macro-redefined",
+    ],
+
+    target: {
+        linux_glibc: {
+            cppflags: [
+                // Soong is always adding -DANDROID even for the host
+                "-UANDROID",
+                "-DVSOMEIP_BASE_PATH=\"/tmp/\"",
+            ],
+            generated_headers: [
+                "vsomeip_gen_internal_hpp",
+            ],
+        },
+        android: {
+            cppflags: [
+                "-DVSOMEIP_BASE_PATH=\"/data/\"",
+            ],
+        },
+    },
+}
+
+// Adapted from CMakeLists.txt
+gensrcs {
+    name: "vsomeip_gen_internal_hpp",
+    srcs: [
+        "implementation/configuration/include/internal.hpp.in",
+    ],
+    cmd: "sed" +
+        " -e \"s|@DEFAULT_CONFIGURATION_FILE@|/etc/vsomeip.json|g\"" +
+        " -e \"s|@DEFAULT_CONFIGURATION_FOLDER@|/etc/vsomeip|g\"" +
+        " -e \"s|@VSOMEIP_MAJOR_VERSION@||g\"" +
+        " -e \"s|@VSOMEIP_DIAGNOSIS_ADDRESS@|0x01|g\"" +
+        " -e \"s|libvsomeip3-cfg\\.so\\.|libvsomeip3-cfg.so|g\"" +
+        " -e \"s|libvsomeip3-sd\\.so\\.|libvsomeip3-sd.so|g\"" +
+        " -e \"s|libvsomeip3-e2e\\.so\\.|libvsomeip3-e2e.so|g\"" +
+        " -e \"s|libvsomeip3-sec\\.so\\.|libvsomeip3-sec.so|g\"" +
+        " -e \"s|@VSOMEIP_UNICAST_ADDRESS@|127.0.0.1|g\"" +
+        " -e \"s|@VSOMEIP_ROUTING_READY_MESSAGE@|SOME/IP routing ready.|g\"" +
+        " $(in) > $(out) &&" +
+        " install $(out) external/sdv/vsomeip/implementation/configuration/include/internal.hpp",
+}
+
+cc_library_shared {
+    name: "libvsomeip3",
+    vendor: true,
+
+    srcs: libvsomeip_srcs,
+
+    defaults: [
+        "vsomeip_defaults",
+    ],
+
+    cflags: [
+        "-DWITHOUT_SYSTEMD",
+    ],
+
+    rtti: true,
+
+    local_include_dirs: [
+        "interface",
+        "implementation/helper/1.76",
+    ],
+
+    export_include_dirs: [
+        "interface",
+    ],
+
+    static_libs: [
+        "libboost_system",
+        "libboost_thread",
+        "libboost_filesystem",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libutils",
+    ],
+}
+
+cc_library_shared {
+    name: "libvsomeip3-cfg",
+    vendor: true,
+
+    srcs: libvsomeip_cfg_srcs,
+
+    defaults: [
+        "vsomeip_defaults",
+    ],
+
+    rtti: true,
+
+    local_include_dirs: [
+        "interface",
+        "implementation/helper/1.76",
+    ],
+
+    shared_libs: [
+        "libvsomeip3",
+        "libboost_system",
+        "libboost_filesystem",
+    ],
+}
+
+cc_library_shared {
+    name: "libvsomeip3-e2e",
+    vendor: true,
+
+    srcs: libvsomeip_e2e_srcs,
+
+    defaults: [
+        "vsomeip_defaults",
+    ],
+
+    rtti: true,
+
+    local_include_dirs: [
+        "interface",
+        "implementation/helper/1.76",
+    ],
+
+    shared_libs: [
+        "libvsomeip3",
+        "liblog",
+    ],
+}
+
+cc_library_shared {
+    name: "libvsomeip3-sd",
+    vendor: true,
+
+    srcs: libvsomeip_sd_srcs,
+
+    defaults: [
+        "vsomeip_defaults",
+    ],
+
+    rtti: true,
+
+    local_include_dirs: [
+        "interface",
+        "implementation/helper/1.76",
+    ],
+
+    shared_libs: [
+        "libvsomeip3",
+        "liblog",
+        "libboost_thread",
+    ],
+}
+
+cc_defaults {
+    name: "vsomeip_example_defaults",
+    vendor: true,
+    owner: "ts",
+    host_supported: true,
+    shared_libs: [
+        "libvsomeip3",
+        "liblog",
+    ],
+}
+
+cc_binary {
+    name: "vsomeip-helloworld-client",
+    defaults: ["vsomeip_example_defaults"],
+
+    srcs: [
+        "examples/hello_world/hello_world_client_main.cpp",
+    ],
+}
+
+cc_binary {
+    name: "vsomeip-helloworld-service",
+    defaults: ["vsomeip_example_defaults"],
+
+    srcs: [
+        "examples/hello_world/hello_world_service_main.cpp",
+    ],
+}
+
+cc_binary {
+    name: "vsomeip-notify-sample",
+    defaults: ["vsomeip_example_defaults"],
+
+    srcs: [
+        "examples/notify-sample.cpp",
+    ],
+}
+
+cc_binary {
+    name: "vsomeip-request-sample",
+    defaults: ["vsomeip_example_defaults"],
+
+    srcs: [
+        "examples/request-sample.cpp",
+    ],
+}
+
+cc_binary {
+    name: "vsomeip-response-sample",
+    defaults: ["vsomeip_example_defaults"],
+
+    srcs: [
+        "examples/response-sample.cpp",
+    ],
+}
+
+cc_binary {
+    name: "vsomeip-subscribe-sample",
+    defaults: ["vsomeip_example_defaults"],
+
+    srcs: [
+        "examples/subscribe-sample.cpp",
+    ],
+}

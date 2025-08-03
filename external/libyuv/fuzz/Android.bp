@@ -1,0 +1,24 @@
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_libyuv_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_libyuv_license"],
+}
+
+cc_fuzz {
+    name: "libyuv_mjpeg_dec_fuzz",
+    host_supported: false,
+    srcs: [
+        "mjpeg_dec_fuzz.cc",
+    ],
+    static_libs: [
+        "libyuv",
+    ],
+
+    shared_libs: [
+        "libjpeg",
+    ],
+}

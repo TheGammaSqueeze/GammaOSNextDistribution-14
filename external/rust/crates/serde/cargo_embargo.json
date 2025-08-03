@@ -1,0 +1,34 @@
+{
+  "cfg_blocklist": [
+    "std_atomic64"
+  ],
+  "min_sdk_version": "29",
+  "run_cargo": false,
+  "variants": [
+    {
+      "features": [
+        "default",
+        "derive",
+        "rc"
+      ],
+      "tests": true
+    },
+    {
+      "features": [
+        "alloc",
+        "derive"
+      ],
+      "module_name_overrides": {
+        "libserde": "libserde_nostd"
+      },
+      "package": {
+        "serde": {
+          "alloc": true,
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

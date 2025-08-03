@@ -1,0 +1,11 @@
+<DB>
+<orders customer_id="c1">
+ <product>my_reference</product>
+</orders>
+<orders customer_id="c3">
+ <product>my_reference 2</product>
+</orders>
+<customer id="c1">
+ <name>Dupont</name>
+</customer>
+</DB>

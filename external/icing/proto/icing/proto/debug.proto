@@ -1,0 +1,137 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/schema.proto";
+import "icing/proto/status.proto";
+import "icing/proto/storage.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+message LogSeverity {
+  enum Code {
+    VERBOSE = 0;
+    // Unable to use DEBUG at this time because it breaks YTM's iOS tests
+    // cs/?q=%22-DDEBUG%3D1%22%20f:%2FYoutubeMusic%20f:blueprint&ssfr=1
+    DBG = 1;
+    INFO = 2;
+    WARNING = 3;
+    ERROR = 4;
+    FATAL = 5;
+  }
+}
+
+message DebugInfoVerbosity {
+  enum Code {
+    // Simplest debug information.
+    BASIC = 0;
+    // More detailed debug information as indicated in the field documentation
+    // below.
+    DETAILED = 1;
+  }
+}
+
+// Next tag: 4
+message IndexDebugInfoProto {
+  // Storage information of the index.
+  optional IndexStorageInfoProto index_storage_info = 1;
+
+  // A formatted string containing the following information:
+  // lexicon_info: Information about the main lexicon
+  // last_added_document_id: Last added document id
+  // flash_index_storage_info: If verbosity = DETAILED, return information about
+  //                           the posting list storage
+  //
+  // No direct contents from user-provided documents will ever appear in this
+  // string.
+  optional string main_index_info = 2;
+
+  // A formatted string containing the following information:
+  // curr_size: Current number of hits
+  // hit_buffer_size: The maximum possible number of hits
+  // last_added_document_id: Last added document id
+  // searchable_end: The first position in the hit buffer that is not sorted
+  //                 yet, or curr_size if all hits are sorted
+  // index_crc: The most recent checksum of the lite index, by calling
+  //            LiteIndex::ComputeChecksum()
+  // lexicon_info: Information about the lite lexicon
+  //
+  // No direct contents from user-provided documents will ever appear in this
+  // string.
+  optional string lite_index_info = 3;
+}
+
+// Next tag: 4
+message DocumentDebugInfoProto {
+  // Storage information of the document store.
+  optional DocumentStorageInfoProto document_storage_info = 1;
+
+  // The most recent checksum of the document store, by calling
+  // DocumentStore::ComputeChecksum().
+  optional uint32 crc = 2;
+
+  message CorpusInfo {
+    optional string namespace = 1;
+    optional string schema = 2;
+    optional uint32 total_documents = 3;
+    optional uint32 total_token = 4;
+  }
+
+  // If verbosity = DETAILED, return the total number of documents and tokens in
+  // each (namespace, schema type) pair.
+  // Note that deleted and expired documents are skipped in the output.
+  repeated CorpusInfo corpus_info = 3;
+}
+
+// Next tag: 3
+message SchemaDebugInfoProto {
+  // Copy of the SchemaProto if it has been set in the schema store.
+  // Modifying this does not affect the Schema that IcingSearchEngine holds.
+  optional SchemaProto schema = 1;
+
+  // The most recent checksum of the schema store, by calling
+  // SchemaStore::ComputeChecksum().
+  optional uint32 crc = 2;
+}
+
+// Next tag: 4
+message DebugInfoProto {
+  // Debug information of the index.
+  optional IndexDebugInfoProto index_info = 1;
+
+  // Debug information of the document store.
+  optional DocumentDebugInfoProto document_info = 2;
+
+  // Debug information of the schema store.
+  optional SchemaDebugInfoProto schema_info = 3;
+}
+
+// Next tag: 3
+message DebugInfoResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION if IcingSearchEngine has not been initialized yet
+  //   INTERNAL on IO errors, crc compute error.
+  //
+  // See status.proto for more details.
+  optional StatusProto status = 1;
+
+  // Debug information for Icing.
+  optional DebugInfoProto debug_info = 2;
+}

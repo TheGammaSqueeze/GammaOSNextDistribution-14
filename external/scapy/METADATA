@@ -1,0 +1,20 @@
+# *** TAKE SPECIAL CARE WHEN VENDORING IN THIS PROJECT.
+#
+#     DOCUMENTATION FILES LIKE doc/scapy/index.rst MAY HAVE CC-BY-NC-SA
+#     LICENSE. GOOGLE DOES NOT WANT TO HOST CC-BY-NC* CONTENT. ***
+
+name: "scapy"
+description: "Scapy is a powerful Python-based interactive packet manipulation program and library."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/secdev/scapy"
+  }
+  version: "a193b30acfbccfa0d78d29ad21944d41dc13d65f"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2018
+    month: 1
+    day: 23
+  }
+}

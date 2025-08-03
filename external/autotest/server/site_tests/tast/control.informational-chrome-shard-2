@@ -1,0 +1,56 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.informational-chrome-shard-2'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'servo_state:WORKING'
+ATTRIBUTES = 'suite:bvt-tast-informational, suite:chrome-informational'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+JOB_RETRIES = 0  # Do not retry informational tests.
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the Tast informational Chrome test suite.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+This test runs Chrome-dependent Tast-based informational tests against a remote
+DUT. It only reports failure if the tast process itself (rather than individual
+Tast tests) fails.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+args_dict = utils.args_to_dict(args)
+assert 'servo_state:WORKING' in DEPENDENCIES
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    # TODO(crbug.com/992303): Fix android condition.
+    job.run_test('tast',
+                 host=hosts.create_host(machine, servo_args=servo_args),
+                 test_exprs=['('
+                             '"group:mainline" && '
+                             'informational && '
+                             '!"name:crostini.*" && '
+                             '"dep:chrome" && '
+                             '!"dep:android*"'
+                             ')'],
+                 ignore_test_failures=True,
+                 max_run_sec=4*60*60,
+                 totalshards=3,
+                 shardindex=2,
+                 command_args=args,
+                 clear_tpm=True)
+
+parallel_simple(run, machines)

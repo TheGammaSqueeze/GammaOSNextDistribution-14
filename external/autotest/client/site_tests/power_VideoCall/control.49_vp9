@@ -1,0 +1,27 @@
+AUTHOR = "puthik"
+NAME = "power_VideoCall.49_vp9"
+PURPOSE = "Simulates video call."
+CRITERIA = "This test is a benchmark."
+TIME = "MEDIUM"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test simulates video call and record power related statistic.
+
+Workload
+- Camera preview in 135p using VP8 codec.
+- 49 135p 24fps VP9 video playback.
+
+The run time is 3 minutes.
+"""
+
+video_url = 'http://crospower.page.link/power_VideoCall_' + NAME.split('.')[1]
+
+args_dict = utils.args_to_dict(args)
+pdash_note = args_dict.get('pdash_note', '')
+job.run_test('power_VideoCall', pdash_note=pdash_note, tag=NAME.split('.')[1],
+             video_url=video_url, num_video=50, duration=180, seconds_period=5,
+             multitask=False)

@@ -1,0 +1,8 @@
+function symbol 'void c()' {_Z1cv} was removed
+
+function symbol 'void d()' {_Z1dv} was removed
+
+function symbol 'void b()' {_Z1bv} changed
+  visibility changed from default to protected
+
+exit code 4

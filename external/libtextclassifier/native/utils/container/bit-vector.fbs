@@ -1,0 +1,40 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// The data that is used to represent a BitVector.
+namespace libtextclassifier3;
+table BitVectorData {
+  dense_data:DenseBitVectorData;
+  sparse_data:SparseBitVectorData;
+}
+
+// A dense representation of a bit vector.
+namespace libtextclassifier3;
+table DenseBitVectorData {
+  // The bits.
+  data:[ubyte];
+
+  // Number of bits in this bit vector.
+  size:int;
+}
+
+// A sparse representation of a bit vector.
+namespace libtextclassifier3;
+table SparseBitVectorData {
+  // A vector of sorted indices of elements that are 1.
+  sorted_indices_32:[int];
+}
+

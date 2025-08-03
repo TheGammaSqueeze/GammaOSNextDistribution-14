@@ -1,0 +1,31 @@
+{
+  "package": {
+    "memoffset": {
+      "dep_blocklist": [
+        "libdoc_comment"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "min_sdk_version": "29",
+      "extra_cfg": [
+        "aosp_force_use_std"
+      ],
+      "tests": true
+    },
+    {
+      "module_name_overrides": {
+        "libmemoffset": "libmemoffset_nostd"
+      },
+      "package": {
+        "memoffset": {
+          "alloc": true,
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# https://gitlab.freedesktop.org/mesa/mesa/-/issues/4641
+dEQP-VK.ssbo.phys.layout.random.16bit.scalar.13
+
+# These tests should not exist. They are from renderpass-with-dynamic-rendering.txt which should
+# have been removed upstream.
+dEQP-VK.renderpass_with_dynamic_rendering.dedicated_allocation.*
+dEQP-VK.renderpass_with_dynamic_rendering.suballocation.*

@@ -1,0 +1,4 @@
+# Initial release of ant hidl.
+2d70627f4756ffe61b67cae8d0f5ade7c16dd2317cf85a822ca3fe723a092a8e com.dsi.ant@1.0::types
+14a004696e838b5d3ee91905ddf5611ce46e6277293c509767c732ccf98bc6f0 com.dsi.ant@1.0::IAnt
+b5c7e6adb7c02ef9b8b9666d79a0be249daea3e840ed14a0f025fac30b71f009 com.dsi.ant@1.0::IAntCallbacks

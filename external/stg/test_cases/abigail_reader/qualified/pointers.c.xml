@@ -1,0 +1,26 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='a' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='b' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='c' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='d' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='e' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='f' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='pointers.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <qualified-type-def type-id='95e97e5e' const='yes' id='2448a865'/>
+    <pointer-type-def type-id='2448a865' size-in-bits='64' id='6d60f45d'/>
+    <qualified-type-def type-id='6942f6a4' const='yes' id='3bb4fcff'/>
+    <qualified-type-def type-id='6d60f45d' restrict='yes' id='3bb4fd00'/>
+    <pointer-type-def type-id='95e97e5e' size-in-bits='64' id='7292109c'/>
+    <qualified-type-def type-id='7292109c' const='yes' id='5a5c0787'/>
+    <qualified-type-def type-id='7292109c' restrict='yes' id='6942f6a4'/>
+    <var-decl name='a' type-id='6d60f45d' mangled-name='a' visibility='default' elf-symbol-id='a'/>
+    <var-decl name='b' type-id='5a5c0787' mangled-name='b' visibility='default' elf-symbol-id='b'/>
+    <var-decl name='c' type-id='6942f6a4' mangled-name='c' visibility='default' elf-symbol-id='c'/>
+    <var-decl name='d' type-id='3bb4fd00' mangled-name='d' visibility='default' elf-symbol-id='d'/>
+    <var-decl name='e' type-id='3bb4fcff' mangled-name='e' visibility='default' elf-symbol-id='e'/>
+    <var-decl name='f' type-id='3bb4fcff' mangled-name='f' visibility='default' elf-symbol-id='f'/>
+  </abi-instr>
+</abi-corpus>

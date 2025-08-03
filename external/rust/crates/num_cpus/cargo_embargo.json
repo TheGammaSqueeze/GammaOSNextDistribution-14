@@ -1,0 +1,19 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.btservices",
+    "com.android.compos",
+    "com.android.resolv",
+    "com.android.uwb",
+    "com.android.virt"
+  ],
+  "min_sdk_version": "29",
+  "package": {
+    "num_cpus": {
+      "no_presubmit": true,
+      "patch": "patches/Android.bp.patch"
+    }
+  },
+  "run_cargo": false,
+  "tests": true
+}

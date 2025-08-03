@@ -1,0 +1,21 @@
+{
+  "features": [
+    "event",
+    "feature",
+    "fs",
+    "ioctl",
+    "mount",
+    "mman",
+    "net",
+    "poll",
+    "sched",
+    "signal",
+    "socket",
+    "term",
+    "time",
+    "uio",
+    "user"
+  ],
+  "min_sdk_version": "29",
+  "run_cargo": false
+}

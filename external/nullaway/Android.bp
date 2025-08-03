@@ -1,0 +1,110 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// Build NullAway from sources for the platform
+//
+// Note: this is only intended to be used for the platform development. This is *not* intended
+// to be used in the SDK where apps can use the official jacoco release.
+package {
+    default_applicable_licenses: ["external_nullaway_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "external_nullaway_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL-2.0-with-classpath-exception",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE.txt",
+        "LICENSE",
+        "NOTICE",
+    ],
+}
+
+java_plugin {
+    name: "nullaway_plugin",
+
+    static_libs: [
+        "nullaway_lib",
+    ],
+}
+
+java_library_host {
+    name: "nullaway_lib",
+
+    srcs: [
+        "nullaway/src/**/*.java",
+        ":nullaway_fake_contract_annotation",
+    ],
+
+    exclude_srcs: ["nullaway/src/test/**/*.java"],
+
+    static_libs: [
+        "guava",
+        "//external/error_prone:error_prone_checkerframework_dataflow_nullaway",
+        "//external/error_prone:error_prone_core",
+        "nullaway_annotations",
+    ],
+
+    libs: [
+        "auto_service_annotations",
+        "auto_value_annotations",
+    ],
+
+    plugins: [
+        "auto_service_plugin",
+        "auto_value_plugin",
+    ],
+
+    javacflags: [
+        "--add-modules=jdk.compiler",
+        "--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    ],
+}
+
+// Nullaway depends on the Contract annotation, but we don't have it imported into android.
+// Create a fake stub annotation to use instead.
+genrule {
+    name: "nullaway_fake_contract_annotation",
+    out: ["org/jetbrains/annotations/Contract.java"],
+    cmd: "echo 'package org.jetbrains.annotations;' >> $(out) && " +
+        "echo 'import java.lang.annotation.*;' >> $(out) && " +
+        "echo '@Retention(RetentionPolicy.CLASS)' >> $(out) && " +
+        "echo '@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})' >> $(out) && " +
+        "echo 'public @interface Contract {' >> $(out) && " +
+        "echo '  String value() default \"\";' >> $(out) && " +
+        "echo '}' >> $(out)",
+    visibility: ["//visibility:private"],
+}
+
+java_library {
+    name: "nullaway_annotations",
+    host_supported: true,
+
+    srcs: [
+        "annotations/src/**/*.java"
+    ],
+}

@@ -1,0 +1,73 @@
+[package]
+name = "crosvm-fuzz"
+version = "0.0.1"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+devices = { path = "../devices" }
+disk = { path = "../disk" }
+fuse = { path = "../fuse" }
+hypervisor = { path = "../hypervisor" }
+kernel_loader = { path = "../kernel_loader" }
+libc = "*"
+rand = "0.8"
+base = { path = "../base" }
+tempfile = "3"
+usb_util = { path = "../usb_util" }
+vm_memory = { path = "../vm_memory" }
+p9 = "*"
+rand_core = {version = "0.6", features = ["std"]}
+cfg-if = "1.0"
+
+[target.'cfg(fuzzing)'.dependencies]
+libfuzzer-sys = "=0.4.4"
+
+[features]
+default = ["disk/qcow"]
+
+[[bin]]
+name = "block_fuzzer"
+path = "fuzz_targets/block_fuzzer.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fs_server_fuzzer"
+path = "fuzz_targets/fs_server_fuzzer.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "p9_tframe_fuzzer"
+path = "fuzz_targets/p9_tframe_fuzzer.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "qcow_fuzzer"
+path = "fuzz_targets/qcow_fuzzer.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "usb_descriptor_fuzzer"
+path = "fuzz_targets/usb_descriptor_fuzzer.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "virtqueue_fuzzer"
+path = "fuzz_targets/virtqueue_fuzzer.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "zimage_fuzzer"
+path = "fuzz_targets/zimage_fuzzer.rs"
+test = false
+doc = false
+

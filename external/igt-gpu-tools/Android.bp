@@ -1,0 +1,239 @@
+package {
+    default_applicable_licenses: ["external_igt-gpu-tools_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_igt-gpu-tools_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "COPYING",
+    ],
+}
+
+cc_defaults {
+    name: "igt-gpu-tools-defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-missing-field-initializers",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-DHAVE_GETTID",
+        "-DHAVE_LIBGEN_H",
+        "-DHAVE_MEMFD_CREATE",
+        "-fcommon", //ld.lld: error: duplicate symbol igt_subtest_jmpbuf: external/igt-gpu-tools/lib/igt_core.h:146
+        //Fixed upstream so we enable -fcommon locally
+    ],
+    static_libs: ["libelf", "libkmod", "libion", "liblog"],
+    shared_libs: ["libdrm"],
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64"
+        },
+    },
+}
+
+cc_library_static {
+    name: "igt-gpu-tools",
+    defaults: ["igt-gpu-tools-defaults"],
+    srcs: [
+        "lib/drmtest.c",
+        "lib/gem.c",
+        "lib/gem_msm.c",
+        "lib/igt_aux.c",
+        "lib/igt_color_encoding.c",
+        "lib/igt_core.c",
+        "lib/igt_debugfs.c",
+        "lib/igt_device.c",
+        "lib/igt_draw.c",
+        "lib/igt_dummy.c",
+        "lib/igt_dummyload.c",
+        "lib/igt_fb.c",
+        "lib/igt_kmod.c",
+        "lib/igt_kms.c",
+        "lib/igt_pm.c",
+        "lib/igt_rand.c",
+        "lib/igt_stats.c",
+        "lib/igt_sysfs.c",
+        "lib/igt_syncobj.c",
+        "lib/ion.c",
+        "lib/ioctl_wrappers.c",
+        "lib/sw_sync.c",
+        "lib/i915/gem_mman.c",
+        "lib/uwildmat/uwildmat.c",
+    ],
+    export_include_dirs: [
+        "include",
+        "lib",
+        "lib/stubs/drm",
+        "prebuilt-intermediates",
+    ],
+}
+
+cc_defaults {
+    name: "igt-gpu-tools-test-defaults",
+    defaults: ["igt-gpu-tools-defaults"],
+    static_libs: ["igt-gpu-tools"],
+}
+
+cc_test {
+    name: "gem_blt",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["benchmarks/gem_blt.c"],
+    gtest: false,
+}
+
+cc_test {
+    name: "kms_flip",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_flip.c"],
+    gtest: false,
+}
+
+cc_test {
+    name: "kms_atomic",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_atomic.c"],
+    gtest: false,
+}
+
+cc_test {
+    name: "ion_fb",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/ion_fb.c"],
+    gtest: false,
+}
+
+cc_test {
+    name: "kms_vblank",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_vblank.c"],
+    gtest: false,
+}
+
+python_test_host {
+    name: "igt_gpu_tools",
+    main: "scripts/test_igt_gpu_tools.py",
+    srcs: [ "scripts/test_igt_gpu_tools.py", ],
+    data: [ "scripts/test_igt_gpu_tools.xml" ],
+    test_config: "scripts/test_igt_gpu_tools.xml",
+    test_options: {
+        unit_test: false,
+    },
+}
+
+cc_test {
+    name: "kms_throughput",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["benchmarks/kms_throughput.c"],
+}
+
+cc_test {
+    name: "core_auth",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/core_auth.c"],
+}
+
+cc_test {
+    name: "kms_properties",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_properties.c"],
+}
+
+cc_test {
+    name: "core_getclient",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/core_getclient.c"],
+}
+
+cc_test {
+    name: "drm_read",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/drm_read.c"]
+}
+
+cc_test {
+    name: "kms_addfb_basic",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_addfb_basic.c"],
+}
+
+cc_test {
+    name: "kms_getfb",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_getfb.c"],
+}
+
+cc_test {
+    name: "kms_atomic_interruptible",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_atomic_interruptible.c"],
+}
+
+cc_test {
+    name: "kms_atomic_transition",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_atomic_transition.c"],
+}
+
+cc_test {
+    name: "kms_plane_lowres",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_plane_lowres.c"],
+}
+
+cc_test {
+    name: "kms_plane_scaling",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_plane_scaling.c"],
+}
+
+cc_test {
+    name: "kms_prop_blob",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_prop_blob.c"],
+}
+
+cc_test {
+    name: "syncobj_basic",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/syncobj_basic.c"],
+}
+
+cc_test {
+    name: "syncobj_wait",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/syncobj_wait.c"],
+}
+
+cc_test {
+    name: "kms_setmode",
+    defaults: ["igt-gpu-tools-test-defaults"],
+    srcs: ["tests/kms_setmode.c"],
+}

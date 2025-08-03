@@ -1,0 +1,12 @@
+diff --git a/rules.mk b/rules.mk
+index cc0900b2..e45ae654 100644
+--- a/rules.mk
++++ b/rules.mk
+@@ -23,6 +23,7 @@ MODULE_RUSTFLAGS += \
+ 
+ MODULE_LIBRARY_DEPS := \
+ 	external/rust/crates/proc-macro2 \
++	external/rust/crates/quote \
+ 	external/rust/crates/unicode-ident \
+ 
+ include make/library.mk

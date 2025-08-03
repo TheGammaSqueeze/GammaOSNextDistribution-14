@@ -1,0 +1,34 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_auto_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_auto_license"],
+}
+
+java_library {
+    name: "auto_service_annotations",
+    host_supported: true,
+    srcs: ["annotations/src/main/java/**/*.java"],
+    sdk_version: "core_current",
+    visibility: ["//visibility:public"],
+}
+
+java_library_host {
+    name: "libauto_service_plugin",
+    srcs: ["processor/src/main/java/**/*.java"],
+    visibility: ["//visibility:public"],
+    static_libs: [
+         "auto_common",
+         "auto_service_annotations",
+         "guava",
+    ],
+}
+
+java_plugin {
+    name: "auto_service_plugin",
+    static_libs: ["libauto_service_plugin"],
+    processor_class: "com.google.auto.service.processor.AutoServiceProcessor",
+    visibility: ["//visibility:public"],
+}

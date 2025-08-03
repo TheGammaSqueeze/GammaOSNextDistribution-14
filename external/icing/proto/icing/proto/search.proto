@@ -1,0 +1,558 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/document.proto";
+import "icing/proto/logging.proto";
+import "icing/proto/scoring.proto";
+import "icing/proto/status.proto";
+import "icing/proto/term.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// Client-supplied specifications on what documents to retrieve.
+// Next tag: 11
+message SearchSpecProto {
+  // REQUIRED: The "raw" query string that users may type. For example, "cat"
+  // will search for documents with the term cat in it.
+  optional string query = 1;
+
+  // Indicates how the query terms should match terms in the index.
+  //
+  // TermMatchType.Code=UNKNOWN
+  // Should never purposely be set and may lead to undefined behavior. This is
+  // used for backwards compatibility reasons.
+  //
+  // TermMatchType.Code=EXACT_ONLY
+  // Query terms will only match exact tokens in the index.
+  // Ex. A query term "foo" will only match indexed token "foo", and not "foot"
+  // or "football"
+  //
+  // TermMatchType.Code=PREFIX
+  // Query terms will match indexed tokens when the query term is a prefix of
+  // the token.
+  // Ex. A query term "foo" will match indexed tokens like "foo", "foot", and
+  // "football".
+  optional TermMatchType.Code term_match_type = 2;
+
+  // OPTIONAL: Only search for documents that have the specified namespaces. If
+  // unset, the query will search over all namespaces. Note that this applies to
+  // the entire 'query'. To issue different queries for different namespaces,
+  // separate Search()'s will need to be made.
+  repeated string namespace_filters = 3;
+
+  // OPTIONAL: Only search for documents that have the specified schema types.
+  // If unset, the query will search over all schema types. Note that this
+  // applies to the entire 'query'. To issue different queries for different
+  // schema types, separate Search()'s will need to be made.
+  repeated string schema_type_filters = 4;
+
+  // Timestamp taken just before sending proto across the JNI boundary from java
+  // to native side.
+  optional int64 java_to_native_start_timestamp_ms = 5;
+
+  message SearchType {
+    enum Code {
+      UNDEFINED = 0;
+      ICING_RAW_QUERY = 1;
+      EXPERIMENTAL_ICING_ADVANCED_QUERY = 2;
+    }
+  }
+  // This field determines which type of query parsing Icing will use to fulfill
+  // the query.
+  // ICING_RAW_QUERY is the current query language as released, which supports
+  // basic ands, ors and nots as well as grouping and property restricts.
+  // EXPERIMENTAL_ICING_ADVANCED_QUERY is a superset of ICING_RAW_QUERY that
+  // will also support the use of functions defined by Icing Lib.
+  // This field is only temporary. When fully complete, all queries will be
+  // parsed by EXPERIMENTAL_ICING_ADVANCED_QUERY. This field only exists to
+  // enable testing.
+  // TODO(b/208654892) Remove this field once EXPERIMENTAL_ICING_ADVANCED_QUERY
+  // is fully supported.
+  optional SearchType.Code search_type = 6
+      [default = EXPERIMENTAL_ICING_ADVANCED_QUERY];
+
+  // OPTIONAL: If this field is present, join documents based on a nested
+  // SearchSpec.
+  optional JoinSpecProto join_spec = 7;
+
+  // Features enabled in this search spec.
+  repeated string enabled_features = 8;
+
+  // OPTIONAL: Whether to use the read-only implementation of
+  // IcingSearchEngine::Search.
+  // The read-only version enables multiple queries to be performed concurrently
+  // as it only acquires the read lock at IcingSearchEngine's level.
+  // Finer-grained locks are implemented around code paths that write changes to
+  // Icing during Search.
+  optional bool use_read_only_search = 9 [default = true];
+
+  // TODO(b/294266822): Handle multiple property filter lists for same schema
+  // type.
+  // How to specify a subset of properties to be searched. If no type property
+  // filter has been specified for a schema type (no TypePropertyMask for the
+  // given schema type), then *all* properties of that schema type will be
+  // searched. If an empty property filter is specified for a given schema type
+  // (TypePropertyMask for the given schema type has empty paths field), no
+  // properties of that schema type will be searched.
+  repeated TypePropertyMask type_property_filters = 10;
+}
+
+// Client-supplied specifications on what to include/how to format the search
+// results.
+// Next tag: 10
+message ResultSpecProto {
+  // The results will be returned in pages, and num_per_page specifies the
+  // number of documents in one page.
+  optional int32 num_per_page = 1 [default = 10];
+
+  // Whether to collect and return debug_info in the SearchResultProto.
+  optional bool debug_info = 2;
+
+  // How to provide snippeting information in the SearchResultProto.
+  // Next tag: 5
+  message SnippetSpecProto {
+    // Only the first num_to_snippet documents will have snippet information
+    // provided. If set to 0, snippeting is disabled.
+    optional int32 num_to_snippet = 1;
+
+    // Only the first num_matches_per_property matches for a single section will
+    // have snippet information provided. If set to 0, snippeting is disabled.
+    optional int32 num_matches_per_property = 2;
+
+    // How large of a window to provide. Windows start at
+    // max_window_utf32_length / 2 bytes before the middle of the matching token
+    // and end at max_window_utf32_length / 2 bytes after the middle of the
+    // matching token. Windowing respects token boundaries. Therefore, the
+    // returned window may be smaller than requested. Setting
+    // max_window_utf32_length to 0 will disable windowing information. If
+    // matches enabled is also set to false, then snippeting is disabled. Ex.
+    // max_window_utf32_length = 16. "foo bar baz bat rat" with a query of "baz"
+    // will return a window of "bar baz bat" which is only 11 bytes long.
+    optional int32 max_window_utf32_length = 3;
+  }
+  optional SnippetSpecProto snippet_spec = 3;
+
+  // How to specify a subset of properties to retrieve. If no type property mask
+  // has been specified for a schema type, then *all* properties of that schema
+  // type will be retrieved.
+  repeated TypePropertyMask type_property_masks = 4;
+
+  // Groupings of namespaces and schema types whose total returned results
+  // should be limited together.
+  // Next tag: 3
+  message ResultGrouping {
+    // Grouping of namespace and schema type.
+    // Next tag: 3
+    message Entry {
+      // The namespace in this grouping that should be returned.
+      // This field should be empty if ResultGroupingType is SCHEMA_TYPE
+      optional string namespace = 1;
+
+      // The schema in this grouping that should be returned.
+      // This field should be empty if ResultGroupingType is NAMESPACE
+      optional string schema = 2;
+    }
+
+    // Identifier for namespace and schema type pairs.
+    repeated Entry entry_groupings = 1;
+
+    // The maximum number of results in this grouping that should be returned.
+    optional int32 max_results = 2;
+  }
+
+  // How to limit the number of results returned per set of namespaces or schema
+  // type. If results match for a namespace or schema type that is not present
+  // in any result groupings, then those results will be returned without limit.
+  //
+  // Non-existent namespaces and/or schema type will be ignored.
+  //
+  // Example : Suppose that there are four namespaces each with three results
+  // matching the query for "foo". Without any result groupings, Icing would
+  // return the following results:
+  // ["ns0doc0", "ns0doc1", "ns1doc0", "ns3doc0", "ns0doc2", "ns3doc1",
+  //  "ns2doc1", "ns3doc2", "ns2doc0", "ns1doc1", "ns2doc2", "ns1doc1"].
+  //
+  // The following result groupings will be returned if that the
+  // ResultGroupingType is set to NAMESPACE:
+  // [ { [ {"namespace0"} ], 2 }, { [ {"namespace1"}, {"namespace2"} ], 2} ]
+  //
+  // The following results will be returned:
+  // ["ns0doc0", "ns0doc1", "ns1doc0", "ns3doc0", "ns3doc1", "ns2doc1",
+  //  "ns3doc2"].
+  repeated ResultGrouping result_groupings = 5;
+
+  // The threshold of total bytes of all documents to cutoff, in order to limit
+  // # of bytes in a single page.
+  // Note that it doesn't guarantee the result # of bytes will be smaller, equal
+  // to, or larger than the threshold. Instead, it is just a threshold to
+  // cutoff, and only guarantees total bytes of search results will exceed the
+  // threshold by less than the size of the final search result.
+  optional int32 num_total_bytes_per_page_threshold = 6
+      [default = 2147483647];  // INT_MAX
+
+  // The value by which the search results will get grouped by.
+  // Can get grouped by schema type, namespace (default), or by namespace and
+  // schema type.
+  enum ResultGroupingType {
+    NONE = 0;
+    SCHEMA_TYPE = 1;
+    NAMESPACE = 2;
+    NAMESPACE_AND_SCHEMA_TYPE = 3;
+  }
+  optional ResultGroupingType result_group_type = 7;
+
+  // The max # of child documents will be attached and returned in the result
+  // for each parent. It is only used for join API.
+  optional int32 max_joined_children_per_parent_to_return = 8;
+
+  // The max # of results being scored and ranked.
+  // Running time of ScoringProcessor and Ranker is O(num_to_score) according to
+  // results of //icing/scoring:score-and-rank_benchmark. Note that
+  // the process includes scoring, building a heap, and popping results from the
+  // heap.
+  //
+  // 30000 results can be scored and ranked within 3 ms on a Pixel 3 XL
+  // according to results of
+  // //icing/scoring:score-and-rank_benchmark, so set it as the
+  // default value.
+  optional int32 num_to_score = 9 [default = 30000];
+}
+
+// The representation of a single match within a DocumentProto property.
+//
+// Example : A document whose content is "Necesito comprar comida mañana." and a
+// query for "mana" with window=15
+// Next tag: 12
+message SnippetMatchProto {
+  // The index of the byte in the string at which the match begins and the
+  // length in bytes of the match.
+  //
+  // For the example above, the values of these fields would be
+  // exact_match_byte_position=24, exact_match_byte_length=7 "mañana"
+  optional int32 exact_match_byte_position = 2;
+  optional int32 exact_match_byte_length = 3;
+
+  // The length in bytes of the subterm that matches the query. The beginning of
+  // the submatch is the same as exact_match_byte_position.
+  //
+  // For the example above, the value of this field would be 5. With
+  // exact_match_byte_position=24 above, it would produce the substring "maña"
+  optional int32 submatch_byte_length = 10;
+
+  // The index of the UTF-16 code unit in the string at which the match begins
+  // and the length in UTF-16 code units of the match. This is for use with
+  // UTF-16 encoded strings like Java.lang.String.
+  //
+  // For the example above, the values of these fields would be
+  // exact_match_utf16_position=24, exact_match_utf16_length=6 "mañana"
+  optional int32 exact_match_utf16_position = 6;
+  optional int32 exact_match_utf16_length = 7;
+
+  // The length in UTF-16 code units of the subterm that matches the query. The
+  // beginning of the submatch is the same as exact_match_utf16_position. This
+  // is for use with UTF-16 encoded strings like Java.lang.String.
+  //
+  // For the example above, the value of this field would be 4. With
+  // exact_match_utf16_position=24 above, it would produce the substring "maña"
+  optional int32 submatch_utf16_length = 11;
+
+  // The index of the byte in the string at which the suggested snippet window
+  // begins and the length in bytes of the window.
+  //
+  // For the example above, the values of these fields would be
+  // window_byte_position=17, window_byte_length=15 "comida mañana."
+  optional int32 window_byte_position = 4;
+  optional int32 window_byte_length = 5;
+
+  // The index of the UTF-16 code unit in the string at which the suggested
+  // snippet window begins and the length in UTF-16 code units of the window.
+  // This is for use with UTF-16 encoded strings like Java.lang.String.
+  //
+  // For the example above, the values of these fields would be
+  // window_utf16_position=17, window_utf16_length=14 "comida mañana."
+  optional int32 window_utf16_position = 8;
+  optional int32 window_utf16_length = 9;
+
+  reserved 1;
+}
+
+// A Proto representing all snippets for a single DocumentProto.
+// Next tag: 2
+message SnippetProto {
+  // A pair of property name and all snippet matches that correspond to the
+  // property values in the corresponding DocumentProto.
+  // Next tag: 3
+  message EntryProto {
+    // A property path indicating which property in the DocumentProto these
+    // snippets correspond to. Property paths will contain 1) property names,
+    // 2) the property separator character '.' used to represent nested property
+    // and 3) indices surrounded by brackets to represent a specific value in
+    // that property.
+    //
+    // Example properties:
+    // - 'body'               : the first and only string value of a top-level
+    //                          property called 'body'.
+    // - 'sender.name'        : the first and only string value of a property
+    //                          called 'name' that is a subproperty of a
+    //                          property called 'sender'.
+    // - 'bcc[1].emailaddress': the first and only string value of a property
+    //                          called 'emailaddress' that is a subproperty of
+    //                          the second document value of a property called
+    //                          'bcc'.
+    // - 'attachments[0]'     : the first (of more than one) string value of a
+    //                          property called 'attachments'.
+    // NOTE: If there is only a single value for a property (like
+    // 'sender.name'), then no value index will be added to the property path.
+    // An index of [0] is implied. If there is more than one value for a
+    // property, then the value index will be added to the property path (like
+    // 'attachements[0]').
+    optional string property_name = 1;
+
+    repeated SnippetMatchProto snippet_matches = 2;
+  }
+  // Properties that do not appear in entries do not contain any matches.
+  repeated EntryProto entries = 1;
+}
+
+// Icing lib-supplied results from a search results.
+// Next tag: 6
+message SearchResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   INVALID_ARGUMENT
+  //   ABORTED
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  //
+  // TODO(b/147699081): Fix error codes: +ABORTED.
+  // go/icing-library-apis.
+  optional StatusProto status = 1;
+
+  // The Results that matched the query. Empty if there was an error.
+  // Next tag: 5
+  message ResultProto {
+    // Document that matches the SearchSpecProto.
+    optional DocumentProto document = 1;
+
+    // Snippeting information for the document if requested in the
+    // ResultSpecProto. A default instance, if not requested.
+    optional SnippetProto snippet = 2;
+
+    // The score that the document was ranked by. The meaning of this score is
+    // determined by ScoringSpecProto.rank_by.
+    optional double score = 3;
+
+    // The child documents that were joined to a parent document.
+    repeated ResultProto joined_results = 4;
+  }
+  repeated ResultProto results = 2;
+
+  // Various debug fields. Not populated if ResultSpecProto.debug_info = false.
+  // Next tag: 4
+  message DebugInfoProto {
+    // The internal representation of the actual query string that was executed.
+    // This may be different from the SearchSpecProto.query if the original
+    // query was malformed.
+    optional string executed_query = 3;
+
+    reserved 1, 2;
+  }
+  optional DebugInfoProto debug_info = 3;
+
+  // An opaque token used internally to keep track of information needed for
+  // pagination. A valid pagination token is required to fetch other pages of
+  // results. A value 0 means that there're no more pages.
+  // LINT.IfChange(next_page_token)
+  optional uint64 next_page_token = 4;
+  // LINT.ThenChange(//depot/google3/icing/result/result-state-manager.h:kInvalidNextPageToken)
+
+  // Stats for query execution performance.
+  optional QueryStatsProto query_stats = 5;
+}
+
+// Next tag: 3
+message TypePropertyMask {
+  // The schema type to which these property masks should apply.
+  // If the schema type is the wildcard ("*"), then the type property masks
+  // will apply to all results of types that don't have their own, specific
+  // type property mask entry.
+  optional string schema_type = 1;
+
+  // The property masks specifying the property to be retrieved. Property
+  // masks must be composed only of property names, property separators (the
+  // '.' character). For example, "subject", "recipients.name". Specifying no
+  // property masks will result in *no* properties being retrieved.
+  repeated string paths = 2;
+}
+
+// Next tag: 2
+message GetResultSpecProto {
+  // How to specify a subset of properties to retrieve. If no type property mask
+  // has been specified for a schema type, then *all* properties of that schema
+  // type will be retrieved.
+  repeated TypePropertyMask type_property_masks = 1;
+}
+
+// Next tag: 8
+message SuggestionSpecProto {
+  // REQUIRED: The "raw" prefix string that users may type. For example, "f"
+  // will search for suggested query that start with "f" like "foo", "fool".
+  optional string prefix = 1;
+
+  // OPTIONAL: Only search for suggestions that under the specified namespaces.
+  // If unset, the suggestion will search over all namespaces. Note that this
+  // applies to the entire 'prefix'. To issue different suggestions for
+  // different namespaces, separate RunSuggestion()'s will need to be made.
+  repeated string namespace_filters = 2;
+
+  // REQUIRED: The number of suggestions to be returned.
+  optional int32 num_to_return = 3;
+
+  // Indicates how the suggestion terms should be scored and ranked.
+  optional SuggestionScoringSpecProto scoring_spec = 4;
+
+  // OPTIONAL: Only search for suggestions that under the specified
+  // DocumentUris. If unset, the suggestion will search over all Documents.
+  //
+  // All namespace in the given NamespaceDocumentUriGroup should match the
+  // namespace_filters. i.e. appears in the namespace_filter or namespace_filter
+  // is empty.
+  //
+  // All given NamespaceDocumentUriGroup cannot have empty. Please use the
+  // namespace_filter to exclude a namespace.
+  //
+  // Note that this applies to the entire 'prefix'. To issue different
+  // suggestions for different DocumentIds, separate RunSuggestion()'s will need
+  // to be made.
+  repeated NamespaceDocumentUriGroup document_uri_filters = 5;
+
+  // OPTIONAL: Only search for suggestions that under the specified schemas.
+  // If unset, the suggestion will search over all schema types. Note that this
+  // applies to the entire 'prefix'. To issue different suggestions for
+  // different schema typs, separate RunSuggestion()'s will need to be made.
+  repeated string schema_type_filters = 6;
+
+  // OPTIONAL: Only search for suggestions that under the specified types and
+  // properties.
+  //
+  // If unset, the suggestion will search over all types.
+  // If the TypePropertyMask.paths is unset, the suggestion will search over all
+  // properties under the TypePropertyMask.schema_type.
+  //
+  // Note that this applies to the entire 'prefix'. To issue different
+  // suggestions for different types, separate RunSuggestion()'s will need to be
+  // made.
+  repeated TypePropertyMask type_property_filters = 7;
+}
+
+// A group that holds namespace and document_uris under it.
+message NamespaceDocumentUriGroup {
+  optional string namespace_ = 1;
+  repeated string document_uris = 2;
+}
+
+// Next tag: 3
+message SuggestionResponse {
+  message Suggestion {
+    // The suggested query string for client to search for.
+    optional string query = 1;
+  }
+
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  optional StatusProto status = 1;
+
+  repeated Suggestion suggestions = 2;
+}
+
+// Specification for a left outer join.
+//
+// Next tag: 7
+message JoinSpecProto {
+  // Collection of several specs that will be used for searching and joining
+  // child documents.
+  //
+  // Next tag: 4
+  message NestedSpecProto {
+    // A nested SearchSpec that will be used to retrieve child documents. If you
+    // are only looking to join on a specific type documents, you could set a
+    // schema filter in this SearchSpec. This includes the nested search query.
+    // See SearchSpecProto.
+    optional SearchSpecProto search_spec = 1;
+
+    // A nested ScoringSpec that will be used to score child documents.
+    // See ScoringSpecProto.
+    optional ScoringSpecProto scoring_spec = 2;
+
+    // A nested ResultSpec that will be used to format child documents in the
+    // result joined documents, e.g. snippeting, projection.
+    // See ResultSpecProto.
+    optional ResultSpecProto result_spec = 3;
+  }
+  optional NestedSpecProto nested_spec = 1;
+
+  // The equivalent of a primary key in SQL. This is an expression that will be
+  // used to match child documents from the nested search to this document. One
+  // such expression is qualifiedId(). When used, it means the contents of
+  // child_property_expression property in the child documents must be equal to
+  // the qualified id.
+  // TODO(b/256022027) allow for parent_property_expression to be any property
+  // of the parent document.
+  optional string parent_property_expression = 2;
+
+  // The equivalent of a foreign key in SQL. This defines an equality constraint
+  // between a property in a child document and a property in the parent
+  // document. For example, if you want to join child documents which an
+  // entityId property containing a fully qualified document id,
+  // child_property_expression can be set to "entityId".
+  // TODO(b/256022027) figure out how to allow this to refer to documents
+  // outside of same pkg+db+ns.
+  optional string child_property_expression = 3;
+
+  // The max number of child documents to join to a parent document.
+  // DEPRECATED: use ResultSpecProto.max_joined_children_per_parent_to_return to
+  // control the number of children that are returned. There is no supported
+  // control for the number of children being scored at this time.
+  optional int32 max_joined_child_count = 4 [deprecated = true];
+
+  // The strategy by which to score the aggregation of child documents. For
+  // example, you might want to know which entity document has the most actions
+  // taken on it. If JOIN_AGGREGATE_SCORE is used in the base SearchSpecProto,
+  // the COUNT value will rank entity documents based on the number of child
+  // documents.
+  message AggregationScoringStrategy {
+    enum Code {
+      NONE = 0;  // No aggregation strategy for child documents and use parent
+                 // document score.
+      COUNT = 1;
+      MIN = 2;
+      AVG = 3;
+      MAX = 4;
+      SUM = 5;
+    }
+  }
+  optional AggregationScoringStrategy.Code aggregation_scoring_strategy = 5;
+}

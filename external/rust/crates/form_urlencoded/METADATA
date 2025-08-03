@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/form_urlencoded
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "form_urlencoded"
+description: "Parser and serializer for the application/x-www-form-urlencoded syntax, as used by HTML forms."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/form_urlencoded"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/form_urlencoded/form_urlencoded-1.1.0.crate"
+  }
+  version: "1.1.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 12
+    day: 9
+  }
+}

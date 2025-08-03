@@ -1,0 +1,37 @@
+variable symbol '_ZTI15VirtualToNormal' was removed
+
+variable symbol '_ZTS15VirtualToNormal' was removed
+
+variable symbol '_ZTV15VirtualToNormal' was removed
+
+variable symbol '_ZTI15NormalToVirtual' was added
+
+variable symbol '_ZTS15NormalToVirtual' was added
+
+variable symbol '_ZTV15NormalToVirtual' was added
+
+function symbol 'void NormalToVirtual::print(struct NormalToVirtual*)' {_ZN15NormalToVirtual5printEv} changed
+  type 'void(struct NormalToVirtual*)' changed
+    parameter 1 type 'struct NormalToVirtual*' changed
+      pointed-to type 'struct NormalToVirtual' changed
+        byte size changed from 1 to 8
+        method 'print {_ZN15NormalToVirtual5printEv}' was added
+        member 'int(** _vptr$NormalToVirtual)()' was added
+
+function symbol 'void VirtualToNormal::print(struct VirtualToNormal*)' {_ZN15VirtualToNormal5printEv} changed
+  type 'void(struct VirtualToNormal*)' changed
+    parameter 1 type 'struct VirtualToNormal*' changed
+      pointed-to type 'struct VirtualToNormal' changed
+        byte size changed from 8 to 1
+        method 'print {_ZN15VirtualToNormal5printEv}' was removed
+        member 'int(** _vptr$VirtualToNormal)()' was removed
+
+variable symbol 'struct NormalToVirtual normal_to_virtual' changed
+  type 'struct NormalToVirtual' changed
+    (already reported)
+
+variable symbol 'struct VirtualToNormal virtual_to_normal' changed
+  type 'struct VirtualToNormal' changed
+    (already reported)
+
+exit code 4

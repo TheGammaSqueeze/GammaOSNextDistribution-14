@@ -1,0 +1,164 @@
+Introduction
+============
+The FreeBSD port of sg3_utils contains those utilities that are _not_
+specific to Linux. In some cases the FreeBSD camcontrol command supplies
+similar functionality; for example 'sg_map' is similar to
+'camcontrol devlist'.
+
+The dd variants from the sg3_utils package (e.g. sg_dd) rely on too many
+Linux idiosyncrasies to be easily ported. A new package called 'ddpt'
+contains a utility with similar functionality to sg_dd and ddpt is available
+for FreeBSD.
+
+Supported Utilities
+===================
+Here is a list of utilities that have been ported:
+    sg_bg_ctl
+    sg_compare_and_write
+    sg_decode_sense
+    sg_format
+    sg_get_config
+    sg_get_elem_status
+    sg_get_lba_status
+    sg_ident
+    sg_inq          [dropped ATA IDENTIFY DEVICE capability]
+    sg_logs
+    sg_luns
+    sg_modes
+    sg_opcodes
+    sg_persist
+    sg_prevent
+    sg_raw
+    sg_rdac
+    sg_read_block_limits
+    sg_read_buffer
+    sg_read_long
+    sg_readcap
+    sg_reassign
+    sg_referrals
+    sg_rep_pip
+    sg_rep_zones
+    sg_requests
+    sg_rmsn
+    sg_rtpg
+    sg_safte
+    sg_sanitize
+    sg_sat_identify
+    sg_sat_phy_event
+    sg_sat_set_features
+    sg_seek
+    sg_senddiag
+    sg_ses
+    sg_start
+    sg_stpg
+    sg_stream_ctl
+    sg_sync
+    sg_turs
+    sg_verify
+    sg_unmap
+    sg_vpd
+    sg_wr_mode
+    sg_write_buffer
+    sg_write_long
+    sg_write_same
+    sg_write_verify
+    sg_write_x
+    sg_zone
+
+Most utility names are indicative of the main SCSI command
+that they execute.  Some utilities are slightly higher level, for
+example sg_ses fetches SCSI Enclosure Services (SES) status pages and
+can send control pages. Each utility has a man page (placed in
+section 8). An overview of sg3_utils can be found at:
+https://sg.danny.cz/sg/sg3_utils.html .
+A copy of the "sg3_utils.html" file is in the "doc" subdirectory.
+
+
+The executables and library can be built from the source code in
+the tarball and installed with the familiar
+"./configure ; make ; make install" sequence. If this fails try
+running the "./autogen.sh" script prior to that sequence. There
+are generic instruction on configure and friend in the INSTALL file.
+
+Some man pages have examples which use Linux device names which
+hopefully will not confuse the FreeBSD users.
+
+Device naming
+=============
+In FreeBSD disks have block names like '/dev/da0' with a corresponding
+pass-through device name like '/dev/pass0'. Use this command:
+"camcontrol devlist" to see that SCSI devices available. To list NVMe
+devices: "nvmecontrol devlist" can be used. Any many, but not all
+contexts, the device name can be used without the '/dev/' prefix.
+FreeBSD is relatively unique in this respect and support for this
+abbreviated form has been broken in this package and fixed in
+sg3_utils release 1.46 .
+
+Device naming for NVMe is a bit more complex. Controllers have names
+like /dev/nvme0 and namespaces /dev/nvme0ns1 . Partitions are not
+supported on /dev/nvme0ns1 type nodes. Instead there are /dev/nvd0
+and /dev/nvd0p<m> where <m> is th partition number starting at 1.
+The nvd driver (written by Intel) is not CAM compatible and has its
+own utility nvmecontrol which has similar capabilities as camcontrol
+has for CAM devices. In FreeBSD release 12 the nda driver was
+introduced with names like /dev/nda0 and /dev/nda0n<m>. The difference
+is that nda is CAM compatible. From the point of view of this package,
+the nda driver is preferred as CAM supports NVMe command timeouts and
+the error processing is more mature. 
+
+FreeBSD installation
+====================
+The traditional './configure ; make ; make install' sequence from the
+top level of the unpacked tarball will work on FreeBSD. But the man pages
+will be placed under the /usr/local/share/man directory which unfortunately
+is not on the standard manpath. One solution is to add this path by
+creating a file with a name like local_share.conf in the
+/usr/local/etc/man.d/ directory and placing this line in it:
+    MANPATH /usr/local/share/man
+
+FreeBSD 9.0 has a "ports" entry for sg3_utils under the
+/usr/ports/sysutils directory. It points to version 1.28 of sg3_utils
+which is now a bit dated. It could be used as a template to point
+to more recent versions.
+
+kFreeBSD
+========
+sg3_utils can be built into a Debian package for kFreeBSD using the
+./build_debian.sh script in the top level directory. This has been tested
+with Debian 6.0 release.
+
+Details
+=======
+Most of the ported utilities listed above use SCSI command functions
+declared in sg_cmds_*.h headers . Those SCSI command functions are
+implemented in the corresponding ".c" files. The ".c" files pass SCSI
+commands to the host operating system via an interface declared in sg_pt.h .
+There are currently five implementations of that interface depending on
+the host operating system:
+  - sg_pt_linux.c
+  - sg_pt_freebsd.c
+  - sg_pt_osf1.c  [Tru64]
+  - sg_pt_win32.c
+  - sg_pt_solaris.c
+
+The sg_pt_freebsd.c file uses the FreeBSD CAM SCSI pass through mechanism.
+Hence only FreeBSD device nodes that support CAM can be used. These can be
+viewed with the "camcontrol devlist" command. To access ATAPI devices (e.g.
+ATAPI DVD drives) the kernel may need to be configured with the "atapicam"
+device.
+
+Attempts to send SCSI commands with data-in or data-out buffers around 64 KB
+and larger failed on a FreeBSD 7.0 with an "argument list too long" error
+message. There is an associated kernel message (viewable with dmesg) that an
+attempt has been made to map <n> bytes which is greater than
+DFLTPHYS(65536). Still a problem in FreeBSD 8.1 . Due to CAM overhead the
+largest power of 2 that can fit through with one command is 32768 bytes (32
+KB).
+
+FreeBSD 9.0 is the most recent version of FreeBSD tested with these
+utilities.
+
+
+
+Douglas Gilbert
+1st May 2021

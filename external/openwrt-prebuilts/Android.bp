@@ -1,0 +1,166 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_openwrt-prebuilts_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-GPL-2.0
+    default_visibility: ["//visibility:private"],
+    default_applicable_licenses: ["external_openwrt-prebuilts_license"],
+}
+
+filegroup {
+    name: "openwrt_license_files",
+    visibility: [":__subpackages__"],
+    srcs: [
+        "LICENSE",
+        "HOW_TO_GET_SOURCE_CODE",
+    ],
+}
+
+license {
+    name: "external_openwrt-prebuilts_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-GPL-3.0",
+        "SPDX-license-identifier-LGPL-2.1",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-OpenSSL",
+    ],
+    license_text: [
+        "LICENSE",
+        "HOW_TO_GET_SOURCE_CODE",
+    ],
+}
+
+genrule_defaults {
+    name: "openwrt_rootfs_base_defaults",
+    cmd: "cp $(in) $(genDir) && gzip -d $(genDir)/* && cp $(genDir)/* $(out)",
+}
+
+genrule {
+    name: "openwrt_rootfs_base_x86_64",
+    srcs: [
+        "x86_64/images/openwrt-22.03.3-x86-64-generic-squashfs-rootfs.img.gz",
+    ],
+    out: ["openwrt_rootfs_base_x86_64.img"],
+    defaults: ["openwrt_rootfs_base_defaults"],
+}
+
+genrule {
+    name: "openwrt_rootfs_base_aarch64",
+    srcs: [
+        "arm64/images/openwrt-22.03.3-armvirt-64-rootfs-squashfs.img.gz",
+    ],
+    out: ["openwrt_rootfs_base_aarch64.img"],
+    defaults: ["openwrt_rootfs_base_defaults"],
+}
+
+genrule_defaults {
+    name: "openwrt_rootfs_customization_defaults",
+    tools: [
+        "make_f2fs",
+        "sload_f2fs",
+    ],
+    srcs: [
+        ":openwrt_license_files",
+        "shared/uci-defaults/*",
+        "shared/config/*",
+    ],
+    cmd: "mkdir -p $(genDir)/root/upper/etc/uci-defaults && " +
+         "mkdir -p $(genDir)/root/upper/ipks && " +
+         "mkdir -p $(genDir)/root/upper/etc/config && " +
+         "cp $(in) $(genDir)/ && " +
+         "mv $(genDir)/*.ipk $(genDir)/root/upper/ipks && " +
+         "mv $(genDir)/LICENSE $(genDir)/HOW_TO_GET_SOURCE_CODE $(genDir)/INFO $(genDir)/root/upper && " +
+         "mv $(genDir)/0_default_config $(genDir)/root/upper/etc/uci-defaults && " +
+         "find $(genDir) -maxdepth 1 -type f -exec mv {} $(genDir)/root/upper/etc/config \\; && " +
+         "ln -s 2 $(genDir)/root/.fs_state && " +
+         "truncate -s 128M $(out) && " +
+         "$(location make_f2fs) $(out) && " +
+         "$(location sload_f2fs) -f $(genDir)/root -t / $(out)",
+}
+
+genrule {
+    name: "openwrt_rootfs_customization_x86_64",
+    srcs: [
+        "x86_64/kmods/*",
+        "x86_64/packages/*",
+        "x86_64/INFO",
+    ],
+    out: ["openwrt_rootfs_customization_x86_64.img"],
+    defaults: ["openwrt_rootfs_customization_defaults"],
+}
+
+genrule {
+    name: "openwrt_rootfs_customization_aarch64",
+    srcs: [
+        "arm64/kmods/*",
+        "arm64/packages/*",
+        "arm64/INFO",
+    ],
+    out: ["openwrt_rootfs_customization_aarch64.img"],
+    defaults: ["openwrt_rootfs_customization_defaults"],
+}
+
+genrule_defaults {
+    name: "openwrt_rootfs_combined_defaults",
+    tools: [
+        "append_squashfs_overlay",
+    ],
+    cmd: "$(location append_squashfs_overlay) $(in) $(out) -w",
+}
+
+genrule {
+    name: "openwrt_rootfs_combined_x86_64",
+    srcs: [
+        ":openwrt_rootfs_base_x86_64",
+        ":openwrt_rootfs_customization_x86_64",
+    ],
+    out: ["openwrt_rootfs_combined_x86_64.img"],
+    defaults: ["openwrt_rootfs_combined_defaults"],
+
+}
+
+genrule {
+    name: "openwrt_rootfs_combined_aarch64",
+    srcs: [
+        ":openwrt_rootfs_base_aarch64",
+        ":openwrt_rootfs_customization_aarch64",
+    ],
+    out: ["openwrt_rootfs_combined_aarch64.img"],
+    defaults: ["openwrt_rootfs_combined_defaults"],
+}
+
+prebuilt_etc_host {
+    name: "openwrt_rootfs_x86_64",
+    src: ":openwrt_rootfs_combined_x86_64",
+    sub_dir: "openwrt/images",
+    visibility: ["//device/google/cuttlefish/build"],
+}
+
+prebuilt_etc_host {
+    name: "openwrt_rootfs_aarch64",
+    src: ":openwrt_rootfs_combined_aarch64",
+    sub_dir: "openwrt/images",
+    visibility: ["//device/google/cuttlefish/build"],
+}
+
+prebuilt_etc_host {
+    name: "openwrt_kernel_x86_64",
+    src: "x86_64/images/openwrt-22.03.3-x86-64-generic-kernel.bin",
+    sub_dir: "openwrt/images",
+    visibility: ["//device/google/cuttlefish/build"],
+}
+
+prebuilt_etc_host {
+    name: "openwrt_kernel_aarch64",
+    src: "arm64/images/openwrt-22.03.3-armvirt-64-Image",
+    sub_dir: "openwrt/images",
+    visibility: ["//device/google/cuttlefish/build"],
+}

@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.google.truth</groupId>
+  <artifactId>truth-parent</artifactId>
+  <version>HEAD-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Truth (Parent)</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- Properties for multiple-artifact deps. -->
+    <auto-value.version>1.10.1</auto-value.version>
+    <!--
+      We have a separate property for each flavor of Guava (instead of a shared
+      version without the -android and -jre suffixes) because that lets
+      Dependabot update our Guava versions.
+    -->
+    <guava.android.version>32.0.1-android</guava.android.version>
+    <!--
+      Also, we have this comment in between the 2 flavors of Guava. That's
+      also to smooth the Dependabot update process: Dependabot generates a
+      separate PR for each flavor. Even if we approve both at the same
+      time, one gets submitted before the other, and
+      the other ends up with a merge conflict. That requires reapprovals.
+    -->
+    <guava.jre.version>32.0.0-jre</guava.jre.version>
+    <gwt.version>2.9.0</gwt.version>
+    <protobuf.version>3.23.2</protobuf.version>
+    <!-- Property for protobuf-lite protocArtifact, which isn't a "normal" Maven dep. -->
+    <!-- TODO(cpovirk): Use protobuf.version instead. But that requires finding the new way to request the Lite runtime. -->
+    <protobuf-lite.protoc.version>3.1.0</protobuf-lite.protoc.version>
+
+    <!-- Property for an extension, since Maven doesn't have extensionManagement. -->
+    <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
+
+    <!-- Default to no additional options (for Java 8). Overridden by a profile. -->
+    <conditionalJavadoc9PlusOptions></conditionalJavadoc9PlusOptions>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.truth</groupId>
+        <artifactId>truth</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.truth.extensions</groupId>
+        <artifactId>truth-liteproto-extension</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!--
+        We could add the other modules of Truth, but there's no need because no
+        modules depend on them yet.
+        -->
+      <dependency>
+        <!--
+          In addition to setting the version of Guava that's used when Truth
+          depends directly on com.google.common:guava, this section also
+          overrides the version that's pulled in transitively by guava-gwt
+          (which is a test-scope dependency of core Truth). The Guava APIs
+          "missing" in guava-android might cause us problems down the line if we
+          actually started to run nontrivial GWT tests; I'm not sure.
+          -->
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.android.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.checkerframework</groupId>
+        <artifactId>checker-qual</artifactId>
+        <version>3.35.0</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.gwt</groupId>
+        <artifactId>gwt-user</artifactId>
+        <version>${gwt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.auto.value</groupId>
+        <artifactId>auto-value-annotations</artifactId>
+        <version>${auto-value.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava-gwt</artifactId>
+        <version>${guava.jre.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava-testlib</artifactId>
+        <version>${guava.android.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.errorprone</groupId>
+        <artifactId>error_prone_annotations</artifactId>
+        <version>2.19.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${protobuf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-lite</artifactId>
+        <version>3.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.re2j</groupId>
+        <artifactId>re2j</artifactId>
+        <version>1.7</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>9.5</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.jsinterop</groupId>
+        <artifactId>jsinterop-annotations</artifactId>
+        <version>2.0.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <description>
+    Parent metadata for Truth, a Java assertion framework.
+  </description>
+  <modules>
+    <module>core</module>
+    <module>extensions</module>
+  </modules>
+  <prerequisites><maven>3.1.1</maven></prerequisites>
+  <developers>
+    <developer>
+      <id>cgruber</id>
+      <name>Christian Gruber</name>
+      <email>christianedwardgruber@gmail.com</email>
+      <url>http://www.geekinasuit.com/</url>
+      <roles>
+        <role>creator</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-8</timezone>
+    </developer>
+    <developer>
+      <id>kak</id>
+      <name>Kurt Alfred Kluever</name>
+      <roles>
+        <role>evolver</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+    <developer>
+      <id>dsaff</id>
+      <name>David Saff</name>
+      <roles>
+        <role>creator</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+    <developer>
+      <id>hagbard</id>
+      <name>David B</name>
+      <roles>
+        <role>creator</role>
+        <role>developer</role>
+      </roles>
+      <timezone>+2</timezone>
+    </developer>
+  </developers>
+  <url>http://github.com/google/truth</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <issueManagement>
+    <system>Github</system>
+    <url>https://github.com/google/truth/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>Jenkins</system>
+    <url>https://travis-ci.org/google/truth</url>
+  </ciManagement>
+  <scm>
+    <connection>scm:git:git@github.com:google/truth.git</connection>
+    <url>scm:git:git@github.com:google/truth.git</url>
+  </scm>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- https://stackoverflow.com/a/51093732/28465 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.12.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.4.5</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.5.0</version>
+          <configuration>
+            <additionalOptions>
+              <additionalOption>-Xdoclint:-html ${conditionalJavadoc9PlusOptions}</additionalOption>
+            </additionalOptions>
+            <doctitle>Truth ${project.version}</doctitle>
+            <windowtitle>Truth ${project.version}</windowtitle>
+            <quiet>true</quiet>
+            <notimestamp>true</notimestamp>
+            <encoding>UTF-8</encoding>
+            <docencoding>UTF-8</docencoding>
+            <charset>UTF-8</charset>
+            <overview>overview.html</overview>
+            <detectJavaApiLink>false</detectJavaApiLink>
+            <links>
+              <!-- TODO(cpovirk): Link to the version that we depend on? -->
+              <link>https://guava.dev/releases/snapshot-jre/api/docs</link>
+              <link>https://protobuf.dev/reference/java/api-docs/</link>
+              <link>https://junit.org/junit4/javadoc/latest/</link>
+              <link>https://docs.oracle.com/javase/7/docs/api/</link>
+            </links>
+            <sourceFileExcludes>
+              <sourceFileExclude>**/super/**/*.java</sourceFileExclude>
+            </sourceFileExcludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.3.0</version> <!-- work around ubuntu bug -->
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>animal-sniffer-maven-plugin</artifactId>
+          <version>1.23</version>
+          <configuration>
+            <signature>
+              <groupId>org.codehaus.mojo.signature</groupId>
+              <artifactId>java16-sun</artifactId>
+              <version>1.10</version>
+            </signature>
+          </configuration>
+          <executions>
+            <execution>
+              <id>check-java-version-compatibility</id>
+              <phase>test</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.11.0</version>
+          <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.3.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>3.1.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.3.0</version>
+          <executions>
+            <execution>
+              <id>enforce</id>
+              <configuration>
+                <rules>
+                  <requireUpperBoundDeps>
+                    <excludes>
+                      <!-- We have some deps on guava-android and others on guava-jre. -->
+                      <exclude>com.google.guava:guava</exclude>
+                    </excludes>
+                  </requireUpperBoundDeps>
+                  <!--
+                    Note that this rule would not catch a conflict between, say,
+                    java8 and liteproto, since no Truth module depends on both
+                    of those. If we wanted, we could create such a module.
+                    -->
+                </rules>
+              </configuration>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>gwt-maven-plugin</artifactId>
+          <version>${gwt.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.xolstice.maven.plugins</groupId>
+          <artifactId>protobuf-maven-plugin</artifactId>
+          <version>0.6.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  <profiles>
+    <profile>
+      <id>sonatype-oss-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals><goal>sign</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals><goal>jar</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-docs</id>
+                <goals><goal>jar</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <!--
+          Passes JDK 11-12-specific `no-module-directories` flag to Javadoc tool,
+          which is required to make symbol search work correctly in the generated
+          pages.
+
+          This flag does not exist on 9-10 and 13+ (https://bugs.openjdk.java.net/browse/JDK-8215582).
+
+          Consider removing it once our release and test scripts are migrated to a recent JDK (17+).
+       -->
+      <id>javadocs-jdk11-12</id>
+      <activation>
+        <jdk>[11,13)</jdk>
+      </activation>
+      <properties>
+        <maven-javadoc-plugin.additionalJOptions>--no-module-directories</maven-javadoc-plugin.additionalJOptions>
+      </properties>
+    </profile>
+    <profile>
+      <id>javadocs-jdk9plus</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <properties>
+        <conditionalJavadocOptions>--frames</conditionalJavadocOptions>
+      </properties>
+    </profile>
+  </profiles>
+</project>

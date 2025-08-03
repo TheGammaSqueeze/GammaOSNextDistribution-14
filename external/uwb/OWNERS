@@ -1,0 +1,4 @@
+include platform/packages/modules/Uwb:/OWNERS
+
+# This repo is shared with ChromeOS, so add the ChromeOS UWB team as the owners.
+include /OWNERS_chromeos

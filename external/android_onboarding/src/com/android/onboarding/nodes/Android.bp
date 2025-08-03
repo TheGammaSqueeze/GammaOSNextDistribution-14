@@ -1,0 +1,68 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.nodes",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "*.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "androidx.activity_activity-ktx",
+        "guava",
+        "android_onboarding.nodes_proto_lite",
+        "android_onboarding.contracts.annotations",
+        "android_onboarding.flags",
+    ],
+}
+
+java_library_host {
+    name: "android_onboarding.nodes_host",
+    installable: false,
+    srcs: [
+        "DefaultOnboardingGraphLog.kt",
+        "OnboardingGraph.kt",
+        "OnboardingGraphLog.kt",
+    ],
+    static_libs: [
+        "guava",
+        "android_onboarding.nodes_proto_full",
+        "android_onboarding.contracts.annotations_host",
+    ],
+}
+
+filegroup {
+    name: "android_onboarding.nodes_proto_src",
+    srcs: [
+        "onboarding_nodes.proto",
+    ],
+}
+
+java_library_host {
+    name: "android_onboarding.nodes_proto_full",
+    installable: false,
+    srcs: [
+        ":android_onboarding.nodes_proto_src",
+    ],
+    proto: {
+        type: "full",
+    },
+    static_libs: [
+        "libprotobuf-java-full",
+    ],
+}
+
+java_library {
+    name: "android_onboarding.nodes_proto_lite",
+    srcs: [
+        ":android_onboarding.nodes_proto_src",
+    ],
+    proto: {
+        type: "lite",
+    },
+    static_libs: [
+        "libprotobuf-java-lite",
+    ],
+}

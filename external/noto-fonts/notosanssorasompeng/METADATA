@@ -1,0 +1,13 @@
+name: "notosanssorasompeng"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Sora Sompeng is an unmodulated (“sans serif”) design fortexts in the Indic Sora Sompeng script. It has multiple weights and42 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanssorasompeng"
+  }
+  version: "2.000"
+  license_type: NOTICE
+  last_upgrade_date { year: 2018 month: 3 day: 19 }
+}

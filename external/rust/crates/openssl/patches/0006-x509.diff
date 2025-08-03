@@ -1,0 +1,54 @@
+diff --git a/src/x509/mod.rs b/src/x509/mod.rs
+index edd54aa..45f2467 100644
+--- a/src/x509/mod.rs
++++ b/src/x509/mod.rs
+@@ -353,6 +353,19 @@ impl X509Builder {
+         unsafe { cvt(ffi::X509_sign(self.0.as_ptr(), key.as_ptr(), hash.as_ptr())).map(|_| ()) }
+     }
+ 
++    /// Signs the certificate with a private key but without a digest.
++    ///
++    /// This is the only way to sign with Ed25519 keys as BoringSSL doesn't support the null
++    /// message digest.
++    #[cfg(boringssl)]
++    #[corresponds(X509_sign)]
++    pub fn sign_without_digest<T>(&mut self, key: &PKeyRef<T>) -> Result<(), ErrorStack>
++    where
++        T: HasPrivate,
++    {
++        unsafe { cvt(ffi::X509_sign(self.0.as_ptr(), key.as_ptr(), ptr::null())).map(|_| ()) }
++    }
++
+     /// Consumes the builder, returning the certificate.
+     pub fn build(self) -> X509 {
+         self.0
+@@ -1260,6 +1273,29 @@ impl X509ReqBuilder {
+         }
+     }
+ 
++    /// Sign the request using a private key without a digest.
++    ///
++    /// This is the only way to sign with Ed25519 keys as BoringSSL doesn't support the null
++    /// message digest.
++    ///
++    /// This corresponds to [`X509_REQ_sign`].
++    ///
++    /// [`X509_REQ_sign`]: https://www.openssl.org/docs/man1.1.0/crypto/X509_REQ_sign.html
++    #[cfg(boringssl)]
++    pub fn sign_without_digest<T>(&mut self, key: &PKeyRef<T>) -> Result<(), ErrorStack>
++    where
++        T: HasPrivate,
++    {
++        unsafe {
++            cvt(ffi::X509_REQ_sign(
++                self.0.as_ptr(),
++                key.as_ptr(),
++                ptr::null(),
++            ))
++            .map(|_| ())
++        }
++    }
++
+     /// Returns the `X509Req`.
+     pub fn build(self) -> X509Req {
+         self.0

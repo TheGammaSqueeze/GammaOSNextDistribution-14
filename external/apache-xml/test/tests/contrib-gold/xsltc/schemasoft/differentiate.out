@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<function-of-x>
+<term>
+<coeff>3</coeff>
+<x/>
+<power>2</power>
+</term>
+<term>
+<coeff>4</coeff>
+<x/>
+<power>1</power>
+</term>
+<term>
+<coeff>3</coeff>
+<x/>
+<power>0</power>
+</term>
+<term>
+<coeff>0</coeff>
+<x/>
+<power>-1</power>
+</term>
+</function-of-x>

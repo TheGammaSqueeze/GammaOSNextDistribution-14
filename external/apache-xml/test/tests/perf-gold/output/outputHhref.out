@@ -1,0 +1,145 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>This is the title</title>
+</head>
+<body background="file'%.gif">
+<h1>List</h1>
+<br>
+  spacer
+  
+    <p>1. "&amp;"  <A HREF="&ItemSpace 1">ItemSpace 1</A>
+</p>
+<p>2. "&lt;"   <img src="<"></p>
+<p>3. "&gt;"   <IMG src=">"></p>
+<p>4. """ <img SRC="%22ItemSpace 1"></p>
+<p>5. "'" <font color="'">ItemSpace 1</font>
+</p>
+<p>6. "&copy;" <a HREF="%C2%A9">ItemSpace 1</a>
+</p>
+<p>7. "#" <A href="&{text()}between#after">Note the amp-double-braces should be escaped differently</A>
+</p>
+<p>8. "&yen;" <A href="%C2%A5after">ItemSpace 1</A>
+</p>
+<p>9. " " <a href="before ">ItemSpace 1</a>
+</p>
+<p>10."%" <IMG SRC="ItemSpace 1%">ItemSpace 1</IMG></p>
+<p>11."	" <A href="beforeand%09after">No value</A>
+</p>
+<p>12."&#127;" <A HREF="ItemSpace 1%7Fafter">ItemSpace 1</A>
+</p>
+<p>13."&Ntilde;" <A href="%C3%91">plain text</A>
+</p>
+<P>14."Œ" <A href="%C5%92">more plain text</A>
+</P>
+<br>
+  spacer
+  
+    <p>1. "&amp;"  <A HREF="&Item2">Item2</A>
+</p>
+<p>2. "&lt;"   <img src="<"></p>
+<p>3. "&gt;"   <IMG src=">"></p>
+<p>4. """ <img SRC="%22Item2"></p>
+<p>5. "'" <font color="'">Item2</font>
+</p>
+<p>6. "&copy;" <a HREF="%C2%A9">Item2</a>
+</p>
+<p>7. "#" <A href="&{text()}between#after">Note the amp-double-braces should be escaped differently</A>
+</p>
+<p>8. "&yen;" <A href="%C2%A5after">Item2</A>
+</p>
+<p>9. " " <a href="before ">Item2</a>
+</p>
+<p>10."%" <IMG SRC="Item2%">Item2</IMG></p>
+<p>11."	" <A href="beforeand%09after">No value</A>
+</p>
+<p>12."&#127;" <A HREF="Item2%7Fafter">Item2</A>
+</p>
+<p>13."&Ntilde;" <A href="%C3%91">plain text</A>
+</p>
+<P>14."Œ" <A href="%C5%92">more plain text</A>
+</P>
+<br>
+  spacer
+  
+    <p>1. "&amp;"  <A HREF="&ItemTab%093">ItemTab	3</A>
+</p>
+<p>2. "&lt;"   <img src="<"></p>
+<p>3. "&gt;"   <IMG src=">"></p>
+<p>4. """ <img SRC="%22ItemTab%093"></p>
+<p>5. "'" <font color="'">ItemTab	3</font>
+</p>
+<p>6. "&copy;" <a HREF="%C2%A9">ItemTab	3</a>
+</p>
+<p>7. "#" <A href="&{text()}between#after">Note the amp-double-braces should be escaped differently</A>
+</p>
+<p>8. "&yen;" <A href="%C2%A5after">ItemTab	3</A>
+</p>
+<p>9. " " <a href="before ">ItemTab	3</a>
+</p>
+<p>10."%" <IMG SRC="ItemTab%093%">ItemTab	3</IMG></p>
+<p>11."	" <A href="beforeand%09after">No value</A>
+</p>
+<p>12."&#127;" <A HREF="ItemTab%093%7Fafter">ItemTab	3</A>
+</p>
+<p>13."&Ntilde;" <A href="%C3%91">plain text</A>
+</p>
+<P>14."Œ" <A href="%C5%92">more plain text</A>
+</P>
+<h1>List</h1>
+<br>
+  spacer
+  
+    <p>1. "&amp;"  <A HREF="&Item A">Item A</A>
+</p>
+<p>2. "&lt;"   <img src="<"></p>
+<p>3. "&gt;"   <IMG src=">"></p>
+<p>4. """ <img SRC="%22Item A"></p>
+<p>5. "'" <font color="'">Item A</font>
+</p>
+<p>6. "&copy;" <a HREF="%C2%A9">Item A</a>
+</p>
+<p>7. "#" <A href="&{text()}between#after">Note the amp-double-braces should be escaped differently</A>
+</p>
+<p>8. "&yen;" <A href="%C2%A5after">Item A</A>
+</p>
+<p>9. " " <a href="before ">Item A</a>
+</p>
+<p>10."%" <IMG SRC="Item A%">Item A</IMG></p>
+<p>11."	" <A href="beforeand%09after">No value</A>
+</p>
+<p>12."&#127;" <A HREF="Item A%7Fafter">Item A</A>
+</p>
+<p>13."&Ntilde;" <A href="%C3%91">plain text</A>
+</p>
+<P>14."Œ" <A href="%C5%92">more plain text</A>
+</P>
+<br>
+  spacer
+  
+    <p>1. "&amp;"  <A HREF="&Item B">Item B</A>
+</p>
+<p>2. "&lt;"   <img src="<"></p>
+<p>3. "&gt;"   <IMG src=">"></p>
+<p>4. """ <img SRC="%22Item B"></p>
+<p>5. "'" <font color="'">Item B</font>
+</p>
+<p>6. "&copy;" <a HREF="%C2%A9">Item B</a>
+</p>
+<p>7. "#" <A href="&{text()}between#after">Note the amp-double-braces should be escaped differently</A>
+</p>
+<p>8. "&yen;" <A href="%C2%A5after">Item B</A>
+</p>
+<p>9. " " <a href="before ">Item B</a>
+</p>
+<p>10."%" <IMG SRC="Item B%">Item B</IMG></p>
+<p>11."	" <A href="beforeand%09after">No value</A>
+</p>
+<p>12."&#127;" <A HREF="Item B%7Fafter">Item B</A>
+</p>
+<p>13."&Ntilde;" <A href="%C3%91">plain text</A>
+</p>
+<P>14."Œ" <A href="%C5%92">more plain text</A>
+</P>
+</body>
+</html>

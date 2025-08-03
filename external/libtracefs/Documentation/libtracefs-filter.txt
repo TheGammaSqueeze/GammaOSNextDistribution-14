@@ -1,0 +1,345 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_filter_string_append, tracefs_filter_string_verify, tracefs_event_filter_apply, tracefs_event_filter_clear -
+Add, verify and apply event filters
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_filter_string_append*(struct tep_event pass:[*]_event_, char pass:[**]_filter_,
+				 struct tracefs_filter _type_, const char pass:[*]_field_,
+				 enum tracefs_synth_compare _compare_, const char pass:[*]_val_);
+int *tracefs_filter_string_verify*(struct tep_event pass:[*]_event_, const char pass:[*]_filter_, char pass:[**]_err_);
+int *tracefs_event_filter_apply*(struct tracefs_instance pass:[*]_instance_, struct tep_event pass:[*]_event_, const char pass:[*]_filter_);
+int *tracefs_event_filter_clear*(struct tracefs_instance pass:[*]_instance_, struct tep_event pass:[*]_event_);
+
+--
+
+DESCRIPTION
+-----------
+*tracefs_filter_string_append*() is a way to create and verify event filters for
+a given event. It will verify that the _field_ belongs to the event and that
+the _compare_ option that is used is valid for the type of the field, as well
+as _val_. For the _type_ that is not of *TRACEFS_FILTER_COMPARE*, it will build
+the logical string and also make sure that the syntax is correct. For example,
+there are no more close parenthesis than open parenthesis. An AND (&&) or OR
+(||) is not misplaced, etc.
+
+*tracefs_synth_append_start_filter*() creates a filter or appends to it for the
+starting event. Depending on _type_, it will build a string of tokens for
+parenthesis or logic statemens, or it may add a comparison of _field_
+to _val_ based on _compare_.
+
+If _type_ is:
+*TRACEFS_FILTER_COMPARE*     -  See below
+*TRACEFS_FILTER_AND*         -  Append "&&" to the filter
+*TRACEFS_FILTER_OR*          -  Append "||" to the filter
+*TRACEFS_FILTER_NOT*         -  Append "!" to the filter
+*TRACEFS_FILTER_OPEN_PAREN*  -  Append "(" to the filter
+*TRACEFS_FILTER_CLOSE_PAREN* -  Append ")" to the filter
+
+_field_, _compare_, and _val_ are ignored unless _type_ is equal to
+*TRACEFS_FILTER_COMPARE*, then _compare will be used for the following:
+
+*TRACEFS_COMPARE_EQ* - _field_ == _val_
+
+*TRACEFS_COMPARE_NE* - _field_ != _val_
+
+*TRACEFS_COMPARE_GT* - _field_ > _val_
+
+*TRACEFS_COMPARE_GE* - _field_ >= _val_
+
+*TRACEFS_COMPARE_LT* - _field_ < _val_
+
+*TRACEFS_COMPARE_LE* - _field_ <pass:[=] _val_
+
+*TRACEFS_COMPARE_RE* - _field_ ~ "_val_" : where _field_ is a string.
+
+*TRACEFS_COMPARE_AND* - _field_ & _val_ : where _field_ is a flags field.
+
+*tracefs_filter_string_verify*() will parse _filter_ to make sure that the
+fields are for the _event_, and that the syntax is correct. If there's an
+error in the syntax, and _err_ is not NULL, then it will be allocated with an
+error message stating what was found wrong with the filter. _err_ must be freed
+with *free*().
+
+*tracefs_event_filter_apply*() applies given _filter_ string on _event_ in given _instance_.
+
+*tracefs_event_filter_clear*() clear all filters on _event_ in given _instance_.
+
+RETURN VALUE
+------------
+*tracefs_filter_string_append*() returns 0 on success and -1 on error.
+
+*tracefs_filter_string_verify*() returns 0 on success and -1 on error. if there
+is an error, and _errno_ is not *ENOMEM*, then _err_ is allocated and will
+contain a string describing what was found wrong with _filter_. _err_ must be
+freed with *free*().
+
+*tracefs_event_filter_apply*() returns 0 on success and -1 on error.
+
+*tracefs_event_filter_clear*() returns 0 on success and -1 on error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <tracefs.h>
+
+static void usage(char **argv)
+{
+	fprintf(stderr, "usage: %s [system] event filter\n", argv[0]);
+	exit(-1);
+}
+
+int main (int argc, char **argv)
+{
+	struct tep_handle *tep;
+	struct tep_event *event;
+	const char *system = NULL;
+	const char *event_name;
+	const char *filter;
+	char *new_filter = NULL;
+	char *err = NULL;
+	int i;
+
+	if (argc < 3)
+		usage(argv);
+
+	if (argc < 4) {
+		event_name = argv[1];
+		filter = argv[2];
+	} else {
+		system = argv[1];
+		event_name = argv[2];
+		filter = argv[3];
+	}
+
+	/* Load all events from the system */
+	tep = tracefs_local_events(NULL);
+	if (!tep) {
+		perror("tep");
+		exit(-1);
+	}
+
+	event = tep_find_event_by_name(tep, system, event_name);
+	if (!event) {
+		fprintf(stderr, "Event %s%s%s not found\n",
+			system ? system : "" , system ? " " : "",
+			event_name);
+		exit(-1);
+	}
+
+	if (tracefs_filter_string_verify(event, filter, &err) < 0) {
+		perror("tracecfs_event_verify_filter");
+		if (err)
+			fprintf(stderr, "%s", err);
+		free(err);
+		exit(-1);
+	}
+
+	for (i = 0; filter[i]; i++) {
+		char buf[strlen(filter)];
+		char *field = NULL;
+		char *val = NULL;
+		enum tracefs_filter type;
+		enum tracefs_compare compare = 0;
+		int start_i, n;
+		int quote;
+		bool backslash;
+
+		while (isspace(filter[i]))
+			i++;
+
+		switch(filter[i]) {
+		case '(':
+			type = TRACEFS_FILTER_OPEN_PAREN;
+			break;
+		case ')':
+			type = TRACEFS_FILTER_CLOSE_PAREN;
+			break;
+		case '!':
+			type = TRACEFS_FILTER_NOT;
+			break;
+		case '&':
+			type = TRACEFS_FILTER_AND;
+			i++;
+			break;
+		case '|':
+			type = TRACEFS_FILTER_OR;
+			i++;
+			break;
+		default:
+			type = TRACEFS_FILTER_COMPARE;
+
+			while (isspace(filter[i]))
+				i++;
+
+			start_i = i;
+			for (; filter[i]; i++) {
+				switch(filter[i]) {
+				case 'a' ... 'z':
+				case 'A' ... 'Z':
+				case '0' ... '9':
+				case '_':
+					continue;
+				}
+				break;
+			}
+
+			n = i - start_i;
+			field = buf;
+			strncpy(field, filter + start_i, n);
+			field[n++] = '\0';
+
+			val = buf + n;
+
+			while (isspace(filter[i]))
+				i++;
+
+			start_i = i;
+			switch(filter[i++]) {
+			case '>':
+				compare = TRACEFS_COMPARE_GT;
+				if (filter[i] == '=') {
+					i++;
+					compare = TRACEFS_COMPARE_GE;
+				}
+				break;
+			case '<':
+				compare = TRACEFS_COMPARE_LT;
+				if (filter[i] == '=') {
+					i++;
+					compare = TRACEFS_COMPARE_LE;
+				}
+				break;
+			case '=':
+				compare = TRACEFS_COMPARE_EQ;
+				i++;
+				break;
+			case '!':
+				compare = TRACEFS_COMPARE_NE;
+				i++;
+				break;
+			case '~':
+				compare = TRACEFS_COMPARE_RE;
+				break;
+			case '&':
+				compare = TRACEFS_COMPARE_AND;
+				break;
+			}
+
+			while (isspace(filter[i]))
+				i++;
+
+			quote = 0;
+			backslash = false;
+			start_i = i;
+			for (; filter[i]; i++) {
+				if (quote) {
+					if (backslash)
+						backslash = false;
+					else if (filter[i] == '\\')
+						backslash = true;
+					else if (filter[i] == quote)
+						quote = 0;
+					continue;
+				}
+				switch(filter[i]) {
+				case '"': case '\'':
+					quote = filter[i];
+					continue;
+				case 'a' ... 'z':
+				case 'A' ... 'Z':
+				case '0' ... '9':
+				case '_':
+					continue;
+				}
+				break;
+			}
+			n = i - start_i;
+			strncpy(val, filter + start_i, n);
+			val[n] = '\0';
+			break;
+		}
+		n = tracefs_filter_string_append(event, &new_filter, type,
+						field, compare, val);
+		if (n < 0) {
+			fprintf(stderr, "Failed making new filter:\n'%s'\n",
+				new_filter ? new_filter : "(null)");
+			exit(-1);
+		}
+	}
+
+	if (tracefs_event_filter_apply(NULL, event, new_filter))
+		fprintf(stderr, "Failed to apply filter on event");
+
+	tep_free(tep);
+
+	printf("Created new filter: '%s'\n", new_filter);
+	free(new_filter);
+
+	exit(0);
+}
+--
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1),
+*tracefs_hist_alloc*(3),
+*tracefs_hist_alloc_2d*(3),
+*tracefs_hist_alloc_nd*(3),
+*tracefs_hist_free*(3),
+*tracefs_hist_add_key*(3),
+*tracefs_hist_add_value*(3),
+*tracefs_hist_add_name*(3),
+*tracefs_hist_start*(3),
+*tracefs_hist_destory*(3),
+*tracefs_hist_add_sort_key*(3),
+*tracefs_hist_sort_key_direction*(3)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+*sameeruddin shaik* <sameeruddin.shaik8@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

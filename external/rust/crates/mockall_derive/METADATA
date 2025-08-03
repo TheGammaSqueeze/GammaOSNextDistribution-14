@@ -1,0 +1,20 @@
+name: "mockall_derive"
+description: "()"
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/mockall_derive"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/mockall_derive/mockall_derive-0.11.4.crate"
+  }
+  version: "0.11.4"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 6
+  }
+}

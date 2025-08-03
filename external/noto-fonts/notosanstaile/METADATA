@@ -1,0 +1,13 @@
+name: "notosanstaile"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Tai Le is an unmodulated (“sans serif”) design for textsin the Southeast Asian Tai Le script. It has 71 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanstaile"
+  }
+  version: "1.040"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

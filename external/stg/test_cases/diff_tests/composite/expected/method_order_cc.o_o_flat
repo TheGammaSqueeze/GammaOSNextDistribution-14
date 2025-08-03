@@ -1,0 +1,46 @@
+function symbol 'void S::w(struct S*)' {_ZN1S1wEv} changed
+  type 'void(struct S*)' changed
+    parameter 1 type 'struct S*' changed
+      pointed-to type 'struct S' changed
+
+function symbol 'void S::x(struct S*)' {_ZN1S1xEv} changed
+  type 'void(struct S*)' changed
+    parameter 1 type 'struct S*' changed
+      pointed-to type 'struct S' changed
+
+function symbol 'void S::y(struct S*)' {_ZN1S1yEv} changed
+  type 'void(struct S*)' changed
+    parameter 1 type 'struct S*' changed
+      pointed-to type 'struct S' changed
+
+function symbol 'void S::z(struct S*)' {_ZN1S1zEv} changed
+  type 'void(struct S*)' changed
+    parameter 1 type 'struct S*' changed
+      pointed-to type 'struct S' changed
+
+function symbol 'void S::S(struct S*)' {_ZN1SC2Ev} changed
+  type 'void(struct S*)' changed
+    parameter 1 type 'struct S*' changed
+      pointed-to type 'struct S' changed
+
+type 'struct S' changed
+  method 'z {_ZN1S1zEv}' changed
+    type 'void(struct S*)' changed
+      parameter 1 type 'struct S*' changed
+        pointed-to type 'struct S' changed
+  method 'y {_ZN1S1yEv}' changed
+    vtable offset changed from 1 to 2
+    type 'void(struct S*)' changed
+      parameter 1 type 'struct S*' changed
+        pointed-to type 'struct S' changed
+  method 'x {_ZN1S1xEv}' changed
+    vtable offset changed from 2 to 1
+    type 'void(struct S*)' changed
+      parameter 1 type 'struct S*' changed
+        pointed-to type 'struct S' changed
+  method 'w {_ZN1S1wEv}' changed
+    type 'void(struct S*)' changed
+      parameter 1 type 'struct S*' changed
+        pointed-to type 'struct S' changed
+
+exit code 4

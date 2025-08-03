@@ -1,0 +1,5 @@
+service hal_neuralnetworks_armnn /vendor/bin/hw/android.hardware.neuralnetworks@1.3-service-armnn -c GpuAcc -n google-armnn
+    class hal
+    user system
+    group system
+    task_profiles NNApiHALPerformance

@@ -1,0 +1,17 @@
+name: "escapevelocity"
+description:
+    "A subset reimplementation of Apache Velocity with a much simpler API. "
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/escapevelocity"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/escapevelocity"
+  }
+  version: "escapevelocity-0.9.1"
+  last_upgrade_date { year: 2020 month: 6 day: 12 }
+  license_type: NOTICE
+}

@@ -1,0 +1,17 @@
+name: "kernlog"
+description:
+    "Logger implementation for low level kernel log"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/kernlog/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/kstep/kernlog.rs"
+  }
+  version: "0.3.1"
+  last_upgrade_date { year: 2021 month: 6 day: 8 }
+  license_type: NOTICE
+}

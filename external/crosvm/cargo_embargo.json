@@ -1,0 +1,227 @@
+{
+  "tests": true,
+  "features": [
+    "android-sparse",
+    "audio",
+    "balloon",
+    "config-file",
+    // TODO: The "protos" crate has been modified such that it doesn't work with cargo. If we fix that,
+    // we can remove a some patch files and enable "composite-disk" and "registered_events" here.
+    // "composite-disk",
+    // "registered_events",
+    "gdb",
+    "geniezone",
+    "gfxstream",
+    // "gfxstream_stub" is enabled only to allow the cargo build to succeed as
+    // part of cargo_embargo. Patch files are used to remove it from the
+    // generated Android.bp files (so that the real gfxstream implementation is
+    // used).
+    "gfxstream_stub",
+    "gpu",
+    "gunyah",
+    "net",
+    "qcow",
+    "usb",
+    "virgl_renderer"
+  ],
+  "workspace": true,
+  "workspace_excludes": [
+    "audio_streams_conformance_test",
+    "baremetal",
+    "catapult_converter",
+    "cros_asyncv2",
+    "cros_fuzz",
+    "crosvm-fuzz",
+    "crosvm_plugin",
+    "delegate",
+    "e2e_tests",
+    "ffmpeg",
+    "fixture",
+    "gpu_buffer",
+    "libva",
+    "libvda",
+    "p9-fuzz",
+    "prebuilts",
+    "proto_build_tools",
+    "qcow_utils",
+    "rutabaga_gfx_ffi",
+    "sandbox",
+    "swap",
+    "system_api",
+    "tpm2",
+    "tpm2-sys",
+    "tube_transporter",
+    "win_audio",
+    "win_util"
+  ],
+  "global_defaults": "crosvm_inner_defaults",
+  "apex_available": [],
+  "product_available": false,
+  "vendor_available": false,
+  "module_name_overrides": {
+    "libbase": "libbase_rust",
+    "libbase64": "libbase64_rust",
+    "libfuse": "libfuse_rust",
+    "liblog": "liblog_rust",
+    "libminijail": "libminijail_rust",
+    "libsync": "libsync_rust",
+    "libx86_64": "libx86_64_rust"
+  },
+  "module_blocklist": [
+    // TODO: These are all for workspace_excludes package. Maybe use the option to
+    // also block all blueprint modules for excluded packages.
+    "libprebuilts",
+    "libproto_build_tools",
+    // Flaky with ENOMEM. We don't use io_uring yet, so turning it off for now.
+    "io_uring_test_tests_uring"
+  ],
+  "module_visibility": {
+    "crosvm": [
+      "//visibility:public"
+    ],
+    "libaarch64": [
+      // For QCOM's crosvm fork.
+      "//vendor:__subpackages__"
+    ],
+    "libbase_rust": [
+      "//packages/modules/Virtualization/virtualizationmanager",
+      // For QCOM's crosvm fork.
+      "//vendor:__subpackages__"
+    ],
+    "libdevices": [
+      // For QCOM's crosvm fork.
+      "//vendor:__subpackages__"
+    ],
+    "libdisk": [
+      "//packages/modules/Virtualization/virtualizationmanager",
+      // For QCOM's crosvm fork.
+      "//vendor:__subpackages__"
+    ],
+    "libfuse_rust": [
+        "//packages/modules/Virtualization/authfs",
+        "//packages/modules/Virtualization/zipfuse"
+    ],
+    "libhypervisor": [
+      // For QCOM's crosvm fork.
+      "//vendor:__subpackages__"
+    ],
+    "libsync_rust": [
+      // For QCOM's crosvm fork.
+      "//vendor:__subpackages__"
+    ],
+    "libvm_control": [
+      "//packages/modules/Virtualization/virtualizationmanager"
+    ],
+    "libvm_memory": [
+      // For QCOM's crosvm fork.
+      "//vendor:__subpackages__"
+    ]
+  },
+  "package": {
+    "aarch64": {
+      "add_module_block": "aarch64/cargo2android_arch.bp"
+    },
+    "base": {
+      "patch": "base/patches/Android.bp.patch",
+      "dep_blocklist": [
+        // "libtest_mimic" is needed for "base_test_tests_process" which is
+        // currently ignored by cargo_embargo because it is a "harness-less"
+        // test. cargo_embargo incorrectly thinks the dependency is needed for
+        // other tests in the "process" package, so we need to manually block
+        // it here.
+        "liblibtest_mimic"
+      ]
+    },
+    "base_event_token_derive": {
+      // TODO: This is a proc macro crate. Should disable device tests by default for them.
+      "device_supported": false
+    },
+    "bit_field_derive": {
+      // TODO: This is a proc macro crate. Should disable device tests by default for them.
+      "device_supported": false
+    },
+    "cros_async": {
+      "no_presubmit": true
+    },
+    "crosvm": {
+      "no_presubmit": true,
+      "add_toplevel_block": "cargo2android_defaults.bp",
+      "add_module_block": "cargo2android_module.bp.patch",
+      // Keep cargo2android from adding ISA specific deps so that we can add them
+      // correctly via patches.
+      "dep_blocklist": [
+        "libx86_64",
+        "libaarch64"
+      ],
+      "patch": "patches/Android.bp.patch"
+    },
+    "crosvm_control": {
+      "patch": "crosvm_control/cargo2android.bp.patch"
+    },
+    "devices": {
+      "no_presubmit": true,
+      "dep_blocklist": [
+        // See the comment for base's "dep_blocklist" above (in this case
+        // "devices_test_tests_passthroughfs_main" is the culprit).
+        "liblibtest_mimic"
+      ]
+    },
+    "disk": {
+      "patch": "disk/patches/Android.bp.patch"
+    },
+    "gpu_display": {
+      "add_toplevel_block": "gpu_display/cargo2android.bp",
+      "patch": "gpu_display/patches/Android.bp.patch"
+    },
+    "hypervisor": {
+      "no_presubmit": true
+    },
+    "io_uring": {
+      "no_presubmit": true
+    },
+    "kvm": {
+      "no_presubmit": true
+    },
+    "kvm_sys": {
+      "no_presubmit": true
+    },
+    "metrics": {
+      "copy_out": true
+    },
+    "net_util": {
+      "no_presubmit": true
+    },
+    "power_monitor": {
+      "copy_out": true
+    },
+    "protos": {
+      "add_toplevel_block": "protos/cargo2android_protobuf.bp",
+      "patch": "protos/patches/Android.bp.patch"
+    },
+    "rutabaga_gfx": {
+      "patch": "rutabaga_gfx/patches/Android.bp.patch",
+      "dep_blocklist": [
+        "libEGL",
+        "libGL",
+        "libX11",
+        "libXau",
+        "libXdmcp",
+        "libdl",
+        "libm",
+        "libpthread",
+        "libxcb"
+      ]
+    },
+    "vhost": {
+      "no_presubmit": true
+    },
+    "wire_format_derive": {
+      // TODO: This is a proc macro crate. Should disable device tests by default for them.
+      "device_supported": false
+    },
+    "x86_64": {
+      "no_presubmit": true,
+      "add_module_block": "x86_64/cargo2android_gdb.bp.patch"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "features": [
+    "bytes"
+  ],
+  "min_sdk_version": "29",
+  "package": {
+    "protobuf": {
+      "copy_out": true
+    }
+  }
+}

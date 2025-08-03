@@ -1,0 +1,301 @@
+//
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// README:
+// - Before expanding the visiblity of any of the targets in this file,
+//   please add a test that covers the new dependencies in the TEST_MAPPING file
+//   of this directory. We cannot guarantee that ExoPlayer dependents will not
+//   be accidentally broken if it is not covered by presubmit.
+// - The names in this files follow the pattern exoplayer-dep_name[-module_name]
+//   where dep_name identifies the client, and module_name disambiguates the
+//   module for cases where necessary (example: The same client depends
+//   separately on two exoplayer modules).
+
+package {
+    default_applicable_licenses: ["external_exoplayer_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_exoplayer_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+android_library {
+    name: "exoplayer-mediaprovider-ui",
+    srcs: [
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/ui/src/main/java/**/*.java",
+    ],
+    resource_dirs: [
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/ui/src/main/res",
+    ],
+    sdk_version: "31", // Needs to be a prebuilt, so not "current".
+    min_sdk_version: "19", // match with tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/constants.gradle
+    libs: ["androidx.annotation_annotation"],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.media_media",
+        "androidx.recyclerview_recyclerview",
+        "error_prone_annotations",
+        "exoplayer-annotation_stubs",
+        "exoplayer-mediaprovider-core",
+        "guava",
+        "jsr305",
+    ],
+    apex_available: [
+        "com.android.mediaprovider",
+        "//apex_available:platform",
+    ],
+
+    manifest: "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/ui/src/main/AndroidManifest.xml",
+    jarjar_rules: "annotation-stripping-jarjar-rules.txt",
+    visibility: ["//packages/providers/MediaProvider:__subpackages__"],
+}
+
+// Needed because exoplayer-mediaprovider-ui depends on a resource from core, using the core package
+// name, meaning the resources from this target need to use the package name from core's manifest,
+// while exoplayer-mediaprovider-ui resources need to keep ui's package name.
+android_library {
+    name: "exoplayer-mediaprovider-core",
+    srcs: [
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/common/src/main/java/**/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/core/src/main/java/**/*/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/database/src/main/java/**/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/datasource/src/main/java/**/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/decoder/src/main/java/**/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/extractor/src/main/java/**/*.java",
+    ],
+    resource_dirs: [
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/core/src/main/res",
+    ],
+    sdk_version: "31", // Needs to be a prebuilt, so not "current".
+    min_sdk_version: "19", // match with tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/constants.gradle
+    libs: ["androidx.annotation_annotation"],
+    static_libs: [
+        "androidx.core_core",
+        "androidx.media_media",
+        "androidx.recyclerview_recyclerview",
+        "error_prone_annotations",
+        "exoplayer-annotation_stubs",
+        "guava",
+        "jsr305",
+    ],
+    apex_available: [
+        "com.android.mediaprovider",
+        "//apex_available:platform",
+    ],
+    manifest: "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/core/src/main/AndroidManifest.xml",
+    jarjar_rules: "annotation-stripping-jarjar-rules.txt",
+    visibility: ["//visibility:private"],
+}
+
+// Used by MediaMuxerTest to test features not supported by MediaExtractor.
+android_library {
+    name: "exoplayer-mediamuxer_tests",
+    srcs: [
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/common/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/decoder/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/core/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/database/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/datasource/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/extractor/src/main/java/**/*.java",
+    ],
+    manifest: "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/core/src/main/AndroidManifest.xml",
+    resource_dirs: [
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/core/src/main/res",
+    ],
+    sdk_version: "31", // Needs to be a prebuilt, so not "current".
+    min_sdk_version: "19", // match with tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/constants.gradle
+    libs: ["androidx.annotation_annotation"],
+    static_libs: [
+        "androidx.core_core",
+        "error_prone_annotations",
+        "exoplayer-annotation_stubs",
+        "guava",
+        "jsr305",
+    ],
+    jarjar_rules: "annotation-stripping-jarjar-rules.txt",
+    visibility: ["//cts/tests/tests/media/muxer:__subpackages__"],
+}
+
+// Used by MediaParser to implement media container files parsing.
+java_library {
+    name: "exoplayer-media_apex",
+    srcs: [
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/decoder/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/extractor/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/common/src/main/java/**/*.java",
+    ],
+    sdk_version: "31", // Needs to be a prebuilt, so not "current".
+    apex_available: [
+        "com.android.media",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "19", // match with tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/constants.gradle
+    libs: ["androidx.annotation_annotation"],
+    static_libs: [
+        "exoplayer-annotation_stubs",
+        "error_prone_annotations",
+        "guava",
+        "jsr305",
+    ],
+    jarjar_rules: "annotation-stripping-jarjar-rules.txt",
+    visibility: [
+        "//frameworks/base:__subpackages__",
+        "//packages/modules/Media/apex/framework",
+    ],
+}
+
+android_library {
+    name: "exoplayer-vendor_cwral",
+    srcs: [
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/extensions/vp9/src/main/java/com/google/android/exoplayer2/ext/vp9/*.java",
+    ],
+    sdk_version: "31", // Needs to be a prebuilt, so not "current".
+    min_sdk_version: "19", // match with tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/constants.gradle
+    libs: ["androidx.annotation_annotation"],
+    static_libs: [
+        "androidx.core_core",
+        "error_prone_annotations",
+        "exoplayer-annotation_stubs",
+        "exoplayer-vendor_cwral-core",
+        "guava",
+        "jsr305",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+    ],
+    manifest: "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/core/src/main/AndroidManifest.xml",
+    jarjar_rules: "annotation-stripping-jarjar-rules.txt",
+    visibility: ["//vendor:__subpackages__"],
+}
+
+android_library {
+    name: "exoplayer-vendor_cwral-core",
+    srcs: [
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/common/src/main/java/**/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/core/src/main/java/**/*/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/database/src/main/java/**/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/datasource/src/main/java/**/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/decoder/src/main/java/**/*.java",
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/extractor/src/main/java/**/*.java",
+    ],
+    resource_dirs: [
+        "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/core/src/main/res",
+    ],
+    sdk_version: "31", // Needs to be a prebuilt, so not "current".
+    min_sdk_version: "19", // match with tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/constants.gradle
+    libs: ["androidx.annotation_annotation"],
+    static_libs: [
+        "androidx.core_core",
+        "error_prone_annotations",
+        "exoplayer-annotation_stubs",
+        "guava",
+        "jsr305",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+    ],
+    manifest: "tree_8e57d3715f9092d5ec54ebe2e538f34bfcc34479/library/core/src/main/AndroidManifest.xml",
+    jarjar_rules: "annotation-stripping-jarjar-rules.txt",
+    visibility: ["//visibility:private"],
+}
+
+// Exposes util classes for testing MediaParser.
+android_library {
+    name: "exoplayer-cts_media-test_utils",
+    manifest: "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/extractor/src/test/AndroidManifest.xml",
+    srcs: [
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/datasource/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/database/src/main/java/**/*.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testutils/src/main/java/com/google/android/exoplayer2/testutil/Dumper.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testutils/src/main/java/com/google/android/exoplayer2/testutil/FakeExtractorInput.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testutils/src/main/java/com/google/android/exoplayer2/testutil/FakeExtractorOutput.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testutils/src/main/java/com/google/android/exoplayer2/testutil/FakeTrackOutput.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testutils/src/main/java/com/google/android/exoplayer2/testutil/TestUtil.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testutils/src/main/java/com/google/android/exoplayer2/testutil/TestUtil.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testutils/src/main/java/com/google/android/exoplayer2/testutil/DumpableFormat.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testutils/src/main/java/com/google/android/exoplayer2/testutil/NoUidTimeline.java",
+        "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/core/src/main/java/com/google/android/exoplayer2/source/ForwardingTimeline.java",
+    ],
+    sdk_version: "31",
+    min_sdk_version: "19", // match with tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/constants.gradle
+    libs: ["androidx.annotation_annotation"],
+    static_libs: [
+        "exoplayer-annotation_stubs",
+        "exoplayer-media_apex",
+        "truth",
+        "junit",
+        "androidx.test.core",
+    ],
+    jarjar_rules: "annotation-stripping-jarjar-rules.txt",
+    visibility: ["//cts/tests/tests/mediaparser:__subpackages__"],
+}
+
+// Exposes the assets for testing MediaParser.
+android_library {
+    name: "exoplayer-cts_media-test_assets",
+    manifest: "tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/library/extractor/src/main/AndroidManifest.xml",
+    srcs: [],
+    min_sdk_version: "19", // match with tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/constants.gradle
+    visibility: ["//cts/tests/tests/mediaparser:__subpackages__"],
+    asset_dirs: ["tree_15dc86382f17a24a3e881e52e31a810c1ea44b49/testdata/src/test/assets/"],
+    // Do not compress media files.
+    aaptflags: [
+        "-0 .ac3",
+        "-0 .ac4",
+        "-0 .adts",
+        "-0 .amr",
+        "-0 .eac3",
+        "-0 .flac",
+        "-0 .flv",
+        "-0 .id3",
+        "-0 .mkv",
+        "-0 .mp3",
+        "-0 .mp4",
+        "-0 .mpg",
+        "-0 .ogg",
+        "-0 .opus",
+        "-0 .ps",
+        "-0 .rawcc",
+        "-0 .ts",
+        "-0 .wav",
+        "-0 .webm",
+    ],
+}
+
+// Compile dummy implementations of annotations used by exoplayer but not
+// present in the Android tree.
+java_library {
+    name: "exoplayer-annotation_stubs",
+    host_supported: true,
+    sdk_version: "core_current",
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "19",
+    srcs: ["annotation-stubs/src/**/*.java"],
+    static_libs: ["jsr305"],
+    visibility: ["//visibility:private"],
+}

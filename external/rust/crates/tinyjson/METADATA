@@ -1,0 +1,36 @@
+name: "tinyjson"
+description:
+    "tinyjson is a library to parse/generate JSON format document. "
+    " "
+    "Goals of this library are "
+    " "
+    "Simplicity: This library uses standard containers like Vec or HashMap as "
+    "its internal representation and exposes it to users. Users can operate "
+    "JSON values via the standard APIs. And it keeps this crate as small as "
+    "possible. "
+    "Explicit: This library does not hide memory allocation from users. You "
+    "need to allocate memory like Vec, String, HashMap by yourself. It is good "
+    "for readers of your source code to show where memory allocations happen. "
+    "And you can have control of how memory is allocated (e.g. allocating "
+    "memory in advance with with_capacity method). "
+    "No dependencies: This library is built on top of only standard libraries. "
+    "No unsafe code: This library is built with Safe Rust. "
+    "Well tested: This library is tested with famous test suites: "
+    "JSON checker in json.org "
+    "JSONTestSuite "
+    "JSON-Schema-Test-Suite "
+    ""
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/tinyjson"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/tinyjson/tinyjson-2.5.1.crate"
+  }
+  version: "2.5.1"
+  last_upgrade_date { year: 2023 month: 2 day: 13 }
+  license_type: NOTICE
+}

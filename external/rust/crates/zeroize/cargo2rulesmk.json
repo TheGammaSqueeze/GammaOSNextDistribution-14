@@ -1,0 +1,4 @@
+{
+  "features": "alloc,zeroize_derive",
+  "patch": "patches/rules.mk.diff"
+}

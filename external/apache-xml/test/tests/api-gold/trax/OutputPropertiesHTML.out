@@ -1,0 +1,18 @@
+<!DOCTYPE HTML PUBLIC "this-is-doctype-public" "this-is-doctype-system">
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>title-tag:text</TITLE>xsl:text within HEAD tag</HEAD>
+<BODY>
+<P>P-tag:beginCDATA? or not?</P>
+<UL>
+<ul-tag>
+      
+<li-tag number="1">li-tag:one</li-tag>
+      
+<li-tag value="two">li-tag:two</li-tag>
+    
+</ul-tag>
+</UL><P>Fake 'p' element</P><P>@ &nbsp; ~ &copy; &Egrave;</P>
+</BODY>
+</HTML>

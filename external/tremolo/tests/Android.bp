@@ -1,0 +1,40 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_tremolo_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_tremolo_license"],
+}
+
+cc_test {
+    name: "VorbisDecoderTest",
+    gtest: true,
+    test_suites: ["device-tests"],
+
+    srcs: [
+        "VorbisDecoderTest.cpp",
+    ],
+
+    shared_libs: [
+        "libutils",
+        "liblog",
+    ],
+
+    static_libs: [
+        "libvorbisidec",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+        cfi: true,
+    },
+}

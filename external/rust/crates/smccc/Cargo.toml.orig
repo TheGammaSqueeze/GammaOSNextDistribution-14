@@ -1,0 +1,15 @@
+[package]
+name = "smccc"
+version = "0.1.1"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Functions and constants for the Arm SMC Calling Convention (SMCCC) 1.4 and Arm Power State Coordination Interface (PSCI) 1.1 on aarch64."
+authors = ["Andrew Walbran <qwandor@google.com>"]
+repository = "https://github.com/google/smccc"
+keywords = ["arm", "aarch64", "cortex-a", "smccc", "psci"]
+categories = ["embedded", "no-std", "hardware-support"]
+
+[dependencies]
+
+[package.metadata.docs.rs]
+default-target = "aarch64-unknown-none"

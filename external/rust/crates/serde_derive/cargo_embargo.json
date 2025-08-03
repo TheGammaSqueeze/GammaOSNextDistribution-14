@@ -1,0 +1,10 @@
+{
+  "package": {
+    "serde_derive": {
+      "device_supported": false,
+      "host_first_multilib": true
+    }
+  },
+  "run_cargo": false,
+  "tests": true
+}

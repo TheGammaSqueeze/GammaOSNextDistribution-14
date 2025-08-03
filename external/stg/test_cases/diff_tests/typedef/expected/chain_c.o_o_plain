@@ -1,0 +1,9 @@
+function symbol changed from 'int func(struct foo)' to 'unsigned int func(struct foo)'
+  type changed from 'int(struct foo)' to 'unsigned int(struct foo)'
+    return type changed from 'int' to 'unsigned int'
+    parameter 1 type 'struct foo' changed
+      member 'INT_3 x' changed
+        type changed from 'INT_3' = 'INT_2' = 'INT_1' = 'int' to 'INT_3' = 'INT_2' = 'INT_1' = 'unsigned int'
+          resolved type changed from 'int' to 'unsigned int'
+
+exit code 4

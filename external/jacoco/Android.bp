@@ -1,0 +1,215 @@
+//
+// Copyright (C) 2016 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// Build jacoco-agent from sources for the platform
+//
+// Note: this is only intended to be used for the platform development. This is *not* intended
+// to be used in the SDK where apps can use the official jacoco release.
+package {
+    default_applicable_licenses: ["external_jacoco_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_jacoco_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-EPL",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE.md",
+        "NOTICE",
+    ],
+}
+
+java_library {
+    name: "jacocoagent",
+    host_supported: true,
+    installable: true,
+    manifest: "org.jacoco.agent/src/MANIFEST.MF",
+
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+
+    srcs: [
+        "org.jacoco.core/src/**/*.java",
+        "org.jacoco.agent/src/**/*.java",
+        "org.jacoco.agent.rt/src/**/*.java",
+    ],
+
+    // Some Jacoco source files depend on classes that do not exist in Android.
+    // While these classes are not executed at runtime (because we use offline
+    // instrumentation), they will cause issues when compiling them with ART
+    // during dex pre-opting. Therefore, it would prevent from applying code
+    // coverage on classes in the bootclasspath (frameworks, services, ...) or
+    // system apps.
+    // Note: we still may need to update the source code to cut dependencies in
+    // mandatory jacoco classes.
+    target: {
+        android: {
+            exclude_srcs: [
+                "org.jacoco.core/src/org/jacoco/core/runtime/ModifiedSystemClassRuntime.java",
+                "org.jacoco.agent.rt/src/org/jacoco/agent/rt/internal/PreMain.java",
+                "org.jacoco.agent.rt/src/org/jacoco/agent/rt/internal/CoverageTransformer.java",
+                "org.jacoco.agent.rt/src/org/jacoco/agent/rt/internal/JmxRegistration.java",
+            ],
+        },
+        host: {
+            dist: {
+                targets: [
+                    "dist_files",
+                    "apps_only",
+                ],
+            },
+        }
+    },
+
+    // In order to include Jacoco in core libraries, we cannot depend on
+    // anything in the bootclasspath (or we would create dependency cycle).
+    // Therefore we compile against the SDK android.jar which gives the same
+    // APIs Jacoco depends on.
+    sdk_version: "9",
+
+    // TODO(b/69671801): there's no bytecode on the device, so these shouldn't
+    // be necessary.
+    static_libs: [
+        "asm-9.2",
+        "asm-commons-9.2",
+        "asm-tree-9.2",
+    ],
+    errorprone: {
+        javacflags: [
+            "-Xep:EqualsHashCode:WARN",
+            "-Xep:ReturnValueIgnored:WARN",
+        ],
+    },
+}
+
+// Generates stubs containing the classes that will be referenced by instrumented bytecode.
+droidstubs {
+    name: "jacoco-stubs-gen",
+    srcs: [
+        "org.jacoco.agent.rt/src/org/jacoco/agent/rt/internal/Offline.java",
+        "org.jacoco.core/src/org/jacoco/core/data/IExecutionData.java",
+    ],
+}
+
+// A stubs target containing the parts of JaCoCo that we need to add to the hidden API whitelist.
+java_library {
+    name: "jacoco-stubs",
+    compile_dex: true,
+    srcs: [":jacoco-stubs-gen"],
+}
+
+// Build jacoco-cli from sources for the platform
+
+// TODO(jeffrygaston) it'd be nice to keep the build process and/or list of source files in sync with
+// what is defined in the pom.xml files, although it's probably much more trouble than it's worth
+java_library_host {
+    name: "jacoco-cli",
+
+    manifest: "org.jacoco.cli/src/MANIFEST.MF",
+
+    srcs: [
+        "org.jacoco.cli/src/**/*.java",
+    ],
+
+    static_libs: [
+        "jacoco-report",
+        "jacoco-core",
+    ],
+
+    dist: {
+        targets: [
+            "dist_files",
+            "apps_only",
+        ],
+    },
+
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+java_library_host {
+    name: "jacoco-core",
+
+    srcs: [
+        "org.jacoco.core/src/**/*.java",
+    ],
+
+    java_resource_dirs: [
+        "org.jacoco.core/src",
+    ],
+
+    static_libs: [
+        "asm-9.2",
+        "asm-commons-9.2",
+        "asm-tree-9.2",
+        "args4j-2.0.28",
+    ],
+
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+
+    errorprone: {
+        javacflags: [
+            "-Xep:EqualsHashCode:WARN",
+            "-Xep:ReturnValueIgnored:WARN",
+        ],
+    },
+}
+
+java_library_host {
+    name: "jacoco-report",
+
+    srcs: [
+        "org.jacoco.report/src/**/*.java",
+    ],
+
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+
+    java_resource_dirs: [
+        "org.jacoco.report/src",
+    ],
+
+    static_libs: [
+        "jacoco-core",
+    ],
+}

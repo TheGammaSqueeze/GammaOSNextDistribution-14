@@ -1,0 +1,6 @@
+# shade guava to avoid conflicts with guava embedded in Error Prone.
+rule com.google.common.** com.google.dagger.common.@1
+rule com.google.auto.** com.google.dagger.auto.@1
+
+# shade local xprocessing.jar to avoid conflicts with upstream Xprocessing
+rule androidx.room.** dagger.spi.shaded.androidx.room.@1

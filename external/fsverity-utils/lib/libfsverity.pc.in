@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+libdir=@LIBDIR@
+includedir=@INCDIR@
+
+Name: libfsverity
+Description: fs-verity library
+Version: 1.5
+Libs: -L${libdir} -lfsverity
+Requires.private: libcrypto
+Cflags: -I${includedir}

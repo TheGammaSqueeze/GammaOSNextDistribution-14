@@ -1,0 +1,49 @@
+function symbol 'int f1(enum E*, enum F*, struct S*, struct T*, union U*, union V*)' changed
+  type 'int(enum E*, enum F*, struct S*, struct T*, union U*, union V*)' changed
+    parameter 1 type 'enum E*' changed
+      pointed-to type 'enum E' changed
+    parameter 2 type 'enum F*' changed
+      pointed-to type 'enum F' changed
+    parameter 3 type 'struct S*' changed
+      pointed-to type 'struct S' changed
+    parameter 4 type 'struct T*' changed
+      pointed-to type 'struct T' changed
+    parameter 5 type 'union U*' changed
+      pointed-to type 'union U' changed
+    parameter 6 type 'union V*' changed
+      pointed-to type 'union V' changed
+
+function symbol changed from 'int f2(enum K*, enum L*, struct M*, struct N*, union O*, union P*)' to 'int f2(struct K*, union L*, union M*, enum N*, enum O*, struct P*)'
+  type changed from 'int(enum K*, enum L*, struct M*, struct N*, union O*, union P*)' to 'int(struct K*, union L*, union M*, enum N*, enum O*, struct P*)'
+    parameter 1 type changed from 'enum K*' to 'struct K*'
+      pointed-to type changed from 'enum K' to 'struct K'
+    parameter 2 type changed from 'enum L*' to 'union L*'
+      pointed-to type changed from 'enum L' to 'union L'
+    parameter 3 type changed from 'struct M*' to 'union M*'
+      pointed-to type changed from 'struct M' to 'union M'
+    parameter 4 type changed from 'struct N*' to 'enum N*'
+      pointed-to type changed from 'struct N' to 'enum N'
+    parameter 5 type changed from 'union O*' to 'enum O*'
+      pointed-to type changed from 'union O' to 'enum O'
+    parameter 6 type changed from 'union P*' to 'struct P*'
+      pointed-to type changed from 'union P' to 'struct P'
+
+type 'enum E' changed
+  was only declared, is now fully defined
+
+type 'enum F' changed
+  was fully defined, is now only declared
+
+type 'struct S' changed
+  was only declared, is now fully defined
+
+type 'struct T' changed
+  was fully defined, is now only declared
+
+type 'union U' changed
+  was only declared, is now fully defined
+
+type 'union V' changed
+  was fully defined, is now only declared
+
+exit code 4

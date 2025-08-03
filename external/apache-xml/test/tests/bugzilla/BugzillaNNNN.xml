@@ -1,0 +1,9 @@
+<?xml version="1.0"?> 
+<!-- Use this to reproduce stylesheet bugs; just change NNNN to be the bug number -->
+<doc>
+  <list>
+    <item>one</item>
+    <item>two</item>
+    <item>three</item>
+  </list>  
+</doc>

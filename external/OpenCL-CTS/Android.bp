@@ -1,0 +1,448 @@
+package {
+    default_applicable_licenses: ["external_OpenCL-CTS_license"],
+}
+
+license {
+    name: "external_OpenCL-CTS_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unlicense",
+    ],
+    license_text: [
+        "LICENSE.txt",
+    ],
+}
+
+cc_library_headers {
+    name: "ocl-harness-headers",
+    export_include_dirs: [
+        "test_common/harness",
+        "test_common",
+    ],
+}
+
+cc_defaults {
+    name: "ocl-harness-defaults",
+    header_libs: [
+        "ocl-harness-headers",
+    ],
+    export_header_lib_headers: [
+        "ocl-harness-headers",
+    ],
+    cflags: [
+        "-DCL_EXPERIMENTAL",
+        "-DCL_TARGET_OPENCL_VERSION=300",
+        "-Wno-#warnings",
+        "-Wno-c++11-narrowing",
+        "-Wno-date-time",
+        "-Wno-deprecated-declarations",
+        "-Wno-format",
+        "-Wno-ignored-qualifiers",
+        "-Wno-implicit-fallthrough",
+        "-Wno-missing-braces",
+        "-Wno-missing-field-initializers",
+        "-Wno-non-virtual-dtor",
+        "-Wno-overloaded-virtual",
+        "-Wno-reorder-ctor",
+        "-Wno-sometimes-uninitialized",
+        "-Wno-unused-parameter",
+        "-fexceptions",
+    ],
+    static_libs: [
+        "ocl-stubs",
+    ],
+}
+
+cc_library {
+    name: "ocl-harness",
+    srcs: ["test_common/harness/*.cpp"],
+    defaults: ["ocl-harness-defaults"],
+}
+
+cc_defaults {
+    name: "ocl-test-defaults",
+    defaults: ["ocl-harness-defaults"],
+    static_libs: ["ocl-harness"],
+    compile_multilib: "64",
+    multilib: {
+        lib64: {
+            suffix: "64",
+        },
+    },
+}
+
+cc_defaults {
+    name: "ocl-test-image-defaults",
+    srcs: ["test_conformance/images/common.cpp"],
+    export_include_dirs: ["test_conformance/images"],
+    defaults: ["ocl-test-defaults"],
+}
+
+cc_test {
+    name: "ocl-test-allocations",
+    srcs: ["test_conformance/allocations/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-api",
+    srcs: ["test_conformance/api/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-atomics",
+    srcs: ["test_conformance/atomics/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-basic",
+    srcs: ["test_conformance/basic/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-buffers",
+    srcs: ["test_conformance/buffers/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-c11-atomics",
+    srcs: ["test_conformance/c11_atomics/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-commonfns",
+    srcs: ["test_conformance/commonfns/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-compiler",
+    srcs: ["test_conformance/compiler/*.cpp"],
+    data: [
+        "test_conformance/compiler/includeTestDirectory/testIncludeFile.h",
+        "test_conformance/compiler/secondIncludeTestDirectory/testIncludeFile.h",
+    ],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-computeinfo",
+    srcs: ["test_conformance/computeinfo/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-contractions",
+    srcs: ["test_conformance/contractions/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-conversions",
+    srcs: ["test_conformance/conversions/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-device-execution",
+    srcs: ["test_conformance/device_execution/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-device-partition",
+    srcs: ["test_conformance/device_partition/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-device-timer",
+    srcs: ["test_conformance/device_timer/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-events",
+    srcs: ["test_conformance/events/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-generic-address-space",
+    srcs: ["test_conformance/generic_address_space/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-geometrics",
+    srcs: ["test_conformance/geometrics/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-half",
+    srcs: ["test_conformance/half/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-integer-ops",
+    srcs: ["test_conformance/integer_ops/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-math-brute-force",
+    srcs: ["test_conformance/math_brute_force/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-mem-host-flags",
+    srcs: ["test_conformance/mem_host_flags/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-multiple-device-context",
+    srcs: ["test_conformance/multiple_device_context/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-non-uniform-work-group",
+    srcs: ["test_conformance/non_uniform_work_group/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-pipes",
+    srcs: ["test_conformance/pipes/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-printf",
+    srcs: ["test_conformance/printf/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-profiling",
+    srcs: ["test_conformance/profiling/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-relationals",
+    srcs: ["test_conformance/relationals/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-select",
+    srcs: ["test_conformance/select/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-spir",
+    srcs: [
+        "test_conformance/spir/*.cpp",
+        "test_conformance/math_brute_force/function_list.cpp",
+        "test_common/miniz/miniz.c",
+    ],
+    data: ["test_conformance/spir/*.zip"],
+    cflags: [
+        "-DFUNCTION_LIST_ULPS_ONLY",
+        "-Wno-unused-private-field",
+    ],
+    defaults: ["ocl-test-defaults"],
+    rtti: true,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-spirv-new",
+    srcs: [
+        "test_conformance/spirv_new/*.cpp",
+        "test_conformance/math_brute_force/reference_math.cpp",
+        "test_conformance/math_brute_force/utility.cpp",
+    ],
+    data: [
+        "test_conformance/spirv_new/spirv_asm/*",
+        "test_conformance/spirv_new/spirv_bin/*",
+    ],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-subgroups",
+    srcs: ["test_conformance/subgroups/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-svm",
+    srcs: ["test_conformance/SVM/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-thread-dimensions",
+    srcs: ["test_conformance/thread_dimensions/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-vectors",
+    srcs: ["test_conformance/vectors/*.cpp"],
+    defaults: ["ocl-test-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-image-clcopyimage",
+    srcs: ["test_conformance/images/clCopyImage/*.cpp"],
+    defaults: ["ocl-test-image-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-image-clfillimage",
+    srcs: ["test_conformance/images/clFillImage/*.cpp"],
+    defaults: ["ocl-test-image-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-image-clgetinfo",
+    srcs: ["test_conformance/images/clGetInfo/*.cpp"],
+    defaults: ["ocl-test-image-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-image-clreadwriteimage",
+    srcs: ["test_conformance/images/clReadWriteImage/*.cpp"],
+    defaults: ["ocl-test-image-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-image-kernel-image-methods",
+    srcs: ["test_conformance/images/kernel_image_methods/*.cpp"],
+    defaults: ["ocl-test-image-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-image-kernel-read-write",
+    srcs: ["test_conformance/images/kernel_read_write/*.cpp"],
+    defaults: ["ocl-test-image-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+cc_test {
+    name: "ocl-test-image-samplerlessreads",
+    srcs: ["test_conformance/images/samplerlessReads/*.cpp"],
+    defaults: ["ocl-test-image-defaults"],
+    rtti: false,
+    gtest: false,
+}
+
+python_test_host {
+    name: "opencl_cts",
+    main: "scripts/test_opencl_cts.py",
+    srcs: ["scripts/test_opencl_cts.py"],
+    data: ["scripts/test_opencl_cts.xml"],
+    test_config: "scripts/test_opencl_cts.xml",
+    test_options: {
+        unit_test: false,
+    },
+}
+
+python_test {
+    name: "run_conformance",
+    main: "test_conformance/run_conformance.py",
+    srcs: ["test_conformance/run_conformance.py"],
+}

@@ -1,0 +1,106 @@
+ *** DOCUMENT PROPERTIES: *** 
+DocURI="null" SystemID="null"
+StandAlone="null" DocVersion="null"
+
+ *** DOCUMENT DATA: *** 
+65536: DOCUMENT  : #document" E-Type=9 Level=1 Value=null
+	Prefix= "" Name= "" URI= "null" Parent=-1 1stChild=65537 NextSib=-1
+65537: ELEMENT bdd:dummyDocument : bdd:dummyDocument" E-Type=14 Level=2 Value=null
+	Prefix= "bdd" Name= "dummyDocument" URI= "www.bdd.org" Parent=65536 1stChild=65541 NextSib=-1
+	NAMESPACES:
+	65538: NAMESPACE xml : xmlns:xml" E-Type=15 Level=3 Value="http://www.w3.org/XML/1998/namespace"
+		Prefix= "" Name= "xml" URI= "null" Parent=65537 1stChild=-1 NextSib=65539
+	65539: NAMESPACE bdd : xmlns:bdd" E-Type=16 Level=3 Value="www.bdd.org"
+		Prefix= "" Name= "bdd" URI= "null" Parent=65537 1stChild=-1 NextSib=65540
+	ATTRIBUTES:
+	65540: ATTRIBUTE version : version" E-Type=17 Level=3 Value="99"
+		Prefix= "" Name= "version" URI= "null" Parent=65537 1stChild=-1 NextSib=-1
+65541: COMMENT  : #comment" E-Type=8 Level=3 Value=" Default test document "
+	Prefix= "" Name= "" URI= "null" Parent=65537 1stChild=-1 NextSib=65542
+65542: TEXT  : #text" E-Type=3 Level=3 Value="	&  "
+	Prefix= "" Name= "" URI= "null" Parent=65537 1stChild=-1 NextSib=65543
+65543: PROCESSING_INSTRUCTION api : api" E-Type=18 Level=3 Value="attrib1="yes" attrib2="no""
+	Prefix= "" Name= "api" URI= "null" Parent=65537 1stChild=-1 NextSib=65544
+65544: ELEMENT A : A" E-Type=19 Level=3 Value=null
+	Prefix= "" Name= "A" URI= "null" Parent=65537 1stChild=65545 NextSib=65550
+65545: ELEMENT B : B" E-Type=20 Level=4 Value=null
+	Prefix= "" Name= "B" URI= "null" Parent=65544 1stChild=65549 NextSib=-1
+	ATTRIBUTES:
+	65546: ATTRIBUTE hat : hat" E-Type=21 Level=5 Value="new"
+		Prefix= "" Name= "hat" URI= "null" Parent=65545 1stChild=-1 NextSib=65547
+	65547: ATTRIBUTE car : car" E-Type=22 Level=5 Value="Honda"
+		Prefix= "" Name= "car" URI= "null" Parent=65545 1stChild=-1 NextSib=65548
+	65548: ATTRIBUTE dog : dog" E-Type=23 Level=5 Value="Boxer"
+		Prefix= "" Name= "dog" URI= "null" Parent=65545 1stChild=-1 NextSib=-1
+65549: TEXT  : #text" E-Type=3 Level=5 Value="Life is good"
+	Prefix= "" Name= "" URI= "null" Parent=65545 1stChild=-1 NextSib=-1
+65550: ELEMENT C : C" E-Type=24 Level=3 Value=null
+	Prefix= "" Name= "C" URI= "null" Parent=65537 1stChild=65551 NextSib=65555
+65551: TEXT  : #text" E-Type=3 Level=4 Value="My Anaconda"
+	Prefix= "" Name= "" URI= "null" Parent=65550 1stChild=-1 NextSib=65552
+65552: ELEMENT xyz:D : xyz:D" E-Type=25 Level=4 Value=null
+	Prefix= "xyz" Name= "D" URI= "www.xyz.org" Parent=65550 1stChild=-1 NextSib=65554
+	NAMESPACES:
+	65553: NAMESPACE xyz : xmlns:xyz" E-Type=26 Level=5 Value="www.xyz.org"
+		Prefix= "" Name= "xyz" URI= "null" Parent=65552 1stChild=-1 NextSib=-1
+65554: TEXT  : #text" E-Type=3 Level=4 Value="Words"
+	Prefix= "" Name= "" URI= "null" Parent=65550 1stChild=-1 NextSib=-1
+65555: TEXT  : #text" E-Type=3 Level=3 Value="
+  	   Want a more interesting docuent, provide the URI on the command line!
+   "
+	Prefix= "" Name= "" URI= "null" Parent=65537 1stChild=-1 NextSib=65556
+65556: ELEMENT Sub-Doc : Sub-Doc" E-Type=27 Level=3 Value=null
+	Prefix= "" Name= "Sub-Doc" URI= "null" Parent=65537 1stChild=65560 NextSib=-1
+	NAMESPACES:
+	65557: NAMESPACE d : xmlns:d" E-Type=28 Level=4 Value="www.d.com"
+		Prefix= "" Name= "d" URI= "null" Parent=65556 1stChild=-1 NextSib=65558
+	ATTRIBUTES:
+	65558: ATTRIBUTE a1 : a1" E-Type=29 Level=4 Value="hello"
+		Prefix= "" Name= "a1" URI= "null" Parent=65556 1stChild=-1 NextSib=65559
+	65559: ATTRIBUTE a2 : a2" E-Type=30 Level=4 Value="goodbye"
+		Prefix= "" Name= "a2" URI= "null" Parent=65556 1stChild=-1 NextSib=-1
+65560: COMMENT  : #comment" E-Type=8 Level=4 Value=" Default test Subdocument "
+	Prefix= "" Name= "" URI= "null" Parent=65556 1stChild=-1 NextSib=65561
+65561: PROCESSING_INSTRUCTION api : api" E-Type=18 Level=4 Value="a1="yes" a2="no""
+	Prefix= "" Name= "api" URI= "null" Parent=65556 1stChild=-1 NextSib=65562
+65562: ELEMENT A : A" E-Type=19 Level=4 Value=null
+	Prefix= "" Name= "A" URI= "null" Parent=65556 1stChild=65563 NextSib=65572
+65563: COMMENT  : #comment" E-Type=8 Level=5 Value=" A Subtree "
+	Prefix= "" Name= "" URI= "null" Parent=65562 1stChild=-1 NextSib=65564
+65564: ELEMENT B : B" E-Type=20 Level=5 Value=null
+	Prefix= "" Name= "B" URI= "null" Parent=65562 1stChild=65565 NextSib=-1
+65565: ELEMENT C : C" E-Type=24 Level=6 Value=null
+	Prefix= "" Name= "C" URI= "null" Parent=65564 1stChild=65566 NextSib=-1
+65566: ELEMENT D : D" E-Type=31 Level=7 Value=null
+	Prefix= "" Name= "D" URI= "null" Parent=65565 1stChild=65567 NextSib=-1
+65567: ELEMENT E : E" E-Type=32 Level=8 Value=null
+	Prefix= "" Name= "E" URI= "null" Parent=65566 1stChild=65568 NextSib=-1
+65568: ELEMENT f:F : f:F" E-Type=33 Level=9 Value=null
+	Prefix= "f" Name= "F" URI= "www.f.com" Parent=65567 1stChild=-1 NextSib=-1
+	NAMESPACES:
+	65569: NAMESPACE f : xmlns:f" E-Type=34 Level=10 Value="www.f.com"
+		Prefix= "" Name= "f" URI= "null" Parent=65568 1stChild=-1 NextSib=65570
+	ATTRIBUTES:
+	65570: ATTRIBUTE a1 : a1" E-Type=29 Level=10 Value="down"
+		Prefix= "" Name= "a1" URI= "null" Parent=65568 1stChild=-1 NextSib=65571
+	65571: ATTRIBUTE a2 : a2" E-Type=30 Level=10 Value="up"
+		Prefix= "" Name= "a2" URI= "null" Parent=65568 1stChild=-1 NextSib=-1
+65572: ELEMENT Aa : Aa" E-Type=35 Level=4 Value=null
+	Prefix= "" Name= "Aa" URI= "null" Parent=65556 1stChild=-1 NextSib=65573
+65573: ELEMENT Ab : Ab" E-Type=36 Level=4 Value=null
+	Prefix= "" Name= "Ab" URI= "null" Parent=65556 1stChild=-1 NextSib=65574
+65574: ELEMENT Ac : Ac" E-Type=37 Level=4 Value=null
+	Prefix= "" Name= "Ac" URI= "null" Parent=65556 1stChild=65575 NextSib=65576
+65575: ELEMENT Ac1 : Ac1" E-Type=38 Level=5 Value=null
+	Prefix= "" Name= "Ac1" URI= "null" Parent=65574 1stChild=-1 NextSib=-1
+65576: ELEMENT Ad:Ad : Ad:Ad" E-Type=39 Level=4 Value=null
+	Prefix= "Ad" Name= "Ad" URI= "www.Ad.com" Parent=65556 1stChild=65580 NextSib=-1
+	NAMESPACES:
+	65577: NAMESPACE Ad : xmlns:Ad" E-Type=40 Level=5 Value="www.Ad.com"
+		Prefix= "" Name= "Ad" URI= "null" Parent=65576 1stChild=-1 NextSib=65578
+	65578: NAMESPACE y : xmlns:y" E-Type=41 Level=5 Value="www.y.com"
+		Prefix= "" Name= "y" URI= "null" Parent=65576 1stChild=-1 NextSib=65579
+	65579: NAMESPACE z : xmlns:z" E-Type=42 Level=5 Value="www.z.com"
+		Prefix= "" Name= "z" URI= "null" Parent=65576 1stChild=-1 NextSib=-1
+65580: ELEMENT Ad1 : Ad1" E-Type=43 Level=5 Value=null
+	Prefix= "" Name= "Ad1" URI= "null" Parent=65576 1stChild=-1 NextSib=-1

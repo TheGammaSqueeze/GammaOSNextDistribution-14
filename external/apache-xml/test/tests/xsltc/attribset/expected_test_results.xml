@@ -1,0 +1,15 @@
+<?xml version="1.0"?> 
+<expectedResults>
+   <file name="attribset1_ok.xsl">
+     <compileError>false</compileError>
+     <expected>pass</expected>
+   </file>
+   <file name="attribset15.xsl">
+     <compileError>true</compileError>
+     <expected>pass</expected>
+   </file>
+   <file name="attribset23.xsl">
+     <compileError>true</compileError>
+     <expected>pass</expected>
+   </file>   
+</expectedResults>

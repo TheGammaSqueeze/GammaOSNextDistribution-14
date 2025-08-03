@@ -1,0 +1,31 @@
+<resorts>
+   <resort>
+      <name>Amsterdam</name>
+      <details>A wordy description of Amsterdam</details>
+      <hotel>
+         <name>Grand Hotel</name>
+         <stars>5</stars>
+         <address> . . . </address>
+      </hotel>
+      <hotel>
+         <name>Less Grand Hotel</name>
+         <stars>2</stars>
+         <address> . . . </address>
+      </hotel>
+   </resort>
+   <resort>
+      <name>Bruges</name>
+      <details>An eloquent description of Bruges</details>
+      <hotel>
+         <name>Central Hotel</name>
+         <stars>5</stars>
+         <address> . . . </address>
+      </hotel>
+      <hotel>
+         <name>Peripheral Hotel</name>
+         <stars>2</stars>
+         <address> . . . </address>
+      </hotel>
+   </resort>
+</resorts>
+

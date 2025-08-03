@@ -1,0 +1,90 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import logging
+
+from autotest_lib.client.common_lib.error import TestFail
+from autotest_lib.server.cros import chrome_sideloader
+from autotest_lib.server import utils
+
+AUTHOR = 'ChromeOS SW Engprod Team (chromeos-sw-engprod@google.com)'
+NAME = 'tast.cross-device-chrome-from-tls'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+# This mount point controls the version of chrome to use
+CHROME_MOUNT_POINT = '/opt/google/chrome'
+# Location to put the sideloaded chrome artifacts
+CHROME_DIR = '/usr/local/chrome'
+
+DOC = '''
+Runs Cross Device scenarios with a custom chrome binary.
+
+Cross Device scenarios require two chromebooks.
+This control file is a generic wrapper for running cross device tests
+from Chromium builders and Chromium Skylab recipe.
+Chromium builders create chrome binaries and artifacts and upload to GCS.
+The chrome binaries are in turn provisioned to both DUTs through TLS and
+are used in tests.
+
+This control file expects tast_expr or tast_expr_b64 argument to determine
+the set of tast tests to be executed.
+
+Example for tast_expr: test_that --args="tast_expr=nearbyshare.SmokeMultiDUTUI"
+
+Example for tast_expr_b64:
+  In Python:
+    tast_expr = '("group:nearby-share-cq")'
+    # Yields 'KCJ1aS5DaHJvbWVTZXJ2aWNlR1JQQy5kZWZhdWx0X2Zha2VfbG9naW4iKQ=='
+    tast_expr_b64 = base64.b64encode(s.encode('utf-8')).decode('ascii')
+  Then in Autotest CLI:'
+    test_that --args="tast_expr_b64=KCJ1aS5DaHJvbWVTZXJ2aWNlR1JQQy5kZWZhdWx0X2Zha2VfbG9naW4iKQ=="
+
+More details at go/lacros-on-skylab.
+
+'''
+
+
+def run(machine):
+    tast_expr = chrome_sideloader.get_tast_expr(utils.args_to_dict(args))
+
+    primary_dut = hosts.create_host(machine)
+    companions = hosts.create_companion_hosts(companion_hosts)
+
+    if not companions:
+        raise TestFail('Missing companion hosts')
+
+    secondary_dut = companions[0]
+
+    logging.info("Running %s on primary_dut: %s and companion_host:%s with Tast expression:%s",
+                 NAME, primary_dut, secondary_dut, tast_expr)
+
+    # Setup both DUTs to use the chrome binary from TLS
+    for host in [primary_dut, secondary_dut]:
+        chrome_sideloader.setup_host(
+            host, CHROME_DIR, CHROME_MOUNT_POINT)
+
+    # Register a clean up callback to reset the chrome mount.
+    def cleanup():
+        for host in [primary_dut, secondary_dut]:
+            chrome_sideloader.cleanup_host(
+                host, CHROME_DIR, CHROME_MOUNT_POINT)
+    job.add_post_run_hook(cleanup)
+
+    job.run_test('tast',
+                 host=primary_dut,
+                 test_exprs=[tast_expr],
+                 download_data_lazily=False,
+                 ignore_test_failures=False,
+                 max_run_sec=3600,
+                 companion_duts={'cd1': secondary_dut},
+                 command_args=args
+                 )
+
+parallel_simple(run, machines)

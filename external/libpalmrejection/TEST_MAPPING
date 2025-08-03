@@ -1,0 +1,10 @@
+{
+  "presubmit": [
+    {
+      "name": "inputflinger_tests"
+    },
+    {
+      "name": "libpalmrejection_test"
+    }
+  ]
+}

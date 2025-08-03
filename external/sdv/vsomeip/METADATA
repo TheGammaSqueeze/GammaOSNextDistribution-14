@@ -1,0 +1,24 @@
+name: "vsomeip"
+description:
+    "The vsomeip stack implements the http://some-ip.com/ (Scalable "
+    "service-Oriented MiddlewarE over IP (SOME/IP)) protocol. The stack "
+    "consists out of: "
+    " "
+    "- a shared library for SOME/IP (libvsomeip3.so) "
+    "- a second shared library for SOME/IP's service discovery "
+    "(libvsomeip3-sd.so) which is loaded during runtime if the service "
+    "discovery is enabled."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://wiki.covesa.global/display/WIK4/VSOMEIP"
+  }
+  url: {
+    type: GIT
+    value: "https://github.com/COVESA/vsomeip"
+  }
+  version: "3.1.37.1"
+  last_upgrade_date { year: 2023 month: 9 day: 4 }
+  license_type: RECIPROCAL
+}

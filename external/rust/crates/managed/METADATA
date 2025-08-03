@@ -1,0 +1,19 @@
+name: "managed"
+description: "An interface for logically owning objects, whether or not heap allocation is available."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/managed"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/managed/managed-0.8.0.crate"
+  }
+  version: "0.8.0"
+  license_type: UNENCUMBERED
+  last_upgrade_date {
+    year: 2021
+    month: 2
+    day: 28
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "features": [
+    "std",
+    "clock",
+    "serde"
+  ],
+  "run_cargo": false
+}

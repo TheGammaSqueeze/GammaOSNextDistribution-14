@@ -1,0 +1,17 @@
+function symbol 'int foo1(int, int)' {_Z4foo1ii} was removed
+
+function symbol 'int foo2(int, int)' {_Z4foo2ii} was removed
+
+function symbol 'int foo3(int, int, ...)' {_Z4foo3iiz} was removed
+
+function symbol 'int foo4(int, ...)' {_Z4foo4iz} was removed
+
+function symbol 'int foo1(int, int, ...)' {_Z4foo1iiz} was added
+
+function symbol 'int foo2(int, ...)' {_Z4foo2iz} was added
+
+function symbol 'int foo3(int, int)' {_Z4foo3ii} was added
+
+function symbol 'int foo4(...)' {_Z4foo4z} was added
+
+exit code 4

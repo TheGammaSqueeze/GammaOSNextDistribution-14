@@ -1,0 +1,61 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package google.ondevicepersonalization.federatedcompute.proto;
+
+option java_package = "com.google.ondevicepersonalization.federatedcompute.proto";
+option java_multiple_files = true;
+
+
+// Provides the information needed to determine eligibility for a task.
+// Next Id: 2
+message EligibilityTaskInfo {
+  // The eligibility policies that apply to this task.
+  repeated EligibilityPolicyEvalSpec eligibility_policies = 1;
+}
+
+// Specification describing the eligibility policy and its parameters.
+// Next Id: 4
+message EligibilityPolicyEvalSpec {
+  // The identifier of the policy. It should be unique within population.
+  string id = 1;
+
+  // The specification of the policy implementation, including the
+  // policy-specific parameters.
+  oneof policy_type {
+    MinimumSeparationPolicy min_sep_policy = 2;
+    DataAvailabilityPolicy data_availability_policy = 3;
+  }
+}
+
+// Minimum separation policy parameters.
+// Next Id: 3
+message MinimumSeparationPolicy {
+  // The current index (e.g., algorithmic round number) of the federated computation.
+  int64 current_index = 1;
+
+  // The minimum index separation required between successful contributions.
+  int64 minimum_separation = 2;
+}
+
+// Data availability policy parameters.
+message DataAvailabilityPolicy {
+  // The minimum number of examples from the selector to be considered
+  // eligible.
+  int32 min_example_count = 1;
+}

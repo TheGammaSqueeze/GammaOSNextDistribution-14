@@ -1,0 +1,180 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_tpm2-tss_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_tpm2-tss_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "tpm2-tss-defaults",
+    cflags: [
+        "-DMAXLOGLEVEL=6",
+        "-DBSSL", // Use OpenSSL (BoringSSL) encryption instead of gcrypt
+    ],
+    vendor: true,
+    export_include_dirs: [
+        "include",
+    ],
+    host_supported: true,
+    target: {
+        windows: {
+            enabled: true,
+            cflags: [
+                "-DNOGDI",
+                "-Wno-format",
+            ],
+        },
+    },
+}
+
+cc_library {
+    name: "tpm2-tss2-esys",
+    defaults: [ "tpm2-tss-defaults" ],
+    srcs: [
+        "src/tss2-esys/api/*.c",
+        "src/tss2-esys/esys_context.c",
+        "src/tss2-esys/esys_crypto.c",
+        "src/tss2-esys/esys_crypto_bssl.c",
+        "src/tss2-esys/esys_free.c",
+        "src/tss2-esys/esys_iutil.c",
+        "src/tss2-esys/esys_mu.c",
+        "src/tss2-esys/esys_tr.c",
+    ],
+    local_include_dirs: [
+        "include/tss2",
+        "src",
+        "src/tss2-esys",
+    ],
+    shared_libs: [
+        "libcrypto",
+        "tpm2-tss2-mu",
+        "tpm2-tss2-tcti",
+        "tpm2-tss2-sys",
+        "tpm2-tss2-util",
+    ],
+    vendor: true,
+}
+
+cc_library {
+    name: "tpm2-tss2-sys",
+    defaults: [ "tpm2-tss-defaults" ],
+    srcs: [
+        "src/tss2-sys/*.c",
+        "src/tss2-sys/api/*.c",
+    ],
+    local_include_dirs: [
+        "include/tss2",
+        "src",
+        "src/tss2-sys",
+        "src/tss2-sys/api",
+    ],
+    shared_libs: [
+        "tpm2-tss2-mu",
+        "tpm2-tss2-util",
+    ],
+}
+
+cc_library {
+    name: "tpm2-tss2-mu",
+    defaults: [ "tpm2-tss-defaults" ],
+    srcs: [
+        "src/tss2-mu/*.c",
+    ],
+    local_include_dirs: [
+        "include/tss2",
+        "src",
+        "src/tss2-mu",
+    ],
+    shared_libs: [
+        "tpm2-tss2-util",
+    ],
+}
+
+cc_library {
+    name: "tpm2-tss2-util",
+    defaults: [ "tpm2-tss-defaults" ],
+    srcs: [
+        "src/util/*.c",
+        "src/util/*.cpp",
+    ],
+    local_include_dirs: [
+        "include/tss2",
+        "src",
+    ],
+    shared_libs: [
+        "libbase",
+    ],
+    target: {
+        windows: {
+            host_ldlibs: [
+                "-lws2_32",
+            ],
+        },
+    },
+}
+
+cc_library {
+    name: "tpm2-tss2-tcti",
+    defaults: [ "tpm2-tss-defaults" ],
+    srcs: [
+        "src/tss2-tcti/tcti-common.c",
+        "src/tss2-tcti/tctildr.c",
+        "src/tss2-tcti/tctildr-nodl.c",
+    ],
+    local_include_dirs: [
+        "include/tss2",
+        "src",
+        "src/tss2-tcti",
+    ],
+    shared_libs: [
+        "tpm2-tss2-mu",
+        "tpm2-tss2-util",
+    ],
+    target: {
+        not_windows: {
+            srcs: [
+                "src/tss2-tcti/tcti-device.c",
+            ],
+        },
+    },
+}
+
+cc_library {
+    name: "tpm2-tss2-rc",
+    defaults: [ "tpm2-tss-defaults" ],
+    srcs: [
+        "src/tss2-rc/*.c",
+    ],
+    local_include_dirs: [
+        "include/tss2",
+        "src",
+        "src/tss2-rc",
+    ],
+    shared_libs: [
+        "tpm2-tss2-sys",
+    ],
+}

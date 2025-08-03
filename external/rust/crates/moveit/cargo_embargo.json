@@ -1,0 +1,12 @@
+{
+  "features": [
+    "cxx",
+    "alloc"
+  ],
+  "package": {
+    "moveit": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

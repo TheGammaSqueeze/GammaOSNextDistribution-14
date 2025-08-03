@@ -1,0 +1,267 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+
+import("seed.gni")
+
+pw_seed("0001") {
+  sources = [ "0001-the-seed-process.rst" ]
+  inputs = [ "0001-the-seed-process/seed-index-gerrit.png" ]
+  title = "The SEED Process"
+  status = "Meta"
+  author = "The Pigweed Authors"
+  facilitator = "N/A"
+}
+
+pw_seed("0002") {
+  sources = [ "0002-template.rst" ]
+  title = "SEED Template"
+  status = "Meta"
+  author = "The Pigweed Authors"
+  facilitator = "N/A"
+}
+
+pw_seed("0101") {
+  sources = [ "0101-pigweed.json.rst" ]
+  title = "pigweed.json"
+  status = "Accepted"
+  author = "Rob Mohr"
+  facilitator = "Ted Pudlik"
+}
+
+pw_seed("0102") {
+  sources = [ "0102-module-docs.rst" ]
+  title = "Consistent Module Documentation"
+  status = "Accepted"
+  author = "Chad Norvell"
+  facilitator = "Kayce Basques"
+}
+
+pw_seed("0103") {
+  changelist = 133971
+  title = "pw_protobuf: Past, present, and future"
+  status = "On Hold"
+  author = "Alexei Frolov"
+  facilitator = "Armando Montanez"
+}
+
+pw_seed("0104") {
+  sources = [ "0104-display-support.rst" ]
+  title = "Display Support"
+  status = "Accepted"
+  author = "Chris Mumford"
+  facilitator = "Anthony DiGirolamo"
+}
+
+pw_seed("0105") {
+  sources = [ "0105-pw_tokenizer-pw_log-nested-tokens.rst" ]
+  title = "Nested Tokens and Tokenized Log Arguments"
+  status = "Accepted"
+  author = "Gwyneth Chen"
+  facilitator = "Wyatt Hepler"
+}
+
+pw_seed("0106") {
+  changelist = 155430
+  title = "Project Template"
+  status = "On Hold"
+  author = "Armando Montanez"
+  facilitator = "Kayce Basques"
+}
+
+pw_seed("0107") {
+  sources = [ "0107-communications.rst" ]
+  title = "Pigweed Communications"
+  status = "Accepted"
+  author = "Wyatt Hepler"
+  facilitator = "Carlos Chinchilla"
+}
+
+pw_seed("0108") {
+  sources = [ "0108-pw_emu-emulators-frontend.rst" ]
+  title = "Emulators Frontend"
+  status = "Accepted"
+  author = "Octavian Purdila"
+  facilitator = "Armando Montanez"
+}
+
+pw_seed("0109") {
+  sources = [ "0109-comms-buffers.rst" ]
+  title = "Communication Buffers"
+  status = "Accepted"
+  author = "Taylor Cramer"
+  facilitator = "Erik Gilling"
+}
+
+pw_seed("0110") {
+  sources = [ "0110-memory-allocation-interfaces.rst" ]
+  title = "Memory Allocation Interfaces"
+  status = "Accepted"
+  author = "Alexei Frolov"
+  facilitator = "Taylor Cramer"
+}
+
+pw_seed("0111") {
+  sources = [ "0111-build-systems.rst" ]
+  title = "Make Bazel Pigweed's Primary Build System"
+  status = "Accepted"
+  author = "Ted Pudlik"
+  facilitator = "Armando Montanez"
+}
+
+pw_seed("0112") {
+  sources = [ "0112-async-poll.rst" ]
+  title = "Async Poll Model"
+  status = "Accepted"
+  author = "Taylor Cramer"
+  facilitator = "Wyatt Hepler"
+}
+
+pw_seed("0113") {
+  sources = [ "0113-bazel-cc-toolchain-api.rst" ]
+  title = "Add modular Bazel C/C++ toolchain API"
+  status = "Accepted"
+  author = "Armando Montanez"
+  facilitator = "Ted Pudlik"
+}
+
+pw_seed("0114") {
+  sources = [ "0114-channels.rst" ]
+  title = "Channels"
+  status = "Accepted"
+  author = "Wyatt Hepler"
+  facilitator = "Carlos Chinchilla"
+}
+
+pw_seed("0115") {
+  changelist = 176760
+  title = "pw_sensor: Sensors"
+  status = "Rejected"
+  author = "Yuval Peress"
+  facilitator = "Taylor Cramer"
+}
+
+pw_seed("0116") {
+  changelist = 177696
+  title = "pw_net Sockets"
+  status = "Open for Comments"
+  author = "Wyatt Hepler"
+  facilitator = "Taylor Cramer"
+}
+
+pw_seed("0117") {
+  changelist = 178350
+  title = "pw_i3c"
+  status = "Open for Comments"
+  author = "Jack Chen"
+}
+
+pw_seed("0118") {
+  changelist = 181836
+  title = "Sensor Read API"
+  status = "Draft"
+  author = "Taylor Cramer"
+}
+
+pw_seed("0119") {
+  sources = [ "0119-pw-sensor.rst" ]
+  title = "pw_sensor A sensor framework"
+  status = "Accepted"
+  inputs = [
+    "0119-pw-sensor/high-level-view.svg",
+    "0119-pw-sensor/data-pipeline.svg",
+  ]
+  author = "Yuval Peress"
+}
+
+pw_seed("0120") {
+  changelist = 182805
+  title = "pw_sensor Sensor driver configuration"
+  status = "Draft"
+  author = "Yuval Peress"
+}
+
+pw_seed("0121") {
+  changelist = 184224
+  title = "Pigweed Project Server"
+  status = "Draft"
+  author = "Chad Norvell"
+}
+
+pw_seed("0122") {
+  sources = [ "0122-code-samples.rst" ]
+  title = "Organize Pigweed code samples"
+  status = "Accepted"
+  author = "Ted Pudlik"
+  facilitator = "Kayce Basques"
+}
+
+pw_seed("0123") {
+  changelist = 188141
+  title = "Sprout Bazel C++ toolchain API into a separate repository"
+  status = "Draft"
+  author = "Ted Pudlik"
+  facilitator = "Armando Montanez"
+}
+
+pw_seed("0124") {
+  changelist = 188670
+  title = "Interfaces for Retrieving Size Information from Multisink"
+  status = "Draft"
+  author = "Jiacheng Lu"
+  facilitator = "Carlos Chinchilla"
+}
+
+pw_seed("0125") {
+  changelist = 192090
+  title = "Statistics Database"
+  status = "Draft"
+  author = "Erik Staats"
+}
+
+# This must be defined after all `pw_seed` targets, as it relies on information
+# exposed by them.
+pw_seed_index("seeds") {
+  index_file = "0000-index.rst"
+  seeds = [
+    ":0001",
+    ":0002",
+    ":0101",
+    ":0102",
+    ":0103",
+    ":0104",
+    ":0105",
+    ":0106",
+    ":0107",
+    ":0108",
+    ":0109",
+    ":0110",
+    ":0111",
+    ":0112",
+    ":0113",
+    ":0114",
+    ":0115",
+    ":0116",
+    ":0117",
+    ":0118",
+    ":0119",
+    ":0120",
+    ":0121",
+    ":0122",
+    ":0123",
+    ":0124",
+    ":0125",
+  ]
+}

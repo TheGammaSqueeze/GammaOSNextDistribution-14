@@ -1,0 +1,20 @@
+name: "utf-8"
+description: "Incremental, zero-copy UTF-8 decoding with error handling"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/utf-8"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/utf-8/utf-8-0.7.6.crate"
+  }
+  version: "0.7.6"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 6
+    day: 2
+  }
+}

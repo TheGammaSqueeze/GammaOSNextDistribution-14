@@ -1,0 +1,23 @@
+AUTHOR = "ChromeOS Team"
+NAME = "power_VideoPlayback.FDO_fast"
+PURPOSE = "Measure video playback power usage."
+
+CRITERIA = "This test is a benchmark."
+TIME = "FAST"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test makes sure that power_VideoPlayback is working fine.
+
+"FDO" is short for "force discharge optional." Test will use EC command to
+force DUT to discharge. If it fails, then use AC as the power source.
+"""
+
+args_dict = utils.args_to_dict(args)
+pdash_note = args_dict.get('pdash_note', '')
+job.run_test('power_VideoPlayback', tag=NAME.split('.')[1], secs_per_video=10,
+             pdash_note=pdash_note, seconds_period=1, fast=True,
+             force_discharge='optional')

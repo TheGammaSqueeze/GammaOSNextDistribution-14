@@ -1,0 +1,268 @@
+# Copyright 2020 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+
+import("$dir_pw_build/error.gni")
+import("$dir_pw_build/target_types.gni")
+import("$dir_pw_docgen/docs.gni")
+import("$dir_pw_third_party/fuzztest/fuzztest.gni")
+import("$dir_pw_unit_test/test.gni")
+
+config("public_include_path") {
+  include_dirs = [ "public" ]
+  visibility = [ ":*" ]
+}
+
+config("private_include_path") {
+  include_dirs = [ "private" ]
+  visibility = [ ":*" ]
+}
+
+config("overrides_include_path") {
+  include_dirs = [
+    "public_overrides",
+    "private_overrides",
+  ]
+  visibility = [ ":*" ]
+}
+
+# See https://llvm.org/docs/LibFuzzer.html#fuzzer-friendly-build-mode
+config("fuzzing_build_mode_unsafe_for_production") {
+  defines = [ "FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION" ]
+}
+
+pw_doc_group("docs") {
+  sources = [
+    "concepts.rst",
+    "docs.rst",
+    "guides/fuzztest.rst",
+    "guides/index.rst",
+    "guides/libfuzzer.rst",
+    "guides/reproducing_oss_fuzz_bugs.rst",
+  ]
+  inputs = [
+    "doc_resources/pw_fuzzer_coverage_guided.png",
+    "examples/fuzztest/BUILD.gn",
+    "examples/fuzztest/BUILD.bazel",
+    "examples/fuzztest/CMakeLists.txt",
+    "examples/fuzztest/metrics.h",
+    "examples/fuzztest/metrics_unittest.cc",
+    "examples/fuzztest/metrics_fuzztest.cc",
+  ]
+}
+
+pw_test_group("tests") {
+  group_deps = [
+    ":fuzztest_tests",
+    "examples/fuzztest:tests",
+    "examples/libfuzzer:tests",
+  ]
+}
+
+################################################################################
+# FuzzTest support
+#
+# Create FuzzTest-style fuzzers by adding a dep on dir_pw_fuzzer:fuzztest
+
+group("fuzztest") {
+  if (dir_pw_third_party_fuzztest != "" && pw_toolchain_FUZZING_ENABLED) {
+    public_deps = [ ":fuzztest.enabled" ]
+  } else {
+    public_deps = [ ":fuzztest.disabled" ]
+  }
+}
+
+# Used by fuzzable unit tests when fuzzing is enabled. Includes headers and deps
+# that provide a Pigweed-compatible subset of FuzzTest, as well as extensions to
+# support common Pigweed types.
+if (dir_pw_third_party_fuzztest != "" && pw_toolchain_FUZZING_ENABLED) {
+  pw_source_set("fuzztest.enabled") {
+    public = [
+      "private/pw_fuzzer/internal/fuzztest.h",
+      "public/pw_fuzzer/fuzztest.h",
+    ]
+    public_configs = [
+      ":public_include_path",
+      ":private_include_path",
+    ]
+    public_deps = [
+      "$dir_pw_third_party/fuzztest/fuzztest:fuzztest_core",
+      dir_pw_containers,
+      dir_pw_result,
+      dir_pw_status,
+      dir_pw_string,
+    ]
+  }
+}
+
+# Used by fuzzable unit tests when fuzzing is disabled. Includes stubs of the
+# Pigweed-compatible subset of FuzzTest's interface, as well as extensions to
+# support common Pigweed types.
+pw_source_set("fuzztest.disabled") {
+  public = [
+    "private_overrides/pw_fuzzer/internal/fuzztest.h",
+    "public/pw_fuzzer/fuzztest.h",
+    "public_overrides/fuzztest/fuzztest.h",
+  ]
+  public_configs = [
+    ":public_include_path",
+    ":overrides_include_path",
+  ]
+  public_deps = [
+    dir_pw_containers,
+    dir_pw_result,
+    dir_pw_status,
+    dir_pw_string,
+  ]
+}
+
+pw_test("fuzztest_tests") {
+  sources = [ "domain_test.cc" ]
+  deps = [ ":fuzztest" ]
+}
+
+# This target should only be used when defining a fuzzing toolchain, e.g. to set
+# `pw_unit_test_BACKEND = "$dir_pw_fuzzer:gtest"
+# TODO: b/295961502 - Support running FuzzTest-based fuzzers on OSS-Fuzz.
+if (dir_pw_third_party_googletest == "") {
+  pw_error("gtest") {
+    message_lines = [
+      "pw_unit_test_BACKEND is set to dir_pw_fuzzer:gtest, ",
+      "but dir_pw_third_party_googletest is not set.",
+    ]
+  }
+} else if (!pw_toolchain_FUZZING_ENABLED) {
+  pw_error("gtest") {
+    message_lines = [
+      "pw_unit_test_BACKEND is set to dir_pw_fuzzer:gtest, ",
+      "but $current_toolchain does not support fuzzing.",
+    ]
+  }
+} else {
+  group("gtest") {
+    if (pw_toolchain_OSS_FUZZ_ENABLED) {
+      public_deps = [ "$dir_pw_unit_test:light" ]
+    } else {
+      public_deps = [ "$dir_pw_unit_test:googletest" ]
+    }
+  }
+}
+
+# This target should only be used when defining a fuzzing toolchain, e.g. to set
+# `pw_unit_test_MAIN = "$dir_pw_fuzzer:fuzztest_main"
+# TODO: b/295961502 - Support running FuzzTest-based fuzzers on OSS-Fuzz.
+if (dir_pw_third_party_fuzztest == "") {
+  pw_error("fuzztest_main") {
+    message_lines = [
+      "pw_unit_test_MAIN is set to dir_pw_fuzzer:fuzztest_main, ",
+      "but dir_pw_third_party_fuzztest is not set.",
+    ]
+  }
+} else if (!pw_toolchain_FUZZING_ENABLED) {
+  pw_error("fuzztest_main") {
+    message_lines = [
+      "pw_unit_test_MAIN is set to dir_pw_fuzzer:fuzztest_main, ",
+      "but $current_toolchain does not support fuzzing.",
+    ]
+  }
+} else {
+  group("fuzztest_main") {
+    if (pw_toolchain_OSS_FUZZ_ENABLED) {
+      deps = [ "$dir_pw_unit_test:simple_printing_main" ]
+    } else {
+      deps = [ "$dir_pw_third_party/fuzztest/fuzztest:fuzztest_gtest_main" ]
+    }
+  }
+}
+
+################################################################################
+# libFuzzer support
+#
+# Create libFuzzer-style fuzzers by using the `pw_fuzzer` template from
+# fuzzer.gni.
+
+# Add flags for linking against compiler-rt's libFuzzer. This is added
+# automatically by `pw_fuzzer`.
+config("libfuzzer_config") {
+  ldflags = [ "-fsanitize=fuzzer" ]
+}
+
+# Includes wrapper's for LLVM's libFuzzer compiler runtime library.
+pw_source_set("libfuzzer") {
+  public = [
+    "public/pw_fuzzer/asan_interface.h",
+    "public/pw_fuzzer/fuzzed_data_provider.h",
+  ]
+  public_configs = [ ":public_include_path" ]
+  public_deps = [ dir_pw_log ]
+}
+
+# This can be linked against fuzz target functions to create unit tests for
+# them.
+pw_source_set("libfuzzer_test") {
+  testonly = pw_unit_test_TESTONLY
+  sources = [ "pw_fuzzer_disabled.cc" ]
+  public_deps = [ ":libfuzzer" ]
+  deps = [ dir_pw_unit_test ]
+}
+
+# libFuzzer-based fuzzers have a distinct dep graph.
+group("fuzzers") {
+  deps = [ "examples/libfuzzer:fuzzers" ]
+}
+
+################################################################################
+# Local fuzzing support
+
+# Add flags for adding LLVM sanitizer coverage for fuzzing. This is added by
+# the host_clang_fuzz toolchains.
+config("instrumentation") {
+  cflags = [ "-fsanitize=fuzzer-no-link" ]
+}
+
+################################################################################
+# OSS-Fuzz support
+#
+# OSS-Fuzz manipulates compiler and linker flags directly. See
+# google.github.io/oss-fuzz/getting-started/new-project-guide/#Requirements.
+#
+# WARNING: This is not hermetic by design. It never can be, and never will be.
+
+config("oss_fuzz_instrumentation") {
+  cflags_c = string_split(getenv("CFLAGS"))
+  cflags_cc = string_split(getenv("CXXFLAGS"))
+
+  # OSS-Fuzz sets "-stdlib=libc++", which conflicts with the "-nostdinc++" set
+  # by `pw_minimal_cpp_stdlib`.
+  if (cflags_cc + [ "-stdlib=libc++" ] - [ "-stdlib=libc++" ] != cflags_cc) {
+    cflags_cc += [ "-Wno-unused-command-line-argument" ]
+  }
+
+  # Disable UBSan vptr when the target is built with -fno-rtti.
+  if (cflags_cc + [ "-fno-rtti" ] - [ "-fno-rtti" ] != cflags_cc) {
+    cflags_cc += [ " -fno-sanitize=vptr" ]
+  }
+  cflags_cc += [ "-fcoverage-compilation-dir=" + getenv("PW_ROOT") ]
+
+  ldflags = cflags_cc + [ "-fuse-ld=lld" ]
+}
+
+config("libfuzzer_oss_fuzz_config") {
+  engine = getenv("LIB_FUZZING_ENGINE")
+  if (engine == "") {
+    engine = "-fsanitize=fuzzer"
+  }
+  ldflags = [ engine ]
+}

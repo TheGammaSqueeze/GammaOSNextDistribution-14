@@ -1,0 +1,29 @@
+# Copyright (c) 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Bluetooth Team"
+NAME = "bluetooth_floss_cq"
+PURPOSE = "Bluetooth tests to be included in rfcell CQ for Project Floss"
+
+TIME = "Medium"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite contains bluetooth tests that require Bluetooth peers
+to be run in rfcell CQ for changes in Floss project
+
+Details of Bluetooth suites can be found at
+https://g3doc.corp.google.com/company/teams/chrome/ops/chromeos/engprod/connectivity/bluetooth/automated_tests_and_lab.md
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['add_experimental'] = True
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

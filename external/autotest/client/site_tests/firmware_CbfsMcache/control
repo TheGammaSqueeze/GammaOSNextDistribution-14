@@ -1,0 +1,27 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "firmware_CbfsMcache"
+PURPOSE = "Ensure the CBFS metadata cache did not overflow."
+ATTRIBUTES = "suite:faft_bios, suite:faft_bios_ro_qual, suite:faft_bios_rw_qual, suite:faft_lv4"
+CRITERIA = "Fail if either RO or RW CBFS mcache overflowed."
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "firmware"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+The CBFS metadata cache size in coreboot is configured by CONFIG_CBFS_MCACHE_SIZE
+(x86) or the size of the CBFS_MCACHE() region defined in memlayout (arm). If the
+mcache overflows, the platform will still boot securely but needs to read data
+from flash more times than necessary, leading to avoidable boot time impact. If
+this test fails, the mcache size should be increased until it doesn't. (If the
+RW mcache overflows by a lot, adjusting CONFIG_CBFS_MCACHE_RW_PERCENTAGE may
+also be interesting.)
+
+"""
+
+job.run_test('firmware_CbfsMcache')

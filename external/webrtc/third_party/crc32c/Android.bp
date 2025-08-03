@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: [
+        "external_webrtc_third_party_crc32c_license",
+    ],
+}
+
+license {
+    name: "external_webrtc_third_party_crc32c_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "legacy_notice",
+    ],
+    license_text: [
+        "src/LICENSE",
+    ],
+}
+
+

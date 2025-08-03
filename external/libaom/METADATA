@@ -1,0 +1,29 @@
+# *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+#     CONSULT YOUR go/whichlawyer LEGAL TEAM MEMBER BEFORE
+#     DEPENDING ON IT IN YOUR PROJECT. ***
+
+name: "libaom"
+description: "Android fork of the libaom library."
+
+third_party {
+  license_note: "would be NOTICE save for Alliance for Open Media patent license:\n"
+  "   libaom/PATENTS,\n"
+  " and in headers for 930 other files like:\n"
+  "   config/arm/config/aom_config.asm\n"
+  "   config/arm/config/aom_config.c\n"
+  "   ... \n"
+  "   tools/txfm_analyzer/txfm_graph.h\n"
+  "   tools/wrap-commit-msg.py"
+  license_type: BY_EXCEPTION_ONLY
+
+  url {
+    type: GIT
+    value: "https://aomedia.googlesource.com/aom/"
+  }
+  version: "v3.8.1"
+  last_upgrade_date {
+    year: 2024
+    month: 1
+    day: 22
+  }
+}

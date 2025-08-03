@@ -1,0 +1,33 @@
+[integer]
+# Preemptive due to: while(lag--)
+fun:FLAC__lpc_compute_autocorrelation
+# libFLAC/stream_encoder.c:3982: 4294967292 + 128 cannot be represented in type 'unsigned int'
+fun:precompute_partition_info_sums_
+# libFLAC/lpc.c:913: 10 - 14 cannot be represented in type 'unsigned int'
+fun:FLAC__lpc_max_residual_bps
+# libFLAC/lpc.c:1030:18: -1932902714 + -1376235516 cannot be represented in type 'int'
+fun:FLAC__lpc_restore_signal
+# libFLAC/lpc.c:1517: 5670155410709727611 + 4294532779437405232 cannot be represented in type 'long'
+fun:FLAC__lpc_restore_signal_wide_33bit
+# libFLAC/fixed.c:390:44: 6 * -358419632 cannot be represented in type 'int'
+# libFLAC/fixed.c:378:27: -1023409921 + -1145670695 cannot be represented in type 'int'
+# libFLAC/stream_decoder.c:2102:39: 13408450 + 2135505484 cannot be represented in type 'int'
+
+fun:FLAC__fixed_restore_signal
+fun:FLAC__fixed_compute_residual
+fun:read_frame_
+# libFLAC/stream_decoder.c:3082: 13408450 + 2135505484 cannot be represented in type 'int'
+fun:undo_channel_coding
+# libFLAC/fixed.c:657: 6 * -1538014595463325455 cannot be represented in type 'int64_t'
+fun:FLAC__fixed_restore_signal_wide_33bit
+# libFLAC/stream_decoder.c:3381: 246 + 18446744073709551532 cannot be represented in type 'FLAC__uint64'
+fun:seek_to_absolute_sample_
+
+src:*/libFLAC/crc.c
+src:*/libFLAC/md5.c
+src:*/libFLAC/bitmath.c
+src:*/libFLAC/bitreader.c
+src:*/libFLAC/bitwriter.c
+
+# Performance related
+fun:FLAC__lpc_restore_signal_wide

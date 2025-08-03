@@ -1,0 +1,87 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE s1 SYSTEM "sbk:/style/dtd/document.dtd">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the  "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<s1 title="Submitting New Tests">
+<ul>
+<li><link anchor="write-API-tests">How to Write API Tests</link></li>
+<li><link anchor="write-xsl-tests">How to Write Stylesheet Tests</link></li>
+</ul>
+
+    <anchor name="write-API-tests"/>
+    <s2 title="How to Write API Tests">
+<p>Use the existing framework!  It provides lots of useful functionality, 
+and will help us to maintain your tests.</p>
+<p>For example: To write a new TRAX/javax.xml.transform API test:</p>
+<p>- open org.apache.qetest.trax.REPLACE_template_for_new_tests.java</p>
+<p>- follow directions to rename the file (and put in the correct dom/sax/stream
+ subdir, if needed) and search-and-replace all REPLACE_* tokens</p>
+<p>- write one-time-only setup code in testFileInit()</p>
+<p>- write a number of testCase<ref>n</ref> methods. Each one should 
+be independent from the other test cases. Try to test between one 
+and ten or so individual test points (or calls to reporter.check(...)
+for each testCase method.</p>
+<p>- Never use System.out/.err - always use reporter.log*Msg() (to report 
+general messages), or reporter.check() (to validate a specific test point)</p>
+<note>This is an important point. Bottlenecking all output from the tests 
+through a <jump href="apidocs/org/apache/qetest/Reporter.html">Reporter</jump> 
+allows us to manage and analyze the results much more easily. Reporters also 
+put all output to both the console and to your <link idref="run" anchor="test-options-logfile">logFile</link>.</note>
+<p>- Build the tests, including your new one, <link idref="getstarted" anchor="how-to-build">as described</link></p>
+<p>- Put your test's supporting xml/xsl files in xml-xalan/test/tests/api/trax or 
+subdirectories</p>
+<p>- Use xml-xalan\test\traxapitest.bat (and APITest.properties) <link idref="run" anchor="how-to-run">to run your test</link>!
+Results will be placed by default into xml-xalan\test\results-api\APITest.xml</p>
+<p>The same basic template can be used for other kinds of API tests, with appropriate 
+changes to the package name, etc.</p>
+<p>You can pretty-print the results by using the <link idref="run" anchor="how-to-view-results">viewResults.xsl stylesheet</link> to turn
+the XML into an HTML format.</p>
+    </s2>
+      
+    <anchor name="write-xsl-tests"/>
+    <s2 title="How to Write Stylesheet Tests">
+    <p>Test cases in the "conf" group will ultimately be submitted to OASIS as part of 
+their vendor-independent project on XSLT/XPath Conformance Testing. For more 
+information about this project, visit 
+<jump href="http://www.oasis-open.org/committees/xslt/index.html">http://www.oasis-open.org/committees/xslt/index.html</jump></p>
+
+<p>The OASIS project will combine test cases from different sources and will provide a way to 
+customize the set of tests according to design decisions made for each processor 
+under test. We expect that when the OASIS test system is delivered, it will supplant 
+most or all of the "conf" group provided here. Conformance tests are designed as 
+streamlined "atomic" (or at least "molecular") tests, so there are several hundred of them.
+Currently, Lotus/IBM is working on submitting a significant body of Conformance tests 
+to OASIS. We also would like to temporarily provide most of the tests here on 
+Apache for Xalan developer's use, while OASIS finalizes it's test suite.</p>
+
+<p>You are invited to submit additional test cases by checking them into the "contrib" 
+area or mailing them to <jump href="mailto:David_Marston@lotus.com">David_Marston@lotus.com</jump>. 
+If you want to help with testing Xalan and wish to be 
+assigned to write some cases, send email to David Marston stating your interest. 
+Contributed tests may be sent along to the OASIS conformance project if they test 
+conformance. Guidelines for comments in tests are still evolving as part of the 
+OASIS project, so it may be necessary to add more comments or other annotation 
+after the test is submitted. We hope to have a template for contributing 
+stylesheet tests available soon that will closely match the eventual OASIS format.</p>
+
+<p>The Xalan team will continue to provide test automation, like the 
+StylesheetTestletDriver and various StylesheetTestlet classes, that 
+enables a user to easily run large suites of tests with fully rolled-up 
+reporting and a rich set of options.</p>
+    </s2>
+</s1>

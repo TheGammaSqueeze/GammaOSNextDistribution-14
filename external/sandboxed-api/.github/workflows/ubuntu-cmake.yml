@@ -1,0 +1,130 @@
+name: ubuntu-cmake
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Ubuntu 22.04: Use preinstalled Clang 12.0.1, 13.0.1 and 14.0.0
+          - os: ubuntu-22.04
+            compiler: clang
+            compiler-version: 14
+            libclang-version: 14
+            pip-clang-version: "14.0"
+            ignore-errors: false
+          - os: ubuntu-22.04
+            compiler: clang
+            compiler-version: 13
+            libclang-version: 13
+            pip-clang-version: "13.0.1"
+            ignore-errors: false
+          - os: ubuntu-22.04
+            compiler: clang
+            compiler-version: 12
+            libclang-version: 12
+            pip-clang-version: "12.0.1"
+            ignore-errors: false
+          # Ubuntu 22.04: Use preinstalled GCC 9.5.0, 10.4.0, 11.3.0, 12.1.0
+          - os: ubuntu-22.04
+            compiler: gcc
+            compiler-version: 12
+            libclang-version: 14
+            pip-clang-version: "14.0"
+            ignore-errors: false
+          - os: ubuntu-22.04
+            compiler: gcc
+            compiler-version: 11
+            libclang-version: 14
+            pip-clang-version: "14.0"
+            ignore-errors: false
+          - os: ubuntu-22.04
+            compiler: gcc
+            compiler-version: 10
+            libclang-version: 14
+            pip-clang-version: "14.0"
+            ignore-errors: false
+          - os: ubuntu-22.04
+            compiler: gcc
+            compiler-version: 9
+            libclang-version: 14
+            pip-clang-version: "14.0"
+            ignore-errors: false
+          # Ubuntu 20.04
+          - os: ubuntu-20.04
+            compiler: gcc
+            compiler-version: 8
+            libclang-version: 12
+            pip-clang-version: "12.0.1"
+            ignore-errors: false
+          - os: ubuntu-20.04
+            compiler: gcc
+            compiler-version: 7
+            libclang-version: 12
+            pip-clang-version: "12.0.1"
+            ignore-errors: true  # GCC 7 is best effort
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.ignore-errors }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        key: ${{matrix.os}}-${{matrix.compiler}}${{matrix.compiler-version}}
+        path: |
+          ${{github.workspace}}/build/_deps
+
+    - name: Install ninja-build tool
+      uses: turtlesec-no/get-ninja@1.1.0
+
+    - name: Install/configure Clang compiler toolchain
+      if: matrix.compiler == 'clang'
+      run: |
+        sudo apt-get install -qy \
+          clang-${{matrix.compiler-version}} \
+          libclang1-${{matrix.libclang-version}}
+        echo "CXX=clang++-${{matrix.compiler-version}}" >> $GITHUB_ENV
+        echo "CC=clang-${{matrix.compiler-version}}" >> $GITHUB_ENV
+
+    - name: Install/configure GCC compiler toolchain
+      if: matrix.compiler == 'gcc'
+      run: |
+        sudo apt-get install -qy \
+          g++-${{matrix.compiler-version}} \
+          libclang1-${{matrix.libclang-version}}
+        echo "CXX=g++-${{matrix.compiler-version}}" >> $GITHUB_ENV
+        echo "CC=gcc-${{matrix.compiler-version}}" >> $GITHUB_ENV
+
+    - name: Create Build Environment
+      run: |
+        pip3 install absl-py clang==${{matrix.pip-clang-version}}
+        mkdir -p "$GITHUB_WORKSPACE/build"
+
+    - name: Configure CMake
+      run: |
+        cmake \
+          -S $GITHUB_WORKSPACE \
+          -B $GITHUB_WORKSPACE/build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+    - name: Build
+      run: |
+        cmake \
+          --build $GITHUB_WORKSPACE/build \
+          --config $BUILD_TYPE
+
+    - name: Test
+      run: |
+        ctest \
+          --test-dir $GITHUB_WORKSPACE/build \
+          -C $BUILD_TYPE \
+          --output-on-failure \
+          -R SapiTest

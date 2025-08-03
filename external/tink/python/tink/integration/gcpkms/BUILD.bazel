@@ -1,0 +1,78 @@
+load("@rules_python//python:defs.bzl", "py_test")
+load("@tink_py_pip_deps//:requirements.bzl", "requirement")
+
+package(default_visibility = ["//:__subpackages__"])
+
+py_library(
+    name = "gcpkms",
+    srcs = ["__init__.py"],
+    srcs_version = "PY3",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":_gcp_kms_client",
+    ],
+)
+
+py_library(
+    name = "_gcp_kms_client",
+    srcs = ["_gcp_kms_client.py"],
+    srcs_version = "PY3",
+    deps = [
+        "//tink:tink_python",
+        "//tink/aead",
+        "//tink/aead:_kms_aead_key_manager",
+        requirement("google-auth"),
+        requirement("google-api-core"),
+        requirement("google-cloud-kms"),
+    ],
+)
+
+py_test(
+    name = "_gcp_kms_client_test",
+    srcs = ["_gcp_kms_client_test.py"],
+    data = ["//testdata/gcp:credentials"],
+    srcs_version = "PY3",
+    deps = [
+        ":gcpkms",
+        "//tink/testing:helper",
+        requirement("absl-py"),
+    ],
+)
+
+py_test(
+    name = "_gcp_kms_client_integration_test",
+    srcs = ["_gcp_kms_client_integration_test.py"],
+    data = [
+        "//testdata/gcp:credentials",
+        "@google_root_pem//file",
+    ],
+    srcs_version = "PY3",
+    tags = ["manual"],
+    deps = [
+        ":gcpkms",
+        "//tink:tink_python",
+        "//tink/aead",
+        "//tink/testing:helper",
+        requirement("absl-py"),
+    ],
+)
+
+py_test(
+    name = "_gcp_kms_integration_test",
+    srcs = ["_gcp_kms_integration_test.py"],
+    data = [
+        "//testdata/gcp:credentials",
+        "@google_root_pem//file",
+    ],
+    srcs_version = "PY3",
+    tags = ["manual"],
+    deps = [
+        ":gcpkms",
+        "//tink:cleartext_keyset_handle",
+        "//tink:tink_python",
+        "//tink/aead",
+        "//tink/aead:_kms_aead_key_manager",
+        "//tink/testing:helper",
+        requirement("absl-py"),
+    ],
+)

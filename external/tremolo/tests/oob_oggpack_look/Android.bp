@@ -1,0 +1,40 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_tremolo_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_tremolo_license"],
+}
+
+cc_test {
+    name: "oob_oggpack_look",
+    gtest: true,
+    test_suites: ["device-tests"],
+
+    srcs: ["test_floor0.cpp"],
+
+    // compile_multilib: "64",
+
+    static_libs: [
+        "libvorbisidec",
+        "libbase",
+        "liblog",
+        "libutils",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+
+    sanitize: {
+        integer_overflow: true,
+        misc_undefined: ["bounds"],
+        diag: {
+            integer_overflow: true,
+            undefined: true,
+            misc_undefined: ["bounds"],
+        },
+    },
+}

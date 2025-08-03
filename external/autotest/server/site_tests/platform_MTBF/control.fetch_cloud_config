@@ -1,0 +1,31 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# TEST IS DISABLED UNTIL MIGRATED TO PYTHON 3.
+# For instructions on how to: go/tauto-py3-migration
+# To re-enable migrate to Python 3.
+# If the test is not migrated by 1/14/22 it will be deleted.
+
+AUTHOR = "abergman, chromeos-engprod-platform-syd"
+NAME = "platform_PerfCujFetchCloudConfig"
+ATTRIBUTES = "suite:performance_cuj, suite:performance_cuj_quick, suite:performance_cuj_experimental"
+TIME = "SHORT"
+TEST_CATEGORY = "Stress"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+PRIORITY = 6000
+
+DOC = """
+This test file doesn't run any actual stress, but rather loads a fresh copy of
+the performance CUJ config from the cloud.
+
+This test has higher priority than any test of the suite, to ensure it's running
+first and always overrides cached configuration with the cloud one.
+"""
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('platform_FetchCloudConfig', host=host, disable_sysinfo=True)
+
+parallel_simple(run, machines)

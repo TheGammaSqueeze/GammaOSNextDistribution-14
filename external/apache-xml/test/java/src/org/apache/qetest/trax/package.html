@@ -1,0 +1,41 @@
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the  "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<!-- $Id$ -->
+<html>
+  <title>XSL-TEST TRAX testing package.</title>
+  <body>
+    <p>This package is for TRAX-interface API tests.<p>
+    <dl>
+      <dt><b>Author: </b></dt><dd><a href="mailto:shane_curcuru@lotus.com">Shane_Curcuru@lotus.com</a></dd>
+      <dt><b>Program(s) Under Test: </b></dt>
+      <dd><a href="http://xml.apache.org/xalan-j" target="_top">Xalan-J 2.x XSLT Processor</a></dd>
+    </dl>
+    <p>Most tests are completely generic to the TRAX interface, although they 
+    do default System properties to use the Xalan-J 2.x implementation.<p>
+    <ul>Current tests are primarily focused on covering the API's and include:
+    <li>ProcessorAPITest - basic coverage of both factory methods and instance methods</li>
+    <li>ResultAPITest</li>
+    <li>TransformerAPITest</li>
+    <li>TemplatesAPITest - also covers TemplatesBuilder class</li>
+    <li>TestThreads - a semi-automated test for multithreaded testing, 
+    results must be manually analyzed currently</li>
+    </ul>
+  </body>
+</html>
+
+

@@ -1,0 +1,50 @@
+{
+  "run_cargo": false,
+  "variants": [
+    {
+      "features": [
+        "derive",
+        "byteorder",
+        "simd"
+      ]
+    },
+    {
+      "features": [
+        "alloc",
+        "derive",
+        "byteorder",
+        "simd"
+      ],
+      "module_name_overrides": {
+        "libbyteorder": "libbyteorder_nostd",
+        "libzerocopy": "libzerocopy_nostd"
+      },
+      "package": {
+        "zerocopy": {
+          "alloc": true,
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    },
+    {
+      "features": [
+        "derive",
+        "byteorder",
+        "simd"
+      ],
+      "module_name_overrides": {
+        "libbyteorder": "libbyteorder_nostd",
+        "libzerocopy": "libzerocopy_nostd_noalloc"
+      },
+      "package": {
+        "zerocopy": {
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+# Lint as: python3
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Mohammad Sabri <mohammad.kh.sabri@exalt.ps>'
+NAME = 'bluetooth_AVLHCI'
+ATTRIBUTES = ''
+PURPOSE = (
+    'Batch of bluetooth AVL standard specifications tests'
+)
+CRITERIA = 'all tests passed'
+TIME = 'SHORT'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = "bluetooth"
+TEST_TYPE = 'client'
+PY_VERSION = 3
+
+DOC = """
+    A Batch of bluetooth_AVLHCI tests. This test is written as a batch of tests
+    in order to reduce test time.
+
+    This class can be called to run the entire test batch or to run a specific
+    test only.
+
+    Currently, the batch contains the following tests:
+    - spec_legacy_test
+    - spec_4_0_test
+    - spec_4_1_test
+    - spec_4_2_test
+    - spec_5_0_test
+    - spec_5_2_test
+    - hci_ext_msft_test
+    _ hci_ext_aosp_test
+
+    """
+
+job.run_test('bluetooth_AVLHCI')

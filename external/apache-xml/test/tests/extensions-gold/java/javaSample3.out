@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out xmlns:java="http://xml.apache.org/xslt/java">
+<p>Format:   EEEE, MMM dd, yyyy</p>
+<p>Date-xml: y:2001 m:5 d:27</p>
+<p>Date-ext: Wednesday, Jun 27, 2001</p>
+</out>

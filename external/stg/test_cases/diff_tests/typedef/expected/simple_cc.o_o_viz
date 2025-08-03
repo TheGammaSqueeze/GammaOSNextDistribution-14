@@ -1,0 +1,21 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [color=red, label="removed(long id2(small) {_Z3id2s})"]
+  "0" -> "1" [label=""]
+  "2" [color=red, label="added(long id2(large) {_Z3id2i})"]
+  "0" -> "2" [label=""]
+  "3" [label="'long id1(struct foo)' {_Z3id13foo}"]
+  "4" [label="'long(struct foo)'"]
+  "5" [color=red, shape=rectangle, label="'struct foo'"]
+  "5" -> "5:0"
+  "5:0" [color=red, label="byte size changed from 2 to 4"]
+  "6" [label="'small x' -> 'large x'"]
+  "7" [label="'small' = 'short' -> 'large' = 'int'"]
+  "8" [color=red, label="'short' -> 'int'"]
+  "7" -> "8" [label="resolved"]
+  "6" -> "7" [label=""]
+  "5" -> "6" [label=""]
+  "4" -> "5" [label="parameter 1"]
+  "3" -> "4" [label=""]
+  "0" -> "3" [label=""]
+}

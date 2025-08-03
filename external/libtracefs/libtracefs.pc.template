@@ -1,0 +1,11 @@
+prefix=INSTALL_PREFIX
+libdir=${prefix}/LIB_DIR
+includedir=${prefix}/HEADER_DIR
+
+Name: libtracefs
+URL: https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+Description: Library for accessing ftrace file system
+Version: LIB_VERSION
+Requires: libtraceevent > LIBTRACEEVENT_MIN
+Cflags: -I${includedir}
+Libs: -L${libdir} -ltracefs

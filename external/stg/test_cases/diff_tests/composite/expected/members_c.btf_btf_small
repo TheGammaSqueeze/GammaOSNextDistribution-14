@@ -1,0 +1,22 @@
+type 'struct s' changed
+  byte size changed from 64 to 88
+  member changed from 'int a' to 'long a'
+    type changed from 'int' to 'long'
+  member changed from 'int* b' to 'long* b'
+    type changed from 'int*' to 'long*'
+      pointed-to type changed from 'int' to 'long'
+  member changed from 'int c[7]' to 'long c[7]'
+    type changed from 'int[7]' to 'long[7]'
+      element type changed from 'int' to 'long'
+  member changed from 'int(* d)()' to 'long(* d)()'
+    offset changed from 384 to 576
+    type changed from 'int(*)()' to 'long(*)()'
+      pointed-to type changed from 'int()' to 'long()'
+        return type changed from 'int' to 'long'
+  member 'thing e' changed
+    offset changed from 448 to 640
+
+type changed from 'thing' = 'int' to 'thing' = 'long'
+  resolved type changed from 'int' to 'long'
+
+exit code 4

@@ -1,0 +1,43 @@
+From 3c642426ea83629c1eedbf5fc877fe51f01ed234 Mon Sep 17 00:00:00 2001
+From: Henri Chataing <henrichataing@google.com>
+Date: Thu, 2 Nov 2023 22:10:06 +0000
+Subject: [PATCH] Ensure compatibility with python 3.8
+
+Change-Id: I8db6ec0239fca889b39317c91f75bf0ddc4f3741
+---
+ scripts/pdl/ast.py | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/scripts/pdl/ast.py b/scripts/pdl/ast.py
+index 4aff1cc..5ade0fa 100644
+--- a/scripts/pdl/ast.py
++++ b/scripts/pdl/ast.py
+@@ -66,7 +66,7 @@ class Constraint(Node):
+ @dataclass
+ class Field(Node):
+     parent: Node = field(init=False)
+-    cond: Optional[Constraint] = field(kw_only=True, default=None)
++    cond: Optional[Constraint] = field(init=False, default=None)
+     # Backlink to the (optional) optional field referencing
+     # this field as condition.
+     cond_for: Optional['Field'] = field(init=False, default=None)
+@@ -277,8 +277,14 @@ def convert_(obj: object) -> object:
+         loc = SourceRange(loc['file'], SourceLocation(**loc['start']), SourceLocation(**loc['end']))
+         constructor = constructors_.get(kind)
+         members = {'loc': loc, 'kind': kind}
++        cond = None
+         for name, value in obj.items():
+-            if name != 'kind' and name != 'loc':
++            if name == 'cond':
++                cond = convert_(value)
++            elif name != 'kind' and name != 'loc':
+                 members[name] = convert_(value)
+-        return constructor(**members)
++        val = constructor(**members)
++        if cond:
++            val.cond = cond
++        return val
+     raise Exception('Unhandled json object type')
+-- 
+2.42.0.869.gea05f2083d-goog
+

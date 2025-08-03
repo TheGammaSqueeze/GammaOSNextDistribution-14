@@ -1,0 +1,32 @@
+# Copyright (c) 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "cellular_Hermes_MultiProfile.prodci"
+PURPOSE = "Verify that a failed hermes Enable/Disable attempt reported"
+CRITERIA = """
+This test will fail if could not able to Enable/Disable a given profile through
+Hermes dbus daemon
+"""
+ATTRIBUTES = "suite:cellular_ota_flaky"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "network"
+TEST_TYPE = "client"
+DEPENDENCIES = "carrier:esim"
+PY_VERSION = 3
+DOC = """
+  Tests that profile Enable & Disable works on multiple prod profiles
+
+  This test will fail if failed to Enable profile OR could not able to
+  find and connect to Hermes dbus daemon OR validation of profile status
+  It requires a dut with a modem and euicc
+"""
+
+from autotest_lib.client.cros.cellular import test_environment
+
+test_env = test_environment.CellularESIMTestEnvironment()
+job.run_test('cellular_Hermes_MultiProfile', test_env=test_env,
+            is_prod_ci=True)
+

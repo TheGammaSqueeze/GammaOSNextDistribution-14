@@ -1,0 +1,46 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_Z13register_ops610containing' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z13register_ops7P10containing' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z13register_ops89referring' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z13register_ops9P9referring' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='nested.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <class-decl name='nested' size-in-bits='64' is-struct='yes' visibility='default' id='6ea8b4a2'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='containing' size-in-bits='64' is-struct='yes' visibility='default' id='fd6aaea5'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='inner' type-id='6ea8b4a2' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='referring' size-in-bits='64' is-struct='yes' visibility='default' id='a5e32f33'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='inner' type-id='2c3e2520' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <pointer-type-def type-id='fd6aaea5' size-in-bits='64' id='3b354475'/>
+    <pointer-type-def type-id='6ea8b4a2' size-in-bits='64' id='2c3e2520'/>
+    <pointer-type-def type-id='a5e32f33' size-in-bits='64' id='fdcc4a43'/>
+    <function-decl name='register_ops6' mangled-name='_Z13register_ops610containing' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z13register_ops610containing'>
+      <parameter type-id='fd6aaea5'/>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <function-decl name='register_ops7' mangled-name='_Z13register_ops7P10containing' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z13register_ops7P10containing'>
+      <parameter type-id='3b354475'/>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <function-decl name='register_ops8' mangled-name='_Z13register_ops89referring' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z13register_ops89referring'>
+      <parameter type-id='a5e32f33'/>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <function-decl name='register_ops9' mangled-name='_Z13register_ops9P9referring' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z13register_ops9P9referring'>
+      <parameter type-id='fdcc4a43'/>
+      <return type-id='48b5725f'/>
+    </function-decl>
+    <type-decl name='void' id='48b5725f'/>
+  </abi-instr>
+</abi-corpus>

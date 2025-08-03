@@ -1,0 +1,22 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='x' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='unknown_size.c' language='LANG_C11'>
+    <type-decl name='__ARRAY_SIZE_TYPE__' size-in-bits='64' id='7ff19f0f'/>
+    <type-decl name='double' size-in-bits='64' id='a0eb0f08'/>
+    <array-type-def dimensions='1' type-id='a0eb0f08' size-in-bits='infinite' id='c15d4d1c'>
+      <subrange length='infinite' type-id='7ff19f0f' id='031f2035'/>
+    </array-type-def>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='foo' size-in-bits='64' is-struct='yes' visibility='default' id='3f46facf'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='bar' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='baz' type-id='c15d4d1c' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='x' type-id='3f46facf' mangled-name='x' visibility='default' elf-symbol-id='x'/>
+  </abi-instr>
+</abi-corpus>

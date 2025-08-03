@@ -1,0 +1,84 @@
+version: 0x00000002
+root_id: 0x84ea5130
+struct_union {
+  id: 0x82c2ca27
+  kind: STRUCT
+  name: "s3"
+  definition {
+    bytesize: 1
+  }
+}
+struct_union {
+  id: 0x7a129a94
+  kind: UNION
+  name: "u2"
+}
+struct_union {
+  id: 0x2099f798
+  kind: UNION
+  name: "u3"
+  definition {
+    bytesize: 1
+  }
+}
+enumeration {
+  id: 0xf80afce3
+  name: "e1"
+}
+enumeration {
+  id: 0x75396efe
+  name: "e2"
+  definition {
+    underlying_type_id: 0x84ea5130
+  }
+}
+elf_symbol {
+  id: 0x99f1fb6e
+  name: "symbol1"
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xd9b0a065
+  name: "symbol2"
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x1b7105d1
+  name: "symbol3"
+  symbol_type: OBJECT
+  type_id: 0x82c2ca27
+}
+elf_symbol {
+  id: 0x5733f9fa
+  name: "symbol4"
+  symbol_type: OBJECT
+  type_id: 0x7a129a94
+}
+elf_symbol {
+  id: 0x96f0448d
+  name: "symbol5"
+  symbol_type: OBJECT
+  type_id: 0x2099f798
+}
+elf_symbol {
+  id: 0xd4b3326a
+  name: "symbol6"
+  symbol_type: OBJECT
+  type_id: 0x75396efe
+}
+elf_symbol {
+  id: 0x14739ab8
+  name: "symbol7"
+  symbol_type: OBJECT
+  type_id: 0xf80afce3
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x99f1fb6e
+  symbol_id: 0xd9b0a065
+  symbol_id: 0x1b7105d1
+  symbol_id: 0x5733f9fa
+  symbol_id: 0x96f0448d
+  symbol_id: 0xd4b3326a
+  symbol_id: 0x14739ab8
+}

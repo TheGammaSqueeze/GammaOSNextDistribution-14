@@ -1,0 +1,73 @@
+{
+  "name": "bigquery",
+  "ownerDomain": "google.com",
+  "ownerName": "Google",
+  "revision": "20210313",
+  "rootUrl": "https://bigquery.googleapis.com/",
+  "schemas": {
+      "ProjectList": {
+          "id": "ProjectList",
+          "properties": {
+              "etag": {
+                  "description": "A hash of the page of results",
+                  "type": "string"
+              },
+              "kind": {
+                  "default": "bigquery#projectList",
+                  "description": "The type of list.",
+                  "type": "string"
+              },
+              "nextPageToken": {
+                  "description": "A token to request the next page of results.",
+                  "type": "string"
+              },
+              "projects": {
+                  "description": "Projects to which you have at least READ access.",
+                  "items": {
+                      "properties": {
+                          "friendlyName": {
+                              "description": "A descriptive name for this project.",
+                              "type": "string"
+                          },
+                          "id": {
+                              "description": "An opaque ID of this project.",
+                              "type": "string"
+                          },
+                          "kind": {
+                              "default": "bigquery#project",
+                              "description": "The resource type.",
+                              "type": "string"
+                          },
+                          "projectReference": {
+                              "$ref": "ProjectReference",
+                              "description": "A unique reference to this project."
+                          }
+                      },
+                      "type": "object"
+                  },
+                  "type": "array"
+              },
+              "totalItems": {
+                  "description": "The total number of projects in the list.",
+                  "format": "int64",
+                  "type": "integer"
+              }
+          },
+          "type": "object"
+      },
+      "ProjectReference": {
+          "id": "ProjectReference",
+          "properties": {
+              "projectId": {
+                  "description": "Changed description should be ignored.",
+                  "type": "string"
+              }
+          },
+          "type": "object",
+          "newkey" : "object"
+      }
+  },
+  "servicePath": "bigquery/v2/",
+  "title": "BigQuery API",
+  "version": "v2"
+}

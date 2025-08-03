@@ -1,0 +1,15 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index b657ea1..f16857b 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -328,6 +328,10 @@
+ //! [`UtcTime`]: asn1::UtcTime
+ //! [`Utf8StringRef`]: asn1::Utf8StringRef
+ 
++/// Local Android change: Use std to allow building as a dylib.
++#[cfg(android_dylib)]
++extern crate std;
++
+ #[cfg(feature = "alloc")]
+ #[allow(unused_imports)]
+ #[macro_use]

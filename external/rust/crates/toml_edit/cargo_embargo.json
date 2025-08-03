@@ -1,0 +1,12 @@
+{
+  "features": [
+    "default",
+    "serde"
+  ],
+  "package": {
+    "toml_edit": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

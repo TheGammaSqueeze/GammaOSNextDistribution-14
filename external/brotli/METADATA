@@ -1,0 +1,19 @@
+name: "brotli"
+description: "Brotli is a generic-purpose lossless compression algorithm."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/brotli"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/brotli.git"
+  }
+  version: "v1.0.9"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 8
+    day: 27
+  }
+}

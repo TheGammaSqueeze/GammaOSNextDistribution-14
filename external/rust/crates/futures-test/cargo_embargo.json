@@ -1,0 +1,4 @@
+{
+  "tests": true,
+  "run_cargo": false
+}

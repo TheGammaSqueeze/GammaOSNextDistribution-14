@@ -1,0 +1,22 @@
+type 'struct Scope::ClassDecl' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+type 'enum Scope::EnumDecl' changed
+  enumerator 'X' value changed from 1 to 2
+
+type 'struct Scope::StructDecl' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+type changed from 'Scope::TypedefDecl' = 'int' to 'Scope::TypedefDecl' = 'long'
+  resolved type changed from 'int' to 'long'
+
+type 'union Scope::UnionDecl' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+exit code 4

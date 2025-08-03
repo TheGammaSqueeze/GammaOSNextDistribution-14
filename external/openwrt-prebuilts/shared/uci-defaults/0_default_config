@@ -1,0 +1,62 @@
+#!/bin/sh
+
+opkg install /ipks/*
+ip link set eth0 mtu 1460
+
+rule_name=$(uci add network rule)
+
+# Extract configs from /proc/cmdline
+bridged_wifi_tap=false
+webrtc_device_id="cvd-1"
+words=$(cat /proc/cmdline)
+while
+    word=${words%%" "*}
+    if [ "$word" = "bridged_wifi_tap=true" ]; then
+        bridged_wifi_tap=true
+    elif echo "$word" | grep "^wan_gateway="; then
+        uci set network.wan.gateway=${word#*"="}
+    elif echo "$word" | grep "^wan_ipaddr="; then
+        uci set network.wan.ipaddr=${word#*"="}
+    elif echo "$word" | grep "^wan_broadcast="; then
+        uci set network.wan.broadcast=${word#*"="}
+    elif echo "$word" | grep "^webrtc_device_id="; then
+        webrtc_device_id=${word#*"="}
+    fi
+    next=${words#*" "}
+    [ "$words" != "$next" ]
+do
+    words=$next
+done
+
+if $bridged_wifi_tap; then
+    uci set network.wan.netmask="255.255.255.0"
+else
+    uci set network.wan.netmask="255.255.255.252"
+fi
+
+# Modify the path of the web service, luci.
+ln -sf $(readlink -f /www/cgi-bin/cgi-backup) /www/cgi-bin/cgi-backup
+ln -sf $(readlink -f /www/cgi-bin/cgi-download) /www/cgi-bin/cgi-download
+ln -sf $(readlink -f /www/cgi-bin/cgi-exec) /www/cgi-bin/cgi-exec
+ln -sf $(readlink -f /www/cgi-bin/cgi-upload) /www/cgi-bin/cgi-upload
+web_base="devices/$webrtc_device_id/openwrt"
+mkdir -p "/www/$web_base/"
+mv /www/cgi-bin "/www/$web_base/"
+mv /www/luci-static "/www/$web_base/"
+mv /www/index.html "/www/$web_base/"
+echo "<meta http-equiv=\"refresh\" content=\"0; url=$web_base/\" />" > /www/index.html
+uci set uhttpd.main.cgi_prefix="/$web_base/cgi-bin"
+uci delete uhttpd.main.lua_prefix
+uci add_list uhttpd.main.lua_prefix="/$web_base/cgi-bin/luci=/usr/lib/lua/luci/sgi/uhttpd.lua"
+uci set uhttpd.main.ubus_prefix="/$web_base/ubus"
+uci set luci.main.mediaurlbase="/$web_base/luci-static/bootstrap"
+uci set luci.main.resourcebase="/$web_base/luci-static/resources"
+uci set luci.main.ubuspath="/$web_base/ubus/"
+uci set luci.themes.Bootstrap="/$web_base/luci-static/bootstrap"
+uci set luci.themes.BootstrapDark="/$web_base/luci-static/bootstrap-dark"
+uci set luci.themes.BootstrapLight="/$web_base/luci-static/bootstrap-light"
+
+uci commit
+
+# Regarding hostapd issue of OpenWRT 22.03.X versions, reboot it.
+reboot

@@ -1,0 +1,67 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_java_core_libraries",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_icu_icu4c_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Unicode-DFS
+    //   legacy_unencumbered
+    default_applicable_licenses: ["external_icu_icu4c_license"],
+}
+
+cc_defaults {
+    name: "intltest_defaults",
+    defaults: ["icu_test_defaults"],
+    cflags: [
+        // Needed for char* shift calculation in the test.
+        "-Wno-string-plus-int",
+        "-DZERO_EXIT_CODE_FOR_FAILURES",
+    ],
+    srcs: [
+        "**/*.c",
+        "**/*.cpp",
+    ],
+}
+
+// Build exactly one variant even for 32-bit / 64-bit only target, because
+// CtsIcu4cTestCases depends on this module from the "data:" property which allows single-variant
+// dependency only.
+// Soong selects the first variant where 32-bit is prioritized on "intltest32" and 64-bit is
+// prioritized on "intltest64".
+cc_test {
+    name: "intltest32",
+    defaults: ["intltest_defaults"],
+    multilib: {
+        // On 64-bit platform, this binary is compiled, but not used.
+        lib64: {
+            suffix: "_fake",
+        },
+    },
+    compile_multilib: "first_prefer32",
+}
+
+cc_test {
+    name: "intltest64",
+    defaults: ["intltest_defaults"],
+    multilib: {
+        // On 32-bit platform, this binary is compiled, but not used.
+        lib32: {
+            suffix: "_fake",
+        },
+    },
+    compile_multilib: "first",
+}

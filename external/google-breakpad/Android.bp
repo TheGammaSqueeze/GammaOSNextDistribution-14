@@ -1,0 +1,326 @@
+// Copyright (C) 2015 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Static library.
+// =================================================
+package {
+    default_applicable_licenses: ["external_google-breakpad_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_google-breakpad_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-APSL-2.0",
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-Artistic",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-FSFAP",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unicode-DFS",
+        "legacy_notice",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_static {
+    name: "breakpad_client",
+    host_supported: true,
+    srcs: [
+        "src/client/linux/crash_generation/crash_generation_client.cc",
+        "src/client/linux/dump_writer_common/thread_info.cc",
+        "src/client/linux/dump_writer_common/ucontext_reader.cc",
+        "src/client/linux/handler/exception_handler.cc",
+        "src/client/linux/handler/minidump_descriptor.cc",
+        "src/client/linux/log/log.cc",
+        "src/client/linux/microdump_writer/microdump_writer.cc",
+        "src/client/linux/minidump_writer/linux_core_dumper.cc",
+        "src/client/linux/minidump_writer/linux_dumper.cc",
+        "src/client/linux/minidump_writer/linux_ptrace_dumper.cc",
+        "src/client/linux/minidump_writer/minidump_writer.cc",
+        "src/client/linux/minidump_writer/pe_file.cc",
+        "src/client/minidump_file_writer.cc",
+        "src/common/convert_UTF.cc",
+        "src/common/linux/breakpad_getcontext.S",
+        "src/common/linux/elf_core_dump.cc",
+        "src/common/linux/elfutils.cc",
+        "src/common/linux/file_id.cc",
+        "src/common/linux/guid_creator.cc",
+        "src/common/linux/linux_libc_support.cc",
+        "src/common/linux/memory_mapped_file.cc",
+        "src/common/linux/safe_readlink.cc",
+        "src/common/string_conversion.cc",
+    ],
+    export_include_dirs: ["src"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-missing-field-initializers",
+        "-Wno-tautological-compare",
+        "-Wno-unused-parameter",
+    ],
+    target: {
+        bionic: {
+            local_include_dirs: [
+                "src/common/android/include",
+            ],
+        },
+        musl: {
+            local_include_dirs: [
+                "src/common/musl/include",
+            ],
+        },
+    },
+    // Work around b/25435766 core2md segfault.
+    arch: {
+        x86: {
+            cflags: ["-mno-stackrealign"],
+        },
+    },
+}
+
+// core2md binary.
+// =================================================
+cc_binary {
+    name: "core2md",
+    host_supported: true,
+    srcs: [
+        "src/common/convert_UTF.cc",
+        "src/common/path_helper.cc",
+        "src/tools/linux/core2md/core2md.cc",
+    ],
+    static_libs: ["breakpad_client"],
+    // Work around b/25435766 core2md segfault.
+    arch: {
+        x86: {
+            cflags: ["-mno-stackrealign"],
+        },
+    },
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+// dump_syms host tool.
+// =================================================
+cc_binary_host {
+    name: "dump_syms",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        glibc: {
+            cppflags: [
+                "-DHAVE_A_OUT_H",
+                "-DSHF_COMPRESSED=0x800",
+            ],
+        },
+        musl: {
+            local_include_dirs: [
+                "src/common/musl/include",
+            ],
+        },
+        host_linux: {
+            cppflags: [
+                "-Wno-implicit-fallthrough",
+                "-Wno-unused-parameter",
+            ],
+            srcs: [
+                "src/common/dwarf/elf_reader.cc",
+                "src/common/dwarf_range_list_handler.cc",
+                "src/common/linux/crc32.cc",
+                "src/common/linux/dump_symbols.cc",
+                "src/common/linux/elfutils.cc",
+                "src/common/linux/elf_symbols_to_module.cc",
+                "src/common/linux/file_id.cc",
+                "src/common/linux/linux_libc_support.cc",
+                "src/common/linux/memory_mapped_file.cc",
+                "src/common/path_helper.cc",
+                "src/tools/linux/dump_syms/dump_syms.cc",
+            ],
+        },
+    },
+    local_include_dirs: ["src"],
+    srcs: [
+        "src/common/dwarf/bytereader.cc",
+        "src/common/dwarf/dwarf2diehandler.cc",
+        "src/common/dwarf/dwarf2reader.cc",
+        "src/common/dwarf_cfi_to_module.cc",
+        "src/common/dwarf_cu_to_module.cc",
+        "src/common/dwarf_line_to_module.cc",
+        "src/common/language.cc",
+        "src/common/module.cc",
+        "src/common/stabs_reader.cc",
+        "src/common/stabs_to_module.cc",
+    ],
+    shared_libs: [
+        "libz",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-local-typedef",
+        "-Wno-unused-private-field",
+        "-Wno-unused-result",
+    ],
+}
+
+// sym_upload host tool.
+// =================================================
+cc_binary_host {
+    name: "sym_upload",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        host_linux: {
+            srcs: [
+                "src/common/path_helper.cc",
+                "src/common/linux/http_upload.cc",
+                "src/common/linux/libcurl_wrapper.cc",
+                "src/common/linux/symbol_collector_client.cc",
+                "src/common/linux/symbol_upload.cc",
+                "src/tools/linux/symupload/sym_upload.cc",
+            ],
+        },
+    },
+    local_include_dirs: ["src"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+}
+
+// libdisasm static library.
+// =================================================
+cc_library_host_static {
+    name: "libdisasm",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        host_linux: {
+            cflags: [
+                "-Wno-missing-field-initializers",
+                "-Wno-pointer-arith",
+                "-Wno-tautological-constant-out-of-range-compare",
+                "-Wno-unused-parameter",
+            ],
+        },
+    },
+    export_include_dirs: ["src/third_party/libdisasm"],
+    srcs: [
+        "src/third_party/libdisasm/ia32_implicit.c",
+        "src/third_party/libdisasm/ia32_insn.c",
+        "src/third_party/libdisasm/ia32_invariant.c",
+        "src/third_party/libdisasm/ia32_modrm.c",
+        "src/third_party/libdisasm/ia32_opcode_tables.c",
+        "src/third_party/libdisasm/ia32_operand.c",
+        "src/third_party/libdisasm/ia32_reg.c",
+        "src/third_party/libdisasm/ia32_settings.c",
+        "src/third_party/libdisasm/x86_disasm.c",
+        "src/third_party/libdisasm/x86_format.c",
+        "src/third_party/libdisasm/x86_imm.c",
+        "src/third_party/libdisasm/x86_insn.c",
+        "src/third_party/libdisasm/x86_misc.c",
+        "src/third_party/libdisasm/x86_operand_list.c",
+    ],
+}
+
+// minidump_stackwalk host tool.
+// =================================================
+cc_binary_host {
+    name: "minidump_stackwalk",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        host_linux: {
+            cppflags: [
+                "-DHAVE_A_OUT_H",
+                // minidump_processor.cc:853, minidump.cc:4228 have fallthrough.
+                "-Wno-implicit-fallthrough",
+                "-Wno-missing-field-initializers",
+                "-Wno-unused-function",
+                "-Wno-unused-parameter",
+            ],
+            srcs: [
+                "src/common/linux/scoped_pipe.cc",
+                "src/common/linux/scoped_tmpfile.cc",
+                "src/common/path_helper.cc",
+                "src/processor/basic_code_modules.cc",
+                "src/processor/basic_source_line_resolver.cc",
+                "src/processor/call_stack.cc",
+                "src/processor/cfi_frame_info.cc",
+                "src/processor/convert_old_arm64_context.cc",
+                "src/processor/disassembler_objdump.cc",
+                "src/processor/disassembler_x86.cc",
+                "src/processor/dump_context.cc",
+                "src/processor/dump_object.cc",
+                "src/processor/exploitability.cc",
+                "src/processor/exploitability_linux.cc",
+                "src/processor/exploitability_win.cc",
+                "src/processor/logging.cc",
+                "src/processor/microdump.cc",
+                "src/processor/microdump_processor.cc",
+                "src/processor/minidump.cc",
+                "src/processor/minidump_processor.cc",
+                "src/processor/minidump_stackwalk.cc",
+                "src/processor/pathname_stripper.cc",
+                "src/processor/process_state.cc",
+                "src/processor/proc_maps_linux.cc",
+                "src/processor/simple_symbol_supplier.cc",
+                "src/processor/source_line_resolver_base.cc",
+                "src/processor/stack_frame_symbolizer.cc",
+                "src/processor/stackwalk_common.cc",
+                "src/processor/stackwalker.cc",
+                "src/processor/stackwalker_amd64.cc",
+                "src/processor/stackwalker_arm.cc",
+                "src/processor/stackwalker_arm64.cc",
+                "src/processor/stackwalker_mips.cc",
+                "src/processor/stackwalker_ppc.cc",
+                "src/processor/stackwalker_ppc64.cc",
+                "src/processor/stackwalker_riscv.cc",
+                "src/processor/stackwalker_riscv64.cc",
+                "src/processor/stackwalker_sparc.cc",
+                "src/processor/stackwalker_x86.cc",
+                "src/processor/symbolic_constants_win.cc",
+                "src/processor/tokenize.cc",
+            ],
+        },
+    },
+    local_include_dirs: ["src"],
+    static_libs: ["libdisasm"],
+}

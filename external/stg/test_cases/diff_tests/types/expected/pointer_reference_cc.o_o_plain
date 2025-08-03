@@ -1,0 +1,55 @@
+variable symbol 'struct foo b' changed
+  type 'struct foo' changed
+    byte size changed from 4 to 8
+    member changed from 'int x' to 'long x'
+      type changed from 'int' to 'long'
+
+variable symbol 'struct foo* c' changed
+  type 'struct foo*' changed
+    pointed-to type 'struct foo' changed
+      (already reported)
+
+variable symbol 'struct foo& d' changed
+  type 'struct foo&' changed
+    referred-to type 'struct foo' changed
+      (already reported)
+
+variable symbol 'struct foo** e' changed
+  type 'struct foo**' changed
+    pointed-to type 'struct foo*' changed
+      pointed-to type 'struct foo' changed
+        (already reported)
+
+variable symbol 'struct foo*& f' changed
+  type 'struct foo*&' changed
+    referred-to type 'struct foo*' changed
+      pointed-to type 'struct foo' changed
+        (already reported)
+
+variable symbol 'const struct foo* h' changed
+  type 'const struct foo*' changed
+    pointed-to type 'const struct foo' changed
+      underlying type 'struct foo' changed
+        (already reported)
+
+variable symbol 'const struct foo& i' changed
+  type 'const struct foo&' changed
+    referred-to type 'const struct foo' changed
+      underlying type 'struct foo' changed
+        (already reported)
+
+variable symbol 'const struct foo** j' changed
+  type 'const struct foo**' changed
+    pointed-to type 'const struct foo*' changed
+      pointed-to type 'const struct foo' changed
+        underlying type 'struct foo' changed
+          (already reported)
+
+variable symbol 'const struct foo*& k' changed
+  type 'const struct foo*&' changed
+    referred-to type 'const struct foo*' changed
+      pointed-to type 'const struct foo' changed
+        underlying type 'struct foo' changed
+          (already reported)
+
+exit code 4

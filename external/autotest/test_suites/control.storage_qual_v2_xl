@@ -1,0 +1,33 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "abergman, chromeos-engprod-platform-syd"
+NAME = "storage_qual_v2_xl"
+PURPOSE = "Tast version of a full storage qualification test for running on Moblab."
+TIME = "LENGTHY"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite executes a full version of the storage qualification test suite
+run by partners (OEMs, ODMs and component manufacturers) using Moblab.
+
+@param build: The name of the image to test.
+          Ex: x86-mario-release/R17-1412.33.0-a1-b29
+@param board: The board to test on. Ex: x86-mario
+@param pool: The pool of machines to utilize for scheduling. If pool=None
+             board is used.
+@param dry_run: simulate test execution without stressing the storage.
+@param SKIP_IMAGE: (optional) If present and True, don't re-image devices.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['job'] = job
+args_dict['size'] = 'xl' # s=Small, m=Medium, l=Large, xl=Extra Large
+
+dynamic_suite.reimage_and_run(**args_dict)

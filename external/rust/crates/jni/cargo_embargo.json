@@ -1,0 +1,8 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.uwb"
+  ],
+  "min_sdk_version": "29",
+  "tests": true
+}

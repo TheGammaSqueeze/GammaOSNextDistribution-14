@@ -1,0 +1,49 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "power_LoadTest.FDO_eth_fast"
+PURPOSE = "Test health of power load test functionality."
+CRITERIA = "This test is a benchmark."
+TIME = "MEDIUM"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test runs a load test consisting of cycling though web pages, playing
+videos, etc. and measures battery power draw. The duration of this test is
+determined by loop_time * loop_cnt.
+
+
+This version of test allows:
+  - AC is connected.
+  - Ethernet is connected.
+
+This control file is simply meant to simulate the various aspects of the test
+to validate mechanics are in good health (login, external website access).
+
+It ignores whether wired access (check_network=False) or AC is
+connected(ac_ok=True).
+
+For reasons above and reduced runtime (3min) it will NOT produce valid power
+consumption results for the 60/20/10/10 load and therefore should NOT be used
+for any battery life estimations.
+
+"FDO" is short for "force discharge optional." Test will use EC command to
+force DUT to discharge. If it fails, then use AC as the power source.
+"""
+
+# TODO (bleung): Find a way to do automatic Facebook login for test account.
+
+loop_time = 180
+loop_count = 1
+
+args_dict = utils.args_to_dict(args)
+pdash_note = args_dict.get('pdash_note', '')
+job.run_test('power_LoadTest', loop_time=loop_time, loop_count=loop_count,
+             test_low_batt_p=5, ac_ok=True, force_discharge='optional',
+             check_network=False, tag=NAME.split('.')[1],
+             pdash_note=pdash_note)

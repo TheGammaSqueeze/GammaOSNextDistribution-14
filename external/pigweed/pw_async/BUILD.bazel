@@ -1,0 +1,126 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load(
+    "//pw_build:pigweed.bzl",
+    "pw_cc_facade",
+    "pw_cc_test",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+cc_library(
+    name = "dispatcher",
+    hdrs = [
+        "public/pw_async/dispatcher.h",
+        "public/pw_async/function_dispatcher.h",
+    ],
+    includes = ["public"],
+    deps = [
+        ":types",
+        "//pw_chrono:system_clock",
+        "//pw_function",
+        "//pw_status",
+    ],
+)
+
+pw_cc_facade(
+    name = "task_facade",
+    hdrs = ["public/pw_async/task.h"],
+    includes = ["public"],
+    deps = [
+        ":types",
+        "//pw_chrono:system_clock",
+        "//pw_function",
+        "//pw_status",
+    ],
+)
+
+cc_library(
+    name = "task",
+    hdrs = ["public/pw_async/task.h"],
+    includes = ["public"],
+    deps = [
+        ":types",
+        "//pw_chrono:system_clock",
+        "//pw_function",
+        "//pw_status",
+        "@pigweed//targets:pw_async_task_backend",
+    ],
+)
+
+cc_library(
+    name = "types",
+    hdrs = [
+        "public/pw_async/context.h",
+        "public/pw_async/task_function.h",
+    ],
+    includes = ["public"],
+    deps = [
+        "//pw_function",
+        "//pw_status",
+    ],
+)
+
+pw_cc_facade(
+    name = "fake_dispatcher_facade",
+    hdrs = ["public/pw_async/fake_dispatcher.h"],
+    includes = ["public"],
+    deps = [":dispatcher"],
+)
+
+cc_library(
+    name = "fake_dispatcher",
+    hdrs = ["public/pw_async/fake_dispatcher.h"],
+    includes = ["public"],
+    deps = [
+        ":dispatcher",
+        "@pigweed//targets:pw_async_fake_dispatcher_backend",
+    ],
+)
+
+pw_cc_test(
+    name = "fake_dispatcher_test",
+    srcs = ["fake_dispatcher_test.cc"],
+    deps = [
+        ":fake_dispatcher",
+        "//pw_containers:vector",
+        "//pw_log",
+        "//pw_string:to_string",
+        "//pw_sync:timed_thread_notification",
+        "//pw_thread:thread",
+    ],
+)
+
+cc_library(
+    name = "fake_dispatcher_fixture",
+    hdrs = ["public/pw_async/fake_dispatcher_fixture.h"],
+    includes = ["public"],
+    deps = [":fake_dispatcher"],
+)
+
+cc_library(
+    name = "heap_dispatcher",
+    srcs = ["heap_dispatcher.cc"],
+    hdrs = ["public/pw_async/heap_dispatcher.h"],
+    includes = ["public"],
+    deps = [
+        ":dispatcher",
+        ":task",
+        ":types",
+        "//pw_result",
+    ],
+)

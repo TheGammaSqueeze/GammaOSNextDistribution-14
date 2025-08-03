@@ -1,0 +1,194 @@
+// Copyright (c) 2022 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+package {
+    default_applicable_licenses: ["external_libchrome-gestures_license"],
+}
+
+license {
+    name: "external_libchrome-gestures_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "libchrome-gestures_defaults",
+    cflags: [
+        "-fno-exceptions",
+        "-fno-strict-aliasing",
+        "-fPIC",
+        "-Wall",
+        "-Wempty-body",
+        "-Werror",
+        "-Wignored-qualifiers",
+        "-Wmissing-field-initializers",
+        "-Wmissing-format-attribute",
+        "-Wmissing-noreturn",
+        "-Wsign-compare",
+        "-Wtype-limits",
+        "-Wno-non-virtual-dtor",
+        "-Wno-unused-parameter",
+        "-DVCSID=\"Android\"",
+        "-D__STDC_FORMAT_MACROS=1",
+        "-D_FILE_OFFSET_BITS=64",
+        "-DGESTURES_INTERNAL=1",
+    ],
+    sanitize: {
+        all_undefined: true,
+        integer_overflow: true,
+        undefined: true,
+    },
+    arch: {
+        x86_64: {
+            sanitize: {
+                all_undefined: false,
+                integer_overflow: false,
+                undefined: false,
+            },
+        }
+    },
+    target: {
+        host: {
+            sanitize: {
+                address: true,
+            },
+        },
+    },
+}
+
+cc_library_headers {
+    name: "libchrome-gestures_headers",
+    host_supported: true,
+    export_include_dirs: [
+        ".",
+    ],
+}
+
+cc_library_static {
+    name: "libchrome-gestures",
+    defaults: [
+        "libchrome-gestures_defaults",
+    ],
+    local_include_dirs: ["."],
+    header_libs: [
+        "libchrome-gestures_headers",
+        "libgtest_prod_headers",
+    ],
+    shared_libs: [
+        "libjsoncpp"
+    ],
+    srcs: [
+        "src/accel_filter_interpreter.cc",
+        "src/activity_log.cc",
+        "src/box_filter_interpreter.cc",
+        "src/click_wiggle_filter_interpreter.cc",
+        "src/file_util.cc",
+        "src/filter_interpreter.cc",
+        "src/finger_merge_filter_interpreter.cc",
+        "src/finger_metrics.cc",
+        "src/fling_stop_filter_interpreter.cc",
+        "src/gestures.cc",
+        "src/haptic_button_generator_filter_interpreter.cc",
+        "src/iir_filter_interpreter.cc",
+        "src/immediate_interpreter.cc",
+        "src/integral_gesture_filter_interpreter.cc",
+        "src/interpreter.cc",
+        "src/logging_filter_interpreter.cc",
+        "src/lookahead_filter_interpreter.cc",
+        "src/metrics_filter_interpreter.cc",
+        "src/mouse_interpreter.cc",
+        "src/multitouch_mouse_interpreter.cc",
+        "src/non_linearity_filter_interpreter.cc",
+        "src/palm_classifying_filter_interpreter.cc",
+        "src/prop_registry.cc",
+        "src/scaling_filter_interpreter.cc",
+        "src/sensor_jump_filter_interpreter.cc",
+        "src/split_correcting_filter_interpreter.cc",
+        "src/stationary_wiggle_filter_interpreter.cc",
+        "src/string_util.cc",
+        "src/stuck_button_inhibitor_filter_interpreter.cc",
+        "src/t5r2_correcting_filter_interpreter.cc",
+        "src/timestamp_filter_interpreter.cc",
+        "src/trace_marker.cc",
+        "src/tracer.cc",
+        "src/trend_classifying_filter_interpreter.cc",
+    ],
+    visibility: [
+        "//frameworks/native/services/inputflinger:__subpackages__",
+    ],
+    rtti: true,
+    host_supported: true,
+}
+
+cc_test {
+    name: "libchrome-gestures_test",
+    defaults: [
+        "libchrome-gestures_defaults",
+    ],
+    srcs: [
+        "src/accel_filter_interpreter_unittest.cc",
+        "src/activity_log_unittest.cc",
+        "src/activity_replay.cc",
+        "src/activity_replay_unittest.cc",
+        "src/box_filter_interpreter_unittest.cc",
+        "src/click_wiggle_filter_interpreter_unittest.cc",
+        "src/command_line.cc",
+        "src/filter_interpreter_unittest.cc",
+        "src/finger_metrics_unittest.cc",
+        "src/fling_stop_filter_interpreter_unittest.cc",
+        "src/gestures_unittest.cc",
+        "src/haptic_button_generator_filter_interpreter_unittest.cc",
+        "src/iir_filter_interpreter_unittest.cc",
+        "src/immediate_interpreter_unittest.cc",
+        "src/integral_gesture_filter_interpreter_unittest.cc",
+        "src/interpreter_unittest.cc",
+        "src/logging_filter_interpreter_unittest.cc",
+        "src/lookahead_filter_interpreter_unittest.cc",
+        "src/mouse_interpreter_unittest.cc",
+        "src/multitouch_mouse_interpreter_unittest.cc",
+        "src/non_linearity_filter_interpreter_unittest.cc",
+        "src/palm_classifying_filter_interpreter_unittest.cc",
+        "src/prop_registry_unittest.cc",
+        "src/scaling_filter_interpreter_unittest.cc",
+        "src/sensor_jump_filter_interpreter_unittest.cc",
+        "src/split_correcting_filter_interpreter_unittest.cc",
+        "src/string_util_unittest.cc",
+        "src/stuck_button_inhibitor_filter_interpreter_unittest.cc",
+        "src/t5r2_correcting_filter_interpreter_unittest.cc",
+        "src/test_main.cc",
+        "src/timestamp_filter_interpreter_unittest.cc",
+        "src/trace_marker_unittest.cc",
+        "src/tracer_unittest.cc",
+        "src/unittest_util.cc",
+        "src/util_unittest.cc",
+        "src/vector_unittest.cc",
+    ],
+    data: [
+        "data/non_linearity_data/testing_non_linearity_data.dat",
+    ],
+    static_libs: [
+        "libchrome-gestures",
+        "libgtest",
+    ],
+    shared_libs: [
+        "libjsoncpp",
+    ],
+    rtti: true,
+    cflags: [
+       "-Wno-sign-compare",
+    ],
+    host_supported: false,
+    sanitize: {
+        hwaddress: true,
+        diag: {
+            integer_overflow: true,
+        },
+    },
+    test_suites: ["general-tests"],
+}

@@ -1,0 +1,5 @@
+# This file contains a list of header-only C/C++ files required
+# to be copied into libicu/ndk_headers.
+# During the process, U_SHOW_CPLUSPLUS_API define is renamed to
+# LIBICU_U_SHOW_CPLUSPLUS_API.
+common/unicode/char16ptr.h

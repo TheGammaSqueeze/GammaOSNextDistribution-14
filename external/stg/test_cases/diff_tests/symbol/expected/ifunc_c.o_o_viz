@@ -1,0 +1,7 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [color=red, label="removed(func_removed)"]
+  "0" -> "1" [label=""]
+  "2" [color=red, label="added(func_added)"]
+  "0" -> "2" [label=""]
+}

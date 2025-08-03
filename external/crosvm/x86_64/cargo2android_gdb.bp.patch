@@ -1,0 +1,9 @@
+// Exclude arm family manually
+arch: {
+    arm: {
+        enabled: false,
+    },
+    arm64: {
+        enabled: false,
+    },
+}

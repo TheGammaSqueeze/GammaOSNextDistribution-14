@@ -1,0 +1,9 @@
+{
+  "package": {
+    "quote": {
+      "device_supported": false,
+      "host_first_multilib": true
+    }
+  },
+  "run_cargo": false
+}

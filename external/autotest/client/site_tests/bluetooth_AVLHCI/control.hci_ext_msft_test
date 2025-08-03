@@ -1,0 +1,27 @@
+# Lint as: python3
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Rajaa Abdallah <rajaa.abdallah@exalt.ps>'
+NAME = 'bluetooth_AVLHCI.hci_ext_msft_test'
+ATTRIBUTES = 'suite:bluetooth_flaky'
+PURPOSE = (
+'Tests the Microsoft HCI extension part in the Bluetooth AVL requirements'
+)
+CRITERIA = 'all subtests passed'
+TIME = 'SHORT'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'client'
+PY_VERSION = 3
+
+DOC = """
+    This class can be called to run bluetooth_AVLHCI.hci_ext_msft_test
+
+    This test contains these subtests:
+        test_hci_vs_msft_read_supported_features()
+
+    """
+
+job.run_test('bluetooth_AVLHCI', test_name=NAME.split('.')[1])

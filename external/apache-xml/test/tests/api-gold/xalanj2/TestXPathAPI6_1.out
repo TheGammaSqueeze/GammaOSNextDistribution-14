@@ -1,0 +1,51 @@
+<map:sitemap xmlns:map="http://apache.org/xalan/test/sitemap"> 
+
+<!-- =========================== Components ================================ --> 
+
+	<map:components> 
+
+		<map:generators default="file"> 
+  			<map:generator label="content" name="file" src="FileGenerator"/> 
+   			<map:generator label="content" name="directory" src="DirectoryGenerator"/>    			
+		</map:generators> 
+ 
+		<map:transformers default="xslt"> 
+   			<map:transformer name="xslt" src="TraxTransformer">
+				<use-browser-capabilities-db>false</use-browser-capabilities-db>
+			</map:transformer> 			
+		</map:transformers> 
+
+		<map:readers default="resource"> 
+			<map:reader name="resource" src="ResourceReader"/> 
+		</map:readers> 
+   
+		<map:serializers default="html"> 
+   			<map:serializer name="links" src="LinkSerializer"/>
+   			<map:serializer mime-type="text/xml" name="xml" src="XMLSerializer"/> 
+   			<map:serializer mime-type="text/html" name="html" src="HTMLSerializer"/> 
+   			<map:serializer mime-type="application/pdf" name="fo2pdf" src="FOPSerializer"/>   			 
+		</map:serializers>
+
+  		<map:selectors default="browser">
+   			<map:selector name="browser" src="BrowserSelectorFactory">
+                                <!-- # NOTE: The appearance indicates the search order. This is very important since
+                                     #       some words may be found in more than one browser description. (MSIE is
+                                     #       presented as "Mozilla/4.0 (Compatible; MSIE 4.01; ...")
+                                -->
+				<browser name="explorer" useragent="MSIE"/>				
+				<browser name="mozilla5" useragent="Mozilla/5"/>
+				<browser name="mozilla5" useragent="Netscape6/"/>
+				<browser name="netscape" useragent="Mozilla"/>
+  			</map:selector>
+ 		</map:selectors>
+
+		<map:matchers default="wildcard">
+   			<map:matcher name="wildcard" src="WildcardURIMatcherFactory"/>			
+		</map:matchers>
+
+     		<map:actions>
+  		</map:actions>
+
+	</map:components> 	
+    
+</map:sitemap>

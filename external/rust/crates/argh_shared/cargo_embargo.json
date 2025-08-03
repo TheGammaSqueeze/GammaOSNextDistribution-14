@@ -1,0 +1,11 @@
+{
+  "tests": true,
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "module_blocklist": [
+    "argh_shared_test_src_lib"
+  ],
+  "run_cargo": false
+}

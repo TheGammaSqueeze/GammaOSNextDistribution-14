@@ -1,0 +1,11 @@
+#### ALL-FROM-NODE from A
+ 65544: ELEMENT A  Level=3 	Value=null
+ 65545: COMMENT #comment  Level=4 	Value=" A Subtree "
+ 65546: ELEMENT B  Level=4 	Value=null
+ 65547: ELEMENT C  Level=5 	Value=null
+ 65548: ELEMENT D  Level=6 	Value=null
+ 65549: ELEMENT E  Level=7 	Value=null
+ 65550: ELEMENT F  Level=8 	Value=null
+ 65551: NAMESPACE xmlns:f  Level=9 	Value="www.f.com"
+ 65552: ATTRIBUTE a1  Level=9 	Value="down"
+ 65553: ATTRIBUTE a2  Level=9 	Value="up"

@@ -1,0 +1,182 @@
+// Copyright 2022 The Pigweed Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+package {
+    default_applicable_licenses: ["external_pigweed_license"],
+}
+
+cc_library_static {
+    name: "pw_detokenizer",
+    cpp_std: "c++20",
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: ["public"],
+    header_libs: [
+        "fuchsia_sdk_lib_stdcompat",
+        "pw_assert_headers",
+        "pw_log_headers",
+        "pw_log_tokenized_headers",
+        "pw_log_null_headers",
+        "pw_polyfill_headers",
+        "pw_preprocessor_headers",
+        "pw_result_headers",
+        "pw_span_headers",
+    ],
+    export_header_lib_headers: [
+        "fuchsia_sdk_lib_stdcompat",
+        "pw_assert_headers",
+        "pw_log_headers",
+        "pw_log_null_headers",
+        "pw_polyfill_headers",
+        "pw_preprocessor_headers",
+        "pw_result_headers",
+        "pw_span_headers",
+    ],
+    srcs: [
+        "base64.cc",
+        "detokenize.cc",
+        "decode.cc",
+    ],
+    static_libs: [
+        "pw_base64",
+        "pw_bytes",
+        "pw_containers",
+        "pw_varint"
+    ],
+    export_static_lib_headers: [
+        "pw_base64",
+        "pw_bytes",
+        "pw_containers",
+        "pw_varint",
+    ],
+}
+
+cc_library_static {
+    name: "pw_tokenizer",
+    cpp_std: "c++20",
+    host_supported: true,
+    vendor_available: true,
+    export_include_dirs: ["public"],
+    srcs: [
+        "encode_args.cc",
+        "hash.cc",
+        "tokenize.cc",
+    ],
+    header_libs: [
+        "pw_assert_headers",
+        "pw_log_headers",
+        "pw_log_null_headers",
+        "pw_log_tokenized_headers",
+        "pw_polyfill_headers",
+        "pw_preprocessor_headers",
+        "pw_span_headers",
+    ],
+    export_header_lib_headers: [
+        "pw_assert_headers",
+        "pw_log_headers",
+        "pw_log_null_headers",
+        "pw_log_tokenized_headers",
+        "pw_polyfill_headers",
+        "pw_preprocessor_headers",
+        "pw_span_headers",
+    ],
+    static_libs: [
+        "pw_containers",
+        "pw_varint",
+    ],
+    export_static_lib_headers: [
+        "pw_containers",
+        "pw_varint",
+    ],
+}
+
+cc_library_static {
+    name: "pw_tokenizer_base64",
+    cpp_std: "c++20",
+    host_supported: true,
+    vendor_available: true,
+    export_include_dirs: ["public"],
+    srcs: [
+        "base64.cc",
+    ],
+    header_libs: [
+        "pw_preprocessor_headers",
+        "pw_span_headers",
+    ],
+    export_header_lib_headers: [
+        "pw_preprocessor_headers",
+        "pw_span_headers",
+    ],
+    static_libs: [
+        "pw_base64",
+        "pw_containers",
+        "pw_string",
+        "pw_tokenizer",
+    ],
+    export_static_lib_headers: [
+        "pw_base64",
+        "pw_containers",
+        "pw_string",
+        "pw_tokenizer",
+    ],
+}
+
+cc_library_headers {
+    name: "pw_tokenizer_pwpb_headers",
+    cpp_std: "c++20",
+    vendor_available: true,
+    host_supported: true,
+    generated_headers: [
+        "google_protobuf_descriptor_pwpb_h",
+        "pw_tokenizer_proto_options_pwpb_h",
+    ],
+    export_generated_headers: [
+        "google_protobuf_descriptor_pwpb_h",
+        "pw_tokenizer_proto_options_pwpb_h",
+    ],
+}
+
+// Expose pw_tokenizer_proto/options.proto.
+filegroup {
+    name: "pw_tokenizer_proto_options_proto",
+    srcs: [
+        "pw_tokenizer_proto/options.proto",
+    ],
+}
+
+genrule {
+    name: "pw_tokenizer_proto_options_pwpb_h",
+    srcs: [
+        ":libprotobuf-internal-protos",
+        "pw_tokenizer_proto/options.proto",
+    ],
+    cmd: "python3 $(location pw_protobuf_compiler_py) " +
+         "--proto-path=external/pigweed/pw_tokenizer/ " +
+         "--proto-path=external/protobuf/src/ " +
+         "--out-dir=$$(dirname $(location pw_tokenizer_proto/options.pwpb.h)) " +
+         "--plugin-path=$(location pw_protobuf_plugin_py) " +
+         "--compile-dir=$$(dirname $(location pw_tokenizer_proto/options.proto)) " +
+         "--sources $(location pw_tokenizer_proto/options.proto) " +
+         "--language pwpb " +
+         "--no-experimental-proto3-optional " +
+         "--protoc=$(location aprotoc) ",
+    out: [
+        "pw_tokenizer_proto/options.pwpb.h",
+    ],
+    tools: [
+        "aprotoc",
+        "pw_protobuf_plugin_py",
+        "pw_protobuf_compiler_py",
+    ],
+}

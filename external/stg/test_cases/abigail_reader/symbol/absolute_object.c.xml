@@ -1,0 +1,11 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='x' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='y' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='absolute_object.c' language='LANG_C11'>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <var-decl name='x' type-id='c2ecdf53' mangled-name='x' visibility='default' elf-symbol-id='x'/>
+    <var-decl name='y' type-id='c2ecdf53' mangled-name='y' visibility='default' elf-symbol-id='y'/>
+  </abi-instr>
+</abi-corpus>

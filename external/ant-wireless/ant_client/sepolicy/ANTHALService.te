@@ -1,0 +1,4 @@
+# Currently ANTHALService runs as part of the system server, so we just need
+# to allow the system server to be a client of the ant hal.
+hal_client_domain(system_server, hal_dsi_ant);
+

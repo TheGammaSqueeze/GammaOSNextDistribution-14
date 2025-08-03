@@ -1,0 +1,44 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, Chromium OS"
+NAME = "autoupdate_Basic.m2n.full.pin"
+TIME = "MEDIUM"
+PURPOSE = "Tests an M-to-N update with Nebraska using PIN login."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+PY_VERSION = 3
+ATTRIBUTES = "suite:au-m2n"
+DOC = """
+This tests an M-to-N update. That means it will update from the current stable
+version for this board to ToT. This test will be used in the CQ to ensure
+changes don't break autoupdate.
+
+In the lab, a job_repo_url will be passed directly to the test. It contains
+information about the build to use and the IP address of lab cache server to
+download update payloads from. Local runs can use cache servers as well but
+the setup is fairly complicated. Instead, local test runs can specify the
+`running_at_desk` and `build` args to run without requiring special setup.
+
+Example usage:
+
+With lab cache server SSH access and a job_repo_url:
+test_that <DUT> autoupdate_Basic.m2n.full.pin --args="job_repo_url='http://<IP>:<port>/static/<board>-release/RXX-XXXX.X.X/autotest/packages'"
+
+Otherwise, the running_at_desk and build args are required:
+test_that <DUT> autoupdate_Basic.m2n.full.pin --board=<board> --args="running_at_desk=True build=R102-14643.0.0"
+
+"""
+
+from autotest_lib.client.common_lib import error
+from autotest_lib.client.common_lib import utils
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('autoupdate_Basic', host=host, full_payload=True,
+    		 m2n=True, pin_login=True, **args_dict)
+
+job.parallel_simple(run, machines)

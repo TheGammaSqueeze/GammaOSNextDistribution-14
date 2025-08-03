@@ -1,0 +1,63 @@
+// Copyright (C) 2024 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["external_grpc-grpc-java_license"],
+}
+
+java_library_static {
+    name: "grpc-java-reflection-proto",
+    host_supported: true,
+    device_supported: false,
+    srcs: [
+        "src/main/proto/grpc/reflection/v1alpha/reflection.proto",
+    ],
+    proto: {
+        include_dirs: ["external/protobuf/src"],
+    },
+    visibility: ["//visibility:private"],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}
+
+java_library_host {
+    name: "grpc-java-reflection",
+    srcs: [
+        "src/main/java/io/grpc/protobuf/services/ProtoReflectionService.java",
+        "src/main/proto/grpc/reflection/v1alpha/reflection.proto",
+    ],
+    proto: {
+        include_dirs: ["external/protobuf/src"],
+        plugin: "grpc-java-plugin",
+        output_params: ["lite"],
+    },
+    static_libs: [
+        "grpc-java-reflection-proto",
+    ],
+    libs: [
+        "grpc-java-api",
+        "grpc-java-core",
+        "grpc-java-context",
+        "grpc-java-protobuf",
+        "grpc-java-protobuf-lite",
+        "grpc-java-stub",
+        "guava",
+        "javax_annotation-api_1.3.2",
+        "jsr305",
+        "libprotobuf-java-util-full",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+}

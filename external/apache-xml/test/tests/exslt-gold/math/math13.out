@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><out>
+     This is for finding the smallest value in the node-set b and printing it:
+     3
+     This is for finding the smallest value in the node-set c and printing it:
+     NaN
+     This is for finding the smallest value in the node-set d and printing it:
+     NaN</out>

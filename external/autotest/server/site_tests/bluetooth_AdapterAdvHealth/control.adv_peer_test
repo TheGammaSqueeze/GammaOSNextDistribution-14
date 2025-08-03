@@ -1,0 +1,35 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterAdvHealth.adv_peer_test'
+PURPOSE = ('batch of Bluetooth advertising tests')
+CRITERIA = 'Adapter should advertise with correct parameters'
+ATTRIBUTES = 'suite:bluetooth, suite:bluetooth_e2e'
+TIME = 'SHORT'  # ~3 minutes on Sarien
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+    Advertising peer test.
+
+    This test configures and enables multiple advertising instances on the DUT,
+    and then confirms that they are all discoverable independently from an
+    external device. It also confirms the correctness of the advertising by
+    comparing it to the original advertisement configured on the DUT side.
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterAdvHealth', host=host, num_iterations=1,
+                 args_dict=args_dict, test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

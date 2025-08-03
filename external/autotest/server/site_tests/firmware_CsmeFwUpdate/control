@@ -1,0 +1,28 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+from autotest_lib.server import utils
+
+NAME = "firmware_CsmeFwUpdate"
+AUTHOR = "ChromeOS Team"
+ATTRIBUTES = "suite:faft_bios"
+DEPENDENCIES = "servo_state:WORKING"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+JOB_RETRIES = 0
+TEST_CASE_ID = "CSME_UPDATE"
+PY_VERSION = 3
+
+DOC = """
+This test updates the RW section of the current bios with another image which contain
+a differnt ME RW version and verifies if MW firmware udpate happens successfully.
+This is applicable only for systems supporting Intel CSE Lite
+"""
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test("firmware_CsmeFwUpdate", host=host, cmdline_args=args, dev_mode = False)
+parallel_simple(run, machines)

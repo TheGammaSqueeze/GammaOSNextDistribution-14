@@ -1,0 +1,185 @@
+-keep class com.android.org.bouncycastle.jce.provider.BouncyCastleProvider { public *; }
+
+# Keep classes for Android supported algorithms, and internal ones loaded
+# through reflection (cf. calls to ConfigurableProvider.addAlgorithm and
+# ConfigurableProvider.addPrivateAlgorithm). The *$Mappings classes are used
+# internally through reflection to configure the algorithms.
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA1AndAES_128 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA1AndAES_256 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA224AndAES_128 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA224AndAES_256 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA256AndAES_128 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA256AndAES_256 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA384AndAES_128 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA384AndAES_256 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA512AndAES_128 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBEWithHmacSHA512AndAES_256 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBKDF2WithHmacSHA18BIT { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBKDF2WithHmacSHA1UTF8 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBKDF2WithHmacSHA224UTF8 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBKDF2WithHmacSHA256UTF8 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBKDF2WithHmacSHA384UTF8 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBKDF2WithHmacSHA512UTF8 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$PBKDF2withUTF8 { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPKCS12$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBEPKCS12$AlgParams { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA1AES128AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA1AES256AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA224AES128AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA224AES256AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA256AES128AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA256AES256AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA384AES128AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA384AES256AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA512AES128AlgorithmParameters { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.PBES2AlgorithmParameters$PBEWithHmacSHA512AES256AlgorithmParameters { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$CBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$ECB { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithAESCBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithAESCBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithAESCBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithMD5And128BitAESCBCOpenSSL { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithMD5And192BitAESCBCOpenSSL { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithMD5And256BitAESCBCOpenSSL { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA1AESCBC128 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA1AESCBC192 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA1AESCBC256 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA256AESCBC128 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA256AESCBC192 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA256AESCBC256 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA256And128BitAESBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA256And192BitAESBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHA256And256BitAESBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHAAnd128BitAESBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHAAnd192BitAESBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$PBEWithSHAAnd256BitAESBC { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.AES$Wrap { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.ARC4$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.ARC4$KeyGen { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.ARC4$PBEWithSHAAnd128Bit { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.ARC4$PBEWithSHAAnd128BitKeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.ARC4$PBEWithSHAAnd40Bit { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.ARC4$PBEWithSHAAnd40BitKeyFactory { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.Blowfish$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.Blowfish$AlgParams { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.Blowfish$ECB { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.Blowfish$KeyGen { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DES$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DES$ECB { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DES$KeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DES$KeyGenerator { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DES$PBEWithMD5 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DES$PBEWithMD5KeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DES$PBEWithSHA1 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DES$PBEWithSHA1KeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.util.IvAlgorithmParameters { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DESede$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DESede$ECB { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DESede$PBEWithSHAAndDES2Key { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DESede$PBEWithSHAAndDES2KeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DESede$PBEWithSHAAndDES3Key { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DESede$PBEWithSHAAndDES3KeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.DESede$Wrap { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$PBEWithMD5AndRC2 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$PBEWithMD5KeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$PBEWithSHA1AndRC2 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$PBEWithSHA1KeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$PBEWithSHAAnd128BitKeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$PBEWithSHAAnd128BitRC2 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$PBEWithSHAAnd40BitKeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.RC2$PBEWithSHAAnd40BitRC2 { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.Twofish$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.Twofish$PBEWithSHA { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.symmetric.Twofish$PBEWithSHAKeyFactory { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.DSA$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dsa.AlgorithmParameterGeneratorSpi { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dsa.AlgorithmParametersSpi { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dsa.DSASigner$dsa224 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dsa.DSASigner$dsa256 { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dsa.DSASigner$noneDSA { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dsa.DSASigner$stdDSA { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dsa.KeyFactorySpi { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dsa.KeyPairGeneratorSpi { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.DH$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dh.AlgorithmParameterGeneratorSpi { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dh.AlgorithmParametersSpi { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dh.KeyAgreementSpi { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dh.KeyFactorySpi { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.dh.KeyPairGeneratorSpi { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.RSA$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.rsa.AlgorithmParametersSpi$PSS { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.rsa.CipherSpi$NoPadding { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.rsa.KeyFactorySpi { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.asymmetric.rsa.KeyPairGeneratorSpi { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA1$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA1$PBEWithMacKeyFactory { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA1$SHA1Mac { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA224$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA224$HashMac { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA256$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA256$HashMac { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA384$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA384$HashMac { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA512$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.digest.SHA512$HashMac { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.keystore.BC$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.keystore.bc.BcKeyStoreSpi$BouncyCastleStore { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.keystore.bc.BcKeyStoreSpi$Std { public *; }
+
+-keep class com.android.org.bouncycastle.jcajce.provider.keystore.PKCS12$Mappings { public *; }
+-keep class com.android.org.bouncycastle.jcajce.provider.keystore.pkcs12.PKCS12KeyStoreSpi$BCPKCS12KeyStore { public *; }
+
+-keep class com.android.org.bouncycastle.jce.provider.CertStoreCollectionSpi { public *; }
+-keep class com.android.org.bouncycastle.jce.provider.PKIXCertPathBuilderSpi { public *; }
+-keep class com.android.org.bouncycastle.jce.provider.PKIXCertPathValidatorSpi { public *; }
+
+# Classes only accessed from tests in MtsLibcoreBouncyCastleTestCases
+-keep class com.android.org.bouncycastle.asn1.x9.ECNamedCurveTable { public *; }
+-keep class com.android.org.bouncycastle.asn1.x9.X962NamedCurves { public *; }
+-keep class com.android.org.bouncycastle.asn1.x9.X9ECParameters { public *; }
+-keep class com.android.org.bouncycastle.asn1.x9.X9ECPoint { public *; }
+-keep class com.android.org.bouncycastle.crypto.ec.CustomNamedCurves { public *; }
+-keep class com.android.org.bouncycastle.math.Primes { public *; }
+-keep class com.android.org.bouncycastle.math.Primes$* { public *; }
+-keep class com.android.org.bouncycastle.math.ec.ECAlgorithms { public *; }
+-keep class com.android.org.bouncycastle.math.ec.ECCurve { public *; }
+-keep class com.android.org.bouncycastle.math.ec.ECCurve$Config { public *; }
+-keep class com.android.org.bouncycastle.math.ec.ECPoint { public *; }
+-keep class com.android.org.bouncycastle.math.ec.FixedPointCombMultiplier { public *; }
+-keep class com.android.org.bouncycastle.math.raw.Interleave { public *; }
+-keep class com.android.org.bouncycastle.math.raw.Nat { public *; }
+-keep class com.android.org.bouncycastle.math.raw.Nat256 { public *; }
+-keep class com.android.org.bouncycastle.util.Arrays { public *; }
+-keep class com.android.org.bouncycastle.util.Integers { public *; }
+-keep class com.android.org.bouncycastle.util.encoders.Hex { public *; }
+
+# Classes only accessed from tests in CtsLibcoreTestCases
+# tests.com.android.org.bouncycastle.jce.provider.CertBlocklistTest
+-keep class com.android.org.bouncycastle.jce.provider.CertBlocklist { public *; }
+-keep class com.android.org.bouncycastle.util.encoders.Base64 { public *; }
+# tests.com.android.org.bouncycastle.crypto.digests
+-keep class com.android.org.bouncycastle.crypto.digests.*Digest { public *; }
+-keep class com.android.org.bouncycastle.crypto.digests.OpenSSLDigest$* { public *; }

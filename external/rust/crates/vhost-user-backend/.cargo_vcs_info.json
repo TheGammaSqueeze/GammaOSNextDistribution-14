@@ -1,0 +1,6 @@
+{
+  "git": {
+    "sha1": "6ca88e160a8d34be54a158cc1bc702e9250e97dd"
+  },
+  "path_in_vcs": "crates/vhost-user-backend"
+}

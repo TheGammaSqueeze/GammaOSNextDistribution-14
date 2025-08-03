@@ -1,0 +1,7 @@
+# Bug component: 688011
+include platform/prebuilts/rust:main:/OWNERS
+
+# Android microXR
+afoxley@google.com
+aharp@google.com
+jrreinhart@google.com

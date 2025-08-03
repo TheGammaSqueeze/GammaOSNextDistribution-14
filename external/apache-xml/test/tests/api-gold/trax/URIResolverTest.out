@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out><head>Various document() calls: 
+  
+    
+  
+, 
+  
+    
+  
+, 
+  
+    
+  
+.</head>
+  <include-list-level1><import-list-level1>
+    <matched-by-main>Above Should be include-list then import-list</matched-by-main>
+    <matched-by-main>This is URIResolverTest.xml!</matched-by-main>
+    <matched-by-import-level1>Should be matched-by-import</matched-by-import-level1>
+    <matched-by-include-level1>Should be matched-by-include</matched-by-include-level1>
+    <matched-by-import-also-level1>Should be matched-by-import-also</matched-by-import-also-level1>
+    <include-list-level1><import-list-level1>
+      <matched-by-main>Should be matched-by-main</matched-by-main>
+      <matched-by-main>Should be matched-by-main</matched-by-main>
+    </import-list-level1></include-list-level1>
+  </import-list-level1></include-list-level1>
+</out>

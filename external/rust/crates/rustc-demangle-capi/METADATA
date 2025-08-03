@@ -1,0 +1,20 @@
+name: "rustc-demangle-capi"
+description: "C API for the `rustc-demangle` crate"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/rustc-demangle-capi"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/rustc-demangle-capi/rustc-demangle-capi-0.1.0.crate"
+  }
+  version: "0.1.0"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 8
+    day: 17
+  }
+}

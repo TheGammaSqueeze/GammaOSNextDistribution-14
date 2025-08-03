@@ -1,0 +1,33 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.fingerprint-cq'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'servo_state:WORKING'
+ATTRIBUTES = 'suite:fingerprint-cq'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+DOC = '''
+Run the Tast tests which run in suite:fingerprint-cq.
+"group:fingerprint-cq" indicates fingerprint tests that run in CQ (critical).
+'''
+
+args_dict = utils.args_to_dict(args)
+assert 'servo_state:WORKING' in DEPENDENCIES
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine, servo_args=servo_args),
+                 test_exprs=['("group:fingerprint-cq")'],
+                 ignore_test_failures=True, max_run_sec=10800,
+                 command_args=args,
+                 retries=2)
+
+parallel_simple(run, machines)

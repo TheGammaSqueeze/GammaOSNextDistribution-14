@@ -1,0 +1,12 @@
+5 variable symbol(s) removed
+  'int a' {a@version}
+  'int b'
+  'int c'
+  'int d'
+  'int e'
+
+3 variable symbol(s) added
+  'int x'
+  'int y'
+  'int z'
+

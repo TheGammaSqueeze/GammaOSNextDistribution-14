@@ -1,0 +1,129 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_libbpf_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "external_libbpf_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD-2-Clause",
+        "SPDX-license-identifier-Linux-syscall-note",
+    ],
+    license_text: [
+        "LICENSE.BSD-2-Clause",
+    ],
+}
+
+genrule {
+    name: "libbpf_headers",
+    srcs: [
+        "src/*.h",
+    ],
+    cmd: "mkdir -p $(genDir)/bpf && cp $(in) $(genDir)/bpf/",
+    out: [
+        "bpf/bpf_core_read.h",
+        "bpf/bpf_endian.h",
+        "bpf/bpf.h",
+        "bpf/bpf_helper_defs.h",
+        "bpf/bpf_helpers.h",
+        "bpf/bpf_tracing.h",
+        "bpf/btf.h",
+        "bpf/hashmap.h",
+        "bpf/libbpf_common.h",
+        "bpf/libbpf.h",
+        "bpf/libbpf_internal.h",
+        "bpf/libbpf_legacy.h",
+        "bpf/libbpf_version.h",
+        "bpf/nlattr.h",
+        "bpf/skel_internal.h",
+        "bpf/relo_core.h",
+    ],
+}
+
+cc_library_static {
+    name: "libbpf",
+    defaults: ["elfutils_transitive_defaults"],
+    host_supported: true,
+    srcs: [
+        "src/*.c",
+    ],
+    local_include_dirs: [
+        "android",
+        "include",
+    ],
+    export_include_dirs: [
+        "include/uapi",
+    ],
+    generated_headers: ["libbpf_headers"],
+    export_generated_headers: ["libbpf_headers"],
+    cflags: [
+        "-DCOMPAT_NEED_REALLOCARRAY",
+        "-include android/android.h",
+        "-Wno-constant-conversion",
+        "-Wno-missing-field-initializers",
+        "-Wno-pointer-arith",
+        "-Wno-unused-parameter",
+    ],
+    static_libs: [
+        "libelf",
+        "libz",
+    ],
+    visibility: [
+        "//external/bpftool",
+        "//external/bcc/libbpf-tools",
+        "//external/dwarves",
+        "//external/stg",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        }
+    }
+}
+
+cc_library {
+    name: "libbpf_minimal",
+    defaults: ["elfutils_transitive_defaults"],
+    vendor_available: true,
+    native_bridge_supported: true,
+    srcs: [
+        "android/bpf_stub.c",
+        "src/bpf.c",
+        "src/libbpf_errno.c",
+        "src/netlink.c",
+        "src/nlattr.c",
+        "src/ringbuf.c",
+    ],
+    local_include_dirs: [
+        "android",
+        "include"
+    ],
+    export_include_dirs: [
+        "include/uapi"
+    ],
+    static_libs: [
+        "libelf",
+    ],
+    generated_headers: ["libbpf_headers"],
+    export_generated_headers: ["libbpf_headers"],
+    cflags: [
+        "-include android/android.h",
+        "-Wno-pointer-arith",
+        "-Wno-unused-parameter",
+    ],
+}

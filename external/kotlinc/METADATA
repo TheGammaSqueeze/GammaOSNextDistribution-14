@@ -1,0 +1,26 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update kotlinc
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "kotlinc"
+description: "Standalone Kotlin command-line compiler tools."
+third_party {
+  license_type: RESTRICTED
+  license_note: "would be RECIPROCAL save for:\n   license/third_party/rhino_LICENSE.txt\n   license/third_party/testdata/findbugs_license.txt\n   license/third_party/trove_license.txt\n   license/third_party/trove_readme_license.txt"
+  last_upgrade_date {
+    year: 2024
+    month: 1
+    day: 3
+  }
+  homepage: "https://kotlinlang.org/"
+  identifier {
+    type: "Archive"
+    value: "https://github.com/JetBrains/kotlin/releases/download/v1.9.22/kotlin-compiler-1.9.22.zip"
+    version: "v1.9.22"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://repo1.maven.org/maven2/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330-sources.jar"
+    version: ""
+  }
+}

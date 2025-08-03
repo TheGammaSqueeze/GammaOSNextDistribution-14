@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+ <!DOCTYPE doc [
+   <!ELEMENT doc (test*)>
+   <!ELEMENT test EMPTY>
+   <!ATTLIST test id   ID    #REQUIRED
+                  name CDATA #REQUIRED
+   >
+ ]>
+ <doc>
+   <test id="a" name="TestA"/>
+   <test id="b" name="TestB"/>
+ </doc>   

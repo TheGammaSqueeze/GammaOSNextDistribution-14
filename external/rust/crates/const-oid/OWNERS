@@ -1,0 +1,4 @@
+include platform/prebuilts/rust:main:/OWNERS
+# Android Hardware Security
+drysdale@google.com
+hasinitg@google.com

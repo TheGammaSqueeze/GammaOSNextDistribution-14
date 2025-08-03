@@ -1,0 +1,13 @@
+name: "private-join-and-compute"
+description:
+""
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/private-join-and-compute"
+  }
+  version: "8f055b2e9b4af2e68a65d7c2da67f43adf7eb8dc"
+  last_upgrade_date { year: 2023 month: 3 day: 31 }
+  license_type: NOTICE
+}

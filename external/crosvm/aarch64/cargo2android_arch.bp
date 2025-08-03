@@ -1,0 +1,16 @@
+target: {
+    // It is necessary to disable this specifically as well as the arch below, because
+    // crosvm_defaults enables it and the more specific target apparently takes precedence over
+    // the less specific arch.
+    linux_glibc_x86_64: {
+        enabled: false,
+    },
+    linux_musl_x86_64: {
+        enabled: false,
+    },
+},
+arch: {
+    x86_64: {
+        enabled: false,
+    },
+}

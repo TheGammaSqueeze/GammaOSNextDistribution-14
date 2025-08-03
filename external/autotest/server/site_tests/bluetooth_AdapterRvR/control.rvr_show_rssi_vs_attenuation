@@ -1,0 +1,78 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# TEST IS DISABLED UNTIL MIGRATED TO PYTHON 3.
+# For instructions on how to: go/tauto-py3-migration
+# To re-enable migrate to Python 3.
+# If the test is not migrated by 1/14/22 it will be deleted.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterRvR.rvr_show_rssi_vs_attenuation'
+PURPOSE = ('Batch of Bluetooth Range vs Rate tests')
+CRITERIA = 'Pass all health test'
+ATTRIBUTES = ''
+TIME = 'MEDIUM' # 5 minutes on Octopus
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3 # Attenuator related code is not python 3 ready yet
+
+DOC = """
+Vary attenuation from minimum to maximum and display the RSSI. This is used
+as sample test and also to verify Bluetooth RvR test beds
+
+This test required a test bed with controllable variable attentuation to vary the attenuation
+between DUT and Bluetooth peer
+
+A sample output will be similar to
+
+Total attenutation : RSSI
+ 55 : -61
+ 56 : -62
+ 57 : -63
+ 58 : -64
+ 59 : -66
+ 60 : -66
+ 61 : -66
+ 62 : -69
+ 63 : -69
+ 64 : -70
+ 65 : -72
+ 66 : -72
+ 67 : -73
+ 68 : -73
+ 69 : -76
+ 70 : -76
+ 71 : -76
+ 72 : -78
+ 73 : -79
+ 74 : -81
+ 75 : -80
+ 76 : -82
+ 77 : -82
+ 78 : -84
+ 79 : -86
+ 80 : -85
+ 81 : -87
+ 82 : -88
+ 83 : -89
+ 84 : -89
+ 85 : -90
+ 86 : -92
+ 87 : -92
+
+
+"""
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterRvR', host=host, num_iterations=1,
+     args_dict=args_dict, test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

@@ -1,0 +1,19 @@
+name: "tinytemplate"
+description: "Simple, lightweight template engine"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/tinytemplate"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/tinytemplate/tinytemplate-1.2.1.crate"
+  }
+  version: "1.2.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 4
+    day: 2
+  }
+}

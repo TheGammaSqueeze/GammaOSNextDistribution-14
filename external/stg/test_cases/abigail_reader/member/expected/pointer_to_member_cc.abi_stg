@@ -1,0 +1,150 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x0eb62dc3
+  kind: POINTER
+  pointee_type_id: 0x10985193
+}
+function {
+  id: 0x10985193
+  return_type_id: 0x48b5725f
+}
+elf_symbol {
+  id: 0xba0e5cd0
+  name: "_Z2s2v"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "s2"
+}
+elf_symbol {
+  id: 0x13e4cc52
+  name: "_Z7pmz_funv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x10985193
+  full_name: "pmz_fun"
+}
+elf_symbol {
+  id: 0x648621f2
+  name: "pmc"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xff819903
+  name: "pmcu"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x2ec71519
+  name: "pmd"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xa0583676
+  name: "pmf"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xfd020c80
+  name: "pmi"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xf60097d9
+  name: "pmu"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xc90bc4a4
+  name: "pmy"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xdaa14405
+  name: "s0"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x1660e091
+  name: "s1"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x9be13bad
+  name: "s3"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x0eb62dc3
+  full_name: "s3"
+}
+elf_symbol {
+  id: 0xd5a33a44
+  name: "s4"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x136353fe
+  name: "s5"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x57200721
+  name: "s6"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x94e3994e
+  name: "s7"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0xd0a5df97
+  name: "s8"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x3065441f
+  name: "s9"
+  is_defined: true
+  symbol_type: OBJECT
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xba0e5cd0
+  symbol_id: 0x13e4cc52
+  symbol_id: 0x648621f2
+  symbol_id: 0xff819903
+  symbol_id: 0x2ec71519
+  symbol_id: 0xa0583676
+  symbol_id: 0xfd020c80
+  symbol_id: 0xf60097d9
+  symbol_id: 0xc90bc4a4
+  symbol_id: 0xdaa14405
+  symbol_id: 0x1660e091
+  symbol_id: 0x9be13bad
+  symbol_id: 0xd5a33a44
+  symbol_id: 0x136353fe
+  symbol_id: 0x57200721
+  symbol_id: 0x94e3994e
+  symbol_id: 0xd0a5df97
+  symbol_id: 0x3065441f
+}

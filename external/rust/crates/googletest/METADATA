@@ -1,0 +1,24 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/googletest
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "googletest"
+description: "A rich assertion and matcher library inspired by GoogleTest for C++"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 2
+  }
+  identifier {
+    type: "crates.io"
+    value: "https://static.crates.io/crates/googletest/googletest-0.11.0.crate"
+    version: "0.10.0"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/googletest/googletest-0.10.0.crate"
+    version: "0.11.0"
+  }
+}

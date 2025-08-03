@@ -1,0 +1,15 @@
+name: "jemalloc"
+description: "jemalloc is a general purpose malloc(3) implementation that emphasizes fragmentation avoidance and scalable concurrency support."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/jemalloc/jemalloc"
+  }
+  version: "5.1.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2018
+    month: 8
+    day: 16
+  }
+}

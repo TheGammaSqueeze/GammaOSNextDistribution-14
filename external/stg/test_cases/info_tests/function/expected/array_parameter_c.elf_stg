@@ -1,0 +1,127 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x0483e6f8
+  kind: POINTER
+  pointee_type_id: 0x384f7d7c
+}
+pointer_reference {
+  id: 0x0fd17562
+  kind: POINTER
+  pointee_type_id: 0x15053314
+}
+pointer_reference {
+  id: 0x3593bec8
+  kind: POINTER
+  pointee_type_id: 0xfc0e1dbd
+}
+qualified {
+  id: 0xd0ccb483
+  qualifier: CONST
+  qualified_type_id: 0x33756485
+}
+primitive {
+  id: 0x15053314
+  name: "double"
+  encoding: REAL_NUMBER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x33756485
+  name: "unsigned long"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x384f7d7c
+  name: "char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+function {
+  id: 0x0fbdff1a
+  return_type_id: 0x384f7d7c
+  parameter_id: 0x3593bec8
+}
+function {
+  id: 0x12af7c46
+  return_type_id: 0x384f7d7c
+  parameter_id: 0x4585663f
+  parameter_id: 0x4585663f
+  parameter_id: 0x0483e6f8
+}
+function {
+  id: 0x13870cf2
+  return_type_id: 0x384f7d7c
+  parameter_id: 0x4585663f
+  parameter_id: 0x0fd17562
+}
+elf_symbol {
+  id: 0xa58ca0b6
+  name: "bar"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x0fbdff1a
+  full_name: "bar"
+}
+elf_symbol {
+  id: 0x06f8338c
+  name: "foo"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x0fbdff1a
+  full_name: "foo"
+}
+elf_symbol {
+  id: 0x6df237e3
+  name: "l"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd0ccb483
+  full_name: "l"
+}
+elf_symbol {
+  id: 0x4602d7e1
+  name: "quux"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x13870cf2
+  full_name: "quux"
+}
+elf_symbol {
+  id: 0x376a8db4
+  name: "spong"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x13870cf2
+  full_name: "spong"
+}
+elf_symbol {
+  id: 0x3579f91c
+  name: "wibble"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x12af7c46
+  full_name: "wibble"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xa58ca0b6
+  symbol_id: 0x06f8338c
+  symbol_id: 0x6df237e3
+  symbol_id: 0x4602d7e1
+  symbol_id: 0x376a8db4
+  symbol_id: 0x3579f91c
+}

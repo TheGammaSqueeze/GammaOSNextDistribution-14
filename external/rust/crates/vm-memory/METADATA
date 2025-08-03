@@ -1,0 +1,19 @@
+name: "vm-memory"
+description: "Safe abstractions for accessing the VM physical memory"
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/vm-memory"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/vm-memory/vm-memory-0.12.2.crate"
+  }
+  version: "0.12.2"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 9
+    day: 6
+  }
+}

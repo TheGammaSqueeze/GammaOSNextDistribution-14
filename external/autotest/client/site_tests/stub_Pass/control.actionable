@@ -1,0 +1,24 @@
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "stub_Pass.actionable"
+PURPOSE = "Demonstrate success methods of autotests."
+CRITERIA = "This test will always succeed."
+ATTRIBUTES = (
+        "suite:stub, suite:stubclientretries, suite:push_to_prod,"
+        " suite:skylab_staging_test, suite:something_else"
+)
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "stub"
+TEST_TYPE = "client"
+DEPENDENCIES = "cleanup-reboot"
+PY_VERSION = 3
+
+DOC = """
+This is a helper test that will succeed.
+"""
+
+job.run_test('stub_Pass', tag='actionable')

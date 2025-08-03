@@ -1,0 +1,9 @@
+{
+  "features": [
+    "modern_sqlite",
+    "trace"
+  ],
+  "product_available": false,
+  "run_cargo": false,
+  "vendor_available": false
+}

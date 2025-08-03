@@ -1,0 +1,49 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# This tests will only run in the CFT/F20 environment.
+
+from autotest_lib.client.common_lib import error
+from autotest_lib.client.common_lib import utils
+from autotest_lib.server.site_tests.tast import tast
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.dutserver'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+# This test belongs to no suite; it is intended mainly for manual invocation
+# via test_that.
+ATTRIBUTES = ''
+MAX_RESULT_SIZE_KB = 256 * 1024
+PY_VERSION = 3
+
+DOC = '''
+Run arbitrary Tast tests.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+This test runs arbitary Tast-based tests specified by args given to test_that.
+This test might be useful on debugging to simulate Tast test runs invoked via
+Autotest.
+
+Examples:
+    test_that --dut_servers=${DUTSERVER} ${DUT} tast.dutserver
+'''
+
+command_args, varslist = tast.split_arguments(args)
+
+def run(machine):
+    args_dict = utils.args_to_dict(command_args)
+    varslist.append('servers.dut=:%s' % dut_servers[0])
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 ignore_test_failures=False, max_run_sec=3600,
+		         test_exprs=['meta.LocalPass'],
+                 command_args=command_args,
+                 varslist=varslist,
+                 is_cft=is_cft)
+
+parallel_simple(run, machines)

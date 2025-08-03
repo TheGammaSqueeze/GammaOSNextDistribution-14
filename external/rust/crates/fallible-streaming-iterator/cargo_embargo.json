@@ -1,0 +1,6 @@
+{
+  "features": [
+    "std"
+  ],
+  "tests": true
+}

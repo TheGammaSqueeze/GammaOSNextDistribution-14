@@ -1,0 +1,13 @@
+diff --git a/lib.rs b/lib.rs
+index 3bcd6e2..01ccbf9 100644
+--- a/lib.rs
++++ b/lib.rs
+@@ -1,5 +1,8 @@
+ #![no_std]
+ 
++// ANDROID: Use std to allow building as a dylib.
++extern crate std;
++
+ /// Check if an expression matches a refutable pattern.
+ ///
+ /// Syntax: `matches!(` *expression* `,` *pattern* `)`

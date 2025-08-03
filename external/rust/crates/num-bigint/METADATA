@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/num-bigint
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "num-bigint"
+description: "Big integer implementation for Rust"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 2
+  }
+  homepage: "https://crates.io/crates/num-bigint"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/num-bigint/num-bigint-0.4.4.crate"
+    version: "0.4.4"
+  }
+}

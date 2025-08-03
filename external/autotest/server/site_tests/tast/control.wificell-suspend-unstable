@@ -1,0 +1,46 @@
+# Copyright 2019 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.wificell-suspend-unstable'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'servo_state:WORKING'
+ATTRIBUTES = 'suite:wifi_func_tast'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+DOC = '''
+Run the unstable Tast tests which verify basic WiFi behavior related to
+suspend/resume using wificell fixture.
+
+Note that wificell-suspend-stable does not have servo dependency as
+wificell-suspend-stable belongs to suite:wifi_matfunc, and currently it does
+not configure servo yet.
+
+The suspend tests that need servo shall stay in this unstable group until
+suite:wifi_matfunc supports servo.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+args_dict = utils.args_to_dict(args)
+assert 'servo_state:WORKING' in DEPENDENCIES
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine, servo_args=servo_args),
+                 test_exprs=['("group:wificell" && wificell_suspend && '
+                             'wificell_unstable)'],
+                 ignore_test_failures=True, max_run_sec=10800,
+                 command_args=args)
+
+parallel_simple(run, machines)

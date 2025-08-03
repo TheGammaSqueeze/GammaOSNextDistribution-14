@@ -1,0 +1,28 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='foo_class' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='foo_struct' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='foo_union' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='kind.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <class-decl name='Struct' size-in-bits='64' is-struct='yes' visibility='default' id='377b1168'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <union-decl name='Union' size-in-bits='64' visibility='default' id='1026a3db'>
+      <data-member access='public'>
+        <var-decl name='y' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+    </union-decl>
+    <class-decl name='Class' size-in-bits='64' visibility='default' id='a3041207'>
+      <data-member access='private' layout-offset-in-bits='0'>
+        <var-decl name='z' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='foo_struct' type-id='377b1168' mangled-name='foo_struct' visibility='default' elf-symbol-id='foo_struct'/>
+    <var-decl name='foo_union' type-id='1026a3db' mangled-name='foo_union' visibility='default' elf-symbol-id='foo_union'/>
+    <var-decl name='foo_class' type-id='a3041207' mangled-name='foo_class' visibility='default' elf-symbol-id='foo_class'/>
+  </abi-instr>
+</abi-corpus>

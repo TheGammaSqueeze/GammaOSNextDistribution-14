@@ -1,0 +1,5 @@
+variable symbol changed from 'struct { int member:1; } x' to 'struct { int member:2; } x'
+  type changed from 'struct { int member:1; }' to 'struct { int member:2; }'
+    member changed from 'int member:1' to 'int member:2'
+      bit-field size changed from 1 to 2
+

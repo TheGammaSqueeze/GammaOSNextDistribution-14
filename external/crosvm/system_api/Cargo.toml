@@ -1,0 +1,12 @@
+[package]
+name = "system_api"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[lib]
+path = "src/system_api.rs"
+
+[target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
+dbus = "0.9"
+protobuf = "3.2"

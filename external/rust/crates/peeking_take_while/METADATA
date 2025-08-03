@@ -1,0 +1,19 @@
+name: "peeking_take_while"
+description: "Like `Iterator::take_while`, but calls the predicate on a peeked value. This allows you to use `Iterator::by_ref` and `Iterator::take_while` together, and still get the first value for which the `take_while` predicate returned false after dropping the `by_ref`."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/peeking_take_while"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/peeking_take_while/peeking_take_while-1.0.0.crate"
+  }
+  version: "1.0.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 9
+    day: 30
+  }
+}

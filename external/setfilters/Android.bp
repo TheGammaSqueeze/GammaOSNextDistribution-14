@@ -1,0 +1,42 @@
+filegroup {
+    name: "cuckoofilter_srcs",
+    srcs: ["java/com/google/setfilters/cuckoofilter/*.java"],
+}
+
+filegroup {
+    name: "cuckoofilter_test_srcs",
+    srcs: ["javatests/com/google/setfilters/cuckoofilter/*.java"],
+    // For now exclude tests with mocks.
+    exclude_srcs: ["javatests/com/google/setfilters/cuckoofilter/CuckooFilterTableTest.java"],
+}
+
+java_library {
+    name: "cuckoofilter",
+    host_supported: true,
+    hostdex: true,
+    sdk_version: "core_current",
+    srcs: [":cuckoofilter_srcs"],
+    static_libs: [
+        "guava",
+        "error_prone_annotations",
+    ],
+}
+
+android_test {
+    name: "cuckoofiltertest",
+
+    srcs: [":cuckoofilter_test_srcs"],
+    sdk_version: "current",
+    min_sdk_version: "21",
+
+    static_libs: [
+        "androidx.test.runner",
+        "cuckoofilter",
+        "junit",
+        "truth",
+        "truth-java8-extension",
+    ],
+    certificate: "platform",
+
+    test_suites: ["device-tests"],
+}

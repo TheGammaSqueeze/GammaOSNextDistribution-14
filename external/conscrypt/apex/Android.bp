@@ -1,0 +1,268 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Defaults shared between real and test versions of the APEX.
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_conscrypt_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_conscrypt_license"],
+}
+
+apex_defaults {
+    name: "com.android.conscrypt-defaults",
+    androidManifest: ":com.android.conscrypt-androidManifest",
+    compile_multilib: "both",
+    bootclasspath_fragments: ["com.android.conscrypt-bootclasspath-fragment"],
+    jni_libs: ["libjavacrypto"],
+    prebuilts: ["current_sdkinfo"],
+    multilib: {
+        both: {
+            binaries: ["boringssl_self_test"],
+        },
+    },
+    key: "apex.conscrypt.key",
+    certificate: ":com.android.conscrypt.certificate",
+    // Indicates that pre-installed version of this apex can be compressed.
+    // Whether it actually will be compressed is controlled on per-device basis.
+    compressible: true,
+
+    // IMPORTANT: q-launched-dcla-enabled-apex-module enables the build system to make
+    // sure the package compatible to Android 10 in two ways:
+    // - build the APEX package compatible to Android 10
+    //   so that the package can be installed.
+    // - build artifacts (lib/javalib/bin) against Android 10 SDK
+    //   so that the artifacts can run.
+    defaults: ["q-launched-dcla-enabled-apex-module"],
+}
+
+filegroup {
+    name: "com.android.conscrypt-androidManifest",
+    srcs: ["AndroidManifest.xml"],
+}
+
+apex_key {
+    name: "apex.conscrypt.key",
+    public_key: "com.android.conscrypt.avbpubkey",
+    private_key: "com.android.conscrypt.pem",
+}
+
+android_app_certificate {
+    name: "com.android.conscrypt.certificate",
+    certificate: "com.android.conscrypt",
+}
+
+prebuilt_etc {
+    name: "com.android.conscrypt.ld.config.txt",
+    src: "ld.config.txt",
+    filename: "ld.config.txt",
+    installable: false,
+}
+
+// Production APEX
+apex {
+    name: "com.android.conscrypt",
+    visibility: [
+        "//external/conscrypt",
+        "//vendor:__subpackages__",
+    ],
+    defaults: ["com.android.conscrypt-defaults"],
+    manifest: "apex_manifest.json",
+    binaries: ["boringssl_self_test"],
+    prebuilts: [
+        "com.android.conscrypt.ld.config.txt",
+        "target-cacert-apex-01419da9.0",
+        "target-cacert-apex-04f60c28.0",
+        "target-cacert-apex-0d69c7e1.0",
+        "target-cacert-apex-10531352.0",
+        "target-cacert-apex-1ae85e5e.0",
+        "target-cacert-apex-1b0f7e5c.0",
+        "target-cacert-apex-1df5a75f.0",
+        "target-cacert-apex-1e1eab7c.0",
+        "target-cacert-apex-1e8e7201.0",
+        "target-cacert-apex-1ec40989.0",
+        "target-cacert-apex-1f58a078.0",
+        "target-cacert-apex-219d9499.0",
+        "target-cacert-apex-23f4c490.0",
+        "target-cacert-apex-252252d2.0",
+        "target-cacert-apex-2add47b6.0",
+        "target-cacert-apex-2d9dafe4.0",
+        "target-cacert-apex-302904dd.0",
+        "target-cacert-apex-304d27c3.0",
+        "target-cacert-apex-31188b5e.0",
+        "target-cacert-apex-33ee480d.0",
+        "target-cacert-apex-35105088.0",
+        "target-cacert-apex-399e7759.0",
+        "target-cacert-apex-3ad48a91.0",
+        "target-cacert-apex-3c860d51.0",
+        "target-cacert-apex-3c899c73.0",
+        "target-cacert-apex-3c9a4d3b.0",
+        "target-cacert-apex-3e7271e8.0",
+        "target-cacert-apex-41a3f684.0",
+        "target-cacert-apex-455f1b52.0",
+        "target-cacert-apex-48a195d8.0",
+        "target-cacert-apex-4be590e0.0",
+        "target-cacert-apex-4c3982f2.0",
+        "target-cacert-apex-5046c355.0",
+        "target-cacert-apex-52b525c7.0",
+        "target-cacert-apex-53a1b57a.0",
+        "target-cacert-apex-583d0756.0",
+        "target-cacert-apex-5a3f0ff8.0",
+        "target-cacert-apex-5acf816d.0",
+        "target-cacert-apex-5f47b495.0",
+        "target-cacert-apex-5f9a69fa.0",
+        "target-cacert-apex-5fdd185d.0",
+        "target-cacert-apex-60afe812.0",
+        "target-cacert-apex-6187b673.0",
+        "target-cacert-apex-63a2c897.0",
+        "target-cacert-apex-69105f4f.0",
+        "target-cacert-apex-6b03dec0.0",
+        "target-cacert-apex-6f7454b3.0",
+        "target-cacert-apex-75680d2e.0",
+        "target-cacert-apex-76579174.0",
+        "target-cacert-apex-7892ad52.0",
+        "target-cacert-apex-7a7c655d.0",
+        "target-cacert-apex-7a819ef2.0",
+        "target-cacert-apex-7e067d03.0",
+        "target-cacert-apex-81b9768f.0",
+        "target-cacert-apex-82223c44.0",
+        "target-cacert-apex-83e9984f.0",
+        "target-cacert-apex-85cde254.0",
+        "target-cacert-apex-86212b19.0",
+        "target-cacert-apex-869fbf79.0",
+        "target-cacert-apex-8794b4e3.0",
+        "target-cacert-apex-882de061.0",
+        "target-cacert-apex-88950faa.0",
+        "target-cacert-apex-89c02a45.0",
+        "target-cacert-apex-8d6437c3.0",
+        "target-cacert-apex-9282e51c.0",
+        "target-cacert-apex-9339512a.0",
+        "target-cacert-apex-93851c9e.0",
+        "target-cacert-apex-9479c8c3.0",
+        "target-cacert-apex-9576d26b.0",
+        "target-cacert-apex-9591a472.0",
+        "target-cacert-apex-95aff9e3.0",
+        "target-cacert-apex-985c1f52.0",
+        "target-cacert-apex-99e1b953.0",
+        "target-cacert-apex-9aef356c.0",
+        "target-cacert-apex-9d6523ce.0",
+        "target-cacert-apex-a2c66da8.0",
+        "target-cacert-apex-a3896b44.0",
+        "target-cacert-apex-a716d4ed.0",
+        "target-cacert-apex-a81e292b.0",
+        "target-cacert-apex-a9d40e02.0",
+        "target-cacert-apex-ab5346f4.0",
+        "target-cacert-apex-ab59055e.0",
+        "target-cacert-apex-b0ed035a.0",
+        "target-cacert-apex-b0f3e76e.0",
+        "target-cacert-apex-b30d5fda.0",
+        "target-cacert-apex-b3fb433b.0",
+        "target-cacert-apex-b74d2bd5.0",
+        "target-cacert-apex-b7db1890.0",
+        "target-cacert-apex-b872f2b4.0",
+        "target-cacert-apex-b92fd57f.0",
+        "target-cacert-apex-b936d1c6.0",
+        "target-cacert-apex-bc3f2570.0",
+        "target-cacert-apex-bd43e1dd.0",
+        "target-cacert-apex-bdacca6f.0",
+        "target-cacert-apex-bf64f35b.0",
+        "target-cacert-apex-c44cc0c0.0",
+        "target-cacert-apex-c491639e.0",
+        "target-cacert-apex-c559d742.0",
+        "target-cacert-apex-c7f1359b.0",
+        "target-cacert-apex-c90bc37d.0",
+        "target-cacert-apex-cb1c3204.0",
+        "target-cacert-apex-ccc52f49.0",
+        "target-cacert-apex-cf701eeb.0",
+        "target-cacert-apex-d06393bb.0",
+        "target-cacert-apex-d16a5865.0",
+        "target-cacert-apex-d16a5865.1",
+        "target-cacert-apex-d18e9066.0",
+        "target-cacert-apex-d39b0a2c.0",
+        "target-cacert-apex-d41b5e2a.0",
+        "target-cacert-apex-d4c339cb.0",
+        "target-cacert-apex-d59297b8.0",
+        "target-cacert-apex-d7746a63.0",
+        "target-cacert-apex-d96b65e2.0",
+        "target-cacert-apex-da7377f6.0",
+        "target-cacert-apex-dbc54cab.0",
+        "target-cacert-apex-dbff3a01.0",
+        "target-cacert-apex-dc99f41e.0",
+        "target-cacert-apex-dfc0fe80.0",
+        "target-cacert-apex-e13665f9.0",
+        "target-cacert-apex-e442e424.0",
+        "target-cacert-apex-e48193cf.0",
+        "target-cacert-apex-e7c037b4.0",
+        "target-cacert-apex-e8651083.0",
+        "target-cacert-apex-ed39abd0.0",
+        "target-cacert-apex-edcbddb5.0",
+        "target-cacert-apex-ee532fd5.0",
+        "target-cacert-apex-f013ecaf.0",
+        "target-cacert-apex-f058632f.0",
+        "target-cacert-apex-f0cd152c.0",
+        "target-cacert-apex-f459871d.0",
+        "target-cacert-apex-f8fc53da.0",
+        "target-cacert-apex-fb5fa911.0",
+        "target-cacert-apex-fd08c599.0",
+        "target-cacert-apex-fde84897.0",
+        "target-cacert-apex-ffa7f1eb.0",
+    ],
+}
+
+// Encapsulate the contributions made by the com.android.conscrypt to the bootclasspath.
+bootclasspath_fragment {
+    name: "com.android.conscrypt-bootclasspath-fragment",
+    contents: ["conscrypt"],
+    apex_available: ["com.android.conscrypt"],
+    // The bootclasspath_fragments that provide APIs on which this depends.
+    fragments: [
+        {
+            apex: "com.android.art",
+            module: "art-bootclasspath-fragment",
+        },
+    ],
+    // The APIs provided by this fragment.
+    api: {
+        stub_libs: [
+            "conscrypt.module.public.api",
+        ],
+    },
+    // The core platform APIs provided by this fragment.
+    core_platform_api: {
+        stub_libs: [
+            "conscrypt.module.platform.api",
+        ],
+    },
+    // Additional hidden API flags that override the default flags derived
+    // from the api stub libraries.
+    hidden_api: {
+        max_target_o_low_priority: ["hiddenapi/hiddenapi-max-target-o-low-priority.txt"],
+
+        // This module does not contain any split packages.
+        split_packages: [],
+
+        // The following packages and all their subpackages currently only
+        // contain classes from this bootclasspath_fragment. Listing a package
+        // here won't prevent other bootclasspath modules from adding classes in
+        // any of those packages but it will prevent them from adding those
+        // classes into an API surface, e.g. public, system, etc.. Doing so will
+        // result in a build failure due to inconsistent flags.
+        package_prefixes: [
+            "android.net.ssl",
+            "com.android.org.conscrypt",
+        ],
+    },
+}

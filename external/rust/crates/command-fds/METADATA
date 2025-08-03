@@ -1,0 +1,19 @@
+name: "command-fds"
+description: "A library for passing arbitrary file descriptors when spawning child processes."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/command-fds"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/command-fds/command-fds-0.2.2.crate"
+  }
+  version: "0.2.2"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 6
+    day: 28
+  }
+}

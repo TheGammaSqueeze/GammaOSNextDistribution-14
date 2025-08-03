@@ -1,0 +1,32 @@
+package {
+    default_applicable_licenses: ["external_zxing_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_zxing_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+java_library {
+    name: "zxing-core",
+    host_supported: true,
+    installable: false,
+    srcs: [
+        "core/src/main/**/*.java",
+    ],
+}
+
+java_import {
+    name: "zxing-core-1.7",
+    host_supported: true,
+    installable: false,
+    jars: ["core/core.jar"],
+}

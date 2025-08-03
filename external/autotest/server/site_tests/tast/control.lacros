@@ -1,0 +1,82 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import logging
+import os
+
+from autotest_lib.server import utils
+from autotest_lib.server.cros import chrome_sideloader
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.lacros'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+
+MAX_RESULT_SIZE_KB = 256 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+# Location to put the sideloaded chrome artifacts
+CHROME_DIR = '/usr/local/lacros'
+
+DOC = '''
+Run the lacros test.
+
+This is a wrapper for lacros tast tests built by for Chromium builders. We
+mount a lacros artifact provisioned by TLS and configure the tast to execute
+lacros tests upon it.
+
+Tast is an integration-testing framework analogous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/
+for more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+def run(machine):
+    host=hosts.create_host(machine)
+    varslist = []
+    args_dict = utils.args_to_dict(args)
+
+    assert host.path_exists('/var/lib/imageloader/lacros'), ('lacros artifact'
+            'is not provisioned by CTP. Please check the CTP request.')
+
+    # Because this wrapper servers Chromium/Chrome CI builders, the Chrome version
+    # should be always fresher than the rootfs Chrome bundled in OS.
+    chrome_sideloader.setup_host(host, CHROME_DIR, None)
+
+    # lacros.DeployedBinary expects to set the directory containing chrome executable.
+    # If chrome is not under squashfs root, specify the relative path by exe_rel_path.
+    path_to_chrome = os.path.join(CHROME_DIR,
+                                  args_dict.get('exe_rel_path', 'chrome'))
+    assert host.path_exists(path_to_chrome), (
+            'lacros artifact is not provisioned at expected path, %s'
+            % path_to_chrome)
+
+    expr = chrome_sideloader.get_tast_expr_from_file(host, args_dict, '%s/' % job.resultdir, CHROME_DIR)
+    if not expr:
+        expr = chrome_sideloader.get_tast_expr(args_dict)
+    logging.info('Tast expr: %s', expr)
+
+    varslist.append('lacros.DeployedBinary=%s' %
+                    os.path.dirname(path_to_chrome)
+    )
+
+    def cleanup():
+        chrome_sideloader.cleanup_host(host, CHROME_DIR, None)
+
+    job.add_post_run_hook(cleanup)
+
+    job.run_test('tast',
+                 host=host,
+                 test_exprs=[expr],
+                 download_data_lazily=False,
+                 ignore_test_failures=False, max_run_sec=3600,
+                 command_args=args,
+                 varslist=varslist,
+                 clear_tpm=True)
+
+parallel_simple(run, machines)

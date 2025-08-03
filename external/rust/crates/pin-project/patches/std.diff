@@ -1,0 +1,14 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index aaa561f..016a0c7 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -81,6 +81,9 @@
+ )]
+ #![allow(clippy::needless_doctest_main)]
+ 
++// ANDROID: Use std to allow building as a dylib.
++extern crate std;
++
+ #[doc(inline)]
+ pub use pin_project_internal::pin_project;
+ 

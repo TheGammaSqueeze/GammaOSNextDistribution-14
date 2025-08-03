@@ -1,0 +1,79 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'ChromeOS Team'
+NAME = 'tast.pvs-video'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:pvs-video'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+This test suite is part of the Platform Validation Suite (go/cros-pvs)
+and includes a collection of Video tests that run without additional hardware.
+'''
+def run(machine):
+  job.run_test('tast',
+              host=hosts.create_host(machine),
+              test_exprs=['('
+                '!"name:*_lacros*" && ' # b/198181442
+                '!"name:video.EncodeAccel.h264_2160p" && ' # b/198181442
+                '!"name:video.DecodeAccel.vp8_odd_dimensions" && ' # http://b/202188074
+                '!"name:video.DecodeAccel.vp9_odd_dimensions" && ' # http://b/202188074
+                '!"name:video.DecodeAccelVD.vp8_odd_dimension" && ' # http://b/202188074
+                '!"name:video.DecodeAccelVD.vp9_odd_dimension" && ' # http://b/202188074
+                '!"name:video.PlatformDecoding.vaapi_vp9_0_svc" && ' # http://b/202188074
+                '!"name:video.EncodeAccel.h264_180p" && ' # http://b/215462119
+                '!"name:video.MemCheck.h264_hw_switch" && ' # http://b/215462119
+                '!"name:video.PlatformDecoding.vaapi_vp9_0_level5_0_buf" && ' # http://b/215462119
+                '!"name:video.PlatformDecoding.vaapi_vp9_0_level5_0_gf_dist" && ' # http://b/215462119
+                '!"name:video.DecodeAccelPerf.h264_2160p_60fps" && ' # http://b/215462119
+                '!"name:video.DecodeAccelPerf.vp8_2160p_60fps" && ' # http://b/215462119
+                '!"name:video.DecodeAccelPerf.vp9_2160p_30fps" && ' # http://b/215462119
+                '!"name:video.DecodeAccelPerf.vp9_2160p_60fps" && ' # http://b/215462119
+                '!"name:video.DecodeAccelVDPerf.h264_2160p_60fps" && ' # http://b/215462119
+                '!"name:video.DecodeAccelVDPerf.vp8_2160p_60fps" && ' # http://b/215462119
+                '!"name:video.PlatformDecoding.vaapi_vp9_0_level5_0_odd_size" && ' # http://b/215462119
+                '!"name:video.PlatformDecoding.vaapi_vp9_0_level5_0_sub8x8" && ' # http://b/215462119
+                '('
+                  ' "name:video.Capability" || '
+                  ' "name:video.CDMOEMCrypto.*" || '
+                  ' "name:video.Contents.*" || '
+                  ' "name:video.DecodeAccel.*" || '
+                  ' "name:video.DecodeAccelPerf.*" || '
+                  ' "name:video.DecodeAccelSmoke" || '
+                  ' "name:video.DecodeAccelVD.*" || '
+                  ' "name:video.DecodeAccelVDPerf.*" || '
+                  ' "name:video.DecodeCompliance.*" || '
+                  ' "name:video.DecodeEncodeAccelPerf" || '
+                  ' "name:video.EncodeAccel.*" || '
+                  ' "name:video.EncodeAccelPerf.*" || '
+                  ' "name:video.MemCheck.*" || '
+                  ' "name:video.PlatformDecoding.*" || '
+                  ' "name:video.PlatformLibYUVPerftest.*" || '
+                  ' "name:video.PlatformV4L2.decoder" || '
+                  ' "name:video.PlatformVAAPIUnittest" || '
+                  ' "name:video.Play.*" || '
+                  ' "name:video.PlayDRM.*" || '
+                  ' "name:video.PlaybackPerf.*" || '
+                  ' "name:video.Seek.*" || '
+                  ' "name:webrtc.GetDisplayMedia.*" || '
+                  ' "name:webrtc.MediaRecorder.*" || '
+                  ' "name:webrtc.MediaRecorderAPI" || '
+                  ' "name:webrtc.MediaRecorderMulti.*" || '
+                  ' "name:webrtc.MediaRecorderPerf.*" || '
+                  ' "name:webrtc.RTCPeerConnection.*" || '
+                  ' "name:webrtc.RTCPeerConnection.*svc*" || '
+                  ' "name:webrtc.RTCPeerConnectionPerf.*" '
+                ')'
+              ')'],
+              ignore_test_failures=False,
+              max_run_sec=14200,
+              command_args=args,
+              clear_tmp=True)
+parallel_simple(run, machines)

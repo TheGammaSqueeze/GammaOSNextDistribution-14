@@ -1,0 +1,24 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+AUTHOR = 'ChromeOS Performance Metrics Team (chromeos-perfmetrics-eng@google.com)'
+NAME = 'tast.cuj'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:cuj'
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+This suite is used to run CUJ tast tests against a remote DUT.
+'''
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['("group:cuj")'],
+                 ignore_test_failures=True, max_run_sec=21600,
+                 command_args=args)
+parallel_simple(run, machines)

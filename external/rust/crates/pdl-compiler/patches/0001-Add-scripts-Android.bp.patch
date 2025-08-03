@@ -1,0 +1,78 @@
+From 0a7535a664dee90b5f773d8966d4cebb5971bb9d Mon Sep 17 00:00:00 2001
+From: Henri Chataing <henrichataing@google.com>
+Date: Wed, 26 Jul 2023 09:38:09 +0000
+Subject: [PATCH] Add scripts/Android.bp
+
+Change-Id: Iac28b4b30e99467733a65524609eae5e905b6b38
+---
+ scripts/Android.bp | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+ create mode 100644 scripts/Android.bp
+
+diff --git a/scripts/Android.bp b/scripts/Android.bp
+new file mode 100644
+index 0000000..bb0932c
+--- /dev/null
++++ b/scripts/Android.bp
+@@ -0,0 +1,58 @@
++// Python generator.
++python_binary_host {
++    name: "pdl_python_generator",
++    main: "generate_python_backend.py",
++    srcs: [
++        "generate_python_backend.py",
++        "pdl/ast.py",
++        "pdl/core.py",
++        "pdl/utils.py",
++    ],
++    version: {
++        py3: {
++            embedded_launcher: true,
++        },
++    },
++}
++
++// C++ generator.
++python_binary_host {
++    name: "pdl_cxx_generator",
++    main: "generate_cxx_backend.py",
++    srcs: [
++        "generate_cxx_backend.py",
++        "pdl/ast.py",
++        "pdl/core.py",
++        "pdl/utils.py",
++    ],
++    version: {
++        py3: {
++            embedded_launcher: true,
++        },
++    },
++}
++
++// C++ test generator.
++python_binary_host {
++    name: "pdl_cxx_unittest_generator",
++    main: "generate_cxx_backend_tests.py",
++    srcs: [
++        "generate_cxx_backend_tests.py",
++        "pdl/ast.py",
++        "pdl/core.py",
++        "pdl/utils.py",
++    ],
++    version: {
++        py3: {
++            embedded_launcher: true,
++        },
++    },
++}
++
++// C++ packet runtime.
++cc_library_headers {
++    name: "pdl_cxx_packet_runtime",
++    export_include_dirs: ["."],
++    host_supported: true,
++    vendor_available: true,
++}
+--
+2.41.0.487.g6d72f3e995-goog
+

@@ -1,0 +1,128 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+function {
+  id: 0x85cc001f
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x85cd9c9c
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x85d454a8
+  return_type_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+  parameter_id: 0x6720d32f
+}
+elf_symbol {
+  id: 0x8bf70937
+  name: "f01"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85d454a8
+}
+elf_symbol {
+  id: 0xcab4baef
+  name: "f02"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85d454a8
+}
+elf_symbol {
+  id: 0x09745218
+  name: "f03"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85d454a8
+}
+elf_symbol {
+  id: 0xb2312b1c
+  name: "f04"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+}
+elf_symbol {
+  id: 0x76f6b896
+  name: "f05"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+}
+elf_symbol {
+  id: 0x37b65de0
+  name: "f06"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+}
+elf_symbol {
+  id: 0xf477c0b7
+  name: "f07"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+}
+elf_symbol {
+  id: 0x4aca4031
+  name: "f08"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cd9c9c
+}
+elf_symbol {
+  id: 0x858be3e5
+  name: "f09"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cc001f
+}
+elf_symbol {
+  id: 0x288f47a4
+  name: "f10"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cc001f
+}
+elf_symbol {
+  id: 0xe9cfbccb
+  name: "f11"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cc001f
+}
+elf_symbol {
+  id: 0xaf0c113b
+  name: "f12"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x85cc001f
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x8bf70937
+  symbol_id: 0xcab4baef
+  symbol_id: 0x09745218
+  symbol_id: 0xb2312b1c
+  symbol_id: 0x76f6b896
+  symbol_id: 0x37b65de0
+  symbol_id: 0xf477c0b7
+  symbol_id: 0x4aca4031
+  symbol_id: 0x858be3e5
+  symbol_id: 0x288f47a4
+  symbol_id: 0xe9cfbccb
+  symbol_id: 0xaf0c113b
+}

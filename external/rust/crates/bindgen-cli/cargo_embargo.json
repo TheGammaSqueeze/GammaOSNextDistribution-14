@@ -1,0 +1,10 @@
+{
+  "package": {
+    "bindgen-cli": {
+      "device_supported": false,
+      "host_first_multilib": true,
+      "add_toplevel_block": "cargo2android-extra-module.bp"
+    }
+  },
+  "run_cargo": false
+}

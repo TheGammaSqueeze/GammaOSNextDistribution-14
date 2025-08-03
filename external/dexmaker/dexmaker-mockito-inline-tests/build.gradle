@@ -1,0 +1,35 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 32
+
+    android {
+        lintOptions {
+            disable 'InvalidPackage'
+            warning 'NewApi'
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion 28
+        targetSdkVersion 32
+
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':dexmaker-mockito-tests')
+    compileOnly project(':dexmaker-mockito-inline')
+    androidTestImplementation project(':dexmaker-mockito-inline')
+
+    implementation 'junit:junit:4.13.2'
+    implementation 'androidx.test:runner:1.4.0'
+    api 'org.mockito:mockito-core:2.28.2', { exclude group: 'net.bytebuddy' }
+}

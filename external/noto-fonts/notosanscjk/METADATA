@@ -1,0 +1,13 @@
+name: "notosanscjk"
+description:
+    "Noto CJK fonts, supporting Simplified Chinese, Traditional Chinese, Japanese, and Korean. The supported scripts are Han, Hiragana, Katakana, Hangul, and Bopomofo. Latin, Greek, Cyrillic, and various symbols are also supported for compatibility with CJK standards."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/notofonts/noto-cjk/tree/main/Sans/OTC"
+  }
+  version: "2.004"
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 1 day: 31 }
+}

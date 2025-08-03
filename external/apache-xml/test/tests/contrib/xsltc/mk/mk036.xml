@@ -1,0 +1,21 @@
+<booklist>
+<book category="S">
+     <title>Number, the Language of Science</title>
+     <author>Danzig</author>
+</book>
+<book category="FC">
+     <title>The Young Visiters</title>
+     <author>Daisy Ashford</author>
+</book>
+<book category="FC">
+     <title>When We Were Very Young</title>
+     <author>A. A. Milne</author>
+</book>
+<book category="CS">
+     <title>Design Patterns</title>
+     <author>Erich Gamma</author>
+     <author>Richard Helm</author>
+     <author>Ralph Johnson</author>
+     <author>John Vlissides</author>
+</book>
+</booklist>

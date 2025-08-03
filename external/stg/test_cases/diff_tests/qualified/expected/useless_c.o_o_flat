@@ -1,0 +1,23 @@
+function symbol 'void bar_1(const volatile struct foo*)' was removed
+
+function symbol 'void bar_2(struct foo*)' was added
+
+function symbol changed from 'void bar(struct foo)' to 'void bar(const volatile struct foo*)'
+  type changed from 'void(struct foo)' to 'void(const volatile struct foo*)'
+    parameter 1 type changed from 'struct foo' to 'const volatile struct foo*'
+
+function symbol changed from 'void baz(void(*)(struct foo))' to 'void baz(void(*)(const volatile struct foo*))'
+  type changed from 'void(void(*)(struct foo))' to 'void(void(*)(const volatile struct foo*))'
+    parameter 1 type changed from 'void(*)(struct foo)' to 'void(*)(const volatile struct foo*)'
+      pointed-to type changed from 'void(struct foo)' to 'void(const volatile struct foo*)'
+        parameter 1 type changed from 'struct foo' to 'const volatile struct foo*'
+
+variable symbol changed from 'void(* quux)(struct foo)' to 'void(* volatile const quux)(const volatile struct foo*)'
+  type changed from 'void(*)(struct foo)' to 'void(* volatile const)(const volatile struct foo*)'
+    qualifier const added
+    qualifier volatile added
+    underlying type changed from 'void(*)(struct foo)' to 'void(*)(const volatile struct foo*)'
+      pointed-to type changed from 'void(struct foo)' to 'void(const volatile struct foo*)'
+        parameter 1 type changed from 'struct foo' to 'const volatile struct foo*'
+
+exit code 4

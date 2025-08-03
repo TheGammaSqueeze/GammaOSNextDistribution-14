@@ -1,0 +1,18 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'void my_func()' -> 'void my_func(int)'"]
+  "2" [label="'void()' -> 'void(int)'"]
+  "3" [color=red, label="added(int)"]
+  "2" -> "3" [label="parameter 1 of"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+  "4" [label="'void(* resolve_func())()' -> 'void(* resolve_func())(int)'"]
+  "5" [label="'void(*())()' -> 'void(*())(int)'"]
+  "6" [label="'void(*)()' -> 'void(*)(int)'"]
+  "7" [label="'void()' -> 'void(int)'"]
+  "7" -> "3" [label="parameter 1 of"]
+  "6" -> "7" [label="pointed-to"]
+  "5" -> "6" [label="return"]
+  "4" -> "5" [label=""]
+  "0" -> "4" [label=""]
+}

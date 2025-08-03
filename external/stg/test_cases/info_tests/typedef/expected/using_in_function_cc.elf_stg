@@ -1,0 +1,24 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+function {
+  id: 0x9d80e32f
+  return_type_id: 0x6720d32f
+}
+elf_symbol {
+  id: 0x92009dc1
+  name: "_Z3barv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d80e32f
+  full_name: "bar"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x92009dc1
+}

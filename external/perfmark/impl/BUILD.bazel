@@ -1,0 +1,80 @@
+java_library(
+    name = "impl",
+    srcs = [
+        "src/main/java/io/perfmark/impl/NoopGenerator.java",
+        "src/main/java/io/perfmark/impl/SecretPerfMarkImpl.java",
+    ],
+    deps = [
+        ":generator",
+        ":mark",
+        ":storage",
+        "//api:impl",
+        "//api:link",
+        "//api:tag",
+        "//api:stringfunction",
+        "@maven//:com_google_code_findbugs_jsr305",
+    ],
+)
+
+java_library(
+    name = "generator",
+    srcs = ["src/main/java/io/perfmark/impl/Generator.java"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@maven//:com_google_code_findbugs_jsr305",
+    ],
+)
+
+java_library(
+    name = "storage",
+    srcs = [
+        "src/main/java/io/perfmark/impl/NoopMarkHolderProvider.java",
+        "src/main/java/io/perfmark/impl/Storage.java",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":generator",
+        ":mark",
+        ":mark-holder",
+        ":mark-holder-provider",
+        ":mark-list",
+        "@maven//:com_google_code_findbugs_jsr305",
+    ],
+)
+
+java_library(
+    name = "mark-holder",
+    srcs = ["src/main/java/io/perfmark/impl/MarkHolder.java"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":mark",
+    ],
+)
+
+java_library(
+    name = "mark-holder-provider",
+    srcs = ["src/main/java/io/perfmark/impl/MarkHolderProvider.java"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":mark-holder",
+    ],
+)
+
+java_library(
+    name = "mark",
+    srcs = ["src/main/java/io/perfmark/impl/Mark.java"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":generator",
+        "@maven//:com_google_code_findbugs_jsr305",
+    ],
+)
+
+java_library(
+    name = "mark-list",
+    srcs = ["src/main/java/io/perfmark/impl/MarkList.java"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":mark",
+    ],
+)

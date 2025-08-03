@@ -1,0 +1,20 @@
+name: "mobly"
+description:
+    "Mobly is a Python-based test framework that specializes in supporting test "
+    "cases that require multiple devices, complex environments, or custom "
+    "hardware setups."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/mobly"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/mobly"
+  }
+  version: "1.11"
+  last_upgrade_date { year: 2021 month: 12 day: 16 }
+  license_type: NOTICE
+}
+

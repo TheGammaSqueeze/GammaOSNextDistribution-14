@@ -1,0 +1,15 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.compos",
+    "com.android.virt"
+  ],
+  "package": {
+    "minijail-sys": {
+      "dep_blocklist": [
+        "libminijail.pic"
+      ],
+      "patch": "patches/Android.bp.patch"
+    }
+  }
+}

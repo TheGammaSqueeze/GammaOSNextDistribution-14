@@ -1,0 +1,19 @@
+name: "cpython"
+description: "The Python programming language"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.python.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/python/cpython"
+  }
+  version: "18e21883a4ec2a36a02054eb2ff47e3ba9bd1d33"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2018
+    month: 10
+    day: 13
+  }
+}

@@ -1,0 +1,43 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'ChromeOS SW Engprod Team (chromeos-sw-engprod@google.com)'
+NAME = 'tast.cross-device'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:cross-device'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''Run the Tast Cross Device test suite.'''
+
+from autotest_lib.server.cros.crossdevice import cross_device_util
+
+def run(machine):
+    # Wifi details that chromebook will connect to.
+    ssid = 'nearbysharing_1'
+    password = 'password'
+
+    # Get host objects for each device.
+    host = hosts.create_host(machine)
+    companions = hosts.create_companion_hosts(companion_hosts)
+    phone = companions[0]
+
+    # Configure devices for crossdevice tests.
+    cross_device_util.connect_to_wifi(host, ssid, password)
+    ip_address = phone.setup_for_cross_device_tests()
+
+    # Pass the phones adb-over-tcp "serial" (e.g 192.168.0.30:5555) to Tast as a global var.
+    ip_address_arg = 'crossdevice.PhoneIP=%s:5555' % ip_address
+
+    job.run_test('tast',
+                 host=host,
+                 test_exprs=['("group:cross-device")'],
+                 ignore_test_failures=True, max_run_sec=10800,
+                 command_args=args,
+                 varslist=[ip_address_arg])
+parallel_simple(run, machines)

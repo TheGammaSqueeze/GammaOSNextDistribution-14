@@ -1,0 +1,40 @@
+[package]
+name = "gpio-cdev"
+version = "0.6.0"
+authors = ["Paul Osborne <osbpau@gmail.com>", "Frank Pagliughi <fpagliughi@mindspring.com>"]
+description = "Linux GPIO Character Device Support (/dev/gpiochipN)"
+homepage = "https://github.com/rust-embedded/gpio-cdev"
+repository = "https://github.com/rust-embedded/gpio-cdev"
+readme = "README.md"
+categories = ["embedded", "hardware-support", "os", "os::unix-apis"]
+keywords = ["linux", "gpio", "gpiochip", "embedded"]
+license = "MIT OR Apache-2.0"
+edition = "2018"
+
+[features]
+default = []
+async-tokio = ["tokio", "futures"]
+
+[[example]]
+name = "async_tokio"
+required-features = ["async-tokio"]
+
+[dependencies]
+bitflags = "2.4"
+libc = "0.2"
+nix = { version = "0.27", features = ["ioctl"] }
+tokio = { version = "1", features = ["io-std", "net"], optional = true }
+futures = { version = "0.3", optional = true }
+
+[dev-dependencies]
+quicli = "0.4"
+structopt = "0.3"
+anyhow = "1.0"
+tokio = { version = "1", features = ["io-std", "rt-multi-thread", "macros", "net"] }
+nix = { version = "0.27", features = ["ioctl", "poll"] }
+
+[package.metadata.docs.rs]
+# To build locally:
+# RUSTDOCFLAGS="--cfg docsrs" cargo +nightly doc --all-features --no-deps --open
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

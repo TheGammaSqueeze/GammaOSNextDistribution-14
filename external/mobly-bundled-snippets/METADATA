@@ -1,0 +1,19 @@
+name: "mobly-bundled-snippets"
+description:
+    "Mobly Bundled Snippets is a set of Snippets to allow Mobly tests to "
+    "control Android devices by exposing a simplified version of the public "
+    "Android API suitable for testing."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/mobly-bundled-snippets"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/mobly-bundled-snippets"
+  }
+  version: "363a22ae26a277dfbf6c7a0c6596d1a7c08a39f1"
+  last_upgrade_date { year: 2023 month: 7 day: 26 }
+  license_type: NOTICE
+}

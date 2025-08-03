@@ -1,0 +1,44 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'com.android.library'
+}
+
+dependencies {
+    api project(path: ':connectedapps-testapp_types_providers')
+    api project(path: ':connectedapps-testapp_types')
+    api project(path: ':connectedapps-testapp_additional_types')
+
+    implementation project(path: ':connectedapps')
+    implementation project(path: ':connectedapps-annotations')
+    implementation project(path: ':connectedapps-processor')
+    annotationProcessor project(path: ':connectedapps-processor')
+}
+
+android {
+    defaultConfig {
+        compileSdkVersion 30
+        minSdkVersion 26
+    }
+
+    testOptions.unitTests.includeAndroidResources = true
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = [file('../src/main/java')]
+            java.includes = [
+                    "com/google/android/enterprise/connectedapps/testapp/configuration/TestApplication.java"
+            ]
+            manifest.srcFile 'AndroidManifest.xml'
+        }
+    }
+}

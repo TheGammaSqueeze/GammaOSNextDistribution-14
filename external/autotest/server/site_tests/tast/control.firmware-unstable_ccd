@@ -1,0 +1,45 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+from autotest_lib.server.site_tests.tast import tast
+
+AUTHOR = 'Chromium OS Firmware EngProd team'
+NAME = 'tast.firmware-unstable_ccd'
+TIME = 'LENGTHY'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'servo_state:WORKING, servo_component:ccd_cr50'
+ATTRIBUTES = 'suite:faft_unstable'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+JOB_RETRIES = 0
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run Tast tests for EC firmware.
+
+The tests are part of 'group:firmware'. The 'firmware_unstable'
+sub-attribute limits it to unstable tests. Once the test is stable change
+the attribute to one of the others. The 'firmware_ccd' further limits this
+to machines attached to a servo with CCD.
+'''
+
+command_args, varslist = tast.split_arguments(args)
+args_dict = utils.args_to_dict(command_args)
+assert 'servo_state:WORKING' in DEPENDENCIES
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine, servo_args=servo_args),
+                 test_exprs=['("group:firmware" && firmware_unstable && firmware_ccd)'],
+                 ignore_test_failures=True,
+                 max_run_sec=16200, # 4h30m
+                 command_args=command_args,
+                 varslist=varslist,
+                 ephemeraldevserver='false')
+
+parallel_simple(run, machines)

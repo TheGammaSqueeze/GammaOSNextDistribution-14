@@ -1,0 +1,16 @@
+diff --git a/rust/minijail-sys/Android.bp b/rust/minijail-sys/Android.bp
+index cbef76a..e920e8a 100644
+--- a/rust/minijail-sys/Android.bp
++++ b/rust/minijail-sys/Android.bp
+@@ -19,7 +19,10 @@ rust_library {
+     srcs: ["lib.rs"],
+     edition: "2018",
+     rustlibs: ["liblibc"],
+-    shared_libs: ["libcap"],
++    shared_libs: [
++        "libcap",
++        "libminijail",
++    ],
+     apex_available: [
+         "//apex_available:platform",
+         "com.android.compos",

@@ -1,0 +1,93 @@
+package {
+    default_applicable_licenses: ["external_regex_re2_license"],
+}
+
+license {
+    name: "external_regex_re2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-BSD-3-Clause"],
+    license_text: ["LICENSE"],
+}
+
+cc_library_static {
+    name: "libregex_re2",
+    host_supported: true,
+    product_available: true,
+    vendor_available: true,
+    stl: "libc++",
+    apex_available: [
+        "//apex_available:platform",
+    ],
+    srcs: [
+        "util/rune.cc",
+        "util/strutil.cc",
+        "re2/bitstate.cc",
+        "re2/compile.cc",
+        "re2/dfa.cc",
+        "re2/filtered_re2.cc",
+        "re2/mimics_pcre.cc",
+        "re2/nfa.cc",
+        "re2/onepass.cc",
+        "re2/parse.cc",
+        "re2/perl_groups.cc",
+        "re2/prefilter.cc",
+        "re2/prefilter_tree.cc",
+        "re2/prog.cc",
+        "re2/re2.cc",
+        "re2/regexp.cc",
+        "re2/set.cc",
+        "re2/simplify.cc",
+        "re2/stringpiece.cc",
+        "re2/tostring.cc",
+        "re2/unicode_casefold.cc",
+        "re2/unicode_groups.cc",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wno-missing-field-initializers",
+    ],
+    export_include_dirs: ["."],
+    visibility: [
+        "//external/grpc-grpc:__subpackages__",
+        "//external/kythe:__subpackages__",
+    ],
+}
+
+// This test uses a minimal fork of GTest that is incompatible with Android
+// testing infrastructure, so it is currently a cc_binary rather than a cc_test.
+// It can be run directly and should produce a pass/fail result:
+// out/host/linux-x86/bin/regex_re2_test
+cc_binary_host {
+    name: "regex_re2_test",
+    srcs: [
+        "re2/testing/backtrack.cc",
+        "re2/testing/charclass_test.cc",
+        "re2/testing/compile_test.cc",
+        "re2/testing/dump.cc",
+        "re2/testing/filtered_re2_test.cc",
+        "re2/testing/mimics_pcre_test.cc",
+        "re2/testing/null_walker.cc",
+        "re2/testing/parse_test.cc",
+        "re2/testing/possible_match_test.cc",
+        "re2/testing/re2_arg_test.cc",
+        "re2/testing/re2_test.cc",
+        "re2/testing/regexp_generator.cc",
+        "re2/testing/regexp_test.cc",
+        "re2/testing/required_prefix_test.cc",
+        "re2/testing/search_test.cc",
+        "re2/testing/set_test.cc",
+        "re2/testing/simplify_test.cc",
+        "re2/testing/string_generator.cc",
+        "re2/testing/string_generator_test.cc",
+        "re2/testing/tester.cc",
+        "util/pcre.cc",
+        "util/test.cc",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wno-missing-field-initializers",
+    ],
+    static_libs: [
+        "libregex_re2",
+    ],
+}

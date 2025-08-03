@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/serde_test
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "serde_test"
+description: "Token De/Serializer for testing De/Serialize implementations"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 5
+  }
+  homepage: "https://crates.io/crates/serde_test"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/serde_test/serde_test-1.0.176.crate"
+    version: "1.0.176"
+  }
+}

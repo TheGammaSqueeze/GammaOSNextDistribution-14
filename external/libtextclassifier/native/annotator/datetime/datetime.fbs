@@ -1,0 +1,153 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// Meridiem field.
+namespace libtextclassifier3.grammar.datetime;
+enum Meridiem : int {
+  UNKNOWN = 0,
+
+  // Ante meridiem: Before noon
+  AM = 1,
+
+  // Post meridiem: After noon
+  PM = 2,
+}
+
+// Enum represents a unit of date and time in the expression.
+// Next field: 10
+namespace libtextclassifier3.grammar.datetime;
+enum ComponentType : int {
+  UNSPECIFIED = 0,
+
+  // Year of the date seen in the text match.
+  YEAR = 1,
+
+  // Month of the year starting with January = 1.
+  MONTH = 2,
+
+  // Week (7 days).
+  WEEK = 3,
+
+  // Day of week, start of the week is Sunday &  its value is 1.
+  DAY_OF_WEEK = 4,
+
+  // Day of the month starting with 1.
+  DAY_OF_MONTH = 5,
+
+  // Hour of the day.
+  HOUR = 6,
+
+  // Minute of the hour with a range of 0-59.
+  MINUTE = 7,
+
+  // Seconds of the minute with a range of 0-59.
+  SECOND = 8,
+
+  // Meridiem field i.e. AM/PM.
+  MERIDIEM = 9,
+}
+
+namespace libtextclassifier3.grammar.datetime;
+table TimeZone {
+  // Offset from UTC/GTM in minutes.
+  utc_offset_mins:int;
+}
+
+namespace libtextclassifier3.grammar.datetime.RelativeDatetimeComponent_;
+enum Modifier : int {
+  UNSPECIFIED = 0,
+  NEXT = 1,
+  THIS = 2,
+  LAST = 3,
+  NOW = 4,
+  TOMORROW = 5,
+  YESTERDAY = 6,
+  PAST = 7,
+  FUTURE = 8,
+}
+
+// Message for representing the relative date-time component in date-time
+// expressions.
+// Next field: 4
+namespace libtextclassifier3.grammar.datetime;
+table RelativeDatetimeComponent {
+  component_type:ComponentType = UNSPECIFIED;
+  modifier:RelativeDatetimeComponent_.Modifier = UNSPECIFIED;
+  value:int;
+}
+
+// AbsoluteDateTime represents date-time expressions that is not ambiguous.
+// Next field: 11
+namespace libtextclassifier3.grammar.datetime;
+table AbsoluteDateTime {
+  // Year value of the date seen in the text match.
+  year:int = -1;
+
+  // Month value of the year starting with January = 1.
+  month:int = -1;
+
+  // Day value of the month starting with 1.
+  day:int = -1;
+
+  // Day of week, start of the week is Sunday and its value is 1.
+  week_day:int = -1;
+
+  // Hour value of the day.
+  hour:int = -1;
+
+  // Minute value of the hour with a range of 0-59.
+  minute:int = -1;
+
+  // Seconds value of the minute with a range of 0-59.
+  second:int = -1;
+
+  partial_second:double = -1;
+
+  // Meridiem field i.e. AM/PM.
+  meridiem:Meridiem;
+
+  time_zone:TimeZone;
+}
+
+// Message to represent relative datetime expressions.
+// It encode expressions
+// - Where modifier such as before/after shift the date e.g.[three days ago],
+// [2 days after March 1st].
+// - When prefix make the expression relative e.g. [next weekend],
+// [last Monday].
+// Next field: 3
+namespace libtextclassifier3.grammar.datetime;
+table RelativeDateTime {
+  relative_datetime_component:[RelativeDatetimeComponent];
+
+  // The base could be an absolute datetime point for example: "March 1", a
+  // relative datetime point, for example: "2 days before March 1"
+  base:AbsoluteDateTime;
+}
+
+// Datetime result.
+namespace libtextclassifier3.grammar.datetime;
+table UngroundedDatetime {
+  absolute_datetime:AbsoluteDateTime;
+  relative_datetime:RelativeDateTime;
+
+  // The annotation usecases.
+  // There are two modes.
+  // 1- SMART - Datetime results which are optimized for Smart select
+  // 2- RAW - Results are optimized for where annotates as much as possible.
+  annotation_usecases:uint = 4294967295;
+}
+

@@ -1,0 +1,41 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+dependencies {
+    compileOnly deps.autovalueAnnotations
+    compileOnly deps.autoserviceAnnotations
+    implementation deps.javapoet
+    implementation deps.guava
+    implementation project(path: ':connectedapps-annotations')
+    implementation project(path: ':connectedapps-testing-annotations')
+
+    annotationProcessor deps.autovalue
+    annotationProcessor deps.autoservice
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            groupId = 'com.google.android.enterprise.connectedapps'
+            artifactId = 'connectedapps-processor'
+            version = project.version
+
+            pom {
+                licenses {
+                    license {
+                        name = 'Apache 2.0'
+                        url = 'https://opensource.org/licenses/Apache-2.0'
+                    }
+                }
+            }
+        }
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

@@ -1,0 +1,19 @@
+name: "JavaPoet"
+description: "A Java API for generating .java source files"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/square/javapoet"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/square/javapoet.git"
+  }
+  version: "javapoet-1.13.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 7
+    day: 10
+  }
+}

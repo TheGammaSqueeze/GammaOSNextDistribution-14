@@ -1,0 +1,136 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+import("$dir_pw_fuzzer/fuzzer.gni")
+import("$dir_pw_unit_test/test.gni")
+
+dir_public_sm = "../../public/pw_bluetooth_sapphire/internal/host/sm"
+
+pw_source_set("definitions") {
+  public = [
+    "$dir_public_sm/error.h",
+    "$dir_public_sm/packet.h",
+    "$dir_public_sm/smp.h",
+    "$dir_public_sm/types.h",
+  ]
+
+  sources = [
+    "error.cc",
+    "packet.cc",
+    "types.cc",
+  ]
+
+  public_deps = [
+    "$dir_pw_bluetooth_sapphire/host/common",
+    "$dir_pw_bluetooth_sapphire/host/hci-spec",  # hci_spec::LinkKey
+  ]
+}
+
+pw_source_set("sm") {
+  public = [
+    "$dir_public_sm/ecdh_key.h",
+    "$dir_public_sm/pairing_channel.h",
+    "$dir_public_sm/pairing_phase.h",
+    "$dir_public_sm/phase_1.h",
+    "$dir_public_sm/phase_2_legacy.h",
+    "$dir_public_sm/phase_2_secure_connections.h",
+    "$dir_public_sm/phase_3.h",
+    "$dir_public_sm/sc_stage_1.h",
+    "$dir_public_sm/sc_stage_1_just_works_numeric_comparison.h",
+    "$dir_public_sm/sc_stage_1_passkey.h",
+    "$dir_public_sm/security_manager.h",
+    "$dir_public_sm/security_request_phase.h",
+    "$dir_public_sm/util.h",
+  ]
+
+  sources = [
+    "ecdh_key.cc",
+    "pairing_channel.cc",
+    "pairing_phase.cc",
+    "phase_1.cc",
+    "phase_2_legacy.cc",
+    "phase_2_secure_connections.cc",
+    "phase_3.cc",
+    "sc_stage_1_just_works_numeric_comparison.cc",
+    "sc_stage_1_passkey.cc",
+    "security_manager.cc",
+    "security_request_phase.cc",
+    "util.cc",
+  ]
+
+  public_deps = [
+    ":definitions",
+    "$dir_pw_bluetooth_sapphire:config",
+    "$dir_pw_bluetooth_sapphire/host/gap:definitions",
+    "$dir_pw_bluetooth_sapphire/host/hci",
+    "$dir_pw_bluetooth_sapphire/host/l2cap",
+    "$dir_pw_string",
+    "$dir_pw_third_party/boringssl",
+    "$dir_pw_third_party/fuchsia:fit",
+  ]
+}
+
+pw_source_set("testing") {
+  public = [
+    "$dir_public_sm/fake_phase_listener.h",
+    "$dir_public_sm/test_security_manager.h",
+  ]
+
+  sources = [ "test_security_manager.cc" ]
+
+  deps = [ ":sm" ]
+}
+
+pw_test("sm_tests") {
+  sources = [
+    "ecdh_key_test.cc",
+    "error_test.cc",
+    "packet_test.cc",
+    "pairing_channel_test.cc",
+    "pairing_phase_test.cc",
+    "phase_1_test.cc",
+    "phase_2_legacy_test.cc",
+    "phase_2_secure_connections_test.cc",
+    "phase_3_test.cc",
+    "sc_stage_1_just_works_numeric_comparison_test.cc",
+    "sc_stage_1_passkey_test.cc",
+    "security_manager_test.cc",
+    "security_request_phase_test.cc",
+    "types_test.cc",
+    "util_test.cc",
+  ]
+
+  deps = [
+    ":sm",
+    ":testing",
+    "$dir_pw_bluetooth_sapphire/host/hci:testing",
+    "$dir_pw_bluetooth_sapphire/host/l2cap:testing",
+    "$dir_pw_bluetooth_sapphire/host/testing",
+  ]
+
+  test_main = "$dir_pw_bluetooth_sapphire/host/testing:gtest_main"
+}
+
+pw_fuzzer("valid_packet_reader_fuzzer") {
+  sources = [ "valid_packet_reader_parse_sdu_fuzztest.cc" ]
+  deps = [ ":definitions" ]
+}
+
+pw_test_group("tests") {
+  tests = [
+    ":sm_tests",
+    ":valid_packet_reader_fuzzer_test",
+  ]
+}

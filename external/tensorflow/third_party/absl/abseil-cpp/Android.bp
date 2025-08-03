@@ -1,0 +1,82 @@
+package {
+    default_applicable_licenses: [
+        "external_tensorflow_abseil-cpp_license",
+    ],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_tensorflow_abseil-cpp_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+filegroup {
+    name: "absl_srcs",
+    srcs: [
+        "absl/**/*.cc",
+    ],
+    exclude_srcs: [
+        "absl/random/**/*.cc",
+        "**/*_test.cc",
+        "**/*_test_common.cc",
+        "**/*test_util.cc",
+        "**/*test_utils.cc",
+        "**/*benchmark.cc",
+        "absl/hash/internal/print_hash_of.cc",
+    ],
+}
+
+// Only include necessary random files here. If include "absl/random/*.cc", we
+// will get "duplicate symbol: main" error because both
+// gaussian_distribution_gentables.cc and randen_benchmarks.cc have main
+// function.
+filegroup {
+    name: "absl_random",
+    srcs: [
+        "absl/random/discrete_distribution.cc",
+        "absl/random/gaussian_distribution.cc",
+        "absl/random/seed_sequences.cc",
+        "absl/random/internal/pool_urbg.cc",
+        "absl/random/internal/seed_material.cc",
+    ],
+}
+
+cc_library_static {
+    name: "tensorflow_abseil",
+    export_include_dirs: ["."],
+    visibility: [
+        "//external/tensorflow:__subpackages__",
+        "//external/federated-compute:__subpackages__",
+        "//packages/modules/OnDevicePersonalization:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.ondevicepersonalization",
+    ],
+    srcs: [
+        ":absl_srcs",
+        ":absl_random",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    stl: "libc++_static",
+}

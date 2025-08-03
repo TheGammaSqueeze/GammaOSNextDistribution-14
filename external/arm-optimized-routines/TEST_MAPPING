@@ -1,0 +1,18 @@
+{
+  "presubmit": [
+    {
+      "name": "CtsBionicTestCases"
+    },
+    {
+      "name": "arm-optimized-routines-tests"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "CtsBionicTestCases"
+    },
+    {
+      "name": "arm-optimized-routines-tests"
+    }
+  ]
+}

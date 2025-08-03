@@ -1,0 +1,82 @@
+// Copyright 2022 The Android Open Source Project
+
+package {
+    default_applicable_licenses: ["external_sg3_utils_license"],
+}
+
+// See also https://spdx.org/licenses/
+license {
+    name: "external_sg3_utils_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD-2-Clause",
+        "SPDX-license-identifier-BSD-2-Clause-NetBSD",
+        "SPDX-license-identifier-BSD-3-Clause",
+        "SPDX-license-identifier-GPL-2.0-only",
+        "SPDX-license-identifier-GPL-2.0-or-later",
+        "SPDX-license-identifier-GPL-3.0-or-later",
+    ],
+    license_text: [
+        "LICENSE",
+        "COPYING",
+    ],
+}
+
+cc_defaults {
+    name: "sg3_utils-defaults",
+    cflags: [
+        "-D_FILE_OFFSET_BITS=64",
+        "-D_LARGEFILE64_SOURCE",
+        "-Wextra",
+        "-Wall",
+        "-Werror",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    // vendor only. See also https://source.android.com/docs/core/architecture/bootloader/partitions/product-interfaces.
+    vendor: true,
+    target: {
+        host: {
+            enabled: false,
+        },
+        windows: {
+            enabled: false,
+        },
+    },
+}
+
+cc_library {
+    name: "libsgutils2",
+    defaults: ["sg3_utils-defaults"],
+    srcs: [
+        "lib/sg_lib.c",
+        "lib/sg_pr2serr.c",
+        "lib/sg_lib_data.c",
+        "lib/sg_lib_names.c",
+        "lib/sg_cmds_basic.c",
+        "lib/sg_cmds_basic2.c",
+        "lib/sg_cmds_extra.c",
+        "lib/sg_cmds_mmc.c",
+        "lib/sg_pt_common.c",
+        "lib/sg_json_builder.c",
+        // Linux only.
+        "lib/sg_pt_linux.c",
+        "lib/sg_io_linux.c",
+        "lib/sg_pt_linux_nvme.c",
+    ],
+}
+
+cc_binary {
+    name: "sg_read_buffer",
+    defaults: ["sg3_utils-defaults"],
+    srcs: ["src/sg_read_buffer.c"],
+    shared_libs: ["libsgutils2"],
+}
+
+cc_binary {
+    name: "sg_write_buffer",
+    defaults: ["sg3_utils-defaults"],
+    srcs: ["src/sg_write_buffer.c"],
+    shared_libs: ["libsgutils2"],
+}

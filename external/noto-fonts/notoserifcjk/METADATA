@@ -1,0 +1,13 @@
+name: "notoserifcjk"
+description:
+    "Noto CJK fonts, supporting Simplified Chinese, Traditional Chinese, Japanese, and Korean. The supported scripts are Han, Hiragana, Katakana, Hangul, and Bopomofo. Latin, Greek, Cyrillic, and various symbols are also supported for compatibility with CJK standards."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/notofonts/noto-cjk/tree/main/Serif/OTC"
+  }
+  version: "2.002"
+  license_type: NOTICE
+  last_upgrade_date { year: 2023 month: 10 day: 27 }
+}

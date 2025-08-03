@@ -1,0 +1,17 @@
+{
+  "apex_available": [
+    "//apex_available:platform"
+  ],
+  "features": [
+    "_secure",
+    "boringssl",
+    "protobufv3-codec"
+  ],
+  "min_sdk_version": "29",
+  "package": {
+    "grpcio": {
+      "add_module_block": "cargo2android_cfgs.bp"
+    }
+  },
+  "product_available": false
+}

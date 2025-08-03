@@ -1,0 +1,436 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_libtextclassifier_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_libtextclassifier_license"],
+}
+
+cc_library_headers {
+    name: "libtextclassifier_hash_headers",
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: ["."],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.neuralnetworks",
+        "test_com.android.neuralnetworks",
+        "com.android.ondevicepersonalization",
+    ],
+    min_sdk_version: "apex_inherit",
+    sdk_version: "current",
+}
+
+cc_defaults {
+    name: "libtextclassifier_hash_defaults",
+    vendor_available: true,
+    host_supported: true,
+    srcs: [
+        "utils/hash/farmhash.cc",
+    ],
+    cflags: [
+        "-DNAMESPACE_FOR_HASH_FUNCTIONS=farmhash",
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-function",
+    ],
+}
+
+cc_library_shared {
+    name: "libtextclassifier_hash",
+    defaults: ["libtextclassifier_hash_defaults"],
+    vendor_available: true,
+    double_loadable: true,
+}
+
+cc_library_static {
+    name: "libtextclassifier_hash_static",
+    defaults: ["libtextclassifier_hash_defaults"],
+    sdk_version: "current",
+    stl: "libc++_static",
+    min_sdk_version: "apex_inherit",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.btservices",
+        "com.android.neuralnetworks",
+        "test_com.android.neuralnetworks",
+        "com.android.extservices",
+        "com.android.adservices",
+        "com.android.ondevicepersonalization",
+    ],
+}
+
+cc_defaults {
+    name: "libtextclassifier_defaults",
+    stl: "libc++_static",
+    cpp_std: "gnu++17",
+    sdk_version: "current",
+    // For debug / treemap purposes.
+    //strip: {
+    //    keep_symbols: true,
+    //},
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-deprecated-declarations",
+        "-Wno-ignored-qualifiers",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare",
+        "-Wno-tautological-constant-out-of-range-compare",
+        "-Wno-undefined-var-template",
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+        "-Wno-extern-c-compat",
+
+        "-funsigned-char",
+        "-fvisibility=hidden",
+
+        "-DLIBTEXTCLASSIFIER_UNILIB_ICU",
+        "-DZLIB_CONST",
+        "-DSAFTM_COMPACT_LOGGING",
+        "-DTC3_WITH_ACTIONS_OPS",
+        "-DTC3_UNILIB_JAVAICU",
+        "-DTC3_CALENDAR_JAVAICU",
+        "-DTC3_AOSP",
+        "-DTC3_VOCAB_ANNOTATOR_IMPL",
+        "-DTC3_POD_NER_ANNOTATOR_IMPL",
+    ],
+
+    product_variables: {
+        debuggable: {
+            // Only enable debug logging in userdebug/eng builds.
+            cflags: ["-DTC3_DEBUG_LOGGING=1"],
+        },
+    },
+
+    header_libs: [
+        "jni_headers",
+        "tensorflow_headers",
+        "flatbuffer_headers",
+        "libtextclassifier_flatbuffer_headers",
+    ],
+
+    shared_libs: [
+        "liblog",
+        "libz",
+    ],
+
+    static_libs: [
+        "marisa-trie",
+        "libtextclassifier_abseil",
+        "liblua",
+        "libutf",
+        "libtflite_static",
+        "tflite_support"
+    ],
+}
+
+cc_library_static {
+    name: "libtextclassifier_bert_tokenizer",
+    export_include_dirs: ["."],
+    visibility: ["//external/tflite-support:__subpackages__"],
+    srcs: [
+        "utils/base/logging.cc",
+        "utils/base/logging_raw.cc",
+        "utils/bert_tokenizer.cc",
+        "utils/strings/utf8.cc",
+        "utils/tokenizer-utils.cc",
+        "utils/utf8/unilib-common.cc",
+        "utils/utf8/unicodetext.cc",
+        "utils/wordpiece_tokenizer.cc",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.extservices",
+        "com.android.adservices",
+    ],
+    cflags: [
+        "-Wno-ignored-qualifiers",
+        "-Wno-missing-field-initializers",
+        "-Wno-unused-parameter",
+
+        "-DLIBTEXTCLASSIFIER_UNILIB_ICU",
+        "-DZLIB_CONST",
+        "-DSAFTM_COMPACT_LOGGING",
+        "-DTC3_WITH_ACTIONS_OPS",
+        "-DTC3_UNILIB_JAVAICU",
+        "-DTC3_CALENDAR_JAVAICU",
+        "-DTC3_AOSP",
+        "-DTC3_VOCAB_ANNOTATOR_IMPL",
+        "-DTC3_POD_NER_ANNOTATOR_IMPL",
+    ],
+    product_variables: {
+        debuggable: {
+            // Only enable debug logging in userdebug/eng builds.
+            cflags: ["-DTC3_DEBUG_LOGGING=1"],
+        },
+    },
+    header_libs: [
+        "jni_headers",
+        "tensorflow_headers",
+        "flatbuffer_headers",
+        "libtextclassifier_flatbuffer_headers",
+    ],
+    static_libs: [
+        "libtextclassifier_abseil",
+        "tflite_support",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    stl: "libc++_static",
+}
+
+// -----------------
+// Generate headers with FlatBuffer schema compiler.
+// -----------------
+
+FBGEN_ARGS = "$(location flatc) --cpp --no-union-value-namespacing --gen-object-api --keep-prefix -I external/libtextclassifier/native -o $$(dirname $(out)) "
+
+genrule {
+    name: "libtextclassifier_fbgen_utils_flatbuffers_flatbuffers_test",
+    srcs: ["utils/flatbuffers/flatbuffers_test.fbs"],
+    out: ["utils/flatbuffers/flatbuffers_test_generated.h"],
+    tools: ["flatc"],
+    cmd: FBGEN_ARGS + "$(in)"
+}
+
+genrule {
+    name: "libtextclassifier_fbgen_utils_lua_utils_tests",
+    srcs: ["utils/lua_utils_tests.fbs"],
+    out: ["utils/lua_utils_tests_generated.h"],
+    tools: ["flatc"],
+    cmd: FBGEN_ARGS + "$(in)"
+}
+
+// -----------------
+// libtextclassifier
+// -----------------
+cc_library {
+    name: "libtextclassifier",
+    defaults: ["libtextclassifier_defaults"],
+    min_sdk_version: "30",
+    srcs: ["**/*.cc"],
+    exclude_srcs: [
+        "**/*_test.*",
+        "**/*-test-lib.*",
+        "**/testing/*.*",
+        "**/*test-util.*",
+        "**/*test-utils.*",
+        "**/*test_util.*",
+        "**/*test_utils.*",
+        "**/*_test-include.*",
+        "**/*unittest.*",
+    ],
+    static_libs: [
+        "libflatbuffers-cpp",
+    ],
+    version_script: "jni.lds",
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.extservices",
+    ],
+}
+
+// -----------------------
+// libtextclassifier_tests
+// -----------------------
+cc_test {
+    name: "libtextclassifier_tests-tplus",
+    defaults: ["libtextclassifier_defaults"],
+
+    test_suites: ["general-tests", "mts-extservices"],
+
+    data: [
+        "**/test_data/*",
+        "**/*.bfbs",
+    ],
+
+    srcs: ["**/*.cc"],
+    exclude_srcs: [":libtextclassifier_java_test_sources"],
+
+    header_libs: ["jni_headers"],
+
+    static_libs: [
+        "libgmock_ndk",
+        "libgtest_ndk_c++",
+        "libbase_ndk",
+    ],
+
+    generated_headers: [
+        "libtextclassifier_fbgen_utils_flatbuffers_flatbuffers_test",
+        "libtextclassifier_fbgen_utils_lua_utils_tests",
+    ],
+
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    // A workaround for code coverage. See b/166040889#comment23
+    sdk_variant_only: true,
+    test_config: "AndroidTest-tplus.xml",
+}
+
+cc_test {
+    name: "libtextclassifier_tests-sminus",
+    defaults: ["libtextclassifier_defaults"],
+
+    test_suites: ["general-tests", "mts-extservices"],
+
+    data: [
+        "**/test_data/*",
+        "**/*.bfbs",
+    ],
+
+    srcs: ["**/*.cc"],
+    exclude_srcs: [":libtextclassifier_java_test_sources"],
+
+    header_libs: ["jni_headers"],
+
+    static_libs: [
+        "libgmock_ndk",
+        "libgtest_ndk_c++",
+        "libbase_ndk",
+    ],
+
+    generated_headers: [
+        "libtextclassifier_fbgen_utils_flatbuffers_flatbuffers_test",
+        "libtextclassifier_fbgen_utils_lua_utils_tests",
+    ],
+
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+    // A workaround for code coverage. See b/166040889#comment23
+    sdk_variant_only: true,
+    test_config: "AndroidTest-sminus.xml",
+}
+
+// ------------------------------------
+// Native tests require the JVM to run
+// ------------------------------------
+cc_test_library {
+    name: "libjvm_test_launcher",
+    defaults: ["libtextclassifier_defaults"],
+    srcs: [
+        ":libtextclassifier_java_test_sources",
+        "annotator/datetime/testing/*.cc",
+        "actions/test-utils.cc",
+        "utils/testing/annotator.cc",
+        "utils/testing/logging_event_listener.cc",
+        "testing/jvm_test_launcher.cc",
+    ],
+    version_script: "jni.lds",
+    static_libs: [
+        "libflatbuffers-cpp",
+        "libgmock_ndk",
+        "libgtest_ndk_c++",
+        "libbase_ndk",
+        "libtextclassifier",
+    ],
+    header_libs: [
+        "libtextclassifier_flatbuffer_testonly_headers",
+    ],
+}
+
+android_test {
+    name: "libtextclassifier_java_tests",
+    srcs: ["testing/JvmTestLauncher.java"],
+    min_sdk_version: "30",
+    test_suites: [
+        "general-tests",
+        "mts-extservices",
+    ],
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+        "androidx.test.espresso.core",
+        "androidx.test.ext.truth",
+        "truth",
+        "TextClassifierCoverageLib",
+    ],
+    jni_libs: [
+        "libjvm_test_launcher",
+    ],
+    jni_uses_sdk_apis: true,
+    data: [
+        "**/*.bfbs",
+        "**/test_data/*",
+    ],
+    test_config: "JavaTest.xml",
+    compile_multilib: "both",
+}
+
+// ----------------
+// Annotator models
+// ----------------
+
+prebuilt_etc {
+    name: "libtextclassifier_annotator_en_model",
+    filename: "textclassifier.en.model",
+    owner: "google",
+    src: "models/textclassifier.en.model",
+    sub_dir: "textclassifier",
+}
+
+prebuilt_etc {
+    name: "libtextclassifier_annotator_universal_model",
+    filename: "textclassifier.universal.model",
+    owner: "google",
+    src: "models/textclassifier.universal.model",
+    sub_dir: "textclassifier",
+}
+
+// ---------------------------
+// Actions Suggestions models
+// ---------------------------
+
+prebuilt_etc {
+    name: "libtextclassifier_actions_suggestions_universal_model",
+    filename: "actions_suggestions.universal.model",
+    owner: "google",
+    src: "models/actions_suggestions.universal.model",
+    sub_dir: "textclassifier",
+}
+
+// ------------
+// LangId model
+// ------------
+
+prebuilt_etc {
+    name: "libtextclassifier_lang_id_model",
+    filename: "lang_id.model",
+    owner: "google",
+    src: "models/lang_id.model",
+    sub_dir: "textclassifier",
+}
+
+build = ["FlatBufferHeaders.bp", "JavaTests.bp"]

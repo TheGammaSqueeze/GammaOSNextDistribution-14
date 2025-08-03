@@ -1,0 +1,71 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+
+//###########################################################
+// Robolectric test target for testing mdd test lib classes #
+//###########################################################
+android_app {
+    name: "MobileDataDownloadPlaceHolderApp",
+    manifest: "com/google/android/libraries/mobiledatadownload/internal/AndroidManifest.xml",
+    platform_apis: true,
+    libs: [
+        "android.test.runner",
+    ]
+}
+
+android_robolectric_test {
+
+    name: "MobileDataDownloadRoboTests",
+
+    srcs: [
+        "com/google/android/libraries/mobiledatadownload/internal/*.java",
+    ],
+
+    exclude_srcs: [
+        // Already compiled from mdd-robolectric-library
+        "com/google/android/libraries/mobiledatadownload/internal/MddTestUtil.java",
+        // Tests that are not yet ready to be included.
+        // TODO: (b/256877824) To be removed once the dependency for LabsFutures and ProtoParsers is resolved.
+        "com/google/android/libraries/mobiledatadownload/internal/MobileDataDownloadManagerTest.java", // Missing LabsFutures
+        "com/google/android/libraries/mobiledatadownload/internal/FileGroupManagerTest.java", // Missing LabsFutures
+        "com/google/android/libraries/mobiledatadownload/internal/util/ProtoConversionUtilTest.java", // Missing ProtoParsers
+        "com/google/android/libraries/mobiledatadownload/internal/MddIsolatedStructuresTest.java", //android.os.symlink and android.os.readlink do not work with robolectric
+        "com/google/android/libraries/mobiledatadownload/testing/FakeMobileDataDownload.java", // Missing GoogleLogger
+        "com/google/android/libraries/mobiledatadownload/testing/MddTestDependencies.java", // Missing BaseFileDownloaderModule
+        "com/google/android/libraries/mobiledatadownload/internal/ExpirationHandlerTest.java" // Test failed
+
+    ],
+
+    java_resource_dirs: ["config"],
+
+    libs: [
+        // This jar should not be included, android_robolectric_test soong tasks either ads 
+        // "Robolectric_all-target" or "Robolectric_all-target_upstream" based on the "upstream"
+        // flag below.
+        "androidx.test.core",
+        "mobile_data_downloader_lib",
+        "mdd-robolectric-library",
+    ],
+
+    // use external/robolectric, rather than the outdated external/robolectric-shadows.
+    upstream: true,
+
+    instrumentation_for: "MobileDataDownloadPlaceHolderApp",
+
+}

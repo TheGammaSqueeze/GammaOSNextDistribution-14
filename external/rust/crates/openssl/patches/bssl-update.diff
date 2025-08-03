@@ -1,0 +1,60 @@
+diff --git a/src/bio.rs b/src/bio.rs
+index 6a72552..0324218 100644
+--- a/src/bio.rs
++++ b/src/bio.rs
+@@ -4,7 +4,7 @@ use std::marker::PhantomData;
+ use std::ptr;
+ use std::slice;
+ 
+-use crate::cvt_p;
++use crate::{cvt_p, SignedLenType};
+ use crate::error::ErrorStack;
+ 
+ pub struct MemBioSlice<'a>(*mut ffi::BIO, PhantomData<&'a [u8]>);
+@@ -25,7 +25,7 @@ impl<'a> MemBioSlice<'a> {
+         let bio = unsafe {
+             cvt_p(BIO_new_mem_buf(
+                 buf.as_ptr() as *const _,
+-                buf.len() as c_int,
++                buf.len() as SignedLenType,
+             ))?
+         };
+ 
+@@ -78,7 +78,7 @@ cfg_if! {
+         use ffi::BIO_new_mem_buf;
+     } else {
+         #[allow(bad_style)]
+-        unsafe fn BIO_new_mem_buf(buf: *const ::libc::c_void, len: ::libc::c_int) -> *mut ffi::BIO {
++        unsafe fn BIO_new_mem_buf(buf: *const ::libc::c_void, len: SignedLenType) -> *mut ffi::BIO {
+             ffi::BIO_new_mem_buf(buf as *mut _, len)
+         }
+     }
+diff --git a/src/dh.rs b/src/dh.rs
+index 12170b9..e781543 100644
+--- a/src/dh.rs
++++ b/src/dh.rs
+@@ -239,7 +239,7 @@ where
+ }
+ 
+ cfg_if! {
+-    if #[cfg(any(ossl110, libressl270))] {
++    if #[cfg(any(ossl110, libressl270, boringssl))] {
+         use ffi::{DH_set0_pqg, DH_get0_pqg, DH_get0_key, DH_set0_key};
+     } else {
+         #[allow(bad_style)]
+diff --git a/src/lib.rs b/src/lib.rs
+index f149bfd..e8d07d8 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -196,6 +196,11 @@ type LenType = libc::size_t;
+ #[cfg(not(boringssl))]
+ type LenType = libc::c_int;
+ 
++#[cfg(boringssl)]
++type SignedLenType = libc::ssize_t;
++#[cfg(not(boringssl))]
++type SignedLenType = libc::c_int;
++
+ #[inline]
+ fn cvt_p<T>(r: *mut T) -> Result<*mut T, ErrorStack> {
+     if r.is_null() {

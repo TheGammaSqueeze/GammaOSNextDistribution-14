@@ -1,0 +1,19 @@
+name: "apache-commons-lang"
+description:
+    "Apache Commons Lang, a package of Java utility classes for the classes "
+    "that are in java.lang's hierarchy, or are considered to be so standard as "
+    "to justify existence in java.lang."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://commons.apache.org/proper/commons-lang/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/apache/commons-lang.git"
+  }
+  version: "eaff7e0a693455081932b53688029f0700447305"
+  last_upgrade_date { year: 2023 month: 02 day: 13 }
+  license_type: NOTICE
+}

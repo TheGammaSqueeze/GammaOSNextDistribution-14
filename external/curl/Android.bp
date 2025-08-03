@@ -1,0 +1,135 @@
+package {
+    default_applicable_licenses: ["external_curl_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change filtered out the below license kinds as false-positives:
+//   SPDX-license-identifier-GPL
+// See: http://go/android-license-faq
+license {
+    name: "external_curl_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-OpenSSL",
+        "legacy_notice",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "COPYING",
+    ],
+}
+
+cc_defaults {
+    name: "curl_common_defaults",
+    cflags: [
+        "-Wpointer-arith",
+        "-Wwrite-strings",
+        "-Wunused",
+        "-Winline",
+        "-Wnested-externs",
+        "-Wmissing-declarations",
+        "-Wmissing-prototypes",
+        "-Wno-long-long",
+        "-Wfloat-equal",
+        "-Wno-multichar",
+        "-Wno-sign-compare",
+        "-Wno-format-nonliteral",
+        "-Wendif-labels",
+        "-Wstrict-prototypes",
+        "-Wdeclaration-after-statement",
+        "-Wno-system-headers",
+        "-DHAVE_CONFIG_H",
+        // TODO(avakulenko): Android.mk had this for OS version string:
+        // "Android $(PLATFORM_VERSION) $(TARGET_ARCH_VARIANT)"
+        // but Soong doesn't have access to those config variables yet.
+        "-DOS=\"Android\"",
+        "-Werror",
+        // Bug: http://b/29823425 Disable -Wvarargs for Clang update to r271374
+        "-Wno-varargs",
+    ],
+    local_include_dirs: ["include", "lib"],
+    multilib: {
+        lib32: {
+            cflags: [
+                "-DSIZEOF_LONG=4",
+                "-DSIZEOF_LONG_LONG=8",
+                "-DSIZEOF_SIZE_T=4",
+                "-DSIZEOF_TIME_T=4",
+            ],
+        },
+        lib64: {
+            cflags: [
+                "-DSIZEOF_LONG=8",
+                "-DSIZEOF_LONG_LONG=8",
+                "-DSIZEOF_SIZE_T=8",
+                "-DSIZEOF_TIME_T=8",
+            ],
+        },
+    },
+}
+
+cc_library {
+    name: "libcurl",
+    vendor_available: true,
+    product_available: true,
+    vndk: {
+        enabled: true,
+    },
+    defaults: ["curl_common_defaults"],
+    export_include_dirs: ["include"],
+    host_supported: true,
+    cflags: [
+        "-DBUILDING_LIBCURL",
+        "-Wno-format",
+        "-Wformat-security",
+    ],
+    srcs:[
+        "lib/**/*.c",
+    ],
+    shared_libs: [
+        "libcrypto",
+        "libssl",
+        "libz",
+    ],
+    target: {
+        host: {
+            cflags: ["-D_GNU_SOURCE=1"],
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+    unique_host_soname: true,
+}
+
+cc_binary {
+    name: "curl",
+    defaults: ["curl_common_defaults"],
+    srcs: [
+        "src/*.c",
+        "lib/base64.c",
+        "lib/dynbuf.c",
+    ],
+    shared_libs: [
+        "libcrypto",
+        "libssl",
+        "libz",
+    ],
+    static_libs: ["libcurl"],
+}

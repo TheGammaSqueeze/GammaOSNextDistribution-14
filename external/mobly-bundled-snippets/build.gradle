@@ -1,0 +1,111 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.1'
+
+        // NOTE: Do not place your application dependencies here.
+    }
+}
+
+plugins {
+    id "com.github.sherter.google-java-format" version "0.9"
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:all"
+        }
+    }
+}
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 31
+
+    defaultConfig {
+        applicationId "com.google.android.mobly.snippet.bundled"
+        minSdkVersion 26
+        targetSdkVersion 31
+        versionCode 1
+        versionName "0.0.1"
+        setProperty("archivesBaseName", "mobly-bundled-snippets")
+        multiDexEnabled true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        abortOnError false
+        checkAllWarnings true
+        warningsAsErrors true
+        disable 'HardwareIds','MissingApplicationIcon','GoogleAppIndexingWarning','InvalidPackage','OldTargetApi'
+    }
+}
+
+// Produces a jar of source files. Needed for compliance reasons.
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'src'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(
+        android.getBootClasspath().join(File.pathSeparator))
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+dependencies {
+    implementation 'androidx.test:runner:1.5.2'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.android.support.test.uiautomator:uiautomator-v18:2.1.3'
+    implementation 'com.google.android.mobly:mobly-snippet-lib:1.4.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'com.google.errorprone:error_prone_annotations:2.15.0'
+
+    testImplementation 'com.google.errorprone:error_prone_annotations:2.15.0'
+    testImplementation 'com.google.guava:guava:31.0.1-jre'
+    testImplementation 'com.google.truth:truth:1.1.2'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+googleJavaFormat {
+    options style: 'AOSP'
+}
+
+// Open lint's HTML report in your default browser or viewer.
+task openLintReport(type: Exec) {
+    def lint_report = "build/reports/lint-results.html"
+    def cmd = "cat"
+    def platform = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+    if (platform.contains("linux")) {
+        cmd = "xdg-open"
+    } else if (platform.contains("mac os x")) {
+        cmd = "open"
+    } else if (platform.contains("windows")) {
+        cmd = "launch"
+    }
+    commandLine cmd, lint_report
+}
+
+task presubmit {
+    dependsOn { ['googleJavaFormat', 'lint', 'openLintReport'] }
+    doLast {
+        println "Fix any lint issues you see. When it looks good, submit the pull request."
+    }
+}
+

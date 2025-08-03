@@ -1,0 +1,26 @@
+[package]
+name = "uwb_core-fuzz"
+version = "0.0.1"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+arbitrary = {version = "1", features = ["derive"] }
+libfuzzer-sys = "0.4"
+uwb_core = { path = "..", features = ["proto"] }
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "proto_uwb_service_fuzzer"
+path = "proto_uwb_service_fuzzer.rs"
+test = false
+doc = false

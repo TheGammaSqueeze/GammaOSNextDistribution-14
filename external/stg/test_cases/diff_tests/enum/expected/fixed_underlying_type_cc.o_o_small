@@ -1,0 +1,7 @@
+type 'enum A' changed
+  underlying type changed from 'signed char' to 'unsigned char'
+
+type 'enum B' changed
+  underlying type changed from 'signed char' to 'unsigned long'
+
+exit code 4

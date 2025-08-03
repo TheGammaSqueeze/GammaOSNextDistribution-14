@@ -1,0 +1,21 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.btservices",
+    "com.android.compos",
+    "com.android.virt"
+  ],
+  "features": [
+    "bytes"
+  ],
+  "min_sdk_version": "29",
+  "module_name_overrides": {
+    "copy_protobuf_build_out": "copy_protobuf_deprecated_build_out",
+    "libprotobuf": "libprotobuf_deprecated"
+  },
+  "package": {
+    "protobuf": {
+      "copy_out": true
+    }
+  }
+}

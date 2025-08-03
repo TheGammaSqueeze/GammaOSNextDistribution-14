@@ -1,0 +1,13 @@
+name: "notosansthaiui"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Thai UI is an unmodulated (“sans serif”) design in themore modern, loopless variant of the Southeast Asian Thai script,suitable for app and website user interfaces in the Thai script. It hasmultiple weights and widths, and 140 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansthaiui"
+  }
+  version: "1.040"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

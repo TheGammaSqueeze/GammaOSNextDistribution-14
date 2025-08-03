@@ -1,0 +1,5 @@
+[style]
+based_on_style = chromium
+blank_line_before_module_docstring = true
+split_before_named_assigns = false
+split_arguments_when_comma_terminated = true

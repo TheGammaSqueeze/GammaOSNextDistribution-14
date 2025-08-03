@@ -1,0 +1,44 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='l' size='88' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='long.c' language='LANG_C11'>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <class-decl name='L' size-in-bits='704' is-struct='yes' visibility='default' id='33d97653'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='l' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='li' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='il' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='192'>
+        <var-decl name='sl' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='256'>
+        <var-decl name='ls' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='320'>
+        <var-decl name='isl' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='384'>
+        <var-decl name='sil' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='448'>
+        <var-decl name='sli' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='512'>
+        <var-decl name='ils' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='576'>
+        <var-decl name='lis' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='640'>
+        <var-decl name='lsi' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='l' type-id='33d97653' mangled-name='l' visibility='default' elf-symbol-id='l'/>
+  </abi-instr>
+</abi-corpus>

@@ -1,0 +1,19 @@
+name: "merge"
+description: "Merge multiple values into one"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/merge"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/merge/merge-0.1.0.crate"
+  }
+  version: "0.1.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 11
+    day: 28
+  }
+}

@@ -1,0 +1,53 @@
+diff -u mksh-R59c/mksh/funcs.c src/funcs.c
+--- mksh-R59c/mksh/funcs.c	2020-08-27 19:53:11.000000000 +0000
++++ src/funcs.c	2023-03-31 18:02:12.376044783 +0000
+@@ -98,7 +98,9 @@
+ 	{Tsgbreak, c_brkcont},
+ 	{T__builtin, c_builtin},
+ 	{Tbuiltin, c_builtin},
++#if !defined(__ANDROID__)
+ 	{Tbcat, c_cat},
++#endif
+ 	{Tcd, c_cd},
+ 	/* dash compatibility hack */
+ 	{"chdir", c_cd},
+@@ -119,7 +121,9 @@
+ 	{"pwd", c_pwd},
+ 	{Tread, c_read},
+ 	{Tdsgreadonly, c_typeset},
++#if !defined(__ANDROID__)
+ 	{"!realpath", c_realpath},
++#endif
+ 	{"~rename", c_rename},
+ 	{"*=return", c_exitreturn},
+ 	{Tsghset, c_set},
+@@ -153,8 +157,10 @@
+ 	{"~printf", c_printf},
+ #endif
+ #if HAVE_SELECT
++#if !defined(__ANDROID__)
+ 	{"sleep", c_sleep},
+ #endif
++#endif
+ #ifdef __MirBSD__
+ 	/* alias to "true" for historical reasons */
+ 	{"domainname", c_true},
+diff -u mksh-R59c/mksh/main.c src/main.c
+--- mksh-R59c/mksh/main.c	2020-10-01 20:29:21.000000000 +0000
++++ src/main.c	2023-03-31 18:09:32.827660886 +0000
+@@ -413,6 +413,12 @@
+
+ 	/* import environment */
+ 	init_environ();
++
++	/* override default PATH regardless of environment */
++#ifdef MKSH_DEFPATH_OVERRIDE
++	vp = global(TPATH);
++	setstr(vp, MKSH_DEFPATH_OVERRIDE, KSH_RETURN_ERROR);
++#endif
+ 
+ 	/* for security */
+ 	typeset(TinitIFS, 0, 0, 0, 0);
+Only in src/: rlimits.gen
+Only in src/: sh_flags.gen
+Only in src/: ulimits.gen

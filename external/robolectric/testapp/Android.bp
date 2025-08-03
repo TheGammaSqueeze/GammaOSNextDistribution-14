@@ -1,0 +1,47 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "GlobalRobolectricAssetsLib",
+    asset_dirs: ["src/main/assets"],
+    resource_dirs: ["src/main/res"],
+    min_sdk_version: "16",
+    target_sdk_version: "33",
+    platform_apis: true,
+    manifest: "src/main/AndroidManifest.xml",
+    optimize: {
+        enabled: false,
+    },
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}
+
+android_app {
+    name: "GlobalRobolectricTestStub",
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.kt",
+    ],
+    static_libs: ["GlobalRobolectricAssetsLib"],
+    manifest: "src/main/AndroidManifest.xml",
+    aaptflags: [
+        "--extra-packages",
+        "org.robolectric.testapp",
+    ],
+    dont_merge_manifests: true,
+    platform_apis: true,
+    system_ext_specific: true,
+    min_sdk_version: "16",
+    target_sdk_version: "33",
+    certificate: "platform",
+    privileged: true,
+    resource_dirs: ["src/main/res"],
+    kotlincflags: ["-Xjvm-default=all"],
+
+    plugins: ["dagger2-compiler"],
+    lint: {
+        baseline_filename: "lint-baseline.xml",
+    },
+}

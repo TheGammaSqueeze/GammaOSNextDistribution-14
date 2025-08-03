@@ -1,0 +1,18 @@
+<a>
+ <b>b content,
+  <d>d in b,</d>
+ </b>
+ <c>
+  <d>d in c,</d>
+
+<g>g content,</g>
+
+
+ </c>
+ <e> </e>
+ <f>f content,
+   <g>g in f,
+   <d>d in f/g,
+    </d> </g> </f>
+</a>
+

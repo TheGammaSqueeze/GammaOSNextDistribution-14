@@ -1,0 +1,10 @@
+URL: https://github.com/junit-team/junit/archive/r4.13.2.tar.gz
+Version: 4.13.2
+BugComponent: 40416
+
+Local Changes:
+    Extra generic type information to aid certain javacs.
+    Remove DisableOnDebug (new in 4.12) as it is not supported on Android
+    Remove support for stuck threads
+    Don't convert assumption failures into errors in rules/ErrorCollector
+    Fix compile error on JDK 18 and later (copied from https://github.com/junit-team/junit4/commit/0eb5ce72848d730da5bd6d42902fdd6a8a42055d)

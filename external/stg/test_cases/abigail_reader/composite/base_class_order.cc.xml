@@ -1,0 +1,41 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='add_remove' size='12' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='diff_order' size='16' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='base_class_order.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='A' size-in-bits='32' is-struct='yes' visibility='default' id='3ed987a4'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='B' size-in-bits='32' is-struct='yes' visibility='default' id='41d98c5d'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='y' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='C' size-in-bits='32' is-struct='yes' visibility='default' id='40d98aca'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='z' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='AddRemove' size-in-bits='96' is-struct='yes' visibility='default' id='6595865c'>
+      <base-class access='public' layout-offset-in-bits='0' type-id='40d98aca'/>
+      <base-class access='public' layout-offset-in-bits='32' type-id='41d98c5d'/>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='m' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='DiffOrder' size-in-bits='128' is-struct='yes' visibility='default' id='fee16eca'>
+      <base-class access='public' layout-offset-in-bits='0' type-id='41d98c5d'/>
+      <base-class access='public' layout-offset-in-bits='32' type-id='3ed987a4'/>
+      <base-class access='public' layout-offset-in-bits='64' type-id='40d98aca'/>
+      <data-member access='public' layout-offset-in-bits='96'>
+        <var-decl name='m' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='add_remove' type-id='6595865c' mangled-name='add_remove' visibility='default' elf-symbol-id='add_remove'/>
+    <var-decl name='diff_order' type-id='fee16eca' mangled-name='diff_order' visibility='default' elf-symbol-id='diff_order'/>
+  </abi-instr>
+</abi-corpus>

@@ -1,0 +1,33 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.cellular-ota-avl'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:cellular_ota_avl'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+DOC = '''
+Run the AVL Tast tests which are required for AVL Qualification.
+
+"group:cellular" indicates that the test runs on DUTs with a Cellular modem.
+"cellular_ota_avl": Tests that are tagged with this attribute are included in this suite.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['("group:cellular" && "cellular_ota_avl")'],
+                 ignore_test_failures=True, max_run_sec=10800,
+                 command_args=args)
+
+parallel_simple(run, machines)

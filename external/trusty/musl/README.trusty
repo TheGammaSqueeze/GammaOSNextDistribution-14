@@ -1,0 +1,3 @@
+This repo contains a partial port of Musl to Trusty.
+The code is no longer compatible with Linux.
+If you are running in Android user space, please use Bionic.

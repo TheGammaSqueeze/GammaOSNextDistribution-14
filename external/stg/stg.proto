@@ -1,0 +1,277 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// -*- mode: protobuffer -*-
+//
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License v2.0 with LLVM Exceptions (the
+// "License"); you may not use this file except in compliance with the
+// License.  You may obtain a copy of the License at
+//
+//     https://llvm.org/LICENSE.txt
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Author: Siddharth Nayyar
+//
+// Protobuf definitions representing the graph and nodes defined in graph.h.
+//
+// The protobuf representations approximately mirror the internal STG
+// representataion. Keeping the representations as close as possible helps keep
+// the serialisation and deserialisation logic simple. Nevertheless, there are
+// some differences between the two representation, which are as follows:
+//
+// * The protobuf graph has repeated fields for each node type rather than a
+//   repeated field of one offs of all node types.
+// * The external ids are 32-bit integers. We use fixed32 type to represent the
+//   ids which is better than using a variable integer type in terms of both
+//   space and time. The ids are generated using 32-bit hashes of local
+//   information of nodes.
+// * All enumerations have a default UNKNOWN value to avoid defaulting to
+//   concrete enumeration values when those values are missing.
+// * Self ids of nodes have been made a part of the node itself (as the first
+//   member) for all node types. This is to improve succinctness of textual
+//   representation of the protobuf.
+// * The binary protobuf definitions have no stability guarantee and exist
+//   solely to support the associated textual format.
+
+syntax = "proto3";
+
+package stg.proto;
+
+// deprecated
+message Void {
+  fixed32 id = 1;
+}
+
+// deprecated
+message Variadic {
+  fixed32 id = 1;
+}
+
+message Special {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    VOID = 1;
+    VARIADIC = 2;
+    NULLPTR = 3;
+  }
+
+  fixed32 id = 1;
+  Kind kind = 2;
+}
+
+message PointerReference {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    POINTER = 1;
+    LVALUE_REFERENCE = 2;
+    RVALUE_REFERENCE = 3;
+  }
+
+  fixed32 id = 1;
+  Kind kind = 2;
+  fixed32 pointee_type_id = 3;
+}
+
+message PointerToMember {
+  fixed32 id = 1;
+  fixed32 containing_type_id = 2;
+  fixed32 pointee_type_id = 3;
+}
+
+message Typedef {
+  fixed32 id = 1;
+  string name = 2;
+  fixed32 referred_type_id = 3;
+}
+
+message Qualified {
+  enum Qualifier {
+    QUALIFIER_UNSPECIFIED = 0;
+    CONST = 1;
+    VOLATILE = 2;
+    RESTRICT = 3;
+    ATOMIC = 4;
+  }
+
+  fixed32 id = 1;
+  Qualifier qualifier = 2;
+  fixed32 qualified_type_id = 3;
+}
+
+message Primitive {
+  enum Encoding {
+    ENCODING_UNSPECIFIED = 0;
+    NONE = 1;
+    BOOLEAN = 2;
+    SIGNED_INTEGER = 3;
+    UNSIGNED_INTEGER = 4;
+    SIGNED_CHARACTER = 5;
+    UNSIGNED_CHARACTER = 6;
+    REAL_NUMBER = 7;
+    COMPLEX_NUMBER = 8;
+    UTF = 9;
+  }
+
+  fixed32 id = 1;
+  string name = 2;
+  optional Encoding encoding = 3;
+  uint32 bytesize = 4;
+}
+
+message Array {
+  fixed32 id = 1;
+  uint64 number_of_elements = 2;
+  fixed32 element_type_id = 3;
+}
+
+message BaseClass {
+  enum Inheritance {
+    INHERITANCE_UNSPECIFIED = 0;
+    NON_VIRTUAL = 1;
+    VIRTUAL = 2;
+  }
+
+  fixed32 id = 1;
+  fixed32 type_id = 2;
+  uint64 offset = 3;
+  Inheritance inheritance = 4;
+}
+
+message Method {
+  fixed32 id = 1;
+  string mangled_name = 2;
+  string name = 3;
+  uint64 vtable_offset = 4;
+  fixed32 type_id = 5;
+}
+
+message Member {
+  fixed32 id = 1;
+  string name = 2;
+  fixed32 type_id = 3;
+  uint64 offset = 4;
+  uint64 bitsize = 5;
+}
+
+message StructUnion {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    STRUCT = 1;
+    UNION = 2;
+  }
+
+  message Definition {
+    uint64 bytesize = 1;
+    repeated fixed32 base_class_id = 2;
+    repeated fixed32 method_id = 3;
+    repeated fixed32 member_id = 4;
+  }
+
+  fixed32 id = 1;
+  Kind kind = 2;
+  string name = 3;
+  optional Definition definition = 4;
+}
+
+message Enumeration {
+  message Enumerator {
+    string name = 1;
+    int64 value = 2;
+  }
+
+  message Definition {
+    fixed32 underlying_type_id = 1;
+    repeated Enumerator enumerator = 2;
+  }
+
+  fixed32 id = 1;
+  string name = 2;
+  optional Definition definition = 3;
+}
+
+message Function {
+  fixed32 id = 1;
+  fixed32 return_type_id = 2;
+  repeated fixed32 parameter_id = 3;
+}
+
+message ElfSymbol {
+  message VersionInfo {
+    bool is_default = 1;
+    string name = 2;
+  }
+
+  enum SymbolType {
+    SYMBOL_TYPE_UNSPECIFIED = 0;
+    OBJECT = 1;
+    FUNCTION = 2;
+    COMMON = 3;
+    TLS = 4;
+    GNU_IFUNC = 5;
+  }
+
+  enum Binding {
+    GLOBAL = 0;  // Default while reading, omitted while writing.
+    LOCAL = 1;
+    WEAK = 2;
+    GNU_UNIQUE = 3;
+  }
+
+  enum Visibility {
+    DEFAULT = 0;  // Default while reading, omitted while writing.
+    PROTECTED = 1;
+    HIDDEN = 2;
+    INTERNAL = 3;
+  }
+
+  fixed32 id = 1;
+  string name = 2;
+  optional VersionInfo version_info = 3;
+  bool is_defined = 4;
+  SymbolType symbol_type = 5;
+  Binding binding = 6;
+  Visibility visibility = 7;
+  optional fixed32 crc = 8;
+  optional string namespace = 9;
+  optional fixed32 type_id = 10;
+  optional string full_name = 11;
+}
+
+message Symbols {
+  fixed32 id = 1;
+  map<string, fixed32> symbol = 2;
+}
+
+message Interface {
+  fixed32 id = 1;
+  repeated fixed32 symbol_id = 2;
+  repeated fixed32 type_id = 3;
+}
+
+message STG {
+  uint32 version = 1;
+  fixed32 root_id = 2;
+  repeated Void void = 3;
+  repeated Variadic variadic = 4;
+  repeated Special special = 5;
+  repeated PointerReference pointer_reference = 6;
+  repeated PointerToMember pointer_to_member = 7;
+  repeated Typedef typedef = 8;
+  repeated Qualified qualified = 9;
+  repeated Primitive primitive = 10;
+  repeated Array array = 11;
+  repeated BaseClass base_class = 12;
+  repeated Method method = 13;
+  repeated Member member = 14;
+  repeated StructUnion struct_union = 15;
+  repeated Enumeration enumeration = 16;
+  repeated Function function = 17;
+  repeated ElfSymbol elf_symbol = 18;
+  repeated Symbols symbols = 19;
+  repeated Interface interface = 20;
+}

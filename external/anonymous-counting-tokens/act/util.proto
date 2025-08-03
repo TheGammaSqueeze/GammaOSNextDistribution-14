@@ -1,0 +1,186 @@
+/*
+ * Copyright 2023 Google LLC.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package private_join_and_compute.anonymous_counting_tokens;
+
+import "act/act.proto";
+import "google/protobuf/timestamp.proto";
+
+
+option java_multiple_files = true;
+
+message Transcript {
+  SchemeParameters scheme_parameters = 1;
+  ServerParameters server_parameters = 2;
+  ClientParameters client_parameters = 3;
+  repeated string messages = 4;
+  repeated bytes fingerprints = 5;
+  TokensRequest tokens_request = 6;
+  TokensRequestPrivateState tokens_request_private_state = 7;
+  TokensResponse tokens_response = 8;
+  repeated Token tokens = 9;
+}
+
+message MessagesSet {
+  repeated string message = 1;
+}
+
+message GeneratedTokensRequestProto {
+  repeated bytes fingerprints_bytes = 1;
+  TokensRequest token_request = 2;
+  TokensRequestPrivateState tokens_request_private_state = 3;
+}
+
+message TokensSet {
+  repeated Token tokens = 1;
+}
+
+message Timestamp {
+  // Represents seconds of UTC time since Unix epoch
+  // 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to
+  // 9999-12-31T23:59:59Z inclusive.
+  int64 seconds = 1;
+
+  // Non-negative fractions of a second at nanosecond resolution. Negative
+  // second values with fractions must still have non-negative nanos values
+  // that count forward in time. Must be from 0 to 999,999,999
+  // inclusive.
+  int32 nanos = 2;
+}
+
+
+// Server public params request.
+message GetServerPublicParamsRequest {
+  // The response should contain the latest server params corresponding to this
+  // scheme_params_version.
+  string scheme_params_version = 1;
+}
+
+// Server public params response.
+message GetServerPublicParamsResponse {
+  // The name of the return parameters, to be used in subsequent token requests.
+  string server_params_version = 1;
+  ServerPublicParameters server_public_params = 2;
+  // The time when tokens can be requested for these parameters.
+  // After this expires, clients registered with these server params must
+  // re-register with a new unexpired server_params.
+  Timestamp server_params_sign_expiry = 3;
+  // The time when tokens can be redeemed for these parameters.
+  Timestamp server_params_join_expiry = 4;
+}
+
+message RequestMetadata {
+  // AuthType decouples the authentication method from the platform or client.
+  enum AuthType {
+    AUTH_TYPE_UNSPECIFIED = 0;
+    AUTH_GAIA = 1;
+    AUTH_DEVICE_ATTESTATION = 2;
+  }
+  AuthType auth_type = 1;
+  // Currently, only Android clients need to send metadata for authentication.
+  oneof client {
+    AndroidRequestMetadata android_request_metadata = 2;
+  }
+}
+
+enum AttestationScheme {
+  SCHEME_UNSPECIFIED = 0;
+  SCHEME_X509_CERTIFICATE_CHAIN = 1;
+}
+
+// Authentication for Android devices, an alternative to Gaia.
+message AndroidRequestMetadata {
+  // Id of the client owning the device with the given attestation.
+  bytes client_id = 1;
+  // Android device attestation.
+  bytes attestation = 2;
+  AttestationScheme attestation_scheme = 3;
+}
+
+// Client registration request.
+message RegisterClientRequest {
+  reserved 3, 4;
+  ClientPublicParameters client_public_params = 1;
+  string server_params_version = 2;
+  RequestMetadata request_metadata = 5;
+}
+
+// Client registration response.
+message RegisterClientResponse {
+  // The name given to the client parameters, to be used for all subsequent
+  // token requests.
+  string client_params_version = 1;
+  // The time when tokens can be issued and redeemed for these parameters.
+  Timestamp client_params_expiry = 2;
+  // The time after which the client needs to reregister params.
+  Timestamp client_reregister_expiry = 3;
+}
+
+message GetKeyAttestationChallengeResponse {
+  // Transparently passed KA Challenge from KAVS
+  bytes attestation_challenge = 1;
+  // Timestamp of challenge expiration; given and managed by KAVS.
+  Timestamp expiry = 2;
+}
+
+// Request to get tokens.
+message GetTokensRequest {
+  reserved 2, 5, 6;
+
+  string client_params_version = 1;
+  TokensRequest tokens_request = 3;
+
+  // Client fingerprints are cryptographic objects that allow the server to
+  // check whether the messages underlying tokens_request are different from
+  // all previous requests from this client with these parameters.
+  repeated bytes client_fingerprints_bytes = 4;
+
+  RequestMetadata request_metadata = 7;
+}
+
+// Response containing tokens.
+message GetTokensResponse {
+  TokensResponse tokens_response = 1;
+  // The time when tokens extracted from this response can be redeemed.
+  Timestamp tokens_expiry = 3;
+}
+
+// Redeem token request.
+message RedeemTokenRequest {
+  reserved 3;
+  // The token to be redeemed.
+  Token token = 1;
+  // The server params version associated with this token.
+  string server_params_version = 2;
+  // The message signed by this token.
+  bytes token_message_bytes = 4;
+}
+
+// Redeem token response.
+message RedeemTokenResponse {}
+
+message JoinSetRequest {
+  // The name of the set to join in types/{type}/sets/{set} format.
+  // The type will have a maximum of 8 characters.
+  // The set identifier will have a maximum of 64 characters.
+  string name = 1;
+
+  // The shortened (j-bit) client identifier.
+  uint32 short_client_identifier = 4;
+
+  reserved 2, 3;
+}

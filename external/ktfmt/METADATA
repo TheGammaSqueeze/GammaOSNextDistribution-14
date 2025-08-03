@@ -1,0 +1,13 @@
+name: "ktfmt"
+description:
+    "A formatter for Kotlin code."
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/facebookincubator/ktfmt.git"
+  }
+  version: "v0.39"
+  last_upgrade_date { year: 2022 month: 7 day: 25 }
+  license_type: NOTICE
+}

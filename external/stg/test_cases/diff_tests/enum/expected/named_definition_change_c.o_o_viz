@@ -1,0 +1,11 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'enum E1 v1' -> 'enum { a1 = 1, b1 = 1, } v1'"]
+  "2" [color=red, label="'enum E1' -> 'enum { a1 = 1, b1 = 1, }'"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+  "3" [label="'enum { a2 = 2, } v2' -> 'enum E2 v2'"]
+  "4" [color=red, label="'enum { a2 = 2, }' -> 'enum E2'"]
+  "3" -> "4" [label=""]
+  "0" -> "3" [label=""]
+}

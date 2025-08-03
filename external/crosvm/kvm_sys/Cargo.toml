@@ -1,0 +1,11 @@
+[package]
+name = "kvm_sys"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[dependencies]
+data_model = { path = "../common/data_model" }
+libc = "*"
+base = { path = "../base" }
+zerocopy = {version = "0.7", features = ["derive"]}

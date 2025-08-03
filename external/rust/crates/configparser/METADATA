@@ -1,0 +1,24 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/configparser
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "configparser"
+description: "A simple configuration parsing utility with no dependencies that allows you to parse INI and ini-style syntax. You can use this to write Rust programs which can be customized by end users easily."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 1
+  }
+  identifier {
+    type: "crates.io"
+    value: "https://static.crates.io/crates/configparser/configparser-3.0.4.crate"
+    version: "3.0.2"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/configparser/configparser-3.0.2.crate"
+    version: "3.0.4"
+  }
+}

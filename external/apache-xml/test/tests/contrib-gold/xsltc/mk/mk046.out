@@ -1,0 +1,21 @@
+<html><body><h1>Product sales by period</h1>
+<table border="1" width="100%" cellpadding="5"><tr><th width="50%">Product</th>
+<th width="17%">Q1</th>
+<th width="17%">Q2</th>
+<th width="17%">Q3</th>
+</tr>
+<tr><td>Windows 98
+      </td>
+<td>82</td>
+<td>64</td>
+<td>58</td>
+</tr>
+<tr><td>Windows NT
+      </td>
+<td>17</td>
+<td>44</td>
+<td>82</td>
+</tr>
+</table>
+</body>
+</html>

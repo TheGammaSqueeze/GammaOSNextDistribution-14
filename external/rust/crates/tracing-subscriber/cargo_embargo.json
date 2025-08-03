@@ -1,0 +1,11 @@
+{
+  "features": [
+    "alloc",
+    "std",
+    "smallvec",
+    "parking_lot",
+    "fmt",
+    "registry"
+  ],
+  "run_cargo": false
+}

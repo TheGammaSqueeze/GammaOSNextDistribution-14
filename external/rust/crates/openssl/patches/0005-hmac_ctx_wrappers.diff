@@ -1,0 +1,228 @@
+diff --git a/src/hmac.rs b/src/hmac.rs
+index 601ae01..465781e 100644
+--- a/src/hmac.rs
++++ b/src/hmac.rs
+@@ -1,10 +1,12 @@
+-use crate::cvt_p;
+ use crate::error::ErrorStack;
+ use crate::md::MdRef;
++use crate::{cvt, cvt_p};
++use ffi::HMAC_CTX;
+ use foreign_types::ForeignTypeRef;
++use libc::{c_uint, c_void};
+ use openssl_macros::corresponds;
+-use libc::{c_void, c_uint};
+ use std::convert::TryFrom;
++use std::ptr;
+ 
+ /// Computes the HMAC as a one-shot operation.
+ ///
+@@ -20,8 +22,9 @@ pub fn hmac<'a>(
+     md: &MdRef,
+     key: &[u8],
+     data: &[u8],
+-    out: &'a mut [u8]
++    out: &'a mut [u8],
+ ) -> Result<&'a [u8], ErrorStack> {
++    assert!(out.len() >= md.size());
+     let mut out_len = c_uint::try_from(out.len()).unwrap();
+     unsafe {
+         cvt_p(ffi::HMAC(
+@@ -31,38 +34,184 @@ pub fn hmac<'a>(
+             data.as_ptr(),
+             data.len(),
+             out.as_mut_ptr(),
+-            &mut out_len
+-            ))?;
++            &mut out_len,
++        ))?;
+     }
+     Ok(&out[..out_len as usize])
+ }
+ 
++/// A context object used to perform HMAC operations.
++///
++/// HMAC is a MAC (message authentication code), i.e. a keyed hash function used for message
++/// authentication, which is based on a hash function.
++///
++/// Note: Only available in boringssl. For openssl, use `PKey::hmac` instead.
++#[cfg(boringssl)]
++pub struct HmacCtx {
++    ctx: *mut HMAC_CTX,
++    output_size: usize,
++}
++
++#[cfg(boringssl)]
++impl HmacCtx {
++    /// Creates a new [HmacCtx] to use the hash function `md` and key `key`.
++    #[corresponds(HMAC_Init_ex)]
++    pub fn new(key: &[u8], md: &MdRef) -> Result<Self, ErrorStack> {
++        unsafe {
++            // Safety: If an error occurred, the resulting null from HMAC_CTX_new is converted into
++            // ErrorStack in the returned result by `cvt_p`.
++            let ctx = cvt_p(ffi::HMAC_CTX_new())?;
++            // Safety:
++            // - HMAC_Init_ex must be called with a context previously created with HMAC_CTX_new,
++            //   which is the line above.
++            // - HMAC_Init_ex may return an error if key is null but the md is different from
++            //   before. This is avoided here since key is guaranteed to be non-null.
++            cvt(ffi::HMAC_Init_ex(
++                ctx,
++                key.as_ptr() as *const c_void,
++                key.len(),
++                md.as_ptr(),
++                ptr::null_mut(),
++            ))?;
++            Ok(Self {
++                ctx,
++                output_size: md.size(),
++            })
++        }
++    }
++
++    /// `update` can be called repeatedly with chunks of the message `data` to be authenticated.
++    #[corresponds(HMAC_Update)]
++    pub fn update(&mut self, data: &[u8]) -> Result<(), ErrorStack> {
++        unsafe {
++            // Safety: HMAC_Update returns 0 on error, and that is converted into ErrorStack in the
++            // returned result by `cvt`.
++            cvt(ffi::HMAC_Update(self.ctx, data.as_ptr(), data.len())).map(|_| ())
++        }
++    }
++
++    /// Finishes the HMAC process, and places the message authentication code in `output`.
++    /// The number of bytes written to `output` is returned.
++    ///
++    /// # Panics
++    ///
++    /// Panics if the `output` is smaller than the required size. The output size is indicated by
++    /// `md.size()` for the `Md` instance passed in [new]. An output size of |EVP_MAX_MD_SIZE| will
++    /// always be large enough.
++    #[corresponds(HMAC_Final)]
++    pub fn finalize(&mut self, output: &mut [u8]) -> Result<usize, ErrorStack> {
++        assert!(output.len() >= self.output_size);
++        unsafe {
++            // Safety: The length assertion above makes sure that `HMAC_Final` will not write longer
++            // than the length of `output`.
++            let mut size: c_uint = 0;
++            cvt(ffi::HMAC_Final(
++                self.ctx,
++                output.as_mut_ptr(),
++                &mut size as *mut c_uint,
++            ))
++            .map(|_| size as usize)
++        }
++    }
++}
++
++impl Drop for HmacCtx {
++    #[corresponds(HMAC_CTX_free)]
++    fn drop(&mut self) {
++        unsafe {
++            ffi::HMAC_CTX_free(self.ctx);
++        }
++    }
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+     use crate::md::Md;
+-    use crate::memcmp;
+ 
+-    const SHA_256_DIGEST_SIZE:usize = 32;
++    const SHA_256_DIGEST_SIZE: usize = 32;
+ 
+     #[test]
+     fn hmac_sha256_test() {
+-        let expected_hmac = [0xb0, 0x34, 0x4c, 0x61, 0xd8, 0xdb, 0x38, 0x53, 0x5c, 0xa8, 0xaf, 0xce, 0xaf, 0xb, 0xf1, 0x2b, 0x88, 0x1d, 0xc2, 0x0, 0xc9, 0x83, 0x3d, 0xa7, 0x26, 0xe9, 0x37, 0x6c, 0x2e, 0x32, 0xcf, 0xf7];
++        let expected_hmac = [
++            0xb0, 0x34, 0x4c, 0x61, 0xd8, 0xdb, 0x38, 0x53, 0x5c, 0xa8, 0xaf, 0xce, 0xaf, 0xb,
++            0xf1, 0x2b, 0x88, 0x1d, 0xc2, 0x0, 0xc9, 0x83, 0x3d, 0xa7, 0x26, 0xe9, 0x37, 0x6c,
++            0x2e, 0x32, 0xcf, 0xf7,
++        ];
+         let mut out: [u8; SHA_256_DIGEST_SIZE] = [0; SHA_256_DIGEST_SIZE];
+-        let key:[u8; 20] = [0x0b; 20];
++        let key: [u8; 20] = [0x0b; 20];
+         let data = b"Hi There";
+-        let hmac_result = hmac(Md::sha256(), &key, data, &mut out).expect("Couldn't calculate sha256 hmac");
+-        expect!(memcmp::eq(&hmac_result, &expected_hmac));
++        let hmac_result =
++            hmac(Md::sha256(), &key, data, &mut out).expect("Couldn't calculate sha256 hmac");
++        assert_eq!(&hmac_result, &expected_hmac);
++    }
++
++    #[test]
++    #[should_panic]
++    fn hmac_sha256_output_too_short() {
++        let mut out = vec![0_u8; 1];
++        let key: [u8; 20] = [0x0b; 20];
++        let data = b"Hi There";
++        hmac(Md::sha256(), &key, data, &mut out).expect("Couldn't calculate sha256 hmac");
+     }
+ 
+     #[test]
+     fn hmac_sha256_test_big_buffer() {
+-        let expected_hmac = [0xb0, 0x34, 0x4c, 0x61, 0xd8, 0xdb, 0x38, 0x53, 0x5c, 0xa8, 0xaf, 0xce, 0xaf, 0xb, 0xf1, 0x2b, 0x88, 0x1d, 0xc2, 0x0, 0xc9, 0x83, 0x3d, 0xa7, 0x26, 0xe9, 0x37, 0x6c, 0x2e, 0x32, 0xcf, 0xf7];
++        let expected_hmac = [
++            0xb0, 0x34, 0x4c, 0x61, 0xd8, 0xdb, 0x38, 0x53, 0x5c, 0xa8, 0xaf, 0xce, 0xaf, 0xb,
++            0xf1, 0x2b, 0x88, 0x1d, 0xc2, 0x0, 0xc9, 0x83, 0x3d, 0xa7, 0x26, 0xe9, 0x37, 0x6c,
++            0x2e, 0x32, 0xcf, 0xf7,
++        ];
+         let mut out: [u8; 100] = [0; 100];
+-        let key:[u8;20] = [0x0b; 20];
++        let key: [u8; 20] = [0x0b; 20];
++        let data = b"Hi There";
++        let hmac_result =
++            hmac(Md::sha256(), &key, data, &mut out).expect("Couldn't calculate sha256 hmac");
++        assert_eq!(hmac_result.len(), SHA_256_DIGEST_SIZE);
++        assert_eq!(&hmac_result, &expected_hmac);
++    }
++
++    #[test]
++    fn hmac_sha256_update_test() {
++        let expected_hmac = [
++            0xb0, 0x34, 0x4c, 0x61, 0xd8, 0xdb, 0x38, 0x53, 0x5c, 0xa8, 0xaf, 0xce, 0xaf, 0xb,
++            0xf1, 0x2b, 0x88, 0x1d, 0xc2, 0x0, 0xc9, 0x83, 0x3d, 0xa7, 0x26, 0xe9, 0x37, 0x6c,
++            0x2e, 0x32, 0xcf, 0xf7,
++        ];
++        let mut out: [u8; SHA_256_DIGEST_SIZE] = [0; SHA_256_DIGEST_SIZE];
++        let key: [u8; 20] = [0x0b; 20];
+         let data = b"Hi There";
+-        let hmac_result = hmac(Md::sha256(), &key, data, &mut out).expect("Couldn't calculate sha256 hmac");
+-        expect_eq!(hmac_result.len(), SHA_256_DIGEST_SIZE);
+-        expect!(memcmp::eq(&hmac_result, &expected_hmac));
++        let mut hmac_ctx = HmacCtx::new(&key, Md::sha256()).unwrap();
++        hmac_ctx.update(data).unwrap();
++        let size = hmac_ctx.finalize(&mut out).unwrap();
++        assert_eq!(&out, &expected_hmac);
++        assert_eq!(size, SHA_256_DIGEST_SIZE);
++    }
++
++    #[test]
++    fn hmac_sha256_update_chunks_test() {
++        let expected_hmac = [
++            0xb0, 0x34, 0x4c, 0x61, 0xd8, 0xdb, 0x38, 0x53, 0x5c, 0xa8, 0xaf, 0xce, 0xaf, 0xb,
++            0xf1, 0x2b, 0x88, 0x1d, 0xc2, 0x0, 0xc9, 0x83, 0x3d, 0xa7, 0x26, 0xe9, 0x37, 0x6c,
++            0x2e, 0x32, 0xcf, 0xf7,
++        ];
++        let mut out: [u8; SHA_256_DIGEST_SIZE] = [0; SHA_256_DIGEST_SIZE];
++        let key: [u8; 20] = [0x0b; 20];
++        let mut hmac_ctx = HmacCtx::new(&key, Md::sha256()).unwrap();
++        hmac_ctx.update(b"Hi").unwrap();
++        hmac_ctx.update(b" There").unwrap();
++        let size = hmac_ctx.finalize(&mut out).unwrap();
++        assert_eq!(&out, &expected_hmac);
++        assert_eq!(size, SHA_256_DIGEST_SIZE);
++    }
++
++    #[test]
++    #[should_panic]
++    fn hmac_sha256_update_output_too_short() {
++        let mut out = vec![0_u8; 1];
++        let key: [u8; 20] = [0x0b; 20];
++        let mut hmac_ctx = HmacCtx::new(&key, Md::sha256()).unwrap();
++        hmac_ctx.update(b"Hi There").unwrap();
++        hmac_ctx.finalize(&mut out).unwrap();
+     }
+ }

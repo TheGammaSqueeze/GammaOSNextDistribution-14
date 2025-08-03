@@ -1,0 +1,14 @@
+plugins {
+    id 'kotlin'
+    id 'com.google.devtools.ksp'
+}
+
+kotlin {
+    jvmToolchain(11)
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "com.google.dagger:hilt-core:LOCAL-SNAPSHOT"
+    ksp "com.google.dagger:hilt-compiler:LOCAL-SNAPSHOT"
+}

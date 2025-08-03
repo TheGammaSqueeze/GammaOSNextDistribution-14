@@ -1,0 +1,13 @@
+name: "tensojka"
+description:
+    "Towards Universal Hyphenation Patterns: Czechoslovak hyphenation patterns"
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/tensojka/cshyphen"
+  }
+  version: "0ec0bdb720747738139eb240963d0d6993759031"
+  last_upgrade_date { year: 2023 month: 5 day: 10 }
+  license_type: NOTICE
+}

@@ -1,0 +1,19 @@
+name: "downcast-rs"
+description: "Trait object downcasting support using only safe Rust. It supports type parameters, associated types, and type constraints."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/downcast-rs"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/downcast-rs/downcast-rs-1.2.0.crate"
+  }
+  version: "1.2.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 10
+    day: 27
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.compos",
+    "com.android.virt"
+  ],
+  "run_cargo": false
+}

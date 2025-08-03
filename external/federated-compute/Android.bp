@@ -1,0 +1,216 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_federated_compute_license"],
+}
+
+license {
+    name: "external_federated_compute_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_headers {
+    name: "libfederatedcompute_headers",
+    export_include_dirs: ["."],
+    sdk_version: "current",
+    min_sdk_version: "33",
+    apex_available: ["com.android.ondevicepersonalization"],
+}
+
+java_library_static {
+    name: "federated-compute-java-proto-lite",
+    proto: {
+        type: "lite",
+        canonical_path_from_root: false,
+        include_dirs: [
+            "external/protobuf/src",
+            "external/protobuf/java",
+            "external/tensorflow",
+        ],
+    },
+    srcs: [
+        "fcp/protos/ondevicepersonalization/task_assignments.proto",
+        "fcp/protos/ondevicepersonalization/eligibility_spec.proto",
+        "fcp/protos/federatedcompute/common.proto",
+        "fcp/protos/plan.proto",
+        "fcp/client/**/*.proto",
+        ":libprotobuf-internal-protos",
+    ],
+    static_libs: [
+        "libprotobuf-java-lite",
+        "tensorflow_core_proto_java_lite",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "33",
+    apex_available: ["com.android.ondevicepersonalization"],
+}
+
+cc_library {
+    name: "federated-compute-cc-proto-lite",
+    srcs: [
+        "fcp/secagg/shared/secagg_messages.proto",
+        "fcp/secagg/server/secagg_server_enums.proto",
+        "fcp/client/**/*.proto",
+        "fcp/protos/**/*.proto",
+        "fcp/dictionary/*.proto",
+        ":libprotobuf-internal-protos",
+    ],
+    proto: {
+        type: "lite",
+        export_proto_headers: true,
+        canonical_path_from_root: false,
+        include_dirs: [
+            "external/protobuf/src",
+            "external/tensorflow",
+        ],
+    },
+    static_libs: [
+        "tensorflow_core_proto_cpp_lite",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    stl: "libc++_static",
+    apex_available: ["com.android.ondevicepersonalization"],
+    sdk_version: "current",
+    min_sdk_version: "33",
+}
+
+cc_library_static {
+    name: "libfederatedcompute",
+    srcs: [
+        "fcp/client/fcp_runner.cc",
+        "fcp/client/interruptible_runner.cc",
+        "fcp/client/simple_task_environment.cc",
+        "fcp/client/engine/*.cc",
+        "fcp/tensorflow/*.cc",
+        "fcp/dictionary/dictionary.cc",
+        "fcp/base/base_name.cc",
+        "fcp/base/monitoring.cc",
+        "fcp/base/platform.cc",
+        "fcp/base/clock.cc",
+        "fcp/base/random_token.cc",
+        "fcp/base/scheduler.cc",
+    ],
+    exclude_srcs: [
+        "fcp/**/*test*.cc",
+        "fcp/client/fake_*.cc",
+        // Exclude tfmobile engine dependencies.
+        "fcp/client/engine/tf_wrapper.cc",
+        "fcp/client/engine/simple_plan_engine.cc",
+        "fcp/tensorflow/tf_session.cc",
+    ],
+    static_libs: [
+        "federated-compute-cc-proto-lite",
+    ],
+    whole_static_libs: [
+        "libtflite_flex_delegate",
+    ],
+    export_include_dirs: ["."],
+    header_libs: [
+        "flatbuffer_headers",
+        "libeigen",
+        "libtextclassifier_hash_headers",
+    ],
+    shared_libs: [
+        "libcrypto",
+    ],
+    visibility: [
+        "//packages/modules/OnDevicePersonalization:__subpackages__",
+    ],
+    cflags: [
+        "-DNAMESPACE_FOR_HASH_FUNCTIONS=farmhash",
+        "-Wno-ignored-qualifiers",
+        "-Wno-unused-parameter",
+        "-Wno-missing-field-initializers",
+        "-Wno-defaulted-function-deleted",
+        "-Wno-deprecated-declarations",
+    ],
+    stl: "libc++_static",
+    sdk_version: "current",
+    apex_available: ["com.android.ondevicepersonalization"],
+    min_sdk_version: "33",
+}
+
+filegroup {
+    name: "fcp_native_wrapper",
+    srcs: ["fcp/java_src/main/java/com/google/fcp/client/CallFromNativeWrapper.java"],
+    visibility: [
+        "//packages/modules/OnDevicePersonalization:__subpackages__",
+    ],
+}
+
+filegroup {
+    name: "fcp_artifacts_testdata",
+    srcs: [
+        "fcp/testdata/federation_client_only_plan.pb",
+        "fcp/testdata/federation_proxy_train_examples.pb",
+        "fcp/testdata/federation_test_checkpoint.client.ckp",
+        "fcp/testdata/federation_test_select_checkpoints.pb",
+    ],
+    visibility: [
+        "//packages/modules/OnDevicePersonalization:__subpackages__",
+    ],
+}
+
+cc_test {
+    name: "fcp_plan_engine_test",
+    srcs: [
+        "fcp/client/engine/tflite_plan_engine_test.cc",
+        "fcp/client/engine/example_query_plan_engine_test.cc",
+        "fcp/tensorflow/file_descriptor_filesystem_test.cc",
+        "fcp/client/test_helpers.cc",
+    ],
+    test_suites: [
+        "general-tests",
+    ],
+    static_libs: [
+        "federated-compute-cc-proto-lite",
+        "libgmock",
+        "libbase_ndk",
+        "libprotobuf-cpp-lite-ndk",
+        "liblog",
+        "tensorflow_abseil",
+        "libc++fs", // used by filesystem
+    ],
+    whole_static_libs: [
+        "libfederatedcompute",
+    ],
+    shared_libs: [
+        "libcurl",
+        "libcrypto",
+    ],
+    header_libs: [
+        "libeigen",
+    ],
+    stl: "libc++_static",
+    data: [
+        "fcp/testdata/federation_client_only_plan.pb",
+        "fcp/testdata/federation_proxy_train_examples.pb",
+        "fcp/testdata/federation_test_checkpoint.client.ckp",
+        "fcp/testdata/federation_test_select_checkpoints.pb",
+    ],
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wno-ignored-qualifiers",
+        "-Wno-missing-field-initializers",
+    ],
+}

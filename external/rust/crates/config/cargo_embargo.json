@@ -1,0 +1,16 @@
+{
+  "features": [
+    "toml",
+    "json",
+    "yaml"
+  ],
+  "module_name_overrides": {
+    "libconfig": "libconfig_rust"
+  },
+  "package": {
+    "config": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

@@ -1,0 +1,283 @@
+From a26dbf3aa0c3f0c68c4ffcdf1670ec998d088c1e Mon Sep 17 00:00:00 2001
+From: Brian Smith <brian@briansmith.org>
+Date: Fri, 11 Nov 2022 14:32:45 -0800
+Subject: [PATCH 1/2] bigint: Provide a fallback implementation for
+ `bn_mul_mont`.
+
+Provide an implementation of `bn_mul_mont` that works on all targets that
+don't have an assembly language implementation.
+
+Expand `prefixed_export!` to support prefixing functions defined in Rust.
+Function definitions don't end with a semicolon so move the semicolon
+insertion from `prefixed_item!` to its callers.
+
+Unify the codepaths in `bigint` so that `bn_mul_mont` is always used.
+
+(cherry picked from commit 81f4e8d07da3f2ccc57f69a91245b41e6d764a1c)
+Test: builds
+Change-Id: If2cb061684ee1a0831f186c2f4cee3f02c2a236b
+---
+ src/arithmetic/bigint.rs                      | 70 ++-----------------
+ src/arithmetic/bigint/bn_mul_mont_fallback.rs | 51 ++++++++++++++
+ src/prefixed.rs                               | 28 ++++++--
+ 3 files changed, 77 insertions(+), 72 deletions(-)
+ create mode 100644 src/arithmetic/bigint/bn_mul_mont_fallback.rs
+
+diff --git a/src/arithmetic/bigint.rs b/src/arithmetic/bigint.rs
+index 2b2cdf31f..1eb90fead 100644
+--- a/src/arithmetic/bigint.rs
++++ b/src/arithmetic/bigint.rs
+@@ -47,6 +47,8 @@ use core::{
+     ops::{Deref, DerefMut},
+ };
+ 
++mod bn_mul_mont_fallback;
++
+ pub unsafe trait Prime {}
+ 
+ struct Width<M> {
+@@ -1231,13 +1233,6 @@ impl From<u64> for N0 {
+ fn limbs_mont_mul(r: &mut [Limb], a: &[Limb], m: &[Limb], n0: &N0) {
+     debug_assert_eq!(r.len(), m.len());
+     debug_assert_eq!(a.len(), m.len());
+-
+-    #[cfg(any(
+-        target_arch = "aarch64",
+-        target_arch = "arm",
+-        target_arch = "x86_64",
+-        target_arch = "x86"
+-    ))]
+     unsafe {
+         bn_mul_mont(
+             r.as_mut_ptr(),
+@@ -1248,19 +1243,6 @@ fn limbs_mont_mul(r: &mut [Limb], a: &[Limb], m: &[Limb], n0: &N0) {
+             r.len(),
+         )
+     }
+-
+-    #[cfg(not(any(
+-        target_arch = "aarch64",
+-        target_arch = "arm",
+-        target_arch = "x86_64",
+-        target_arch = "x86"
+-    )))]
+-    {
+-        let mut tmp = [0; 2 * MODULUS_MAX_LIMBS];
+-        let tmp = &mut tmp[..(2 * a.len())];
+-        limbs_mul(tmp, r, a);
+-        limbs_from_mont_in_place(r, tmp, m, n0);
+-    }
+ }
+ 
+ fn limbs_from_mont_in_place(r: &mut [Limb], tmp: &mut [Limb], m: &[Limb], n0: &N0) {
+@@ -1292,8 +1274,8 @@ fn limbs_from_mont_in_place(r: &mut [Limb], tmp: &mut [Limb], m: &[Limb], n0: &N
+ #[cfg(not(any(
+     target_arch = "aarch64",
+     target_arch = "arm",
+-    target_arch = "x86_64",
+-    target_arch = "x86"
++    target_arch = "x86",
++    target_arch = "x86_64"
+ )))]
+ fn limbs_mul(r: &mut [Limb], a: &[Limb], b: &[Limb]) {
+     debug_assert_eq!(r.len(), 2 * a.len());
+@@ -1320,12 +1302,6 @@ fn limbs_mont_product(r: &mut [Limb], a: &[Limb], b: &[Limb], m: &[Limb], n0: &N
+     debug_assert_eq!(a.len(), m.len());
+     debug_assert_eq!(b.len(), m.len());
+ 
+-    #[cfg(any(
+-        target_arch = "aarch64",
+-        target_arch = "arm",
+-        target_arch = "x86_64",
+-        target_arch = "x86"
+-    ))]
+     unsafe {
+         bn_mul_mont(
+             r.as_mut_ptr(),
+@@ -1336,30 +1312,11 @@ fn limbs_mont_product(r: &mut [Limb], a: &[Limb], b: &[Limb], m: &[Limb], n0: &N
+             r.len(),
+         )
+     }
+-
+-    #[cfg(not(any(
+-        target_arch = "aarch64",
+-        target_arch = "arm",
+-        target_arch = "x86_64",
+-        target_arch = "x86"
+-    )))]
+-    {
+-        let mut tmp = [0; 2 * MODULUS_MAX_LIMBS];
+-        let tmp = &mut tmp[..(2 * a.len())];
+-        limbs_mul(tmp, a, b);
+-        limbs_from_mont_in_place(r, tmp, m, n0)
+-    }
+ }
+ 
+ /// r = r**2
+ fn limbs_mont_square(r: &mut [Limb], m: &[Limb], n0: &N0) {
+     debug_assert_eq!(r.len(), m.len());
+-    #[cfg(any(
+-        target_arch = "aarch64",
+-        target_arch = "arm",
+-        target_arch = "x86_64",
+-        target_arch = "x86"
+-    ))]
+     unsafe {
+         bn_mul_mont(
+             r.as_mut_ptr(),
+@@ -1370,27 +1327,8 @@ fn limbs_mont_square(r: &mut [Limb], m: &[Limb], n0: &N0) {
+             r.len(),
+         )
+     }
+-
+-    #[cfg(not(any(
+-        target_arch = "aarch64",
+-        target_arch = "arm",
+-        target_arch = "x86_64",
+-        target_arch = "x86"
+-    )))]
+-    {
+-        let mut tmp = [0; 2 * MODULUS_MAX_LIMBS];
+-        let tmp = &mut tmp[..(2 * r.len())];
+-        limbs_mul(tmp, r, r);
+-        limbs_from_mont_in_place(r, tmp, m, n0)
+-    }
+ }
+ 
+-#[cfg(any(
+-    target_arch = "aarch64",
+-    target_arch = "arm",
+-    target_arch = "x86_64",
+-    target_arch = "x86"
+-))]
+ prefixed_extern! {
+     // `r` and/or 'a' and/or 'b' may alias.
+     fn bn_mul_mont(
+diff --git a/src/arithmetic/bigint/bn_mul_mont_fallback.rs b/src/arithmetic/bigint/bn_mul_mont_fallback.rs
+new file mode 100644
+index 000000000..1357858d0
+--- /dev/null
++++ b/src/arithmetic/bigint/bn_mul_mont_fallback.rs
+@@ -0,0 +1,51 @@
++// Copyright 2015-2022 Brian Smith.
++//
++// Permission to use, copy, modify, and/or distribute this software for any
++// purpose with or without fee is hereby granted, provided that the above
++// copyright notice and this permission notice appear in all copies.
++//
++// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHORS DISCLAIM ALL WARRANTIES
++// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
++// SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
++// OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
++// CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++#![cfg(not(any(
++    target_arch = "aarch64",
++    target_arch = "arm",
++    target_arch = "x86",
++    target_arch = "x86_64"
++)))]
++
++use super::{limbs_from_mont_in_place, limbs_mul, Limb, MODULUS_MAX_LIMBS, N0};
++use crate::c;
++
++prefixed_export! {
++    unsafe fn bn_mul_mont(
++        r: *mut Limb,
++        a: *const Limb,
++        b: *const Limb,
++        n: *const Limb,
++        n0: &N0,
++        num_limbs: c::size_t,
++    ) {
++        // The mutable pointer `r` may alias `a` and/or `b`, so the lifetimes of
++        // any slices for `a` or `b` must not overlap with the lifetime of any
++        // mutable for `r`.
++
++        // Nothing aliases `n`
++        let n = unsafe { core::slice::from_raw_parts(n, num_limbs) };
++
++        let mut tmp = [0; 2 * MODULUS_MAX_LIMBS];
++        let tmp = &mut tmp[..(2 * num_limbs)];
++        {
++            let a: &[Limb] = unsafe { core::slice::from_raw_parts(a, num_limbs) };
++            let b: &[Limb] = unsafe { core::slice::from_raw_parts(b, num_limbs) };
++            limbs_mul(tmp, a, b);
++        }
++        let r: &mut [Limb] = unsafe { core::slice::from_raw_parts_mut(r, num_limbs) };
++        limbs_from_mont_in_place(r, tmp, n, n0);
++    }
++}
+diff --git a/src/prefixed.rs b/src/prefixed.rs
+index c8ac807ee..a35f9212f 100644
+--- a/src/prefixed.rs
++++ b/src/prefixed.rs
+@@ -14,7 +14,7 @@ macro_rules! prefixed_extern {
+                     $name
+                     {
+                         $( #[$meta] )*
+-                        $vis fn $name ( $( $arg_pat : $arg_ty ),* ) $( -> $ret_ty )?
++                        $vis fn $name ( $( $arg_pat : $arg_ty ),* ) $( -> $ret_ty )?;
+                     }
+ 
+                 }
+@@ -33,15 +33,31 @@ macro_rules! prefixed_extern {
+                 $name
+                 {
+                     $( #[$meta] )*
+-                    $vis static mut $name: $typ
++                    $vis static mut $name: $typ;
+                 }
+             }
+         }
+     };
+ }
+ 
+-#[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
++#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+ macro_rules! prefixed_export {
++    // A function.
++    {
++        $( #[$meta:meta] )*
++        $vis:vis unsafe fn $name:ident ( $( $arg_pat:ident : $arg_ty:ty ),* $(,)? ) $body:block
++    } => {
++        prefixed_item! {
++            export_name
++            $name
++            {
++                $( #[$meta] )*
++                $vis unsafe fn $name ( $( $arg_pat : $arg_ty ),* ) $body
++            }
++        }
++    };
++
++    // A global variable.
+     {
+         $( #[$meta:meta] )*
+         $vis:vis static mut $name:ident: $typ:ty = $initial_value:expr;
+@@ -51,10 +67,10 @@ macro_rules! prefixed_export {
+             $name
+             {
+                 $( #[$meta] )*
+-                $vis static mut $name: $typ = $initial_value
++                $vis static mut $name: $typ = $initial_value;
+             }
+         }
+-    }
++    };
+ }
+ 
+ macro_rules! prefixed_item {
+@@ -81,6 +97,6 @@ macro_rules! prefixed_item {
+         { $( $item:tt )+ }
+     } => {
+         #[$attr = $prefixed_name]
+-        $( $item )+;
++        $( $item )+
+     };
+ }
+-- 
+2.39.1.519.gcb327c4b5f-goog
+

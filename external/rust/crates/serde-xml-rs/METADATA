@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/serde-xml-rs
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "serde-xml-rs"
+description: "xml-rs based deserializer for Serde (compatible with 0.9+)"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/serde_xml_rs"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/serde-xml-rs/serde-xml-rs-0.6.0.crate"
+  }
+  version: "0.6.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 12
+    day: 19
+  }
+}

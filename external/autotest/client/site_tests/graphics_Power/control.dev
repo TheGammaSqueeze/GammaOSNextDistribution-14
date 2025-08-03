@@ -1,0 +1,23 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+PY_VERSION = 3
+AUTHOR = "chromeos-gfx"
+NAME = "graphics_Power.dev"
+PURPOSE = "Execute the graphics_Power system logger for development/testing"
+TIME = "SHORT"
+TEST_CATEGORY = "Performance"
+TEST_CLASS = "graphics"
+TEST_TYPE = "client"
+
+DOC = """
+Used to run the graphics_Power client test as a standalone process for faster
+testing/debugging, rather than as a subtest to another autotest server test.
+
+This shouldn't be included in any suites, and should only be run with:
+test_that --board $BOARD $DUT graphics_Power.dev
+"""
+
+job.run_test(
+    "graphics_Power", max_duration_minutes=1.0, sample_rate_seconds=1.0)

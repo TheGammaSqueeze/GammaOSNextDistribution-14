@@ -1,0 +1,34 @@
+function symbol changed from 'int f2(enum K*, enum L*, struct M*, struct N*, union O*, union P*)' to 'int f2(struct K*, union L*, union M*, enum N*, enum O*, struct P*)'
+  type changed from 'int(enum K*, enum L*, struct M*, struct N*, union O*, union P*)' to 'int(struct K*, union L*, union M*, enum N*, enum O*, struct P*)'
+    parameter 1 type changed from 'enum K*' to 'struct K*'
+      pointed-to type changed from 'enum K' to 'struct K'
+    parameter 2 type changed from 'enum L*' to 'union L*'
+      pointed-to type changed from 'enum L' to 'union L'
+    parameter 3 type changed from 'struct M*' to 'union M*'
+      pointed-to type changed from 'struct M' to 'union M'
+    parameter 4 type changed from 'struct N*' to 'enum N*'
+      pointed-to type changed from 'struct N' to 'enum N'
+    parameter 5 type changed from 'union O*' to 'enum O*'
+      pointed-to type changed from 'union O' to 'enum O'
+    parameter 6 type changed from 'union P*' to 'struct P*'
+      pointed-to type changed from 'union P' to 'struct P'
+
+type 'enum E' changed
+  was only declared, is now fully defined
+
+type 'enum F' changed
+  was fully defined, is now only declared
+
+type 'struct S' changed
+  was only declared, is now fully defined
+
+type 'struct T' changed
+  was fully defined, is now only declared
+
+type 'union U' changed
+  was only declared, is now fully defined
+
+type 'union V' changed
+  was fully defined, is now only declared
+
+exit code 4

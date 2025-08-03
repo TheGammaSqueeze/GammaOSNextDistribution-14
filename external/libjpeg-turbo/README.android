@@ -1,0 +1,17 @@
+# Android differences from upstream chromium
+
+Android builds with `C_ARITH_CODING_SUPPORTED` and `D_ARITH_CODING_SUPPORTED`,
+added in
+https://android-review.googlesource.com/c/platform/external/libjpeg-turbo/+/291407/
+to support a variant of jpeg files using arithmetic (instead of Huffman)
+encoding. This variant isn't often used because of a lack of support in many
+viewers (e.g. Chromium), but Android really values backwards compatibility, and
+this might break some users. Android probably only needs to keep
+`D_ARITH_CODING_SUPPORTED`, but vendor code might also be encoding by setting
+jpeg_compress_struct.arith_code to true, so we enable both to ensure full
+backwards compatibility since it's not really costing us anything.
+We `#define` these in jconfig.h rather than in Android.bp so that they're
+correctly exported to any *users* (in particular, jerror.h only conditionally
+defines the corresponding error codes if these `#define`s are present).
+
+Cherry-pick on 2024/01/08: https://github.com/libjpeg-turbo/libjpeg-turbo/commit/c27695a193a7cb265ef8e45c7b28bda3a71c70ce

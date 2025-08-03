@@ -1,0 +1,42 @@
+// https://ci.android.com/builds/latest/branches/aosp-build-tools/targets/linux/view/soong_build.html
+
+cc_library_static {
+    name: "llvmlibc",
+    visibility: [
+      "//bionic/libc",
+    ],
+    include_dirs: [
+      "external/llvm-libc",
+    ],
+    srcs: [
+      "src/stdlib/bsearch.cpp",
+    ],
+    cflags: [
+      // Necessary for non-namespaced exports.
+      "-DLIBC_COPT_PUBLIC_PACKAGING",
+      // Necessary to build.
+      "-DLIBC_NAMESPACE=llvmlibc",
+    ],
+    // No C++ runtime.
+    stl: "none",
+    // No crt_begin and crt_end.
+    nocrt: true,
+    // Needs to be unset from the default value in order to avoid creating a
+    // cyclic dependency between llvm-libc and bionic's libc.
+    system_shared_libs: [],
+
+    // Bionic's libc's dependencies must have these set, or the build will fail
+    // due to missing a "ramdisk", "vendor_ramdisk", and "recovery" variants.
+    native_bridge_supported: true,
+    ramdisk_available: true,
+    recovery_available: true,
+    vendor_ramdisk_available: true,
+
+    // Bionic's dependencies must also set this.
+    apex_available: [
+      "com.android.runtime",
+    ],
+
+    // When llvm-libc includes <stdlib.h>, use bionic's headers for these.
+    header_libs: ["libc_headers"],
+}

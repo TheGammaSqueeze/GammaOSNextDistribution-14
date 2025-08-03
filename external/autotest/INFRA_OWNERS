@@ -1,0 +1,21 @@
+# Chrome Fleet Software Team
+anhdle@chromium.org
+anhdle@google.com
+ayatane@chromium.org
+ayatane@google.com
+gregorynisbet@chromium.org
+gregorynisbet@google.com
+guocb@chromium.org
+guocb@google.com
+otabek@chromium.org
+otabek@google.com
+sanikak@chromium.org
+sanikak@google.com
+vivekshah@chromium.org
+vivekshah@google.com
+xianuowang@chromium.org
+xianuowang@google.com
+xixuan@chromium.org
+xixuan@google.com
+
+include chromiumos/chromite:/OWNERS.ci

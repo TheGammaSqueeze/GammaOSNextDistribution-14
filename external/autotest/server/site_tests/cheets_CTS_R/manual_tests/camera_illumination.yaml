@@ -1,0 +1,5 @@
+android.hardware.camera2.cts.CaptureRequestTest#testAntiBandingModes[1]: [drawcia, maglia, magolor, storo360, lalala]
+android.hardware.camera2.cts.CaptureRequestTest#testNoiseReductionModeControl[1]: [nipperkin]
+android.hardware.camera2.cts.MultiViewTest#testTextureImageWriterReaderOperation[1]: [sparky]
+android.hardware.camera2.cts.StillCaptureTest#testAeCompensation[1]: [drawcia, maglia, magolor, storo360, lalala]
+android.hardware.cts.CameraGLTest#testCameraToSurfaceTextureMetadata: [nipperkin]

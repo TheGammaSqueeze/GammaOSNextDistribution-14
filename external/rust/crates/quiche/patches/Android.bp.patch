@@ -1,0 +1,79 @@
+diff --git a/Android.bp b/Android.bp
+index a810b69..ec19374 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -51,11 +51,7 @@ rust_library {
+     cargo_pkg_version: "0.17.1",
+     srcs: ["src/lib.rs"],
+     edition: "2018",
+-    features: [
+-        "boringssl-vendored",
+-        "default",
+-    ],
+-    rustlibs: [
++    rlibs: [
+         "liblazy_static",
+         "liblibc",
+         "liblibm",
+@@ -65,7 +61,8 @@ rust_library {
+         "libslab",
+         "libsmallvec",
+     ],
+-    static_libs: [
++    prefer_rlib: true,
++    shared_libs: [
+         "libcrypto",
+         "libssl",
+     ],
+@@ -78,7 +75,7 @@ rust_library {
+     min_sdk_version: "29",
+ }
+ 
+-rust_ffi_shared {
++rust_ffi {
+     name: "libquiche_ffi",
+     host_supported: true,
+     crate_name: "quiche",
+@@ -86,11 +83,7 @@ rust_ffi_shared {
+     cargo_pkg_version: "0.17.1",
+     srcs: ["src/lib.rs"],
+     edition: "2018",
+-    features: [
+-        "boringssl-vendored",
+-        "default",
+-    ],
+-    rustlibs: [
++    rlibs: [
+         "liblazy_static",
+         "liblibc",
+         "liblibm",
+@@ -100,7 +93,8 @@ rust_ffi_shared {
+         "libslab",
+         "libsmallvec",
+     ],
+-    static_libs: [
++    prefer_rlib: true,
++    shared_libs: [
+         "libcrypto",
+         "libssl",
+     ],
+@@ -141,7 +135,7 @@ rust_test_host {
+         "libsmallvec",
+         "liburl",
+     ],
+-    static_libs: [
++    shared_libs: [
+         "libcrypto",
+         "libssl",
+     ],
+@@ -198,10 +192,6 @@ rust_library_rlib {
+     cargo_pkg_version: "0.17.1",
+     srcs: ["src/lib.rs"],
+     edition: "2018",
+-    features: [
+-        "boringssl-vendored",
+-        "default",
+-    ],
+     rustlibs: [
+         "liblazy_static",
+         "liblibc",

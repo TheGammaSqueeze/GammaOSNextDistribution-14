@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<SCENE>
+   <TITLE>SCENE II.  Another street.</TITLE>
+   <STAGEDIR>Enter OTHELLO, IAGO, and Attendants with torches</STAGEDIR>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>Though in the trade of war I have slain men,</LINE>
+      <LINE>Yet do I hold it very stuff o' the conscience</LINE>
+      <LINE>To do no contrived murder: I lack iniquity</LINE>
+      <LINE>Sometimes to do me service: nine or ten times</LINE>
+      <LINE>I had thought to have yerk'd him here under the ribs.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>'Tis better as it is.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>Nay, but he prated,</LINE>
+      <LINE>And spoke such scurvy and provoking terms</LINE>
+      <LINE>Against your honour</LINE>
+      <LINE>That, with the little godliness I have,</LINE>
+      <LINE>I did full hard forbear him. But, I pray you, sir,</LINE>
+      <LINE>Are you fast married? Be assured of this,</LINE>
+      <LINE>That the magnifico is much beloved,</LINE>
+      <LINE>And hath in his effect a voice potential</LINE>
+      <LINE>As double as the duke's: he will divorce you;</LINE>
+      <LINE>Or put upon you what restraint and grievance</LINE>
+      <LINE>The law, with all his might to enforce it on,</LINE>
+      <LINE>Will give him cable.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>Let him do his spite:</LINE>
+      <LINE>My services which I have done the signiory</LINE>
+      <LINE>Shall out-tongue his complaints. 'Tis yet to know,--</LINE>
+      <LINE>Which, when I know that boasting is an honour,</LINE>
+      <LINE>I shall promulgate--I fetch my life and being</LINE>
+      <LINE>From men of royal siege, and my demerits</LINE>
+      <LINE>May speak unbonneted to as proud a fortune</LINE>
+      <LINE>As this that I have reach'd: for know, Iago,</LINE>
+      <LINE>But that I love the gentle Desdemona,</LINE>
+      <LINE>I would not my unhoused free condition</LINE>
+      <LINE>Put into circumscription and confine</LINE>
+      <LINE>For the sea's worth. But, look! what lights come yond?</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>Those are the raised father and his friends:</LINE>
+      <LINE>You were best go in.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>Not I I must be found:</LINE>
+      <LINE>My parts, my title and my perfect soul</LINE>
+      <LINE>Shall manifest me rightly. Is it they?</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>By Janus, I think no.</LINE>
+   </SPEECH>
+   <STAGEDIR>Enter CASSIO, and certain Officers with torches</STAGEDIR>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>The servants of the duke, and my lieutenant.</LINE>
+      <LINE>The goodness of the night upon you, friends!</LINE>
+      <LINE>What is the news?</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>CASSIO</SPEAKER>
+      <LINE>The duke does greet you, general,</LINE>
+      <LINE>And he requires your haste-post-haste appearance,</LINE>
+      <LINE>Even on the instant.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>What is the matter, think you?</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>CASSIO</SPEAKER>
+      <LINE>Something from Cyprus as I may divine:</LINE>
+      <LINE>It is a business of some heat: the galleys</LINE>
+      <LINE>Have sent a dozen sequent messengers</LINE>
+      <LINE>This very night at one another's heels,</LINE>
+      <LINE>And many of the consuls, raised and met,</LINE>
+      <LINE>Are at the duke's already: you have been</LINE>
+      <LINE>hotly call'd for;</LINE>
+      <LINE>When, being not at your lodging to be found,</LINE>
+      <LINE>The senate hath sent about three several guests</LINE>
+      <LINE>To search you out.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>'Tis well I am found by you.</LINE>
+      <LINE>I will but spend a word here in the house,</LINE>
+      <LINE>And go with you.</LINE>
+   </SPEECH>
+   <STAGEDIR>Exit</STAGEDIR>
+   <SPEECH>
+      <SPEAKER>CASSIO</SPEAKER>
+      <LINE>Ancient, what makes he here?</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>'Faith, he to-night hath boarded a land carack:</LINE>
+      <LINE>If it prove lawful prize, he's made for ever.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>CASSIO</SPEAKER>
+      <LINE>I do not understand.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>He's married.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>CASSIO</SPEAKER>
+      <LINE>To who?</LINE>
+   </SPEECH>
+   <STAGEDIR>Re-enter OTHELLO</STAGEDIR>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>Marry, to--Come, captain, will you go?</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>Have with you.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>CASSIO</SPEAKER>
+      <LINE>Here comes another troop to seek for you.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>It is Brabantio. General, be advised;</LINE>
+      <LINE>He comes to bad intent.</LINE>
+   </SPEECH>
+   <STAGEDIR>Enter BRABANTIO, RODERIGO, and Officers with
+torches and weapons</STAGEDIR>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>Holla! stand there!</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>RODERIGO</SPEAKER>
+      <LINE>Signior, it is the Moor.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>BRABANTIO</SPEAKER>
+      <LINE>Down with him, thief!</LINE>
+   </SPEECH>
+   <STAGEDIR>They draw on both sides</STAGEDIR>
+   <SPEECH>
+      <SPEAKER>IAGO</SPEAKER>
+      <LINE>You, Roderigo! come, sir, I am for you.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>Keep up your bright swords, for the dew will rust them.</LINE>
+      <LINE>Good signior, you shall more command with years</LINE>
+      <LINE>Than with your weapons.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>BRABANTIO</SPEAKER>
+      <LINE>O thou foul thief, where hast thou stow'd my daughter?</LINE>
+      <LINE>Damn'd as thou art, thou hast enchanted her;</LINE>
+      <LINE>For I'll refer me to all things of sense,</LINE>
+      <LINE>If she in chains of magic were not bound,</LINE>
+      <LINE>Whether a maid so tender, fair and happy,</LINE>
+      <LINE>So opposite to marriage that she shunned</LINE>
+      <LINE>The wealthy curled darlings of our nation,</LINE>
+      <LINE>Would ever have, to incur a general mock,</LINE>
+      <LINE>Run from her guardage to the sooty bosom</LINE>
+      <LINE>Of such a thing as thou, to fear, not to delight.</LINE>
+      <LINE>Judge me the world, if 'tis not gross in sense</LINE>
+      <LINE>That thou hast practised on her with foul charms,</LINE>
+      <LINE>Abused her delicate youth with drugs or minerals</LINE>
+      <LINE>That weaken motion: I'll have't disputed on;</LINE>
+      <LINE>'Tis probable and palpable to thinking.</LINE>
+      <LINE>I therefore apprehend and do attach thee</LINE>
+      <LINE>For an abuser of the world, a practiser</LINE>
+      <LINE>Of arts inhibited and out of warrant.</LINE>
+      <LINE>Lay hold upon him: if he do resist,</LINE>
+      <LINE>Subdue him at his peril.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>Hold your hands,</LINE>
+      <LINE>Both you of my inclining, and the rest:</LINE>
+      <LINE>Were it my cue to fight, I should have known it</LINE>
+      <LINE>Without a prompter. Where will you that I go</LINE>
+      <LINE>To answer this your charge?</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>BRABANTIO</SPEAKER>
+      <LINE>To prison, till fit time</LINE>
+      <LINE>Of law and course of direct session</LINE>
+      <LINE>Call thee to answer.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>OTHELLO</SPEAKER>
+      <LINE>What if I do obey?</LINE>
+      <LINE>How may the duke be therewith satisfied,</LINE>
+      <LINE>Whose messengers are here about my side,</LINE>
+      <LINE>Upon some present business of the state</LINE>
+      <LINE>To bring me to him?</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>First Officer</SPEAKER>
+      <LINE>'Tis true, most worthy signior;</LINE>
+      <LINE>The duke's in council and your noble self,</LINE>
+      <LINE>I am sure, is sent for.</LINE>
+   </SPEECH>
+   <SPEECH>
+      <SPEAKER>BRABANTIO</SPEAKER>
+      <LINE>How! the duke in council!</LINE>
+      <LINE>In this time of the night! Bring him away:</LINE>
+      <LINE>Mine's not an idle cause: the duke himself,</LINE>
+      <LINE>Or any of my brothers of the state,</LINE>
+      <LINE>Cannot but feel this wrong as 'twere their own;</LINE>
+      <LINE>For if such actions may have passage free,</LINE>
+      <LINE>Bond-slaves and pagans shall our statesmen be.</LINE>
+   </SPEECH>
+   <STAGEDIR>Exeunt</STAGEDIR>
+</SCENE>

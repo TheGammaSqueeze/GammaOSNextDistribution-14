@@ -1,0 +1,141 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_options_get_supported, tracefs_option_is_supported, tracefs_options_get_enabled,
+tracefs_option_is_enabled, tracefs_option_mask_is_set, tracefs_option_id
+- Get and check ftrace options.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+const struct tracefs_options_mask pass:[*]*tracefs_options_get_supported*(struct tracefs_instance pass:[*]_instance_);
+bool *tracefs_option_is_supported*(struct tracefs_instance pass:[*]_instance_, enum tracefs_option_id _id_);
+const struct tracefs_options_mask pass:[*]*tracefs_options_get_enabled*(struct tracefs_instance pass:[*]_instance_);
+bool *tracefs_option_is_enabled*(struct tracefs_instance pass:[*]_instance_, enum tracefs_option_id _id_);
+bool *tracefs_option_mask_is_set*(const struct tracefs_options_mask *options, enum tracefs_option_id id);
+enum tracefs_option_id *tracefs_option_id*(const char pass:[*]_name_);
+--
+
+DESCRIPTION
+-----------
+This set of APIs can be used to get and check current ftrace options. Supported ftrace options may
+depend on the kernel version and the kernel configuration.
+
+The *tracefs_options_get_supported()* function gets all ftrace options supported by the system in
+the given _instance_. If _instance_ is NULL, supported options of the top trace instance are
+returned. The set of supported options is the same in all created trace instances, but may be different
+than the top trace instance.
+
+The *tracefs_option_is_supported()/ function checks if the option with given _id_ is supported by
+the system in the given _instance_. If _instance_ is NULL, the top trace instance is used. If an
+option is supported at the top trace instance, it it may not be supported in a created trace instance.
+
+The *tracefs_options_get_enabled()* function gets all ftrace options, currently enabled in
+the given _instance_. If _instance_ is NULL, enabled options of the top trace instance are returned.
+
+The *tracefs_option_is_enabled()* function checks if the option with given _id_ is enabled in the
+given _instance_. If _instance_ is NULL, the top trace instance is used.
+
+The *tracefs_option_mask_is_set()* function checks if the bit, corresponding to the option with _id_ is
+set in the _options_ bitmask returned from *tracefs_option_get_enabled()* and *tracefs_option_is_supported()*.
+
+The *tracefs_option_id()* converts an option _name_ into its corresponding id, if it is found.
+This allows to find the option _id_ to use in the other functions if only the _name_ is known.
+
+RETURN VALUE
+------------
+The *tracefs_options_get_supported()* and *tracefs_options_get_enabled()* functions, on success,
+return a pointer to the bitmask within the instance, or a global bitmask for the top level,
+or NULL in case of an error. As the returned bitmask is part of the instance structure (or a
+global variable) and must not be freed or modified.
+
+The *tracefs_option_is_supported()* and *tracefs_option_is_enabled()* functions return true if the
+option in supported / enabled, or false otherwise.
+
+The *tracefs_option_mask_is_set()* returns true if the corresponding option is set in the mask
+or false otherwise.
+
+The *tracefs_option_id()* returns the corresponding id defined by *tracefs_options*(3) from
+the given _name_. If the _name_ can not be found, then TRACEFS_OPTION_INVALID is returned.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+...
+const struct tracefs_options_mask *options;
+...
+options = tracefs_options_get_supported(NULL);
+if (!options) {
+	/* Failed to get supported options */
+} else {
+	...
+}
+...
+options = tracefs_options_get_enabled(NULL);
+if (!options) {
+	/* Failed to get options, enabled in the top instance */
+} else {
+	...
+}
+if (tracefs_options_mask_is_set(options, TRACEFS_OPTION_LATENCY_FORMAT)) {
+	...
+}
+...
+
+if (tracefs_option_is_supported(NULL, TRACEFS_OPTION_LATENCY_FORMAT)) {
+	/* Latency format option is supprted */
+}
+
+...
+
+if (tracefs_option_is_enabled(NULL, TRACEFS_OPTION_STACKTRACE)) {
+	/* Stacktrace option is enabled in the top instance */
+}
+
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

@@ -1,0 +1,117 @@
+cc_library_static {
+    name: "libring-core",
+    host_supported: true,
+    srcs: [
+        "crypto/cpu-intel.c",
+        "crypto/fipsmodule/aes/aes_nohw.c",
+        "crypto/crypto.c",
+        "crypto/poly1305/poly1305.c",
+        "crypto/poly1305/poly1305_vec.c",
+        "crypto/curve25519/curve25519.c",
+        "crypto/fipsmodule/ec/ecp_nistz.c",
+        "crypto/fipsmodule/ec/gfp_p256.c",
+        "crypto/fipsmodule/ec/gfp_p384.c",
+        "crypto/fipsmodule/ec/p256.c",
+        "crypto/fipsmodule/rsa/padding.c",
+        "crypto/limbs/limbs.c",
+        "crypto/mem.c",
+        "crypto/fipsmodule/bn/montgomery.c",
+        "crypto/fipsmodule/bn/montgomery_inv.c",
+    ],
+
+    arch: {
+        arm: {
+            srcs: [
+                "crypto/poly1305/poly1305_arm.c",
+                "crypto/poly1305/poly1305_arm_asm.S",
+                "pregenerated/armv4-mont-linux32.S",
+                "crypto/curve25519/asm/x25519-asm-arm.S",
+                "pregenerated/sha256-armv4-linux32.S",
+                "pregenerated/sha512-armv4-linux32.S",
+                "pregenerated/aesv8-armx-linux32.S",
+                "pregenerated/bsaes-armv7-linux32.S",
+                "pregenerated/ghashv8-armx-linux32.S",
+                "pregenerated/vpaes-armv7-linux32.S",
+                "pregenerated/ghash-armv4-linux32.S",
+                "pregenerated/chacha-armv4-linux32.S",
+            ],
+        },
+        arm64: {
+            srcs: [
+                "pregenerated/aesv8-armx-linux64.S",
+                "pregenerated/armv8-mont-linux64.S",
+                "pregenerated/chacha-armv8-linux64.S",
+                "pregenerated/ghash-neon-armv8-linux64.S",
+                "pregenerated/ghashv8-armx-linux64.S",
+                "pregenerated/sha256-armv8-linux64.S",
+                "pregenerated/sha512-armv8-linux64.S",
+                "pregenerated/vpaes-armv8-linux64.S",
+            ],
+        },
+        x86: {
+            srcs: [
+                "pregenerated/aesni-x86-elf.S",
+                "pregenerated/chacha-x86-elf.S",
+                "pregenerated/ghash-x86-elf.S",
+                "pregenerated/vpaes-x86-elf.S",
+                "pregenerated/x86-mont-elf.S",
+            ],
+        },
+        x86_64: {
+            srcs: [
+                "crypto/fipsmodule/ec/p256-x86_64.c",
+                "pregenerated/aesni-gcm-x86_64-elf.S",
+                "pregenerated/aesni-x86_64-elf.S",
+                "pregenerated/chacha-x86_64-elf.S",
+                "pregenerated/chacha20_poly1305_x86_64-elf.S",
+                "pregenerated/ghash-x86_64-elf.S",
+                "pregenerated/p256-x86_64-asm-elf.S",
+                "pregenerated/sha256-x86_64-elf.S",
+                "pregenerated/sha512-x86_64-elf.S",
+                "pregenerated/vpaes-x86_64-elf.S",
+                "pregenerated/x86_64-mont5-elf.S",
+                "pregenerated/x86_64-mont-elf.S",
+            ],
+        },
+        riscv64: {
+            cflags: ["-DOPENSSL_NO_ASM"],
+        },
+    },
+
+    cflags: [
+        "-O3",
+        "-Wno-error",
+        "-fPIC",
+        "-fdata-sections",
+        "-ffunction-sections",
+        "-fno-omit-frame-pointer",
+        "-fno-strict-aliasing",
+        "-fstack-protector",
+        "-fvisibility=hidden",
+        "-DNDEBUG",
+    ],
+    local_include_dirs: ["include"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.resolv",
+    ],
+    vendor_available: true,
+    product_available: true,
+    min_sdk_version: "29",
+}
+
+cc_library_static {
+    name: "libring-test",
+    host_supported: true,
+    srcs: [
+        "crypto/constant_time_test.c",
+    ],
+    local_include_dirs: ["include"],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.resolv",
+    ],
+    vendor_available: true,
+    product_available: true,
+    min_sdk_version: "29",
+}

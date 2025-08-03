@@ -1,0 +1,44 @@
+image: ubuntu:22.10
+
+variables:
+  DEBIAN_FRONTEND: noninteractive
+
+before_script:
+  - apt-get --quiet update --yes >/dev/null
+  - apt-get --quiet install --yes clang-15 clang-tidy-15 clang-format-15 git libdrm-dev blueprint-tools libgtest-dev make >/dev/null
+  - apt-get --quiet install --yes clang llvm make python3 python3-pip wget sudo rsync lld pkg-config ninja-build >/dev/null
+  - pip3 install mako meson jinja2 ply pyyaml >/dev/null
+
+stages:
+  - build
+  - tidy
+  - style
+
+build:
+  stage: build
+  script:
+    - mkdir -p install/arm64
+    - cd ..
+    - wget https://gitlab.freedesktop.org/drm-hwcomposer/drm-hwcomposer/uploads/28ef9379b1a0ec1ee19a17825b0f3f3f/aospless_drm_hwcomposer_arm64.tar.xz
+    - tar xf aospless_drm_hwcomposer_arm64.tar.xz
+    - rm -r aospless/src
+    - ln -s ../drm-hwcomposer/ aospless/src
+    - make -C ./aospless all
+    - cp -r aospless/install/* drm-hwcomposer/install/arm64
+
+  artifacts:
+    paths:
+      - install/
+    expire_in: 1 week
+
+tidy:
+  stage: tidy
+  script:
+    - make -f .ci/Makefile
+
+checkstyle:
+  stage: style
+  script: "./.ci/.gitlab-ci-checkcommit.sh"
+  artifacts:
+    when: on_failure
+    untracked: true

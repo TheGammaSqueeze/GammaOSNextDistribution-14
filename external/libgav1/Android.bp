@@ -1,0 +1,291 @@
+// Copyright 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_libgav1_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_libgav1_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+bug_component_id = 324837
+
+fuzz_email_cc = ["jzern@google.com"]
+
+cc_library_static {
+    name: "libgav1",
+    host_supported: true,
+    vendor_available: true,
+
+    export_include_dirs: [
+        ".",
+        "src",
+    ],
+
+    cflags: [
+        "-DLIBGAV1_MAX_BITDEPTH=12",
+        "-DLIBGAV1_THREADPOOL_USE_STD_MUTEX",
+        "-O2",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+
+    local_include_dirs: [
+        ".",
+    ],
+
+    // Note: if optimizations are required for x86 the avx2 & sse4 files should
+    // be split to their own targets to receive the correct flagging. All files
+    // in the library can be built for any target without producing empty
+    // object files.
+    srcs: [
+        "src/buffer_pool.cc",
+        "src/decoder.cc",
+        "src/decoder_impl.cc",
+        "src/decoder_settings.cc",
+        "src/dsp/arm/average_blend_neon.cc",
+        "src/dsp/arm/cdef_neon.cc",
+        "src/dsp/arm/convolve_10bit_neon.cc",
+        "src/dsp/arm/convolve_neon.cc",
+        "src/dsp/arm/distance_weighted_blend_neon.cc",
+        "src/dsp/arm/film_grain_neon.cc",
+        "src/dsp/arm/intra_edge_neon.cc",
+        "src/dsp/arm/intrapred_cfl_neon.cc",
+        "src/dsp/arm/intrapred_directional_neon.cc",
+        "src/dsp/arm/intrapred_filter_neon.cc",
+        "src/dsp/arm/intrapred_neon.cc",
+        "src/dsp/arm/intrapred_smooth_neon.cc",
+        "src/dsp/arm/inverse_transform_10bit_neon.cc",
+        "src/dsp/arm/inverse_transform_neon.cc",
+        "src/dsp/arm/loop_filter_10bit_neon.cc",
+        "src/dsp/arm/loop_filter_neon.cc",
+        "src/dsp/arm/loop_restoration_10bit_neon.cc",
+        "src/dsp/arm/loop_restoration_neon.cc",
+        "src/dsp/arm/mask_blend_neon.cc",
+        "src/dsp/arm/motion_field_projection_neon.cc",
+        "src/dsp/arm/motion_vector_search_neon.cc",
+        "src/dsp/arm/obmc_neon.cc",
+        "src/dsp/arm/super_res_neon.cc",
+        "src/dsp/arm/warp_neon.cc",
+        "src/dsp/arm/weight_mask_neon.cc",
+        "src/dsp/average_blend.cc",
+        "src/dsp/cdef.cc",
+        "src/dsp/constants.cc",
+        "src/dsp/convolve.cc",
+        "src/dsp/distance_weighted_blend.cc",
+        "src/dsp/dsp.cc",
+        "src/dsp/film_grain.cc",
+        "src/dsp/intra_edge.cc",
+        "src/dsp/intrapred.cc",
+        "src/dsp/intrapred_cfl.cc",
+        "src/dsp/intrapred_directional.cc",
+        "src/dsp/intrapred_filter.cc",
+        "src/dsp/intrapred_smooth.cc",
+        "src/dsp/inverse_transform.cc",
+        "src/dsp/loop_filter.cc",
+        "src/dsp/loop_restoration.cc",
+        "src/dsp/mask_blend.cc",
+        "src/dsp/motion_field_projection.cc",
+        "src/dsp/motion_vector_search.cc",
+        "src/dsp/obmc.cc",
+        "src/dsp/super_res.cc",
+        "src/dsp/warp.cc",
+        "src/dsp/weight_mask.cc",
+        "src/dsp/x86/average_blend_sse4.cc",
+        "src/dsp/x86/cdef_avx2.cc",
+        "src/dsp/x86/cdef_sse4.cc",
+        "src/dsp/x86/convolve_avx2.cc",
+        "src/dsp/x86/convolve_sse4.cc",
+        "src/dsp/x86/distance_weighted_blend_sse4.cc",
+        "src/dsp/x86/film_grain_sse4.cc",
+        "src/dsp/x86/intra_edge_sse4.cc",
+        "src/dsp/x86/intrapred_cfl_sse4.cc",
+        "src/dsp/x86/intrapred_directional_sse4.cc",
+        "src/dsp/x86/intrapred_filter_sse4.cc",
+        "src/dsp/x86/intrapred_smooth_sse4.cc",
+        "src/dsp/x86/intrapred_sse4.cc",
+        "src/dsp/x86/inverse_transform_sse4.cc",
+        "src/dsp/x86/loop_filter_sse4.cc",
+        "src/dsp/x86/loop_restoration_10bit_avx2.cc",
+        "src/dsp/x86/loop_restoration_10bit_sse4.cc",
+        "src/dsp/x86/loop_restoration_avx2.cc",
+        "src/dsp/x86/loop_restoration_sse4.cc",
+        "src/dsp/x86/mask_blend_sse4.cc",
+        "src/dsp/x86/motion_field_projection_sse4.cc",
+        "src/dsp/x86/motion_vector_search_sse4.cc",
+        "src/dsp/x86/obmc_sse4.cc",
+        "src/dsp/x86/super_res_sse4.cc",
+        "src/dsp/x86/warp_sse4.cc",
+        "src/dsp/x86/weight_mask_sse4.cc",
+        "src/film_grain.cc",
+        "src/frame_buffer.cc",
+        "src/internal_frame_buffer_list.cc",
+        "src/loop_restoration_info.cc",
+        "src/motion_vector.cc",
+        "src/obu_parser.cc",
+        "src/post_filter/cdef.cc",
+        "src/post_filter/deblock.cc",
+        "src/post_filter/loop_restoration.cc",
+        "src/post_filter/post_filter.cc",
+        "src/post_filter/super_res.cc",
+        "src/prediction_mask.cc",
+        "src/quantizer.cc",
+        "src/reconstruction.cc",
+        "src/residual_buffer_pool.cc",
+        "src/status_code.cc",
+        "src/symbol_decoder_context.cc",
+        "src/threading_strategy.cc",
+        "src/tile/bitstream/mode_info.cc",
+        "src/tile/bitstream/palette.cc",
+        "src/tile/bitstream/partition.cc",
+        "src/tile/bitstream/transform_size.cc",
+        "src/tile/prediction.cc",
+        "src/tile/tile.cc",
+        "src/tile_scratch_buffer.cc",
+        "src/utils/bit_reader.cc",
+        "src/utils/block_parameters_holder.cc",
+        "src/utils/constants.cc",
+        "src/utils/cpu.cc",
+        "src/utils/entropy_decoder.cc",
+        "src/utils/executor.cc",
+        "src/utils/logging.cc",
+        "src/utils/raw_bit_reader.cc",
+        "src/utils/segmentation.cc",
+        "src/utils/segmentation_map.cc",
+        "src/utils/threadpool.cc",
+        "src/version.cc",
+        "src/warp_prediction.cc",
+        "src/yuv_buffer.cc",
+    ],
+
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media.swcodec",
+    ],
+}
+
+// Helper library that only contains the bitstream parser.
+cc_library_static {
+    name: "libgav1_parser",
+    host_supported: true,
+    vendor_available: true,
+
+    export_include_dirs: [
+        ".",
+        "src",
+    ],
+
+    cflags: [
+        "-DLIBGAV1_MAX_BITDEPTH=12",
+        "-DLIBGAV1_THREADPOOL_USE_STD_MUTEX",
+        "-O2",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+
+    srcs: [
+        "src/buffer_pool.cc",
+        "src/frame_buffer.cc",
+        "src/obu_parser.cc",
+        "src/internal_frame_buffer_list.cc",
+        "src/status_code.cc",
+        "src/utils/bit_reader.cc",
+        "src/utils/constants.cc",
+        "src/utils/logging.cc",
+        "src/utils/raw_bit_reader.cc",
+        "src/utils/segmentation.cc",
+        "src/utils/segmentation_map.cc",
+        "src/symbol_decoder_context.cc",
+        "src/quantizer.cc",
+        "src/yuv_buffer.cc",
+    ],
+}
+
+cc_defaults {
+    name: "libgav1_fuzzer_defaults",
+    host_supported: true,
+    native_coverage: true,
+
+    cflags: [
+        "-DLIBGAV1_ENABLE_LOGGING=0",
+        "-DLIBGAV1_EXAMPLES_ENABLE_LOGGING=0",
+        "-DLIBGAV1_MAX_BITDEPTH=12",
+        "-DLIBGAV1_THREADPOOL_USE_STD_MUTEX",
+    ],
+
+    local_include_dirs: [
+        ".",
+    ],
+
+    srcs: [
+        "examples/file_reader.cc",
+        "examples/file_reader_constants.cc",
+        "examples/file_reader_factory.cc",
+        "examples/ivf_parser.cc",
+    ],
+
+    static_libs: [
+        "libgav1",
+    ],
+
+    fuzz_config: {
+        cc: fuzz_email_cc,
+        componentid: bug_component_id,
+    },
+}
+
+cc_fuzz {
+    name: "libgav1_decoder_fuzzer",
+    defaults: ["libgav1_fuzzer_defaults"],
+
+    srcs: [
+        "tests/fuzzer/decoder_fuzzer.cc",
+    ],
+}
+
+cc_fuzz {
+    name: "libgav1_decoder_fuzzer_frame_parallel",
+    defaults: ["libgav1_fuzzer_defaults"],
+
+    srcs: [
+        "tests/fuzzer/decoder_fuzzer_frame_parallel.cc",
+    ],
+}
+
+cc_fuzz {
+    name: "libgav1_obu_parser_fuzzer",
+    defaults: ["libgav1_fuzzer_defaults"],
+
+    srcs: [
+        "tests/fuzzer/obu_parser_fuzzer.cc",
+    ],
+}

@@ -1,0 +1,8 @@
+function symbol 'void c()' was removed
+
+function symbol 'void d()' was removed
+
+function symbol 'void b()' changed
+  visibility changed from default to protected
+
+exit code 4

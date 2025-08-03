@@ -1,0 +1,49 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.cellular-ota-pinlock-stable'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:cellular_ota'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+DEPENDENCIES = "carrier:multisim"
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the stable Tast tests which verify Cellular sim pin & puk lock functionality.
+
+"group:cellular": indicates that the test runs on DUTs with a Cellular modem.
+"cellular_sim_pinlock": indicates that the test runs on DUTs with a Cellular
+modem and SIM with pin & puk codes.
+"cellular_unstable": Unstable tests that will be excluded from the stable suite.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+import json
+import tempfile
+import yaml
+
+def run(machine):
+    host = hosts.create_host(machine)
+    with tempfile.NamedTemporaryFile(suffix='.yaml', mode='w') as temp_file:
+        host_info = host.host_info_store.get()
+        yaml.safe_dump({'autotest_host_info_labels':
+                        json.dumps(host_info.labels)}, stream=temp_file)
+        temp_file.flush()
+    job.run_test('tast',
+                 host=host,
+                 test_exprs=['("group:cellular" && "cellular_sim_pinlock" && !"cellular_unstable")'],
+                 ignore_test_failures=True, max_run_sec=10800,
+                 command_args=args,
+                 varsfiles=[temp_file.name])
+
+parallel_simple(run, machines)

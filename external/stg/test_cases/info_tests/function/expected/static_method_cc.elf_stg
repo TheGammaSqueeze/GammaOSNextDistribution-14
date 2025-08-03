@@ -1,0 +1,56 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+member {
+  id: 0x8dbf3d30
+  name: "m"
+  type_id: 0x6720d32f
+}
+struct_union {
+  id: 0xf6f304f7
+  kind: STRUCT
+  name: "Foo"
+  definition {
+    bytesize: 4
+    member_id: 0x8dbf3d30
+  }
+}
+function {
+  id: 0x9d80e32f
+  return_type_id: 0x6720d32f
+}
+elf_symbol {
+  id: 0xdb2df0ad
+  name: "_ZN3Foo3barE"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x6720d32f
+  full_name: "Foo::bar"
+}
+elf_symbol {
+  id: 0x39ee62e8
+  name: "_ZN3Foo3bazEv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d80e32f
+  full_name: "Foo::baz"
+}
+elf_symbol {
+  id: 0x06f8338c
+  name: "foo"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf6f304f7
+  full_name: "foo"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xdb2df0ad
+  symbol_id: 0x39ee62e8
+  symbol_id: 0x06f8338c
+}

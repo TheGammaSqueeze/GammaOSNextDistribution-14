@@ -1,0 +1,19 @@
+name: "ipsec-tools"
+description: "IPsec (IP security protocol) is part of the NetBSD distributions."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.netbsd.org/"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://ftp.netbsd.org/pub/NetBSD/misc/ipsec-tools/0.7/ipsec-tools-0.7.3.tar.gz"
+  }
+  version: "0.7.3"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2009
+    month: 9
+    day: 2
+  }
+}

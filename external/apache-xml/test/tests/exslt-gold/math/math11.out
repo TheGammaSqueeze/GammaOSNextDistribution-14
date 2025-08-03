@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><out>
+     This is for testing the node-set of b with lowest value in it.  That tree would be:
+     3
+     This is for testing the node-set of c with lowest value in it.  That tree would be:
+     NaN
+     This is for testing the node-set of d with lowest value in it.  That tree would be:
+     NaN</out>

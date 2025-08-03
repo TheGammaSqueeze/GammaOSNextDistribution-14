@@ -1,0 +1,51 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.resolv"
+  ],
+  "extra_cfg": ["soong"],
+  "min_sdk_version": "29",
+  "package": {
+    "ring": {
+      "add_toplevel_block": "cargo2android_cc.bp",
+      "whole_static_libs": [
+        "libring-core",
+        "libring-test"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "features": [
+        "alloc",
+        "default",
+        "dev_urandom_fallback",
+        "once_cell",
+        "std"
+      ],
+      "module_name_overrides": {
+        "libring_core_0_17_0_alpha_11_": "libring-core",
+        "libring_core_0_17_0_alpha_11_test": "libring-test"
+      },
+      "tests": true
+    },
+    {
+      "features": [
+        "once_cell"
+      ],
+      "module_name_overrides": {
+        "libring_core_0_17_0_alpha_11_": "libring-core",
+        "libring_core_0_17_0_alpha_11_test": "libring-test",
+        "libring": "libring_nostd",
+        "libspin": "libspin_nostd"
+      },
+      "package": {
+        "ring": {
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+         Third-party FFT (fast Fourier transform) code
+
+This directory contains the third-party one- and two-dimensional
+fast Fourier transform and related sinusoidal transform code written
+by Takuya Ooura.
+
+Depending on your needs, there may be better choices than this
+package, e.g.:
+
+1.  David Talkin has written a fast and flexible radix-2 FFT class:
+      google3/speech/dsp/fft.h
+
+2. fftw (http://www.fftw.org/) likely offers speed advantages over the
+routines in this package and undoubtedly has a much larger user base.
+However, it's a much bigger and more complex package.
+
+Package origin URL:
+-------------------
+    http://momonga.t.u-tokyo.ac.jp/~ooura/fft.html
+
+Version:
+--------
+    "fft2d.tgz (53KB) updated: 2001/11/22"
+     md5sum fft2d.tgz: c02e1826a34a06ad1413209843c8e80f  fft2d.tgz
+
+License:
+--------
+
+     See the bottom of fft2d/readme2d.txt.
+
+     My (popat's) reading of it is
+
+           licenses = ["notice"],
+
+Downloading and unpacking history:
+----------------------------------
+
+     Tue Jun  6 14:29:50 2006:
+     wget http://momonga.t.u-tokyo.ac.jp/~ooura/fft2d.tgz
+     tar xzf fft2d.tgz
+     rm fft2d.tgz
+

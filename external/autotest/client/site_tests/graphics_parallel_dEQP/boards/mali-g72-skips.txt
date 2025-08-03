@@ -1,0 +1,15 @@
+# Times out at 60 seconds
+dEQP-VK.ssbo.phys.layout.random.16bit.scalar.13
+dEQP-VK.api.device_init.create_instance_device_intentional_alloc_fail
+
+# These tests should not exist. They are from renderpass-with-dynamic-rendering.txt which should
+# have been removed upstream.
+dEQP-VK.renderpass_with_dynamic_rendering.dedicated_allocation.*
+dEQP-VK.renderpass_with_dynamic_rendering.suballocation.*
+
+# The flush_finish tests throw warnings when behavior doesn't match
+# their expectations, except that tiling GPUs don't behave the way they
+# expect in their timing setup so the tests take exceptionally long
+# while just wasting developer time.  Not required to be warnings-free
+# for conformance.
+dEQP-GLES.*.functional.flush_finish.*

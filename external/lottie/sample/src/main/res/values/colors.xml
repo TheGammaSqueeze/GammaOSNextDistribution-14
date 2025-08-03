@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#c6c6c6</color>
+    <color name="colorPrimaryDark">#f1f1f1</color>
+    <color name="colorAccent">#FF5A5F</color>
+    <color name="divider">#CFCFCF</color>
+    <color name="material_teal">#c9484c</color>
+    <color name="text_color">#7e7e7e</color>
+    <color name="text_color_dark">#484848</color>
+    <color name="text_color_placeholder">#BABABA</color>
+    <color name="tab_bar_underline">#00D1C1</color>
+    <color name="loading_placeholder">#c4c4c4</color>
+
+    <color name="background_color1">#ffffff</color>
+    <color name="background_color1_stroke">#848484</color>
+    <color name="background_color2">#000000</color>
+    <color name="background_color3">#FF5A5F</color>
+    <color name="background_color4">#008489</color>
+    <color name="background_color5">#A61D55</color>
+    <color name="background_color6">#FFB400</color>
+    <color name="background_color7">#A61D55</color>
+
+    <color name="item_deselected">#eaeaea</color>
+    <color name="item_selected_teal">#009587</color>
+    <color name="control_bar_content_unactivated">#444444</color>
+</resources>

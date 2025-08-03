@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no' ?>
+<SubPlan version="2.0">
+  <!--
+    Unless there's special reason, the entries can be removed only
+    when the DEV version bundle's provisional version number (like 9.0r13)
+    is incremented. Otherwise the computation for the canonical list
+    of test cases is confused. See b/151779432.
+  -->
+  <Entry include="CtsBionicTestCases unistd#exec_argv0_null" />
+  <Entry include="CtsBionicTestCases unistd_nofortify#exec_argv0_null" />
+</SubPlan>

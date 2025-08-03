@@ -1,0 +1,70 @@
+# When a new release is created, publish artifacts to Maven Central / JetBrains Marketplace / etc..
+#
+# About secrets used here:
+# 1. OSSRH_USERNAME, OSSRH_TOKEN: token obtained from https://oss.sonatype.org/
+# 2. OSSRH_GPG_SECRET_KEY - private key for signing Maven artifacts
+# 3. OSSRH_GPG_SECRET_KEY_PASSWORD - password for unlocking OSSRH_GPG_SECRET_KEY
+# 4. JETBRAINS_MARKETPLACE_TOKEN - token obtained from https://plugins.jetbrains.com/author/me/tokens
+
+name: Publish package to Maven Central and JetBrains Marketplace
+on:
+  release:
+    types: [created]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Maven Central Repository
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+      - id: publish-to-central
+        name: Publish to Maven Central Repository
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        run: |
+          mvn \
+            --no-transfer-progress \
+            --batch-mode \
+            -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
+            -Prelease clean deploy
+      - name: Publish IntelliJ plugin to JetBrains Marketplace
+        run: |
+          pushd ktfmt_idea_plugin
+          ./gradlew publishPlugin --stacktrace
+          popd
+        env:
+          JETBRAINS_MARKETPLACE_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
+      - uses: actions/setup-node@v2
+      - name: Deploy website
+        run: |
+          KTFMT_TMP_DIR=$(mktemp -d)
+
+          pushd website
+          npm install .
+          KTFMT_WEBSITE_OUTPUT_DIR="$KTFMT_TMP_DIR" gulp build-website
+          popd
+
+          git fetch
+          git checkout gh-pages
+          git config user.email ktfmt@facebook.com
+          git config user.name ktfmt
+
+          rm -rf *
+          cp -R "$KTFMT_TMP_DIR"/* .
+
+          git add .
+          git commit -m "Publish website"
+          git push --force
+
+          rm -rf "$KTFMT_TMP_DIR"

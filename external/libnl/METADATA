@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update libnl
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "libnl"
+description: "Netlink Library Suite"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/thom311/libnl"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/thom311/libnl.git"
+  }
+  version: "libnl3_7_0"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2023
+    month: 1
+    day: 9
+  }
+}

@@ -1,0 +1,27 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "zsm, ChromeOS Kernel Team"
+NAME = "syzcorpus"
+PURPOSE = "Suite to run Syzkaller repros on ChromeOS devices."
+
+TIME = "MEDIUM"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite runs Syzkaller reproducers to test the ChromeOS Kernel.
+This is a regression test suite for the kernel(both core and drivers).
+See https://github.com/dvyukov/syzkaller-repros for more information.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['max_runtime_mins'] = 60
+args_dict['name'] = NAME
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

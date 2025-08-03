@@ -1,0 +1,22 @@
+diff --git a/Android.bp b/Android.bp
+index f33ba7a..62b8b27 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -46,9 +46,16 @@ rust_library {
+     cargo_pkg_version: "0.8.2",
+     srcs: ["src/lib.rs"],
+     edition: "2018",
++    arch: {
++        arm64: {
++            features: ["folded_multiply"],
++        },
++        x86_64: {
++            features: ["folded_multiply"],
++        },
++    },
+     features: [
+         "default",
+-        "folded_multiply",
+         "getrandom",
+         "runtime-rng",
+         "specialize",

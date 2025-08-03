@@ -1,0 +1,11 @@
+{
+  "features": [
+    "serde"
+  ],
+  "package": {
+    "toml_datetime": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

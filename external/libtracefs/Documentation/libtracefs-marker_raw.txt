@@ -1,0 +1,102 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_binary_init, tracefs_binary_close, tracefs_binary_write -
+Open, close and write binary data in the trace buffer.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_binary_init*(struct tracefs_instance pass:[*]_instance_);
+int *tracefs_binary_write*(struct tracefs_instance pass:[*]_instance_, void pass:[*]_data_, int _len_);
+void *tracefs_binary_close*(struct tracefs_instance pass:[*]_instance_);
+
+--
+
+DESCRIPTION
+-----------
+Set of functions to write binary data in the trace buffer.
+See Documentation/trace/ftrace.rst from the Linux kernel tree for more information about writing
+data from user space in the trace buffer. All these APIs have _instance_ as a first argument. If
+NULL is passed as _instance_, the top trace instance is used.
+
+The *tracefs_binary_init()* function initializes the library for writing into the trace buffer of
+the selected _instance_. It is not mandatory to call this API before writing data, the
+*tracefs_binary_write()* will call it automatically, if the library is not yet initialized.
+But calling *tracefs_binary_init()* in advance will speed up the writing.
+
+The *tracefs_binary_write()* function writes a binary data in the trace buffer of the selected
+_instance_. The _data_ points to the data with length _len_, that is going to be written in
+the trace buffer.
+
+The *tracefs_binary_close()* function closes the resources, used by the library for writing in
+the trace buffer of the selected instance.
+
+RETURN VALUE
+------------
+The *tracefs_binary_init()*, and *tracefs_binary_write()* functions return 0 if the operation is
+successful, or -1 in case of an error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+
+if (tracefs_binary_init(NULL) < 0) {
+ /* Failed to initialize the library for writing in the trace buffer of the top trace instance */
+}
+
+unsigned int data = 0xdeadbeef;
+
+	if (tracefs_binary_write(NULL, &data, sizeof(data)) < 0) {
+		/* Failed to write in the trace buffer */
+	}
+
+tracefs_binary_close();
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1),
+Documentation/trace/ftrace.rst from the Linux kernel tree
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2021 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

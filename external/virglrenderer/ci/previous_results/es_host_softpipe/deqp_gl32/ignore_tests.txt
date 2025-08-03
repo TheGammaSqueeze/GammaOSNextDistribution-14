@@ -1,0 +1,4 @@
+# Flip-flops between Pass and Fail
+KHR-GL32.transform_feedback.draw_xfb_test
+KHR-GL32.packed_depth_stencil.blit.depth24_stencil8
+KHR-GL32.packed_depth_stencil.blit.depth32f_stencil8

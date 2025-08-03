@@ -1,0 +1,24 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+NAME = 'hardware_StorageFioOther.verify_usb'
+AUTHOR = 'The Chromium OS Authors'
+PURPOSE = 'Verify storage performance using an external device'
+TIME = 'MEDIUM'
+TEST_CLASS = 'hardware'
+TEST_CATEGORY = 'Performance'
+TEST_TYPE = 'client'
+PY_VERSION = 3
+DEPENDENCIES = "servo_state:WORKING"
+
+DOC = """
+Run fio sequential and random workloads and verify the data written.
+"""
+
+job.run_test('hardware_StorageFioOther', wait=0,
+             requirements=[
+	     ('seq_rw_verify', []),
+	     ('seq_rw_verify', ['v']),
+	     ('write_stress', []),
+	     ('write_stress', ['v'])])

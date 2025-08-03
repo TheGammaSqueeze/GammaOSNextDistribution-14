@@ -1,0 +1,45 @@
+//#############################################
+// Compile Robolectric shadowapi
+//#############################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_robolectric_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+java_library_host {
+    name: "Robolectric_shadowapi_upstream",
+    libs: [
+        "jsr305",
+    ],
+    static_libs: [
+        "Robolectric_utils_upstream",
+        "Robolectric_annotations_upstream",
+    ],
+    srcs: ["src/main/java/**/*.java"],
+    openjdk9: {
+        javacflags: [
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+        ],
+    },
+}
+
+//#############################################
+// Compile Robolectric shadowapi tests
+//#############################################
+java_test_host {
+    name: "Robolectric_shadowapi_tests_upstream",
+    srcs: ["src/test/java/**/*.java"],
+    static_libs: [
+        "Robolectric_shadowapi_upstream",
+        "hamcrest",
+        "guava",
+        "junit",
+        "truth",
+    ],
+    test_suites: ["general-tests"],
+}

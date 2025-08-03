@@ -1,0 +1,102 @@
+//#############################################
+// Compile Robolectric robolectric
+//#############################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_robolectric-shadows_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+java_library_host {
+    name: "Robolectric_robolectric_upstream",
+    libs: [
+        "Robolectric_shadows_framework_upstream",
+        "Robolectric_shadows_versioning_upstream",
+        "Robolectric_annotations_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_resources_upstream",
+        "Robolectric_sandbox_upstream",
+        "Robolectric_junit_upstream",
+        "Robolectric_utils_upstream",
+        "Robolectric_utils_reflector_upstream",
+        "robolectric-host-androidx-test-ext-junit_upstream",
+        "robolectric-host-androidx-test-monitor_upstream",
+        "robolectric-maven-ant-tasks-2.1.3",
+        "bouncycastle-unbundled",
+        "asm-commons-9.2",
+        "guava",
+        "robolectric-xstream-1.4.8",
+        "asm-tree-9.2",
+        "junit",
+        "robolectric-ant-1.8.0",
+        "asm-9.2",
+        "jsr305",
+        "conscrypt-unbundled",
+        "robolectric-host-androidx_test_espresso",
+        "robolectric-host-android_all",
+    ],
+    srcs: ["src/main/java/**/*.java"],
+    plugins: ["auto_service_plugin"],
+    java_resource_dirs: ["src/main/resources"],
+    java_resources: [":robolectric-version-upstream.properties"],
+}
+
+genrule {
+    name: "robolectric-version-upstream.properties",
+    out: ["robolectric-version-upstream.properties"],
+    cmd: "echo -n 'robolectric.version=4.8.2-SNAPSHOT' > $(out)",
+}
+
+//#############################################
+// Compile Robolectric robolectric tests
+//#############################################
+java_test_host {
+    name: "Robolectric_robolectric_tests_upstream",
+    srcs: ["src/test/java/**/*.java"],
+    java_resource_dirs: ["src/test/resources"],
+    static_libs: [
+        "Robolectric_robolectric_upstream",
+        "Robolectric_shadows_framework_upstream",
+        "Robolectric_annotations_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_shadows_versioning_upstream",
+        "Robolectric_resources_upstream",
+        "Robolectric_sandbox_upstream",
+        "Robolectric_junit_upstream",
+        "Robolectric_utils_upstream",
+        "Robolectric_utils_reflector_upstream",
+        "robolectric-host-androidx-test-ext-junit_upstream",
+        "robolectric-host-androidx-test-monitor_upstream",
+        "robolectric-host-androidx-test-core_upstream",
+        "robolectric-maven-ant-tasks-2.1.3",
+        "mockito",
+        "bouncycastle-unbundled",
+        "hamcrest",
+        "hamcrest-library",
+        "robolectric-sqlite4java-0.282",
+        "asm-commons-9.2",
+        "robolectric-diffutils-1.3.0",
+        "guava",
+        "objenesis",
+        "robolectric-xstream-1.4.8",
+        "asm-tree-9.2",
+        "junit",
+        "icu4j",
+        "truth",
+        "truth-java8-extension",
+        "robolectric-ant-1.8.0",
+        "asm-9.2",
+        "jsr305",
+        "robolectric-host-androidx_test_espresso",
+        "robolectric-host-androidx-test-ext-truth_upstream",
+    ],
+    libs: ["robolectric-host-android_all"],
+    // Robolectric tests do not work well with unit tests setup yet
+    test_options: {
+        unit_test: false,
+    },
+}

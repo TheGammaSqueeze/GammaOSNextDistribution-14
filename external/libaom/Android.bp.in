@@ -1,0 +1,254 @@
+aom_av1_common_sources +=
+["common/av1_config.c"]
+
+package {
+    default_applicable_licenses: ["external_libaom_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_libaom_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "legacy_by_exception_only", // by exception only
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+        "PATENTS",
+    ],
+}
+
+cc_library_static {
+    name: "libaom",
+    host_supported: true,
+    vendor_available: true,
+    cflags: [
+        "-O3",
+    ],
+
+    export_include_dirs: [
+        ".",
+    ],
+
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media.swcodec",
+    ],
+
+    arch: {
+        arm64: {
+            local_include_dirs: [
+                "config/",
+                "config/arm64/",
+            ],
+            srcs: aom_av1_common_sources +
+                aom_av1_decoder_sources +
+                aom_dsp_common_sources +
+                aom_dsp_decoder_sources +
+                aom_mem_sources +
+                ["aom_ports/aarch64_cpudetect.c"] +
+                aom_rtcd_sources +
+                aom_scale_sources +
+                aom_sources +
+                aom_util_sources +
+                aom_av1_common_intrin_neon +
+                aom_dsp_common_intrin_neon +
+                aom_av1_encoder_intrin_neon +
+                aom_av1_encoder_sources +
+                aom_dsp_encoder_intrin_neon +
+                aom_dsp_encoder_sources,
+        },
+
+        // configured to require the neon unit
+        arm: {
+            neon: {
+                local_include_dirs: [
+                    "config/",
+                    "config/arm/",
+                ],
+                srcs: aom_av1_common_sources +
+                    aom_av1_decoder_sources +
+                    aom_dsp_common_sources +
+                    aom_dsp_decoder_sources +
+                    aom_mem_sources +
+                    aom_rtcd_sources +
+                    ["aom_ports/aarch32_cpudetect.c"] +
+                    aom_scale_sources +
+                    aom_sources +
+                    aom_util_sources +
+                    aom_av1_common_intrin_neon +
+                    aom_dsp_common_intrin_neon +
+                    aom_av1_encoder_intrin_neon +
+                    aom_av1_encoder_sources +
+                    aom_dsp_encoder_intrin_neon +
+                    aom_dsp_encoder_sources,
+            },
+        },
+
+        x86_64: {
+            local_include_dirs: [
+                "config/",
+                "config/x86_64/",
+            ],
+            cflags: [
+                "-mssse3",
+            ],
+            srcs: aom_av1_common_sources +
+                aom_av1_decoder_sources +
+                aom_dsp_common_sources +
+                aom_dsp_decoder_sources +
+                aom_mem_sources +
+                aom_rtcd_sources +
+                aom_scale_sources +
+                aom_sources +
+                aom_util_sources +
+                aom_dsp_common_asm_sse2 +
+                aom_dsp_common_asm_ssse3 +
+                aom_ports_asm_x86 +
+                aom_av1_common_intrin_sse2 +
+                aom_dsp_common_intrin_sse2 +
+                aom_av1_common_intrin_ssse3 +
+                aom_dsp_common_intrin_ssse3 +
+                aom_av1_encoder_asm_sse2 +
+                aom_av1_encoder_asm_ssse3_x86_64 +
+                aom_av1_encoder_intrin_sse2 +
+                aom_av1_encoder_intrin_sse3 +
+                aom_av1_encoder_intrin_ssse3 +
+                aom_av1_encoder_sources +
+                aom_dsp_encoder_asm_sse2 +
+                aom_dsp_encoder_asm_sse2_x86_64 +
+                aom_dsp_encoder_asm_ssse3_x86_64 +
+                aom_dsp_encoder_intrin_sse2 +
+                aom_dsp_encoder_intrin_ssse3 +
+                aom_dsp_encoder_sources,
+        },
+
+        x86: {
+            local_include_dirs: [
+                "config/",
+                "config/x86/",
+            ],
+            cflags: [
+                "-mssse3",
+            ],
+            srcs: aom_av1_common_sources +
+                aom_av1_decoder_sources +
+                aom_dsp_common_sources +
+                aom_dsp_decoder_sources +
+                aom_mem_sources +
+                aom_rtcd_sources +
+                aom_scale_sources +
+                aom_sources +
+                aom_util_sources +
+                aom_dsp_common_asm_sse2 +
+                aom_dsp_common_asm_ssse3 +
+                aom_ports_asm_x86 +
+                aom_av1_common_intrin_sse2 +
+                aom_dsp_common_intrin_sse2 +
+                aom_av1_common_intrin_ssse3 +
+                aom_dsp_common_intrin_ssse3 +
+                aom_av1_encoder_asm_sse2 +
+                aom_av1_encoder_intrin_sse2 +
+                aom_av1_encoder_intrin_sse3 +
+                aom_av1_encoder_intrin_ssse3 +
+                aom_av1_encoder_sources +
+                aom_dsp_encoder_asm_sse2 +
+                aom_dsp_encoder_intrin_sse2 +
+                aom_dsp_encoder_intrin_ssse3 +
+                aom_dsp_encoder_sources,
+        },
+
+        riscv64: {
+            local_include_dirs: [
+                "config/",
+                "config/riscv64/",
+            ],
+            cflags: [
+            ],
+            srcs: aom_av1_common_sources +
+                aom_av1_decoder_sources +
+                aom_dsp_common_sources +
+                aom_dsp_decoder_sources +
+                aom_mem_sources +
+                aom_rtcd_sources +
+                aom_scale_sources +
+                aom_sources +
+                aom_util_sources +
+                aom_av1_encoder_sources +
+                aom_dsp_encoder_sources,
+        },
+    },
+
+    sanitize: {
+        blocklist: "libaom_blocklist.txt",
+    },
+
+}
+
+cc_fuzz {
+    name: "av1_dec_fuzzer",
+    host_supported: true,
+    srcs: [
+        "examples/av1_dec_fuzzer.cc",
+    ],
+    arch: {
+        arm: {
+            neon: {
+                local_include_dirs: [
+                    "config/",
+                    "config/arm/",
+                ],
+            },
+        },
+
+        arm64: {
+            local_include_dirs: [
+                "config/",
+                "config/arm64/",
+            ],
+        },
+
+        x86: {
+            local_include_dirs: [
+                "config/",
+                "config/x86/",
+            ],
+        },
+
+        x86_64: {
+            local_include_dirs: [
+                "config/",
+                "config/x86_64/",
+            ],
+        },
+
+        riscv64: {
+            local_include_dirs: [
+                "config/",
+                "config/riscv64/",
+            ],
+        },
+
+    },
+    static_libs: [
+        "libaom",
+    ],
+}

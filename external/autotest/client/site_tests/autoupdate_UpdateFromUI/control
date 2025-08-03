@@ -1,0 +1,15 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "kyleshima, Chromium OS"
+NAME = "autoupdate_UpdateFromUI"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "client"
+PURPOSE = "Tests triggering an update from the UI."
+TIME = "SHORT"
+PY_VERSION = 3
+DOC = """ Tests triggering an update from the UI. """
+
+job.run_test('autoupdate_UpdateFromUI')

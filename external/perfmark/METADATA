@@ -1,0 +1,17 @@
+name: "Perfmark"
+description:
+    "PerfMark is a High Performance Tracing Library"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "http://www.perfmark.io"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/perfmark/perfmark.git"
+  }
+  version: "0.26.0"
+  last_upgrade_date { year: 2023 month: 6 day: 2 }
+  license_type: PERMISSIVE
+}

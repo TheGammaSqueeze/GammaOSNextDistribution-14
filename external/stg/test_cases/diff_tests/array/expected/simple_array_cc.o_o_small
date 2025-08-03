@@ -1,0 +1,6 @@
+type 'struct leaf' changed
+  member changed from 'unsigned int numbers[2]' to 'int numbers[2]'
+    type changed from 'unsigned int[2]' to 'int[2]'
+      element type changed from 'unsigned int' to 'int'
+
+exit code 4

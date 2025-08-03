@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2020 The Android Open Source Project
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+          http://www.apache.org/licenses/LICENSE-2.0
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<!DOCTYPE configuration [
+<!ENTITY ktest_dir "/data/local/tmp/{MODULE}">
+]>
+<configuration description="Runs vts_linux_kselftest.">
+    <option name="test-suite-tag" value="vts" />
+    <option name="config-descriptor:metadata" key="component" value="kselftests" />
+
+    <target_preparer class="com.android.tradefed.targetprep.RootTargetPreparer" />
+    <target_preparer class="com.android.tradefed.targetprep.StopServicesSetup" />
+
+    <object type="module_controller" class="com.android.tradefed.testtype.suite.module.KernelTestModuleController" >
+        <option name="arch" value="arm64"/>
+    </object>
+
+    <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
+        <option name="cleanup" value="true" />
+        <option name="push-file" key="{MODULE}" value="&ktest_dir;" />
+        <option name="post-push" value='chmod -R 755 &ktest_dir;; find &ktest_dir; -type f | xargs grep -l -e "bin/sh" -e "bin/bash" | xargs sed -i -e "s?/bin/echo?echo?" -i -e "s?#!/bin/sh?#!/system/bin/sh?" -i -e "s?#!/bin/bash?#!/system/bin/sh?" || echo "There were no files to process"' />
+    </target_preparer>
+
+    <test class="com.android.tradefed.testtype.binary.KernelTargetTest" >
+        <option name="exit-code-skip" value="4" />
+        <option name="skip-binary-check" value="true" />
+        <option name="test-command-line" key="binderfs_arm_64" value="cd &ktest_dir;/*/.; ./binderfs_test" />
+        <option name="test-command-line" key="breakpoints_breakpoint_test_arm64_arm_64" value="cd &ktest_dir;/*/.; ./breakpoint_test" />
+        <option name="test-command-line" key="capabilities_test_execve_arm_64" value="cd &ktest_dir;/*/.; ./test_execve" />
+        <option name="test-command-line" key="futex_functional_run.sh_arm_64" value="cd &ktest_dir;/*/.; USE_COLOR=0 ./run.sh" />
+        <option name="min-kernel-version" key="futex_functional_run.sh_arm_64" value="5.1" />
+        <option name="test-command-line" key="kcmp_kcmp_test_arm_64" value="cd &ktest_dir;/*/.; ./kcmp_test" />
+        <option name="test-command-line" key="kvm_pvm_wipe_mem_arm_64" value="cd &ktest_dir;/*/.; ./pvm_wipe_mem" />
+        <option name="test-command-line" key="net_psock_tpacket_arm_64" value="cd &ktest_dir;/*/.; ./psock_tpacket" />
+        <option name="test-command-line" key="net_reuseaddr_conflict_arm_64" value="cd &ktest_dir;/*/.; ./reuseaddr_conflict" />
+        <option name="test-command-line" key="net_socket_arm_64" value="cd &ktest_dir;/*/.; ./socket" />
+        <option name="test-command-line" key="ptrace_peeksiginfo_arm_64" value="cd &ktest_dir;/*/.; ./peeksiginfo" />
+        <option name="test-command-line" key="rtc_rtctest_arm_64" value="cd &ktest_dir;/*/.; ./rtctest" />
+        <option name="test-command-line" key="seccomp_seccomp_bpf_arm_64" value="cd &ktest_dir;/*/.; ./seccomp_bpf" />
+        <option name="test-command-line" key="size_get_size_arm_64" value="cd &ktest_dir;/*/.; ./get_size" />
+        <option name="test-command-line" key="splice_default_file_splice_read.sh_arm_64" value="cd &ktest_dir;/*/.; ./default_file_splice_read.sh" />
+        <option name="test-command-line" key="timers_inconsistency-check_arm_64" value="cd &ktest_dir;/*/.; ./inconsistency-check" />
+        <option name="test-command-line" key="timers_nanosleep_arm_64" value="cd &ktest_dir;/*/.; ./nanosleep" />
+        <option name="test-command-line" key="timers_nsleep-lat_arm_64" value="cd &ktest_dir;/*/.; ./nsleep-lat" />
+        <option name="test-command-line" key="timers_posix_timers_arm_64" value="cd &ktest_dir;/*/.; ./posix_timers" />
+        <option name="test-command-line" key="timers_raw_skew_arm_64" value="cd &ktest_dir;/*/.; ./raw_skew" />
+        <option name="test-command-line" key="timers_set-tai_arm_64" value="cd &ktest_dir;/*/.; ./set-tai" />
+        <option name="test-command-line" key="timers_set-timer-lat_arm_64" value="cd &ktest_dir;/*/.; ./set-timer-lat" />
+        <option name="test-command-line" key="timers_threadtest_arm_64" value="cd &ktest_dir;/*/.; ./threadtest" />
+        <option name="test-command-line" key="timers_valid-adjtimex_arm_64" value="cd &ktest_dir;/*/.; ./valid-adjtimex" />
+        <option name="test-command-line" key="vDSO_kselftest_vdso_test_abi_arm_64" value="cd &ktest_dir;/*/.; ./kselftest_vdso_test_abi" />
+        <option name="test-command-line" key="vDSO_kselftest_vdso_test_clock_getres_arm_64" value="cd &ktest_dir;/*/.; ./kselftest_vdso_test_clock_getres" />
+        <option name="test-command-line" key="vDSO_kselftest_vdso_test_getcpu_arm_64" value="cd &ktest_dir;/*/.; ./kselftest_vdso_test_getcpu" />
+        <option name="test-command-line" key="vDSO_kselftest_vdso_test_gettimeofday_arm_64" value="cd &ktest_dir;/*/.; ./kselftest_vdso_test_gettimeofday" />
+        <option name="test-command-line" key="vm_mremap_dontunmap_arm_64" value="cd &ktest_dir;/*/.; ./mremap_dontunmap" />
+        <option name="test-command-line" key="vm_mremap_test_arm_64" value="cd &ktest_dir;/*/.; ./mremap_test" />
+        <option name="test-command-line" key="vm_userfaultfd_anon_arm_64" value="cd &ktest_dir;/*/.; ./userfaultfd anon 32 99" />
+        <option name="test-command-line" key="vm_userfaultfd_shmem_arm_64" value="cd &ktest_dir;/*/.; ./userfaultfd shmem 32 99" />
+    </test>
+</configuration>
+

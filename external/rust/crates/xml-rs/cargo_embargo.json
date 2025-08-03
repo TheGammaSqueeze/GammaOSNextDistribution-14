@@ -1,0 +1,14 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "package": {
+    "xml-rs": {
+      "dep_blocklist": [
+        "libdoc_comment"
+      ]
+    }
+  },
+  "tests": true
+}

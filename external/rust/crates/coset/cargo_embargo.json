@@ -1,0 +1,28 @@
+{
+  "run_cargo": false,
+  "variants": [
+    {
+      "features": [
+        "default",
+        "std"
+      ],
+      "tests": true
+    },
+    {
+      "features": [],
+      "module_name_overrides": {
+        "libciborium": "libciborium_nostd",
+        "libciborium_io": "libciborium_io_nostd",
+        "libcoset": "libcoset_nostd"
+      },
+      "package": {
+        "coset": {
+          "alloc": true,
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

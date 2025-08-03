@@ -1,0 +1,8 @@
+set noparent
+
+# Android text owners
+file:platform/frameworks/base:/core/java/android/text/OWNERS
+
+# Upstream font owners
+csimpkins@google.com
+rsheeter@google.com

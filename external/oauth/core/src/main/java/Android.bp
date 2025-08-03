@@ -1,0 +1,15 @@
+// Build the client static library for the Google Services Framework
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_oauth_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_oauth_license"],
+}
+
+java_library {
+    name: "oauth",
+    srcs: ["net/**/*.java"],
+    sdk_version: "8",
+}

@@ -1,0 +1,46 @@
+<!-- Two partial duplicates which are subtrees of the third. -->
+<abi-corpus version='2.1' architecture='elf-amd-x86_64'>
+  <elf-variable-symbols>
+    <elf-symbol name='t' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='mt.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <namespace-decl name='N'>
+      <class-decl name='S' size-in-bits='8' is-struct='yes' visibility='default' id='af2c111e'>
+        <member-type access='public'>
+          <class-decl name='T' size-in-bits='32' is-struct='yes' visibility='default' id='500730c2'>
+            <data-member access='public' layout-offset-in-bits='0'>
+              <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+            </data-member>
+          </class-decl>
+        </member-type>
+      </class-decl>
+    </namespace-decl>
+    <namespace-decl name='N'>
+      <class-decl name='S' size-in-bits='8' is-struct='yes' visibility='default' id='af2c111e'>
+        <member-type access='public'>
+          <class-decl name='T' size-in-bits='32' is-struct='yes' visibility='default' id='500730c2'>
+            <data-member access='public' layout-offset-in-bits='32'>
+              <var-decl name='y' type-id='95e97e5e' visibility='default'/>
+            </data-member>
+          </class-decl>
+        </member-type>
+      </class-decl>
+    </namespace-decl>
+    <namespace-decl name='N'>
+      <class-decl name='S' size-in-bits='8' is-struct='yes' visibility='default' id='af2c111e'>
+        <member-type access='public'>
+          <class-decl name='T' size-in-bits='32' is-struct='yes' visibility='default' id='500730c2'>
+            <data-member access='public' layout-offset-in-bits='0'>
+              <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+            </data-member>
+            <data-member access='public' layout-offset-in-bits='32'>
+              <var-decl name='y' type-id='95e97e5e' visibility='default'/>
+            </data-member>
+          </class-decl>
+        </member-type>
+      </class-decl>
+    </namespace-decl>
+    <var-decl name='t' type-id='500730c2' mangled-name='t' visibility='default' elf-symbol-id='t'/>
+  </abi-instr>
+</abi-corpus>

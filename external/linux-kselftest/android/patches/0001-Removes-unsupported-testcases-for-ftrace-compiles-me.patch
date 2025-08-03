@@ -1,0 +1,49 @@
+From ae48c76fa42062b11f7fd522020abf511982316b Mon Sep 17 00:00:00 2001
+From: Tri Vo <trong@google.com>
+Date: Sun, 28 Aug 2016 16:55:24 -0700
+Subject: [PATCH 01/20] Removes unsupported testcases for ftrace, compiles
+ membarrier, net/psock_tpacket, timers/valid-adjtimex. Added a list of
+ testfiles that could potentially be compiled in Android.kselftest.mk.
+
+(cherry picked from commit cd038753c3543ee6919469a4472cdf86ea0121c8)
+---
+ tools/testing/selftests/net/psock_tpacket.c     | 2 ++
+ tools/testing/selftests/timers/valid-adjtimex.c | 3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/tools/testing/selftests/net/psock_tpacket.c b/tools/testing/selftests/net/psock_tpacket.c
+index 404a2ce759ab..e5a4c53076d2 100644
+--- a/tools/testing/selftests/net/psock_tpacket.c
++++ b/tools/testing/selftests/net/psock_tpacket.c
+@@ -33,7 +33,9 @@
+ #include <ctype.h>
+ #include <fcntl.h>
+ #include <unistd.h>
++#ifndef __ANDROID__
+ #include <bits/wordsize.h>
++#endif
+ #include <net/ethernet.h>
+ #include <netinet/ip.h>
+ #include <arpa/inet.h>
+diff --git a/tools/testing/selftests/timers/valid-adjtimex.c b/tools/testing/selftests/timers/valid-adjtimex.c
+index 48b9a803235a..ecac8fadd939 100644
+--- a/tools/testing/selftests/timers/valid-adjtimex.c
++++ b/tools/testing/selftests/timers/valid-adjtimex.c
+@@ -39,12 +39,13 @@
+ 
+ #define ADJ_SETOFFSET 0x0100
+ 
++#ifndef __ANDROID__
+ #include <sys/syscall.h>
+ int clock_adjtime(clockid_t id, struct timex *tx)
+ {
+ 	return syscall(__NR_clock_adjtime, id, tx);
+ }
+-
++#endif
+ 
+ /* clear NTP time_status & time_state */
+ int clear_time_state(void)
+-- 
+2.42.0.609.gbb76f46606-goog
+

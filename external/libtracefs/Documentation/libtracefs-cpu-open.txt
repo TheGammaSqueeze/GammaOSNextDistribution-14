@@ -1,0 +1,100 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_cpu_open, tracefs_cpu_close, tracefs_cpu_alloc_fd, tracefs_cpu_free_fd - Opening trace_pipe_raw data for reading
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+struct tracefs_cpu pass:[*]*tracefs_cpu_open*(struct tracefs_instance pass:[*]_instance_,
+				     int _cpu_, bool _nonblock_);
+void *tracefs_cpu_close*(struct tracefs_cpu pass:[*]_tcpu_);
+
+struct tracefs_cpu pass:[*]*tracefs_cpu_alloc_fd*(int _fd_, int _subbuf_size_, bool _nonblock_);
+void *tracefs_cpu_free_fd*(struct tracefs_cpu pass:[*]_tcpu_);
+--
+
+DESCRIPTION
+-----------
+This set of APIs can be used to open the raw data from the trace_pipe_raw
+files in the tracefs file system in oder to read them with the *tracefs_cpu_read*(3)
+functions.
+
+The *tracefs_cpu_open()* creates a descriptor that can read the tracefs
+trace_pipe_raw file for a given _cpu_ in a given _instance_. If _instance_ is
+NULL than the toplevel trace_pipe_raw file is used.
+
+The *tracefs_cpu_close()* closes all the file descriptors associated to the trace_pipe_raw
+opened by *tracefs_cpu_open()*.
+
+The *tracefs_cpu_alloc_fd()* will create a tracefs_cpu descriptor from an existing
+file descriptor _fd_. This is useful to use when connecting to a socket or pipe where
+the other end is feeding raw tracing data in the same format as the trace_pipe_raw
+file would (like in guest to host tracing). The caller is responsible for determining
+the _subbuf_size_ that will be used to break up the sub-buffers being read by the
+file descriptor. The _nonblock_ is treated the same as the same parameter in
+*tracefs_cpu_open()*.
+
+The *tracefs_cpu_free_fd()* is used to free the descriptor returned by *tracefs_cpu_alloc_fd()*.
+It does all the clean up that *tracefs_cpu_close()* performs, and that could also be
+used to free up the descriptor created by *tracefs_cpu_alloc_fd()* but will also close
+the file descriptor passed in. Note that *tracefs_cpu_free_fd()* should not be used
+on the descriptor returned by *tracefs_cpu_open()* as it will not close the file descriptor
+created by it.
+
+RETURN VALUE
+------------
+The *tracefs_cpu_open()* returns a struct tracefs_cpu descriptor that can be
+used by the other functions or NULL on error.
+
+The *tracefs_cpu_alloc_fd()* returns a struct tracefs_cpu descriptor that can
+be used by the *tracefs_cpu_read*(3) related functions, where the descriptor
+will be reading the passed in _fd_ file descriptor.
+
+EXAMPLE
+-------
+See *tracefs_cpu_read*(3) for an example.
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2022 Google, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

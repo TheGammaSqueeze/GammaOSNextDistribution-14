@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<countries>
+<country name="France"/>
+<country name="Germany"/>
+<country name="Israel"/>
+<country name="Japan"/>
+<country name="Poland"/>
+<country name="United States" selected="yes"/>
+<country name="Venezuela"/>
+</countries>

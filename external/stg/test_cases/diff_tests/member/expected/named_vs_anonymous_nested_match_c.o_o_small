@@ -1,0 +1,9 @@
+type 'struct A' changed
+  member 'struct { int x; int y; }' was added
+  member 'int x' was removed
+  member 'int y' was removed
+  member 'char p' was added
+  member 'char s' was added
+  member 'struct { char p; char q; }' was removed
+
+exit code 4

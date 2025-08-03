@@ -1,0 +1,10 @@
+{
+  "run_cargo": false,
+  "tests": true,
+  "package": {
+    "p9": {
+      "patch": "Android.bp.patch",
+      "host_first_multilib": true
+    }
+  }
+}

@@ -1,0 +1,4 @@
+13a14,16
+> MODULE_LIBRARY_DEPS := \
+> 	trusty/user/base/lib/liballoc-rust \
+> 

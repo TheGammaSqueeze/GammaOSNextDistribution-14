@@ -1,0 +1,28 @@
+# Copyright (c) 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'harpreet'
+TIME = 'SHORT'
+NAME = 'cellular_ChromeEndToEnd.enableDisableCellular_tmobile'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:cellular_endtoend'
+DEPENDENCIES = 'servo_state:WORKING, carrier:tmobile'
+PY_VERSION = 3
+DOC = """
+Tests that cellular can be enabled or disabled on the DUI.
+"""
+
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test('cellular_ChromeEndToEnd',
+                 host=host,
+                 raw_cmdline_args=args,
+                 test='enableDisableCellular')
+
+parallel_simple(run, machines)

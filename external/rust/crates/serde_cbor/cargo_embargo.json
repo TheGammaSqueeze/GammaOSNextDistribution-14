@@ -1,0 +1,7 @@
+{
+  "features": [
+    "default",
+    "tags"
+  ],
+  "tests": true
+}

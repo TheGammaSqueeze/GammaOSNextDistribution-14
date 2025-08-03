@@ -1,0 +1,120 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_libavc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_libavc_license"],
+}
+
+cc_defaults {
+    name: "avcdec_defaults",
+    gtest: false,
+    host_supported: true,
+    cflags: [
+        "-DPROFILE_ENABLE",
+        "-DARM",
+        "-DMD5_DISABLE",
+        "-fPIC",
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: ["liblog"],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_defaults {
+    name: "avcenc_defaults",
+    gtest: false,
+    host_supported: true,
+    cflags: [
+        "-DPROFILE_ENABLE",
+        "-DARM",
+        "-DMD5_DISABLE",
+        "-fPIC",
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-variable",
+    ],
+    local_include_dirs: [
+        "avcenc",
+    ],
+    static_libs: ["libavcenc"],
+}
+
+cc_test {
+    name: "avcdec",
+    defaults: ["avcdec_defaults"],
+    local_include_dirs: [
+        "avcdec",
+    ],
+    srcs: ["avcdec/main.c"],
+    static_libs: ["libavcdec"],
+}
+
+cc_test {
+    name: "mvcdec",
+    defaults: ["avcdec_defaults"],
+    local_include_dirs: [
+        "mvcdec",
+    ],
+    srcs: ["mvcdec/main.c"],
+    static_libs: [
+        "libmvcdec",
+    ],
+}
+
+cc_test {
+    name: "avcenc",
+    defaults: ["avcenc_defaults"],
+
+    srcs: [
+        "avcenc/main.c",
+        "avcenc/psnr.c",
+        "avcenc/input.c",
+        "avcenc/output.c",
+        "avcenc/recon.c",
+    ],
+}
+
+cc_test {
+    name: "svcenc",
+    defaults: ["avcenc_defaults"],
+
+    local_include_dirs: [
+        "svcenc",
+    ],
+
+    srcs: [
+        "svcenc/main.c",
+        "svcenc/input.c",
+        "svcenc/output.c",
+        "svcenc/psnr.c",
+        "svcenc/recon.c",
+    ],
+
+    static_libs: [
+        "libsvcenc",
+    ],
+}
+
+cc_test {
+    name: "svcdec",
+    defaults: ["avcdec_defaults"],
+
+    local_include_dirs: [
+        "svcdec",
+    ],
+
+    srcs: [
+        "svcdec/main.c",
+    ],
+
+    static_libs: [
+        "libsvcdec",
+    ],
+}

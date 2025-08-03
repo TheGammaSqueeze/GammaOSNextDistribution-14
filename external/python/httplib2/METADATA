@@ -1,0 +1,20 @@
+name: "httplib2"
+description: "httplib2 is a comprehensive HTTP client library, httplib2.py supports many features left out of other HTTP libraries."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/httplib2/httplib2"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/httplib2/httplib2.git"
+  }
+  version: "v0.18.1"
+  license_note: "would be NOTICE save for: test/other_cacerts.txt and doc/html/_static/jquery.js"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2020
+    month: 5
+    day: 20
+  }
+}

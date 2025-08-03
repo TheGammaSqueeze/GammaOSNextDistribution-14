@@ -1,0 +1,15 @@
+name: "stressapptest"
+description: "Stressful Application Test - userspace memory and IO test"
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/stressapptest/stressapptest.git"
+  }
+  version: "v1.0.9"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 4
+    day: 9
+  }
+}

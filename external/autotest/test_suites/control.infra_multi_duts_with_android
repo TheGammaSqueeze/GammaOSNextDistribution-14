@@ -1,0 +1,23 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "xianuowang"
+NAME = "infra_multi_duts_with_android"
+PURPOSE = "Test multi-DUTs infra support with Android devices."
+
+TIME = "MEDIUM"
+TEST_CATEGORY = "Infra"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """This test suite runs infra_MultiDutsWithAndroid test"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['max_runtime_mins'] = 60
+args_dict['timeout_mins'] = 120
+args_dict['name'] = NAME
+args_dict['job'] = job
+dynamic_suite.reimage_and_run(**args_dict)

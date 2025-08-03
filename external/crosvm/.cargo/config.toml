@@ -1,0 +1,29 @@
+# Disable clippy lints project-wide.
+# This allows ./tools/clippy and IDE integrations to use the same configuration.
+# This should be replaced with a proper clippy config once available:
+# https://github.com/rust-lang/cargo/issues/5034
+[build]
+rustflags = [
+    # We don't care about these lints. Okay to remain suppressed globally.
+    "-Aclippy::bool_assert_comparison",
+    "-Aclippy::cast_lossless",
+    "-Aclippy::cognitive_complexity",
+    "-Aclippy::collapsible_if",
+    "-Aclippy::enum_variant_names",
+    "-Aclippy::identity_op",
+    "-Aclippy::match_bool",
+    "-Aclippy::match_wild_err_arm",
+    "-Aclippy::needless_bool",
+    "-Aclippy::new-ret-no-self",
+    "-Aclippy::or_fun_call",
+    "-Aclippy::result-unit-err",
+    "-Aclippy::should_implement_trait",
+    "-Aclippy::single_char_pattern",
+    "-Aclippy::too_many_arguments",
+    "-Aclippy::trivially_copy_pass_by_ref",
+    "-Aclippy::type_complexity",
+    "-Aclippy::unreadable_literal",
+    "-Aclippy::useless_let_if_seq",
+    "-Aclippy::useless_transmute",
+    "-Dclippy::undocumented_unsafe_blocks",
+]

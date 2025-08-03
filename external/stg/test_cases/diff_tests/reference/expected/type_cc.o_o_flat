@@ -1,0 +1,17 @@
+function symbol changed from 'int func(struct foo)' {_Z4func3foo} to 'long func(struct foo)' {_Z4func3foo}
+  type changed from 'int(struct foo)' to 'long(struct foo)'
+    return type changed from 'int' to 'long'
+    parameter 1 type 'struct foo' changed
+
+type 'struct foo' changed
+  member changed from 'int* ptr' to 'long* ptr'
+    type changed from 'int*' to 'long*'
+      pointed-to type changed from 'int' to 'long'
+  member changed from 'int& lref' to 'long& lref'
+    type changed from 'int&' to 'long&'
+      referred-to type changed from 'int' to 'long'
+  member changed from 'int&& rref' to 'long&& rref'
+    type changed from 'int&&' to 'long&&'
+      referred-to type changed from 'int' to 'long'
+
+exit code 4

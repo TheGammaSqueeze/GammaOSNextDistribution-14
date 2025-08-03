@@ -1,0 +1,186 @@
+//
+// Copyright © 2022-2023 Arm Ltd and Contributors. All rights reserved.
+// SPDX-License-Identifier: MIT
+//
+
+////////////////////////////////////////////
+//                                        //
+//      libarmnn_support_library          //
+//                                        //
+////////////////////////////////////////////
+
+cc_library_shared {
+    name: "libarmnn_support_library",
+	enabled : false,
+    arch: {
+        arm: {
+            enabled : true,
+        },
+        arm64: {
+            enabled : true,
+        },
+    },
+    defaults: ["neuralnetworks_cl_defaults"],
+    include_dirs: [
+        "external/armnn/include",
+        "external/armnn/third-party",
+        "system/logging/liblog/include",
+    ],
+    srcs: [
+        "sl/support_library_service.cpp",
+        "sl/canonical/*.cpp",
+    ],
+    shared_libs: [
+        "liblog",
+        "libnativewindow",
+        "libcrypto",
+    ],
+    openmp: true,
+    cflags: [
+        "-DNN_COMPATIBILITY_LIBRARY_BUILD",
+        "-fexceptions",
+        "-fPIC",
+        "-std=c++17",
+        "-Wall",
+        "-fexceptions",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wno-unused-private-field",
+        "-Wno-unused-variable",
+        "-Wno-attributes",
+        "-Wno-format-security",
+        "-Wno-extern-c-compat",
+        "-Wno-invalid-partial-specialization",
+        "-Wno-unneeded-internal-declaration",
+        "-Wno-unused-function",
+        "-DNN_DEBUGGABLE",
+    ],
+    // Change the soname, this library will be added as cc_prebuilt_library_shared
+    // with different name to android.hardware.neuralnetworks-shim-service-armnn
+    ldflags: [
+        "-Wl,-soname,libarmnn_support_library_prebuilt.so",
+    ],
+    static_libs: [
+        "libbase_ndk",
+        "libneuralnetworks_common_cl_cpu",
+        "libtflite_static",
+        "neuralnetworks_canonical_sample_driver_cl",
+        "neuralnetworks_types_cl",
+    ],
+    whole_static_libs: [
+        "libneuralnetworks_cl",
+        "libarmnn",
+    ],
+}
+
+////////////////////////////////////////////
+//                                        //
+//    libarmnn_support_library_prebuilt   //
+//                                        //
+////////////////////////////////////////////
+
+cc_prebuilt_library_shared {
+    name: "libarmnn_support_library_prebuilt",
+    check_elf_files: false,
+    host_supported: false,
+    shared_libs: [
+        "libbase",
+        "libcutils",
+        "liblog",
+        "libnativewindow",
+    ],
+    proprietary: true,
+    vendor: true,
+    apex_available: ["//apex_available:vendor", "//apex_available:platform"],
+    allow_undefined_symbols: true,
+    target: {
+        android_x86_64: {
+            enabled: false,
+        },
+        android_x86: {
+            enabled: false,
+        },
+        android_riscv64: {
+            enabled: false,
+        },
+        android_arm64: {
+            srcs: ["sl/build/android_arm64/libarmnn_support_library_prebuilt.so"],
+        },
+        android_arm: {
+            srcs: ["sl/build/android_arm/libarmnn_support_library_prebuilt.so"],
+        },
+    },
+}
+
+////////////////////////////////////////////
+//                                        //
+//           shim service                 //
+//                                        //
+////////////////////////////////////////////
+
+cc_defaults {
+    name: "NeuralNetworksShimArmnnDriverAidl_defaults",
+	enabled : false,
+    arch: {
+        arm: {
+            enabled : true,
+        },
+        arm64: {
+            enabled : true,
+        },
+    },
+    check_elf_files: false,
+    host_supported: false,
+    defaults: [
+        "neuralnetworks_defaults",
+        "neuralnetworks_use_latest_utils_hal_aidl",
+    ],
+    header_libs: [
+        "libneuralnetworks_headers",
+    ],
+    cflags: [
+        "-DNN_COMPATIBILITY_LIBRARY_BUILD",
+    ],
+    ldflags: [
+        // libarmnn_support_library has undefined symbols that
+        // cause linker failures with --no-allow-shlib-undefined, the default
+        // when linking executables. See b/181227567
+        "-Wl,--allow-shlib-undefined",
+    ],
+    static_libs: [
+        "libaidlcommonsupport",
+        "libarect",
+        "libcutils",
+        "libneuralnetworks_common",
+        "libneuralnetworks_shim_static",
+        "neuralnetworks_supportlibrary_loader",
+        "neuralnetworks_utils_hal_common",
+    ],
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libhidlbase",
+        "libhidlmemory",
+        "liblog",
+        "libnativewindow",
+        "libutils",
+        "libarmnn_support_library_prebuilt",
+    ],
+    apex_available: ["//apex_available:vendor", "//apex_available:platform"],
+}
+
+cc_defaults {
+    name: "NeuralNetworksShimArmnnDriverAidl_server_defaults",
+    defaults: ["NeuralNetworksShimArmnnDriverAidl_defaults"],
+    relative_install_path: "hw",
+    proprietary: true,
+}
+
+cc_binary {
+    name: "android.hardware.neuralnetworks-shim-service-armnn",
+    srcs: ["shimservice.cpp"],
+    defaults: ["NeuralNetworksShimArmnnDriverAidl_server_defaults"],
+    stl: "libc++_static",
+    init_rc: ["config/android.hardware.neuralnetworks-shim-service-armnn.rc"],
+    vintf_fragments: ["config/android.hardware.neuralnetworks-shim-service-armnn.xml"],
+}

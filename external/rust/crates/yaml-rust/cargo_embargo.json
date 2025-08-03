@@ -1,0 +1,8 @@
+{
+  "package": {
+    "yaml-rust": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

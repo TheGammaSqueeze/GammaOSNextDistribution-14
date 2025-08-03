@@ -1,0 +1,19 @@
+name: "android_log-sys"
+description: "FFI bindings to Android log Library."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/android_log-sys"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/android_log-sys/android_log-sys-0.2.0.crate"
+  }
+  version: "0.2.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 7
+    day: 22
+  }
+}

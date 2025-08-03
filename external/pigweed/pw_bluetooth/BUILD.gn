@@ -1,0 +1,241 @@
+# Copyright 2022 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+
+import("$dir_pigweed/third_party/emboss/build_defs.gni")
+import("$dir_pw_bloat/bloat.gni")
+import("$dir_pw_build/target_types.gni")
+import("$dir_pw_chrono/backend.gni")
+import("$dir_pw_docgen/docs.gni")
+import("$dir_pw_unit_test/test.gni")
+
+config("public_include_path") {
+  include_dirs = [ "public" ]
+  visibility = [ ":*" ]
+}
+
+pw_doc_group("docs") {
+  sources = [ "docs.rst" ]
+
+  report_deps = [
+    ":emboss_size_report",
+    ":emboss_size_report_diff",
+  ]
+}
+
+pw_source_set("pw_bluetooth") {
+  public_configs = [ ":public_include_path" ]
+  public = [
+    "public/pw_bluetooth/address.h",
+    "public/pw_bluetooth/assigned_uuids.h",
+    "public/pw_bluetooth/constants.h",
+    "public/pw_bluetooth/controller.h",
+    "public/pw_bluetooth/gatt/client.h",
+    "public/pw_bluetooth/gatt/constants.h",
+    "public/pw_bluetooth/gatt/error.h",
+    "public/pw_bluetooth/gatt/server.h",
+    "public/pw_bluetooth/gatt/types.h",
+    "public/pw_bluetooth/host.h",
+    "public/pw_bluetooth/internal/hex.h",
+    "public/pw_bluetooth/internal/raii_ptr.h",
+    "public/pw_bluetooth/low_energy/advertising_data.h",
+    "public/pw_bluetooth/low_energy/bond_data.h",
+    "public/pw_bluetooth/low_energy/central.h",
+    "public/pw_bluetooth/low_energy/connection.h",
+    "public/pw_bluetooth/low_energy/peripheral.h",
+    "public/pw_bluetooth/low_energy/security_mode.h",
+    "public/pw_bluetooth/pairing_delegate.h",
+    "public/pw_bluetooth/peer.h",
+    "public/pw_bluetooth/result.h",
+    "public/pw_bluetooth/types.h",
+    "public/pw_bluetooth/uuid.h",
+    "public/pw_bluetooth/vendor.h",
+  ]
+  public_deps = [
+    "$dir_pw_chrono:system_clock",
+    "$dir_pw_string:string",
+    dir_pw_containers,
+    dir_pw_function,
+    dir_pw_result,
+    dir_pw_span,
+    dir_pw_status,
+  ]
+}
+
+if (dir_pw_third_party_emboss != "") {
+  config("emboss_include_path") {
+    include_dirs = [
+      "$target_gen_dir/public",
+
+      # Emboss headers (.emb.h) need to look for imported Emboss file headers in
+      # Pigweed's root gen directory. This is *not* root_gen_dir in
+      # external repositories depending on Pigweed.
+      "$target_gen_dir/..",
+    ]
+    visibility = [ ":*" ]
+  }
+
+  emboss_cc_library("emboss_hci_common") {
+    public_configs = [ ":emboss_include_path" ]
+    source = "public/pw_bluetooth/hci_common.emb"
+  }
+
+  emboss_cc_library("emboss_hci_commands") {
+    public_configs = [ ":emboss_include_path" ]
+    source = "public/pw_bluetooth/hci_commands.emb"
+    imports = [ "public/pw_bluetooth/hci_common.emb" ]
+    deps = [ ":emboss_hci_common" ]
+  }
+
+  emboss_cc_library("emboss_hci_events") {
+    public_configs = [ ":emboss_include_path" ]
+    source = "public/pw_bluetooth/hci_events.emb"
+    imports = [ "public/pw_bluetooth/hci_common.emb" ]
+    deps = [ ":emboss_hci_common" ]
+  }
+
+  emboss_cc_library("emboss_hci_vendor") {
+    public_configs = [ ":emboss_include_path" ]
+    source = "public/pw_bluetooth/hci_vendor.emb"
+    imports = [ "public/pw_bluetooth/hci_common.emb" ]
+    deps = [ ":emboss_hci_common" ]
+  }
+
+  emboss_cc_library("emboss_hci_test") {
+    public_configs = [ ":emboss_include_path" ]
+    source = "public/pw_bluetooth/hci_test.emb"
+    imports = [ "public/pw_bluetooth/hci_common.emb" ]
+    deps = [ ":emboss_hci_common" ]
+  }
+
+  emboss_cc_library("emboss_l2cap_frames") {
+    public_configs = [ ":emboss_include_path" ]
+    source = "public/pw_bluetooth/l2cap_frames.emb"
+  }
+
+  group("emboss_hci_group") {
+    public_configs = [ ":emboss_include_path" ]
+    public_deps = [
+      ":emboss_hci_commands",
+      ":emboss_hci_common",
+      ":emboss_hci_events",
+      ":emboss_hci_vendor",
+    ]
+  }
+} else {
+  group("emboss_hci_common") {
+  }
+  group("emboss_hci_commands") {
+  }
+  group("emboss_hci_events") {
+  }
+  group("emboss_hci_vendor") {
+  }
+  group("emboss_hci_test") {
+  }
+  group("emboss_hci_group") {
+  }
+  group("emboss_l2cap_frames") {
+  }
+}
+
+pw_test_group("tests") {
+  enable_if = pw_chrono_SYSTEM_CLOCK_BACKEND != ""
+  tests = [
+    ":address_test",
+    ":api_test",
+    ":result_test",
+    ":uuid_test",
+    ":emboss_test",
+  ]
+}
+
+pw_test("address_test") {
+  sources = [ "address_test.cc" ]
+  deps = [ ":pw_bluetooth" ]
+}
+
+pw_test("api_test") {
+  sources = [ "api_test.cc" ]
+  deps = [ ":pw_bluetooth" ]
+}
+
+pw_test("result_test") {
+  sources = [ "result_test.cc" ]
+  deps = [ ":pw_bluetooth" ]
+}
+
+pw_test("uuid_test") {
+  sources = [ "uuid_test.cc" ]
+  deps = [ ":pw_bluetooth" ]
+}
+
+pw_test("emboss_test") {
+  enable_if = dir_pw_third_party_emboss != ""
+  sources = [ "emboss_test.cc" ]
+  deps = [
+    ":emboss_hci_commands",
+    ":emboss_hci_events",
+    ":emboss_hci_test",
+    ":emboss_hci_vendor",
+    ":emboss_l2cap_frames",
+  ]
+}
+
+if (dir_pw_third_party_emboss != "") {
+  pw_size_diff("emboss_size_report") {
+    title = "pw_bluetooth Emboss Size Report"
+    base = "$dir_pw_bloat:bloat_base"
+    binaries = [
+      {
+        target = "size_report:make_view_and_write"
+        label = "Make view and write field"
+      },
+    ]
+  }
+
+  pw_size_diff("emboss_size_report_diff") {
+    title = "pw_bluetooth Emboss Size Report diff"
+    base = "size_report:make_view_and_write"
+    binaries = [
+      {
+        target = "size_report:make_2_views_and_write"
+        label = "Size difference when adding a second view"
+      },
+    ]
+  }
+} else {
+  pw_size_diff("emboss_size_report") {
+    title = "pw_bluetooth Emboss Size Report"
+    base = "$dir_pw_bloat:bloat_base"
+    binaries = [
+      {
+        target = "$dir_pw_bloat:bloat_base"
+        label = "Emboss not configured."
+      },
+    ]
+  }
+
+  pw_size_diff("emboss_size_report_diff") {
+    title = "pw_bluetooth Emboss Size Report diff"
+    base = "$dir_pw_bloat:bloat_base"
+    binaries = [
+      {
+        target = "$dir_pw_bloat:bloat_base"
+        label = "Emboss not configured."
+      },
+    ]
+  }
+}

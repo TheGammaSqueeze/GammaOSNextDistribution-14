@@ -1,0 +1,84 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package wmediumdserver;
+
+option java_package = "com.android.wmediumd";
+
+import "google/protobuf/empty.proto";
+
+service WmediumdService {
+  rpc ListStations(google.protobuf.Empty) returns (ListStationsResponse) {}
+  rpc LoadConfig(LoadConfigRequest) returns (google.protobuf.Empty) {}
+  rpc ReloadConfig(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetCivicloc(SetCiviclocRequest) returns (google.protobuf.Empty) {}
+  rpc SetLci(SetLciRequest) returns (google.protobuf.Empty) {}
+  rpc SetPosition(SetPositionRequest) returns (google.protobuf.Empty) {}
+  rpc SetSnr(SetSnrRequest) returns (google.protobuf.Empty) {}
+  rpc SetTxpower(SetTxpowerRequest) returns (google.protobuf.Empty) {}
+  rpc StartPcap(StartPcapRequest) returns (google.protobuf.Empty) {}
+  rpc StopPcap(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+message StationInfo {
+  string mac_address = 1;
+  string mac_hw_address = 2;
+  double x_pos = 3;
+  double y_pos = 4;
+  int32 tx_power = 5;
+  string lci = 6;
+  string civicloc = 7;
+}
+
+message ListStationsResponse {
+  int32 station_count = 1;
+  repeated StationInfo stations = 2;
+}
+
+message LoadConfigRequest {
+  string path = 1;
+}
+
+message SetCiviclocRequest {
+  string mac_address = 1;
+  string civicloc = 2;
+}
+
+message SetLciRequest {
+  string mac_address = 1;
+  string lci = 2;
+}
+
+message SetPositionRequest {
+  string mac_address = 1;
+  double x_pos = 2;
+  double y_pos = 3;
+}
+
+message SetSnrRequest {
+  string mac_address_1 = 1;
+  string mac_address_2 = 2;
+  int32 snr = 3;
+}
+
+message SetTxpowerRequest {
+  string mac_address = 1;
+  int32 tx_power = 2;
+}
+
+message StartPcapRequest {
+  string path = 1;
+}

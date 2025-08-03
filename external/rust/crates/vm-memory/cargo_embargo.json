@@ -1,0 +1,18 @@
+{
+  "features": [
+    "default",
+    "backend-bitmap",
+    "backend-mmap",
+    "backend-atomic",
+    "arc-swap"
+  ],
+  "module_name_overrides": {
+    "libvm_memory": "libvm_memory_android"
+  },
+  "package": {
+    "vm-memory": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

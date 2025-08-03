@@ -1,0 +1,96 @@
+From e45a80f8628f60be23c2a8e0b1418c69b0835015 Mon Sep 17 00:00:00 2001
+From: Edward Liaw <edliaw@google.com>
+Date: Fri, 6 Oct 2023 18:46:00 +0000
+Subject: [PATCH] seccomp_bpf: Disable incompatible tests
+
+Bug: 147676645
+Test: atest vts_linux_kselftest_x86_64:seccomp_seccomp_bpf_x86_64
+Test: atest vts_linux_kselftest_arm_64:seccomp_seccomp_bpf_arm_64
+Signed-off-by: Edward Liaw <edliaw@google.com>
+---
+ tools/testing/selftests/seccomp/seccomp_bpf.c | 32 +++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+index 110ca8bf8e2b..953876b81793 100644
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -4488,6 +4488,13 @@ static char get_proc_stat(struct __test_metadata *_metadata, pid_t pid)
+ 	return status;
+ }
+ 
++/*
++ * b/147676645
++ * SECCOMP_IOCTL_NOTIF_RECV not compatible < 5.0
++ * SECCOMP_IOCTL_NOTIF_SEND not compatible < 5.0
++ * SECCOMP_FILTER_FLAG_NEW_LISTENER not compatible < 5.0
++ */
++#ifndef __ANDROID__
+ TEST(user_notification_fifo)
+ {
+ 	struct seccomp_notif_resp resp = {};
+@@ -4566,6 +4573,7 @@ restart_wait:
+ 		EXPECT_EQ(0, WEXITSTATUS(status));
+ 	}
+ }
++#endif
+ 
+ /* get_proc_syscall - Get the syscall in progress for a given pid
+  *
+@@ -4590,6 +4598,12 @@ static long get_proc_syscall(struct __test_metadata *_metadata, int pid)
+ 	return ret;
+ }
+ 
++/*
++ * b/147676645
++ * SECCOMP_FILTER_FLAG_NEW_LISTENER not compatible < 5.0
++ * SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV not compatible < 5.19
++ */
++#ifndef __ANDROID__
+ /* Ensure non-fatal signals prior to receive are unmodified */
+ TEST(user_notification_wait_killable_pre_notification)
+ {
+@@ -4659,7 +4673,16 @@ TEST(user_notification_wait_killable_pre_notification)
+ 
+ 	EXPECT_EQ(read(sk_pair[0], &c, 1), 1);
+ }
++#endif
+ 
++/*
++ * b/147676645
++ * SECCOMP_IOCTL_NOTIF_RECV not compatible < 5.0
++ * SECCOMP_IOCTL_NOTIF_SEND not compatible < 5.0
++ * SECCOMP_FILTER_FLAG_NEW_LISTENER not compatible < 5.0
++ * SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV not compatible < 5.19
++ */
++#ifndef __ANDROID__
+ /* Ensure non-fatal signals after receive are blocked */
+ TEST(user_notification_wait_killable)
+ {
+@@ -4738,7 +4761,15 @@ TEST(user_notification_wait_killable)
+ 	EXPECT_EQ(true, WIFEXITED(status));
+ 	EXPECT_EQ(0, WEXITSTATUS(status));
+ }
++#endif
+ 
++/*
++ * b/147676645
++ * SECCOMP_IOCTL_NOTIF_RECV not compatible < 5.0
++ * SECCOMP_FILTER_FLAG_NEW_LISTENER not compatible < 5.0
++ * SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV not compatible < 5.19
++ */
++#ifndef __ANDROID__
+ /* Ensure fatal signals after receive are not blocked */
+ TEST(user_notification_wait_killable_fatal)
+ {
+@@ -4788,6 +4819,7 @@ TEST(user_notification_wait_killable_fatal)
+ 	EXPECT_EQ(true, WIFSIGNALED(status));
+ 	EXPECT_EQ(SIGTERM, WTERMSIG(status));
+ }
++#endif
+ 
+ /*
+  * TODO:
+-- 
+2.42.0.609.gbb76f46606-goog
+

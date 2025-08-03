@@ -1,0 +1,71 @@
+# Copyright 2021 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+
+import("$dir_pw_build/target_types.gni")
+import("$dir_pw_docgen/docs.gni")
+import("$dir_pw_unit_test/test.gni")
+
+config("public_include_path") {
+  include_dirs = [ "public" ]
+  visibility = [ ":*" ]
+}
+
+pw_source_set("pw_polyfill") {
+  public_configs = [ ":public_include_path" ]
+  remove_public_deps = [ "*" ]
+  public = [
+    "public/pw_polyfill/language_feature_macros.h",
+    "public/pw_polyfill/standard.h",
+    "public/pw_polyfill/static_assert.h",
+  ]
+}
+
+config("standard_library_public") {
+  include_dirs = [ "standard_library_public" ]
+  visibility = [ ":*" ]
+}
+
+pw_source_set("standard_library") {
+  public_configs = [ ":standard_library_public" ]
+  remove_public_deps = [ "*" ]
+  public =
+      [ "standard_library_public/pw_polyfill/standard_library/namespace.h" ]
+  visibility = [
+    ":*",
+    "$dir_pw_minimal_cpp_stdlib:*",
+  ]
+}
+
+pw_test_group("tests") {
+  tests = [ ":test" ]
+  group_deps = [ "$dir_pw_span:tests" ]
+}
+
+pw_test("test") {
+  deps = [
+    ":pw_polyfill",
+    ":standard_library",
+  ]
+  sources = [
+    "c_test.c",
+    "test.cc",
+  ]
+}
+
+pw_doc_group("docs") {
+  sources = [ "docs.rst" ]
+  inputs = [ "c_test.c" ]
+}

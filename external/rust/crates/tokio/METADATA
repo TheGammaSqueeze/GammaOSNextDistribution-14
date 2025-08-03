@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/tokio
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "tokio"
+description: "An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/tokio"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/tokio/tokio-1.25.0.crate"
+  }
+  version: "1.25.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 2
+    day: 6
+  }
+}

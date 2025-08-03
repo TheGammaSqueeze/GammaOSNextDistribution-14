@@ -1,0 +1,215 @@
+/// Copyright (c) 2022-2023 Arm Ltd and Contributors. All rights reserved.
+///
+/// SPDX-License-Identifier: MIT
+///
+
+namespace armnn
+{
+/**
+@page parsers Parsers
+
+@tableofcontents
+Execute models from different machine learning platforms efficiently with our parsers. Simply choose a parser according
+to the model you want to run e.g. If you've got a model in onnx format (<model_name>.onnx) use our onnx-parser.
+
+If you would like to run a Tensorflow Lite (TfLite) model you probably also want to take a look at our @ref delegate.
+
+All parsers are written in C++ but it is also possible to use them in python. For more information on our python
+bindings take a look into the @ref md_python_pyarmnn_README section.
+
+<br/><br/>
+
+
+
+
+@section S5_onnx_parser Arm NN Onnx Parser
+
+`armnnOnnxParser` is a library for loading neural networks defined in ONNX protobuf files into the Arm NN runtime.
+
+## ONNX operators that the Arm NN SDK supports
+
+This reference guide provides a list of ONNX operators the Arm NN SDK currently supports.
+
+The Arm NN SDK ONNX parser currently only supports fp32 operators.
+
+### Fully supported
+
+- Add
+  - See the ONNX [Add documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Add) for more information
+
+- AveragePool
+  - See the ONNX [AveragePool documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#AveragePool) for more information.
+
+- Concat
+  - See the ONNX [Concat documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Concat) for more information.
+
+- Constant
+  - See the ONNX [Constant documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Constant) for more information.
+
+- Clip
+  - See the ONNX [Clip documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Clip) for more information.
+
+- Flatten
+  - See the ONNX [Flatten documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Flatten) for more information.
+
+- Gather
+  - See the ONNX [Gather documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Gather) for more information.
+
+- GlobalAveragePool
+  - See the ONNX [GlobalAveragePool documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#GlobalAveragePool) for more information.
+
+- LeakyRelu
+  - See the ONNX [LeakyRelu documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#LeakyRelu) for more information.
+
+- MaxPool
+  - See the ONNX [max_pool documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MaxPool) for more information.
+
+- Relu
+  - See the ONNX [Relu documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Relu) for more information.
+
+- Reshape
+  - See the ONNX [Reshape documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Reshape) for more information.
+
+- Shape
+  - See the ONNX [Shape documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Shape) for more information.
+
+- Sigmoid
+  - See the ONNX [Sigmoid documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Sigmoid) for more information.
+
+- Tanh
+  - See the ONNX [Tanh documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Tanh) for more information.
+
+- Unsqueeze
+  - See the ONNX [Unsqueeze documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Unsqueeze) for more information.
+
+### Partially supported
+
+- Conv
+  - The parser only supports 2D convolutions with a group = 1 or group = #Nb_of_channel (depthwise convolution)
+- BatchNormalization
+  - The parser does not support training mode. See the ONNX [BatchNormalization documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#BatchNormalization) for more information.
+- Gemm
+  - The parser only supports constant bias or non-constant bias where bias dimension = 1. See the ONNX [Gemm documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Gemm) for more information.
+- MatMul
+  - The parser only supports constant weights in a fully connected layer. See the ONNX [MatMul documentation](https://github.com/onnx/onnx/blob/master/docs/Operators.md#MatMul) for more information.
+
+## Tested networks
+
+Arm tested these operators with the following ONNX fp32 neural networks:
+- Mobilenet_v2. See the ONNX [MobileNet documentation](https://github.com/onnx/models/tree/master/vision/classification/mobilenet) for more information.
+- Simple MNIST. This is no longer directly documented by ONNX. The model and test data may be downloaded [from the ONNX model zoo](https://onnxzoo.blob.core.windows.net/models/opset_8/mnist/mnist.tar.gz).
+
+More machine learning operators will be supported in future releases.
+<br/><br/><br/><br/>
+
+
+
+
+@section S6_tf_lite_parser Arm NN Tf Lite Parser
+
+`armnnTfLiteParser` is a library for loading neural networks defined by TensorFlow Lite FlatBuffers files
+into the Arm NN runtime.
+
+## TensorFlow Lite operators that the Arm NN SDK supports
+
+This reference guide provides a list of TensorFlow Lite operators the Arm NN SDK currently supports.
+
+### Fully supported
+The Arm NN SDK TensorFlow Lite parser currently supports the following operators:
+
+- ABS
+- ADD
+- ARG_MAX
+- ARG_MIN
+- AVERAGE_POOL_2D, Supported Fused Activation: RELU , RELU6 , TANH, NONE
+- BATCH_TO_SPACE
+- CONCATENATION, Supported Fused Activation: RELU , RELU6 , TANH, NONE
+- CONV_2D, Supported Fused Activation: RELU , RELU6 , TANH, NONE
+- CONV_3D, Supported Fused Activation: RELU , RELU6 , TANH, NONE
+- DEPTH_TO_SPACE
+- DEPTHWISE_CONV_2D, Supported Fused Activation: RELU , RELU6 , TANH, NONE
+- DEQUANTIZE
+- DIV
+- ELU
+- EQUAL
+- EXP
+- EXPAND_DIMS
+- FLOOR_DIV
+- FULLY_CONNECTED, Supported Fused Activation: RELU , RELU6 , TANH, NONE
+- GATHER
+- GATHER_ND
+- GREATER
+- GREATER_EQUAL
+- HARD_SWISH
+- LEAKY_RELU
+- LESS
+- LESS_EQUAL
+- LOG
+- LOGICAL_NOT
+- LOGISTIC
+- LOG_SOFTMAX
+- L2_NORMALIZATION
+- MAX_POOL_2D, Supported Fused Activation: RELU , RELU6 , TANH, NONE
+- MAXIMUM
+- MEAN
+- MINIMUM
+- MIRROR_PAD
+- MUL
+- NEG
+- NOT_EQUAL
+- PACK
+- PAD
+- PADV2
+- PRELU
+- QUANTIZE
+- RELU
+- RELU6
+- REDUCE_MAX
+- REDUCE_MIN
+- REDUCE_PROD
+- RESHAPE
+- RESIZE_BILINEAR
+- RESIZE_NEAREST_NEIGHBOR
+- RSQRT
+- SHAPE
+- SIN
+- SLICE
+- SOFTMAX
+- SPACE_TO_BATCH
+- SPACE_TO_DEPTH
+- SPLIT
+- SPLIT_V
+- SQUEEZE
+- SQRT
+- STRIDED_SLICE
+- SUB
+- SUM
+- TANH
+- TRANSPOSE
+- TRANSPOSE_CONV
+- UNPACK
+
+### Custom Operator
+- TFLite_Detection_PostProcess
+
+## Tested networks
+Arm tested these operators with the following TensorFlow Lite neural network:
+- [Quantized MobileNet](http://download.tensorflow.org/models/mobilenet_v1_2018_02_22/mobilenet_v1_1.0_224_quant.tgz)
+- [Quantized SSD MobileNet](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_quantized_300x300_coco14_sync_2018_07_18.tar.gz)
+- DeepSpeech v1 converted from [TensorFlow model](https://github.com/mozilla/DeepSpeech/releases/tag/v0.4.1)
+- DeepSpeaker
+- [DeepLab v3+](https://www.tensorflow.org/lite/models/segmentation/overview)
+- FSRCNN
+- EfficientNet-lite
+- RDN converted from [TensorFlow model](https://github.com/hengchuan/RDN-TensorFlow)
+- Quantized RDN (CpuRef)
+- [Quantized Inception v3](http://download.tensorflow.org/models/tflite_11_05_08/inception_v3_quant.tgz)
+- [Quantized Inception v4](http://download.tensorflow.org/models/inception_v4_299_quant_20181026.tgz) (CpuRef)
+- Quantized ResNet v2 50 (CpuRef)
+- Quantized Yolo v3 (CpuRef)
+
+More machine learning operators will be supported in future releases.
+
+**/
+}
+

@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/parking_lot
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "parking_lot"
+description: "More compact and efficient implementations of the standard synchronization primitives."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/parking_lot"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/parking_lot/parking_lot-0.12.1.crate"
+  }
+  version: "0.12.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 12
+    day: 13
+  }
+}

@@ -1,0 +1,44 @@
+diff --git a/tests/it.rs b/tests/it.rs
+index d18f0a1..f94bc69 100644
+--- a/tests/it.rs
++++ b/tests/it.rs
+@@ -208,6 +208,7 @@ mod unsync {
+ 
+     #[test]
+     #[cfg(feature = "std")]
++    #[cfg(not(target_os = "android"))]
+     fn lazy_poisoning() {
+         let x: Lazy<String> = Lazy::new(|| panic!("kaboom"));
+         for _ in 0..2 {
+@@ -227,6 +228,7 @@ mod unsync {
+ 
+     #[test]
+     #[should_panic(expected = "reentrant init")]
++    #[ignore = "Android: ignore for now. Need to compile these binaries separately."]
+     fn reentrant_init() {
+         let x: OnceCell<Box<i32>> = OnceCell::new();
+         let dangling_ref: Cell<Option<&i32>> = Cell::new(None);
+@@ -342,6 +344,7 @@ mod sync {
+     }
+ 
+     #[test]
++    #[cfg(not(target_os = "android"))]
+     fn get_or_try_init() {
+         let cell: OnceCell<String> = OnceCell::new();
+         assert!(cell.get().is_none());
+@@ -441,6 +441,7 @@ mod sync {
+     #[test]
+     #[cfg_attr(miri, ignore)] // miri doesn't support processes
+     #[cfg(feature = "std")]
++    #[ignore = "Android: ignore for now. Need to compile these binaries separately."]
+     fn reentrant_init() {
+         let examples_dir = {
+             let mut exe = std::env::current_exe().unwrap();
+@@ -590,6 +593,7 @@ mod sync {
+     }
+ 
+     #[test]
++    #[cfg(not(target_os = "android"))]
+     fn lazy_poisoning() {
+         let x: Lazy<String> = Lazy::new(|| panic!("kaboom"));
+         for _ in 0..2 {

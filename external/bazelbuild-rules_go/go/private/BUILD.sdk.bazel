@@ -1,0 +1,92 @@
+load("@io_bazel_rules_go//go/private/rules:binary.bzl", "go_tool_binary")
+load("@io_bazel_rules_go//go/private/rules:sdk.bzl", "package_list")
+load("@io_bazel_rules_go//go/private/rules:transition.bzl", "non_go_reset_target")
+load("@io_bazel_rules_go//go/private:go_toolchain.bzl", "declare_go_toolchains")
+load("@io_bazel_rules_go//go:def.bzl", "go_sdk")
+
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "libs",
+    srcs = glob(
+        ["pkg/{goos}_{goarch}/**/*.a"],
+        allow_empty = True,
+        exclude = ["pkg/{goos}_{goarch}/**/cmd/**"],
+    ),
+)
+
+filegroup(
+    name = "headers",
+    srcs = glob(["pkg/include/*.h"]),
+)
+
+filegroup(
+    name = "srcs",
+    srcs = glob(["src/**"]),
+)
+
+filegroup(
+    name = "tools",
+    srcs = glob([
+        "pkg/tool/**",
+        "bin/gofmt*",
+    ]),
+)
+
+go_sdk(
+    name = "go_sdk",
+    srcs = [":srcs"],
+    experiments = {experiments},
+    go = "bin/go{exe}",
+    goarch = "{goarch}",
+    goos = "{goos}",
+    headers = [":headers"],
+    libs = [":libs"],
+    package_list = ":package_list",
+    root_file = "ROOT",
+    tools = [":tools"],
+    version = "{version}",
+)
+
+go_tool_binary(
+    name = "builder",
+    srcs = ["@io_bazel_rules_go//go/tools/builders:builder_srcs"],
+    sdk = ":go_sdk",
+)
+
+non_go_reset_target(
+    name = "builder_reset",
+    dep = ":builder",
+)
+
+# TODO(jayconrod): Gazelle depends on this file directly. This dependency
+# should be broken, and this rule should be folded into go_sdk.
+package_list(
+    name = "package_list",
+    srcs = [":srcs"],
+    out = "packages.txt",
+    root_file = "ROOT",
+)
+
+declare_go_toolchains(
+    builder = ":builder_reset",
+    host_goos = "{goos}",
+    sdk = ":go_sdk",
+)
+
+filegroup(
+    name = "files",
+    srcs = glob([
+        "bin/go*",
+        "src/**",
+        "pkg/**",
+    ]),
+)
+
+exports_files(
+    glob([
+        "lib/time/zoneinfo.zip",
+        "misc/wasm/**",
+    ]),
+    visibility = ["//visibility:public"],
+)

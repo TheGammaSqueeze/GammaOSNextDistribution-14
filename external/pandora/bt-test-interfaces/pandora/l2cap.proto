@@ -1,0 +1,206 @@
+// Copyright 2023 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package pandora.l2cap;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+import "pandora/host.proto";
+
+option java_outer_classname = "L2CAPProto";
+
+// L2CAP (Logical Link Control and Adaptation Protocol) services for managing channels
+// and data communication over ACL connections. This protocol is essential for
+// creating multiplexed data channels over the underlying ACL connections in Bluetooth.
+service L2CAP {
+  // Establish an L2CAP channel on an ACL connection.
+  rpc Connect(ConnectRequest) returns (ConnectResponse);
+  // Await and accept incoming L2CAP channels on an existing ACL connection.
+  // Returns a stream of channel, this accept and yield channels until the stream
+  // is closed. Every incoming L2CAP channel connection request not handled by this
+  // method should be rejected.
+  rpc OnConnection(OnConnectionRequest) returns (stream OnConnectionResponse);
+  // Disconnect an established L2CAP channel.
+  rpc Disconnect(DisconnectRequest) returns (DisconnectResponse);
+  // Await an established L2CAP channel's termination.
+  rpc WaitDisconnection(WaitDisconnectionRequest) returns (WaitDisconnectionResponse);
+  // Fetch data received from an active L2CAP channel.
+  // Packets are yielded until the stream is closed, packets are droped otherwise. 
+  rpc Receive(ReceiveRequest) returns (stream ReceiveResponse);
+  // Send data over an L2CAP channel to a connected device.
+  rpc Send(SendRequest) returns (SendResponse);
+}
+
+// Potential reasons for command rejections in the L2CAP protocol.
+enum CommandRejectReason {
+  // The command wasn't understood by the receiver.
+  COMMAND_NOT_UNDERSTOOD = 0;
+  // The received signal exceeds the allowed MTU (Maximum Transmission Unit).
+  SIGNAL_MTU_EXCEEDED = 1;
+  // The received command includes an invalid Channel Identifier (CID).
+  INVALID_CID_IN_REQUEST = 2;
+}
+
+// A Token representing a unique L2CAP channel for data communication.
+message Channel {
+  // Opaque value filled by the gRPC server, must not be modified nor crafted.
+  google.protobuf.Any cookie = 1;
+}
+
+// Request for establishing an L2CAP connection-oriented channel, 
+// where data is transmitted with acknowledgment.
+message ConnectionOrientedChannelRequest {
+  // Protocol/Service Multiplexer (PSM) for identifying the upper-layer protocol.
+  uint32 psm = 1;
+  // Defines the maximum size of data payload (in bytes) that can be sent in a single packet.
+  uint32 mtu = 2;
+}
+
+// Request for establishing a credit-based L2CAP channel, 
+// typically used in BLE (Bluetooth Low Energy) when precise flow control is required.
+message CreditBasedChannelRequest {
+  // Simplified Protocol/Service Multiplexer (sPSM) for identifying the upper-layer protocol in BLE.
+  uint32 spsm = 1;
+  // Defines the maximum size of data payload (in bytes) that can be sent in a single packet.
+  uint32 mtu = 2;
+  // Maximum size of the PDU (Protocol Data Unit) payload.
+  uint32 mps = 3;
+  // Initial credits given for flow control, defining the number of PDUs the sender can transmit.
+  uint32 initial_credit = 4;
+}
+
+// Request for establishing a fixed L2CAP channel, often pre-defined for specific purposes.
+message FixedChannelRequest {
+  // Fixed Channel Identifier (CID). Represents the unique identifier for the fixed channel.
+  // Available CIDs are:
+  // - 0x0001: L2CAP Signaling Channel
+  // - 0x0002: Connectionless Channel
+  // - 0x0003: AMP Manager Protocol
+  // - 0x0004: Attribute Protocol (ATT) for BLE
+  // - 0x0005: L2CAP Signaling Channel for BLE
+  // - 0x0006: Security Manager Protocol for BLE
+  // - 0x0007: Security Manager Protocol for BR/EDR
+  // - CIDs in the range of 0x0007 to 0x003F are reserved for standardization purposes.
+  uint32 cid = 1;
+}
+
+// Request of the `Connect` method.
+message ConnectRequest {
+  // Specifies the underlying ACL connection, either BR/EDR (Basic Rate/Enhanced Data Rate) or BLE.
+  Connection connection = 1;
+  // Defines the type and specifics of the channel to establish.
+  oneof type {
+    // Request a fixed channel.
+    FixedChannelRequest fixed = 2;
+    // Request a connection-oriented channel.
+    ConnectionOrientedChannelRequest basic = 3;
+    // Request a BLE credit-based channel.
+    CreditBasedChannelRequest le_credit_based = 4;
+    // Request an enhanced credit-based channel.
+    CreditBasedChannelRequest enhanced_credit_based = 5;
+  }
+}
+
+// Response of the `Connect` method.
+message ConnectResponse {
+  oneof result {
+    // Error details if the connection failed.
+    CommandRejectReason error = 1;
+    // Details of the established channel on success.
+    Channel channel = 2;
+  }
+}
+
+// Request of the `OnConnection` method.
+message OnConnectionRequest {
+  // Specifies the underlying ACL connection, either BR/EDR or BLE.
+  Connection connection = 1;
+  // Defines the type and specifics of the channel to wait and accept.
+  oneof type {
+    // Accept fixed channels.
+    FixedChannelRequest fixed = 2;
+    // Accept connection-oriented channels.
+    ConnectionOrientedChannelRequest basic = 3;
+    // Accept BLE credit-based channels.
+    CreditBasedChannelRequest le_credit_based = 4;
+    // Accept enhanced credit-based channels.
+    CreditBasedChannelRequest enhanced_credit_based = 5;
+  }
+}
+
+// Response of the `OnConnection` method.
+message OnConnectionResponse {
+  oneof result {
+    CommandRejectReason error = 1;
+    Channel channel = 2;
+  }
+}
+
+// Request of the `Disconnect` method.
+message DisconnectRequest {
+  // Specifies the channel to disconnect.
+  Channel channel = 1;
+}
+
+// Response of the `Disconnect` method.
+message DisconnectResponse {
+  oneof result {
+    CommandRejectReason error = 1;
+    google.protobuf.Empty success = 2;
+  }
+}
+
+// Request of the `WaitDisconnection` method.
+message WaitDisconnectionRequest {
+  // Specifies the channel to await disconnection.
+  Channel channel = 1;
+}
+
+// Response of the `WaitDisconnection` method.
+message WaitDisconnectionResponse {
+  oneof result {
+    CommandRejectReason error = 1;
+    google.protobuf.Empty success = 2;
+  }
+}
+
+// Request of the `Receive` method.
+message ReceiveRequest {
+  // Specifies the channel to fetch data from.
+  Channel channel = 1;
+}
+
+// Response of the `Receive` method.
+message ReceiveResponse {
+  // Contains the data received from the channel.
+  bytes data = 1;
+}
+
+// Request of the `Send` method.
+message SendRequest {
+  // Specifies the channel to send data over.
+  Channel channel = 1;
+  // Data to be sent over the specified channel.
+  bytes data = 2;
+}
+
+// Response of the `Send` method.
+message SendResponse {
+  oneof result {
+    CommandRejectReason error = 1;
+    google.protobuf.Empty success = 2;
+  }
+}

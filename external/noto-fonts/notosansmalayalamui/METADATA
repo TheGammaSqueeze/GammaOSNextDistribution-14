@@ -1,0 +1,13 @@
+name: "notosansmalayalamui"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Malayalam UI is an unmodulated (“sans serif”) design forapp and website user interfaces in the Indic Malayalam script. It hasmultiple weights and widths, and 364 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansmalayalamui"
+  }
+  version: "2.103"
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 10 day: 14 }
+}

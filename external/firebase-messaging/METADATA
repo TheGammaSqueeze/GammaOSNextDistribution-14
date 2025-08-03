@@ -1,0 +1,86 @@
+name: "firebase-messaging"
+description:
+    "firebase-messaging is a library. ImsServiceEntitlement project uses Firebase Cloud Messaging"
+    "APIs to receive FCM registration token."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-common#com.google.firebase:firebase-common:19.5.0"
+
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-components#com.google.firebase:firebase-components:16.1.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-datatransport#com.google.firebase:firebase-datatransport:17.0.10"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-encoders#com.google.firebase:firebase-encoders:16.1.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-encoders-json#com.google.firebase:firebase-encoders-json:17.1.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-iid#com.google.firebase:firebase-iid:21.0.1"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-iid-interop#com.google.firebase:firebase-iid-interop:17.0.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-installations#com.google.firebase:firebase-installations:16.3.5"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-installations-interop#com.google.firebase:firebase-installations-interop:16.0.1"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-measurement-connector#com.google.firebase:firebase-measurement-connector:18.0.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=firebase-messaging#com.google.firebase:firebase-messaging:21.0.1"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=play-services-basement#com.google.android.gms:play-services-basement:17.0.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=play-services-cloud-messaging#com.google.android.gms:play-services-cloud-messaging:16.0.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=play-services-stats#com.google.android.gms:play-services-stats:17.0.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=play-services-tasks#com.google.android.gms:play-services-tasks:17.0.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=transport-api#com.google.android.datatransport:transport-api:2.2.0"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=transport-backend-cct#com.google.android.datatransport:transport-backend-cct:2.3.3"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://maven.google.com/web/index.html?q=transport-runtime#com.google.android.datatransport:transport-runtime:2.2.0"
+  }
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 6
+    day: 28
+  }
+}

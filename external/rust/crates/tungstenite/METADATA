@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/tungstenite
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "tungstenite"
+description: "Lightweight stream-based WebSocket implementation"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 8
+  }
+  homepage: "https://crates.io/crates/tungstenite"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/tungstenite/tungstenite-0.21.0.crate"
+    version: "0.21.0"
+  }
+}

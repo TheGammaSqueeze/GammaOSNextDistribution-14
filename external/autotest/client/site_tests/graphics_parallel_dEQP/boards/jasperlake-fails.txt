@@ -1,0 +1,12 @@
+dEQP-VK.api.tooling_info.validate_getter,Crash
+dEQP-VK.api.tooling_info.validate_tools_properties,Crash
+dEQP-VK.info.instance_extensions,Fail
+
+# This test is buggy in the CTS and should be fixed on the next CTS release.
+# https://gitlab.khronos.org/Tracker/vk-gl-cts/-/issues/3505
+dEQP-VK.subgroups.multiple_dispatches.uniform_subgroup_size,Fail
+
+dEQP-VK.subgroups.size_control.compute.require_full_subgroups_allow_varying_subgroup_size_flags_spirv16,Fail
+dEQP-VK.subgroups.size_control.compute.require_full_subgroups_allow_varying_subgroup_size_spirv16,Fail
+dEQP-VK.subgroups.size_control.compute.require_full_subgroups_flags_spirv16,Fail
+dEQP-VK.subgroups.size_control.compute.require_full_subgroups_spirv16,Fail

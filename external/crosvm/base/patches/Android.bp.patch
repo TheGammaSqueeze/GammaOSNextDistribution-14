@@ -1,0 +1,102 @@
+diff --git a/base/Android.bp b/base/Android.bp
+index 734ab7c1..20f48f53 100644
+--- a/base/Android.bp
++++ b/base/Android.bp
+@@ -13,7 +13,7 @@ package {
+ rust_test {
+     name: "base_test_src_lib",
+     defaults: ["crosvm_inner_defaults"],
+-    host_supported: true,
++    host_supported: false, // Can't seem to access syslog in TH host tests.
+     crate_name: "base",
+     cargo_env_compat: true,
+     srcs: ["src/lib.rs"],
+@@ -44,6 +44,25 @@ rust_test {
+         "libbase_event_token_derive",
+         "libremain",
+     ],
++    target: {
++        android: {
++            rustlibs: ["libandroid_log_sys"],
++        },
++        linux_bionic_arm64: {
++            // For ARM architecture, we use aarch64-linux-android for BOTH
++            // device and host targets. As a result, host targets are also
++            // built with target_os = "android". Therefore, sys_util/src/android
++            // is used and thus this android module is required.
++            // This seems incorrect, but is inevitable because rustc doesn't
++            // yet support a Linux-based target using Bionic as libc. We can't
++            // use aarch64-unknown-linux-gnu because it's using glibc which
++            // we don't support for cross-host builds.
++            rustlibs: [
++                "libandroid_log_sys",
++            ],
++        },
++    },
++    shared_libs: ["libcap"], // specified in src/linux/capabilities.rs
+ }
+ 
+ rust_test {
+@@ -86,7 +106,7 @@ rust_test {
+ rust_test {
+     name: "base_test_tests_linux_main",
+     defaults: ["crosvm_inner_defaults"],
+-    host_supported: true,
++    host_supported: false, // Can't seem to access syslog in TH host tests.
+     crate_name: "linux",
+     cargo_env_compat: true,
+     srcs: ["tests/linux/main.rs"],
+@@ -118,6 +138,25 @@ rust_test {
+         "libbase_event_token_derive",
+         "libremain",
+     ],
++    target: {
++        android: {
++            rustlibs: ["libandroid_log_sys"],
++        },
++        linux_bionic_arm64: {
++            // For ARM architecture, we use aarch64-linux-android for BOTH
++            // device and host targets. As a result, host targets are also
++            // built with target_os = "android". Therefore, sys_util/src/android
++            // is used and thus this android module is required.
++            // This seems incorrect, but is inevitable because rustc doesn't
++            // yet support a Linux-based target using Bionic as libc. We can't
++            // use aarch64-unknown-linux-gnu because it's using glibc which
++            // we don't support for cross-host builds.
++            rustlibs: [
++                "libandroid_log_sys",
++            ],
++        },
++    },
++    shared_libs: ["libcap"], // specified in src/linux/capabilities.rs
+ }
+ 
+ rust_library {
+@@ -153,4 +192,23 @@ rust_library {
+     apex_available: [
+         "//apex_available:platform",
+     ],
++    target: {
++        android: {
++            rustlibs: ["libandroid_log_sys"],
++        },
++        linux_bionic_arm64: {
++            // For ARM architecture, we use aarch64-linux-android for BOTH
++            // device and host targets. As a result, host targets are also
++            // built with target_os = "android". Therefore, sys_util/src/android
++            // is used and thus this android module is required.
++            // This seems incorrect, but is inevitable because rustc doesn't
++            // yet support a Linux-based target using Bionic as libc. We can't
++            // use aarch64-unknown-linux-gnu because it's using glibc which
++            // we don't support for cross-host builds.
++            rustlibs: [
++                "libandroid_log_sys",
++            ],
++        },
++    },
++    shared_libs: ["libcap"], // specified in src/linux/capabilities.rs
+     visibility: [
+         "//packages/modules/Virtualization/virtualizationmanager",
+         "//vendor:__subpackages__",
+     ],
+ }

@@ -1,0 +1,8 @@
+function symbol 'unsigned int fun(enum A, enum B)' {_Z3fun1A1B} changed
+  type 'unsigned int(enum A, enum B)' changed
+    parameter 1 type 'enum A' changed
+      underlying type changed from 'signed char' to 'unsigned char'
+    parameter 2 type 'enum B' changed
+      underlying type changed from 'signed char' to 'unsigned long'
+
+exit code 4

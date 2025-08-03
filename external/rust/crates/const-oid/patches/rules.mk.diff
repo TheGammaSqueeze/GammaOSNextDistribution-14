@@ -1,0 +1,11 @@
+diff --git b/rules.mk a/rules.mk
+index 0f6f56e..3443250 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -12,6 +12,5 @@ MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="db"' \
+ 
+ MODULE_LIBRARY_DEPS := \
+-	external/rust/crates/arbitrary \
+ 
+ include make/library.mk

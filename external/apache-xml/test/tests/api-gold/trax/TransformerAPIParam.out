@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+ :param1s:'test-param-1s' :param2s:default2s :param3s:
+ :param1n:1234 :param2n:'default2n' :param3n:default3n
+</out>

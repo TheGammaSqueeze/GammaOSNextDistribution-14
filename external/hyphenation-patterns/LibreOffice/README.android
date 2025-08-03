@@ -1,0 +1,18 @@
+URL: https://cgit.freedesktop.org/libreoffice/dictionaries/tree/sv_SE
+Version: 03a891f1b00d9b1a14c6a72fb33cb682b549053a
+License: various
+License File: LICENSE
+
+The package contains hyphenation patterns under MPL licenses.
+
+Description:
+This Swedish Hyphenation Dictionary is maintained by
+Niklas Johansson <sleeping.pillow@gmail.com>.
+The most recent version should be available through
+the libreoffice extensions respiratory at:
+extensions.libreoffice.org/extension-center
+or
+http://extensions.services.openoffice.org/
+
+If you find a Swedish word that is hyphenated incorrectly
+please send me a mail at sleeping.pillow@gmail.com

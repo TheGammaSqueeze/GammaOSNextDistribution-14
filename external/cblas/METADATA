@@ -1,0 +1,17 @@
+name: "cblas"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://netlib.org/blas/"
+  }
+  url {
+    type: ARCHIVE
+    value: "http://www.netlib.org/blas/blast-forum/cblas.tgz"
+  }
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2015
+    month: 2
+    day: 17
+  }
+}

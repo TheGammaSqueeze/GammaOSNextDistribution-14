@@ -1,0 +1,96 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "puthik"
+NAME = "PowerQual.fast"
+ATTRIBUTES = "suite:power_qual_fast"
+DEPENDENCIES = 'wifi_connected_dut'
+TIME = "LENGTHY"
+TEST_CATEGORY = "Stress"
+TEST_CLASS = "suite"
+TEST_TYPE = "server"
+EXTENDED_TIMEOUT = 18900  # 5 Hours + 900 second guard.
+PY_VERSION = 3
+
+DOC = """
+Make sure that PowerQual.full works.
+"""
+
+import datetime
+from autotest_lib.client.common_lib import utils
+
+HOURS=60*60
+
+CLIENT_TESTS = [
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 50, 'max_run_time': 5 * HOURS}),
+    ('power_WaitForCoolDown', {}),
+    ('power_LoadTest', {
+        'tag' : 'powerqual_fast', 'force_discharge' : True, 'loop_time' : 180,
+        'loop_count' : 1, 'test_low_batt_p' : 5}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 50, 'max_run_time': 5 * HOURS,
+        'tag' : 'powerqual_fast'}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoPlayback', {
+        'tag' : 'powerqual_fast', 'force_discharge' : True,
+        'secs_per_video' : 60,
+        'videos' : [('h264_1080_30fps', ''), ('vp9_1080_30fps', '')]}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 50, 'max_run_time': 5 * HOURS}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoCall', {
+        'tag' : 'powerqual_fast', 'force_discharge' : True, 'duration': 180}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 50, 'max_run_time': 5 * HOURS}),
+    ('power_WaitForCoolDown', {}),
+    ('power_Idle', {
+        'tag' : 'powerqual_fast', 'force_discharge' : True, 'idle_secs': 10}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 50, 'max_run_time': 5 * HOURS}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoEncode', {
+        'tag' : 'powerqual_fast', 'force_discharge' : True,
+        'seconds_per_test' : 30, 'format' : [
+            ('h264', 'hd', 24),
+            ('vp9', 'hvga', 24),
+            ('vp8', 'qhvga', 15)]}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 50, 'max_run_time': 5 * HOURS}),
+    ('power_WaitForCoolDown', {}),
+    ('power_Display', {
+        'tag' : 'powerqual_fast', 'force_discharge' : True,
+        'brightness' : 'max', 'secs_per_page' : 20, 'seconds_period' : 1,
+        'pages' : ['white', 'black', 'white', 'checker1', 'white']}),
+
+    ('power_WaitForCoolDown', {}),
+    ('power_UiResume', {
+        'tag' : 'powerqual_fast'}),
+]
+
+# Workaround to make it compatible with moblab autotest UI.
+global args_dict
+try:
+    args_dict
+except NameError:
+    args_dict = utils.args_to_dict(args)
+
+# Use time as pdash_note if not supplied to track all tests in same suite.
+pdash_note = args_dict.get('pdash_note',
+                           NAME + '_' + datetime.datetime.utcnow().isoformat())
+
+def run_client_test(machine):
+    client = hosts.create_host(machine)
+    client_at = autotest.Autotest(client)
+
+    for test, argv in CLIENT_TESTS:
+        argv['pdash_note'] = pdash_note
+        client_at.run_test(test, timeout=EXTENDED_TIMEOUT, **argv)
+
+job.parallel_on_machines(run_client_test, machines)

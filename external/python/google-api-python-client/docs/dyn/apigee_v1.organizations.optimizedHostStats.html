@@ -1,0 +1,140 @@
+<html><body>
+<style>
+
+body, h1, h2, h3, div, span, p, pre, a {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+
+body {
+  font-size: 13px;
+  padding: 1em;
+}
+
+h1 {
+  font-size: 26px;
+  margin-bottom: 1em;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 1em;
+}
+
+h3 {
+  font-size: 20px;
+  margin-bottom: 1em;
+  margin-top: 1em;
+}
+
+pre, code {
+  line-height: 1.5;
+  font-family: Monaco, 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Lucida Console', monospace;
+}
+
+pre {
+  margin-top: 0.5em;
+}
+
+h1, h2, h3, p {
+  font-family: Arial, sans serif;
+}
+
+h1, h2, h3 {
+  border-bottom: solid #CCC 1px;
+}
+
+.toc_element {
+  margin-top: 0.5em;
+}
+
+.firstline {
+  margin-left: 2 em;
+}
+
+.method  {
+  margin-top: 1em;
+  border: solid 1px #CCC;
+  padding: 1em;
+  background: #EEE;
+}
+
+.details {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+</style>
+
+<h1><a href="apigee_v1.html">Apigee API</a> . <a href="apigee_v1.organizations.html">organizations</a> . <a href="apigee_v1.organizations.optimizedHostStats.html">optimizedHostStats</a></h1>
+<h2>Instance Methods</h2>
+<p class="toc_element">
+  <code><a href="#close">close()</a></code></p>
+<p class="firstline">Close httplib2 connections.</p>
+<p class="toc_element">
+  <code><a href="#get">get(name, accuracy=None, envgroupHostname=None, filter=None, limit=None, offset=None, realtime=None, select=None, sort=None, sortby=None, timeRange=None, timeUnit=None, topk=None, tsAscending=None, tzo=None, x__xgafv=None)</a></code></p>
+<p class="firstline">Similar to GetHostStats except that the response is less verbose.</p>
+<h3>Method Details</h3>
+<div class="method">
+    <code class="details" id="close">close()</code>
+  <pre>Close httplib2 connections.</pre>
+</div>
+
+<div class="method">
+    <code class="details" id="get">get(name, accuracy=None, envgroupHostname=None, filter=None, limit=None, offset=None, realtime=None, select=None, sort=None, sortby=None, timeRange=None, timeUnit=None, topk=None, tsAscending=None, tzo=None, x__xgafv=None)</code>
+  <pre>Similar to GetHostStats except that the response is less verbose.
+
+Args:
+  name: string, Required. Resource name for which the interactive query will be executed. Use the following format in your request: `organizations/{organization_id}/optimizedHostStats/{dimensions}` Dimensions let you view metrics in meaningful groupings, such as `apiproxy`, `target_host`. The value of dimensions should be a comma-separated list as shown below: `organizations/{org}/optimizedHostStats/apiproxy,request_verb` (required)
+  accuracy: string, No longer used by Apigee. Supported for backwards compatibility.
+  envgroupHostname: string, Required. Hostname for which the interactive query will be executed.
+  filter: string, Filter that enables you to drill-down on specific dimension values.
+  limit: string, Maximum number of result items to return. The default and maximum value that can be returned is 14400.
+  offset: string, Offset value. Use `offset` with `limit` to enable pagination of results. For example, to display results 11-20, set limit to `10` and offset to `10`.
+  realtime: boolean, No longer used by Apigee. Supported for backwards compatibility.
+  select: string, Required. Comma-separated list of metrics. For example: `sum(message_count),sum(error_count)`
+  sort: string, Flag that specifies whether the sort order should be ascending or descending. Valid values include `DESC` and `ASC`.
+  sortby: string, Comma-separated list of columns used to sort the final result.
+  timeRange: string, Required. Time interval for the interactive query. Time range is specified in GMT as `start~end`. For example: `04/15/2017 00:00~05/15/2017 23:59`.
+  timeUnit: string, Granularity of metrics returned. Valid values include: `second`, `minute`, `hour`, `day`, `week`, or `month`.
+  topk: string, Top number of results to return. For example, to return the top 5 results, set `topk=5`.
+  tsAscending: boolean, Flag that specifies whether to list timestamps in ascending (`true`) or descending (`false`) order. Apigee recommends that you set this value to `true` if you are using `sortby` with `sort=DESC`.
+  tzo: string, Timezone offset value.
+  x__xgafv: string, V1 error format.
+    Allowed values
+      1 - v1 error format
+      2 - v2 error format
+
+Returns:
+  An object of the form:
+
+    {
+  &quot;Response&quot;: { # Encapsulates a response format for JavaScript Optimized Scenario. # Wraps the `stats` response for JavaScript Optimized Scenario with a response key. For example: ```{ &quot;Response&quot;: { &quot;TimeUnit&quot;: [], &quot;metaData&quot;: { &quot;errors&quot;: [], &quot;notices&quot;: [ &quot;Source:Postgres&quot;, &quot;Table used: edge.api.aaxgroup001.agg_api&quot;, &quot;PG Host:ruappg08-ro.production.apigeeks.net&quot;, &quot;query served by:80c4ebca-6a10-4a2e-8faf-c60c1ee306ca&quot; ] }, &quot;resultTruncated&quot;: false, &quot;stats&quot;: { &quot;data&quot;: [ { &quot;identifier&quot;: { &quot;names&quot;: [ &quot;apiproxy&quot; ], &quot;values&quot;: [ &quot;sirjee&quot; ] }, &quot;metric&quot;: [ { &quot;env&quot;: &quot;prod&quot;, &quot;name&quot;: &quot;sum(message_count)&quot;, &quot;values&quot;: [ 36.0 ] }, { &quot;env&quot;: &quot;prod&quot;, &quot;name&quot;: &quot;sum(is_error)&quot;, &quot;values&quot;: [ 36.0 ] } ] } ] } } }```
+    &quot;TimeUnit&quot;: [ # List of time unit values. Time unit refers to an epoch timestamp value.
+      &quot;A String&quot;,
+    ],
+    &quot;metaData&quot;: { # Encapsulates additional information about query execution. # Metadata information about the query executed.
+      &quot;errors&quot;: [ # List of error messages as strings.
+        &quot;A String&quot;,
+      ],
+      &quot;notices&quot;: [ # List of additional information such as data source, if result was truncated. For example: ``` &quot;notices&quot;: [ &quot;Source:Postgres&quot;, &quot;PG Host:uappg0rw.e2e.apigeeks.net&quot;, &quot;query served by:4b64601e-40de-4eb1-bfb9-eeee7ac929ed&quot;, &quot;Table used: edge.api.uapgroup2.agg_api&quot; ]```
+        &quot;A String&quot;,
+      ],
+    },
+    &quot;resultTruncated&quot;: True or False, # Boolean flag that indicates whether the results were truncated based on the limit parameter.
+    &quot;stats&quot;: { # Encapsulates a data node as represented below: ``` { &quot;identifier&quot;: { &quot;names&quot;: [ &quot;apiproxy&quot; ], &quot;values&quot;: [ &quot;sirjee&quot; ] }, &quot;metric&quot;: [ { &quot;env&quot;: &quot;prod&quot;, &quot;name&quot;: &quot;sum(message_count)&quot;, &quot;values&quot;: [ 36.0 ] } ] }``` or ``` { &quot;env&quot;: &quot;prod&quot;, &quot;name&quot;: &quot;sum(message_count)&quot;, &quot;values&quot;: [ 36.0 ] }``` Depending on whether a dimension is present in the query or not the data node type can be a simple metric value or dimension identifier with list of metrics. # `stats` results.
+      &quot;data&quot;: [
+        &quot;&quot;,
+      ],
+    },
+  },
+}</pre>
+</div>
+
+</body></html>

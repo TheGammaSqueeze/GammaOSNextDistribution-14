@@ -1,0 +1,54 @@
+version: 0x00000002
+root_id: 0x84ea5130
+typedef {
+  id: 0x4c2182f3
+  name: "INT_1"
+  referred_type_id: 0x4585663f
+}
+typedef {
+  id: 0x8be225a3
+  name: "INT_2"
+  referred_type_id: 0x4c2182f3
+}
+typedef {
+  id: 0xcaa2df0c
+  name: "INT_3"
+  referred_type_id: 0x8be225a3
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+member {
+  id: 0xa078c909
+  name: "x"
+  type_id: 0xcaa2df0c
+}
+struct_union {
+  id: 0xb88f5ef1
+  kind: STRUCT
+  name: "foo"
+  definition {
+    bytesize: 4
+    member_id: 0xa078c909
+  }
+}
+function {
+  id: 0xe0f8a947
+  return_type_id: 0x4585663f
+  parameter_id: 0xb88f5ef1
+}
+elf_symbol {
+  id: 0xa49e03a0
+  name: "func"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xe0f8a947
+  full_name: "func"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xa49e03a0
+}

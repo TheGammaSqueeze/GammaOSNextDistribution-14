@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out><junk>$top1 summary: Wrong variable, can you dig it?
+        
+$top2 summary: Dig we must!
+        </junk>
+  
+DS   1. AC: t2-north
+DS   2. AD: t2-near-north
+DS   3. BC: t2-north
+DS   4. BD: t2-near-north
+NDS  5. CC: t2-north
+NDS  6. CD: t2-near-north
+NDS  7. CE: t2-near-north
+NDS  8. DC: t2-near-north
+NDS  9. DD: t2-far-west
+
+NDS 10. ACC: t2-north
+NDS 11. ACE: t2-near-north
+NDS 12. ADC: t2-near-north
+NDS 13. BCC: t2-north
+NDS 14. BCE: t2-near-north
+NDS 15. BDC: t2-far-west
+NDS 16. BDE: t2-far-west
+NDS 17. CCC: t2-north
+NDS 18. CCE: t2-near-north
+NDS 19. CDC: t2-near-north
+NDS 20. CDE: t2-far-west
+NDS 21. CEC: t2-near-north
+NDS 22. CEE: t2-far-west
+NDS 23. DCC: t2-near-north
+NDS 24. DCE: t2-far-west
+NDS 25. DDC: t2-far-west
+
+DS  26. CC: t2-north
+DS  27. CD: t2-near-north
+DS  28. CE: t2-near-north
+DS  29. DC: t2-near-north
+DS  30. DD: t2-far-west
+
+DS  31. ACC: t2-north
+DS  32. ACE: t2-near-north
+DS  33. ADC: t2-near-north
+DS  34. BCC: t2-north
+DS  35. BCE: t2-near-north
+DS  36. BDC: t2-far-west
+DS  37. BDE: t2-far-west
+DS  38. CCC: t2-north
+DS  39. CCE: t2-near-north
+DS  40. CDC: t2-near-north
+DS  41. CDE: t2-far-west
+DS  42. CEC: t2-near-north
+DS  43. CEE: t2-far-west
+DS  44. DCC: t2-near-north
+DS  45. DCE: t2-far-west
+DS  46. DDC: t2-far-west</out>

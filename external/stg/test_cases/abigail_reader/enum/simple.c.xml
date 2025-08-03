@@ -1,0 +1,16 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='bar' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='simple.c' language='LANG_C11'>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='9cac1fee'/>
+    <enum-decl name='Foo' id='9f978138'>
+      <underlying-type type-id='9cac1fee'/>
+      <enumerator name='FOO_ZERO' value='0'/>
+      <enumerator name='FOO_ONE' value='1'/>
+      <enumerator name='FOO_TWO' value='2'/>
+      <enumerator name='FOO_THREE' value='3'/>
+    </enum-decl>
+    <var-decl name='bar' type-id='9f978138' mangled-name='bar' visibility='default' elf-symbol-id='bar'/>
+  </abi-instr>
+</abi-corpus>

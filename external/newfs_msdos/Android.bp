@@ -1,0 +1,34 @@
+package {
+    default_applicable_licenses: ["external_newfs_msdos_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_newfs_msdos_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_binary {
+    name: "newfs_msdos",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-D_FILE_OFFSET_BITS=64",
+        "-include freebsd-compat.h"
+    ],
+    srcs: [
+        "mkfs_msdos.c",
+        "newfs_msdos.c",
+    ],
+    host_supported: true,
+}

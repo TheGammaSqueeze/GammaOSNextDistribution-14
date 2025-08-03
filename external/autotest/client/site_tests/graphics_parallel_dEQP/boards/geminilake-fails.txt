@@ -1,0 +1,8 @@
+dEQP-VK.info.instance_extensions,Fail
+
+# This test is buggy in the CTS and should be fixed on the next CTS release.
+# https://gitlab.khronos.org/Tracker/vk-gl-cts/-/issues/3505
+dEQP-VK.subgroups.multiple_dispatches.uniform_subgroup_size,Fail
+
+# This should be fixed on the next Mesa uprev.
+dEQP-VK.wsi.display_control.register_device_event,Fail

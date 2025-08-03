@@ -1,0 +1,10 @@
+name: "Android Downloader"
+description: "Android Downloader library for in-process downloading."
+
+third_party {
+  url {
+    type: PIPER
+    value: "http://google3/third_party/java_src/android_libs/downloader"
+  }
+  license_type: NOTICE
+}

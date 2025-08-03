@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Copyright 2023 Google Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -eu
+
+main() {
+    # Check if the last commit included changes to a .gn or .gni file, which need
+    # to be reflected in a .patch
+    if git diff --name-only HEAD~..HEAD | egrep -q '[.]gni?$'; then
+        echo "INFO: changes to a .gn|.gni file detected."
+    else
+        # no patch needed
+        exit 0
+    fi
+
+    # HACK: checking for the existence of rebase-merge may not always work as
+    # expected.
+    # TODO: find a better solution. One option is to parse `git status` output and
+    # grep for the "rebase in progress" string.
+    if [[ -d "$(git rev-parse --git-dir)/rebase-merge" ]]; then
+        # interactive rebase in progress.
+        echo "WARNING! .patch files are not updated during interactive rebase"
+        exit 0
+    fi
+
+    # There is no flag to skip the post-commit hook (--no-verify only works for
+    # pre-commit and commit-msg hooks). Briefly remove the executable
+    # permission to prevent recursion.
+    chmod -x .git/hooks/post-commit
+    # Ensure chmod +x is always run, even when script exits early
+    trap "chmod +x .git/hooks/post-commit" EXIT
+
+    # Remove any existing .patch files from the commit
+    local -r patches_dir="${ANDROID_BUILD_TOP}/external/cronet/patches"
+    git reset HEAD~ -- "${patches_dir}/*.patch"
+    git -c "advice.ignoredHook=false" commit --amend --no-edit
+
+    # Create patch (which only reflects changes to .gn and .gni files).
+    local -r number_of_patches=$(git ls-tree -r HEAD~ -- "${patches_dir}" | wc -l)
+    local -r patch_name=$(git format-patch -1 -N --start-number "${number_of_patches}" -o "${patches_dir}" HEAD -- "*.gn" "*.gni")
+    git add "${patch_name}"
+    git -c "advice.ignoredHook=false" commit --amend --no-edit
+
+    echo "INFO: a .patch file was added to your CL"
+}
+
+main "$@"; exit
+

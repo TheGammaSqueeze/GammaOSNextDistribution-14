@@ -1,0 +1,31 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dhaddock, Chromium OS"
+NAME = "autoupdate_P2P.with_dlc"
+PURPOSE = "Test autoupdate via peer to peer(P2P)."
+TIME = "MEDIUM"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:au-p2p"
+JOB_RETRIES = 2
+PY_VERSION = 3
+DOC = """
+This tests autoupdate between two devices via peer to peer.
+
+Since the test uses two different DUTs in the lab together it is more
+difficult to debug at your desk.
+
+Use the control.local to run this test locally.
+
+"""
+
+def run(machine):
+    host = hosts.create_host(machine)
+    companions = hosts.create_companion_hosts(companion_hosts)
+    job.run_test('autoupdate_P2P', host=host, companions=companions,
+                 with_dlc=True)
+
+job.parallel_simple(run, machines)

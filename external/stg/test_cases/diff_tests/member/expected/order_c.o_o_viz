@@ -1,0 +1,41 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'struct { int one; int two; int three; int four; int five; int six; } v' -> 'struct { int zero; int one; int two; double e; int three; double pi; int four; int five; int six; double tau; } v'"]
+  "2" [color=red, label="'struct { int one; int two; int three; int four; int five; int six; }' -> 'struct { int zero; int one; int two; double e; int three; double pi; int four; int five; int six; double tau; }'"]
+  "2" -> "2:0"
+  "2:0" [color=red, label="byte size changed from 24 to 64"]
+  "3" [color=red, label="added(int zero)"]
+  "2" -> "3" [label=""]
+  "4" [color=red, label="'int one'"]
+  "4" -> "4:0"
+  "4:0" [color=red, label="offset changed from 0 to 32"]
+  "2" -> "4" [label=""]
+  "5" [color=red, label="'int two'"]
+  "5" -> "5:0"
+  "5:0" [color=red, label="offset changed from 32 to 64"]
+  "2" -> "5" [label=""]
+  "6" [color=red, label="added(double e)"]
+  "2" -> "6" [label=""]
+  "7" [color=red, label="'int three'"]
+  "7" -> "7:0"
+  "7:0" [color=red, label="offset changed from 64 to 192"]
+  "2" -> "7" [label=""]
+  "8" [color=red, label="added(double pi)"]
+  "2" -> "8" [label=""]
+  "9" [color=red, label="'int four'"]
+  "9" -> "9:0"
+  "9:0" [color=red, label="offset changed from 96 to 320"]
+  "2" -> "9" [label=""]
+  "10" [color=red, label="'int five'"]
+  "10" -> "10:0"
+  "10:0" [color=red, label="offset changed from 128 to 352"]
+  "2" -> "10" [label=""]
+  "11" [color=red, label="'int six'"]
+  "11" -> "11:0"
+  "11:0" [color=red, label="offset changed from 160 to 384"]
+  "2" -> "11" [label=""]
+  "12" [color=red, label="added(double tau)"]
+  "2" -> "12" [label=""]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

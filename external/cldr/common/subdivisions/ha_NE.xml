@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ldml SYSTEM "../../common/dtd/ldml.dtd">
+<!-- Copyright © 1991-2021 Unicode, Inc.
+For terms of use, see http://www.unicode.org/copyright.html
+SPDX-License-Identifier: Unicode-DFS-2016
+CLDR data files are interpreted according to the LDML specification (http://unicode.org/reports/tr35/)
+-->
+<ldml>
+	<identity>
+		<version number="$Revision$"/>
+		<language type="ha"/>
+		<territory type="NE"/>
+	</identity>
+	<localeDisplayNames>
+		<subdivisions>
+			<subdivision type="arc" draft="provisional">Buenos Aires</subdivision>
+			<subdivision type="at9" draft="provisional">Vienna</subdivision>
+			<subdivision type="bwga" draft="provisional">Gaborone</subdivision>
+			<subdivision type="caqc" draft="provisional">Kebek</subdivision>
+			<subdivision type="cdkn" draft="provisional">Kinshasa</subdivision>
+			<subdivision type="cfbgf" draft="provisional">Bangui</subdivision>
+			<subdivision type="cgbzv" draft="provisional">Brazzaville</subdivision>
+			<subdivision type="ciab" draft="provisional">Abidjan</subdivision>
+			<subdivision type="ciym" draft="provisional">Yamoussoukro</subdivision>
+			<subdivision type="cnbj" draft="provisional">Beijing</subdivision>
+			<subdivision type="cncq" draft="provisional">Chongqing</subdivision>
+			<subdivision type="cnhk" draft="provisional">Hong Kong</subdivision>
+			<subdivision type="cnmo" draft="provisional">Macau</subdivision>
+			<subdivision type="cnsh" draft="provisional">Shanghai</subdivision>
+			<subdivision type="cntj" draft="provisional">Tianjin</subdivision>
+			<subdivision type="cz10" draft="provisional">Prag</subdivision>
+			<subdivision type="debe" draft="provisional">Berlin</subdivision>
+			<subdivision type="dehh" draft="provisional">Hamburg</subdivision>
+			<subdivision type="djdj" draft="provisional">Jibuti</subdivision>
+			<subdivision type="esct" draft="provisional">Katalunya</subdivision>
+			<subdivision type="etaa" draft="provisional">Addis Ababa</subdivision>
+			<subdivision type="etdd" draft="provisional">Dire Dawa</subdivision>
+			<subdivision type="fr75" draft="provisional">Pariis</subdivision>
+			<subdivision type="frcor" draft="provisional">Korsika</subdivision>
+			<subdivision type="gbbst" draft="provisional">Bristol</subdivision>
+			<subdivision type="gbglg" draft="provisional">Glasgow</subdivision>
+			<subdivision type="gblnd" draft="provisional">Landan</subdivision>
+			<subdivision type="gbngm" draft="provisional">Nottingham</subdivision>
+			<subdivision type="gbpor" draft="provisional">Portsmouth</subdivision>
+			<subdivision type="gbsth" draft="provisional">Southampton</subdivision>
+			<subdivision type="gbukm" draft="provisional">Birtaniya</subdivision>
+			<subdivision type="ghaa" draft="provisional">Yankin Greater Accra</subdivision>
+			<subdivision type="ghah" draft="provisional">Yankin Ashanti</subdivision>
+			<subdivision type="ghba" draft="provisional">Yankin Brong-Ahafo</subdivision>
+			<subdivision type="ghcp" draft="provisional">Yankin Tsakiya (Ghana)</subdivision>
+			<subdivision type="ghep" draft="provisional">Yankin Gabashi (Ghana)</subdivision>
+			<subdivision type="ghnp" draft="provisional">Yankin Arewaci (Ghana)</subdivision>
+			<subdivision type="ghtv" draft="provisional">Yankin Volta</subdivision>
+			<subdivision type="ghue" draft="provisional">Yankin Upper East</subdivision>
+			<subdivision type="ghuw" draft="provisional">Yankin Upper West</subdivision>
+			<subdivision type="ghwp" draft="provisional">Yankin Yammaci, Ghana</subdivision>
+			<subdivision type="gmb" draft="provisional">Banjul</subdivision>
+			<subdivision type="gnc" draft="provisional">Conakry</subdivision>
+			<subdivision type="idjk" draft="provisional">Jakarta</subdivision>
+			<subdivision type="idjw" draft="provisional">Java</subdivision>
+			<subdivision type="idsl" draft="provisional">Sulawesi</subdivision>
+			<subdivision type="idsm" draft="provisional">Sumatra</subdivision>
+			<subdivision type="it82" draft="provisional">Sisiliya</subdivision>
+			<subdivision type="it88" draft="provisional">Sardiniya</subdivision>
+			<subdivision type="jp13" draft="provisional">Tokyo</subdivision>
+			<subdivision type="kr11" draft="provisional">Seoul</subdivision>
+			<subdivision type="kr26" draft="provisional">Busan</subdivision>
+			<subdivision type="kr27" draft="provisional">Daegu</subdivision>
+			<subdivision type="kr28" draft="provisional">Incheon</subdivision>
+			<subdivision type="kr30" draft="provisional">Daejeon</subdivision>
+			<subdivision type="lvrix" draft="provisional">Riga</subdivision>
+			<subdivision type="macas" draft="provisional">Casablanca</subdivision>
+			<subdivision type="marab" draft="provisional">Rabat</subdivision>
+			<subdivision type="mdbd" draft="provisional">Bender</subdivision>
+			<subdivision type="mlbko" draft="provisional">Bamako</subdivision>
+			<subdivision type="mupu" draft="provisional">Port Louis</subdivision>
+			<subdivision type="mxcmx" draft="provisional">Mexico</subdivision>
+			<subdivision type="my14" draft="provisional">Kuala Lumpur</subdivision>
+			<subdivision type="mzmpm" draft="provisional">Maputo</subdivision>
+			<subdivision type="ne1" draft="provisional">Yankin Agadez</subdivision>
+			<subdivision type="ne2" draft="provisional">Yankin Diffa</subdivision>
+			<subdivision type="ne3" draft="provisional">Yankin Dosso</subdivision>
+			<subdivision type="ne4" draft="provisional">Yankin Maradi</subdivision>
+			<subdivision type="ne5" draft="provisional">Yankin Tahoua</subdivision>
+			<subdivision type="ne6" draft="provisional">Tillabéri</subdivision>
+			<subdivision type="ne7" draft="provisional">Yankin Zinder</subdivision>
+			<subdivision type="ne8" draft="provisional">Niamey</subdivision>
+			<subdivision type="ngab" draft="provisional">Abiya</subdivision>
+			<subdivision type="ngad" draft="provisional">Adamawa</subdivision>
+			<subdivision type="ngak" draft="provisional">Akwa Ibom</subdivision>
+			<subdivision type="ngan" draft="provisional">Anambra</subdivision>
+			<subdivision type="ngba" draft="provisional">Bauchi</subdivision>
+			<subdivision type="ngbe" draft="provisional">Benue</subdivision>
+			<subdivision type="ngbo" draft="provisional">jihar Borno</subdivision>
+			<subdivision type="ngby" draft="provisional">Bayelsa</subdivision>
+			<subdivision type="ngcr" draft="provisional">Cross River</subdivision>
+			<subdivision type="ngde" draft="provisional">Delta</subdivision>
+			<subdivision type="ngeb" draft="provisional">Ebonyi</subdivision>
+			<subdivision type="nged" draft="provisional">Edo</subdivision>
+			<subdivision type="ngek" draft="provisional">Ekiti</subdivision>
+			<subdivision type="ngen" draft="provisional">Enugu</subdivision>
+			<subdivision type="nggo" draft="provisional">Gombe</subdivision>
+			<subdivision type="ngim" draft="provisional">Imo</subdivision>
+			<subdivision type="ngji" draft="provisional">Jigawa</subdivision>
+			<subdivision type="ngkd" draft="provisional">Kaduna</subdivision>
+			<subdivision type="ngke" draft="provisional">Kebbi</subdivision>
+			<subdivision type="ngkn" draft="provisional">jihar Kano</subdivision>
+			<subdivision type="ngko" draft="provisional">Kogi</subdivision>
+			<subdivision type="ngkt" draft="provisional">Jihar Katsina</subdivision>
+			<subdivision type="ngkw" draft="provisional">Kwara</subdivision>
+			<subdivision type="ngla" draft="provisional">Lagos</subdivision>
+			<subdivision type="ngna" draft="provisional">Nasarawa</subdivision>
+			<subdivision type="ngni" draft="provisional">Neja</subdivision>
+			<subdivision type="ngog" draft="provisional">Ogun</subdivision>
+			<subdivision type="ngon" draft="provisional">Ondo</subdivision>
+			<subdivision type="ngos" draft="provisional">Osun</subdivision>
+			<subdivision type="ngoy" draft="provisional">Oyo</subdivision>
+			<subdivision type="ngpl" draft="provisional">Plateau</subdivision>
+			<subdivision type="ngri" draft="provisional">Rivers</subdivision>
+			<subdivision type="ngso" draft="provisional">jihar Sokoto</subdivision>
+			<subdivision type="ngta" draft="provisional">Taraba</subdivision>
+			<subdivision type="ngyo" draft="provisional">Yobe</subdivision>
+			<subdivision type="ngza" draft="provisional">Zamfara</subdivision>
+			<subdivision type="pyasu" draft="provisional">Asunción</subdivision>
+			<subdivision type="qada" draft="provisional">Doha</subdivision>
+			<subdivision type="rumow" draft="provisional">Moscow</subdivision>
+			<subdivision type="ruspe" draft="provisional">Saint-Petersburg</subdivision>
+			<subdivision type="rw01" draft="provisional">Kigali</subdivision>
+			<subdivision type="tdnd" draft="provisional">Ndjamena</subdivision>
+			<subdivision type="th10" draft="provisional">Bangkok</subdivision>
+			<subdivision type="twtpe" draft="provisional">Taipei</subdivision>
+			<subdivision type="usak" draft="provisional">Alaska</subdivision>
+			<subdivision type="usal" draft="provisional">Alabama</subdivision>
+			<subdivision type="usar" draft="provisional">Arkansas</subdivision>
+			<subdivision type="usaz" draft="provisional">Arizona</subdivision>
+			<subdivision type="usca" draft="provisional">California</subdivision>
+			<subdivision type="usco" draft="provisional">Colorado</subdivision>
+			<subdivision type="usct" draft="provisional">Connecticut</subdivision>
+			<subdivision type="usde" draft="provisional">Delaware</subdivision>
+			<subdivision type="usfl" draft="provisional">Florida</subdivision>
+			<subdivision type="ushi" draft="provisional">Hawaii</subdivision>
+			<subdivision type="usia" draft="provisional">Iowa</subdivision>
+			<subdivision type="usin" draft="provisional">Indiana</subdivision>
+			<subdivision type="usmt" draft="provisional">Montana</subdivision>
+			<subdivision type="usnd" draft="provisional">North Dakota</subdivision>
+			<subdivision type="usne" draft="provisional">Nebraska</subdivision>
+			<subdivision type="usnm" draft="provisional">New Mexico</subdivision>
+			<subdivision type="usnv" draft="provisional">Nevada</subdivision>
+			<subdivision type="usny" draft="provisional">New York (jiha)</subdivision>
+			<subdivision type="usoh" draft="provisional">Ohio</subdivision>
+			<subdivision type="usok" draft="provisional">Oklahoma</subdivision>
+			<subdivision type="usor" draft="provisional">Oregon</subdivision>
+			<subdivision type="ussd" draft="provisional">South Dakota</subdivision>
+			<subdivision type="ustx" draft="provisional">Texas</subdivision>
+			<subdivision type="usut" draft="provisional">Utah</subdivision>
+			<subdivision type="usva" draft="provisional">Virginia</subdivision>
+			<subdivision type="usvt" draft="provisional">Vermont</subdivision>
+			<subdivision type="uswi" draft="provisional">Wisconsin</subdivision>
+			<subdivision type="uswy" draft="provisional">Wyoming</subdivision>
+			<subdivision type="uymo" draft="provisional">Montevideo</subdivision>
+			<subdivision type="vnct" draft="provisional">Can Tho</subdivision>
+			<subdivision type="vndn" draft="provisional">Da Nang</subdivision>
+			<subdivision type="vnhn" draft="provisional">Hanoi</subdivision>
+			<subdivision type="vnhp" draft="provisional">Haiphong</subdivision>
+			<subdivision type="vnsg" draft="provisional">Birnin Ho Chi Minh</subdivision>
+		</subdivisions>
+	</localeDisplayNames>
+</ldml>

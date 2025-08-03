@@ -1,0 +1,14 @@
+## Steps for updating this crate
+
+1.  Run `tools/external_updater/updater.sh update rust/crates/openssl`.
+2.  `external/rust/crates/openssl-macros` should also be updated at the same time.
+
+## Generating patch files
+
+If you make changes to this repo that is not in upstream `rust-openssl` yet, please generate a
+patch file to keep track of those changes.
+
+1. Commit your changes
+2. Create the patch file: `git diff -u HEAD~ > <XXXX-topic>.diff` where XXXX is the number to track
+   the order of the patches to apply.
+3. Amend the patch file into your CL `git add -A && git commit --amend`

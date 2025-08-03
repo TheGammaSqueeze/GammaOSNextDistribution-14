@@ -1,0 +1,36 @@
+// Copyright 2019 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+package {
+    // See: http://go/android-license-faq
+    default_applicable_licenses: [
+        "external_v4l2_codec2_license",
+    ],
+}
+
+cc_library_shared {
+    name: "libcodectest",
+    srcs: [
+        "video_encoder_e2e_test.cpp",
+        "video_decoder_e2e_test.cpp",
+        "e2e_test_jni.cpp",
+        "common.cpp",
+        "encoded_data_helper.cpp",
+        "video_frame.cpp",
+        "md5.cpp",
+        "mediacodec_encoder.cpp",
+        "mediacodec_decoder.cpp",
+    ],
+    shared_libs: [
+        "liblog",
+        "libmediandk",
+        "libandroid",
+    ],
+    header_libs: ["liblog_headers"],
+    sdk_version: "28",
+    stl: "c++_static",
+    static_libs: ["libgtest_ndk_c++"],
+    // TODO(stevensd): Fix and reenable warnings
+    cflags: ["-Wno-everything"],
+}

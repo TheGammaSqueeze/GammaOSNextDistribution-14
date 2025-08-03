@@ -1,0 +1,13 @@
+{
+  "module_name_overrides": {
+    "libconfig": "libconfig_rust",
+    "libvhost": "libvhost_android",
+    "libvm_memory": "libvm_memory_android"
+  },
+  "package": {
+    "vhost-device-vsock": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

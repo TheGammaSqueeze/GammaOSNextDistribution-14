@@ -1,0 +1,30 @@
+# Copyright (c) 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "cellular_ota_avl"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "suite"
+TEST_TYPE = "server"
+
+DOC = """
+Run automated Cellular tests to ensure that 4g/5g has not regressed.
+@param build: The name of the image to test.
+              Ex: octopus-release/R99-14469.12.0
+@param board: The board to test on.  Ex: octopus
+@param pool: The pool of machines to utilize for scheduling. If pool=None
+             board is used.
+@param SKIP_IMAGE: (optional) If present and True, don't re-image devices.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['max_runtime_mins'] = 20
+args_dict['job'] = job
+args_dict['add_experimental'] = True
+args_dict['name'] = 'cellular_ota'
+
+dynamic_suite.reimage_and_run(**args_dict)

@@ -1,0 +1,43 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.flags.testing",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "FakeOnboardingFlagsProvider.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "android_onboarding.flags",
+    ],
+}
+
+android_library {
+    name: "android_onboarding.flags.testing_dagger",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "TestingDaggerModule.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "android_onboarding.flags.testing",
+        "jsr330",
+        "dagger2",
+    ],
+}
+
+android_library {
+    name: "android_onboarding.flags.testing_hilt",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "TestingHiltModule.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "android_onboarding.flags.testing_dagger",
+        "dagger2",
+        "hilt_android",
+    ],
+}

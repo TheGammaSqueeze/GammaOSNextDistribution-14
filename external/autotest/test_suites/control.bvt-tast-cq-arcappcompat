@@ -1,0 +1,33 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "bvt-tast-cq-arcappcompat"
+PURPOSE = 'Tests the critical Tast tests in the "arcappcompat" category.'
+
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite verifies ChromeOS's basic functionality for the ChromeOS Commit
+Queue by running all Tast integration tests in the "arcappcompat" category that must
+always pass against a DUT. See http://go/tast for more information about Tast.
+
+The only Autotest test executed by this suite is tast.category-arcappcompat, which
+is a server test that executes the tast executable. The tast executable runs
+individual Tast tests. If any of these Tast tests fail, then the
+test.category-arcappcompat test (and this suite) fail.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['max_runtime_mins'] = 30
+args_dict['timeout_mins'] = 60
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

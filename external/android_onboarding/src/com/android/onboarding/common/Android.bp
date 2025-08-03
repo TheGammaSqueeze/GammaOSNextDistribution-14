@@ -1,0 +1,19 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "android_onboarding.common",
+    manifest: ":android_onboarding.AndroidManifest",
+    srcs: [
+        "*.kt",
+    ],
+    dont_merge_manifests: true,
+    static_libs: [
+        "dagger2",
+        "jsr330",
+        "androidx.annotation_annotation",
+        "android_onboarding.common.annotations",
+    ],
+    plugins: ["dagger2-compiler"],
+}

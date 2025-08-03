@@ -1,0 +1,310 @@
+{
+  "version": 1,
+  "tests": [
+    {
+      "name": "meet-basic-2",
+      "tool": "tast",
+      "test_expr": "ui.GoogleMeetCUJ.basic_two",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "meet-basic-small",
+      "tool": "tast",
+      "test_expr": "ui.GoogleMeetCUJ.basic_small",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "meet-basic-large",
+      "tool": "tast",
+      "test_expr": "ui.GoogleMeetCUJ.basic_large",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "meet-basic-class",
+      "tool": "tast",
+      "test_expr": "ui.GoogleMeetCUJ.basic_class",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "meet-plus-large",
+      "tool": "tast",
+      "test_expr": "ui.GoogleMeetCUJ.plus_large",
+      "attributes": ["plus"],
+      "deps": ["plus"]
+    },
+    {
+      "name": "meet-plus-class",
+      "tool": "tast",
+      "test_expr": "ui.GoogleMeetCUJ.plus_class",
+      "attributes": ["plus"],
+      "deps": ["plus"]
+    },
+    {
+      "name": "meet-premium-large",
+      "tool": "tast",
+      "test_expr": "ui.GoogleMeetCUJ.premium_large",
+      "attributes": ["premium"],
+      "deps": ["premium"]
+    },
+    {
+      "name": "tabswitch-basic-noproxy",
+      "tool": "tast",
+      "test_expr": "ui.TabSwitchCUJ2.basic_noproxy",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "tabswitch-plus-noproxy",
+      "tool": "tast",
+      "test_expr": "ui.TabSwitchCUJ2.plus_noproxy",
+      "attributes": ["plus"],
+      "deps": ["plus"]
+    },
+    {
+      "name": "tabswitch-premium-noproxy",
+      "tool": "tast",
+      "test_expr": "ui.TabSwitchCUJ2.premium_noproxy",
+      "attributes": ["premium"],
+      "deps": ["premium"]
+    },
+    {
+      "name": "quick-check-unlock",
+      "tool": "tast",
+      "test_expr": "ui.QuickCheckCUJ2.basic_unlock",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "quick-check-wakeup",
+      "tool": "tast",
+      "test_expr": "ui.QuickCheckCUJ2.basic_wakeup",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "video-basic-youtube-web",
+      "tool": "tast",
+      "test_expr": "ui.VideoCUJ2.basic_youtube_web",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "video-premium-youtube-web",
+      "tool": "tast",
+      "test_expr": "ui.VideoCUJ2.premium_youtube_web",
+      "attributes": ["premium"],
+      "deps": ["premium"]
+    },
+    {
+      "name": "video-basic-youtube-app",
+      "tool": "tast",
+      "test_expr": "ui.VideoCUJ2.basic_youtube_app",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "video-premium-youtube-app",
+      "tool": "tast",
+      "test_expr": "ui.VideoCUJ2.premium_youtube_app",
+      "attributes": ["premium"],
+      "deps": ["premium"]
+    },
+    {
+      "name": "everyday-basic-ytmusic",
+      "tool": "tast",
+      "test_expr": "ui.EverydayMultiTaskingCUJ.basic_ytmusic",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "everyday-plus-ytmusic",
+      "tool": "tast",
+      "test_expr": "ui.EverydayMultiTaskingCUJ.plus_ytmusic",
+      "attributes": ["plus"],
+      "deps": ["plus"]
+    },
+    {
+      "name": "extended-display-meet",
+      "tool": "tast",
+      "test_expr": "ui.ExtendedDisplayCUJ.premium_meet_large",
+      "attributes": ["premium"],
+      "deps": ["external_display", "premium"]
+    },
+    {
+      "name": "extended-display-video",
+      "tool": "tast",
+      "test_expr": "ui.ExtendedDisplayCUJ.plus_video_youtube_web",
+      "attributes": ["plus"],
+      "deps": ["external_display", "plus"]
+    },
+    {
+      "name": "zoom-basic-two",
+      "tool": "tast",
+      "test_expr": "ui.ZoomConfCUJ.basic_two",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "zoom-basic-small",
+      "tool": "tast",
+      "test_expr": "ui.ZoomConfCUJ.basic_small",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "zoom-basic-large",
+      "tool": "tast",
+      "test_expr": "ui.ZoomConfCUJ.basic_large",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "zoom-basic-class",
+      "tool": "tast",
+      "test_expr": "ui.ZoomConfCUJ.basic_class",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "zoom-plus-large",
+      "tool": "tast",
+      "test_expr": "ui.ZoomConfCUJ.plus_large",
+      "attributes": ["plus"],
+      "deps": ["plus"]
+    },
+    {
+      "name": "zoom-plus-class",
+      "tool": "tast",
+      "test_expr": "ui.ZoomConfCUJ.plus_class",
+      "attributes": ["plus"],
+      "deps": ["plus"]
+    },
+    {
+      "name": "zoom-premium-large",
+      "tool": "tast",
+      "test_expr": "ui.ZoomConfCUJ.premium_large",
+      "attributes": ["premium"],
+      "deps": ["premium"]
+    },
+    {
+      "name": "gdocs-basic",
+      "tool": "tast",
+      "test_expr": "ui.GoogleDocsWebCUJ.basic",
+      "attributes": ["basic"]
+    },
+    {
+      "name": "gdocs-premium",
+      "tool": "tast",
+      "test_expr": "ui.GoogleDocsWebCUJ.premium",
+      "attributes": ["premium"]
+    },
+    {
+      "name": "msoffice-plus",
+      "tool": "tast",
+      "test_expr": "ui.MicrosoftOfficeWebCUJ.plus",
+      "attributes": ["plus"]
+    },
+    {
+      "name": "msoffice-premium",
+      "tool": "tast",
+      "test_expr": "ui.MicrosoftOfficeWebCUJ.premium",
+      "attributes": ["premium"]
+    },
+    {
+      "name": "geekbench-public-android",
+      "tool": "tast",
+      "test_expr": "ui.GeekbenchPublicAndroidApp",
+      "attributes": ["benchmark", "basic"]
+    },
+    {
+      "name": "lmbench",
+      "tool": "tast",
+      "test_expr": "ui.LMbench",
+      "attributes": ["benchmark", "basic"]
+    },
+    {
+      "name": "crxprt2",
+      "tool": "tast",
+      "test_expr": "ui.CRXPRT2",
+      "attributes": ["benchmark", "basic"]
+    }
+  ],
+  "suites": [
+    {
+      "name": "performance_cuj_experimental",
+      "args_file": "perf_cuj.config",
+      "tests": [
+        {"test": "meet-basic-2", "repeats": 1},
+        {"test": "meet-basic-small", "repeats": 1},
+        {"test": "meet-basic-large", "repeats": 1},
+        {"test": "meet-basic-class", "repeats": 1},
+        {"test": "meet-plus-large", "repeats": 1},
+        {"test": "meet-plus-class", "repeats": 1},
+        {"test": "meet-premium-large", "repeats": 1},
+        {"test": "tabswitch-basic-noproxy", "repeats": 1},
+        {"test": "tabswitch-plus-noproxy", "repeats": 1},
+        {"test": "tabswitch-premium-noproxy", "repeats": 1},
+        {"test": "quick-check-unlock", "repeats": 1},
+        {"test": "quick-check-wakeup", "repeats": 1},
+        {"test": "video-basic-youtube-web", "repeats": 1},
+        {"test": "video-premium-youtube-web", "repeats": 1},
+        {"test": "video-basic-youtube-app", "repeats": 1},
+        {"test": "video-premium-youtube-app", "repeats": 1},
+        {"test": "everyday-basic-ytmusic", "repeats": 1},
+        {"test": "everyday-plus-ytmusic", "repeats": 1},
+        {"test": "extended-display-meet", "repeats": 1},
+        {"test": "extended-display-video", "repeats":1},
+        {"test": "zoom-basic-two", "repeats": 1},
+        {"test": "zoom-basic-small", "repeats": 1},
+        {"test": "zoom-basic-large", "repeats": 1},
+        {"test": "zoom-basic-class", "repeats": 1},
+        {"test": "zoom-plus-large", "repeats": 1},
+        {"test": "zoom-plus-class", "repeats": 1},
+        {"test": "zoom-premium-large", "repeats": 1},
+        {"test": "gdocs-basic", "repeats": 1},
+        {"test": "gdocs-premium", "repeats": 1},
+        {"test": "msoffice-plus", "repeats": 1},
+        {"test": "msoffice-premium", "repeats": 1}
+      ]
+    },
+    {
+      "name": "performance_cuj_quick",
+      "args_file": "perf_cuj.config",
+      "tests": [
+        {"test": "meet-basic-2", "repeats": 1},
+        {"test": "meet-plus-large", "repeats": 1},
+        {"test": "meet-premium-large", "repeats": 1},
+        {"test": "tabswitch-basic-noproxy", "repeats": 1},
+        {"test": "quick-check-unlock", "repeats": 1},
+        {"test": "quick-check-wakeup", "repeats": 1},
+        {"test": "video-basic-youtube-web", "repeats": 1},
+        {"test": "everyday-basic-ytmusic", "repeats": 1},
+        {"test": "extended-display-meet", "repeats": 1}
+      ]
+    },
+    {
+      "name": "performance_cuj",
+      "args_file": "perf_cuj.config",
+      "tests": [
+        {"test": "meet-basic-2", "repeats": 10},
+        {"test": "meet-basic-small", "repeats": 10},
+        {"test": "meet-basic-large", "repeats": 10},
+        {"test": "meet-basic-class", "repeats": 10},
+        {"test": "meet-plus-large", "repeats": 10},
+        {"test": "meet-plus-class", "repeats": 10},
+        {"test": "meet-premium-large", "repeats": 10},
+        {"test": "tabswitch-basic-noproxy", "repeats": 10},
+        {"test": "tabswitch-plus-noproxy", "repeats": 10},
+        {"test": "tabswitch-premium-noproxy", "repeats": 10},
+        {"test": "quick-check-unlock", "repeats": 10},
+        {"test": "quick-check-wakeup", "repeats": 10},
+        {"test": "video-basic-youtube-web", "repeats": 10},
+        {"test": "video-premium-youtube-web", "repeats": 10},
+        {"test": "video-basic-youtube-app", "repeats": 10},
+        {"test": "video-premium-youtube-app", "repeats": 10},
+        {"test": "everyday-basic-ytmusic", "repeats": 10},
+        {"test": "everyday-plus-ytmusic", "repeats": 10},
+        {"test": "extended-display-meet", "repeats": 10}
+      ]
+    },
+    {
+      "name": "performance_cuj_benchmarks",
+      "args_file": "perf_cuj.config",
+      "tests": [
+        {"test": "geekbench-public-android", "repeats": 2},
+        {"test": "lmbench", "repeats": 2},
+        {"test": "crxprt2", "repeats": 2}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "package": {
+    "serde_yaml": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/hashlink
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "hashlink"
+description: "HashMap-like containers that hold their key-value pairs in a user controllable order"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/hashlink"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/hashlink/hashlink-0.8.1.crate"
+  }
+  version: "0.8.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 12
+    day: 12
+  }
+}

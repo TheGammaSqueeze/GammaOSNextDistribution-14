@@ -1,0 +1,32 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterCLHealth.all_floss'
+PURPOSE = ('Batch of Bluetooth Classic health tests for Floss')
+CRITERIA = 'Pass all health test'
+ATTRIBUTES = ''
+TIME = 'LONG' #this test takes about 20 minutes
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+    A Batch of Bluetooth Classic health tests. These tests will run all classic
+    tests that are currently supported on Floss.
+"""
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterCLHealth', host=host,
+                 num_iterations=1, args_dict=args_dict, floss=True)
+
+parallel_simple(run, machines)
+

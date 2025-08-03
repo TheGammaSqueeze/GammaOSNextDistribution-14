@@ -1,0 +1,21 @@
+image: gradle:7.6-jdk11
+
+variables:
+  # Set the location of the dependency cache to a local directory, so that it
+  # can be cached between GitLab Continous Integration Jobs.
+  GRADLE_USER_HOME: '.gradle'
+  GRADLE: 'gradle -Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m'
+  SONAR: 'https://sonarqube.ow2.org'
+
+cache:
+  paths:
+    # Cache the downloaded dependencies and plugins between builds.
+    - '$GRADLE_USER_HOME'
+
+build:
+  script:
+    - $GRADLE build
+    - $GRADLE test jacocoTestCoverageVerification
+    - if [ $NEXUS_USER_NAME ]; then $GRADLE publish; fi
+    - if [ !$NEXUS_USER_NAME ]; then $GRADLE publishToMavenLocal; fi
+    - if [ $SONAR_LOGIN ]; then $GRADLE jacocoTestReport sonarqube -Dsonar.host.url=$SONAR -Dsonar.login=${SONAR_LOGIN}; fi

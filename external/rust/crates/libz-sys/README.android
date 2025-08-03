@@ -1,0 +1,5 @@
+This package is imported to Android and uses Android's external/zlib
+header files and compilation flags to generate bindings.
+
+If features are changed for the libz-sys crate, please ensure those
+features are changed in the libz_bindgen_build module.

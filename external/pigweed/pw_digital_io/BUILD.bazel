@@ -1,0 +1,84 @@
+# Copyright 2020 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load(
+    "//pw_build:pigweed.bzl",
+    "pw_cc_test",
+)
+load(
+    "//pw_protobuf_compiler:pw_proto_library.bzl",
+    "pw_proto_library",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+cc_library(
+    name = "pw_digital_io",
+    srcs = ["digital_io.cc"],
+    hdrs = [
+        "public/pw_digital_io/digital_io.h",
+        "public/pw_digital_io/internal/conversions.h",
+        "public/pw_digital_io/polarity.h",
+    ],
+    includes = ["public"],
+    deps = [
+        "//pw_assert",
+        "//pw_function",
+        "//pw_result",
+        "//pw_status",
+        "//pw_toolchain:sibling_cast",
+    ],
+)
+
+pw_cc_test(
+    name = "digital_io_test",
+    srcs = ["digital_io_test.cc"],
+    deps = [
+        ":pw_digital_io",
+        "//pw_unit_test",
+    ],
+)
+
+cc_library(
+    name = "digital_io_controller",
+    hdrs = ["public/pw_digital_io/digital_io_controller.h"],
+    includes = ["public"],
+)
+
+cc_library(
+    name = "digital_io_service",
+    srcs = ["digital_io_service.cc"],
+    hdrs = ["public/pw_digital_io/digital_io_service.h"],
+    includes = ["public"],
+    deps = [
+        ":digital_io_proto_cc.pwpb",
+        ":digital_io_proto_cc.pwpb_rpc",
+        ":pw_digital_io",
+        "//pw_function",
+        "//pw_rpc/pwpb:server_api",
+        "//pw_span",
+    ],
+)
+
+proto_library(
+    name = "digital_io_proto",
+    srcs = ["digital_io.proto"],
+)
+
+pw_proto_library(
+    name = "digital_io_proto_cc",
+    deps = [":digital_io_proto"],
+)

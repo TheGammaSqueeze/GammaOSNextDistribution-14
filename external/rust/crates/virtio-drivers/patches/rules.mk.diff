@@ -1,0 +1,12 @@
+diff --git a/rules.mk b/rules.mk
+index fe61b75..f43c05b 100644
+--- a/rules.mk
++++ b/rules.mk
+@@ -13,6 +13,7 @@ MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="default"' \
+ 
+ MODULE_LIBRARY_DEPS := \
++	trusty/user/base/lib/liballoc-rust \
+ 	external/rust/crates/bitflags \
+ 	external/rust/crates/log \
+ 	external/rust/crates/zerocopy \

@@ -1,0 +1,27 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+AUTHOR = 'ChromeOS SW Engprod Team (chromeos-sw-engprod@google.com)'
+NAME = 'tast.nearby-share-cb2cb'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:nearby-share-remote'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''Run the Tast Nearby Share remote test suite.'''
+
+def run(machine):
+    companions = hosts.create_companion_hosts(companion_hosts)
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['("group:nearby-share-remote")'],
+                 ignore_test_failures=False, max_run_sec=3600,
+                 companion_duts={'cd1':companions[0]},
+		 command_args=args)
+parallel_simple(run, machines)
+

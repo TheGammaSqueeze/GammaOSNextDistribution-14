@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list-out name="list1">
+  <item-out>warning(TransformerException)</item-out>
+  <item-out>error(TransformerException)</item-out>
+  <item-out>fatalError(TransformerException)</item-out>
+  <list-out name="list2">
+    <item-out>ErrorListener API's</item-out>
+    <item-out>Defined Above</item-out>
+  </list-out>
+</list-out>

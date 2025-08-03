@@ -1,0 +1,131 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_get_tracing_file, tracefs_put_tracing_file, tracefs_tracing_dir, tracefs_debug_dir, tracefs_set_tracing_dir,
+tracefs_tracing_dir_is_mounted - Find and set locations of trace directory and files.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+char pass:[*]*tracefs_get_tracing_file*(const char pass:[*]_name_);
+void *tracefs_put_tracing_file*(char pass:[*]_name_);
+const char pass:[*]*tracefs_tracing_dir*(void);
+const char pass:[*]*tracefs_debug_dir*(void);
+int *tracefs_set_tracing_dir*(char pass:[*]_tracing_dir_)
+int *tracefs_tracing_dir_is_mounted*(bool _mount_, const char pass:[**]_path_);
+--
+
+DESCRIPTION
+-----------
+This set of APIs can be used to find the full path of the trace file
+system mount point and trace files in it.
+
+The *tracefs_set_tracing_dir()* function sets a custom location of the
+system's tracing directory mount point. Usually, the library auto detects
+it using the information from the /proc/mounts file. Use this API only if the
+mount point is not standard and cannot be detected by the library. The _tracing_dir_
+argument can be NULL, in that case the custom location is deleted and the library
+auto detection logic is used.
+
+The *tracefs_get_tracing_file()* function returns the full path of the
+file with given _name_ in the trace file system. The function works
+only with files in the tracefs main directory, it is not trace instance
+aware. It is recommended to use *tracefs_instance_get_file()* and
+*tracefs_instance_get_dir()* instead. The returned string must be freed
+with *tracefs_put_tracing_file()*.
+
+The *tracefs_put_tracing_file()* function frees trace file name,
+returned by *tracefs_get_tracing_file()*.
+
+The *tracefs_tracing_dir()* function returns the full path to the
+trace file system. In the first function call, the mount point of the
+tracing file system is located, cached and returned. It will mount it,
+if it is not mounted. On any subsequent call the cached path is returned.
+The return string must _not_ be freed.
+
+The *tracefs_debug_dir()* is similar to *tracefs_tracing_dir()* except
+that it will return where the debugfs file system is mounted. If it
+is not mounted it will try to mount it. The return string must _not_
+be freed.
+
+*tracefs_tracing_dir_is_mounted()* returns 1 if the tracing directory is
+already mounted and 0 if it is not. If _mount_ is true, it will try to
+mount it if it is not, and returns 0 if it succesfully mounted it and -1
+if it did not. If _path_ is set, it will be assigned to the path where it
+mounted it. _path_ is internal and should not be freed.
+
+RETURN VALUE
+------------
+The *tracefs_set_tracing_dir()* function returns 0 on success, -1 otherwise.
+
+The *tracefs_get_tracing_file()* function returns a string or NULL in case
+of an error. The returned string must be freed with *tracefs_put_tracing_file()*.
+
+The *tracefs_tracing_dir()* function returns a constant string or NULL
+in case of an error. The returned string must _not_ be freed.
+
+The *tracefs_debug_dir()* function returns a constant string or NULL
+in case of an error. The returned string must _not_ be freed.
+
+The *tracefs_tracing_dir_is_mounted()* returns 1 if the tracing directory
+is already mounted, 0 if it is not, and -1 on error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+...
+char *trace_on = tracefs_get_tracing_file("tracing_on");
+	if (trace_on) {
+		...
+		tracefs_put_tracing_file(trace_on);
+	}
+...
+const char *trace_dir = tracefs_tracing_dir();
+
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

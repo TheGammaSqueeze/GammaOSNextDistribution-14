@@ -1,0 +1,112 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load("@rules_rust//rust:defs.bzl", "rust_doc", "rust_doc_test", "rust_library", "rust_proc_macro", "rust_test")
+
+rust_library(
+    name = "pw_format",
+    srcs = [
+        "pw_format/lib.rs",
+        "pw_format/macros.rs",
+        "pw_format/tests.rs",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pw_status/rust:pw_status",
+        "@rust_crates//:nom",
+        "@rust_crates//:proc-macro2",
+        "@rust_crates//:quote",
+        "@rust_crates//:syn",
+    ],
+)
+
+rust_test(
+    name = "pw_format_test",
+    crate = ":pw_format",
+)
+
+rust_doc_test(
+    name = "pw_format_doc_test",
+    crate = ":pw_format",
+)
+
+rust_doc(
+    name = "pw_format_doc",
+    crate = ":pw_format",
+)
+
+rust_proc_macro(
+    name = "pw_format_example_macro",
+    srcs = [
+        "pw_format_example_macro.rs",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":pw_format",
+        "//pw_status/rust:pw_status",
+        "@rust_crates//:proc-macro2",
+        "@rust_crates//:quote",
+        "@rust_crates//:syn",
+    ],
+)
+
+rust_library(
+    name = "pw_format_example_macro_test",
+    srcs = [
+        "pw_format_example_macro_test.rs",
+    ],
+    proc_macro_deps = [
+        ":pw_format_example_macro",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+rust_test(
+    name = "pw_format_example_macro_test_test",
+    crate = ":pw_format_example_macro_test",
+)
+
+rust_proc_macro(
+    name = "pw_format_test_macros",
+    srcs = [
+        "pw_format_test_macros.rs",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":pw_format",
+        "//pw_status/rust:pw_status",
+        "@rust_crates//:proc-macro2",
+        "@rust_crates//:quote",
+        "@rust_crates//:syn",
+    ],
+)
+
+rust_library(
+    name = "pw_format_test_macros_test",
+    srcs = [
+        "pw_format_test_macros_test.rs",
+    ],
+    proc_macro_deps = [
+        ":pw_format_test_macros",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":pw_format",
+    ],
+)
+
+rust_test(
+    name = "pw_format_test_macros_test_test",
+    crate = ":pw_format_test_macros_test",
+)

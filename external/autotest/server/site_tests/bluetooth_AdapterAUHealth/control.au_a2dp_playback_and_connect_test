@@ -1,0 +1,35 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterAUHealth.au_a2dp_playback_and_connect_test'
+PURPOSE = ('Run the A2DP playback and connect test')
+CRITERIA = 'Pass audio chunk testing before and after the BT device connects'
+ATTRIBUTES = 'suite:bluetooth, suite:bluetooth_e2e'
+TIME = 'SHORT'  # Approximately 3 mins
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+    To run the A2DP playback and connect test.
+
+    This test first plays the audio stream and then selects the BT device as
+    output node, checking if the stream has routed to the BT device. After
+    that, disconnect the BT device and also check whether the stream closes
+    on it gracefully.
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterAUHealth', host=host, num_iterations=1,
+                 args_dict=args_dict, test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

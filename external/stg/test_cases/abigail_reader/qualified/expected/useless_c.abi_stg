@@ -1,0 +1,102 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x0dd55c4a
+  kind: POINTER
+  pointee_type_id: 0x1d1597b4
+}
+pointer_reference {
+  id: 0x24b3ee1b
+  kind: POINTER
+  pointee_type_id: 0xb88f5ef1
+}
+pointer_reference {
+  id: 0x3637189c
+  kind: POINTER
+  pointee_type_id: 0xf29c84ee
+}
+qualified {
+  id: 0x9763259f
+  qualifier: VOLATILE
+  qualified_type_id: 0x0dd55c4a
+}
+qualified {
+  id: 0xba35a531
+  qualifier: VOLATILE
+  qualified_type_id: 0xb88f5ef1
+}
+qualified {
+  id: 0xf29c84ee
+  qualifier: CONST
+  qualified_type_id: 0xba35a531
+}
+qualified {
+  id: 0xf9c924c5
+  qualifier: CONST
+  qualified_type_id: 0x9763259f
+}
+struct_union {
+  id: 0xb88f5ef1
+  kind: STRUCT
+  name: "foo"
+  definition {
+  }
+}
+function {
+  id: 0x13ed0681
+  return_type_id: 0x48b5725f
+  parameter_id: 0x0dd55c4a
+}
+function {
+  id: 0x19b4aa15
+  return_type_id: 0x48b5725f
+  parameter_id: 0x24b3ee1b
+}
+function {
+  id: 0x1d1597b4
+  return_type_id: 0x48b5725f
+  parameter_id: 0x3637189c
+}
+elf_symbol {
+  id: 0xa58ca0b6
+  name: "bar"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1d1597b4
+  full_name: "bar"
+}
+elf_symbol {
+  id: 0xe89bbaac
+  name: "bar_2"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x19b4aa15
+  full_name: "bar_2"
+}
+elf_symbol {
+  id: 0xbf8fc404
+  name: "baz"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x13ed0681
+  full_name: "baz"
+}
+elf_symbol {
+  id: 0x4602d7e1
+  name: "quux"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf9c924c5
+  full_name: "quux"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xa58ca0b6
+  symbol_id: 0xe89bbaac
+  symbol_id: 0xbf8fc404
+  symbol_id: 0x4602d7e1
+}

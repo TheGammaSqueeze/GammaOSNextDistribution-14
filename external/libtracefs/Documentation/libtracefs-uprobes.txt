@@ -1,0 +1,189 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_uprobe_alloc,tracefs_uretprobe_alloc - Allocate new user (return) probe
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+struct tracefs_dynevent pass:[*]
+*tracefs_uprobe_alloc*(const char pass:[*]_system_, const char pass:[*]_event_,
+		     const char pass:[*]_file_, unsigned long long _offset_, const char pass:[*]_fetchargs_)
+struct tracefs_dynevent pass:[*]
+*tracefs_uretprobe_alloc*(const char pass:[*]_system_, const char pass:[*]_event_,
+		     const char pass:[*]_file_, unsigned long long _offset_, const char pass:[*]_fetchargs_)
+--
+
+DESCRIPTION
+-----------
+*tracefs_uprobe_alloc*() allocates a new uprobe context. It will be in the _system_ group
+(or uprobes if _system_ is NULL) and with _event_ name. The uprobe will be attached to _offset_
+within the _file_. The list of arguments, described in _fetchargs_, will be fetched  with the uprobe.
+The returned pointer to the user probe context must be freed with *tracefs_dynevent_free*().
+The ubrobe is not configured in the system, tracefs_dynevent_* set of APIs can be used to configure
+it.
+
+The *tracefs_uretprobe_alloc*() behaves the same as *tracefs_uprobe_alloc*(), the only difference is
+that it allocates context to user return probe (uretprobe).
+
+RETURN VALUE
+------------
+The *tracefs_uprobe_alloc*() and *tracefs_uretprobe_alloc*() APIs return a pointer to an allocated
+tracefs_dynevent structure, describing the user probe. This pointer must be freed with
+*tracefs_dynevent_free*(3). Note, this only allocates a descriptor representing the uprobe. It does
+not modify the running system. On error NULL is returned.
+
+EXAMPLE
+-------
+[source,c]
+--
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+#include <tracefs.h>
+
+static int callback(struct tep_event *event, struct tep_record *record,
+		    int cpu, void *data)
+{
+	struct trace_seq seq;
+
+	trace_seq_init(&seq);
+	tep_print_event(event->tep, &seq, record, "%d-%s: %s",
+			TEP_PRINT_PID, TEP_PRINT_COMM, TEP_PRINT_NAME);
+	trace_seq_puts(&seq, "'\n");
+
+	trace_seq_terminate(&seq);
+	trace_seq_do_printf(&seq);
+	trace_seq_destroy(&seq);
+
+	return 0;
+}
+
+static pid_t run_exec(char **argv, char **env)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid)
+		return pid;
+
+	execve(argv[0], argv, env);
+	perror("exec");
+	exit(-1);
+}
+
+const char *myprobe = "my_urobes";
+
+int main (int argc, char **argv, char **env)
+{
+	struct tracefs_dynevent *uprobe, *uretprobe;
+	struct tep_handle *tep;
+	struct tracefs_instance *instance;
+	const char *sysnames[] = { myprobe, NULL };
+	long addr;
+	pid_t pid;
+
+	if (argc < 3) {
+		printf("usage: %s file_offset command\n", argv[0]);
+		exit(-1);
+	}
+	addr = strtol(argv[1], NULL, 0);
+
+	instance = tracefs_instance_create("exec_open");
+	if (!instance) {
+		perror("creating instance");
+		exit(-1);
+	}
+
+	tracefs_dynevent_destroy_all(TRACEFS_DYNEVENT_UPROBE|TRACEFS_DYNEVENT_URETPROBE, true);
+
+	uprobe = tracefs_uprobe_alloc(myprobe, "user_probe", argv[2], addr, NULL);
+	uretprobe = tracefs_uretprobe_alloc(myprobe, "user_retprobe", argv[2], addr, NULL);
+	if (!uprobe || !uretprobe) {
+		perror("allocating user probes");
+		exit(-1);
+	}
+
+	if (tracefs_dynevent_create(uprobe) ||
+	    tracefs_dynevent_create(uretprobe)) {
+		perror("creating user probes");
+		exit(-1);
+	}
+
+	tep = tracefs_local_events_system(NULL, sysnames);
+	if (!tep) {
+		perror("reading events");
+		exit(-1);
+	}
+
+	tracefs_event_enable(instance, myprobe, "user_probe");
+	tracefs_event_enable(instance, myprobe, "user_retprobe");
+
+	pid = run_exec(&argv[2], env);
+
+	/* Let the child start to run */
+	sched_yield();
+
+	do {
+		tracefs_load_cmdlines(NULL, tep);
+		tracefs_iterate_raw_events(tep, instance, NULL, 0, callback, NULL);
+	} while (waitpid(pid, NULL, WNOHANG) != pid);
+
+	/* disable and destroy the events */
+	tracefs_dynevent_destroy(uprobe, true);
+	tracefs_dynevent_destroy(uretprobe, true);
+	tracefs_dynevent_free(uprobe);
+	tracefs_dynevent_free(uretprobe);
+	tracefs_instance_destroy(instance);
+
+	return 0;
+}
+--
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2022 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

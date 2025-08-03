@@ -1,0 +1,19 @@
+name: "kms++"
+description: "libkmsxx is a small C++11 library for kernel mode setting. It tries to implement as little extra as possible while bringing the kms API in a C++ form to the user. It only implements a subset of what libdrm supports."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/tomba/kmsxx"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/tomba/kmsxx"
+  }
+  version: "b12aab5d4bb45e77934d9838576a817bc8defe4b"
+  license_type: RECIPROCAL
+  last_upgrade_date {
+    year: 2021
+    month: 1
+    day: 5
+  }
+}

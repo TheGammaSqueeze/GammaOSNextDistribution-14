@@ -1,0 +1,316 @@
+licenses(["notice"])
+
+java_test(
+    name = "MacTest",
+    size = "small",
+    srcs = ["MacTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:deterministic_aead",
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "//src/main/java/com/google/crypto/tink:key_templates",
+        "//src/main/java/com/google/crypto/tink:mac",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink:tink_json_proto_keyset_format",
+        "//src/main/java/com/google/crypto/tink/daead:deterministic_aead_config",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "MacConfigTest",
+    size = "small",
+    srcs = ["MacConfigTest.java"],
+    tags = ["fips"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/config:tink_fips",
+        "//src/main/java/com/google/crypto/tink/config/internal:tink_fips_util",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/mac:predefined_mac_parameters",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "MacFactoryTest",
+    size = "small",
+    srcs = ["MacFactoryTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:key_templates",
+        "//src/main/java/com/google/crypto/tink:mac",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/mac:mac_factory",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "MacFactoryWithoutWrapperRegisteredTest",
+    size = "small",
+    srcs = ["MacFactoryWithoutWrapperRegisteredTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:key_templates",
+        "//src/main/java/com/google/crypto/tink:mac",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key_manager",
+        "//src/main/java/com/google/crypto/tink/mac:mac_factory",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "MacKeyTemplatesTest",
+    size = "small",
+    srcs = ["MacKeyTemplatesTest.java"],
+    deps = [
+        "//proto:common_java_proto",
+        "//proto:hmac_java_proto",
+        "//proto:tink_java_proto",
+        "//src/main/java/com/google/crypto/tink:tink_proto_parameters_format",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key_manager",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/mac:mac_key_templates",
+        "//src/main/java/com/google/crypto/tink/mac:mac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:predefined_mac_parameters",
+        "@maven//:com_google_protobuf_protobuf_java",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "HmacKeyManagerTest",
+    size = "small",
+    srcs = ["HmacKeyManagerTest.java"],
+    deps = [
+        "//proto:common_java_proto",
+        "//proto:hmac_java_proto",
+        "//src/main/java/com/google/crypto/tink:key_template",
+        "//src/main/java/com/google/crypto/tink:key_templates",
+        "//src/main/java/com/google/crypto/tink:mac",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/internal:key_type_manager",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key_manager",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/subtle:hex",
+        "//src/main/java/com/google/crypto/tink/subtle:prf_hmac_jce",
+        "//src/main/java/com/google/crypto/tink/subtle:prf_mac",
+        "//src/main/java/com/google/crypto/tink/subtle:random",
+        "//src/main/java/com/google/crypto/tink/testing:key_type_manager_test_util",
+        "@maven//:com_google_protobuf_protobuf_java",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "MacWrapperTest",
+    size = "small",
+    srcs = ["MacWrapperTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "//src/main/java/com/google/crypto/tink:mac",
+        "//src/main/java/com/google/crypto/tink:registry",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_monitoring_registry",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_primitive_registry",
+        "//src/main/java/com/google/crypto/tink/internal:primitive_constructor",
+        "//src/main/java/com/google/crypto/tink/internal/testing:fake_monitoring_client",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_proto_serialization",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key_manager",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/mac:mac_wrapper",
+        "//src/main/java/com/google/crypto/tink/mac/internal:hmac_proto_serialization",
+        "//src/main/java/com/google/crypto/tink/monitoring:monitoring_annotations",
+        "//src/main/java/com/google/crypto/tink/subtle:hex",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "AesCmacKeyManagerTest",
+    size = "small",
+    srcs = ["AesCmacKeyManagerTest.java"],
+    deps = [
+        "//proto:aes_cmac_java_proto",
+        "//src/main/java/com/google/crypto/tink:key_template",
+        "//src/main/java/com/google/crypto/tink:key_templates",
+        "//src/main/java/com/google/crypto/tink:mac",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/internal:key_type_manager",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_key_manager",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/subtle:prf_aes_cmac",
+        "//src/main/java/com/google/crypto/tink/subtle:prf_mac",
+        "//src/main/java/com/google/crypto/tink/subtle:random",
+        "//src/main/java/com/google/crypto/tink/testing:key_type_manager_test_util",
+        "@maven//:com_google_protobuf_protobuf_java",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "AesCmacParametersTest",
+    size = "small",
+    srcs = ["AesCmacParametersTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_parameters",
+        "@maven//:com_google_errorprone_error_prone_annotations",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "HmacParametersTest",
+    size = "small",
+    srcs = ["HmacParametersTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink/mac:hmac_parameters",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "AesCmacKeyTest",
+    size = "small",
+    srcs = ["AesCmacKeyTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "//src/main/java/com/google/crypto/tink/internal:key_tester",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_parameters",
+        "//src/main/java/com/google/crypto/tink/subtle:hex",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "AesCmacProtoSerializationTest",
+    size = "small",
+    srcs = ["AesCmacProtoSerializationTest.java"],
+    deps = [
+        "//proto:aes_cmac_java_proto",
+        "//proto:tink_java_proto",
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink:parameters",
+        "//src/main/java/com/google/crypto/tink/internal:mutable_serialization_registry",
+        "//src/main/java/com/google/crypto/tink/internal:proto_key_serialization",
+        "//src/main/java/com/google/crypto/tink/internal:proto_parameters_serialization",
+        "//src/main/java/com/google/crypto/tink/internal/testing:asserts",
+        "//src/main/java/com/google/crypto/tink/internal/testing:key_with_serialization",
+        "//src/main/java/com/google/crypto/tink/internal/testing:parameters_with_serialization",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_proto_serialization",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_code_findbugs_jsr305",
+        "@maven//:com_google_protobuf_protobuf_java",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "HmacKeyTest",
+    size = "small",
+    srcs = ["HmacKeyTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "//src/main/java/com/google/crypto/tink/internal:key_tester",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_parameters",
+        "//src/main/java/com/google/crypto/tink/subtle:hex",
+        "//src/main/java/com/google/crypto/tink/util:bytes",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "ChunkedMacWrapperTest",
+    size = "small",
+    srcs = ["ChunkedMacWrapperTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:insecure_secret_key_access",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_proto_serialization",
+        "//src/main/java/com/google/crypto/tink/mac:chunked_mac",
+        "//src/main/java/com/google/crypto/tink/mac:chunked_mac_computation",
+        "//src/main/java/com/google/crypto/tink/mac:chunked_mac_verification",
+        "//src/main/java/com/google/crypto/tink/mac:chunked_mac_wrapper",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/mac/internal:hmac_proto_serialization",
+        "//src/main/java/com/google/crypto/tink/subtle:hex",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "ChunkedMacTest",
+    size = "small",
+    srcs = ["ChunkedMacTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink:mac",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:aes_cmac_proto_serialization",
+        "//src/main/java/com/google/crypto/tink/mac:chunked_mac",
+        "//src/main/java/com/google/crypto/tink/mac:chunked_mac_computation",
+        "//src/main/java/com/google/crypto/tink/mac:chunked_mac_verification",
+        "//src/main/java/com/google/crypto/tink/mac:chunked_mac_wrapper",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_key",
+        "//src/main/java/com/google/crypto/tink/mac:hmac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/mac/internal:hmac_proto_serialization",
+        "//src/main/java/com/google/crypto/tink/util:secret_bytes",
+        "@maven//:junit_junit",
+    ],
+)
+
+java_test(
+    name = "PredefinedMacParametersTest",
+    size = "small",
+    srcs = ["PredefinedMacParametersTest.java"],
+    deps = [
+        "//src/main/java/com/google/crypto/tink:key",
+        "//src/main/java/com/google/crypto/tink:registry_cluster",
+        "//src/main/java/com/google/crypto/tink/mac:mac_config",
+        "//src/main/java/com/google/crypto/tink/mac:mac_parameters",
+        "//src/main/java/com/google/crypto/tink/mac:predefined_mac_parameters",
+        "@maven//:com_google_truth_truth",
+        "@maven//:junit_junit",
+    ],
+)

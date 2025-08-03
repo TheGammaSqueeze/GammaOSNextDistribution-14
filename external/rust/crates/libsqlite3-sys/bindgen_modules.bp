@@ -1,0 +1,24 @@
+rust_bindgen {
+    name: "libsqlite3_bindgen",
+    host_supported: true,
+    crate_name: "sqlite3_bindgen",
+    custom_bindgen: "sqlite3_bindgen_build",
+    wrapper_src: "wrapper.h",
+    source_stem: "bindgen",
+    cflags: ["-I external/sqlite/dist"],
+    defaults: ["sqlite-defaults"],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_test {
+    name: "libsqlite3_bindgen_test",
+    srcs: [":libsqlite3_bindgen"],
+    crate_name: "sqlite3_bindgen_test",
+    test_suites: ["general-tests"],
+    auto_gen_config: true,
+    clippy_lints: "none",
+    lints: "none",
+}

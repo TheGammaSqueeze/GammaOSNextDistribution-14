@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html-tag>
+  <head-tag>
+    <title-tag text="title-tag:text"/>
+  </head-tag>
+  <body-tag>
+    <p-tag>P-tag:begin<cdataHere>CDATA? or not?</cdataHere></p-tag>
+    <ul-tag>
+      <li-tag number="1">li-tag:one</li-tag>
+      <li-tag value="two">li-tag:two</li-tag>
+    </ul-tag>
+  </body-tag>
+</html-tag>

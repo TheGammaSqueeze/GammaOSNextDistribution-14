@@ -1,0 +1,19 @@
+# *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+#     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+#     DEPENDING ON IT IN YOUR PROJECT. ***
+name: "MS TPM 2.0 Reference Implementation"
+description: "The official TCG reference implementation of the TPM 2.0 Specification."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/microsoft/ms-tpm-20-ref.git"
+  }
+  version: "f640b4bdb3a0fe944628e9f7df1362e2b9aa647d"
+  license_note: "MCD-ST Liberty SW License Agreement V2"
+  license_type: BY_EXCEPTION_ONLY
+  last_upgrade_date {
+    year: 2020
+    month: 12
+    day: 9
+  }
+}

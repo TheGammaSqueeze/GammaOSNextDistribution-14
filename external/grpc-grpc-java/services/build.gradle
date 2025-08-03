@@ -1,0 +1,54 @@
+plugins {
+    id "java-library"
+    id "maven-publish"
+
+    id "com.google.protobuf"
+    id "ru.vyarus.animalsniffer"
+}
+
+description = "gRPC: Services"
+
+tasks.named("compileJava").configure {
+    // v1alpha of reflection.proto is deprecated at the file level.
+    // Without this workaround, the project can not compile.
+    it.options.compilerArgs += [
+        "-Xlint:-deprecation",
+    ]
+}
+
+dependencies {
+    api project(':grpc-protobuf'),
+            project(':grpc-stub'),
+            project(':grpc-core')
+    implementation libraries.protobuf.java.util,
+            libraries.guava.jre // JRE required by protobuf-java-util
+
+    runtimeOnly libraries.errorprone.annotations
+
+    compileOnly libraries.javax.annotation
+    testImplementation project(':grpc-testing'),
+            libraries.netty.transport.epoll, // for DomainSocketAddress
+            testFixtures(project(':grpc-core'))
+    testCompileOnly libraries.javax.annotation
+    signature libraries.signature.java
+}
+
+configureProtoCompilation()
+
+tasks.named("javadoc").configure {
+    exclude 'io/grpc/services/Internal*.java'
+    exclude 'io/grpc/services/internal/*'
+    exclude 'io/grpc/protobuf/services/internal/*'
+}
+
+tasks.named("jacocoTestReport").configure {
+    classDirectories.from = sourceSets.main.output.collect {
+        fileTree(dir: it,
+        exclude: [
+                '**/io/grpc/binarylog/v1/**',
+                '**/io/grpc/channelz/v1/**',
+                '**/io/grpc/health/v1/**',
+                '**/io/grpc/reflection/v1alpha/**',
+        ])
+    }
+}

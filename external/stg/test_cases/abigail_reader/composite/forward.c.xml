@@ -1,0 +1,21 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='v0' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='v1' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='v2' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='forward.c' language='LANG_C11'>
+    <enum-decl name='E' is-declaration-only='yes' id='c6c3203f'>
+      <underlying-type type-id='52ba91e1'/>
+    </enum-decl>
+    <type-decl name='unnamed-enum-underlying-type-0' is-anonymous='yes' is-declaration-only='yes' id='52ba91e1'/>
+    <pointer-type-def type-id='c6c3203f' size-in-bits='64' id='fccbdb9e'/>
+    <pointer-type-def type-id='50d9a3fa' size-in-bits='64' id='fd01f598'/>
+    <pointer-type-def type-id='b36f6bcb' size-in-bits='64' id='1cf31d6e'/>
+    <class-decl name='S' is-struct='yes' visibility='default' is-declaration-only='yes' id='50d9a3fa'/>
+    <var-decl name='v0' type-id='fccbdb9e' mangled-name='v0' visibility='default' elf-symbol-id='v0'/>
+    <var-decl name='v1' type-id='fd01f598' mangled-name='v1' visibility='default' elf-symbol-id='v1'/>
+    <var-decl name='v2' type-id='1cf31d6e' mangled-name='v2' visibility='default' elf-symbol-id='v2'/>
+    <union-decl name='U' visibility='default' is-declaration-only='yes' id='b36f6bcb'/>
+  </abi-instr>
+</abi-corpus>

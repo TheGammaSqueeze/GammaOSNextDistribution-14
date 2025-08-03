@@ -1,0 +1,33 @@
+# Copyright (c) 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "ChromeOS Team"
+NAME = "firmware_MiniosMenu.old"
+PURPOSE = "Navigate to the MiniOS by menu navigation (older version)"
+CRITERIA = "This test will fail if the device fail to boot to MiniOS"
+ATTRIBUTES = "suite:faft_bios, suite:faft_bios_ro_qual, suite:faft_lv4, suite:faft_bios_tot"
+DEPENDENCIES = "servo_state:WORKING"
+TIME = "MEDIUM"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "firmware"
+TEST_TYPE = "server"
+JOB_RETRIES = 0
+PY_VERSION = 3
+
+DOC = """
+This test requires the device to support MiniOS. This test will boot to the
+manual recovery screen and try to boot MiniOS through the UI menu.
+"""
+
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test("firmware_MiniosMenu", host=host, cmdline_args=args,
+                 disable_sysinfo=True, older_version=True)
+
+parallel_simple(run, machines)

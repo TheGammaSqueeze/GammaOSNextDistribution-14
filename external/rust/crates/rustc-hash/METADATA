@@ -1,0 +1,19 @@
+name: "rustc-hash"
+description: "speed, non-cryptographic hash used in rustc"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/rustc-hash"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/rustc-hash/rustc-hash-1.1.0.crate"
+  }
+  version: "1.1.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 3
+    day: 31
+  }
+}

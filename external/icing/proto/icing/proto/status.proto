@@ -1,0 +1,80 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+
+option objc_class_prefix = "ICNG";
+
+// Canonical status to indicate the results of API calls.
+// Next tag: 3
+message StatusProto {
+  // Next tag: 10
+  enum Code {
+    // A default for all other use-cases. Should never be used in practice. This
+    // may happen if there are backwards-compatibility issues.
+    UNKNOWN = 0;
+
+    // Returned on success.
+    OK = 1;
+
+    // The IcingSearchEngine instance is still usable. But the schema and/or
+    // documents may need to be re-added to prevent future API calls from
+    // failing or returning correct information.
+    //
+    // TODO(b/171750324): split into WARNING_PARTIAL_LOSS and
+    // WARNING_COMPLETE_LOSS.
+    WARNING_DATA_LOSS = 2;
+
+    // Parameters to API call are invalid and cannot be processed.
+    INVALID_ARGUMENT = 3;
+
+    // Requested thing does not exist.
+    NOT_FOUND = 4;
+
+    // System preconditions are not met to properly execute the operation.
+    FAILED_PRECONDITION = 5;
+
+    // Operation was aborted before any modifications were made to
+    // IcingSearchEngine; all data is in the same state. Try calling the API
+    // again later.
+    ABORTED = 6;
+
+    // An internal state is inconsistent and data may not be preserved. To fix,
+    // try closing the current instance of IcingSearchEngine, recreating it, and
+    // calling Initialize again. If the problem still persists, remove all data
+    // by calling Clear, then Initialize again.
+    INTERNAL = 7;
+
+    // Out of storage space. Try running Optimize to reclaim internal space, or
+    // make some space on the underlying filesystem.
+    OUT_OF_SPACE = 8;
+
+    // An operation is invalid because the resource already exists and can't be
+    // replaced. For example, this status is used when a SchemaProto contains
+    // multiple definitions of the same type or multiple properties with the
+    // same name within a type.
+    ALREADY_EXISTS = 9;
+
+    // Any future status codes.
+  }
+  optional Code code = 1;
+
+  // Any extra information about the status.
+  optional string message = 2;
+}

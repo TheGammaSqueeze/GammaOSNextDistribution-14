@@ -1,0 +1,20 @@
+diff --git a/src/imp_std.rs b/src/imp_std.rs
+index 5761f01..d727851 100644
+--- a/src/imp_std.rs
++++ b/src/imp_std.rs
+@@ -358,6 +358,7 @@ mod tests {
+     }
+ 
+     #[test]
++    #[cfg(not(target_os = "android"))]
+     fn poison_bad() {
+         static O: OnceCell<()> = OnceCell::new();
+ 
+@@ -379,6 +380,7 @@ mod tests {
+     }
+ 
+     #[test]
++    #[cfg(not(target_os = "android"))]
+     fn wait_for_force_to_finish() {
+         static O: OnceCell<()> = OnceCell::new();
+ 

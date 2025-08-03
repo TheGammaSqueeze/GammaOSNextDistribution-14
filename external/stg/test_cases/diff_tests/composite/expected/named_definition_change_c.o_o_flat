@@ -1,0 +1,7 @@
+variable symbol changed from 'struct S1 v1' to 'struct { int a1; int b1; } v1'
+  type changed from 'struct S1' to 'struct { int a1; int b1; }'
+
+variable symbol changed from 'struct { int a2; } v2' to 'struct S2 v2'
+  type changed from 'struct { int a2; }' to 'struct S2'
+
+exit code 4

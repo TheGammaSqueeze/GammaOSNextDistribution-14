@@ -1,0 +1,16 @@
+name: "typing"
+description:
+    "Static Typing for Python"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/python/typing"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/python/typing"
+  }
+  version: "4.1.1"
+  last_upgrade_date { year: 2022 month: 4 day: 13 }
+  license_type: NOTICE
+}

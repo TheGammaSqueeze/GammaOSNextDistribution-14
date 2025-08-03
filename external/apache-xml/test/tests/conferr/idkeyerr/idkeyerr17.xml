@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<doc>
+  <div id="id1">
+    <title>Introduction</title>
+    <p>For more information see the <divref>Expressions</divref> section.</p>
+    <p>(alternate id link: <keydivref>id3</keydivref>)</p>
+  </div>
+</doc>

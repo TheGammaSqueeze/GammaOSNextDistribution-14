@@ -1,0 +1,15 @@
+name: "ComputeLibrary"
+description: "The Compute Library is a set of computer vision and machine learning functions optimised for both Arm CPUs and GPUs using SIMD technologies."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/ARM-software/ComputeLibrary"
+  }
+  version: "v23.02.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 4
+    day: 25
+  }
+}

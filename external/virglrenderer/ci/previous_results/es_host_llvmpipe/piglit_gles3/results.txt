@@ -1,0 +1,115 @@
+spec/!opengl es 3.0/ext_texture_array-compressed_gles3 teximage: pass
+spec/!opengl es 3.0/ext_texture_array-compressed_gles3 texsubimage: pass
+spec/!opengl es 3.0/oes_compressed_etc2_texture-miptree_gles3 r11: pass
+spec/!opengl es 3.0/oes_compressed_etc2_texture-miptree_gles3 rg11: pass
+spec/!opengl es 3.0/oes_compressed_etc2_texture-miptree_gles3 rgb8: pass
+spec/!opengl es 3.0/oes_compressed_etc2_texture-miptree_gles3 rgb8-punchthrough-alpha1: pass
+spec/!opengl es 3.0/oes_compressed_etc2_texture-miptree_gles3 rgba8: pass
+spec/!opengl es 3.0/oes_compressed_etc2_texture-miptree_gles3 srgb8: pass
+spec/!opengl es 3.0/oes_compressed_etc2_texture-miptree_gles3 srgb8-alpha8: pass
+spec/!opengl es 3.0/oes_compressed_etc2_texture-miptree_gles3 srgb8-punchthrough-alpha1: pass
+spec/amd_framebuffer_multisample_advanced/api-gles3: skip
+spec/arb_blend_func_extended/arb_blend_func_extended-bindfragdataindexed-invalid-parameters_gles3: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-dual-src-blending-discard-without-src1_gles3: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-dual-src-blending-issue-1917_gles3: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-fbo-extended-blend-explicit_gles3: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-fbo-extended-blend-pattern_gles3: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-fbo-extended-blend_gles3: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-getfragdataindex_gles3: pass
+spec/arb_blend_func_extended/arb_blend_func_extended-output-location_gles3: pass
+spec/arb_buffer_storage/bufferstorage-persistent_gles3 draw: skip
+spec/arb_buffer_storage/bufferstorage-persistent_gles3 draw client-storage: skip
+spec/arb_buffer_storage/bufferstorage-persistent_gles3 draw coherent: skip
+spec/arb_buffer_storage/bufferstorage-persistent_gles3 draw coherent client-storage: skip
+spec/arb_buffer_storage/bufferstorage-persistent_gles3 read: skip
+spec/arb_buffer_storage/bufferstorage-persistent_gles3 read client-storage: skip
+spec/arb_buffer_storage/bufferstorage-persistent_gles3 read coherent: skip
+spec/arb_buffer_storage/bufferstorage-persistent_gles3 read coherent client-storage: skip
+spec/arb_transform_feedback2/change objects while paused (gles3): pass
+spec/egl_khr_create_context/valid debug flag gles3: pass
+spec/ext_base_instance/arb_base_instance-baseinstance-doesnt-affect-gl-instance-id_gles3: pass
+spec/ext_base_instance/arb_base_instance-drawarrays_gles3: pass
+spec/ext_color_buffer_float/ext_color_buffer_float-draw_gles3: pass
+spec/ext_shader_framebuffer_fetch/execution/gles3/discard-ms8: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/discard-ss: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/integer-ms2: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/integer-ms8: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/integer-ss: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/mrt: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/nonuniform-ms16: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/nonuniform-ms2: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/nonuniform-ms8: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/nonuniform-ss: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/overwrite: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/simple-ms16: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/simple-ms2: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/simple-ms8: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/simple-ss: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/single-slice-2darray: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/single-slice-2darray-mipmap: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/single-slice-3d: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/single-slice-cubemap: skip
+spec/ext_shader_framebuffer_fetch/execution/gles3/texture: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/discard-ms8: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/discard-ss: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/integer-ms2: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/integer-ms8: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/integer-ss: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/mrt: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/nonuniform-ms16: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/nonuniform-ms2: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/nonuniform-ms8: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/nonuniform-ss: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/overwrite: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/simple-ms16: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/simple-ms2: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/simple-ms8: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/simple-ss: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/single-slice-2darray: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/single-slice-2darray-mipmap: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/single-slice-3d: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/single-slice-cubemap: skip
+spec/ext_shader_framebuffer_fetch_non_coherent/execution/gles3/texture: skip
+spec/ext_transform_feedback/structs_gles3 basic-struct error: pass
+spec/ext_transform_feedback/structs_gles3 basic-struct get: pass
+spec/ext_transform_feedback/structs_gles3 basic-struct run: pass
+spec/ext_transform_feedback/structs_gles3 basic-struct run-no-fs: pass
+spec/ext_window_rectangles/errors_gles3: skip
+spec/ext_window_rectangles/render_gles3: skip
+spec/glsl-es-3.00/execution/varying-struct-centroid_gles3: pass
+spec/intel_blackhole_render/intel_blackhole-blit_gles3: skip
+spec/intel_blackhole_render/intel_blackhole-draw_gles3: skip
+spec/intel_conservative_rasterization/intel_conservative_rasterization-depthcoverage_gles3: skip
+spec/intel_conservative_rasterization/intel_conservative_rasterization-innercoverage_gles3: skip
+spec/intel_conservative_rasterization/intel_conservative_rasterization-invalid_gles3: skip
+spec/intel_conservative_rasterization/intel_conservative_rasterization-tri_gles3: skip
+spec/khr_debug/object-label_gles3: pass
+spec/khr_debug/push-pop-group_gles3: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r11f_g11f_b10f: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r16: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r16_snorm: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r16f: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r16i: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r16ui: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r8: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r8_snorm: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r8i: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-r8ui: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg16: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg16_snorm: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg16f: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg16i: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg16ui: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg32f: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg32i: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg32ui: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg8: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg8_snorm: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg8i: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rg8ui: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rgb10_a2: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rgb10_a2ui: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rgba16: pass
+spec/nv_image_formats/nv_image_formats-gles3/copy-rgba16_snorm: pass
+spec/nv_read_depth/read_depth_gles3: fail
+spec/nv_viewport_swizzle/nv_viewport_swizzle-errors_gles3: skip

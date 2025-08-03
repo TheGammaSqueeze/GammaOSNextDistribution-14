@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>A list of books</title>
+  </head>
+  <body>
+    <h1>A list of books</h1>
+    <table border="2">
+      <tr>
+        <td>Evelyn Waugh</td>
+        <td>Sword of Honour</td>
+        <td>fiction</td>
+        <td>12.99</td>
+      </tr>
+      <tr>
+        <td>Herman Melville</td>
+        <td>Moby Dick</td>
+        <td>fiction</td>
+        <td>8.99</td>
+      </tr>
+      <tr>
+        <td>J. R. R. Tolkien</td>
+        <td>The Lord of the Rings</td>
+        <td>fiction</td>
+        <td>22.99</td>
+      </tr>
+      <tr>
+        <td>Nigel Rees</td>
+        <td>Sayings of the Century</td>
+        <td>reference</td>
+        <td>8.95</td>
+      </tr>
+    </table>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update google-breakpad
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "google-breakpad"
+description: "Breakpad is a set of client and server components which implement a crash-reporting system"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://chromium.googlesource.com/breakpad/breakpad"
+  }
+  url {
+    type: GIT
+    value: "https://chromium.googlesource.com/breakpad/breakpad"
+  }
+  version: "922d49bdfe3c92e5d35c406f87f2c354637a2f8b"
+  license_type: RECIPROCAL
+  license_note: "would be NOTICE save for APSL in:\n   src/third_party/mac_handler/breakpad_nlist_64.cc\n   src/third_party/mac_headers/"
+  last_upgrade_date {
+    year: 2023
+    month: 8
+    day: 21
+  }
+}

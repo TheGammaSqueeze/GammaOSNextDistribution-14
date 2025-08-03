@@ -1,0 +1,40 @@
+plugins {
+    id "java-library"
+    id "maven-publish"
+
+    id "me.champeau.gradle.japicmp"
+    id "ru.vyarus.animalsniffer"
+}
+
+description = "gRPC: Testing"
+
+dependencies {
+    api project(':grpc-core'),
+            project(':grpc-stub'),
+            libraries.junit
+    // Only io.grpc.internal.testing.StatsTestUtils depends on opencensus_api, for internal use.
+    compileOnly libraries.opencensus.api
+    runtimeOnly project(":grpc-context") // Pull in newer version than census-api
+
+    testImplementation (libraries.mockito.core) {
+        // prefer our own versions instead of mockito's dependency
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+
+    testImplementation project(':grpc-testing-proto'),
+            testFixtures(project(':grpc-core'))
+
+    signature libraries.signature.java
+    signature libraries.signature.android
+}
+
+tasks.named("javadoc").configure { exclude 'io/grpc/internal/**' }
+
+tasks.named("jacocoTestReport").configure {
+    classDirectories.from = sourceSets.main.output.collect {
+        fileTree(dir: it,
+        exclude: [
+                '**/io/grpc/internal/testing/**',
+        ])
+    }
+}

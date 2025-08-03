@@ -1,0 +1,8 @@
+{
+  "features": [
+    "regex",
+    "color"
+  ],
+  "run_cargo": false,
+  "tests": true
+}

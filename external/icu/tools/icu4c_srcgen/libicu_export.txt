@@ -1,0 +1,354 @@
+# Copyright (C) 2018 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The shim library includes the stable C symbols exposed by libicuuc.so.
+#
+# If a new symbol is needed in the shim, please add the API in the following list,
+# and re-run external/icu/tools/icu4c_srcgen/generate_ndk.py.
+
+u_charAge,31
+u_charDigitValue,31
+u_charDirection,31
+u_charFromName,31
+u_charMirror,31
+u_charName,31
+u_charType,31
+u_countChar32,31
+u_digit,31
+u_enumCharNames,31
+u_enumCharTypes,31
+u_errorName,31
+u_foldCase,31
+u_forDigit,31
+u_getBidiPairedBracket,31
+u_getCombiningClass,31
+u_getIntPropertyMaxValue,31
+u_getIntPropertyMinValue,31
+u_getIntPropertyValue,31
+u_getNumericValue,31
+u_getPropertyEnum,31
+u_getPropertyName,31
+u_getPropertyValueEnum,31
+u_getPropertyValueName,31
+u_getUnicodeVersion,31
+u_getVersion,31
+u_hasBinaryProperty,31
+u_isIDIgnorable,31
+u_isIDPart,31
+u_isIDStart,31
+u_isISOControl,31
+u_isJavaIDPart,31
+u_isJavaIDStart,31
+u_isJavaSpaceChar,31
+u_isMirrored,31
+u_isUAlphabetic,31
+u_isULowercase,31
+u_isUUppercase,31
+u_isUWhiteSpace,31
+u_isWhitespace,31
+u_isalnum,31
+u_isalpha,31
+u_isbase,31
+u_isblank,31
+u_iscntrl,31
+u_isdefined,31
+u_isdigit,31
+u_isgraph,31
+u_islower,31
+u_isprint,31
+u_ispunct,31
+u_isspace,31
+u_istitle,31
+u_isupper,31
+u_isxdigit,31
+u_memcasecmp,31
+u_memchr,31
+u_memchr32,31
+u_memcmp,31
+u_memcmpCodePointOrder,31
+u_memcpy,31
+u_memmove,31
+u_memrchr,31
+u_memrchr32,31
+u_memset,31
+u_strCaseCompare,31
+u_strCompare,31
+u_strFindFirst,31
+u_strFindLast,31
+u_strFoldCase,31
+u_strFromUTF32,31
+u_strFromUTF32WithSub,31
+u_strFromUTF8,31
+u_strFromUTF8Lenient,31
+u_strFromUTF8WithSub,31
+u_strHasMoreChar32Than,31
+u_strToLower,31
+u_strToTitle,31
+u_strToUTF32,31
+u_strToUTF32WithSub,31
+u_strToUTF8,31
+u_strToUTF8WithSub,31
+u_strToUpper,31
+u_strcasecmp,31
+u_strcat,31
+u_strchr,31
+u_strchr32,31
+u_strcmp,31
+u_strcmpCodePointOrder,31
+u_strcpy,31
+u_strcspn,31
+u_strlen,31
+u_strncasecmp,31
+u_strncat,31
+u_strncmp,31
+u_strncmpCodePointOrder,31
+u_strncpy,31
+u_strpbrk,31
+u_strrchr,31
+u_strrchr32,31
+u_strrstr,31
+u_strspn,31
+u_strstr,31
+u_strtok_r,31
+u_tolower,31
+u_totitle,31
+u_toupper,31
+u_versionToString,31
+ubidi_close,31
+ubidi_countParagraphs,31
+ubidi_countRuns,31
+ubidi_getBaseDirection,31
+ubidi_getClassCallback,31
+ubidi_getCustomizedClass,31
+ubidi_getDirection,31
+ubidi_getLength,31
+ubidi_getLevelAt,31
+ubidi_getLevels,31
+ubidi_getLogicalIndex,31
+ubidi_getLogicalMap,31
+ubidi_getLogicalRun,31
+ubidi_getParaLevel,31
+ubidi_getParagraph,31
+ubidi_getParagraphByIndex,31
+ubidi_getProcessedLength,31
+ubidi_getReorderingMode,31
+ubidi_getReorderingOptions,31
+ubidi_getResultLength,31
+ubidi_getText,31
+ubidi_getVisualIndex,31
+ubidi_getVisualMap,31
+ubidi_getVisualRun,31
+ubidi_invertMap,31
+ubidi_isInverse,31
+ubidi_isOrderParagraphsLTR,31
+ubidi_open,31
+ubidi_openSized,31
+ubidi_orderParagraphsLTR,31
+ubidi_reorderLogical,31
+ubidi_reorderVisual,31
+ubidi_setClassCallback,31
+ubidi_setContext,31
+ubidi_setInverse,31
+ubidi_setLine,31
+ubidi_setPara,31
+ubidi_setReorderingMode,31
+ubidi_setReorderingOptions,31
+ubidi_writeReordered,31
+ubidi_writeReverse,31
+ubrk_clone,31
+ubrk_close,31
+ubrk_countAvailable,31
+ubrk_current,31
+ubrk_first,31
+ubrk_following,31
+ubrk_getAvailable,31
+ubrk_getRuleStatus,31
+ubrk_getRuleStatusVec,31
+ubrk_isBoundary,31
+ubrk_last,31
+ubrk_next,31
+ubrk_open,31
+ubrk_preceding,31
+ubrk_previous,31
+ubrk_setText,31
+ubrk_setUText,31
+# Don't expose the following API because NDK has no mutable APIs for UText yet.
+#   ubrk_refreshUText
+# Don't expose the following APIs because android.icu.text.RuleBasedBreakIterator is not
+# public API yet.
+#   ubrk_getBinaryRules
+#   ubrk_getLocaleByType
+#   ubrk_openBinaryRules
+#   ubrk_openRules
+ucol_clone,T
+ucol_close,T
+ucol_countAvailable,T
+ucol_getAttribute,T
+ucol_getAvailable,T
+ucol_getDisplayName,T
+ucol_getEquivalentReorderCodes,T
+ucol_getFunctionalEquivalent,T
+ucol_getKeywords,T
+ucol_getKeywordValues,T
+ucol_getKeywordValuesForLocale,T
+ucol_getMaxVariable,T
+ucol_getReorderCodes,T
+ucol_getSortKey,T
+ucol_getStrength,T
+ucol_open,T
+ucol_openRules,T
+ucol_openAvailableLocales,T
+ucol_mergeSortkeys,T
+ucol_setStrength,T
+ucol_setReorderCodes,T
+ucol_setAttribute,T
+ucol_setMaxVariable,T
+ucol_strcoll,T
+ucol_strcollUTF8,T
+# UCharIterator and uiter_* are not APIs in NDK yet
+# ucol_strcollIter
+# No equivalent API in android.icu.text.Collator yet
+# ucol_getLocaleByType
+uenum_close,31
+uenum_count,31
+uenum_next,31
+uenum_openCharStringsEnumeration,31
+uenum_openUCharStringsEnumeration,31
+uenum_reset,31
+uenum_unext,31
+uldn_close,31
+uldn_getContext,31
+uldn_getDialectHandling,31
+uldn_getLocale,31
+uldn_keyDisplayName,31
+uldn_keyValueDisplayName,31
+uldn_languageDisplayName,31
+uldn_localeDisplayName,31
+uldn_open,31
+uldn_openForContext,31
+uldn_regionDisplayName,31
+uldn_scriptCodeDisplayName,31
+uldn_scriptDisplayName,31
+uldn_variantDisplayName,31
+ulocdata_getCLDRVersion,31
+uloc_acceptLanguage,31
+uloc_addLikelySubtags,31
+uloc_canonicalize,31
+uloc_countAvailable,31
+uloc_forLanguageTag,31
+uloc_getAvailable,31
+uloc_getBaseName,31
+uloc_getCharacterOrientation,31
+uloc_getCountry,31
+uloc_getDefault,31
+uloc_getDisplayCountry,31
+uloc_getDisplayKeyword,31
+uloc_getDisplayKeywordValue,31
+uloc_getDisplayLanguage,31
+uloc_getDisplayName,31
+uloc_getDisplayScript,31
+uloc_getDisplayVariant,31
+uloc_getISO3Country,31
+uloc_getISO3Language,31
+uloc_getISOCountries,31
+uloc_getISOLanguages,31
+uloc_getKeywordValue,31
+uloc_getLanguage,31
+uloc_getLineOrientation,31
+uloc_getName,31
+uloc_getScript,31
+uloc_getVariant,31
+uloc_isRightToLeft,31
+uloc_minimizeSubtags,31
+uloc_openKeywords,31
+uloc_setKeywordValue,31
+uloc_toLanguageTag,31
+uloc_toLegacyKey,31
+uloc_toLegacyType,31
+uloc_toUnicodeLocaleKey,31
+uloc_toUnicodeLocaleType,31
+unorm2_append,31
+unorm2_close,31
+unorm2_composePair,31
+unorm2_getCombiningClass,31
+unorm2_getDecomposition,31
+unorm2_getNFCInstance,31
+unorm2_getNFDInstance,31
+unorm2_getNFKCCasefoldInstance,31
+unorm2_getNFKCInstance,31
+unorm2_getNFKDInstance,31
+unorm2_getRawDecomposition,31
+unorm2_hasBoundaryAfter,31
+unorm2_hasBoundaryBefore,31
+unorm2_isInert,31
+unorm2_isNormalized,31
+unorm2_normalize,31
+unorm2_normalizeSecondAndAppend,31
+unorm2_quickCheck,31
+unorm2_spanQuickCheckYes,31
+# Do not support reading app-supplied .nrm data file.
+#   unorm2_getInstance
+# The java counterpart android.icu.text.FilteredNormalizer2 is not a public API yet.
+#   unorm2_openFiltered
+uscript_breaksBetweenLetters,31
+uscript_getCode,31
+uscript_getName,31
+uscript_getSampleString,31
+uscript_getScript,31
+uscript_getScriptExtensions,31
+uscript_getShortName,31
+uscript_getUsage,31
+uscript_hasScript,31
+uscript_isCased,31
+uscript_isRightToLeft,31
+utext_char32At,31
+utext_clone,31
+utext_close,31
+utext_current32,31
+utext_equals,31
+utext_extract,31
+utext_getNativeIndex,31
+utext_moveIndex32,31
+utext_nativeLength,31
+utext_next32,31
+utext_next32From,31
+utext_openUChars,31
+utext_openUTF8,31
+utext_previous32,31
+utext_previous32From,31
+utext_setNativeIndex,31
+# Do not expose the following APIs because mutability of UText is not strictly required by the users
+# , e.g. when being used in UBreakIterator.
+#   utext_copy
+#   utext_freeze
+#   utext_isWritable
+#   utext_replace
+#   utext_setup
+# No strong use case of the following APIs is found yet.
+#   utext_getPreviousNativeIndex
+#   utext_hasMetaData
+#   utext_isLengthExpensive
+utrans_clone,T
+utrans_close,T
+utrans_openIDs,T
+utrans_openInverse,T
+utrans_openU,T
+utrans_setFilter,T
+utrans_toRules,T
+utrans_trans,T
+utrans_transIncremental,T
+utrans_transIncrementalUChars,T
+utrans_transUChars,T
+# Please expose the following API when USet API is exposed.
+#   utrans_getSourceSet

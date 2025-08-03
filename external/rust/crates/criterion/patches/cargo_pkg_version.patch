@@ -1,0 +1,15 @@
+--- a/src/connection.rs	2020-12-21 14:55:17.022985801 +0100
++++ b/src/connection.rs	2020-12-21 14:55:35.150841529 +0100
+@@ -84,9 +84,9 @@
+         hello_buf[0..BENCHMARK_MAGIC_NUMBER.len()]
+             .copy_from_slice(BENCHMARK_MAGIC_NUMBER.as_bytes());
+         let mut i = BENCHMARK_MAGIC_NUMBER.len();
+-        hello_buf[i] = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
+-        hello_buf[i + 1] = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap();
+-        hello_buf[i + 2] = env!("CARGO_PKG_VERSION_PATCH").parse().unwrap();
++        hello_buf[i] = 0;
++        hello_buf[i + 1] = 0;
++        hello_buf[i + 2] = 0;
+         i += 3;
+         hello_buf[i..i + 2].clone_from_slice(&PROTOCOL_VERSION.to_be_bytes());
+         i += 2;

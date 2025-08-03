@@ -1,0 +1,55 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// README:
+// - Before expanding the visiblity of any of the targets in this file,
+//   please add a test that covers the new dependencies in the TEST_MAPPING file
+//   of this directory. We cannot guarantee that ExoPlayer dependents will not
+//   be accidentally broken if it is not covered by presubmit.
+// - The names in this files follow the pattern exoplayer-dep_name[-module_name]
+//   where dep_name identifies the client, and module_name disambiguates the
+//   module for cases where necessary (example: The same client depends
+//   separately on two exoplayer modules).
+
+package {
+    default_applicable_licenses: ["external_ktfmt_license"],
+}
+
+
+license {
+    name: "external_ktfmt_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+java_binary_host {
+    name: "ktfmt",
+    manifest: "MANIFEST.mf",
+    srcs: ["core/src/main/**/*.kt"],
+    static_libs: [
+        "kotlin-stdlib-jdk7",
+        "kotlin-compiler-embeddable",
+        "google_java_format",
+        "guava",
+        "trove-prebuilt",
+        "jna-prebuilt",
+    ],
+}

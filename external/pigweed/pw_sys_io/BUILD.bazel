@@ -1,0 +1,79 @@
+# Copyright 2019 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load(
+    "//pw_build:pigweed.bzl",
+    "host_backend_alias",
+    "pw_cc_facade",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+constraint_setting(
+    name = "backend_constraint_setting",
+)
+
+pw_cc_facade(
+    name = "facade",
+    hdrs = ["public/pw_sys_io/sys_io.h"],
+    includes = ["public"],
+    deps = [
+        "//pw_bytes",
+        "//pw_status",
+    ],
+)
+
+cc_library(
+    name = "default_putget_bytes",
+    srcs = ["sys_io.cc"],
+    deps = [
+        ":facade",
+        "//pw_span",
+        "//pw_status",
+    ],
+)
+
+cc_library(
+    name = "pw_sys_io",
+    hdrs = ["public/pw_sys_io/sys_io.h"],
+    includes = ["public"],
+    deps = [
+        "//pw_bytes",
+        "//pw_status",
+        "@pigweed//targets:pw_sys_io_backend",
+    ],
+)
+
+alias(
+    name = "backend_multiplexer",
+    actual = select({
+        "//pw_sys_io_arduino:backend": "@pigweed//pw_sys_io_arduino",
+        "//pw_sys_io_baremetal_lm3s6965evb:backend": "@pigweed//pw_sys_io_baremetal_lm3s6965evb",
+        "//pw_sys_io_baremetal_stm32f429:backend": "@pigweed//pw_sys_io_baremetal_stm32f429",
+        "//pw_sys_io_emcraft_sf2:backend": "@pigweed//pw_sys_io_emcraft_sf2",
+        "//pw_sys_io_mcuxpresso:backend": "@pigweed//pw_sys_io_mcuxpresso",
+        "//pw_sys_io_rp2040:backend": "@pigweed//pw_sys_io_rp2040",
+        "//pw_sys_io_stm32cube:backend": "@pigweed//pw_sys_io_stm32cube",
+        "//pw_sys_io_stdio:backend": "@pigweed//pw_sys_io_stdio",
+        "//conditions:default": ":unspecified_backend",
+    }),
+    visibility = ["@pigweed//targets:__pkg__"],
+)
+
+host_backend_alias(
+    name = "unspecified_backend",
+    backend = "@pigweed//pw_sys_io_stdio",
+)

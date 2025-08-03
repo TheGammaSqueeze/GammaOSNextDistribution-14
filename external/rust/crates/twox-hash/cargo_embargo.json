@@ -1,0 +1,4 @@
+{
+  "tests": true,
+  "module_blocklist": ["hash_file"]
+}

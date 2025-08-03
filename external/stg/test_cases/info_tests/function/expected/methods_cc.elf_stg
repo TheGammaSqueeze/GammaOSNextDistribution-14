@@ -1,0 +1,121 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x07c134ac
+  kind: POINTER
+  pointee_type_id: 0x3544342c
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+member {
+  id: 0xa04e65cb
+  name: "x"
+  type_id: 0xfc0e1dbd
+}
+struct_union {
+  id: 0x3544342c
+  kind: STRUCT
+  name: "Func"
+  definition {
+    bytesize: 8
+    member_id: 0xa04e65cb
+  }
+}
+function {
+  id: 0x9c70ae04
+  return_type_id: 0x6720d32f
+  parameter_id: 0x07c134ac
+}
+function {
+  id: 0x9dec2d48
+  return_type_id: 0x6720d32f
+  parameter_id: 0x07c134ac
+  parameter_id: 0x6720d32f
+}
+function {
+  id: 0x9f809672
+  return_type_id: 0x6720d32f
+  parameter_id: 0x07c134ac
+  parameter_id: 0xfc0e1dbd
+}
+function {
+  id: 0xa6d076b2
+  return_type_id: 0xfc0e1dbd
+  parameter_id: 0x07c134ac
+}
+elf_symbol {
+  id: 0x905e5cdc
+  name: "_ZN4Func10remove_parEv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c70ae04
+  full_name: "Func::remove_par"
+}
+elf_symbol {
+  id: 0xb2a4b8f4
+  name: "_ZN4Func10rename_newEv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9c70ae04
+  full_name: "Func::rename_new"
+}
+elf_symbol {
+  id: 0x3f2e69f4
+  name: "_ZN4Func15change_par_nameEi"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9dec2d48
+  full_name: "Func::change_par_name"
+}
+elf_symbol {
+  id: 0xae78d7be
+  name: "_ZN4Func15change_par_typeEl"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9f809672
+  full_name: "Func::change_par_type"
+}
+elf_symbol {
+  id: 0x6168ec15
+  name: "_ZN4Func18change_return_typeEv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xa6d076b2
+  full_name: "Func::change_return_type"
+}
+elf_symbol {
+  id: 0x5f3f90d1
+  name: "_ZN4Func7add_parEi"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9dec2d48
+  full_name: "Func::add_par"
+}
+elf_symbol {
+  id: 0x3997c6eb
+  name: "var"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x3544342c
+  full_name: "var"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x905e5cdc
+  symbol_id: 0xb2a4b8f4
+  symbol_id: 0x3f2e69f4
+  symbol_id: 0xae78d7be
+  symbol_id: 0x6168ec15
+  symbol_id: 0x5f3f90d1
+  symbol_id: 0x3997c6eb
+}

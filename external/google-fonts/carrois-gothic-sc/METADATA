@@ -1,0 +1,16 @@
+name: "carrois-gothic-sc"
+description: "Carrois Gothic is a well balanced and modern gothic type family. Clean and beautiful. What more do you need? This is the Small Caps sister family to the regular family, useful for all noble and significant applications."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/fonts/tree/main/ofl/carroisgothicsc"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/fonts"
+  }
+  version: "1.002"
+  last_upgrade_date { year: 2023 month: 3 day: 13 }
+  license_type: NOTICE
+}

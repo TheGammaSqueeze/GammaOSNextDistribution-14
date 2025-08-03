@@ -1,0 +1,15 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 42126dd..f37ed52 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -247,6 +247,10 @@
+ #[rustfmt::skip]
+ mod tables;
+ 
++/// Use std to allow building as a dylib.
++#[cfg(android_dylib)]
++extern crate std;
++
+ use crate::tables::{ASCII_CONTINUE, ASCII_START, CHUNK, LEAF, TRIE_CONTINUE, TRIE_START};
+ 
+ pub fn is_xid_start(ch: char) -> bool {

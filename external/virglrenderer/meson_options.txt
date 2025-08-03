@@ -1,0 +1,121 @@
+#############################################################################
+#
+# Copyright (C) 2019 Collabora Ltd
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the "Software"),
+# to deal in the Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# and/or sell copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+#
+
+option(
+  'platforms',
+  type : 'array',
+  value : ['auto'],
+  choices : [
+    'egl', 'glx', 'auto'
+  ],
+  description : 'Platforms support, set to auto to enable all.'
+)
+
+option(
+  'minigbm_allocation',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable support for minigbm_allocations'
+)
+
+option(
+  'venus-experimental',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable support for venus'
+)
+
+option(
+  'venus-validate',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable the validation layer for venus'
+)
+
+option(
+  'check-gl-errors',
+  type : 'boolean',
+  value : 'true',
+  description : 'treat host-side gl errors as fatal'
+)
+
+# NOTE: expecting some slight fencing changes between host and guest
+# once ring_idx is plumbed through crosvm (ie. synchronizing between
+# host CPU and guest CPU will be a separate fence timeline)
+option(
+  'drm-msm-experimental',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable support for msm drm native context'
+)
+
+option(
+  'render-server',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable support for render server'
+)
+
+option(
+  'render-server-worker',
+  type : 'combo',
+  value : 'process',
+  choices : ['process', 'thread', 'minijail'],
+  description : 'how a context in render server is serviced'
+)
+
+option(
+  'video',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable support for hardware video acceleration'
+)
+
+option(
+  'tests',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable unit tests'
+)
+
+option(
+  'fuzzer',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable unit tests'
+)
+
+option(
+  'valgrind',
+  type : 'boolean',
+  value : 'false',
+  description : 'enable running unit tests with valgrind'
+)
+
+option(
+  'tracing',
+  type : 'combo',
+  value : 'none',
+  choices : [ 'percetto', 'perfetto', 'stderr', 'none' ],
+  description : 'enable emitting traces using the selected backend'
+)

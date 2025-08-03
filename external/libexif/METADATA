@@ -1,0 +1,18 @@
+name: "libexif"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://libexif.github.io/"
+  }
+  url {
+    type: ARCHIVE
+    value: "http://sourceforge.net/projects/libexif/files/libexif/0.6.21/libexif-0.6.21.tar.gz"
+  }
+  version: "0.6.21"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2015
+    month: 06
+    day: 02
+  }
+}

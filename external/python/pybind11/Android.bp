@@ -1,0 +1,29 @@
+package {
+    default_applicable_licenses: ["external_python_pybind11_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_python_pybind11_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_headers {
+    name: "pybind11_headers",
+    host_supported: true,
+    export_include_dirs: ["include"],
+    // Python Native extensions are not supported in AOSP so this library
+    // is not supported.
+    // Therefore, only allow the current set of users, and block anyone
+    // else.
+    visibility: [
+        "//packages/modules/Bluetooth/system/gd",
+    ],
+}

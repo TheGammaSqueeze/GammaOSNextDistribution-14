@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out xmlns:a="name-a" xmlns:b="name-b" xmlns:c="namc-c">
+
+<a:root/>
+	<a>name-a</a>,
+	<xml>http://www.w3.org/XML/1998/namespace</xml>,
+
+<b:sub/>
+	<a>name-a</a>,
+	<b>name-b</b>,
+	<xml>http://www.w3.org/XML/1998/namespace</xml>,
+
+<c:sub/>
+	<a>name-a</a>,
+	<c>name-c</c>,
+	<xml>http://www.w3.org/XML/1998/namespace</xml>,
+</out>

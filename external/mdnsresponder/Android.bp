@@ -1,0 +1,205 @@
+package {
+    default_applicable_licenses: ["external_mdnsresponder_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_mdnsresponder_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-NCSA",
+        "SPDX-license-identifier-OpenSSL",
+        "legacy_notice",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "mdnsresponder_default_cflags",
+
+    cflags: [
+        "-O2",
+        "-g",
+        "-fno-strict-aliasing",
+        "-fwrapv",
+        "-D_GNU_SOURCE",
+        "-DHAVE_IPV6",
+        "-DNOT_HAVE_SA_LEN",
+        "-DPLATFORM_NO_RLIMIT",
+        "-DMDNS_DEBUGMSGS=0",
+        "-DMDNS_UDS_SERVERPATH=\"/dev/socket/mdnsd\"",
+        "-DMDNS_USERNAME=\"mdnsr\"",
+        "-W",
+        "-Wall",
+        "-Wextra",
+        "-Wno-address-of-packed-member",
+        "-Wno-array-bounds",
+        "-Wno-pointer-sign",
+        "-Wno-unused",
+        "-Wno-unused-but-set-variable",
+        "-Wno-unused-parameter",
+        "-Werror=implicit-function-declaration",
+    ],
+    target: {
+        linux: {
+            cflags: [
+                "-DTARGET_OS_LINUX",
+                "-DHAVE_LINUX",
+                "-DUSES_NETLINK",
+                "-Werror",
+            ],
+        },
+        darwin: {
+            cflags: [
+                "-DTARGET_OS_MAC",
+                "-DMDNS_UDS_SERVERPATH=\"/var/run/mDNSResponder\"",
+                "-Wno-error",
+            ],
+        },
+        windows: {
+            enabled: true,
+            cflags: [
+                "-DTARGET_OS_WINDOWS",
+                "-DWIN32",
+                "-DNDEBUG",
+                "-D_WIN32_LEAN_AND_MEAN",
+                "-DUSE_TCP_LOOPBACK",
+                "-D_CRT_SECURE_NO_DEPRECATE",
+                "-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1",
+                "-Wno-error",
+                "-Wno-sign-compare",
+                "-include stdint.h",
+                "-include winsock2.h",
+                "-include ws2ipdef.h",
+                "-include wincrypt.h",
+                "-include netioapi.h",
+            ],
+            local_include_dirs: [
+                "mDNSWindows",
+                "android/caseMapping",
+            ],
+        },
+    },
+}
+
+cc_binary {
+    name: "mdnsd",
+    defaults: ["mdnsresponder_default_cflags"],
+    srcs: [
+        "mDNSCore/DNSCommon.c",
+        "mDNSCore/DNSDigest.c",
+        "mDNSCore/mDNS.c",
+        "mDNSCore/uDNS.c",
+        "mDNSPosix/mDNSPosix.c",
+        "mDNSPosix/mDNSUNP.c",
+        "mDNSPosix/PosixDaemon.c",
+        "mDNSShared/dnssd_ipc.c",
+        "mDNSShared/GenLinkedList.c",
+        "mDNSShared/mDNSDebug.c",
+        "mDNSShared/PlatformCommon.c",
+        "mDNSShared/uds_daemon.c",
+    ],
+
+    local_include_dirs: [
+        "mDNSCore",
+        "mDNSPosix",
+        "mDNSShared",
+    ],
+    init_rc: ["mdnsd.rc"],
+
+    cflags: ["-DMDNS_VERSIONSTR_NODTS=1"],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+    ],
+}
+
+//#########################
+
+cc_library {
+    name: "libmdnssd",
+    defaults: ["mdnsresponder_default_cflags"],
+    host_supported: true,
+    recovery_available: true,
+    srcs: [
+        "mDNSShared/dnssd_clientlib.c",
+        "mDNSShared/dnssd_clientstub.c",
+        "mDNSShared/dnssd_ipc.c",
+    ],
+
+    target: {
+        host: {
+            shared: {
+                enabled: false,
+            },
+        },
+        windows: {
+            srcs: ["mDNSWindows/DLL/dllmain.c"],
+
+            cflags: [
+                "-D_WINDOWS",
+                "-D_USERDLL",
+                "-D_MDNS_DEBUGMSGS=0",
+                "-D_SSIZE_T",
+                "-DNOT_HAVE_SA_LENGTH",
+                "-Wno-unknown-pragmas",
+                "-Wno-overflow",
+                "-Wno-pragma-pack",
+                "-include iphlpapi.h",
+                "-include stdlib.h",
+                "-include stdio.h",
+            ],
+        },
+    },
+
+    export_include_dirs: ["mDNSShared"],
+
+    static_libs: ["libcutils"],
+    shared_libs: ["liblog"],
+
+    min_sdk_version: "apex_inherit",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adbd",
+    ],
+    visibility: [
+        "//bootable/recovery/minadbd:__subpackages__",
+        "//packages/modules/adb:__subpackages__",
+    ],
+}
+
+//###########################
+
+cc_binary {
+    name: "dnssd",
+    defaults: ["mdnsresponder_default_cflags"],
+    srcs: [
+        "Clients/dns-sd.c",
+        "Clients/ClientCommon.c",
+    ],
+
+    system_shared_libs: ["libc", "libdl"],
+    shared_libs: [
+        "libmdnssd",
+        "libcutils",
+        "liblog",
+    ],
+}

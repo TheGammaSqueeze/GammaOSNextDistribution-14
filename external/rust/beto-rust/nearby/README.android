@@ -1,0 +1,21 @@
+# Import process
+
+1. `git pull` to pull a new version from sso://team/beto-rust-devs/beto-rust
+
+## If the dependency tree did not change significantly
+
+2. It will be easier to manually update the Android.bp file to include the new dependencies.
+   For each new library that is needed, add it to the `rustlibs` section of the build rule. The
+   build rule is typically `lib<crate_name>`, but sometimes variants with different features exist,
+   in which case you will have to look up the target name in the relevent `Android.bp` file in code
+   search.
+
+## If the dependency tree changed significantly
+
+2. Locally check out the `beto-core-staging` project, and run `scripts/prepare-boringssl.sh`.
+4. Modify `.cargo/config.toml` to point to the external `rust-openssl` and `bssl-sys` crates.
+5. Run `cargo2android.py --config cargo2android.json`
+6. There are probably going to be merge conflicts. Fix them manually. Remove the
+   "Do not modify this file" comment added by cargo2android.json
+7. Also modify `patches/Android.bp.patch` to include your manual changes.
+8. Remove `cargo.out` and `target.tmp`, as those should not be checked in

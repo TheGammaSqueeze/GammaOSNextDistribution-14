@@ -1,0 +1,148 @@
+#
+# Copyright © 2017 Arm Ltd and Contributors. All rights reserved.
+# SPDX-License-Identifier: MIT
+#
+
+list(APPEND armnnClBackendWorkloads_sources
+    ClAbsWorkload.cpp
+    ClAbsWorkload.hpp
+    ClActivationWorkload.cpp
+    ClActivationWorkload.hpp
+    ClAdditionWorkload.cpp
+    ClAdditionWorkload.hpp
+    ClArgMinMaxWorkload.cpp
+    ClArgMinMaxWorkload.hpp
+    ClBatchMatMulWorkload.cpp
+    ClBatchMatMulWorkload.hpp
+    ClBatchNormalizationFloatWorkload.cpp
+    ClBatchNormalizationFloatWorkload.hpp
+    ClBatchToSpaceNdWorkload.cpp
+    ClBatchToSpaceNdWorkload.hpp
+    ClCastWorkload.cpp
+    ClCastWorkload.hpp
+    ClChannelShuffleWorkload.cpp
+    ClChannelShuffleWorkload.hpp
+    ClComparisonWorkload.cpp
+    ClComparisonWorkload.hpp
+    ClConcatWorkload.cpp
+    ClConcatWorkload.hpp
+    ClConstantWorkload.cpp
+    ClConstantWorkload.hpp
+    ClConvertFp16ToFp32Workload.cpp
+    ClConvertFp16ToFp32Workload.hpp
+    ClConvertFp32ToFp16Workload.cpp
+    ClConvertFp32ToFp16Workload.hpp
+    ClConvolution2dWorkload.cpp
+    ClConvolution2dWorkload.hpp
+    ClConvolution3dWorkload.cpp
+    ClConvolution3dWorkload.hpp
+    ClDepthToSpaceWorkload.cpp
+    ClDepthToSpaceWorkload.hpp
+    ClDepthwiseConvolutionWorkload.cpp
+    ClDepthwiseConvolutionWorkload.hpp
+    ClDequantizeWorkload.cpp
+    ClDequantizeWorkload.hpp
+    ClDivisionWorkload.cpp
+    ClDivisionWorkload.hpp
+    ClExpWorkload.cpp
+    ClExpWorkload.hpp
+    ClFillWorkload.cpp
+    ClFillWorkload.hpp
+    ClFloorFloatWorkload.cpp
+    ClFloorFloatWorkload.hpp
+    ClFullyConnectedWorkload.cpp
+    ClFullyConnectedWorkload.hpp
+    ClGatherWorkload.cpp
+    ClGatherWorkload.hpp
+    ClGatherNdWorkload.cpp
+    ClGatherNdWorkload.hpp
+    ClInstanceNormalizationWorkload.cpp
+    ClInstanceNormalizationWorkload.hpp
+    ClLogWorkload.cpp
+    ClLogWorkload.hpp
+    ClL2NormalizationFloatWorkload.cpp
+    ClL2NormalizationFloatWorkload.hpp
+    ClLogicalAndWorkload.cpp
+    ClLogicalAndWorkload.hpp
+    ClLogicalNotWorkload.cpp
+    ClLogicalNotWorkload.hpp
+    ClLogicalOrWorkload.cpp
+    ClLogicalOrWorkload.hpp
+    ClLogSoftmaxWorkload.cpp
+    ClLogSoftmaxWorkload.hpp
+    ClLstmFloatWorkload.cpp
+    ClLstmFloatWorkload.hpp
+    ClMaximumWorkload.cpp
+    ClMaximumWorkload.hpp
+    ClMeanWorkload.cpp
+    ClMeanWorkload.hpp
+    ClMinimumWorkload.cpp
+    ClMinimumWorkload.hpp
+    ClMultiplicationWorkload.cpp
+    ClMultiplicationWorkload.hpp
+    ClNegWorkload.cpp
+    ClNegWorkload.hpp
+    ClNormalizationFloatWorkload.cpp
+    ClNormalizationFloatWorkload.hpp
+    ClPadWorkload.cpp
+    ClPadWorkload.hpp
+    ClPermuteWorkload.cpp
+    ClPermuteWorkload.hpp
+    ClPooling2dWorkload.cpp
+    ClPooling2dWorkload.hpp
+    ClPooling3dWorkload.cpp
+    ClPooling3dWorkload.hpp
+    ClPreluWorkload.cpp
+    ClPreluWorkload.hpp
+    ClQLstmWorkload.cpp
+    ClQLstmWorkload.hpp
+    ClQuantizedLstmWorkload.cpp
+    ClQuantizedLstmWorkload.hpp
+    ClQuantizeWorkload.cpp
+    ClQuantizeWorkload.hpp
+    ClRankWorkload.hpp
+    ClReduceWorkload.cpp
+    ClReduceWorkload.hpp
+    ClReshapeWorkload.cpp
+    ClReshapeWorkload.hpp
+    ClResizeWorkload.cpp
+    ClResizeWorkload.hpp
+    ClRsqrtWorkload.cpp
+    ClRsqrtWorkload.hpp
+    ClSinWorkload.cpp
+    ClSinWorkload.hpp
+    ClSliceWorkload.cpp
+    ClSliceWorkload.hpp
+    ClSoftmaxWorkload.cpp
+    ClSoftmaxWorkload.hpp
+    ClSpaceToBatchNdWorkload.hpp
+    ClSpaceToBatchNdWorkload.cpp
+    ClSpaceToDepthWorkload.cpp
+    ClSpaceToDepthWorkload.hpp
+    ClSplitterWorkload.cpp
+    ClSplitterWorkload.hpp
+    ClSqrtWorkload.cpp
+    ClSqrtWorkload.hpp
+    ClStackWorkload.cpp
+    ClStackWorkload.hpp
+    ClStridedSliceWorkload.cpp
+    ClStridedSliceWorkload.hpp
+    ClSubtractionWorkload.cpp
+    ClSubtractionWorkload.hpp
+    ClTransposeConvolution2dWorkload.cpp
+    ClTransposeConvolution2dWorkload.hpp
+    ClTransposeWorkload.cpp
+    ClTransposeWorkload.hpp
+    ClUnidirectionalSequenceLstmFloatWorkload.cpp
+    ClUnidirectionalSequenceLstmFloatWorkload.hpp
+    ClWorkloads.hpp
+    ClWorkloadUtils.hpp
+)
+
+add_library(armnnClBackendWorkloads OBJECT ${armnnClBackendWorkloads_sources})
+target_include_directories(armnnClBackendWorkloads PRIVATE ${PROJECT_SOURCE_DIR}/src/armnn)
+target_include_directories(armnnClBackendWorkloads PRIVATE ${PROJECT_SOURCE_DIR}/src/armnnUtils)
+target_include_directories(armnnClBackendWorkloads PRIVATE ${PROJECT_SOURCE_DIR}/src/backends)
+target_include_directories(armnnClBackendWorkloads PRIVATE ${PROJECT_SOURCE_DIR}/src/profiling)
+target_include_directories(armnnClBackendWorkloads PRIVATE ${PROJECT_SOURCE_DIR}/profiling/common/include)
+target_include_directories(armnnClBackendWorkloads PRIVATE ${PROJECT_SOURCE_DIR}/profiling/client/include)

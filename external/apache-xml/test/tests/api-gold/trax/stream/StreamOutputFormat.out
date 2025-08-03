@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE out PUBLIC "this-is-doctype-public" "this-is-doctype-system">
+<out>
+<cdataHere><![CDATA[CDATA? or not?]]></cdataHere>foo<cdataHere><![CDATA[CDATA? or not?]]></cdataHere>
+<out2>bar<selector>
+    <item number="1">one</item>
+    <item value="two">2</item>
+  </selector>
+</out2>
+</out>

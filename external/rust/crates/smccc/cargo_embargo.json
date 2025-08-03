@@ -1,0 +1,11 @@
+{
+  "package": {
+    "smccc": {
+      "force_rlib": true,
+      "host_supported": false,
+      "no_std": true
+    }
+  },
+  "run_cargo": false,
+  "tests": true
+}

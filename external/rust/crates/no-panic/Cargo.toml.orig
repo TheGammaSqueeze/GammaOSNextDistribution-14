@@ -1,0 +1,31 @@
+[package]
+name = "no-panic"
+version = "0.1.26"
+authors = ["David Tolnay <dtolnay@gmail.com>"]
+categories = ["no-std", "no-std::no-alloc"]
+description = "Attribute macro to require that the compiler prove a function can't ever panic."
+documentation = "https://docs.rs/no-panic"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/dtolnay/no-panic"
+rust-version = "1.56"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.63"
+quote = "1.0.29"
+syn = { version = "2.0.23", features = ["full"] }
+
+[dev-dependencies]
+rustversion = "1.0.13"
+tempfile = "3.6"
+trybuild = { version = "1.0.81", features = ["diff"] }
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+rustdoc-args = ["--generate-link-to-definition"]
+
+[workspace]
+members = ["noexcept", "noexcept-impl"]

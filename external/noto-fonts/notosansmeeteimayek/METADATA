@@ -1,0 +1,13 @@
+name: "notosansmeeteimayek"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans MeeteiMayek is an unmodulated (“sans serif”) design fortexts in the Indic Meetei Mayek (Meitei) script. It has multipleweights and 92 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansmeeteimayek"
+  }
+  version: "1.040"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

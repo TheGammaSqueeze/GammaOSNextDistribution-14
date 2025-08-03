@@ -1,0 +1,121 @@
+package {
+    default_applicable_licenses: ["external_gptfdisk_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_gptfdisk_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+    ],
+    license_text: [
+        "COPYING",
+    ],
+}
+
+cc_defaults {
+    name: "gptfdisk_default_flags",
+    cflags: [
+        "-Wno-unused-parameter",
+        "-Wno-macro-redefined",
+        "-Wno-pragma-pack",
+        "-Werror",
+        "-fPIC",
+        "-D_FILE_OFFSET_BITS=64",
+    ],
+    // This project requires _FILE_OFFSET_BITS=64, which isn't globally
+    // true for 32-bit Android builds. It's safe here because the libraries
+    // built by this build file aren't exported. If that changes, you'll
+    // need to come up with a plan (probably either upstreaming better 32-bit
+    // support, or waiting until we no longer support 32-bit either).
+    visibility: [":__subpackages__"],
+}
+
+cc_binary {
+    name: "sgdisk",
+    defaults: ["gptfdisk_default_flags"],
+    host_supported: true,
+
+    srcs: [
+        "sgdisk.cc",
+    ],
+
+    shared_libs: ["libext2_uuid"],
+    static_libs: ["libgptf"],
+    recovery_available: true,
+}
+
+lib_common_srcs = [
+    "gptcl.cc",
+    "crc32.cc",
+    "support.cc",
+    "guid.cc",
+    "gptpart.cc",
+    "mbrpart.cc",
+    "basicmbr.cc",
+    "mbr.cc",
+    "gpt.cc",
+    "bsd.cc",
+    "parttypes.cc",
+    "attributes.cc",
+    "diskio.cc",
+    "android_popt.cc",
+]
+
+cc_library_static {
+    name: "libgptf",
+    defaults: ["gptfdisk_default_flags"],
+    host_supported: true,
+    recovery_available: true,
+
+    export_include_dirs: ["."],
+    srcs: lib_common_srcs + ["diskio-unix.cc"],
+
+    shared_libs: ["libext2_uuid"],
+}
+
+cc_library_static {
+    name: "libgptf_fuzzer_lib",
+    defaults: ["gptfdisk_default_flags"],
+    host_supported: true,
+
+    export_include_dirs: ["."],
+    srcs: lib_common_srcs + ["diskio-heap.cc"],
+    cflags: ["-DENABLE_HEAP_DISKIO"],
+
+    shared_libs: ["libext2_uuid"],
+}
+
+cc_library {
+    name: "libsgdisk",
+    recovery_available: true,
+
+    defaults: ["gptfdisk_default_flags"],
+
+    srcs: [
+        "sgdisk.cc",
+    ],
+    cflags: [
+        "-Dmain=sgdisk_main",
+    ],
+
+    shared_libs: ["libext2_uuid"],
+    static_libs: ["libgptf"],
+    visibility: ["//bootable/recovery/volume_manager"],
+}

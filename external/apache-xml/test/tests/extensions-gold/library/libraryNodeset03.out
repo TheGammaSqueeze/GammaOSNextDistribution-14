@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<CountDOCELEM>2</CountDOCELEM>
+<CountELEM2andELEM3>10</CountELEM2andELEM3>
+<SumELEM2>10</SumELEM2>
+<NumberELEM2>1234</NumberELEM2>
+<NameBTM>BTM:BreakingTheMold</NameBTM>
+<LocalNameBTM>BreakingTheMold</LocalNameBTM>
+<Namespace-URIs uri1="http://www.extension03.test" uri2="www.btm.com"/>
+<ValueDOCELEM-STAR>Elem3.1NS-Elem3.2Elem3.3NS-Elem3.4</ValueDOCELEM-STAR>
+<ValueELEM4>NS-Elem4.4</ValueELEM4>
+<ValueTESTELEM4-1>NS-Elem4.2</ValueTESTELEM4-1>
+<SlashSlashELEM4>Elem4.1</SlashSlashELEM4>
+<SlashSlashELEM4-2Attrs-2>P</SlashSlashELEM4-2Attrs-2>
+<Axis_Tests>
+<Ancestor>
+<docelem/>
+<elem1/>
+</Ancestor>
+<Ancestor-or-Self>
+<docelem/>
+<elem1/>
+<BTM:BreakingTheMold xmlns:BTM="www.btm.com"/>
+</Ancestor-or-Self>
+<Attribute attr1="Q" attr2="P" attr3="O"/>
+<Child>
+<elem1/>
+<elem1/>
+<elem1/>
+</Child>
+<Descendant>
+<elem2/>
+<elem2/>
+<elem2/>
+<elem2/>
+<BTM:BreakingTheMold xmlns:BTM="www.btm.com"/>
+</Descendant>
+<Descendant-or-Self>
+<elem1/>
+<elem2/>
+<elem2/>
+<elem2/>
+<elem2/>
+<BTM:BreakingTheMold xmlns:BTM="www.btm.com"/>
+</Descendant-or-Self>
+<Following/>
+<Following-Sibling/>
+<Namespace xmlns:test="http://www.extension03.test" xmlns:BTM="www.btm.com"/>
+<Parent0/>
+<Parent1>elem2</Parent1>
+<Preceding>test:elem3</Preceding>
+<Preceding-Sibling>1</Preceding-Sibling>
+<Self>BTM:BreakingTheMold</Self>
+</Axis_Tests>
+<AT-Elem3-Elem4/>
+<AT-NSElem3-NSElem4/>
+<AT-Elem3-NSElem4/>
+<FE-FE-AT-Mode/>
+<CopyElem1-1/>
+<CopyElem3-2/>
+<Copy-of-RTF>
+<docelem xmlns="http://www.hello.com">
+<elem3>1</elem3>
+<elem3>2</elem3>
+<test:elem3 xmlns:test="http://www.extension03.test">
+<elem3a/>
+</test:elem3>
+<elem3>4</elem3>
+</docelem>
+</Copy-of-RTF>
+<Copy-of-TEST-ELEM3>
+<test:elem3 xmlns:test="http://www.extension03.test" xmlns="http://www.hello.com">
+<elem3a/>
+</test:elem3>
+</Copy-of-TEST-ELEM3>
+</out>

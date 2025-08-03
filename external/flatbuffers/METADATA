@@ -1,0 +1,19 @@
+name: "flatbuffers"
+description: "FlatBuffers is an efficient cross platform serialization library for C++, C#, C, Go, Java, JavaScript, TypeScript, PHP, and Python."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "http://google.github.io/flatbuffers/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/flatbuffers.git"
+  }
+  version: "v2.0.7"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 8
+    day: 25
+  }
+}

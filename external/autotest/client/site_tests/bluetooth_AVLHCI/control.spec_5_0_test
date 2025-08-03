@@ -1,0 +1,29 @@
+# Lint as: python3
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = (
+    'Rajaa Abdallah <rajaa.abdallah@exalt.ps>, '
+    'Mohammad Sabri <mohammad.kh.sabri@exalt.ps>')
+NAME = 'bluetooth_AVLHCI.spec_5_0_test'
+ATTRIBUTES = 'suite:bluetooth_flaky'
+PURPOSE = 'Tests the Bluetooth v5.0 specification of Bluetooth AVL requirements'
+CRITERIA = 'all subtests passed'
+TIME = 'SHORT'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'client'
+PY_VERSION = 3
+
+DOC = """
+    This class can be called to run bluetooth_AVLHCI.spec_5_0_test
+
+    This test contains these subtests:
+        test_le_extended_advertising_feature()
+        test_advertisement_sets_number()
+        test_le_two_mega_physical_channel_feature()
+
+    """
+
+job.run_test('bluetooth_AVLHCI', test_name=NAME.split('.')[1])

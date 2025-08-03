@@ -1,0 +1,57 @@
+/*
+ * Copyright (C) 2022. Uber Technologies
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+plugins {
+    id 'java-library'
+    id 'nullaway.java-test-conventions'
+}
+
+// We need this separate build target to test newer versions of Guava
+// (e.g. 31+) than that which NullAway currently depends on.
+
+dependencies {
+    testImplementation project(":nullaway")
+    testImplementation deps.test.junit4
+    testImplementation(deps.build.errorProneTestHelpers) {
+        exclude group: "junit", module: "junit"
+    }
+    testImplementation deps.build.jsr305Annotations
+    testImplementation "com.google.guava:guava:31.1-jre"
+}
+
+// Create a task to test on JDK 8
+def jdk8Test = tasks.register("testJdk8", Test) {
+    onlyIf {
+        // Only if we are using a version of Error Prone compatible with JDK 8
+        deps.versions.errorProneApi == "2.10.0"
+    }
+
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+
+    description = "Runs the test suite on JDK 8"
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+
+    // Copy inputs from normal Test task.
+    def testTask = tasks.getByName("test")
+    classpath = testTask.classpath
+    testClassesDirs = testTask.testClassesDirs
+    jvmArgs "-Xbootclasspath/p:${configurations.errorproneJavac.asPath}"
+}
+
+tasks.named('check').configure {
+    dependsOn(jdk8Test)
+}

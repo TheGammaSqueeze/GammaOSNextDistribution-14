@@ -1,0 +1,4 @@
+{
+  "features": "std,alloc,race",
+  "patch": "patches/rules.mk.diff"
+}

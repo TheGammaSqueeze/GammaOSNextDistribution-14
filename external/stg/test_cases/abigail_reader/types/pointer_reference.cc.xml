@@ -1,0 +1,42 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='a' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='b' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='c' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='d' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='e' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='f' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='h' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='i' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='j' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='k' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='pointer_reference.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <class-decl name='foo' size-in-bits='64' is-struct='yes' visibility='default' id='3f46facf'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <qualified-type-def type-id='3f46facf' const='yes' id='5a6bc354'/>
+    <reference-type-def kind='lvalue' type-id='5a6bc354' size-in-bits='64' id='c9a4ac76'/>
+    <pointer-type-def type-id='5a6bc354' size-in-bits='64' id='d5a4bf5a'/>
+    <reference-type-def kind='lvalue' type-id='d5a4bf5a' size-in-bits='64' id='ce597034'/>
+    <pointer-type-def type-id='d5a4bf5a' size-in-bits='64' id='c2595d50'/>
+    <reference-type-def kind='lvalue' type-id='3f46facf' size-in-bits='64' id='7b50d563'/>
+    <pointer-type-def type-id='3f46facf' size-in-bits='64' id='8750e847'/>
+    <reference-type-def kind='lvalue' type-id='8750e847' size-in-bits='64' id='655dd0b3'/>
+    <pointer-type-def type-id='8750e847' size-in-bits='64' id='715de397'/>
+    <var-decl name='a' type-id='95e97e5e' mangled-name='a' visibility='default' elf-symbol-id='a'/>
+    <var-decl name='b' type-id='3f46facf' mangled-name='b' visibility='default' elf-symbol-id='b'/>
+    <var-decl name='c' type-id='8750e847' mangled-name='c' visibility='default' elf-symbol-id='c'/>
+    <var-decl name='d' type-id='7b50d563' mangled-name='d' visibility='default' elf-symbol-id='d'/>
+    <var-decl name='e' type-id='715de397' mangled-name='e' visibility='default' elf-symbol-id='e'/>
+    <var-decl name='f' type-id='655dd0b3' mangled-name='f' visibility='default' elf-symbol-id='f'/>
+    <var-decl name='h' type-id='d5a4bf5a' mangled-name='h' visibility='default' elf-symbol-id='h'/>
+    <var-decl name='i' type-id='c9a4ac76' mangled-name='i' visibility='default' elf-symbol-id='i'/>
+    <var-decl name='j' type-id='c2595d50' mangled-name='j' visibility='default' elf-symbol-id='j'/>
+    <var-decl name='k' type-id='ce597034' mangled-name='k' visibility='default' elf-symbol-id='k'/>
+  </abi-instr>
+</abi-corpus>

@@ -1,0 +1,24 @@
+diff --git a/tests/bigint_scalar.rs b/tests/bigint_scalar.rs
+index 2a19faf..a4348f4 100644
+--- a/tests/bigint_scalar.rs
++++ b/tests/bigint_scalar.rs
+@@ -149,6 +149,7 @@ fn test_scalar_div_rem() {
+ }
+ 
+ #[test]
++#[ignore = "Android sometimes uses panic_abort"]
+ fn test_scalar_div_rem_zero() {
+     catch_unwind(|| BigInt::zero() / 0u32).unwrap_err();
+     catch_unwind(|| BigInt::zero() % 0u32).unwrap_err();
+diff --git a/tests/biguint_scalar.rs b/tests/biguint_scalar.rs
+index 7c34f7e..5b9f3ea 100644
+--- a/tests/biguint_scalar.rs
++++ b/tests/biguint_scalar.rs
+@@ -115,6 +115,7 @@ fn test_scalar_div_rem() {
+ }
+ 
+ #[test]
++#[ignore = "Android sometimes uses panic_abort"]
+ fn test_scalar_div_rem_zero() {
+     catch_unwind(|| BigUint::zero() / 0u32).unwrap_err();
+     catch_unwind(|| BigUint::zero() % 0u32).unwrap_err();

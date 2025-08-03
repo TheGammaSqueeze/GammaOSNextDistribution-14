@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package google.internal.federated.plan;
+
+import "fcp/protos/plan.proto";
+
+option java_package = "com.google.internal.federated.plan";
+option java_outer_classname = "SelectionCriteriaProto";
+
+// Schema information describing a column in the client execution context.
+message ColumnSchema {
+  // The column name.
+  string name = 1;
+
+  // ExampleQuery output vector data type. When generating results for
+  // the Lightweight client, client query results will be encoded using
+  // this type.
+  // These types are only populated for the SQL query output columns.
+  google.internal.federated.plan.ExampleQuerySpec.OutputVectorSpec.DataType
+      type = 2;
+}
+
+message SqlQuery {
+  // Supported SQL dialects.
+  enum SqlDialect {
+    UNKNOWN = 0;
+    SQLITE = 1;
+    // TODO(b/178190670) Currently only SQLite is supported, as Android clients
+    // can only execute via SQLite.
+  }
+
+  // The SQL dialect the query is expressed in.
+  SqlDialect sql_dialect = 1;
+
+  // The raw SQL query string.
+  string raw_sql = 2;
+
+  // Schema information for the client SQL query output columns.
+  repeated ColumnSchema output_columns = 3;
+}
+
+// A set of SQL queries that run on the client with the same inputs. They share
+// a database schema.
+message SqlQuerySet {
+  // Map of query names to SQL queries.
+  map<string, SqlQuery> sql_queries = 1;
+}
+
+// Selection criteria sent to Brella clients for SQL tasks. Contains the
+// query that the FedSqlExampleStore should execute before handing results
+// off to TensorFlow.
+message SelectionCriteria {
+  // The SQL queries executed by each client. The result columns will be
+  // serialized into `fcp.client.ExampleQueryResult` protos.
+  // This field should only be used by tasks using the lightweight client.
+  SqlQuerySet client_queries = 1;
+}

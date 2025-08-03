@@ -1,0 +1,44 @@
+package {
+    default_applicable_licenses: ["external_python_bumble_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_python_bumble_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+python_library_host {
+    name: "bumble",
+    srcs: [
+        "bumble/*.py",
+        "bumble/drivers/*.py",
+        "bumble/profiles/*.py",
+        "bumble/transport/*.py",
+    ],
+    libs: [
+        "pyee",
+    ]
+}
+
+python_library_host {
+    name: "bumble-pandora",
+    srcs: [
+        "bumble/pandora/*.py",
+    ],
+    libs: [
+        "bumble",
+        "pandora-python",
+        "libprotobuf-python",
+    ],
+    data: [
+        "bumble/pandora/py.typed"
+    ]
+}

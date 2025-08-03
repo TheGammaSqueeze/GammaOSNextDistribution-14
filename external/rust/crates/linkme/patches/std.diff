@@ -1,0 +1,15 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 396057c..d460938 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -117,6 +117,10 @@
+     clippy::unused_self
+ )]
+ 
++// ANDROID: Use std to allow building as a dylib.
++#[cfg(android_dylib)]
++extern crate std;
++
+ mod distributed_slice;
+ 
+ // Not public API.

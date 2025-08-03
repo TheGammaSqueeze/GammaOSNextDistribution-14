@@ -1,0 +1,15 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 8e01b1f..6b658b6 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -17,6 +17,10 @@
+ //! serializers/deserializers will autodetect if a "human friendly" textual
+ //! encoding is being used, and if so encode the points as hexadecimal.
+ 
++/// Local Android change: Use std to allow building as a dylib.
++#[cfg(android_dylib)]
++extern crate std;
++
+ #[cfg(feature = "alloc")]
+ #[allow(unused_extern_crates)]
+ extern crate alloc;

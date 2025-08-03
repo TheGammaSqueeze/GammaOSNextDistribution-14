@@ -1,0 +1,157 @@
+# Copyright 2020 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load(
+    "//pw_build:pigweed.bzl",
+    "pw_cc_facade",
+    "pw_cc_test",
+)
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+cc_library(
+    name = "headers",
+    hdrs = [
+        "public/pw_log_tokenized/config.h",
+        "public/pw_log_tokenized/log_tokenized.h",
+        "public/pw_log_tokenized/metadata.h",
+    ],
+    includes = [
+        "public",
+    ],
+    deps = [
+        ":config_override",
+        "//pw_log:facade",
+        "//pw_polyfill",
+        "//pw_tokenizer",
+    ],
+)
+
+label_flag(
+    name = "config_override",
+    build_setting_default = "//pw_build:default_module_config",
+)
+
+cc_library(
+    name = "pw_log_tokenized",
+    srcs = ["log_tokenized.cc"],
+    hdrs = [
+        "public_overrides/pw_log_backend/log_backend.h",
+        "public_overrides/pw_log_backend/log_backend_uses_pw_tokenizer.h",
+    ],
+    includes = [
+        "public_overrides",
+    ],
+    deps = [
+        ":handler_facade",
+        ":headers",
+        "//pw_log:facade",
+    ],
+)
+
+cc_library(
+    name = "gcc_partially_tokenized",
+    srcs = ["log_tokenized.cc"],
+    hdrs = [
+        "gcc_partially_tokenized_public_overrides/pw_log_backend/log_backend.h",
+        "public/pw_log_tokenized/gcc_partially_tokenized.h",
+    ],
+    includes = [
+        "gcc_partially_tokenized_public_overrides",
+        "public",
+    ],
+    deps = [
+        ":handler",
+        ":headers",
+        "//pw_log:facade",
+        "//pw_log_string:handler",
+    ],
+)
+
+alias(
+    name = "impl",
+    actual = ":handler",
+)
+
+pw_cc_facade(
+    name = "handler_facade",
+    hdrs = ["public/pw_log_tokenized/handler.h"],
+    includes = ["public"],
+    deps = ["//pw_preprocessor"],
+)
+
+cc_library(
+    name = "handler",
+    hdrs = ["public/pw_log_tokenized/handler.h"],
+    includes = ["public"],
+    deps = [
+        "//pw_preprocessor",
+        "//targets:pw_log_tokenized_handler_backend",
+    ],
+)
+
+# There is no default backend for now.
+cc_library(
+    name = "backend_multiplexer",
+    visibility = ["@pigweed//targets:__pkg__"],
+)
+
+cc_library(
+    name = "base64",
+    hdrs = ["public/pw_log_tokenized/base64.h"],
+    includes = ["public"],
+    deps = [
+        ":headers",  # Only config.h is needed
+        "//pw_tokenizer:base64",
+    ],
+)
+
+cc_library(
+    name = "base64_over_hdlc",
+    srcs = ["base64_over_hdlc.cc"],
+    deps = [
+        ":base64",
+        ":handler_facade",
+        "//pw_hdlc",
+        "//pw_stream:sys_io_stream",
+        "//pw_tokenizer:base64",
+    ],
+)
+
+pw_cc_test(
+    name = "log_tokenized_test",
+    srcs = [
+        "log_tokenized_test.cc",
+        "log_tokenized_test_c.c",
+        "pw_log_tokenized_private/test_utils.h",
+    ],
+    deps = [
+        ":base64",
+        ":headers",
+        "//pw_unit_test",
+    ],
+)
+
+pw_cc_test(
+    name = "metadata_test",
+    srcs = [
+        "metadata_test.cc",
+    ],
+    deps = [
+        ":headers",
+        "//pw_unit_test",
+    ],
+)

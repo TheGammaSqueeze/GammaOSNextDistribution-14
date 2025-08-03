@@ -1,0 +1,76 @@
+import org.robolectric.gradle.AndroidProjectConfigPlugin
+import org.robolectric.gradle.GradleManagedDevicePlugin
+
+apply plugin: 'com.android.library'
+apply plugin: AndroidProjectConfigPlugin
+apply plugin: GradleManagedDevicePlugin
+
+android {
+    compileSdk 34
+    namespace 'org.robolectric.integration.axt'
+
+    defaultConfig {
+        testApplicationId 'org.robolectric.integrationtests.axt'
+        minSdk 19
+        targetSdk 34
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments useTestStorageService: 'true'
+    }
+
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+    sourceSets {
+        String sharedTestDir = 'src/sharedTest/'
+        String sharedTestSourceDir = sharedTestDir + 'java'
+        String sharedTestResourceDir = sharedTestDir + 'resources'
+        String sharedAndroidManifest = sharedTestDir + "AndroidManifest.xml"
+        test.resources.srcDirs += sharedTestResourceDir
+        test.java.srcDirs += sharedTestSourceDir
+        test.manifest.srcFile sharedAndroidManifest
+        androidTest.resources.srcDirs += sharedTestResourceDir
+        androidTest.java.srcDirs += sharedTestSourceDir
+        androidTest.manifest.srcFile sharedAndroidManifest
+    }
+}
+
+dependencies {
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.multidex
+
+    // Testing dependencies
+    testImplementation project(":robolectric")
+    testImplementation libs.androidx.test.runner
+    testImplementation libs.junit4
+    testImplementation libs.androidx.test.rules
+    testImplementation libs.androidx.test.espresso.intents
+    testImplementation libs.androidx.test.espresso.core
+    testImplementation libs.androidx.test.ext.truth
+    testImplementation libs.androidx.test.core
+    testImplementation libs.androidx.biometric
+    testImplementation libs.androidx.fragment
+    testImplementation libs.androidx.fragment.testing
+    testImplementation libs.androidx.test.ext.junit
+    testImplementation libs.truth
+
+    androidTestImplementation project(':annotations')
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.junit4
+    androidTestImplementation libs.androidx.test.rules
+    androidTestImplementation libs.androidx.test.espresso.intents
+    androidTestImplementation libs.androidx.test.espresso.core
+    androidTestImplementation libs.androidx.test.ext.truth
+    androidTestImplementation libs.androidx.test.core
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.truth
+    androidTestUtil libs.androidx.test.services
+}

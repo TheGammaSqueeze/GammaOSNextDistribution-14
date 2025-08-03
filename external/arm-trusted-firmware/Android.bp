@@ -1,0 +1,17 @@
+package {
+    default_applicable_licenses: ["arm_trusted_firmware_license"],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "arm_trusted_firmware_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-BSD"],
+    license_text: ["LICENSE"],
+}
+
+cc_library_headers {
+    name: "arm_dt_bindings_headers",
+    export_include_dirs: ["include"],
+    host_supported: true,
+}

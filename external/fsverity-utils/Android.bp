@@ -1,0 +1,98 @@
+package {
+    default_applicable_licenses: ["external_fsverity-utils_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_fsverity-utils_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "fsverity_default_flags",
+
+    cflags: [
+        "-Wall",
+        "-Wno-pointer-arith",
+        "-D_GNU_SOURCE",
+        "-D_FILE_OFFSET_BITS=64",
+    ],
+}
+
+cc_binary {
+    name: "fsverity",
+    defaults: [
+        "fsverity_default_flags",
+    ],
+    host_supported: true,
+    shared_libs: ["libfsverity"],
+    srcs: [
+        "programs/cmd_*.c",
+        "programs/fsverity.c",
+        "programs/utils.c",
+    ],
+}
+
+cc_binary {
+    name: "fsverity_multilib",
+    defaults: [
+        "fsverity_default_flags",
+    ],
+    host_supported: true,
+    shared_libs: ["libfsverity"],
+    srcs: [
+        "programs/cmd_*.c",
+        "programs/fsverity.c",
+        "programs/utils.c",
+    ],
+    compile_multilib: "both",
+    multilib: {
+        lib32: {
+            suffix: "32",
+        },
+        lib64: {
+            suffix: "64",
+        },
+    },
+}
+
+cc_library {
+    name: "libfsverity",
+    defaults: [
+        "fsverity_default_flags",
+    ],
+    host_supported: true,
+    shared_libs: ["libcrypto"],
+
+    export_include_dirs: ["include"],
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.compos",
+    ],
+    recovery_available: true,
+
+    srcs: [
+        "lib/*.c",
+    ],
+}

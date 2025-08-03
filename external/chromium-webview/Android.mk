@@ -1,0 +1,1 @@
+patches/os_pickup.mk

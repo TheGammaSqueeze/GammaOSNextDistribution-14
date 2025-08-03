@@ -1,0 +1,83 @@
+--- android_icu4j/src/main/java/android/icu/util/ULocale.java	2021-11-19 15:34:59.814522153 +0000
++++ android_icu4j/src/main/java/android/icu/util/ULocale.java	2021-11-19 15:40:25.229140343 +0000
+@@ -92,19 +92,6 @@
+  * to canonical form, or the <code>canonicalInstance</code> factory method
+  * can be called.
+  *
+- * <p>This class provides selectors {@link #VALID_LOCALE} and {@link
+- * #ACTUAL_LOCALE} intended for use in methods named
+- * <tt>getLocale()</tt>.  These methods exist in several ICU classes,
+- * including {@link android.icu.util.Calendar}, {@link
+- * android.icu.util.Currency}, {@link android.icu.text.UFormat},
+- * {@link android.icu.text.BreakIterator},
+- * {@link android.icu.text.Collator},
+- * {@link android.icu.text.DateFormatSymbols}, and {@link
+- * android.icu.text.DecimalFormatSymbols} and their subclasses, if
+- * any. Once an object of one of these classes has been created,
+- * <tt>getLocale()</tt> may be called on it to determine the valid and
+- * actual locale arrived at during the object's construction.
+- *
+  * <p>Note: The <i>actual</i> locale is returned correctly, but the <i>valid</i>
+  * locale is not, in most cases.
+  *
+@@ -2431,15 +2418,11 @@
+      * availableLocales matched).  No ULocale array element should be null; behavior is
+      * undefined if this is the case.
+      *
+-     * <p>This is a thin wrapper over {@link LocalePriorityList} + {@link LocaleMatcher}.
+-     *
+      * @param acceptLanguageList list in HTTP "Accept-Language:" format of acceptable locales
+      * @param availableLocales list of available locales. One of these will be returned.
+      * @param fallback if non-null, a 1-element array containing a boolean to be set with
+      * the fallback status
+      * @return one of the locales from the availableLocales list, or null if none match
+-     * @see LocaleMatcher
+-     * @see LocalePriorityList
+      */
+     public static ULocale acceptLanguage(String acceptLanguageList, ULocale[] availableLocales,
+             boolean[] fallback) {
+@@ -2476,14 +2459,11 @@
+      * locale was used as a fallback (because nothing else in availableLocales matched).
+      * No ULocale array element should be null; behavior is undefined if this is the case.
+      *
+-     * <p>This is a thin wrapper over {@link LocaleMatcher}.
+-     *
+      * @param acceptLanguageList list of acceptable locales
+      * @param availableLocales list of available locales. One of these will be returned.
+      * @param fallback if non-null, a 1-element array containing a boolean to be set with
+      * the fallback status
+      * @return one of the locales from the availableLocales list, or null if none match
+-     * @see LocaleMatcher
+      */
+ 
+     public static ULocale acceptLanguage(ULocale[] acceptLanguageList, ULocale[] availableLocales,
+@@ -2522,15 +2502,11 @@
+      * undefined if this is the case.  This function will choose a locale from the
+      * ULocale.getAvailableLocales() list as available.
+      *
+-     * <p>This is a thin wrapper over {@link LocalePriorityList} + {@link LocaleMatcher}.
+-     *
+      * @param acceptLanguageList list in HTTP "Accept-Language:" format of acceptable locales
+      * @param fallback if non-null, a 1-element array containing a boolean to be set with
+      * the fallback status
+      * @return one of the locales from the ULocale.getAvailableLocales() list, or null if
+      * none match
+-     * @see LocaleMatcher
+-     * @see LocalePriorityList
+      */
+     public static ULocale acceptLanguage(String acceptLanguageList, boolean[] fallback) {
+         return acceptLanguage(acceptLanguageList, ULocale.getAvailableLocales(),
+@@ -2548,13 +2524,10 @@
+      * undefined if this is the case.  This function will choose a locale from the
+      * ULocale.getAvailableLocales() list as available.
+      *
+-     * <p>This is a thin wrapper over {@link LocaleMatcher}.
+-     *
+      * @param acceptLanguageList ordered array of acceptable locales (preferred are listed first)
+      * @param fallback if non-null, a 1-element array containing a boolean to be set with
+      * the fallback status
+      * @return one of the locales from the ULocale.getAvailableLocales() list, or null if none match
+-     * @see LocaleMatcher
+      */
+     public static ULocale acceptLanguage(ULocale[] acceptLanguageList, boolean[] fallback) {
+         return acceptLanguage(acceptLanguageList, ULocale.getAvailableLocales(),

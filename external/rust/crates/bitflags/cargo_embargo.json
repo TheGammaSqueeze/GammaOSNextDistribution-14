@@ -1,0 +1,11 @@
+{
+  "min_sdk_version": "29",
+  "package": {
+    "bitflags": {
+      "dep_blocklist": [
+        "libtrybuild"
+      ]
+    }
+  },
+  "run_cargo": false
+}

@@ -1,0 +1,288 @@
+// Copyright (C) 2019 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_visibility: [
+        "//external/robolectric:__subpackages__",
+        "//test/robolectric-extensions:__subpackages__",
+        "//frameworks/base/packages/SettingsLib/tests/robotests:__subpackages__",
+        "//packages/apps/Settings/tests/robotests:__subpackages__"
+    ],
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_robolectric_license",
+    visibility: [
+      ":__subpackages__",
+      "//test/robolectric-extensions:__subpackages__",
+    ],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+// Empty library. Should be removed
+java_library {
+    name: "robolectric_android-all-stub_upstream",
+    visibility: ["//visibility:public"],
+}
+
+// build.prop file created by module type defined in soong/robolectric.go
+robolectric_build_props {
+    name: "robolectric_build_props",
+}
+
+java_genrule {
+    name: "robolectric_framework_res",
+    host_supported: true,
+    tools: ["zip2zip"],
+    srcs: [":framework-res"],
+    out: ["robolectric_framework_res.jar"],
+    cmd: "$(location zip2zip) " +
+        "-i $(location :framework-res) " +
+        "-o $(location robolectric_framework_res.jar) " +
+        "-x classes.dex " +
+        "-x META-INF/**/* " +
+        "-0 resources.arsc",
+}
+
+java_device_for_host {
+    name: "robolectric_android-all-device-deps",
+    libs: [
+        "conscrypt-for-host",
+        "core-icu4j-for-host",
+        "core-libart-for-host",
+        "ext",
+        "framework-all",
+        "icu4j-icudata-jarjar",
+        "icu4j-icutzdata-jarjar",
+        "ims-common",
+        "libphonenumber-platform",
+        "okhttp-for-host",
+        "services",
+        "services.accessibility",
+        "telephony-common",
+        "android.car",
+        "android.car.builtin",
+    ],
+}
+
+java_library_host {
+    name: "robolectric-host-android_all",
+    static_libs: [
+        "robolectric_android-all-device-deps",
+        "robolectric_tzdata",
+        "robolectric_framework_res",
+    ],
+    // WARNING: DO NOT ADD NEW DEPENDENCIES ON THIS MODULE OR ITS DIST JAR
+    // This dist jar is an internal implementation detail. For external Gradle builds (outside
+    // the platform), consumers should access robolectric via the maven repository. For
+    // platform robolectric usage (in Soong), consumers should use the
+    // android_robolectric_test module type.
+    dist: {
+        targets: [
+            // Add android-all-robolectric.jar to private_api_stubs dist target for easier
+            // packaging by scripts. This jar is useful for running robolectric tests on
+            // platform app Gradle builds that compile against hidden platform APIs.
+            "private_api_stubs",
+            "sdk",
+            "win_sdk",
+        ],
+        dest: "android-all-robolectric.jar",
+    },
+
+    java_resources: [
+        // Copy the build.prop
+        ":robolectric_build_props",
+    ],
+    visibility: [
+        ":__subpackages__",
+        "//prebuilts/misc/common/robolectric",
+        "//test/robolectric-extensions:__subpackages__",
+        "//frameworks/base/packages/SettingsLib/tests/robotests:__subpackages__",
+    ],
+}
+
+java_library_host {
+    name: "Robolectric_all_upstream",
+
+    static_libs: [
+        "Robolectric-aosp-plugins",
+        "Robolectric_shadows_httpclient_upstream",
+        "Robolectric_shadows_framework_upstream",
+        "Robolectric_shadows_multidex_upstream",
+        "Robolectric_shadows_versioning_upstream",
+        "Robolectric_robolectric_upstream",
+        "Robolectric_annotations_upstream",
+        "Robolectric_resources_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_sandbox_upstream",
+        "Robolectric_junit_upstream",
+        "Robolectric_utils_upstream",
+        "Robolectric_utils_reflector_upstream",
+        "Robolectric_nativeruntime_upstream",
+        "asm-9.2",
+        "junit",
+        "asm-tree-9.2",
+        "guava",
+        "asm-commons-9.2",
+        "bouncycastle-unbundled",
+        "conscrypt-unbundled",
+        "robolectric-sqlite4java-0.282",
+        "hamcrest",
+        "hamcrest-library",
+        "robolectric-host-androidx-test-runner_upstream",
+        "robolectric-host-org_apache_http_legacy_upstream", //TODO: remove
+    ],
+
+    java_resource_dirs: [
+        "shadows/framework/src/main/resources",
+        "src/main/resources",
+    ],
+}
+
+// Make Robolectric_all available as a target jar, but treated as an aar
+java_host_for_device {
+    name: "Robolectric_all-target_upstream",
+    libs: ["Robolectric_all_upstream"],
+    visibility: [
+      ":__subpackages__",
+      //java references
+      "//frameworks/opt/net/wifi/libs/WifiTrackerLib/tests:__pkg__",
+      "//prebuilts/sdk/current/androidx:__pkg__",
+      "//prebuilts/sdk/current/androidx/m2repository/androidx/car/app/app-testing/1.4.0-alpha01:__pkg__",
+      "//prebuilts/sdk/current/aaos-libs:__pkg__",
+      "//packages/apps/TV/tests/common:__pkg__",
+      "//external/android_onboarding/src/com/android/onboarding/contracts/testing:__pkg__",
+      "//external/android_onboarding/src/com/android/onboarding/testing:__pkg__",
+      "//external/android_onboarding/src/com/android/onboarding/nodes/testing:__pkg__",
+      //robolectric tests
+      "//platform_testing/libraries/runner:__pkg__",
+      "//platform_testing/libraries/screenshot/material_components:__pkg__",
+      "//vendor:__subpackages__",
+      "//platform_testing/robolab/roboStandaloneProj/tests:__pkg__",
+      "//external/mobile-data-download/javatests:__pkg__",
+      "//frameworks/base/services/robotests:__pkg__",
+      "//frameworks/base/services/robotests/backup:__pkg__",
+      "//frameworks/base/packages/CredentialManager:__subpackages__",
+      "//frameworks/base/packages/SettingsLib/tests/robotests:__subpackages__",
+      "//frameworks/base/packages/SettingsLib/Spa/screenshot:__subpackages__",
+      "//frameworks/base/packages/SystemUI:__pkg__",
+      "//packages/apps/Trebuchet/tests:__pkg__",
+      "//frameworks/libs/systemui/animationlib:__pkg__",
+      "//frameworks/base/tests/InputScreenshotTest:__subpackages__",
+      "//frameworks/opt/car/setupwizard/library/main/tests/robotests:__pkg__",
+      "//frameworks/opt/localepicker/tests:__pkg__",
+      "//frameworks/opt/wear/signaldetector/robotests:__pkg__",
+      "//frameworks/opt/wear/robotests:__pkg__",
+      "//packages/modules/Bluetooth/service:__pkg__",
+      "//packages/modules/Connectivity/nearby/tests/multidevices/clients/test_support/snippet_helper/tests:__pkg__",
+      "//packages/modules/Connectivity/nearby/tests/robotests:__pkg__",
+      "//packages/modules/DeviceLock/DeviceLockController/tests/robolectric:__pkg__",
+      "//packages/modules/DeviceLock/tests/unittests:__pkg__",
+      "//packages/services/Car/tests/CarLibTests:__pkg__",
+      "//packages/services/Mms/tests/robotests:__pkg__",
+      "//packages/apps/QuickAccessWallet/tests/robolectric:__pkg__",
+      "//packages/apps/ManagedProvisioning/tests/robotests:__pkg__",
+      "//packages/apps/Car/libs/car-media-common/tests/robotests",
+      "//packages/apps/Car/libs/car-ui-lib",
+      "//packages/apps/Car/Notification/tests/robotests:__pkg__",
+      "//packages/apps/Car/Launcher/libs/appgrid/lib/robotests:__pkg__",
+      "//packages/apps/Car/Cluster/DirectRenderingCluster/tests/robotests:__pkg__",
+      "//packages/apps/Car/Settings/tests/robotests:__pkg__",
+      "//packages/apps/EmergencyInfo/tests/robolectric:__pkg__",
+      "//packages/apps/StorageManager/robotests:__pkg__",
+      "//packages/apps/Settings/tests/robotests:__pkg__",
+      "//packages/apps/ThemePicker/tests/robotests:__pkg__",
+      "//packages/apps/WallpaperPicker2/tests/robotests:__pkg__",
+      "//packages/apps/TvSettings/Settings/tests/robotests:__pkg__",
+      "//packages/apps/KeyChain/robotests:__pkg__",
+      "//packages/apps/CertInstaller/robotests:__pkg__",
+      "//packages/providers/MediaProvider:__subpackages__",
+      "//packages/apps/TV:__subpackages__",
+      "//frameworks/base/libs/WindowManager/Shell:__subpackages__",
+      //tm-dev additions
+      "//frameworks/base/packages/BackupEncryption/test/robolectric-integration:__pkg__",
+      "//frameworks/base/packages/BackupEncryption/test/robolectric:__pkg__",
+      "//packages/apps/Settings/tests/screenshot:__pkg__",
+    ],
+}
+
+// Make dependencies available as host jars
+java_device_for_host {
+    name: "robolectric-host-androidx-test-core_upstream",
+    libs: ["androidx.test.core"],
+}
+
+java_device_for_host {
+    name: "robolectric-host-androidx-test-ext-junit_upstream",
+    libs: ["androidx.test.ext.junit"],
+}
+
+java_device_for_host {
+    name: "robolectric-host-androidx-test-monitor_upstream",
+    libs: ["androidx.test.monitor"],
+}
+
+java_device_for_host {
+    name: "robolectric-host-androidx-test-ext-truth_upstream",
+    libs: ["androidx.test.ext.truth"],
+}
+
+java_device_for_host {
+    name: "robolectric-host-androidx-test-runner_upstream",
+    libs: ["androidx.test.runner"],
+}
+
+java_device_for_host {
+    name: "robolectric-host-androidx_upstream",
+    libs: ["androidx.fragment_fragment"],
+}
+
+java_device_for_host {
+    name: "robolectric-host-androidx_test_espresso",
+    libs: ["androidx.test.espresso.idling-resource"],
+}
+
+java_device_for_host {
+    name: "robolectric-host-android-support-multidex_upstream",
+    libs: [
+        "android-support-multidex",
+        "com.android.support.multidex_1.0.3",
+    ],
+}
+
+java_device_for_host {
+    name: "robolectric-host-org_apache_http_legacy_upstream",
+    libs: ["org.apache.http.legacy.stubs"],
+}

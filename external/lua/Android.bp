@@ -1,0 +1,57 @@
+package {
+    default_applicable_licenses: ["external_lua_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_lua_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_static {
+    name: "liblua",
+    sdk_version: "current",
+    min_sdk_version: "30",
+    cflags: [
+        "-Werror",
+        "-Wall",
+        "-Wno-deprecated-declarations",
+        "-Wno-string-plus-int",
+        "-O2",
+        "-DLUA_USE_LINUX",
+        "-DLUA_COMPAT_5_3",
+    ],
+    export_include_dirs: ["src"],
+    srcs: [
+        ":liblua-sources"
+    ],
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.extservices",
+        "com.android.car.framework",
+    ],
+    visibility: [
+        "//external/libtextclassifier:__subpackages__",
+        "//packages/services/Car/cpp/telemetry:__subpackages__",
+        "//packages/services/Car/packages/ScriptExecutor:__subpackages__",
+    ],
+}
+
+filegroup {
+    name: "liblua-sources",
+    srcs: [
+        "src/**/*.c",
+    ],
+    exclude_srcs: [
+        // Exclude the interpreter
+        "src/lua.c",
+    ],
+}

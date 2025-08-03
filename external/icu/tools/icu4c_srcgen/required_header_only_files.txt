@@ -1,0 +1,5 @@
+# This file contains a list of header-only C/C++ files required
+# to be copied into libandroidicu.
+# During the process, U_SHOW_CPLUSPLUS_API define is renamed to
+# LIBANDROIDICU_U_SHOW_CPLUSPLUS_API.
+common/unicode/char16ptr.h

@@ -1,0 +1,27 @@
+2 type(s) changed from FULLY_DEFINED to ABSENT:
+  struct s1
+  union u1
+
+1 type(s) changed from DECLARATION_ONLY to ABSENT:
+  struct s2
+
+1 type(s) changed from FULLY_DEFINED to DECLARATION_ONLY:
+  enum e1
+
+2 symbol(s) changed from TYPED to UNTYPED:
+  symbol1
+  symbol2
+
+1 type(s) changed from ABSENT to DECLARATION_ONLY:
+  union u2
+
+2 type(s) changed from DECLARATION_ONLY to FULLY_DEFINED:
+  enum e2
+  union u3
+
+1 symbol(s) changed from UNTYPED to TYPED:
+  symbol3
+
+1 type(s) changed from ABSENT to FULLY_DEFINED:
+  struct s3
+

@@ -1,0 +1,266 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+option java_outer_classname = "SecurityProto";
+
+package pandora;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "pandora/host.proto";
+
+// Service to trigger Bluetooth Host security pairing procedures.
+service Security {
+  // Listen to pairing events.
+  // This is handled independently from connections for several reasons:
+  // - Pairing can be triggered at any time and multiple times during the
+  //   lifetime of a connection (this also explains why this is a stream).
+  // - In BR/EDR, the specification allows for a device to authenticate before
+  //   connecting when in security mode 3 (link level enforced security).
+  rpc OnPairing(stream PairingEventAnswer) returns (stream PairingEvent);
+  // Secure (i.e. authenticate and/or encrypt) a connection with a specific
+  // security level to reach. Pairing events shall be handled through `OnPairing`
+  // if a corresponding stream has been opened prior to this call, otherwise, they
+  // shall be automatically confirmed by the host.
+  // If authentication and/or encryption procedures necessary to reach the
+  // desired security level have already been triggered before (typically as
+  // part of the connection establishment), this shall not trigger them again
+  // and only wait for the desired security level to be reached. If the desired
+  // security level has already been reached, this shall return immediately.
+  // Note: During the entire life of a connection, the security level can only
+  // be upgraded, see `SecurityLevel` and `LESecurityLevel` enumerable for
+  // details about each security level.
+  rpc Secure(SecureRequest) returns (SecureResponse);
+  // Wait for a specific connection security level to be reached. Events may
+  // be streamed through `OnPairing` if running, otherwise the host shall
+  // automatically confirm.
+  rpc WaitSecurity(WaitSecurityRequest) returns (WaitSecurityResponse);
+}
+
+// Service to trigger Bluetooth Host security persistent storage procedures.
+service SecurityStorage {
+  // Return whether or not a bond exists for a connection in the host
+  // persistent storage.
+  rpc IsBonded(IsBondedRequest) returns (google.protobuf.BoolValue);
+  // Remove a bond for a connection, if exists, from the host
+  // persistent storage.
+  rpc DeleteBond(DeleteBondRequest) returns (google.protobuf.Empty);
+}
+
+// BR/EDR pairing security levels.
+enum SecurityLevel {
+  // Level 0, for services with the following attributes:
+  // - Authentication of the remote device not required.
+  // - MITM protection not required.
+  // - No encryption required.
+  // - No user interaction required.
+  //
+  // No security.
+  // Permitted only for SDP and service data sent via either L2CAP fixed
+  // signaling channels or the L2CAP connection-less channel to PSMs that
+  // correspond to service class UUIDs which are allowed to utilize Level 0.
+  LEVEL0 = 0;
+  // Level 1, for services with the following attributes:
+  // - Authentication of the remote device required when encryption is enabled.
+  // - MITM protection not required.
+  // - Encryption not necessary.
+  // - At least 56-bit equivalent strength for encryption key when encryption is
+  //   enabled should be used.
+  // - Minimal user interaction desired.
+  //
+  // Low security level.
+  LEVEL1 = 1;
+  // Level 2, for services with the following attributes:
+  // - Authentication of the remote device required.
+  // - MITM protection not required.
+  // - Encryption required.
+  // - At least 56-bit equivalent strength for encryption key should be used.
+  //
+  // Medium security level.
+  LEVEL2 = 2;
+  // Level 3, for services with the following attributes:
+  // - Authentication of the remote device required.
+  // - MITM protection required.
+  // - Encryption required.
+  // - At least 56-bit equivalent strength for encryption key should be used.
+  // - User interaction acceptable.
+  //
+  // High security.
+  LEVEL3 = 3;
+  // Level 4, for services with the following attributes:
+  // - Authentication of the remote device required.
+  // - MITM protection required.
+  // - Encryption required.
+  // - 128-bit equivalent strength for link and encryption keys required using FIPS
+  //   approved algorithms (E0 not allowed, SAFER+ not allowed, and P-192 not
+  //   allowed; encryption key not shortened).
+  // - User interaction acceptable.
+  //
+  // Highest security level.
+  // Only possible when both devices support Secure Connections.
+  LEVEL4 = 4;
+}
+
+// Low Energy pairing security levels.
+enum LESecurityLevel {
+  // No security (No authentication and no encryption).
+  LE_LEVEL1 = 0;
+  //  Unauthenticated pairing with encryption.
+  LE_LEVEL2 = 1;
+  // Authenticated pairing with encryption.
+  LE_LEVEL3 = 2;
+  // Authenticated LE Secure Connections pairing with encryption using a 128-
+  // bit strength encryption key.
+  LE_LEVEL4 = 3;
+}
+
+message PairingEvent {
+  // Pairing event remote device.
+  oneof remote {
+    // BR/EDR only. Used when a pairing event is received before the connection
+    // being complete: when the remote controller is set in security mode 3,
+    // it shall automatically pair with the remote device before notifying
+    // the host for a connection complete.
+    bytes address = 1;
+    // BR/EDR or Low Energy connection.
+    Connection connection = 2;
+  }
+  // Pairing method used for this pairing event.
+  oneof method {
+    // "Just Works" SSP / LE pairing association
+    // model. Confirmation is automatic.
+    google.protobuf.Empty just_works = 3;
+    // Numeric Comparison SSP / LE pairing association
+    // model. Confirmation is required.
+    uint32 numeric_comparison = 4;
+    // Passkey Entry SSP / LE pairing association model.
+    // Passkey is typed by the user.
+    // Only for LE legacy pairing or on devices without a display.
+    google.protobuf.Empty passkey_entry_request = 5;
+    // Passkey Entry SSP / LE pairing association model.
+    // Passkey is shown to the user.
+    // The peer device receives a Passkey Entry request.
+    uint32 passkey_entry_notification = 6;
+    // Legacy PIN Pairing.
+    // A PIN Code is typed by the user on IUT.
+    google.protobuf.Empty pin_code_request = 7;
+    // Legacy PIN Pairing.
+    // We generate a PIN code, and the user enters it in the peer
+    // device. While this is not part of the specification, some display
+    // devices automatically generate their PIN Code, instead of asking the
+    // user to type it.
+    bytes pin_code_notification = 8;
+  }
+}
+
+message PairingEventAnswer {
+  // Received pairing event.
+  PairingEvent event = 1;
+  // Answer when needed to the pairing event method.
+  oneof answer {
+    // Numeric Comparison confirmation.
+    // Used when pairing event method is `numeric_comparison` or `just_works`.
+    bool confirm = 2;
+    // Passkey typed by the user.
+    // Used when pairing event method is `passkey_entry_request`.
+    uint32 passkey = 3;
+    // Pin typed by the user.
+    // Used when pairing event method is `pin_code_request`.
+    bytes pin = 4;
+  };
+}
+
+// Request of the `Secure` method.
+message SecureRequest {
+  // Peer connection to secure.
+  Connection connection = 1;
+  // Security level to wait for.
+  oneof level {
+    // BR/EDR (classic) level.
+    SecurityLevel classic = 2;
+    // Low Energy level.
+    LESecurityLevel le = 3;
+  }
+}
+
+// Response of the `Secure` method.
+message SecureResponse {
+  // Response result.
+  oneof result {
+    // `Secure` completed successfully.
+    google.protobuf.Empty success = 1;
+    // `Secure` was unable to reach the desired security level.
+    google.protobuf.Empty not_reached = 2;
+    // Connection died before completion.
+    google.protobuf.Empty connection_died = 3;
+    // Pairing failure error.
+    google.protobuf.Empty pairing_failure = 4;
+    // Authentication failure error.
+    google.protobuf.Empty authentication_failure = 5;
+    // Encryption failure error.
+    google.protobuf.Empty encryption_failure = 6;
+  }
+}
+
+// Request of the `WaitSecurity` method.
+message WaitSecurityRequest {
+  // Peer connection to wait security level to be reached.
+  Connection connection = 1;
+  // Security level to wait for.
+  oneof level {
+    // BR/EDR (classic) level.
+    SecurityLevel classic = 2;
+    // Low Energy level.
+    LESecurityLevel le = 3;
+  }
+}
+
+// Response of the `WaitSecurity` method.
+message WaitSecurityResponse {
+  // Response result.
+  oneof result {
+    // `WaitSecurity` completed successfully.
+    google.protobuf.Empty success = 1;
+    // Connection died before completion.
+    google.protobuf.Empty connection_died = 2;
+    // Pairing failure error.
+    google.protobuf.Empty pairing_failure = 3;
+    // Authentication failure error.
+    google.protobuf.Empty authentication_failure = 4;
+    // Encryption failure error.
+    google.protobuf.Empty encryption_failure = 5;
+  }
+}
+
+// Request of the `IsBonded` method.
+message IsBondedRequest {
+  oneof address {
+    // Public device address.
+    bytes public = 1;
+    // Random device address.
+    bytes random = 2;
+  }
+}
+
+// Request of the `DeleteBond` method.
+message DeleteBondRequest {
+  oneof address {
+    // Public device address.
+    bytes public = 1;
+    // Random device address.
+    bytes random = 2;
+  }
+}

@@ -1,0 +1,82 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+filegroup {
+    name: "httpclient_api_sources",
+    srcs: [
+        "java/src/android/net/http/BidirectionalStream.java",
+        "java/src/android/net/http/CallbackException.java",
+        "java/src/android/net/http/ConnectionMigrationOptions.java",
+        "java/src/android/net/http/DnsOptions.java",
+        "java/src/android/net/http/HeaderBlock.java",
+        "java/src/android/net/http/HttpEngine.java",
+        "java/src/android/net/http/IHttpEngineBuilder.java",
+        "java/src/android/net/http/HttpException.java",
+        "java/src/android/net/http/InlineExecutionProhibitedException.java",
+        "java/src/android/net/http/NetworkException.java",
+        "java/src/android/net/http/QuicException.java",
+        "java/src/android/net/http/QuicOptions.java",
+        "java/src/android/net/http/UploadDataProvider.java",
+        "java/src/android/net/http/UploadDataSink.java",
+        "java/src/android/net/http/UrlRequest.java",
+        "java/src/android/net/http/UrlResponseInfo.java",
+    ],
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+    ],
+}
+
+java_library {
+    name: "httpclient_api",
+    srcs: [
+        ":httpclient_api_sources",
+        ":cronet_aml_components_cronet_android_interface_api_version",
+    ],
+    libs: [
+        "androidx.annotation_annotation",
+        "framework-annotations-lib",
+        "framework-connectivity.stubs.module_lib",
+        "cronet_aml_api_java",
+    ],
+    sdk_version: "module_current",
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+    ],
+}
+
+java_library {
+    name: "httpclient_impl",
+    srcs: [
+        "java/src/android/net/http/*Wrapper.java",
+        "java/src/android/net/http/CronetExceptionTranslationUtils.java",
+    ],
+    libs: [
+        "httpclient_api",
+        "androidx.annotation_annotation",
+        "framework-annotations-lib",
+        "framework-connectivity.stubs.module_lib",
+    ],
+    static_libs: [
+        "cronet_aml_api_java",
+        "cronet_aml_java",
+    ],
+    sdk_version: "module_current",
+    min_sdk_version: "30",
+    visibility: [
+        "//packages/modules/Connectivity:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.tethering",
+    ],
+}

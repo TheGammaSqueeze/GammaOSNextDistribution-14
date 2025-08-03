@@ -1,0 +1,16 @@
+name: "boost"
+description:
+    "Boost C++ Libraries"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.boost.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/boostorg/boost"
+  }
+  version: "boost-1.76.0"
+  last_upgrade_date { year: 2023 month: 9 day: 4 }
+  license_type: NOTICE
+}

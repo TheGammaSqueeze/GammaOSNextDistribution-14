@@ -1,0 +1,40 @@
+function symbol 'int Y::g(struct Y*)' {_ZN1Y1gEv} was added
+
+function symbol 'int fun(struct X&)' {_Z3funR1X} changed
+  type 'int(struct X&)' changed
+    parameter 1 type 'struct X&' changed
+      referred-to type 'struct X' changed
+        method 'f {_ZN1X1fEv}' changed
+          type 'int(struct X*)' changed
+            parameter 1 type 'struct X*' changed
+              pointed-to type 'struct X' changed
+                (being reported)
+        method 'g {_ZN1X1gEv}' was added
+
+function symbol 'void X::X(struct X*)' {_ZN1XC2Ev} changed
+  type 'void(struct X*)' changed
+    parameter 1 type 'struct X*' changed
+      pointed-to type 'struct X' changed
+        (already reported)
+
+function symbol 'int Y::f(struct Y*)' {_ZN1Y1fEv} changed
+  type 'int(struct Y*)' changed
+    parameter 1 type 'struct Y*' changed
+      pointed-to type 'struct Y' changed
+        base class 'struct X' changed
+          type 'struct X' changed
+            (already reported)
+        method 'f {_ZN1Y1fEv}' changed
+          type 'int(struct Y*)' changed
+            parameter 1 type 'struct Y*' changed
+              pointed-to type 'struct Y' changed
+                (being reported)
+        method 'g {_ZN1Y1gEv}' was added
+
+function symbol 'void Y::Y(struct Y*)' {_ZN1YC2Ev} changed
+  type 'void(struct Y*)' changed
+    parameter 1 type 'struct Y*' changed
+      pointed-to type 'struct Y' changed
+        (already reported)
+
+exit code 4

@@ -1,0 +1,11 @@
+function symbol 'enum Foo getEnum(enum Foo)' changed
+  type 'enum Foo(enum Foo)' changed
+    return type 'enum Foo' changed
+    parameter 1 type 'enum Foo' changed
+
+type 'enum Foo' changed
+  enumerator 'FOO_ZERO' (0) was removed
+  enumerator 'FOO_TWO' value changed from 2 to 42
+  enumerator 'FOO_FOUR' (4) was added
+
+exit code 4

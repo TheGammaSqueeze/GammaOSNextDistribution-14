@@ -1,0 +1,31 @@
+# Copyright (c) 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterCLHealth.cl_adapter_discoverable_test.floss'
+ATTRIBUTES = 'suite:bluetooth_floss'
+TIME = 'SHORT'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+Verify that the device can be discovered from another Bluetooth device.
+
+This is a useful health check because it tests basic functionality of the
+radio and host subsystem.
+"""
+
+from autotest_lib.server import utils
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterCLHealth', host=host,
+                 num_iterations=1, args_dict=args_dict,
+                 test_name=NAME.split('.')[1], floss=True)
+
+parallel_simple(run, machines)

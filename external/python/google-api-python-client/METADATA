@@ -1,0 +1,19 @@
+name: "google-api-python-client"
+description: "This is the Python client library for Google\'s discovery based APIs."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://pypi.org/project/google-api-python-client/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/google-api-python-client"
+  }
+  version: "v2.34.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 1
+    day: 11
+  }
+}

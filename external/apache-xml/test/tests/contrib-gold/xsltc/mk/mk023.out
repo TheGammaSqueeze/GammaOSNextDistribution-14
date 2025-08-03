@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<book>
+    <title>Design Patterns</title>
+    <author>Erich Gamma</author>
+    <author>Richard Helm</author>
+    <author>Ralph Johnson</author>
+    <author>John Vlissides</author>
+</book><book>
+    <title>Pattern Hatching</title>
+    <author>John Vlissides</author>
+</book>

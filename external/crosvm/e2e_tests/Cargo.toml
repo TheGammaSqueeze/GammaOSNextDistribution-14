@@ -1,0 +1,23 @@
+[package]
+name = "e2e_tests"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[dev-dependencies]
+anyhow = "*"
+fixture = { path = "fixture" }
+libc = "*"
+net_util = {path = "../net_util"}
+rand = "0.8"
+tempfile = "3"
+prebuilts = { path = "../prebuilts" }
+base = { path = "../base" }
+swap = { path= "../swap" }
+serde_json = "*"
+
+[target.'cfg(any(target_os = "android", target_os = "linux"))'.dependencies]
+net_sys = {path = "../net_sys"}
+
+[target.'cfg(any(target_os = "android", target_os = "linux"))'.dev-dependencies]
+readclock = { path = "./guest_under_test/rootfs/readclock" }

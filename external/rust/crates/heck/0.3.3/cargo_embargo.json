@@ -1,0 +1,9 @@
+{
+  "apex_available": [],
+  "module_name_overrides": {
+    "heck_test_src_lib": "heck_test_src_lib_deprecated",
+    "libheck": "libheck_deprecated"
+  },
+  "run_cargo": false,
+  "tests": true
+}

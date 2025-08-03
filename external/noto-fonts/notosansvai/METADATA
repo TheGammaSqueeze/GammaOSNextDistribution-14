@@ -1,0 +1,13 @@
+name: "notosansvai"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Vai is an unmodulated (“sans serif”) design for texts inthe African Vai script. It has 305 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansvai"
+  }
+  version: "1.020"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

@@ -1,0 +1,39 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterAUHealth.au_hfp_nbs_dut_as_sink_test.floss'
+PURPOSE = ('Batch of Bluetooth Classic Audio health tests')
+CRITERIA = 'Pass the HFP NBS test'
+ATTRIBUTES = 'suite:bluetooth_floss'
+TIME = 'SHORT'  # Approximately 2 mins
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+    A Batch of Bluetooth Bluetooth audio health tests. This test is written
+    as a batch of tests in order to reduce test time, since auto-test ramp
+    up time is costly. The batch is using BluetoothAdapterQuickTests wrapper
+    methods to start and end a test and a batch of tests.
+
+    This class can be called to run the entire test batch or to run a
+    specific test only
+
+    This contains the following tests:
+    - au_hfp_nbs_dut_as_sink_test
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterAUHealth', host=host, num_iterations=1,
+                 args_dict=args_dict, test_name=NAME.split('.')[1], floss=True)
+
+parallel_simple(run, machines)

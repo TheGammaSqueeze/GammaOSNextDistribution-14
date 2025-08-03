@@ -1,0 +1,254 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_rust_beto-rust_license"
+    // to get the below license kinds:
+    //   legacy_unencumbered
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-Unlicense
+    default_applicable_licenses: ["external_rust_beto-rust_license"],
+}
+
+rust_library_rlib {
+    name: "libcrypto_provider",
+    host_supported: true,
+    crate_name: "crypto_provider",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["crypto/crypto_provider/src/lib.rs"],
+    edition: "2021",
+    features: [
+        "std",
+        "alloc",
+        "default",
+        "gcm_siv",
+    ],
+    rustlibs: [
+        "libhex",
+        "librand",
+        "libtinyvec",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_library_rlib {
+    name: "libcrypto_provider_stubs",
+    host_supported: true,
+    crate_name: "crypto_provider_stubs",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["crypto/crypto_provider_stubs/src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libcrypto_provider",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_library_rlib {
+    name: "liblock_adapter",
+    host_supported: true,
+    crate_name: "lock_adapter",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["util/lock_adapter/src/lib.rs"],
+    edition: "2021",
+    features: [
+        "std",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_library_rlib {
+    name: "libcrypto_provider_default",
+    host_supported: true,
+    crate_name: "crypto_provider_default",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["crypto/crypto_provider_default/src/lib.rs"],
+    edition: "2021",
+    features: ["boringssl"],
+    rustlibs: [
+        "libcfg_if",
+        "libcrypto_provider",
+        "libcrypto_provider_boringssl",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_library_rlib {
+    name: "libcrypto_provider_boringssl",
+    host_supported: true,
+    crate_name: "crypto_provider_boringssl",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["crypto/crypto_provider_boringssl/src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libcfg_if",
+        "libcrypto_provider",
+        "libcrypto_provider_stubs",
+        "libbssl_crypto",
+        "librand",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_ffi_shared {
+    name: "libukey2_c_ffi_shared",
+    stem: "libukey2_c_ffi",
+    host_supported: true,
+    crate_name: "ukey2_c_ffi",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["connections/ukey2/ukey2_c_ffi/src/lib.rs"],
+    edition: "2021",
+    features: [
+        "openssl",
+        "std",
+    ],
+    rlibs: [
+        "libcfg_if",
+        "libcrypto_provider_default",
+        "liblazy_static",
+        "liblock_adapter",
+        "liblog_rust",
+        "librand",
+        "librand_chacha",
+        "libukey2_connections",
+        "libukey2_rs",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_library_rlib {
+    name: "libukey2_connections",
+    host_supported: true,
+    crate_name: "ukey2_connections",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["connections/ukey2/ukey2_connections/src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libbytes",
+        "libcrypto_provider",
+        "libnom",
+        "librand",
+        "libukey2_proto",
+        "libukey2_rs",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_ffi_shared {
+    name: "libukey2_jni_shared",
+    stem: "libukey2_jni",
+    host_supported: true,
+    crate_name: "ukey2_jni",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["connections/ukey2/ukey2_jni/src/lib.rs"],
+    edition: "2021",
+    features: [
+        "openssl",
+        "std",
+    ],
+    // Using rlibs instead of rustlibs here to minimize the size impact on the system image. Since
+    // most of the transitive dependencies are included only by this project for U, building this
+    // as a single dylib will be more space-efficient. As more Rust project gets added, this may
+    // change and it may be better for different projects to share the same dylib, especially for
+    // common projects like libjni and libprotobuf.
+    rlibs: [
+        "libcfg_if",
+        "libcrypto_provider_default",
+        "libjni",
+        "liblazy_static",
+        "liblock_adapter",
+        "librand",
+        "librand_chacha",
+        "libukey2_connections",
+        "libukey2_rs",
+    ],
+    compile_multilib: "first",
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_library_rlib {
+    name: "libukey2_proto",
+    host_supported: true,
+    crate_name: "ukey2_proto",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["connections/ukey2/ukey2_proto/src/lib.rs"],
+    edition: "2021",
+    features: [
+        "default",
+    ],
+    rustlibs: [
+        "libprotobuf",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+rust_library_rlib {
+    name: "libukey2_rs",
+    host_supported: true,
+    crate_name: "ukey2_rs",
+    cargo_env_compat: true,
+    cargo_pkg_version: "0.1.0",
+    srcs: ["connections/ukey2/ukey2/src/lib.rs"],
+    edition: "2021",
+    rustlibs: [
+        "libcrypto_provider",
+        "libnum_bigint",
+        "liblog_rust",
+        "librand",
+        "libukey2_proto",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "//apex_available:anyapex",
+    ],
+}
+
+java_library_static {
+    name: "ukey2_jni",
+    srcs: [
+        "connections/ukey2/ukey2_jni/java/src/main/**/*.java",
+        "connections/ukey2/ukey2_jni/java/src/main/**/*.kt",
+    ],
+    host_supported: true,
+    static_libs: [
+        "jsr305",
+    ],
+    required: [
+        "libukey2_jni_shared",
+    ],
+}

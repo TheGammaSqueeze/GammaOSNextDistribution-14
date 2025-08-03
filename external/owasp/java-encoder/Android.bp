@@ -1,0 +1,65 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["my_external_owasp_java_encoder_license"],
+}
+
+license {
+    name: "my_external_owasp_java_encoder_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+java_library {
+    name: "owasp-java-encoder",
+    srcs: ["core/src/main/java/**/*.java"],
+    sdk_version: "current",
+    min_sdk_version: "33",
+    java_version: "1.8",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.ondevicepersonalization",
+    ],
+    visibility: [
+        "//packages/modules/OnDevicePersonalization:__subpackages__",
+    ],
+}
+
+android_test {
+    name: "OwaspJavaEncoderTestCases",
+    srcs: [
+        "core/src/test/**/*.java",
+    ],
+    java_resource_dirs: ["core/src/test/resources"],
+    static_libs: [
+        "androidx.test.rules",
+        "owasp-java-encoder",
+    ],
+    libs: [
+        "android.test.base",
+    ],
+    min_sdk_version: "33",
+    sdk_version: "test_current",
+    test_suites: [
+        "general-tests",
+        "mts-ondevicepersonalization",
+    ],
+    visibility: ["//visibility:private"],
+}

@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+# Copyright 2022 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import sys
+from impl.common import (
+    CROSVM_ROOT,
+    run_main,
+    cmd,
+    chdir,
+)
+
+
+def main(list_checks: bool = False, all: bool = False, *check_names: str):
+    chdir(CROSVM_ROOT)
+    if not list_checks:
+        print("Deprecated. Please use ./tools/presubmit instead")
+    if not check_names:
+        check_names = ("health_checks",)
+    cmd(
+        sys.executable,
+        "tools/presubmit",
+        "--no-delta" if all else None,
+        "--list-checks" if list_checks else None,
+        *check_names
+    ).fg()
+
+
+if __name__ == "__main__":
+    run_main(main)

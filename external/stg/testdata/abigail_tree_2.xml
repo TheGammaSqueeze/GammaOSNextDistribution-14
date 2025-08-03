@@ -1,0 +1,12 @@
+<!-- Elements are sorted. -->
+<class-decl name='s' size-in-bits='64' is-struct='yes' visibility='default' id='70d9d65a'>
+  <data-member access='public' layout-offset-in-bits='0'>
+    <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+  </data-member>
+  <data-member access='public' layout-offset-in-bits='32'>
+    <var-decl name='' type-id='e7f43f72' visibility='default'/>
+  </data-member>
+  <member-type access='private'>
+    <typedef-decl name='X' type-id='95e97e5e' id='b35c4d3f'/>
+  </member-type>
+</class-decl>

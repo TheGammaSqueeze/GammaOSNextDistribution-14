@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/async-trait
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "async-trait"
+description: "Type erasure for async trait methods"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 24
+  }
+  identifier {
+    type: "HOMEPAGE"
+    value: "https://crates.io/crates/async-trait"
+  }
+  identifier {
+    type: "ARCHIVE"
+    value: "https://static.crates.io/crates/async-trait/async-trait-0.1.74.crate"
+    version: "0.1.74"
+  }
+}

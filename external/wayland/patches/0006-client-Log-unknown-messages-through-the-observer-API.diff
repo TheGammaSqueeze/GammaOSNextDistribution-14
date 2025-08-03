@@ -1,0 +1,387 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Lloyd Pique <lpique@google.com>
+Date: Fri, 11 Mar 2022 20:04:55 -0800
+Subject: [PATCH 6/6] client: Log unknown messages through the observer API
+
+Client message observers 6/6
+
+When the client code receives an event message for an unknown (or zombie)
+object, the code was logging a message only to stderr, and only if debug_client
+was set.
+
+Introduce a helper function to create some temporary wl_closure and related
+structures so that the unknown message can be sent out using the new client
+observer API. This allows the client implementation to potentially log it
+somewhere more useful than to just stderr, and it can register an observer at
+any time too.
+
+Note that the message that is logged is now structured slightly differently,
+though it contains the same content.
+
+Signed-off-by: Lloyd Pique <lpique@google.com>
+
+diff --git a/src/wayland-client-core.h b/src/wayland-client-core.h
+index a57cbe0..af7c184 100644
+--- a/src/wayland-client-core.h
++++ b/src/wayland-client-core.h
+@@ -311,6 +311,9 @@ enum wl_client_message_discarded_reason {
+ 
+ 	/** The target had no listener or dispatcher */
+ 	WL_CLIENT_MESSAGE_DISCARD_NO_LISTENER_ON_DISPATCH,
++
++	/** The target was not valid when the event was demarshalled */
++	WL_CLIENT_MESSAGE_DISCARD_UNKNOWN_ID_ON_DEMARSHAL,
+ };
+ 
+ /**
+diff --git a/src/wayland-client.c b/src/wayland-client.c
+index ab68bdb..d54e715 100644
+--- a/src/wayland-client.c
++++ b/src/wayland-client.c
+@@ -178,6 +178,8 @@ get_discarded_reason_str(
+ 		return "dead proxy on dispatch";
+ 	case WL_CLIENT_MESSAGE_DISCARD_NO_LISTENER_ON_DISPATCH:
+ 		return "no listener on dispatch";
++	case WL_CLIENT_MESSAGE_DISCARD_UNKNOWN_ID_ON_DEMARSHAL:
++		return "unknown id on demarshal";
+ 	}
+ 	return NULL;
+ }
+@@ -237,6 +239,53 @@ closure_log(struct wl_closure *closure, struct wl_proxy *proxy, bool send,
+ 	}
+ }
+ 
++/**
++ * This function helps log unknown messages on the client, when logging is
++ * enabled.
++ *
++ * \param display    current display
++ * \param zombie     true if there was a zombie for the message target
++ * \param id         id of the proxy this message was meant for
++ * \param opcode     opcode from the message
++ * \param num_fds    number of fd arguments for this message
++ * \param num_bytes  byte size of this message
++ */
++static void
++log_unknown_message(struct wl_display *display, bool zombie, uint32_t id,
++		    int opcode, int num_fds, int num_bytes)
++{
++	char event_detail[100];
++	struct wl_interface unknown_interface = { 0 };
++	struct wl_proxy unknown_proxy = { 0 };
++	struct wl_message unknown_message = { 0 };
++	struct wl_closure unknown_closure = { 0 };
++
++	if (!debug_client && wl_list_empty(&display->observers))
++		return;
++
++	snprintf(event_detail, sizeof event_detail,
++		 "[event %d, %d fds, %d bytes]", opcode, num_fds, num_bytes);
++
++	unknown_interface.name = zombie ? "[zombie]" : "[unknown]";
++
++	unknown_proxy.object.interface = &unknown_interface;
++	unknown_proxy.object.id = id;
++	unknown_proxy.display = display;
++	unknown_proxy.refcount = -1;
++	unknown_proxy.flags = WL_PROXY_FLAG_WRAPPER;
++
++	unknown_message.name = event_detail;
++	unknown_message.signature = "";
++	unknown_message.types = NULL;
++
++	unknown_closure.message = &unknown_message;
++	unknown_closure.opcode = opcode;
++	unknown_closure.proxy = &unknown_proxy;
++
++	closure_log(&unknown_closure, &unknown_proxy, false,
++		    WL_CLIENT_MESSAGE_DISCARD_UNKNOWN_ID_ON_DEMARSHAL);
++}
++
+ /**
+  * This helper function wakes up all threads that are
+  * waiting for display->reader_cond (i. e. when reading is done,
+@@ -1626,8 +1675,6 @@ queue_event(struct wl_display *display, int len)
+ 	struct wl_closure *closure;
+ 	const struct wl_message *message;
+ 	struct wl_event_queue *queue;
+-	struct timespec tp;
+-	unsigned int time;
+ 	int num_zombie_fds;
+ 
+ 	wl_connection_copy(display->connection, p, sizeof p);
+@@ -1645,17 +1692,9 @@ queue_event(struct wl_display *display, int len)
+ 		num_zombie_fds = (zombie && opcode < zombie->event_count) ?
+ 			zombie->fd_count[opcode] : 0;
+ 
+-		if (debug_client) {
+-			clock_gettime(CLOCK_REALTIME, &tp);
+-			time = (tp.tv_sec * 1000000L) + (tp.tv_nsec / 1000);
++		log_unknown_message(display, !!zombie, id, opcode,
++				    num_zombie_fds, size);
+ 
+-			fprintf(stderr, "[%7u.%03u] discarded [%s]@%d.[event %d]"
+-				"(%d fd, %d byte)\n",
+-				time / 1000, time % 1000,
+-				zombie ? "zombie" : "unknown",
+-				id, opcode,
+-				num_zombie_fds, size);
+-		}
+ 		if (num_zombie_fds > 0)
+ 			wl_connection_close_fds_in(display->connection,
+ 						   num_zombie_fds);
+diff --git a/tests/protocol-logger-test.c b/tests/protocol-logger-test.c
+index 9420b5e..94e437d 100644
+--- a/tests/protocol-logger-test.c
++++ b/tests/protocol-logger-test.c
+@@ -562,3 +562,250 @@ TEST(client_discards_if_no_listener_on_dispatch)
+ 
+ 	logger_teardown(&compositor, &client);
+ }
++
++TEST(client_discards_if_invalid_id_on_demarshal)
++{
++	test_set_timeout(1);
++
++	struct expected_client_message client_messages[] = {
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 0,
++			.message_name = "sync",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason =
++				WL_CLIENT_MESSAGE_DISCARD_UNKNOWN_ID_ON_DEMARSHAL,
++			.class = "[unknown]",
++			.opcode = 0,
++			.message_name = "[event 0, 0 fds, 12 bytes]",
++			.args_count = 0,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 1,
++			.message_name = "delete_id",
++			.args_count = 1,
++		},
++	};
++	struct compositor compositor = { 0 };
++	struct client client = { 0 };
++
++	logger_setup(&compositor, &client);
++
++	compositor.expected_msg_count = 3;
++
++	client.expected_msg = &client_messages[0];
++	client.expected_msg_count = ARRAY_LENGTH(client_messages);
++
++	client.cb = wl_display_sync(client.display);
++	wl_display_flush(client.display);
++
++	while (compositor.actual_msg_count < compositor.expected_msg_count) {
++		wl_event_loop_dispatch(compositor.loop, -1);
++		wl_display_flush_clients(compositor.display);
++	}
++
++	// To get a WL_CLIENT_MESSAGE_DISCARD_UNKNOWN_ID_ON_DEMARSHAL, we
++	// destroy the callback before reading and dispatching client events.
++	wl_callback_destroy(client.cb);
++
++	while (client.actual_msg_count < client.expected_msg_count) {
++		wl_display_dispatch(client.display);
++	}
++
++	logger_teardown(&compositor, &client);
++}
++
++static const struct wl_keyboard_interface keyboard_interface = { 0 };
++
++static void
++seat_get_pointer(struct wl_client *client, struct wl_resource *resource,
++		 uint32_t id)
++{
++	assert(false && "Not expected to be called by client.");
++}
++
++static void
++seat_get_keyboard(struct wl_client *client, struct wl_resource *resource,
++		  uint32_t id)
++{
++	struct wl_resource *keyboard_res;
++
++	keyboard_res =
++		wl_resource_create(client, &wl_keyboard_interface,
++				   wl_resource_get_version(resource), id);
++	wl_resource_set_implementation(keyboard_res, &keyboard_interface, NULL,
++				       NULL);
++
++	wl_keyboard_send_key(keyboard_res, 0, 0, 0, 0);
++}
++
++static void
++seat_get_touch(struct wl_client *client, struct wl_resource *resource,
++	       uint32_t id)
++{
++	assert(false && "Not expected to be called by client.");
++}
++
++static void
++seat_release(struct wl_client *client, struct wl_resource *resource)
++{
++	wl_resource_destroy(resource);
++}
++
++static const struct wl_seat_interface seat_interface = {
++	&seat_get_pointer,
++	&seat_get_keyboard,
++	&seat_get_touch,
++	&seat_release,
++};
++
++static void
++bind_seat(struct wl_client *client, void *data, uint32_t vers, uint32_t id)
++{
++	struct wl_resource *seat_res;
++
++	seat_res = wl_resource_create(client, &wl_seat_interface, vers, id);
++	wl_resource_set_implementation(seat_res, &seat_interface, NULL, NULL);
++}
++
++static void
++registry_seat_listener_handle_global(void *data, struct wl_registry *registry,
++				     uint32_t id, const char *intf,
++				     uint32_t ver)
++{
++	uint32_t *seat_id_ptr = data;
++
++	if (strcmp(intf, wl_seat_interface.name) == 0) {
++		*seat_id_ptr = id;
++	}
++}
++
++static const struct wl_registry_listener registry_seat_listener = {
++	registry_seat_listener_handle_global, NULL
++};
++
++TEST(client_discards_if_zombie_on_demarshal)
++{
++	test_set_timeout(1);
++
++	struct expected_client_message client_messages[] = {
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_display",
++			.opcode = 1,
++			.message_name = "get_registry",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_registry",
++			.opcode = 0,
++			.message_name = "global",
++			.args_count = 3,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_registry",
++			.opcode = 0,
++			.message_name = "bind",
++			.args_count = 4,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_seat",
++			.opcode = 1,
++			.message_name = "get_keyboard",
++			.args_count = 1,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_keyboard",
++			.opcode = 0,
++			.message_name = "release",
++			.args_count = 0,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_REQUEST,
++			.discarded_reason = WL_CLIENT_MESSAGE_NOT_DISCARDED,
++			.class = "wl_seat",
++			.opcode = 3,
++			.message_name = "release",
++			.args_count = 0,
++		},
++		{
++			.type = WL_CLIENT_MESSAGE_EVENT,
++			.discarded_reason =
++				WL_CLIENT_MESSAGE_DISCARD_UNKNOWN_ID_ON_DEMARSHAL,
++			.class = "[zombie]",
++			.opcode = 3,
++			.message_name = "[event 3, 0 fds, 24 bytes]",
++			.args_count = 0,
++		},
++	};
++
++	struct compositor compositor = { 0 };
++	struct client client = { 0 };
++	struct wl_global *g_keyboard;
++	struct wl_registry *registry;
++	struct wl_seat *seat;
++	struct wl_keyboard *keyboard;
++	int32_t seat_id;
++
++	logger_setup(&compositor, &client);
++
++	client.expected_msg = &client_messages[0];
++	client.expected_msg_count = ARRAY_LENGTH(client_messages);
++
++	g_keyboard = wl_global_create(compositor.display, &wl_seat_interface,
++				      5, &compositor.display, bind_seat);
++
++	registry = wl_display_get_registry(client.display);
++	wl_registry_add_listener(registry, &registry_seat_listener, &seat_id);
++	wl_display_flush(client.display);
++
++	compositor.actual_msg_count = 0;
++	compositor.expected_msg_count = 2;
++
++	while (compositor.actual_msg_count < compositor.expected_msg_count) {
++		wl_event_loop_dispatch(compositor.loop, -1);
++		wl_display_flush_clients(compositor.display);
++	}
++
++	wl_display_dispatch(client.display);
++
++	seat = wl_registry_bind(registry, seat_id, &wl_seat_interface, 5);
++	keyboard = wl_seat_get_keyboard(seat);
++	wl_display_flush(client.display);
++
++	compositor.actual_msg_count = 0;
++	compositor.expected_msg_count = 3;
++
++	while (compositor.actual_msg_count < compositor.expected_msg_count) {
++		wl_event_loop_dispatch(compositor.loop, -1);
++		wl_display_flush_clients(compositor.display);
++	}
++
++	wl_keyboard_release(keyboard);
++	wl_seat_release(seat);
++
++	wl_display_dispatch(client.display);
++
++	wl_registry_destroy(registry);
++
++	wl_global_destroy(g_keyboard);
++
++	logger_teardown(&compositor, &client);
++}

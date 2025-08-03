@@ -1,0 +1,34 @@
+diff --git a/Android.bp b/Android.bp
+index 7aa485c..085721a 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -36,6 +36,15 @@ rust_library {
+     ],
+     product_available: true,
+     vendor_available: true,
++    // Doesn't compile on 32-bit targets.
++    target: {
++        android_arm: {
++            enabled: false,
++        },
++        android_x86: {
++            enabled: false,
++        },
++    },
+ }
+ 
+ rust_test {
+@@ -56,4 +65,13 @@ rust_test {
+         "libserde",
+     ],
+     proc_macros: ["libp9_wire_format_derive"],
++    // Doesn't compile on 32-bit targets.
++    target: {
++        android_arm: {
++            enabled: false,
++        },
++        android_x86: {
++            enabled: false,
++        },
++    },
+ }

@@ -1,0 +1,7 @@
+{
+  "package": {
+    "userfaultfd-sys": {
+      "add_toplevel_block": "cargo2android_consts.bp"
+    }
+  }
+}

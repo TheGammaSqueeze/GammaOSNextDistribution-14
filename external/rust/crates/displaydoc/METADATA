@@ -1,0 +1,20 @@
+name: "displaydoc"
+description: "()"
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/displaydoc"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/displaydoc/displaydoc-0.2.4.crate"
+  }
+  version: "0.2.4"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 21
+  }
+}

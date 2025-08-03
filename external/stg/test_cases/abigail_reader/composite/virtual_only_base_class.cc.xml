@@ -1,0 +1,57 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_Z3foov' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3funR1X' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1XC2Ev' type='func-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1Y1fEv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1Y1gEv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1YC2Ev' type='func-type' binding='weak-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='_ZTI1Y' size='24' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTS1Y' size='3' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZTV1Y' size='32' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='virtual_only_base_class.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='X' size-in-bits='64' is-struct='yes' visibility='default' id='47d995cf'>
+      <member-function access='public' vtable-offset='0'>
+        <function-decl name='f' mangled-name='_ZN1X1fEv' visibility='default' binding='global' size-in-bits='64'>
+          <parameter type-id='07134e77' is-artificial='yes'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public' vtable-offset='1'>
+        <function-decl name='g' mangled-name='_ZN1X1gEv' visibility='default' binding='global' size-in-bits='64'>
+          <parameter type-id='07134e77' is-artificial='yes'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+    </class-decl>
+    <class-decl name='Y' size-in-bits='64' is-struct='yes' visibility='default' id='46d9943c'>
+      <base-class access='public' layout-offset-in-bits='0' type-id='47d995cf'/>
+      <member-function access='public' vtable-offset='0'>
+        <function-decl name='f' mangled-name='_ZN1Y1fEv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1Y1fEv'>
+          <parameter type-id='25113f1a' is-artificial='yes'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public' vtable-offset='1'>
+        <function-decl name='g' mangled-name='_ZN1Y1gEv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1Y1gEv'>
+          <parameter type-id='25113f1a' is-artificial='yes'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+    </class-decl>
+    <reference-type-def kind='lvalue' type-id='47d995cf' size-in-bits='64' id='fb133b93'/>
+    <pointer-type-def type-id='47d995cf' size-in-bits='64' id='07134e77'/>
+    <pointer-type-def type-id='46d9943c' size-in-bits='64' id='25113f1a'/>
+    <function-decl name='fun' mangled-name='_Z3funR1X' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3funR1X'>
+      <parameter type-id='fb133b93' name='x'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='foo' mangled-name='_Z3foov' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3foov'>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

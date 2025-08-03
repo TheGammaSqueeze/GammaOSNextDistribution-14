@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec "$(dirname "$0")/$(uname -m)-linux-musl/$(basename "$0")" "${@}"

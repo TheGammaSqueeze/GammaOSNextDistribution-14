@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/prettyplease
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "prettyplease"
+description: "A minimal `syn` syntax tree pretty-printer"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/prettyplease"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/prettyplease/prettyplease-0.2.6.crate"
+  }
+  version: "0.2.6"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 5
+    day: 23
+  }
+}

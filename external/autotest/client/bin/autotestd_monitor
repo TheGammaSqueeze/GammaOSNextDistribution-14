@@ -1,0 +1,83 @@
+#!/usr/bin/python3
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+import common
+import sys, os, signal, time, subprocess, fcntl
+
+
+def _print_to_file_and_flush(msg, file):
+    """Print to the provided file, and flush after printing."""
+    print(msg, file=file)
+    file.flush()
+
+logdir = sys.argv[1]
+stdout_start = int(sys.argv[2])  # number of bytes we can skip on stdout
+stderr_start = int(sys.argv[3])  # nubmer of bytes we can skip on stderr
+# TODO (crosbug.com/38224)- sbasi: Remove extra logging.
+stderr = open(os.path.join(logdir, 'stderr'), 'a', buffering=2)
+
+_print_to_file_and_flush('Entered autotestd_monitor.', file=stderr)
+
+# if any of our tail processes die, the monitor should die too
+def kill_self(signum, frame):
+    os.kill(os.getpid(), signal.SIGTERM)
+signal.signal(signal.SIGCHLD, kill_self)
+
+devnull = open(os.devnull, 'w')
+
+# launch some tail processes to pump the std* streams
+def launch_tail(filename, outstream, start):
+    path = os.path.join(logdir, filename)
+    argv = ['tail', '--retry', '--follow=name', '--bytes=+%d' % start, path]
+    # stdout=sys.stdout fails on pre-2.5 python (bug in subprocess module)
+    if outstream != subprocess.PIPE and outstream.fileno() == 1:
+        return subprocess.Popen(argv, stderr=devnull)
+    else:
+        return subprocess.Popen(argv, stdout=outstream, stderr=devnull)
+stdout_pump = launch_tail('stdout', sys.stdout, stdout_start)
+stderr_pump = launch_tail('stderr', sys.stderr, stderr_start)
+
+_print_to_file_and_flush('Finished launching tail subprocesses.', file=stderr)
+# wait for logdir/started to exist to be sure autotestd is started
+start_time = time.time()
+started_file_path = os.path.join(logdir, 'started')
+while not os.path.exists(started_file_path):
+    time.sleep(1)
+    if time.time() - start_time >= 30:
+        raise Exception("autotestd failed to start in %s" % logdir)
+
+_print_to_file_and_flush('Finished waiting on autotestd to start.',
+                         file=stderr)
+
+# watch the exit code file for an exit
+exit_code_file = open(os.path.join(logdir, 'exit_code'))
+fcntl.flock(exit_code_file, fcntl.LOCK_EX)
+_print_to_file_and_flush('Got lock of exit_code_file.', file=stderr)
+
+try:
+    exit_code = exit_code_file.read()
+    if len(exit_code) != 4:
+        exit_code = -signal.SIGKILL   # autotestd was nuked
+    else:
+        exit_code = int(exit_code)
+finally:
+    fcntl.flock(exit_code_file, fcntl.LOCK_UN)
+    exit_code_file.close()
+    _print_to_file_and_flush('Released lock of exit_code_file and closed it.',
+                              file=stderr)
+
+# Give tail a tiny bit of time to finish.
+time.sleep(0.01)
+
+_print_to_file_and_flush('Killing child processes.', file=stderr)
+
+# clear the SIGCHLD handler so that killing the tails doesn't kill us
+signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+os.kill(stdout_pump.pid, signal.SIGTERM)
+os.kill(stderr_pump.pid, signal.SIGTERM)
+
+stderr.close()
+# exit (with the same code as autotestd)
+sys.exit(exit_code)

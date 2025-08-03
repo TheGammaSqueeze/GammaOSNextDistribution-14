@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out><junk>$top1 summary: top1-begin
+    top1-first1top1-first2top1-second1
+$top2 summary: top2-begin
+    top2-first1top2-first2top2-second1</junk>
+The preceding::t1 elements in $top2 are top2-first1,</out>

@@ -1,0 +1,16 @@
+name: "python_portpicker"
+description:
+    "This module is useful for finding unused network ports on a host."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/python_portpicker"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/python_portpicker"
+  }
+  version: "b05ca660bc9ce2ff9753256238927b91e234c34b"
+  last_upgrade_date { year: 2022 month: 5 day: 17 }
+  license_type: NOTICE
+}

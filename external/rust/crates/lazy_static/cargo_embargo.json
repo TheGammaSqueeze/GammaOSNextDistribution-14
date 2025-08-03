@@ -1,0 +1,35 @@
+{
+  "min_sdk_version": "29",
+  "module_blocklist": [
+    "lazy_static_test_tests_no_std"
+  ],
+  "package": {
+    "lazy_static": {
+      "dep_blocklist": [
+        "libdoc_comment"
+      ]
+    }
+  },
+  "variants": [
+    {
+      "tests": true
+    },
+    {
+      "features": [
+        "spin",
+        "spin_no_std"
+      ],
+      "module_name_overrides": {
+        "liblazy_static": "liblazy_static_nostd",
+        "libspin": "libspin_nostd"
+      },
+      "package": {
+        "lazy_static": {
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

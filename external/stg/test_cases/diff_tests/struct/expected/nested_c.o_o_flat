@@ -1,0 +1,34 @@
+function symbol 'void register_ops6(struct containing)' changed
+  type 'void(struct containing)' changed
+    parameter 1 type 'struct containing' changed
+
+function symbol 'void register_ops7(struct containing*)' changed
+  type 'void(struct containing*)' changed
+    parameter 1 type 'struct containing*' changed
+      pointed-to type 'struct containing' changed
+
+function symbol 'void register_ops8(struct referring)' changed
+  type 'void(struct referring)' changed
+    parameter 1 type 'struct referring' changed
+
+function symbol 'void register_ops9(struct referring*)' changed
+  type 'void(struct referring*)' changed
+    parameter 1 type 'struct referring*' changed
+      pointed-to type 'struct referring' changed
+
+type 'struct containing' changed
+  byte size changed from 4 to 8
+  member 'struct nested inner' changed
+    type 'struct nested' changed
+
+type 'struct referring' changed
+  member 'struct nested* inner' changed
+    type 'struct nested*' changed
+      pointed-to type 'struct nested' changed
+
+type 'struct nested' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+exit code 4

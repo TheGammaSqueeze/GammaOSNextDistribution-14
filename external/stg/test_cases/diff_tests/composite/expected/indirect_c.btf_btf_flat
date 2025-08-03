@@ -1,0 +1,17 @@
+function symbol 'void foo(struct node*)' changed
+  type 'void(struct node*)' changed
+    parameter 1 type 'struct node*' changed
+      pointed-to type 'struct node' changed
+
+type 'struct node' changed
+  member 'struct leaf* ptr' changed
+    type 'struct leaf*' changed
+      pointed-to type 'struct leaf' changed
+
+type 'struct leaf' changed
+  byte size changed from 8 to 12
+  member changed from 'int numbers[2]' to 'int numbers[3]'
+    type changed from 'int[2]' to 'int[3]'
+      number of elements changed from 2 to 3
+
+exit code 4

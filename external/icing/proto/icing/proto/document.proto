@@ -1,0 +1,243 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/logging.proto";
+import "icing/proto/status.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// Defines a unit of data understood by the IcingSearchEngine.
+// Next tag: 10
+message DocumentProto {
+  // REQUIRED: Namespace that this Document resides in.
+  // Namespaces can affect read/write permissions.
+  optional string namespace = 1;
+
+  // REQUIRED: Identifier of the Document; must be unique within the
+  // Document's `namespace`. Otherwise, the new Document will override any
+  // other Documents with the same `namespace`+`uri` that Icing knows about.
+  optional string uri = 2;
+
+  // REQUIRED: Type of the Document. This should match the 'schema_type' of
+  // one of the types given to Icing as part of the overall schema.
+  // See icing.lib.SchemaTypeConfigProto.schema_type for details.
+  optional string schema = 3;
+
+  // OPTIONAL: Seconds since epoch at which the Document was created.
+  // Negative values will lead to validation errors. If not specified, it will
+  // default to when the Icing receives the Document.
+  optional int64 creation_timestamp_ms = 4;
+
+  // REQUIRED: Properties that will be validated against the provided schema.
+  // The names of these properties should map to one of the properties
+  // already defined in the schema for this Document's schema_type.
+  repeated PropertyProto properties = 5;
+
+  // OPTIONAL: Score of the document which could be used during search result
+  // ranking. Negative values will lead to validation errors. The default is the
+  // lowest score 0.
+  optional int32 score = 7 [default = 0];
+
+  // The time-to-live that should be enforced on this Document. Documents get
+  // garbage-collected once the current time exceeds the ttl_ms after the
+  // creation_timestamp_ms. Negative values will lead to validation errors.
+  //
+  // Default value of 0 keeps the Documents till they're explicitly deleted.
+  //
+  // TODO(cassiewang): Benchmark if fixed64 or some other proto type is better
+  // in terms of space/time efficiency. Both for ttl_ms and timestamp fields
+  optional int64 ttl_ms = 8 [default = 0];
+
+  // Defines document level data that's generated internally by Icing.
+  message InternalFields {
+    // The length of the document as a count of tokens (or terms) in all indexed
+    // text properties. This field is used in the computation of BM25F relevance
+    // score.
+    optional int32 length_in_tokens = 1;
+  }
+  optional InternalFields internal_fields = 9;
+
+  reserved 6;
+}
+
+// Holds a property field of the Document.
+// Next tag: 8
+message PropertyProto {
+  // Name of the property.
+  // See icing.lib.PropertyConfigProto.property_name for details.
+  optional string name = 1;
+
+  // Only the field corresponding to the DataType specified in
+  // icing.lib.PropertyConfigProto.data_type should be set.
+  repeated string string_values = 2;
+  repeated int64 int64_values = 3;
+  repeated double double_values = 4;
+  repeated bool boolean_values = 5;
+  repeated bytes bytes_values = 6;
+  repeated DocumentProto document_values = 7;
+}
+
+// Result of a call to IcingSearchEngine.Put
+// Next tag: 3
+message PutResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   NOT_FOUND
+  //   INTERNAL
+  //   OUT_OF_SPACE
+  //
+  // See status.proto for more details.
+  //
+  // TODO(b/147699081): Fix error codes: +ABORTED
+  // go/icing-library-apis.
+  optional StatusProto status = 1;
+
+  // Stats of the function call. Inside PutDocumentStatsProto, the function
+  // call latency 'latency_ms' will always be populated. The other fields will
+  // be accurate only when the status above is OK. See logging.proto for
+  // details.
+  optional PutDocumentStatsProto put_document_stats = 2;
+}
+
+// Result of a call to IcingSearchEngine.Get
+// Next tag: 3
+message GetResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   NOT_FOUND
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  //
+  // TODO(b/147699081): Fix error codes: +ABORTED, -INTERNAL.
+  // go/icing-library-apis.
+  optional StatusProto status = 1;
+
+  // Copy of the Document proto with the specified name_space, uri. Modifying
+  // this does not affect the Document in IcingSearchEngine.
+  optional DocumentProto document = 2;
+}
+
+// Result of a call to IcingSearchEngine.GetAllNamespaces
+// Next tag: 3
+message GetAllNamespacesResultProto {
+  // Status code can be one of:
+  //   OK
+  //
+  // See status.proto for more details.
+  optional StatusProto status = 1;
+
+  // List of namespaces which have at least one existing document in it (not
+  // deleted and not expired). Order of namespaces is undefined.
+  repeated string namespaces = 2;
+}
+
+// Result of a call to IcingSearchEngine.Delete
+// Next tag: 3
+message DeleteResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   NOT_FOUND
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  //
+  // TODO(b/147699081): Fix error codes: +ABORTED.
+  // go/icing-library-apis.
+  optional StatusProto status = 1;
+
+  // Stats for delete execution performance.
+  optional DeleteStatsProto delete_stats = 2;
+}
+
+// Result of a call to IcingSearchEngine.DeleteByNamespace
+// Next tag: 3
+message DeleteByNamespaceResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   NOT_FOUND
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  //
+  // TODO(b/147699081): Fix error codes: +ABORTED.
+  // go/icing-library-apis.
+  optional StatusProto status = 1;
+
+  // Stats for delete execution performance.
+  optional DeleteStatsProto delete_stats = 2;
+}
+
+// Result of a call to IcingSearchEngine.DeleteBySchemaType
+// Next tag: 3
+message DeleteBySchemaTypeResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   NOT_FOUND
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  //
+  // TODO(b/147699081): Fix error codes: +ABORTED.
+  // go/icing-library-apis.
+  optional StatusProto status = 1;
+
+  // Stats for delete execution performance.
+  optional DeleteStatsProto delete_stats = 2;
+}
+
+// Result of a call to IcingSearchEngine.DeleteByQuery
+// Next tag: 5
+message DeleteByQueryResultProto {
+  // Status code can be one of:
+  //   OK
+  //   FAILED_PRECONDITION
+  //   NOT_FOUND
+  //   INTERNAL
+  //
+  // See status.proto for more details.
+  //
+  // TODO(b/147699081): Fix error codes: +ABORTED.
+  // go/icing-library-apis.
+  optional StatusProto status = 1;
+
+  // Stats for delete execution performance.
+  optional DeleteByQueryStatsProto delete_by_query_stats = 3;
+
+  // Used by DeleteByQueryResultProto to return information about deleted
+  // documents.
+  message DocumentGroupInfo {
+    optional string namespace = 1;
+    optional string schema = 2;
+    repeated string uris = 3;
+  }
+
+  // Additional return message that shows the uris of the deleted documents, if
+  // users set return_deleted_document_info to true.
+  // The result is grouped by the corresponding namespace and type.
+  repeated DocumentGroupInfo deleted_documents = 4;
+
+  reserved 2;
+}

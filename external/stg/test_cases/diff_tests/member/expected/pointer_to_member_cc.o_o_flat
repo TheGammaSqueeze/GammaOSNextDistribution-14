@@ -1,0 +1,44 @@
+function symbol 'int struct S::* s2()' {_Z2s2v} was added
+
+function symbol 'int s10(int struct S::*)' {_Z3s10M1Si} was added
+
+function symbol 'void pmz_fun()' {_Z7pmz_funv} was added
+
+variable symbol 'char struct Y::* pmc' was added
+
+variable symbol 'int union U::* pmcu' was added
+
+variable symbol 'double struct X::* pmd' was added
+
+variable symbol 'void(struct X::* pmf)(struct X*, int)' was added
+
+variable symbol 'int struct X::* pmi' was added
+
+variable symbol 'int union U::* pmu' was added
+
+variable symbol 'int struct { int t; }::* pmy' was added
+
+variable symbol 'int struct S::* s0' was added
+
+variable symbol 'int struct S::** s1' was added
+
+variable symbol 'int struct S::*(* s3)()' was added
+
+variable symbol 'int struct S::* s4[7]' was added
+
+variable symbol 'int* struct S::* s5' was added
+
+variable symbol 'int(* struct S::* s6)()' was added
+
+variable symbol 'int(struct S::* s7)(struct S*)' was added
+
+variable symbol 'int(struct S::* s8)[7]' was added
+
+variable symbol 'const int struct S::* volatile s9' was added
+
+variable symbol changed from 'char struct A::* diff' to 'int struct B::* diff'
+  type changed from 'char struct A::*' to 'int struct B::*'
+    containing type changed from 'struct A' to 'struct B'
+    type changed from 'char' to 'int'
+
+exit code 4

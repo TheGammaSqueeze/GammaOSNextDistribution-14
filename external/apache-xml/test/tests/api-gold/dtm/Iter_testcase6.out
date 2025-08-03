@@ -1,0 +1,7 @@
+#### PRECEDINGSIBLING from Ad, Reverse Axis:true
+ 65542: COMMENT #comment  Level=3 	Value=" Default test document "
+ 65543: PROCESSING_INSTRUCTION api  Level=3 	Value="a1="yes" a2="no""
+ 65544: ELEMENT A  Level=3 	Value=null
+ 65554: ELEMENT Aa  Level=3 	Value=null
+ 65555: ELEMENT Ab  Level=3 	Value=null
+ 65556: ELEMENT Ac  Level=3 	Value=null

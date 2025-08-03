@@ -1,0 +1,517 @@
+// Copyright (C) 2015 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_visibility: [":__subpackages__"],
+    default_applicable_licenses: ["external_dagger2_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_dagger2_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "legacy_not_a_contribution",
+    ],
+    license_text: [
+        "LICENSE.txt",
+    ],
+}
+
+java_import_host {
+    name: "dagger2-bootstrap-compiler-jar",
+    jars: ["java/dagger/internal/codegen/bootstrap/bootstrap_compiler_deploy.jar"],
+}
+
+java_plugin {
+    name: "dagger2-bootstrap-compiler",
+    processor_class: "dagger.internal.codegen.ComponentProcessor",
+    generates_api: true,
+    static_libs: ["dagger2-bootstrap-compiler-jar"],
+    jarjar_rules: "jarjar-rules.txt",
+}
+
+java_library {
+    name: "dagger2",
+    visibility: ["//visibility:public"],
+    host_supported: true,
+
+    srcs: [
+        "java/dagger/*.java",
+        "java/dagger/assisted/*.java",
+        "java/dagger/internal/*.java",
+        "java/dagger/multibindings/*.java",
+        "java/dagger/releasablereferences/*.java",
+    ],
+    exclude_srcs: ["java/dagger/android/**/*.java"],
+
+    libs: [
+        "guava",
+        "jsr330",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adservices",
+        "com.android.extservices",
+        "com.android.devicelock",
+        "com.android.healthfitness",
+        "com.android.mediaprovider",
+        "com.android.ondevicepersonalization",
+    ],
+
+    sdk_version: "core_current",
+
+    errorprone: {
+        javacflags: [
+            "-Xep:FormatStringAnnotation:WARN",
+            "-Xep:NoCanIgnoreReturnValueOnClasses:WARN",
+        ],
+    },
+}
+
+// build dagger2 producers library
+// ============================================================
+
+java_library {
+    name: "dagger2-producers",
+    host_supported: true,
+
+    srcs: ["java/dagger/producers/**/*.java"],
+
+    static_libs: [
+        "error_prone_annotations",
+    ],
+
+    libs: [
+        "dagger2",
+        "dagger2-android-annotation-stubs",
+        "guava",
+        "jsr330",
+    ],
+
+    sdk_version: "core_current",
+}
+
+// build dagger2 compiler plugin
+// ============================================================
+
+java_plugin {
+    name: "dagger2-compiler",
+    visibility: ["//visibility:public"],
+    processor_class: "dagger.internal.codegen.ComponentProcessor",
+    generates_api: true,
+    static_libs: ["dagger2-compiler-lib"],
+    // shade guava to avoid conflicts with guava embedded in Error Prone.
+    jarjar_rules: "jarjar-rules.txt",
+}
+
+// Dagger distributes its own copy of androidx.room.compiler.processing
+// while the API is unstable.  There are shading rules in jarjar-rules.txt
+// to prevent conflicts with official version.  When this is removed
+// in favor of the official version the shading rules should also be
+// removed.
+java_import_host {
+    name: "dagger2-room-compiler-processing",
+    jars: ["java/dagger/internal/codegen/xprocessing/xprocessing.jar"],
+}
+
+java_library_host {
+    name: "dagger2-compiler-lib",
+    use_tools_jar: true,
+    visibility: ["//visibility:public"],
+
+    srcs: [
+        "java/dagger/internal/codegen/**/*.java",
+        "java/dagger/internal/codegen/**/*.proto",
+
+        "java/dagger/model/*.java",
+        "java/dagger/spi/*.java",
+        "java/dagger/spi/model/*.java",
+        "java/dagger/spi/model/*.kt",
+    ],
+
+    exclude_srcs: [
+        "java/dagger/internal/codegen/BindingGraphStatisticsCollector.java",
+        "java/dagger/internal/codegen/kythe/DaggerKythePlugin.java",
+    ],
+
+    static_libs: [
+        "auto_common",
+        "dagger2",
+        "dagger2-producers",
+        "dagger2-room-compiler-processing",
+        "google_java_format",
+        "guava",
+        "javapoet",
+        "jsr330",
+        "kotlin_symbol_processing_api",
+        "kotlin-stdlib",
+        "kotlin-stdlib-jdk8",
+        "kotlinpoet",
+        "kotlinx_metadata_jvm",
+        "kotlin_symbol_processing_api",
+    ],
+
+
+    libs: [
+        "auto_factory_annotations",
+        "auto_service_annotations",
+        "auto_value_annotations",
+        "auto_value_memoized_extension_annotations",
+        "dagger2-android-annotation-stubs",
+    ],
+
+    plugins: [
+        "auto_factory_plugin",
+        "auto_service_plugin",
+        "auto_value_plugin",
+        "auto_value_memoized_extension_plugin",
+        "auto_annotation_plugin",
+        "dagger2-bootstrap-compiler",
+    ],
+
+    proto: {
+        type: "full",
+        include_dirs: ["external/protobuf/src/"],
+    },
+
+    // From Java 9 onward com.sun.tools.javac is not visible by default
+    javacflags: [
+        "--add-modules=jdk.compiler",
+        "--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    ],
+
+    errorprone: {
+        javacflags: [
+            "-Xep:FormatStringAnnotation:WARN",
+            "-Xep:NoCanIgnoreReturnValueOnClasses:WARN",
+        ],
+    },
+}
+
+// Compile  dummy implementations of annotations used by dagger2 but not
+// present in the Android tree.
+java_library {
+    name: "dagger2-android-annotation-stubs",
+    host_supported: true,
+    sdk_version: "core_current",
+    srcs: ["android-annotation-stubs/src/**/*.java"],
+}
+
+// build core hilt library
+
+java_library {
+    name: "hilt_core",
+    srcs: [
+        "java/dagger/hilt/*.java",
+        "java/dagger/hilt/codegen/*.java",
+        "java/dagger/hilt/components/*.java",
+        "java/dagger/hilt/internal/*.java",
+        "java/dagger/hilt/internal/aliasof/*.java",
+        "java/dagger/hilt/internal/definecomponent/*.java",
+        "java/dagger/hilt/internal/generatesrootinput/*.java",
+        "java/dagger/hilt/migration/*.java",
+        "java/dagger/hilt/processor/internal/aggregateddeps/AggregatedDeps.java",
+    ],
+    static_libs: [
+        "jsr305",
+        "jsr330",
+        "dagger2",
+    ],
+    sdk_version: "core_current",
+    plugins: [
+        "hilt_define_component_processor",
+        "hilt_generates_root_input_processor",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.healthfitness",
+        "com.android.mediaprovider",
+        "com.android.ondevicepersonalization",
+    ],
+}
+
+// Build the android hilt library.  Depending on this will enable the Hilt annotation processors.
+
+android_library {
+    name: "hilt_android",
+    visibility: ["//visibility:public"],
+
+    srcs: [
+        "java/dagger/hilt/android/*.java",
+        "java/dagger/hilt/android/*.kt",
+        "java/dagger/hilt/android/components/*.java",
+        "java/dagger/hilt/android/flags/*.java",
+        "java/dagger/hilt/android/migration/*.java",
+        "java/dagger/hilt/android/qualifiers/*.java",
+        "java/dagger/hilt/android/scopes/*.java",
+        "java/dagger/hilt/android/internal/*.java",
+        "java/dagger/hilt/android/internal/builders/*.java",
+        "java/dagger/hilt/android/internal/earlyentrypoint/*.java",
+        "java/dagger/hilt/android/internal/legacy/*.java",
+        "java/dagger/hilt/android/internal/lifecycle/*.java",
+        "java/dagger/hilt/android/internal/managers/*.java",
+        "java/dagger/hilt/android/internal/migration/*.java",
+        "java/dagger/hilt/android/internal/modules/*.java",
+        "java/dagger/hilt/android/lifecycle/*.java",
+        "java/dagger/hilt/internal/aggregatedroot/*.java",
+        "java/dagger/hilt/internal/componenttreedeps/*.java",
+        "java/dagger/hilt/internal/processedrootsentinel/*.java",
+    ],
+    manifest: "java/dagger/hilt/android/AndroidManifest.xml",
+    static_libs: [
+        "androidx.activity_activity",
+        "androidx.annotation_annotation",
+        "androidx.fragment_fragment",
+        "androidx.lifecycle_lifecycle-common",
+        "androidx.lifecycle_lifecycle-viewmodel",
+        "androidx.lifecycle_lifecycle-viewmodel-savedstate",
+        "jsr305",
+        "jsr330",
+        "dagger2",
+        "hilt_core",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "19",
+    plugins: [
+        "dagger2-compiler",
+        "hilt_android_entry_point_processor",
+        "hilt_aggregated_deps_processor",
+        "hilt_define_component_processor",
+        "hilt_generates_root_input_processor",
+        "hilt_originating_element_processor",
+        "hilt_root_processor",
+    ],
+    exported_plugins: [
+        "dagger2-compiler",
+
+        "hilt_android_entry_point_processor",
+        "hilt_aggregated_deps_processor",
+        "hilt_alias_of_processor",
+        "hilt_component_tree_deps_processor",
+        "hilt_define_component_processor",
+        "hilt_early_entry_point_processor",
+        "hilt_generates_root_input_processor",
+        "hilt_originating_element_processor",
+        "hilt_root_processor",
+        "hilt_viewmodel_processor",
+    ],
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.healthfitness",
+        "com.android.mediaprovider",
+        "com.android.ondevicepersonalization",
+    ],
+}
+
+android_library {
+    name: "hilt_android_testing",
+    visibility: ["//visibility:public"],
+
+    srcs: [
+        "java/dagger/hilt/android/internal/testing/*.java",
+        "java/dagger/hilt/android/internal/testing/root/*.java",
+        "java/dagger/hilt/android/internal/uninstallmodules/*.java",
+        "java/dagger/hilt/android/testing/*.java",
+        "java/dagger/hilt/testing/*.java",
+    ],
+    manifest: "java/dagger/hilt/android/testing/AndroidManifest.xml",
+    static_libs: [
+        "auto_value_annotations",
+        "androidx.annotation_annotation",
+        "androidx.fragment_fragment",
+        "androidx.annotation_annotation",
+        "androidx.fragment_fragment",
+        "androidx.test.core",
+        "android-support-multidex",
+        "jsr305",
+        "dagger2",
+        "hilt_android",
+        "hilt_core",
+        "junit",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "19",
+    plugins: [
+        "auto_value_plugin",
+        "dagger2-compiler",
+        "hilt_generates_root_input_processor",
+    ],
+    exported_plugins: [
+        "dagger2-compiler",
+
+        "hilt_android_entry_point_processor",
+        "hilt_aggregated_deps_processor",
+        "hilt_alias_of_processor",
+        "hilt_component_tree_deps_processor",
+        "hilt_define_component_processor",
+        "hilt_early_entry_point_processor",
+        "hilt_generates_root_input_processor",
+        "hilt_originating_element_processor",
+        "hilt_root_processor",
+        "hilt_viewmodel_processor",
+
+        "hilt_custom_test_application_processor",
+        "hilt_bindvalue_processor",
+        "hilt_uninstall_modules_processor",
+    ],
+}
+
+// Hilt has many annotation processors.  To reduce compilation and runtime cost, they are all compiled
+// into hilt_android_processors.  A java_plugin can only expose a single processor class, so each has
+// to be defined separately.  Since they are not visible outside this package and will always be
+// exported together, only the first actually contains the annotation processor classes.
+java_plugin {
+    name: "hilt_generates_root_input_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.generatesrootinput.GeneratesRootInputProcessor",
+    static_libs: ["hilt_android_processors"],
+}
+
+java_plugin {
+    name: "hilt_android_entry_point_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.android.processor.internal.androidentrypoint.AndroidEntryPointProcessor",
+}
+
+java_plugin {
+    name: "hilt_aggregated_deps_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.aggregateddeps.AggregatedDepsProcessor",
+}
+
+java_plugin {
+    name: "hilt_alias_of_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.aliasof.AliasOfProcessor",
+}
+
+java_plugin {
+    name: "hilt_component_tree_deps_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.root.ComponentTreeDepsProcessor",
+}
+
+java_plugin {
+    name: "hilt_define_component_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.definecomponent.DefineComponentProcessor",
+}
+
+java_plugin {
+    name: "hilt_early_entry_point_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.earlyentrypoint.EarlyEntryPointProcessor",
+}
+
+java_plugin {
+    name: "hilt_originating_element_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.originatingelement.OriginatingElementProcessor",
+}
+
+java_plugin {
+    name: "hilt_root_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.root.RootProcessor",
+}
+
+java_plugin {
+    name: "hilt_viewmodel_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.android.processor.internal.viewmodel.ViewModelProcessor",
+}
+
+// Hilt testing processors
+java_plugin {
+    name: "hilt_custom_test_application_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.android.processor.internal.customtestapplication.CustomTestApplicationProcessor",
+}
+
+java_plugin {
+    name: "hilt_bindvalue_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.android.processor.internal.bindvalue.BindValueProcessor",
+}
+
+java_plugin {
+    name: "hilt_uninstall_modules_processor",
+    generates_api: true,
+    processor_class: "dagger.hilt.processor.internal.uninstallmodules.UninstallModulesProcessor",
+}
+
+java_library_host {
+    name: "hilt_android_processors",
+    use_tools_jar: true,
+    srcs: [
+        "java/dagger/hilt/android/processor/**/*.java",
+        "java/dagger/hilt/android/processor/**/*.kt",
+        "java/dagger/hilt/codegen/*.java",
+        "java/dagger/hilt/processor/internal/**/*.java",
+        "java/dagger/hilt/processor/internal/**/*.kt",
+    ],
+    exclude_srcs: [
+        // Depends on DefineComponentValidationProcessingStep which is not present in github.
+        "java/dagger/hilt/processor/internal/definecomponent/KspDefineComponentValidationProcessor.java",
+    ],
+    plugins: [
+        "auto_service_plugin",
+        "auto_value_plugin",
+        "auto_value_memoized_extension_plugin",
+        "dagger2-compiler",
+    ],
+    static_libs: [
+        "auto_common",
+        "auto_service_annotations",
+        "auto_value_annotations",
+        "auto_value_memoized_extension_annotations",
+        "guava",
+        "jsr305",
+        "dagger2-compiler-lib",
+        "dagger2",
+        "javapoet",
+        "jsr330",
+        "kotlin-stdlib",
+        "kotlinx_metadata_jvm",
+        "dagger2-android-annotation-stubs",
+    ],
+    // shade guava to avoid conflicts with guava embedded in Error Prone.
+    jarjar_rules: "jarjar-rules.txt",
+}

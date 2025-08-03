@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/jni
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "jni"
+description: "Rust bindings to the JNI"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/jni"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/jni/jni-0.20.0.crate"
+  }
+  version: "0.20.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 1
+    day: 19
+  }
+}

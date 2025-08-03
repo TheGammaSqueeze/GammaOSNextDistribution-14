@@ -1,0 +1,5 @@
+# owners for external/libaom
+include platform/frameworks/av:/media/janitors/avic_OWNERS
+include platform/frameworks/av:/media/janitors/codec_OWNERS
+essick@google.com
+jzern@google.com

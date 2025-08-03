@@ -1,0 +1,348 @@
+# Copyright 2020 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load("@rules_python//python:proto.bzl", "py_proto_library")
+load(
+    "//pw_build:pigweed.bzl",
+    "pw_cc_binary",
+    "pw_cc_test",
+)
+load("//pw_protobuf_compiler:pw_proto_library.bzl", "pw_proto_library")
+
+package(default_visibility = ["//visibility:public"])
+
+licenses(["notice"])
+
+cc_library(
+    name = "linux_config_overrides",
+    hdrs = ["linux_config_overrides.h"],
+    tags = ["manual"],
+)
+
+cc_library(
+    name = "config",
+    hdrs = [
+        "public/pw_trace_tokenized/config.h",
+    ],
+    includes = [
+        "public",
+    ],
+)
+
+cc_library(
+    name = "pw_trace_tokenized",
+    srcs = [
+        "trace.cc",
+    ],
+    hdrs = [
+        "public/pw_trace_tokenized/internal/trace_tokenized_internal.h",
+        "public/pw_trace_tokenized/trace_callback.h",
+        "public/pw_trace_tokenized/trace_tokenized.h",
+        "public_overrides/pw_trace_backend/trace_backend.h",
+    ],
+    includes = [
+        "public",
+        "public_overrides",
+    ],
+    deps = [
+        ":config",
+        "//pw_assert",
+        "//pw_log",
+        "//pw_preprocessor",
+        "//pw_status",
+        "//pw_tokenizer",
+        "//pw_trace:facade",
+        "//pw_varint",
+    ],
+)
+
+cc_library(
+    name = "base_trace_service",
+    srcs = [
+        "base_trace_service.cc",
+    ],
+    hdrs = [
+        "public/pw_trace_tokenized/base_trace_service.h",
+    ],
+    includes = [
+        "public",
+    ],
+    deps = [
+        ":buffer",
+        ":pw_trace_tokenized",
+        "//pw_ring_buffer",
+        "//pw_stream",
+    ],
+)
+
+cc_library(
+    name = "trace_service_pwpb",
+    srcs = [
+        "trace_service_pwpb.cc",
+    ],
+    hdrs = [
+        "public/pw_trace_tokenized/trace_service_pwpb.h",
+    ],
+    includes = [
+        "public",
+    ],
+    deps = [
+        ":base_trace_service",
+        ":protos_cc.pwpb_rpc",
+        "//pw_chrono:system_clock",
+    ],
+)
+
+cc_library(
+    name = "trace_rpc_service",
+    srcs = [
+        "trace_rpc_service_nanopb.cc",
+    ],
+    hdrs = [
+        "public/pw_trace_tokenized/trace_rpc_service_nanopb.h",
+    ],
+    includes = [
+        "public",
+    ],
+    # TODO: b/260641850 - Get pw_trace_tokenized building in Bazel.
+    tags = ["manual"],
+    deps = [
+        ":buffer",
+        ":protos_cc.nanopb_rpc",
+        "//pw_log",
+        "//pw_trace",
+    ],
+)
+
+cc_library(
+    name = "buffer",
+    srcs = [
+        "trace_buffer.cc",
+    ],
+    hdrs = [
+        "public/pw_trace_tokenized/trace_buffer.h",
+    ],
+    includes = [
+        "public",
+    ],
+    # TODO: b/260641850 - Get pw_trace_tokenized building in Bazel.
+    tags = ["manual"],
+    deps = [
+        ":pw_trace_tokenized",
+        "//pw_ring_buffer",
+        "//pw_status",
+    ],
+)
+
+cc_library(
+    name = "buffer_log",
+    srcs = [
+        "trace_buffer_log.cc",
+    ],
+    hdrs = [
+        "public/pw_trace_tokenized/trace_buffer_log.h",
+    ],
+    # TODO: b/260641850 - Get pw_trace_tokenized building in Bazel.
+    tags = ["manual"],
+    deps = [
+        ":buffer",
+        "//pw_base64",
+        "//pw_log",
+        "//pw_string",
+    ],
+)
+
+# TODO: b/326636665 - Needs stripped import prefix, but prefix modification
+# doesn't work with nanopb.
+proto_library(
+    name = "protos",
+    srcs = [
+        "pw_trace_protos/trace.proto",
+        "pw_trace_protos/trace_rpc.proto",
+        "pw_trace_protos/trace_service.proto",
+    ],
+    deps = [
+        "//pw_chrono:chrono_proto",
+    ],
+    # TODO(tpudlik): We should provide trace_rpc.options to nanopb here, but the
+    # current proto codegen implementation provides no mechanism for doing so.
+    # inputs = [ "pw_trace_protos/trace_rpc.options",  "pw_trace_protos/trace_service.options"]
+)
+
+pw_proto_library(
+    name = "protos_cc",
+    deps = [":protos"],
+)
+
+py_proto_library(
+    name = "proto_py",
+    deps = [":protos"],
+)
+
+cc_library(
+    name = "pw_trace_tokenized_fake_time",
+    srcs = [
+        "fake_trace_time.cc",
+    ],
+    deps = [
+        ":pw_trace_tokenized",
+    ],
+)
+
+pw_cc_test(
+    name = "trace_tokenized_test",
+    srcs = [
+        "trace_test.cc",
+    ],
+    includes = [
+        "pw_trace_test",
+        "pw_trace_test/public_overrides",
+    ],
+    # TODO: b/260641850 - Get pw_trace_tokenized building in Bazel.
+    tags = ["manual"],
+    deps = [
+        ":pw_trace_tokenized",
+        "//pw_preprocessor",
+        "//pw_unit_test",
+    ],
+)
+
+pw_cc_test(
+    name = "buffer_test",
+    srcs = [
+        "trace_buffer_test.cc",
+    ],
+    # TODO: b/260641850 - Get pw_trace_tokenized building in Bazel.
+    tags = ["manual"],
+    deps = [
+        ":buffer",
+        ":pw_trace_tokenized",
+        "//pw_preprocessor",
+        "//pw_unit_test",
+    ],
+)
+
+pw_cc_test(
+    name = "buffer_log_test",
+    srcs = [
+        "trace_buffer_log_test.cc",
+    ],
+    # TODO: b/260641850 - Get pw_trace_tokenized building in Bazel.
+    tags = ["manual"],
+    deps = [
+        ":buffer_log",
+        ":pw_trace_tokenized",
+        "//pw_preprocessor",
+        "//pw_unit_test",
+    ],
+)
+
+pw_cc_test(
+    name = "trace_service_pwpb_test",
+    srcs = [
+        "trace_service_pwpb_test.cc",
+    ],
+    # TODO(b/260641850): Get pw_trace_tokenized building in Bazel.
+    tags = ["manual"],
+    deps = [
+        ":pw_trace_host_trace_time",
+        ":trace_service_pwpb",
+        "//pw_chrono:system_clock",
+        "//pw_rpc/pwpb:test_method_context",
+        "//pw_trace",
+    ],
+)
+
+cc_library(
+    name = "pw_trace_host_trace_time",
+    srcs = ["host_trace_time.cc"],
+    includes = ["example/public"],
+    deps = [":pw_trace_tokenized"],
+)
+
+cc_library(
+    name = "pw_trace_example_to_file",
+    hdrs = ["example/public/pw_trace_tokenized/example/trace_to_file.h"],
+    includes = ["example/public"],
+    deps = [
+        ":pw_trace_tokenized",
+        "//pw_trace",
+    ],
+)
+
+pw_cc_binary(
+    name = "trace_tokenized_example_basic",
+    srcs = ["example/basic.cc"],
+    # TODO: b/258071921 - Fix puzzling compiler errors
+    tags = ["manual"],
+    deps = [
+        ":pw_trace_example_to_file",
+        "//pw_log",
+        "//pw_trace",
+        "//pw_trace:pw_trace_sample_app",
+    ],
+)
+
+pw_cc_binary(
+    name = "trace_tokenized_example_trigger",
+    srcs = ["example/trigger.cc"],
+    # TODO: b/258071921 - Fix puzzling compiler errors
+    tags = ["manual"],
+    deps = [
+        ":pw_trace_example_to_file",
+        "//pw_log",
+        "//pw_trace",
+        "//pw_trace:pw_trace_sample_app",
+    ],
+)
+
+pw_cc_binary(
+    name = "trace_tokenized_example_filter",
+    srcs = ["example/filter.cc"],
+    # TODO: b/258071921 - Fix puzzling compiler errors
+    tags = ["manual"],
+    deps = [
+        ":pw_trace_example_to_file",
+        "//pw_log",
+        "//pw_trace",
+        "//pw_trace:pw_trace_sample_app",
+    ],
+)
+
+cc_library(
+    name = "trace_tokenized_example_rpc",
+    srcs = ["example/rpc.cc"],
+    # TODO: b/258071921 - Fix puzzling compiler errors
+    tags = ["manual"],
+    deps = [
+        "//pw_hdlc",
+        "//pw_log",
+        "//pw_rpc",
+        "//pw_rpc/system_server",
+        "//pw_trace",
+        "//pw_trace:pw_trace_sample_app",
+    ],
+)
+
+cc_library(
+    name = "trace_tokenized_example_linux_group_by_tid",
+    srcs = ["example/linux_group_by_tid.cc"],
+    # TODO: b/258071921 - Fix puzzling compiler errors
+    tags = ["manual"],
+    deps = [
+        ":pw_trace_example_to_file",
+        "//pw_log",
+        "//pw_trace",
+    ],
+)

@@ -1,0 +1,21 @@
+name: "jackson-annotations"
+description:
+    "This project contains general purpose annotations for Jackson Data "
+    "Processor, used on value and handler types. The only annotations not "
+    "included are ones that require dependency to the Databind package. Note "
+    "that only annotations themselves (and related value classes) are included, "
+    "but no functionality that uses annotations."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/FasterXML/jackson-annotations"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/FasterXML/jackson-annotations.git"
+  }
+  version: "2.12"
+  last_upgrade_date { year: 2020 month: 8 day: 5 }
+  license_type: NOTICE
+}

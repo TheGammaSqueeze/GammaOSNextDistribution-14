@@ -1,0 +1,52 @@
+# Copyright 2019 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterLEHealth.le_mouse_reports.floss'
+PURPOSE = ('Batch of Bluetooth LE health tests')
+CRITERIA = 'Pass all health test'
+ATTRIBUTES = 'suite:bluetooth_floss,suite:bluetooth_floss_cq'
+TIME = 'MEDIUM'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+
+     Server side bluetooth tests about sending bluetooth HID reports.
+
+     This test tries to send HID reports to a DUT and verifies if the DUT
+     could receive the reports correctly. For the time being, only bluetooth
+     mouse events are tested. Bluetooth keyboard events will be supported
+     later.
+
+
+    - test_pairing
+    - test_connection_by_adapter
+    - test_mouse_left_click
+    - test_mouse_right_click
+    - test_mouse_move_in_x
+    - test_mouse_move_in_y
+    - test_mouse_move_in_xy
+    - test_mouse_scroll_down
+    - test_mouse_scroll_up
+    - test_mouse_click_and_drag
+    - test_disconnection_by_adapter
+    - test_remove_pairing
+
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterLEHealth', host=host,
+                 num_iterations=1, args_dict=args_dict,
+                 test_name=NAME.split('.')[1], floss=True)
+
+parallel_simple(run, machines)

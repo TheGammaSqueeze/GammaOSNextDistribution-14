@@ -1,0 +1,27 @@
+[package]
+name = "remain"
+version = "0.2.12"
+authors = ["David Tolnay <dtolnay@gmail.com>"]
+categories = ["development-tools", "no-std", "no-std::no-alloc"]
+description = "Compile-time checks that an enum, struct, or match is written in sorted order."
+documentation = "https://docs.rs/remain"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/dtolnay/remain"
+rust-version = "1.56"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.74"
+quote = "1.0.35"
+syn = { version = "2.0.46", features = ["full", "visit-mut"] }
+
+[dev-dependencies]
+rustversion = "1.0.13"
+trybuild = { version = "1.0.81", features = ["diff"] }
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+rustdoc-args = ["--generate-link-to-definition"]

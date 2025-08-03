@@ -1,0 +1,34 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+java_library {
+    name: "TestParameterInjector",
+    srcs: [
+        "src/main/java/**/*.java",
+    ],
+    static_libs: [
+        "guava",
+        "auto_value_annotations",
+        "junit",
+        "libprotobuf-java-lite",
+        "snakeyaml",
+    ],
+    plugins: [
+        "auto_value_plugin",
+        "auto_annotation_plugin",
+    ],
+    host_supported: true,
+}
+
+java_test_host {
+    name: "TestParameterInjectorTest",
+    srcs: ["src/test/java/**/*.java"],
+    static_libs: [
+        "TestParameterInjector",
+        "truth",
+    ],
+    test_options: {
+        unit_test: true,
+    },
+}

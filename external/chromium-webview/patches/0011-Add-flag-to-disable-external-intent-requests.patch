@@ -1,0 +1,292 @@
+From 651a8d33e1ed672abfd8b8113bd13d54612e8b0b Mon Sep 17 00:00:00 2001
+From: csagan5 <32685696+csagan5@users.noreply.github.com>
+Date: Tue, 25 May 2021 19:46:14 +0200
+Subject: [PATCH 11/12] Add flag to disable external intent requests
+
+Adds a new flag that allows to control the switch with same name;
+when flag is disabled no external intent will ever be allowed,
+for any URL except for the tel: schema.
+This also reverts commit b710cefb53b558a8bcd884f6baf0229ba4225721 and
+enables IntentBlockExternalFormRedirectsNoGesture.
+
+License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
+---
+ .../java/res/xml/privacy_preferences.xml      |  7 +++-
+ .../customtabs/CustomTabDelegateFactory.java  |  2 ++
+ .../ExternalNavigationDelegateImpl.java       |  4 ++-
+ .../cromite/sAllowExternalIntentRequests.java | 33 +++++++++++++++++++
+ ...g-to-disable-external-intent-requests.grdp |  9 +++++
+ .../android/external_intents_features.cc      |  7 +++-
+ .../android/external_intents_features.h       |  1 +
+ .../ExternalIntentsFeatures.java              |  6 ++++
+ .../ExternalNavigationHandler.java            | 21 ++++++++++++
+ ...ag-to-disable-external-intent-requests.inc | 13 ++++++++
+ ...t-Delete-block-external-form-redirects.inc | 15 +++++++++
+ ...ag-to-disable-external-intent-requests.inc |  3 ++
+ 12 files changed, 118 insertions(+), 3 deletions(-)
+ create mode 100644 chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/cromite/sAllowExternalIntentRequests.java
+ create mode 100644 chrome/browser/ui/android/strings/cromite_android_chrome_strings_grd/Add-flag-to-disable-external-intent-requests.grdp
+ create mode 100644 cromite_flags/chrome/browser/about_flags_cc/Add-flag-to-disable-external-intent-requests.inc
+ create mode 100644 cromite_flags/chrome/browser/about_flags_cc/Revert-Delete-block-external-form-redirects.inc
+ create mode 100644 cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Add-flag-to-disable-external-intent-requests.inc
+
+diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
+index 7900aa61618df..3ca06ff9b73fa 100644
+--- a/chrome/android/java/res/xml/privacy_preferences.xml
++++ b/chrome/android/java/res/xml/privacy_preferences.xml
+@@ -58,7 +58,12 @@ found in the LICENSE file.
+         android:title="@string/settings_incognito_tab_lock_title"
+         android:summary="@string/settings_incognito_tab_lock_summary_android_setting_off"
+         android:persistent="false" />
+-
++    <org.chromium.components.browser_ui.settings.ChromeSwitchPreference
++        android:key="allow_external_intent_requests"
++        android:title="@string/allow_external_intent_requests_title"
++        android:summary="@string/allow_external_intent_requests_summary"
++        app:featureName="AllowExternalIntentRequests"
++        app:needRestart="false" />
+     <PreferenceCategory
+         android:key="security_section"
+       android:title="@string/security_section_title" />
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabDelegateFactory.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabDelegateFactory.java
+index a66618649c647..eee8dd86d836c 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabDelegateFactory.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabDelegateFactory.java
+@@ -35,6 +35,7 @@ import org.chromium.chrome.browser.ephemeraltab.EphemeralTabCoordinator;
+ import org.chromium.chrome.browser.externalnav.ExternalNavigationDelegateImpl;
+ import org.chromium.chrome.browser.flags.ActivityType;
+ import org.chromium.chrome.browser.flags.ChromeFeatureList;
++import org.chromium.chrome.browser.flags.cromite.sAllowExternalIntentRequests;
+ import org.chromium.chrome.browser.fullscreen.BrowserControlsManager;
+ import org.chromium.chrome.browser.fullscreen.FullscreenManager;
+ import org.chromium.chrome.browser.init.ChromeActivityNativeDelegate;
+@@ -126,6 +127,7 @@ public class CustomTabDelegateFactory implements TabDelegateFactory {
+ 
+         @Override
+         public boolean shouldDisableAllExternalIntents() {
++            if (!sAllowExternalIntentRequests.getInstance().isEnabled()) return true;
+             return mActivityType == ActivityType.AUTH_TAB
+                     && ChromeFeatureList.sCctAuthTabDisableAllExternalIntents.isEnabled();
+         }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java
+index 7afd733ed4902..f293f54b31b00 100644
+--- a/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/externalnav/ExternalNavigationDelegateImpl.java
+@@ -20,6 +20,7 @@ import org.chromium.base.IntentUtils;
+ import org.chromium.base.PackageManagerUtils;
+ import org.chromium.base.supplier.Supplier;
+ import org.chromium.chrome.browser.ChromeTabbedActivity2;
++import org.chromium.chrome.browser.flags.cromite.sAllowExternalIntentRequests;
+ import org.chromium.chrome.browser.IntentHandler;
+ import org.chromium.chrome.browser.password_manager.CctPasswordSavingMetricsRecorderBridge;
+ import org.chromium.chrome.browser.safe_browsing.SafeBrowsingBridge;
+@@ -107,7 +108,8 @@ public class ExternalNavigationDelegateImpl implements ExternalNavigationDelegat
+ 
+     @Override
+     public boolean shouldDisableExternalIntentRequestsForUrl(GURL url) {
+-        return false;
++        if ("tel".equals(url.getScheme())) return false;
++        return !sAllowExternalIntentRequests.getInstance().isEnabled();
+     }
+ 
+     @Override
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/cromite/sAllowExternalIntentRequests.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/cromite/sAllowExternalIntentRequests.java
+new file mode 100644
+index 0000000000000..98a7d11ec4dba
+--- /dev/null
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/cromite/sAllowExternalIntentRequests.java
+@@ -0,0 +1,33 @@
++/*
++    This file is part of Cromite.
++
++    Cromite is free software: you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    Cromite is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with Cromite. If not, see <https://www.gnu.org/licenses/>.
++*/
++
++package org.chromium.chrome.browser.flags.cromite;
++
++import org.chromium.components.cached_flags.CachedFlag;
++import org.chromium.chrome.browser.flags.ChromeFeatureMap;
++
++public class sAllowExternalIntentRequests {
++    private static final CachedFlag sInstance =
++        new CachedFlag(ChromeFeatureMap.getInstance(),
++            "AllowExternalIntentRequests", false);
++
++    private sAllowExternalIntentRequests() {}
++
++    public static CachedFlag getInstance() {
++        return sInstance;
++    }
++}
+diff --git a/chrome/browser/ui/android/strings/cromite_android_chrome_strings_grd/Add-flag-to-disable-external-intent-requests.grdp b/chrome/browser/ui/android/strings/cromite_android_chrome_strings_grd/Add-flag-to-disable-external-intent-requests.grdp
+new file mode 100644
+index 0000000000000..02a3d03423d8b
+--- /dev/null
++++ b/chrome/browser/ui/android/strings/cromite_android_chrome_strings_grd/Add-flag-to-disable-external-intent-requests.grdp
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="utf-8"?>
++<grit-part>
++    <message name="IDS_ALLOW_EXTERNAL_INTENT_REQUESTS_TITLE" desc="">
++        Allow forward URL requests to external intents
++    </message>
++    <message name="IDS_ALLOW_EXTERNAL_INTENT_REQUESTS_SUMMARY" desc="">
++        If disabled, URL requests will never allow redirection to an external intent, such as open application. Caution: since no verification is possible on the information, allows linkage between browser browsing and activity on the application.
++    </message>
++</grit-part>
+diff --git a/components/external_intents/android/external_intents_features.cc b/components/external_intents/android/external_intents_features.cc
+index 997ded6ec7990..60f4859988fb4 100644
+--- a/components/external_intents/android/external_intents_features.cc
++++ b/components/external_intents/android/external_intents_features.cc
+@@ -28,7 +28,6 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+     &kExternalNavigationDebugLogs,       &kBlockIntentsToSelf,
+     &kNavigationCaptureRefactorAndroid,  &kAuxiliaryNavigationStaysInBrowser,
+     &kReparentTopLevelNavigationFromPWA, &kReparentAuxiliaryNavigationFromPWA};
+-
+ }  // namespace
+ 
+ // Alphabetical:
+@@ -57,7 +56,13 @@ BASE_FEATURE(kReparentAuxiliaryNavigationFromPWA,
+              "ReparentAuxiliaryNavigationFromPWA",
+              base::FEATURE_DISABLED_BY_DEFAULT);
+ 
++CROMITE_FEATURE(kIntentBlockExternalFormRedirectsNoGesture,
++                "IntentBlockExternalFormRedirectsNoGesture",
++                base::FEATURE_ENABLED_BY_DEFAULT);
++
+ static jlong JNI_ExternalIntentsFeatures_GetFeature(JNIEnv* env, jint ordinal) {
++  if (ordinal == -1)
++    return reinterpret_cast<jlong>(&kIntentBlockExternalFormRedirectsNoGesture);
+   return reinterpret_cast<jlong>(kFeaturesExposedToJava[ordinal]);
+ }
+ 
+diff --git a/components/external_intents/android/external_intents_features.h b/components/external_intents/android/external_intents_features.h
+index a169f130f2628..f7525cdfa8565 100644
+--- a/components/external_intents/android/external_intents_features.h
++++ b/components/external_intents/android/external_intents_features.h
+@@ -9,6 +9,7 @@
+ 
+ namespace external_intents {
+ 
++BASE_DECLARE_FEATURE(kIntentBlockExternalFormRedirectsNoGesture);
+ BASE_DECLARE_FEATURE(kExternalNavigationDebugLogs);
+ BASE_DECLARE_FEATURE(kBlockFrameRenavigations);
+ BASE_DECLARE_FEATURE(kBlockIntentsToSelf);
+diff --git a/components/external_intents/android/java/src/org/chromium/components/external_intents/ExternalIntentsFeatures.java b/components/external_intents/android/java/src/org/chromium/components/external_intents/ExternalIntentsFeatures.java
+index ba8fa2dff8d16..f69e69b53895d 100644
+--- a/components/external_intents/android/java/src/org/chromium/components/external_intents/ExternalIntentsFeatures.java
++++ b/components/external_intents/android/java/src/org/chromium/components/external_intents/ExternalIntentsFeatures.java
+@@ -19,6 +19,12 @@ import org.chromium.build.annotations.NullMarked;
+ @JNINamespace("external_intents")
+ @NullMarked
+ public class ExternalIntentsFeatures {
++    public static final String INTENT_BLOCK_EXTERNAL_FORM_REDIRECT_NO_GESTURE_NAME =
++            "IntentBlockExternalFormRedirectsNoGesture";
++
++    public static final ExternalIntentsFeature INTENT_BLOCK_EXTERNAL_FORM_REDIRECT_NO_GESTURE =
++            new ExternalIntentsFeature(-1, INTENT_BLOCK_EXTERNAL_FORM_REDIRECT_NO_GESTURE_NAME);
++
+     public static final String EXTERNAL_NAVIGATION_DEBUG_LOGS_NAME = "ExternalNavigationDebugLogs";
+     public static final String BLOCK_INTENTS_TO_SELF_NAME = "BlockIntentsToSelf";
+     public static final String NAVIGATION_CAPTURE_REFACTOR_ANDROID_NAME =
+diff --git a/components/external_intents/android/java/src/org/chromium/components/external_intents/ExternalNavigationHandler.java b/components/external_intents/android/java/src/org/chromium/components/external_intents/ExternalNavigationHandler.java
+index 3228fcac1cfca..995b84e306d86 100644
+--- a/components/external_intents/android/java/src/org/chromium/components/external_intents/ExternalNavigationHandler.java
++++ b/components/external_intents/android/java/src/org/chromium/components/external_intents/ExternalNavigationHandler.java
+@@ -1560,6 +1560,12 @@ public class ExternalNavigationHandler {
+                 || ignoreBackForwardNav(params);
+     }
+ 
++    /** Wrapper of check against the feature to support overriding for testing. */
++    @VisibleForTesting
++    boolean blockExternalFormRedirectsWithoutGesture() {
++        return ExternalIntentsFeatures.INTENT_BLOCK_EXTERNAL_FORM_REDIRECT_NO_GESTURE.isEnabled();
++    }
++
+     private OverrideUrlLoadingResult shouldOverrideUrlLoadingInternal(
+             ExternalNavigationParams params,
+             Intent targetIntent,
+@@ -1617,6 +1623,21 @@ public class ExternalNavigationHandler {
+             return OverrideUrlLoadingResult.forNoOverride();
+         }
+ 
++        // http://crbug.com/839751: Require user gestures for form submits to external
++        //                          protocols.
++        // TODO(tedchoc): Turn this on by default once we verify this change does
++        //                not break the world.
++        int pageTransitionCore = params.getPageTransition() & PageTransition.CORE_MASK;
++        boolean isFormSubmit = pageTransitionCore == PageTransition.FORM_SUBMIT;
++        boolean isRedirectFromFormSubmit = isFormSubmit && params.isRedirect();
++        if (isRedirectFromFormSubmit && !incomingIntentRedirect && !params.hasUserGesture()
++                && blockExternalFormRedirectsWithoutGesture()) {
++            if (debug()) {
++                Log.i(TAG, "Incoming form intent attempting to redirect without user gesture");
++            }
++            return OverrideUrlLoadingResult.forNoOverride();
++        }
++
+         if (hasInternalScheme(params.getUrl(), targetIntent)
+                 || hasContentScheme(params.getUrl(), targetIntent)
+                 || hasFileSchemeInIntentURI(params.getUrl(), targetIntent)
+diff --git a/cromite_flags/chrome/browser/about_flags_cc/Add-flag-to-disable-external-intent-requests.inc b/cromite_flags/chrome/browser/about_flags_cc/Add-flag-to-disable-external-intent-requests.inc
+new file mode 100644
+index 0000000000000..292d587269804
+--- /dev/null
++++ b/cromite_flags/chrome/browser/about_flags_cc/Add-flag-to-disable-external-intent-requests.inc
+@@ -0,0 +1,13 @@
++#if BUILDFLAG(IS_ANDROID)
++
++#ifdef FLAG_SECTION
++
++    {"allow-external-intent-requests",
++     "Allow forward URL requests to external intents",
++     "If disabled, URL requests will never"
++     "allow for redirecting to an external intent.", kOsAndroid,
++     SINGLE_DISABLE_VALUE_TYPE("disable-external-intent-requests")},
++
++#endif
++
++#endif
+diff --git a/cromite_flags/chrome/browser/about_flags_cc/Revert-Delete-block-external-form-redirects.inc b/cromite_flags/chrome/browser/about_flags_cc/Revert-Delete-block-external-form-redirects.inc
+new file mode 100644
+index 0000000000000..deca4e0717865
+--- /dev/null
++++ b/cromite_flags/chrome/browser/about_flags_cc/Revert-Delete-block-external-form-redirects.inc
+@@ -0,0 +1,15 @@
++#if BUILDFLAG(IS_ANDROID)
++
++#ifdef FLAG_SECTION
++
++    {"block-external-form-redirects-no-gesture",
++     "Block intents from form submissions without user gesture",
++     "Require a user gesture that triggered a form submission in order to "
++     "allow for redirecting to an external intent.",
++     kOsAndroid,
++     FEATURE_VALUE_TYPE(
++         external_intents::kIntentBlockExternalFormRedirectsNoGesture)},
++
++#endif
++
++#endif
+diff --git a/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Add-flag-to-disable-external-intent-requests.inc b/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Add-flag-to-disable-external-intent-requests.inc
+new file mode 100644
+index 0000000000000..c4015ad7de119
+--- /dev/null
++++ b/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Add-flag-to-disable-external-intent-requests.inc
+@@ -0,0 +1,3 @@
++CROMITE_FEATURE(kAllowExternalIntentRequests,
++                "AllowExternalIntentRequests",
++                base::FEATURE_DISABLED_BY_DEFAULT);
+-- 
+2.50.0
+

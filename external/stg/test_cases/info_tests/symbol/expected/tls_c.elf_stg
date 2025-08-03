@@ -1,0 +1,19 @@
+version: 0x00000002
+root_id: 0x84ea5130
+elf_symbol {
+  id: 0x3c10a6b0
+  name: "var1"
+  is_defined: true
+  symbol_type: TLS
+}
+elf_symbol {
+  id: 0x7652705b
+  name: "var2"
+  is_defined: true
+  symbol_type: TLS
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x3c10a6b0
+  symbol_id: 0x7652705b
+}

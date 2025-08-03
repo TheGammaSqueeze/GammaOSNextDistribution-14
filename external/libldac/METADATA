@@ -1,0 +1,9 @@
+name: "ldac"
+description: "LDAC is a bluetooth codec of Hi-Res Audio Wireless. AOSP is the upstream version"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.sony.net/Products/LDAC/"
+  }
+  license_type: NOTICE
+}

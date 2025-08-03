@@ -1,0 +1,7 @@
+{
+  "presubmit": [
+    {
+      "name": "libact_test"
+    }
+  ]
+}

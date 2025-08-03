@@ -1,0 +1,5 @@
+indirect (ifunc) function symbol 'func_removed' was removed
+
+indirect (ifunc) function symbol 'func_added' was added
+
+exit code 4

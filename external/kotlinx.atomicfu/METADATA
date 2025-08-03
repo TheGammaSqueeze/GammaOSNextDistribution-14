@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update kotlinx.atomicfu
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "kotlinx.atomicfu"
+description: "The idiomatic way to use atomic operations in Kotlin."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/Kotlin/kotlinx.atomicfu"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/Kotlin/kotlinx.atomicfu"
+  }
+  version: "0.18.5"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 11
+    day: 1
+  }
+}

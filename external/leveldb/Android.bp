@@ -1,0 +1,139 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_leveldb_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_leveldb_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "leveldb_default_flags",
+    local_include_dirs: ["db/", "table/", "include/", "port/"],
+    cflags: [
+        "-DLEVELDB_PLATFORM_POSIX",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-implicit-fallthrough",
+        "-Wno-sign-compare",
+        "-Wno-incompatible-pointer-types",
+        "-Wno-missing-field-initializers",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+    ],
+    sdk_version: "current",
+    min_sdk_version: "30",
+}
+
+cc_library {
+    name: "leveldb",
+    defaults: [
+        "leveldb_default_flags",
+    ],
+    export_include_dirs: ["include/"],
+    visibility: ["//packages/providers/MediaProvider/jni"],
+    apex_available: [
+        "com.android.mediaprovider",
+    ],
+    srcs: [
+        "db/builder.cc",
+        "db/c.cc",
+        "db/db_impl.cc",
+        "db/db_iter.cc",
+        "db/dbformat.cc",
+        "db/dumpfile.cc",
+        "db/filename.cc",
+        "db/log_reader.cc",
+        "db/log_writer.cc",
+        "db/memtable.cc",
+        "db/repair.cc",
+        "db/table_cache.cc",
+        "db/version_edit.cc",
+        "db/version_set.cc",
+        "db/write_batch.cc",
+        "table/block_builder.cc",
+        "table/block.cc",
+        "table/filter_block.cc",
+        "table/format.cc",
+        "table/iterator.cc",
+        "table/merger.cc",
+        "table/table_builder.cc",
+        "table/table.cc",
+        "table/two_level_iterator.cc",
+        "util/arena.cc",
+        "util/bloom.cc",
+        "util/cache.cc",
+        "util/coding.cc",
+        "util/comparator.cc",
+        "util/crc32c.cc",
+        "util/env.cc",
+        "util/env_posix.cc",
+        "util/filter_policy.cc",
+        "util/hash.cc",
+        "util/logging.cc",
+        "util/options.cc",
+        "util/status.cc",
+    ],
+    stl: "c++_static",
+}
+
+cc_test {
+    name: "leveldb_test",
+    defaults: [
+        "leveldb_default_flags",
+    ],
+    test_suites: ["general-tests"],
+    srcs: [
+        "db/corruption_test.cc",
+        "db/dbformat_test.cc",
+        "db/fault_injection_test.cc",
+        "db/filename_test.cc",
+        "db/log_test.cc",
+        "db/recovery_test.cc",
+        "db/skiplist_test.cc",
+        "db/version_set_test.cc",
+        "db/write_batch_test.cc",
+        "table/filter_block_test.cc",
+        "table/table_test.cc",
+        "util/arena_test.cc",
+        "util/bloom_test.cc",
+        "util/cache_test.cc",
+        "util/coding_test.cc",
+        "util/crc32c_test.cc",
+        "util/hash_test.cc",
+        "util/logging_test.cc",
+        "util/no_destructor_test.cc",
+        "util/status_test.cc",
+        "util/testutil.cc",
+        "helpers/memenv/memenv.cc",
+    ],
+    static_libs: [
+        "leveldb",
+        "libgmock_ndk",
+    ],
+    stl: "c++_static",
+}

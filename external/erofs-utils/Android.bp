@@ -1,0 +1,193 @@
+//
+// Copyright (C) 2020 Gao Xiang
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_erofs-utils_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_erofs-utils_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+    ],
+    license_text: [
+        "COPYING",
+    ],
+}
+
+genrule {
+    name: "erofs-utils-version.h",
+    srcs: ["VERSION"],
+    out: ["erofs-utils-version.h"],
+    cmd: "sed -n '1p' $(in) | tr -d '\n' | sed 's/\\(.*\\)/#define PACKAGE_VERSION \"\\1\"/' > $(out)",
+}
+
+cc_defaults {
+    name: "erofs-utils_export_defaults",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-error=#warnings",
+        "-Wno-ignored-qualifiers",
+        "-Wno-pointer-arith",
+        "-Wno-unused-parameter",
+        "-Wno-unused-function",
+        "-DHAVE_FALLOCATE",
+        "-DHAVE_LINUX_TYPES_H",
+        "-DHAVE_LIBSELINUX",
+        "-DHAVE_LIBUUID",
+        "-DLZ4_ENABLED",
+        "-DLZ4HC_ENABLED",
+        "-DWITH_ANDROID",
+        "-DHAVE_MEMRCHR",
+        "-DHAVE_SYS_IOCTL_H",
+        "-DHAVE_LLISTXATTR",
+        "-DHAVE_LGETXATTR",
+        "-D_FILE_OFFSET_BITS=64",
+        "-DEROFS_MAX_BLOCK_SIZE=16384",
+    ],
+}
+
+cc_defaults {
+    name: "erofs-utils_defaults",
+    defaults: ["erofs-utils_export_defaults"],
+
+    cflags: [
+        "-include erofs-utils-version.h",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    include_dirs: [
+        "external/e2fsprogs/lib/",
+    ],
+    generated_headers: ["erofs-utils-version.h"],
+    static_libs: [
+        "libbase",
+        "libcutils",
+        "libext2_uuid",
+        "liblog",
+        "liblz4",
+        "libselinux",
+    ],
+}
+
+cc_library {
+    host_supported: true,
+    recovery_available: true,
+    name: "liberofs",
+    defaults: ["erofs-utils_defaults"],
+    srcs: [
+        "lib/*.c",
+    ],
+    exclude_srcs: [
+        "lib/compressor_libdeflate.c",
+    ],
+    export_include_dirs: ["include"],
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_defaults {
+    name: "mkfs-erofs_defaults",
+
+    defaults: ["erofs-utils_defaults"],
+
+    srcs: [
+        "mkfs/*.c",
+    ],
+    static_libs: [
+        "liberofs",
+    ],
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_binary {
+    name: "mkfs.erofs",
+
+    defaults: ["mkfs-erofs_defaults"],
+    host_supported: true,
+    recovery_available: true,
+}
+
+cc_binary_host {
+    name: "make_erofs",
+
+    defaults: ["mkfs-erofs_defaults"],
+    stl: "libc++_static"
+}
+
+cc_binary {
+    name: "dump.erofs",
+    defaults: ["erofs-utils_defaults"],
+    host_supported: true,
+    recovery_available: true,
+    srcs: [
+        "dump/*.c",
+    ],
+    static_libs: [
+        "liberofs",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+cc_binary {
+    name: "fsck.erofs",
+    defaults: ["erofs-utils_defaults"],
+    host_supported: true,
+    recovery_available: true,
+    srcs: [
+        "fsck/*.c",
+    ],
+    static_libs: [
+        "liberofs",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}

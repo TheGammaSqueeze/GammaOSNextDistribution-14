@@ -1,0 +1,23 @@
+diff --git a/gpu_display/Android.bp b/gpu_display/Android.bp
+index 3ce915ad..9d5ce4aa 100644
+--- a/gpu_display/Android.bp
++++ b/gpu_display/Android.bp
+@@ -36,5 +36,17 @@ rust_library {
+     ],
+     proc_macros: ["libremain"],
+     static_libs: ["libdisplay_wl"],
+-    shared_libs: ["libwayland-client"],
++
++    // added manually
++    target: {
++        host: {
++            shared_libs: ["libwayland_client"],
++        },
++        android: {
++            static_libs: [
++                "libwayland_client_static",
++                "libffi",
++            ],
++        },
++    },
+ }

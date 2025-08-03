@@ -1,0 +1,106 @@
+// SPIRV-Tools requires the following filegroups:
+//
+// deqp_spirv_headers_unified1_extinst.debuginfo.grammar.json
+// deqp_spirv_headers_unified1_extinst.glsl.std.450.grammar.json
+// deqp_spirv_headers_unified1_extinst.nonsemantic.clspvreflection.grammar.json
+// deqp_spirv_headers_unified1_extinst.nonsemantic.shader.debuginfo.100.grammar.json
+// deqp_spirv_headers_unified1_extinst.opencl.debuginfo.100.grammar.json
+// deqp_spirv_headers_unified1_extinst.opencl.std.100.grammar.json
+// deqp_spirv_headers_unified1_extinst.spv-amd-gcn-shader.grammar.json
+// deqp_spirv_headers_unified1_extinst.spv-amd-shader-ballot.grammar.json
+// deqp_spirv_headers_unified1_extinst.spv-amd-shader-explicit-vertex-parameter.grammar.json
+// deqp_spirv_headers_unified1_extinst.spv-amd-shader-trinary-minmax.grammar.json
+// deqp_spirv_headers_unified1_spirv.core.grammar.json
+//
+// deqp_spirv_headers_spir-v.xml
+
+package {
+    default_applicable_licenses: ["external_deqp-deps_SPIRV-Headers_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_deqp-deps_SPIRV-Headers_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.debuginfo.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.debuginfo.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.glsl.std.450.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.glsl.std.450.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.nonsemantic.clspvreflection.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.nonsemantic.clspvreflection.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.nonsemantic.shader.debuginfo.100.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.nonsemantic.shader.debuginfo.100.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.opencl.debuginfo.100.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.opencl.debuginfo.100.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.opencl.std.100.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.opencl.std.100.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.spv-amd-gcn-shader.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.spv-amd-gcn-shader.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.spv-amd-shader-ballot.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.spv-amd-shader-ballot.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.spv-amd-shader-explicit-vertex-parameter.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.spv-amd-shader-explicit-vertex-parameter.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_extinst.spv-amd-shader-trinary-minmax.grammar.json",
+    srcs: ["include/spirv/unified1/extinst.spv-amd-shader-trinary-minmax.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_unified1_spirv.core.grammar.json",
+    srcs: ["include/spirv/unified1/spirv.core.grammar.json"],
+}
+
+filegroup {
+    name: "deqp_spirv_headers_spir-v.xml",
+    srcs: ["include/spirv/spir-v.xml"],
+}

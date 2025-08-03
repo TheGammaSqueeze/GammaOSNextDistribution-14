@@ -1,0 +1,135 @@
+.TH RESCAN\-SCSI\-BUS.SH "1" "September 2022" "rescan\-scsi\-bus.sh" "User Commands"
+.SH NAME
+rescan-scsi-bus.sh \- script to add and remove SCSI devices without rebooting
+.SH SYNOPSIS
+.B rescan\-scsi\-bus.sh
+[\fI\-\-alltargets\fR] [\fI\-\-attachpq3\fR] [\fI\-c\fR]
+[\fI\-\--channels=CLIST\fR] [\fI\-\-color\fR] [\fI\-d\fR] [\fI\-\-flush\fR]
+[\fI\-f\fR] [\fI\-\-forceremove\fR] [\fI\-\-forcerescan\fR] [\fI\-\-help\fR]
+[\fI\-\-hosts=HLIST\fR] [\fI\-\-ids=TLIST\fR] [\fI\-\-ignore\-rev\fR]
+[\fI\-\-issue\-lip\fR] [\fI\-i\fR] [\fI\-\-issue\-lip\-wait=SECS\fR]
+[\fI\-I SECS\fR] [\fI\-l\fR] [\fI\-L NUM\fR] [\fI\-\-largelun\fR]
+[\fI\-\-luns=LLIST\fR] [\fI\-m\fR] [\fI\-\-multipath\fR]
+[\fI\-\-no\-lip\-scan\fR] [\fI\-\-nooptscan\fR] [\fI\-\-nosync\fR]
+[\fI\-\-remove\fR] [\fI\-\-removelun2\fR] [\fI\-\-resize\fR]
+[\fI\-\-sparselun\fR] [\fI\-\-sync\fR] [\fI\-\-timeout=SECS\fR]
+[\fI\-\-update\fR] [\fI\-\-version\fR] [\fI\-\-wide\fR]
+[\fIHOST1 \fR[\fIHOST2 \fR...]]
+.SH OPTIONS
+Option are ordered by their long name. Those without a long name are ordered
+as if their single letter was a long name.
+.TP
+\fB\-a\fR, \fB\-\-alltargets\fR
+scan all targets, not just currently existing [default: disabled]
+.TP
+\fB\-\-attachpq3\fR
+tell kernel to attach sg to LUN 0 that reports PQ=3
+.TP
+\fB\-c\fR
+enables scanning of channels 0 1   [default: 0 / all detected ones]
+.TP
+\fB\-\-channels\fR=\fICLIST\fR
+scan only channel(s) in \fICLIST\fR
+.TP
+\fB\-\-color\fR
+use coloured prefixes OLD/NEW/DEL
+.TP
+\fB\-d\fR
+enable debug                       [default: 0]
+.TP
+\fB\-f\fR, \fB\-\-flush\fR
+flush failed multipath devices     [default: disabled]
+.TP
+\fB\-\-forceremove\fR
+remove stale devices (DANGEROUS)
+.TP
+\fB\-\-forcerescan\fR
+remove and re\-add existing devices (DANGEROUS)
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+print usage message then exit
+.TP
+\fB\-\-hosts\fR=\fIHLIST\fR
+scan only host(s) in \fIHLIST\fR
+.TP
+\fB\-\-ids\fR=\fITLIST\fR
+scan only target ID(s) in \fITLIST\fR
+.TP
+\fB\-\-ignore\-rev\fR
+ignore (firmware) revision change. This is the third text field (4 bytes
+long) in a standard INQUIRY response.
+.TP
+\fB\-i\fR, \fB\-\-issue\-lip\fR
+issue a FibreChannel LIP reset     [default: disabled]
+.TP
+\fB\-I SECS\fR, \fB\-\-issue\-lip\-wait=SECS\fR
+issue a FibreChannel LIP reset and then wait SECS seconds.
+.TP
+\fB\-L\fR NUM
+activates scanning for LUNs 0\-\-NUM [default: 0]
+.TP
+\fB\-l\fR
+activates scanning for LUNs 0\-\-7   [default: 0]
+.TP
+\fB\-\-largelun\fR
+tell kernel to support LUNs > 7 even on SCSI2 devs
+.TP
+\fB\-\-luns\fR=\fINLIST\fR
+scan only lun(s) in \fINLIST\fR
+.TP
+\fB\-m\fR, \fB\-\-multipath\fR
+update multipath devices           [default: disabled]
+.TP
+\fB\-\-no\-lip\-scan\fR
+don't scan FC Host when the \fI\-\-issue\-lip\fR option is also given.
+.TP
+\fB\-\-nooptscan\fR
+don't stop looking for LUNs is 0 is not found
+.TP
+\fB\-\-nosync\fR
+do not issue a sync [default: sync if remove]
+.TP
+\fB\-r\fR, \fB\-\-remove\fR
+enables removing of devices        [default: disabled]
+.TP
+\fB\-\-reportlun2\fR
+tell kernel to try REPORT_LUN even on SCSI2 devices
+.TP
+\fB\-s\fR, \fB\-\-resize\fR
+look for resized disks and reload associated multipath devices, if applicable
+.TP
+\fB\-\-sparselun\fR
+tell kernel to support sparse LUN numbering
+.TP
+\fB\-\-sync\fR
+issue a sync [default: sync if remove]
+.TP
+\fB\-t\fR, \fB\-\-timeout=SECS\fR
+timeout for testing if device is online. Test is skipped if 0 [default:
+30 (seconds)]
+.TP
+\fB\-u\fR, \fB\-\-update\fR
+look for existing disks that have been remapped
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+shows version string then exits. The version string is a numeric datestamp
+of the form YYYYMMDD.
+.TP
+\fB\-w\fR, \fB\-\-wide\fR
+scan for target device IDs 0\-\-15   [default: 0\-\-7]
+.IP
+Host numbers may thus be specified either directly on cmd line (deprecated)
+or with the \fB\-\-hosts\fR=\fILIST\fR parameter (recommended).
+.PP
+Arguments to options that end in \fILIST\fR (e.g. \fITLIST\fR) can have this
+form:
+.br
+    A[\-B][,C[\-D]]...
+.br
+which is a comma separated list of single values and/or ranges (no spaces
+allowed).
+.SH SEE ALSO
+There is a brief descripion here:
+https://fibrevillage.com/storage/585-rescan-scsi-bus-sh-script-for-adding-and-removing-scsi-devices-without-rebooting
+.PP
+\fBsg3_utils\fR Homepage: \fBhttps://sg.danny.cz/sg\fR

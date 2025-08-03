@@ -1,0 +1,35 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='foo' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='anonymous_member_chain.c' language='LANG_C11'>
+    <type-decl name='char' size-in-bits='8' id='a84c031d'/>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='A' size-in-bits='32' is-struct='yes' visibility='default' id='3ed987a4'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='' type-id='ac5ab595' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <union-decl name='__anonymous_union__' size-in-bits='32' is-anonymous='yes' visibility='default' id='ac5ab595'>
+      <data-member access='public'>
+        <var-decl name='' type-id='e7f43f72' visibility='default'/>
+      </data-member>
+      <data-member access='public'>
+        <var-decl name='' type-id='e7f43f73' visibility='default'/>
+      </data-member>
+    </union-decl>
+    <class-decl name='__anonymous_struct__' size-in-bits='32' is-struct='yes' is-anonymous='yes' visibility='default' id='e7f43f72'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <class-decl name='__anonymous_struct__1' size-in-bits='8' is-struct='yes' is-anonymous='yes' visibility='default' id='e7f43f73'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='y' type-id='a84c031d' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <function-decl name='foo' mangled-name='foo' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='foo'>
+      <return type-id='3ed987a4'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

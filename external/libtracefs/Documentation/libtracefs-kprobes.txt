@@ -1,0 +1,273 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_kprobe_alloc, tracefs_kretprobe_alloc, tracefs_kprobe_raw, tracefs_kretprobe_raw -
+Allocate, get, and create kprobes
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+struct tracefs_dynevent pass:[*]
+*tracefs_kprobe_alloc*(const char pass:[*]_system_, const char pass:[*]_event_,
+		       const char pass:[*]_addr_, const char pass:[*]_format_);
+struct tracefs_dynevent pass:[*]
+*tracefs_kretprobe_alloc*(const char pass:[*]_system_, const char pass:[*]_event_,
+			  const char pass:[*]_addr_, const char pass:[*]_format_, unsigned int _max_);
+int *tracefs_kprobe_raw*(const char pass:[*]_system_, const char pass:[*]_event_,
+			 const char pass:[*]_addr_, const char pass:[*]_format_);
+int *tracefs_kretprobe_raw*(const char pass:[*]_system_, const char pass:[*]_event_,
+			    const char pass:[*]_addr_, const char pass:[*]_format_);
+--
+
+DESCRIPTION
+-----------
+*tracefs_kprobe_alloc*() allocates a new kprobe context. The kbrobe is not configured in the system.
+The new kprobe will be in the _system_ group (or kprobes if _system_ is NULL) and have the name of
+_event_ (or _addr_ if _event_ is NULL). The kprobe will be inserted to _addr_ (function name, with
+or without offset, or a address), and the _format_ will define the format of the kprobe. See the
+Linux documentation file under: Documentation/trace/kprobetrace.rst
+
+*tracefs_kretprobe_alloc*() is the same as *tracefs_kprobe_alloc*, but allocates context for
+kretprobe. It has one additional parameter, which is optional, _max_ - maxactive count.
+See description of kretprobes in the Documentation/trace/kprobetrace.rst file.
+
+*tracefs_kprobe_raw*() will create a kprobe event. If _system_ is NULL, then
+the default "kprobes" is used for the group (event system). Otherwise if _system_
+is specified then the kprobe will be created under the group by that name. The
+_event_ is the name of the kprobe event to create. The _addr_ can be a function,
+a function and offset, or a kernel address. This is where the location of the
+kprobe will be inserted in the kernel. The _format_ is the kprobe format as
+specified as FETCHARGS in the Linux kernel source in the Documentation/trace/kprobetrace.rst
+document.
+
+*tracefs_kretprobe_raw*() is the same as *tracefs_kprobe_raw()*, except that it
+creates a kretprobe instead of a kprobe. The difference is also described
+in the Linux kernel source in the Documentation/trace/kprobetrace.rst file.
+
+RETURN VALUE
+------------
+
+*tracefs_kprobe_raw*() and *tracefs_kretprobe_raw*() return 0 on success, or -1 on error.
+If a parsing error occurs on *tracefs_kprobe_raw*() or *tracefs_kretprobe_raw*() then
+*tracefs_error_last*(3) may be used to retrieve the error message explaining the parsing issue.
+
+The *tracefs_kprobe_alloc*() and *tracefs_kretprobe_alloc*() APIs return a pointer to an allocated
+tracefs_dynevent structure, describing the probe. This pointer must be freed by
+*tracefs_dynevent_free*(3). Note, this only allocates a descriptor representing the kprobe. It does
+not modify the running system.
+
+ERRORS
+------
+The following errors are for all the above calls:
+
+*EPERM* Not run as root user
+
+*ENODEV* Kprobe events are not configured for the running kernel.
+
+*ENOMEM* Memory allocation error.
+
+*tracefs_kprobe_raw*(), *tracefs_kretprobe_raw*(), *tracefs_kprobe_alloc*(),
+and *tracefs_kretprobe_alloc*() can fail with the following errors:
+
+*EBADMSG* if _addr_ is NULL.
+
+*EINVAL*  Most likely a parsing error occurred (use *tracefs_error_last*(3) to possibly
+          see what that error was).
+
+Other errors may also happen caused by internal system calls.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+#include <tracefs.h>
+
+static struct tep_event *open_event;
+static struct tep_format_field *file_field;
+
+static struct tep_event *openret_event;
+static struct tep_format_field *ret_field;
+
+static int callback(struct tep_event *event, struct tep_record *record,
+		    int cpu, void *data)
+{
+	struct trace_seq seq;
+
+	trace_seq_init(&seq);
+	tep_print_event(event->tep, &seq, record, "%d-%s: ", TEP_PRINT_PID, TEP_PRINT_COMM);
+
+	if (event->id == open_event->id) {
+		trace_seq_puts(&seq, "open file='");
+		tep_print_field(&seq, record->data, file_field);
+		trace_seq_puts(&seq, "'\n");
+	} else if (event->id == openret_event->id) {
+		unsigned long long ret;
+		tep_read_number_field(ret_field, record->data, &ret);
+		trace_seq_printf(&seq, "open ret=%lld\n", ret);
+	} else {
+		goto out;
+	}
+
+	trace_seq_terminate(&seq);
+	trace_seq_do_printf(&seq);
+out:
+	trace_seq_destroy(&seq);
+
+	return 0;
+}
+
+static pid_t run_exec(char **argv, char **env)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid)
+		return pid;
+
+	execve(argv[0], argv, env);
+	perror("exec");
+	exit(-1);
+}
+
+const char *mykprobe = "my_kprobes";
+
+enum kprobe_type {
+	KPROBE,
+	KRETPROBE,
+};
+
+static void __kprobe_create(enum kprobe_type type, const char *event,
+			    const char *addr, const char *fmt)
+{
+	char *err;
+	int r;
+
+	if (type == KPROBE)
+		r = tracefs_kprobe_raw(mykprobe, event, addr, fmt);
+	else
+		r = tracefs_kretprobe_raw(mykprobe, event, addr, fmt);
+	if (r < 0) {
+		err = tracefs_error_last(NULL);
+		perror("Failed to create kprobe:");
+		if (err && strlen(err))
+			fprintf(stderr, "%s\n", err);
+	}
+}
+
+static void kprobe_create(const char *event, const char *addr,
+			  const char *fmt)
+{
+	__kprobe_create(KPROBE, event, addr, fmt);
+}
+
+static void kretprobe_create(const char *event, const char *addr,
+			     const char *fmt)
+{
+	__kprobe_create(KRETPROBE, event, addr, fmt);
+}
+
+int main (int argc, char **argv, char **env)
+{
+	struct tracefs_instance *instance;
+	struct tep_handle *tep;
+	const char *sysnames[] = { mykprobe, NULL };
+	pid_t pid;
+
+	if (argc < 2) {
+		printf("usage: %s command\n", argv[0]);
+		exit(-1);
+	}
+
+	instance = tracefs_instance_create("exec_open");
+	if (!instance) {
+		perror("creating instance");
+		exit(-1);
+	}
+
+	tracefs_dynevent_destroy_all(TRACEFS_DYNEVENT_KPROBE | TRACEFS_DYNEVENT_KRETPROBE, true);
+
+	kprobe_create("open", "do_sys_openat2",
+		      "file=+0($arg2):ustring flags=+0($arg3):x64 mode=+8($arg3):x64\n");
+
+	kretprobe_create("openret", "do_sys_openat2", "ret=%ax");
+
+	tep = tracefs_local_events_system(NULL, sysnames);
+	if (!tep) {
+		perror("reading events");
+		exit(-1);
+	}
+	open_event = tep_find_event_by_name(tep, mykprobe, "open");
+	file_field = tep_find_field(open_event, "file");
+
+	openret_event = tep_find_event_by_name(tep, mykprobe, "openret");
+	ret_field = tep_find_field(openret_event, "ret");
+
+	tracefs_event_enable(instance, mykprobe, NULL);
+	pid = run_exec(&argv[1], env);
+
+	/* Let the child start to run */
+	sched_yield();
+
+	do {
+		tracefs_load_cmdlines(NULL, tep);
+		tracefs_iterate_raw_events(tep, instance, NULL, 0, callback, NULL);
+	} while (waitpid(pid, NULL, WNOHANG) != pid);
+
+	/* Will disable the events */
+	tracefs_dynevent_destroy_all(TRACEFS_DYNEVENT_KPROBE | TRACEFS_DYNEVENT_KRETPROBE, true);
+	tracefs_instance_destroy(instance);
+	tep_free(tep);
+
+	return 0;
+}
+--
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+*sameeruddin shaik* <sameeruddin.shaik8@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2021 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

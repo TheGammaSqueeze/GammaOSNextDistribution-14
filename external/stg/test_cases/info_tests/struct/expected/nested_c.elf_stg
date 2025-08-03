@@ -1,0 +1,128 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x12c83f93
+  kind: POINTER
+  pointee_type_id: 0x616018d1
+}
+pointer_reference {
+  id: 0x1b5b5f31
+  kind: POINTER
+  pointee_type_id: 0x472d9a5b
+}
+pointer_reference {
+  id: 0x32c82798
+  kind: POINTER
+  pointee_type_id: 0xe16078fd
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+member {
+  id: 0xc0117331
+  name: "inner"
+  type_id: 0x12c83f93
+}
+member {
+  id: 0xc062db16
+  name: "inner"
+  type_id: 0x616018d1
+}
+member {
+  id: 0xa04e65cb
+  name: "x"
+  type_id: 0xfc0e1dbd
+}
+struct_union {
+  id: 0x472d9a5b
+  kind: STRUCT
+  name: "containing"
+  definition {
+    bytesize: 8
+    member_id: 0xc062db16
+  }
+}
+struct_union {
+  id: 0x616018d1
+  kind: STRUCT
+  name: "nested"
+  definition {
+    bytesize: 8
+    member_id: 0xa04e65cb
+  }
+}
+struct_union {
+  id: 0xe16078fd
+  kind: STRUCT
+  name: "referring"
+  definition {
+    bytesize: 8
+    member_id: 0xc0117331
+  }
+}
+function {
+  id: 0x01533705
+  return_type_id: 0x48b5725f
+  parameter_id: 0x472d9a5b
+}
+function {
+  id: 0x164e865f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x1b5b5f31
+}
+function {
+  id: 0x1c2a5875
+  return_type_id: 0x48b5725f
+  parameter_id: 0x32c82798
+}
+function {
+  id: 0x28c04fac
+  return_type_id: 0x48b5725f
+  parameter_id: 0xe16078fd
+}
+elf_symbol {
+  id: 0x97e8ca66
+  name: "register_ops6"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x01533705
+  full_name: "register_ops6"
+}
+elf_symbol {
+  id: 0x68a86d39
+  name: "register_ops7"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x164e865f
+  full_name: "register_ops7"
+}
+elf_symbol {
+  id: 0x1f6abcc7
+  name: "register_ops8"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x28c04fac
+  full_name: "register_ops8"
+}
+elf_symbol {
+  id: 0xdc2ac9cf
+  name: "register_ops9"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x1c2a5875
+  full_name: "register_ops9"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x97e8ca66
+  symbol_id: 0x68a86d39
+  symbol_id: 0x1f6abcc7
+  symbol_id: 0xdc2ac9cf
+}

@@ -1,0 +1,14 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'Foo getEnum(Foo)'"]
+  "2" [label="'Foo(Foo)'"]
+  "3" [shape=rectangle, label="'Foo' = 'enum Foo'"]
+  "4" [color=red, shape=rectangle, label="'enum Foo'"]
+  "4" -> "4:0"
+  "4:0" [color=red, label="enumerator 'FOO_TWO' value changed from 100 to 2"]
+  "3" -> "4" [label="resolved"]
+  "2" -> "3" [label="return"]
+  "2" -> "3" [label="parameter 1"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

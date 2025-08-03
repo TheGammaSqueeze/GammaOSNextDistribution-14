@@ -1,0 +1,15 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 9fc1c3e..ee4c928 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -67,6 +67,10 @@
+     unsafe_code
+ )]
+ 
++// ANDROID: Unconditionally use std to allow building as a dylib
++#[macro_use]
++extern crate std;
++
+ use core::fmt;
+ 
+ /// The `Iterator` extension trait that provides the `peeking_take_while`

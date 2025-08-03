@@ -1,0 +1,5 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [color=red, label="added(int b())"]
+  "0" -> "1" [label=""]
+}

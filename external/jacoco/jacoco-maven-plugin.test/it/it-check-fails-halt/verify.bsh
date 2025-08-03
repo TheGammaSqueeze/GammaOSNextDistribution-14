@@ -1,0 +1,24 @@
+/*******************************************************************************
+ * Copyright (c) 2009, 2021 Mountainminds GmbH & Co. KG and Contributors
+ * This program and the accompanying materials are made available under
+ * the terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Evgeny Mandrikov - initial API and implementation
+ *    Kyle Lieber - implementation of CheckMojo 
+ *
+ *******************************************************************************/
+import java.io.*;
+import org.codehaus.plexus.util.*;
+
+String buildLog = FileUtils.fileRead( new File( basedir, "build.log" ) );
+if ( buildLog.indexOf( "Coverage checks have not been met." ) < 0 ) {
+    throw new RuntimeException( "Coverage checks should not have been met." );
+}
+
+if ( buildLog.indexOf( "methods missed count is 1, but expected maximum is 0" ) < 0 ) {
+    throw new RuntimeException( "Should have displayed insufficient code coverage messages." );
+}

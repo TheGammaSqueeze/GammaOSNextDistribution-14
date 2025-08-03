@@ -1,0 +1,5 @@
+#### ALL-FROM-NODE from F
+ 65550: ELEMENT F  Level=8 	Value=null
+ 65551: NAMESPACE xmlns:f  Level=9 	Value="www.f.com"
+ 65552: ATTRIBUTE a1  Level=9 	Value="down"
+ 65553: ATTRIBUTE a2  Level=9 	Value="up"

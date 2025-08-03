@@ -1,0 +1,30 @@
+package {
+    default_applicable_licenses: ["external_subsampling-scale-image-view_license"],
+}
+
+license {
+    name: "external_subsampling-scale-image-view_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+android_library {
+    name: "subsampling-scale-image-view",
+
+    static_libs: ["android-support-exifinterface"],
+    srcs: ["library/src/**/*.java"],
+    resource_dirs: ["library/src/main/res"],
+
+    optimize: {
+        enabled: false,
+    },
+
+    sdk_version: "current",
+    min_sdk_version: "26",
+    manifest: "library/src/main/AndroidManifest.xml",
+}

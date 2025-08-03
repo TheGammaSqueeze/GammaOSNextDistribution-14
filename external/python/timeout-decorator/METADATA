@@ -1,0 +1,16 @@
+name: "timeout-decorator"
+description:
+    "timeout-decorator"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/pnpnpn/timeout-decorator"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/pnpnpn/timeout-decorator"
+  }
+  version: "9fbc3ef5b6f8f8cba2eb7ba795813d6ec543e265"
+  last_upgrade_date { year: 2022 month: 4 day: 25 }
+  license_type: NOTICE
+}

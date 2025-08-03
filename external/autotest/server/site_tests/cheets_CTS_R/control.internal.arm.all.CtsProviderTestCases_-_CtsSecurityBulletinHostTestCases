@@ -1,0 +1,37 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file has been automatically generated. Do not edit!
+
+AUTHOR = 'ARC++ Team'
+NAME = 'cheets_CTS_R.internal.arm.all.CtsProviderTestCases_-_CtsSecurityBulletinHostTestCases'
+ATTRIBUTES = 'suite:arc-cts-qual'
+DEPENDENCIES = 'arc'
+JOB_RETRIES = 1
+TEST_TYPE = 'server'
+TIME = 'MEDIUM'
+MAX_RESULT_SIZE_KB = 512000
+PY_VERSION = 3
+DOC = 'Run module CtsProviderTestCases, CtsProviderTestCases[secondary_user], CtsProviderUiTestCases, CtsQuickAccessWalletTestCases, CtsQuickAccessWalletTestCases[instant], CtsQuickAccessWalletTestCases[secondary_user], CtsRenderscriptLegacyTestCases, CtsRenderscriptLegacyTestCases[secondary_user], CtsRenderscriptTestCases, CtsRenderscriptTestCases[instant], CtsRenderscriptTestCases[secondary_user], CtsResolverServiceTestCases, CtsResolverServiceTestCases[secondary_user], CtsResourcesLoaderTests, CtsResourcesLoaderTests[secondary_user], CtsRoleTestCases, CtsRoleTestCases[secondary_user], CtsRollbackManagerHostTestCases, CtsRsBlasTestCases, CtsRsBlasTestCases[secondary_user], CtsRsCppTestCases, CtsRsCppTestCases[secondary_user], CtsSampleDeviceTestCases, CtsSampleDeviceTestCases[instant], CtsSampleDeviceTestCases[secondary_user], CtsSampleHostTestCases, CtsSampleHostTestCases[secondary_user], CtsSaxTestCases, CtsSaxTestCases[secondary_user], CtsScopedStorageHostTest, CtsScopedStorageHostTest[instant], CtsSdkExtensionsTestCases, CtsSdkExtensionsTestCases[instant], CtsSdkExtensionsTestCases[secondary_user], CtsSeccompHostTestCases, CtsSeccompHostTestCases[instant], CtsSeccompHostTestCases[secondary_user], CtsSecureElementAccessControlTestCases1, CtsSecureElementAccessControlTestCases1[secondary_user], CtsSecureElementAccessControlTestCases2, CtsSecureElementAccessControlTestCases2[secondary_user], CtsSecureElementAccessControlTestCases3, CtsSecureElementAccessControlTestCases3[secondary_user], CtsSecureFrpInstallTestCases, CtsSecureFrpInstallTestCases[secondary_user], CtsSecurityBulletinHostTestCases, CtsSecurityBulletinHostTestCases[secondary_user] of the Android Compatibility Test Suite (CTS) using arm ABI in the ARC++ container.'
+
+def run_TS(machine):
+    host_list = [hosts.create_host(machine)]
+    job.run_test(
+        'cheets_CTS_R',
+        hosts=host_list,
+        iterations=1,
+        max_retry=9,
+        tag='internal.arm.all.CtsProviderTestCases_-_CtsSecurityBulletinHostTestCases',
+        test_name='cheets_CTS_R.internal.arm.all.CtsProviderTestCases_-_CtsSecurityBulletinHostTestCases',
+        run_template=['run', 'commandAndExit', 'cts', '--include-filter', 'CtsProviderTestCases', '--include-filter', 'CtsProviderTestCases[secondary_user]', '--include-filter', 'CtsProviderUiTestCases', '--include-filter', 'CtsQuickAccessWalletTestCases', '--include-filter', 'CtsQuickAccessWalletTestCases[instant]', '--include-filter', 'CtsQuickAccessWalletTestCases[secondary_user]', '--include-filter', 'CtsRenderscriptLegacyTestCases', '--include-filter', 'CtsRenderscriptLegacyTestCases[secondary_user]', '--include-filter', 'CtsRenderscriptTestCases', '--include-filter', 'CtsRenderscriptTestCases[instant]', '--include-filter', 'CtsRenderscriptTestCases[secondary_user]', '--include-filter', 'CtsResolverServiceTestCases', '--include-filter', 'CtsResolverServiceTestCases[secondary_user]', '--include-filter', 'CtsResourcesLoaderTests', '--include-filter', 'CtsResourcesLoaderTests[secondary_user]', '--include-filter', 'CtsRoleTestCases', '--include-filter', 'CtsRoleTestCases[secondary_user]', '--include-filter', 'CtsRollbackManagerHostTestCases', '--include-filter', 'CtsRsBlasTestCases', '--include-filter', 'CtsRsBlasTestCases[secondary_user]', '--include-filter', 'CtsRsCppTestCases', '--include-filter', 'CtsRsCppTestCases[secondary_user]', '--include-filter', 'CtsSampleDeviceTestCases', '--include-filter', 'CtsSampleDeviceTestCases[instant]', '--include-filter', 'CtsSampleDeviceTestCases[secondary_user]', '--include-filter', 'CtsSampleHostTestCases', '--include-filter', 'CtsSampleHostTestCases[secondary_user]', '--include-filter', 'CtsSaxTestCases', '--include-filter', 'CtsSaxTestCases[secondary_user]', '--include-filter', 'CtsScopedStorageHostTest', '--include-filter', 'CtsScopedStorageHostTest[instant]', '--include-filter', 'CtsSdkExtensionsTestCases', '--include-filter', 'CtsSdkExtensionsTestCases[instant]', '--include-filter', 'CtsSdkExtensionsTestCases[secondary_user]', '--include-filter', 'CtsSeccompHostTestCases', '--include-filter', 'CtsSeccompHostTestCases[instant]', '--include-filter', 'CtsSeccompHostTestCases[secondary_user]', '--include-filter', 'CtsSecureElementAccessControlTestCases1', '--include-filter', 'CtsSecureElementAccessControlTestCases1[secondary_user]', '--include-filter', 'CtsSecureElementAccessControlTestCases2', '--include-filter', 'CtsSecureElementAccessControlTestCases2[secondary_user]', '--include-filter', 'CtsSecureElementAccessControlTestCases3', '--include-filter', 'CtsSecureElementAccessControlTestCases3[secondary_user]', '--include-filter', 'CtsSecureFrpInstallTestCases', '--include-filter', 'CtsSecureFrpInstallTestCases[secondary_user]', '--include-filter', 'CtsSecurityBulletinHostTestCases', '--include-filter', 'CtsSecurityBulletinHostTestCases[secondary_user]', '--logcat-on-failure'],
+        retry_template=['run', 'commandAndExit', 'retry', '--retry', '{session_id}'],
+        target_module='all.CtsProviderTestCases_-_CtsSecurityBulletinHostTestCases',
+        target_plan=None,
+        bundle='arm',
+        uri='LATEST',
+        login_precondition_commands=['lsblk -do NAME,RM | sed -n s/1$//p | xargs -n1 eject'],
+        use_jdk9=True,
+        timeout=172800)
+
+parallel_simple(run_TS, machines)

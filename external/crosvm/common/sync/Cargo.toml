@@ -1,0 +1,8 @@
+[package]
+name = "sync"
+version = "0.1.99"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+include = ["src/**/*", "Cargo.toml"]
+
+

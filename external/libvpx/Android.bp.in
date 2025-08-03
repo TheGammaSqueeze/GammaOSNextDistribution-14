@@ -1,0 +1,189 @@
+package {
+    default_applicable_licenses: ["external_libvpx_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_libvpx_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-ISC",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library {
+    name: "libvpx",
+    vendor_available: true,
+    host_supported: true,
+    version_script: "exports.lds",
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        android: {
+            sanitize: {
+                cfi: true,
+                config: {
+                    cfi_assembly_support: true,
+                },
+            },
+        },
+    },
+
+    arch: {
+        // configured to require the neon unit
+        arm: {
+            neon: {
+                // Want arm, not thumb, optimized
+                instruction_set: "arm",
+
+                srcs: libvpx_arm_neon_c_srcs + libvpx_arm_neon_asm_srcs,
+                local_include_dirs: ["config/arm-neon"],
+            },
+        },
+
+        arm64: {
+            srcs: libvpx_arm64_c_srcs,
+            local_include_dirs: ["config/arm64"],
+        },
+
+        riscv64: {
+            srcs: libvpx_generic_c_srcs,
+            local_include_dirs: ["config/generic"],
+        },
+
+        x86: {
+            srcs: libvpx_x86_c_srcs + libvpx_x86_asm_srcs,
+            local_include_dirs: ["config/x86"],
+            cflags: [
+                "-mssse3",
+            ],
+        },
+
+        x86_64: {
+            srcs: libvpx_x86_64_c_srcs + libvpx_x86_64_asm_srcs,
+            local_include_dirs: ["config/x86_64"],
+            cflags: [
+                "-mssse3",
+            ],
+        },
+    },
+
+    cflags: [
+        "-O3",
+        "-Wno-unused-parameter",
+    ],
+
+    export_include_dirs: ["."],
+
+    sanitize: {
+        integer_overflow: true,
+        misc_undefined: ["bounds"],
+        blocklist: "libvpx_blocklist.txt",
+    },
+    min_sdk_version: "29",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.media.swcodec",
+    ],
+}
+
+cc_library_headers {
+    name: "libvpx_headers",
+    vendor_available: true,
+    host_supported: true,
+
+    export_include_dirs: ["."],
+}
+
+cc_fuzz {
+    name: "vp9_dec_fuzzer",
+    host_supported: true,
+    srcs: [
+        "examples/vpx_dec_fuzzer.cc",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    arch: {
+        arm: {
+            neon: {
+                local_include_dirs: ["config/arm-neon"],
+            },
+        },
+
+        arm64: {
+            local_include_dirs: ["config/arm64"],
+        },
+
+        x86: {
+            local_include_dirs: ["config/x86"],
+        },
+
+        x86_64: {
+            local_include_dirs: ["config/x86_64"],
+        },
+    },
+    cflags: ["-DDECODER=vp9"],
+    static_libs: [
+        "libvpx",
+    ],
+}
+
+cc_fuzz {
+    name: "vp8_dec_fuzzer",
+    host_supported: true,
+    srcs: [
+        "examples/vpx_dec_fuzzer.cc",
+    ],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    arch: {
+        arm: {
+            neon: {
+                local_include_dirs: ["config/arm-neon"],
+            },
+        },
+
+        arm64: {
+            local_include_dirs: ["config/arm64"],
+        },
+
+        x86: {
+            local_include_dirs: ["config/x86"],
+        },
+
+        x86_64: {
+            local_include_dirs: ["config/x86_64"],
+        },
+    },
+
+    cflags: ["-DDECODER=vp8"],
+    static_libs: [
+        "libvpx",
+    ],
+}

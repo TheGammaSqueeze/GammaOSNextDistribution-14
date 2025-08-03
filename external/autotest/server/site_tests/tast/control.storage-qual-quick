@@ -1,0 +1,60 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'abergman, chromeos-engprod-platform-syd'
+NAME = 'tast.storage-qual-quick'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:storage_qual_v2_quick'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the Tast-based storage qualification quick test.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+import tempfile
+import yaml
+
+utils.write_keyval(job.resultdir, {
+  'storage_qual_version': 2,
+  'bug_id': bug_id,
+  'part_id': part_id
+})
+
+def run(machine):
+    args_dict = globals().get('args_dict', {})
+    test_exprs = args_dict.get('test_exprs', 'storage.QuickStress.*').split(',')
+    max_run_sec = args_dict.get('max_run_sec', 12 * 60 * 60)
+
+    with tempfile.NamedTemporaryFile(suffix='.yaml') as temp_file:
+        # Writing test arguments to yaml file except for wrapper-related arguments.
+        test_args = dict()
+        tast_prefix = 'tast_'
+        for key, value in args_dict.items():
+            # TODO(b/185932989): get rid of 'tast_' prefix for var names.
+            if key.startswith(tast_prefix):
+                test_args[key] = value
+        yaml.dump(test_args, stream=temp_file, default_flow_style=False)
+
+        job.run_test('tast',
+                    host=hosts.create_host(machine),
+                    test_exprs=test_exprs,
+                    ignore_test_failures=False,
+                    max_run_sec=max_run_sec,
+                    command_args=args,
+                    varsfiles=[temp_file.name])
+
+parallel_simple(run, machines)

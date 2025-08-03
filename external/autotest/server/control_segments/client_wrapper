@@ -1,0 +1,13 @@
+at = autotest.Autotest()
+
+
+def run_client(machine):
+    host = hosts.create_host(machine)
+    host.log_kernel()
+    if synchronous_offload_dir:
+        host.env[autotest.OFFLOAD_ENVVAR] = synchronous_offload_dir
+    at.run(control, host=host, use_packaging=use_packaging,
+           timeout=extended_timeout)
+
+
+job.parallel_simple(run_client, machines)

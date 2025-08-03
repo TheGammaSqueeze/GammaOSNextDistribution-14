@@ -1,0 +1,154 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE s1 SYSTEM "sbk:/style/dtd/document.dtd">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the  "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+<s1 title="Getting Started">
+<ul>
+<li><link anchor="quickstart">Quick Start</link></li>
+<li><link anchor="downloading">Downloading the code</link></li>
+<li><link anchor="how-to-build">Building the Tests</link></li>
+</ul>
+
+  <anchor name="quickstart"/>
+  <s2 title="Quick Start">
+    <note>This section assumes you are already familiar with 
+    <jump href="http://xml.apache.org/xalan-j/readme.html#build">building Xalan-J</jump> and with 
+    <jump href="http://jakarta.apache.org/ant/">Ant</jump>.</note>
+    <p>Set JAVA_HOME, and have your classes.zip or tools.jar in the CLASSPATH.</p>
+    <p>Here are some sample commands to build and run tests:</p>
+    <p><code>cd /builds  </code>
+    <br/><code>checkout xml-xalan/java  </code> Get the Xalan-J code (or simply get a nightly build or distro)
+    <br/><code>cd xml-xalan/java  </code>
+    <br/><code>build jar  </code> Build Xalan-J as usual
+    <br/><code>build smoketest   </code> Run the build Smoketest (optional; simply calls the smoketest target below)
+    </p>
+    <p><code>cd /builds  </code>
+    <br/><code>checkout xml-xalan/test  </code>
+    <br/><code>cd xml-xalan/test  </code>
+    <br/><code>build jar   </code> Build the test framework/harness and most API/conf/etc. tests into <code>java/build/testxsl.jar  </code>
+    <br/><code>build smoketest   </code> Run the build Smoketest (includes a selection of API tests and the conf tests); results in smoketest/
+    <br/><code>build conf   </code> Run the StylesheetTestletDriver over the conf dir; results in results-conf/
+    <br/><code>build conf -Dqetest.optionName=valueName -Dqetest.category=axes  </code> Run the StylesheetTestletDriver over the conf dir; passing options, and only on the axes subdirectory
+    <br/><code>build api -DtestClass=TransformerAPITest </code> Run a single API test; results in results-api/
+    <br/><code>build harness </code> Run the full set of individual API tests; results in results-api/
+    </p>
+    <p><code>build extensions.classes   </code> Compile the tests/extensions tests
+    <br/><code>build extensions   </code> Run the tests/extensions tests
+    <br/><code>build bugzilla.classes   </code> Compile the tests/bugzilla bug regression tests
+    <br/><code>build bugzilla   </code> Run the tests/bugzilla bug regression tests
+    <br/><code>build clean   </code> Clean up the built automation (does not clean any results you've generated)
+    <br/><code>build -h   </code> Get help on build.bat/build.sh options and Ant targets
+    </p>
+    <p>Changing options:</p>
+    <p>Since we use the Ant test/build.xml script to kick off tests, <link idref="run" anchor="test-options">test options</link>
+    get passed slightly differently.  The actual options the tests see and use 
+    remain the same as before, however when you invoke Ant you need to specify the 
+    options with a -D and a prefix that Ant uses and then strips off in XSLTestAntTask.</p>
+    <p>Default options (inputDir, loggingLevel, etc.) are now all stored in test.properties. 
+    Overall defaults are prefixed with <code>qetest.</code>, which are used if no other 
+    type of test is specified.  Each type of test (api, conf, perf, contrib, etc.) has 
+    it's own set of some prefixed options - namely api.inputDir, api.outputDir, api.goldDir and 
+    api.logFile, etc..</p>
+    <p>Users may override the defaults in one of two ways:</p>
+    <ul>
+    <li>Create a <code>my.test.properties</code> file with any options you wish to use
+    in the xml-xalan/test directory.  This will 
+    override any options set in the test.properties or build.xml files.  The format 
+    is the same as the test.properties file.  A different name of this file may be specified 
+    using -Dlocal.properties=new.name.properties on the command line</li>
+    <li>Pass options on the command line.  This is the same as passing options to 
+    java or your JDK, so you must use the <code>-Dname=value</code> format.</li>
+    </ul>
+    <p><code>build conf -Dconf.category=axes -Dconf.flavor=trax.sax  </code> This runs 
+    the normal conf tests, but only on the axes subdir, and using the TraxSaxWrapper class.
+    <br/><code>build api -DtestClass=TransformStateTest -Dapi.loggingLevel=30  </code> This runs 
+    the org.apache.qetest.xalanj2.TransformStateTest with a lower loggingLevel (so less is output).
+    Note that testClass is one of the few properties that is not prefixed, since it is 
+    not passed on to the test itself, but is only used by the Ant script to load the test.
+    </p>
+  </s2>
+
+  <anchor name="downloading"/>
+  <s2 title="Downloading the tests">
+    <note>Since these tests are primarily to help developers test their 
+    changes to Xalan source code, we don't currently provide prebuilt 
+    builds of the test code. Most tests also require Xalan-J, even 
+    if you are testing a Xalan-C build.</note>
+    <p>To use the tests, you will need both a working build of Xalan-J 
+    as well as the sources for the tests themselves.
+    </p><p>To download Xalan builds, see the:
+    <jump href="http://xml.apache.org/xalan-j/dist/">Xalan-J download page</jump> or the 
+    <jump href="http://xml.apache.org/xalan-c/dist/">Xalan-C download page</jump>
+    </p><p>To get the test sources, do the following:
+    <br/>Check out the xml-xalan\test repository <jump href="http://xml.apache.org/cvs.html">directly from CVS</jump> 
+    (<jump href="http://xml.apache.org/cvs.html">read-only access</jump> is available to all).
+    <br/><br/>
+    </p>
+    
+  </s2>
+      
+  <anchor name="how-to-build"/>
+  <s2 title="Building the Tests">
+    <p>Since the test automation is written in Java, you must build it before running 
+    any tests.  Like Xalan-J, we use Ant build.xml files as 'makefiles' to build the 
+    project.  A copy of the Ant runtime files is provided in the xml-xalan/java/tools directory if you 
+    need them; you may also use your own copy of Ant if you have it installed.  
+    Unless specifically noted, all testing code should work either on Windows or 
+    UNIX systems; adjust .sh/.bat and path\separators/as needed.  Note that paths 
+    in .properties files may always use forward / slashes since Ant's path 
+    handling will always do the proper thing.</p>
+
+    <p>This assumes you already have a version of Xalan-J in \builds\xml-xalan\java  
+    This may either be a distribution or a copy you pulled from CVS and built yourself.</p>
+    <p>Download the tests to \builds\xml-xalan\test.</p>
+    <p><code>cd \builds\xml-xalan\test  </code>
+    <br/><code>build jar   </code> This calls build.bat/.sh to find a copy of ant.jar and an 
+    xml parser (which Ant requires).  It then calls Ant to run the 'jar' target in the 
+    default build.xml file.  This will compile all the base test reporting libraries and 
+    framework, as well as the most common test drivers and API tests.
+    </p>
+    <p>The default way to build and run the tests assumes you have both the xml-xalan/java 
+    and xml-xalan/test directories locally, as if you were a developer on xalan.  See below 
+    for a simple alternate way to set your classpath using JARDIR.  This allows QE/QA/test 
+    people to run the same set of tests quickly against different versions of the product.</p>
+    <note>Using JARDIR is no longer fully supported due to lack of 
+    interest.  Those wishing to manage custom classpaths are welcome 
+    to submit patches to allow this in an automated fashion.</note>
+
+    <p>The default jar target builds all TestletDrivers and most of the tests.  
+    A few kinds of tests require separate targets to compile since they have 
+    extra dependencies.  In particular, any XSLTC-specific API tests or 
+    TransformWrapper subclasses are compiled in a separate set of targets.</p>
+
+    <p>Users of automated IDE's that automatically compile all *.java files 
+    in the source tree will either have to use the Ant build.xml script or may 
+    have to manually compile certain files with the extra dependencies.  Note that 
+    JUnit is only required for the special qetesttest directory, which is only used to 
+    test the qetest framework itself and is not needed to test Xalan.</p>
+    <p>Note that there are a few precompiled .class files in the test/java/src/ area.  
+    By default these are simply copied into the testxsl.jar for you.  These are files 
+    that require extra dependencies to compile, and change infrequently, so as a 
+    convenience they're checked in to the repository as precompiled .class files as well as source.</p>
+    <p>Building the Javadocs for the tests is done by <code>build.bat javadocs  </code>, and 
+    is best done under JDK 1.2.2 or higher - they will build with JDK 1.1.8, but not 
+    all the links will work properly.</p>
+    <p>Building these top-level documents in the xdocs directory can 
+    be done with <code>build.bat docs  </code> and must be done under JDK 1.2.2 or higher, 
+    since the Xalan-related stylebook code that we use requires that. </p>
+  </s2>
+</s1>

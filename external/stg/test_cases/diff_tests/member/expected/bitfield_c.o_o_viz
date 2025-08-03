@@ -1,0 +1,61 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'void fun(const struct B*)'"]
+  "2" [label="'void(const struct B*)'"]
+  "3" [label="'const struct B*'"]
+  "4" [label="'const struct B'"]
+  "5" [shape=rectangle, label="'struct B'"]
+  "6" [color=red, label="'unsigned long long b:1' -> 'unsigned long long b:2'"]
+  "6" -> "6:0"
+  "6:0" [color=red, label="bit-field size changed from 1 to 2"]
+  "5" -> "6" [label=""]
+  "7" [color=red, label="'unsigned long long c:2' -> 'unsigned long long c:3'"]
+  "7" -> "7:0"
+  "7:0" [color=red, label="offset changed from 2 to 3"]
+  "7" -> "7:1"
+  "7:1" [color=red, label="bit-field size changed from 2 to 3"]
+  "5" -> "7" [label=""]
+  "8" [color=red, label="'unsigned long long d:3' -> 'unsigned long long d:5'"]
+  "8" -> "8:0"
+  "8:0" [color=red, label="offset changed from 4 to 6"]
+  "8" -> "8:1"
+  "8:1" [color=red, label="bit-field size changed from 3 to 5"]
+  "5" -> "8" [label=""]
+  "9" [color=red, label="'unsigned long long e:5' -> 'unsigned long long e:8'"]
+  "9" -> "9:0"
+  "9:0" [color=red, label="offset changed from 7 to 11"]
+  "9" -> "9:1"
+  "9:1" [color=red, label="bit-field size changed from 5 to 8"]
+  "5" -> "9" [label=""]
+  "10" [color=red, label="'unsigned long long f:8' -> 'unsigned long long f:13'"]
+  "10" -> "10:0"
+  "10:0" [color=red, label="offset changed from 12 to 19"]
+  "10" -> "10:1"
+  "10:1" [color=red, label="bit-field size changed from 8 to 13"]
+  "5" -> "10" [label=""]
+  "11" [color=red, label="'unsigned long long g:13' -> 'unsigned long long g:21'"]
+  "11" -> "11:0"
+  "11:0" [color=red, label="offset changed from 20 to 32"]
+  "11" -> "11:1"
+  "11:1" [color=red, label="bit-field size changed from 13 to 21"]
+  "5" -> "11" [label=""]
+  "12" [color=red, label="'unsigned long long h:21' -> 'unsigned long long h:34'"]
+  "12" -> "12:0"
+  "12:0" [color=red, label="offset changed from 33 to 64"]
+  "12" -> "12:1"
+  "12:1" [color=red, label="bit-field size changed from 21 to 34"]
+  "5" -> "12" [label=""]
+  "13" [color=red, label="'unsigned long long i:34' -> 'unsigned long long i:55'"]
+  "13" -> "13:0"
+  "13:0" [color=red, label="offset changed from 64 to 128"]
+  "13" -> "13:1"
+  "13:1" [color=red, label="bit-field size changed from 34 to 55"]
+  "5" -> "13" [label=""]
+  "14" [color=red, label="removed(unsigned long long j:55)"]
+  "5" -> "14" [label=""]
+  "4" -> "5" [label="underlying"]
+  "3" -> "4" [label="pointed-to"]
+  "2" -> "3" [label="parameter 1"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

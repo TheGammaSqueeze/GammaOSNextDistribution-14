@@ -1,0 +1,18 @@
+{
+  "features": [
+    "default",
+    "full",
+    "visit",
+    "visit-mut",
+    "extra-traits"
+  ],
+  "module_name_overrides": {
+    "libsyn": "libsyn_deprecated"
+  },
+  "package": {
+    "syn": {
+      "device_supported": false,
+      "host_first_multilib": true
+    }
+  }
+}

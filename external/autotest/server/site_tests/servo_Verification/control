@@ -1,0 +1,57 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "ChromeOS Team"
+NAME = "servo_Verification"
+PURPOSE = "Ensure a dut/servo pair provide required lab functionality."
+ATTRIBUTES = "suite:servo_verification"
+TIME = "MEDIUM"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+PY_VERSION = 3
+
+DOC = """
+This test is a wrapper around a few functionality tests surrounding servo,
+servod, and basic lab functionality. As this test is designed to test the
+labstation serving servod itself, instead of specific DUTs functionality,
+it should be independent of what DUT is on the other side.
+
+This is the dut/servo implementation of this test and this test simply runs
+the suite:
+- servo_lab
+
+This test will fail if no usb stick is attached to the servo setup.
+
+.local version assumes that there is an image already installed on the USB stick
+This allows the test to skip download times or avoid any devserver flakiness
+and can be used for local image validation. Just make sure the image on the
+stick is actually an image for the DUT that is connected.
+
+A note on failures:
+- Failures might occur if the test to install test images fails to query
+the right devserver. This will cause platform_InstallTestImage and the
+subsequent test to fail as well. This is a known issue when kicking it off
+from a workstation for example. (crbug.com/c/953113).
+
+Sample usage:
+test_that <dut ip> servo_Verification --args "servo_host=<labstation ip>
+                                              servo_port=<port on labstation>"
+"""
+
+# Workaround to make it compatible with moblab autotest UI.
+global args_dict
+try:
+    args_dict
+except NameError:
+    args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test("servo_Verification", host=host, disable_sysinfo=True)
+
+parallel_simple(run, machines)

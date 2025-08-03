@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="org.robolectric.integrationtests.axt">
+
+  <uses-sdk
+      android:minSdkVersion="19"
+      android:targetSdkVersion="34"/>
+
+  <application>
+    <activity
+        android:name="org.robolectric.integrationtests.axt.ActivityScenarioTest$LifecycleOwnerActivity"
+        android:exported="true"/>
+    <activity
+        android:name="org.robolectric.integrationtests.axt.ActivityScenarioTest$TranscriptActivity"
+        android:exported = "true"/>
+    <activity-alias
+        android:name="org.robolectric.integrationtests.axt.ActivityScenarioTestAlias"
+        android:targetActivity="org.robolectric.integrationtests.axt.ActivityScenarioTest$TranscriptActivity" />
+  </application>
+
+  <instrumentation
+      android:name="androidx.test.runner.AndroidJUnitRunner"
+      android:targetPackage="org.robolectric.integration.axt"/>
+
+</manifest>

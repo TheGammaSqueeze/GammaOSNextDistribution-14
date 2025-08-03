@@ -1,0 +1,14 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 5ee0f2c..9de75bc 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -235,6 +235,10 @@
+ //! [good cryptographic hygiene]: https://github.com/veorq/cryptocoding#clean-memory-of-secret-data
+ //! [`Ordering::SeqCst`]: core::sync::atomic::Ordering::SeqCst
+ 
++/// Local Android change: Use std to allow building as a dylib.
++#[cfg(android_dylib)]
++extern crate std;
++
+ #[cfg(feature = "alloc")]
+ extern crate alloc;

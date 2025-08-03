@@ -1,0 +1,7 @@
+<?xml version="1.0"?> 
+<doc>
+<!-- Copied from: java/samples/extensions/3-java-namespace.xml -->
+   <date
+    year="2001" month="5" day="27"
+    format="EEEE, MMM dd, yyyy"/>
+</doc>

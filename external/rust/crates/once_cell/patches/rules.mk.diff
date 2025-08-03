@@ -1,0 +1,14 @@
+diff --git b/rules.mk a/rules.mk
+index abb2410..95c1743 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -13,9 +13,4 @@ MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="race"' \
+ 	--cfg 'feature="std"' \
+ 
+-MODULE_LIBRARY_DEPS := \
+-	external/rust/crates/atomic_polyfill \
+-	external/rust/crates/critical_section \
+-	external/rust/crates/parking_lot_core \
+-
+ include make/library.mk

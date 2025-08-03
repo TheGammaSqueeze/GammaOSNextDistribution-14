@@ -1,0 +1,43 @@
+# Copyright 2019 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "ChromeOS Team"
+NAME = "servo_LabstationVerification.local"
+PURPOSE = "Ensure labstation images can provide basic lab functionality."
+TIME = "MEDIUM"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+PY_VERSION = 3
+
+DOC = """
+The local version of servo_LabstationVerification. Local in this context means
+that for the tests that require an image to be placed on the usb stick to run
+the test will assume an image is already present, and not attempt to download
+and image itself.
+
+For more details, please see the DOC section in the file 'control'.
+
+Sample usage:
+  test_that <labstation ip> servo_LabstationVerification.local
+
+  test_that <labstation ip> servo_LabstationVerification.local
+    --args="dut_ip=${DUT_IP}"
+  // To skip DUT ip inferring and use a known DUT ip
+"""
+# Workaround to make it compatible with moblab autotest UI.
+global args_dict
+try:
+    args_dict
+except NameError:
+    args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test("servo_LabstationVerification", host=host, local=True,
+                 config=args_dict, disable_sysinfo=True)
+
+parallel_simple(run, machines)

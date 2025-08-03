@@ -1,0 +1,4 @@
+{
+  "min_sdk_version": "33",
+  "run_cargo": false
+}

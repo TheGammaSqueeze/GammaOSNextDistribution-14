@@ -1,0 +1,12 @@
+{
+  "module_name_overrides": {
+    "libvhost": "libvhost_android",
+    "libvm_memory": "libvm_memory_android"
+  },
+  "package": {
+    "vhost-user-backend": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

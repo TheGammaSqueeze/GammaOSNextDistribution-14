@@ -1,0 +1,714 @@
+//
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_bcc_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-GPL-2.0
+    default_applicable_licenses: ["external_bcc_license"],
+}
+
+cc_defaults {
+    name: "bcc_bpf_defaults",
+    compile_multilib: "first",
+    cflags: [
+        "-fno-data-sections",
+        "-fno-function-sections",
+        "-fno-stack-protector",
+        "-fno-unwind-tables",
+        "-mcpu=generic",
+        "-Wno-pointer-arith",
+        "-Wno-unused-command-line-argument",
+        "-Wno-unused-parameter",
+        "-mllvm -bpf-stack-size=1024",
+        "-g",
+    ],
+    header_libs: [
+        "bpf_prog_headers",
+    ],
+    generated_headers: ["libbpf_headers"],
+    arch: {
+        arm: {
+            local_include_dirs: ["arm64"],
+            cflags: [
+                "-D__TARGET_ARCH_arm64",
+            ],
+        },
+        arm64: {
+            local_include_dirs: ["arm64"],
+            cflags: [
+                "-D__TARGET_ARCH_arm64",
+            ],
+        },
+        x86: {
+            local_include_dirs: ["x86"],
+            cflags: [
+                "-D__TARGET_ARCH_x86"
+            ],
+        },
+        x86_64: {
+            local_include_dirs: ["x86"],
+            cflags: [
+                "-D__TARGET_ARCH_x86"
+            ],
+        },
+    },
+    bpf_target: true,
+    visibility: ["//visibility:private"],
+}
+
+genrule_defaults {
+    name: "bpf_skeleton_hdr_defaults",
+    tools: ["bpftool"],
+    cmd: "$(location bpftool) gen skeleton $(in) > $(out)",
+    visibility: ["//visibility:private"],
+    arch: {
+        arm: {
+            enabled: false,
+        },
+        x86: {
+            enabled: false,
+        },
+    },
+}
+
+cc_defaults {
+    name: "bcc_binary_defaults",
+    defaults: ["elfutils_transitive_defaults"],
+    generated_headers: [
+        "libbpf_headers",
+    ],
+    local_include_dirs: [
+        "android",
+    ],
+    srcs: [
+        "android/argp.cpp",
+        "trace_helpers.c",
+        "btf_helpers.c",
+    ],
+    static_libs: [
+        "libbpf",
+        "libelf",
+        "libz",
+    ],
+    cflags: [
+        "-Wno-pointer-bool-conversion",
+        "-Wno-pointer-arith",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+    ],
+    arch: {
+        arm: {
+            enabled: false,
+        },
+        x86: {
+            enabled: false,
+        },
+    },
+}
+
+cc_object {
+    name: "bindsnoop.bpf.o",
+    srcs: ["bindsnoop.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "bindsnoop.skel.h",
+    srcs: [":bindsnoop.bpf.o"],
+    out: ["bindsnoop.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "bindsnoop",
+    srcs: ["bindsnoop.c"],
+    generated_headers:  ["bindsnoop.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "cpudist.bpf.o",
+    srcs: ["cpudist.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "cpudist.skel.h",
+    srcs: [":cpudist.bpf.o"],
+    out: ["cpudist.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "cpudist",
+    srcs: ["cpudist.c"],
+    generated_headers:  ["cpudist.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "cpufreq.bpf.o",
+    srcs: ["cpufreq.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "cpufreq.skel.h",
+    srcs: [":cpufreq.bpf.o"],
+    out: ["cpufreq.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "cpufreq",
+    srcs: ["cpufreq.c"],
+    generated_headers:  ["cpufreq.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "drsnoop.bpf.o",
+    srcs: ["drsnoop.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "drsnoop.skel.h",
+    srcs: [":drsnoop.bpf.o"],
+    out: ["drsnoop.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "drsnoop",
+    srcs: ["drsnoop.c"],
+    generated_headers:  ["drsnoop.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "filelife.bpf.o",
+    srcs: ["filelife.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "filelife.skel.h",
+    srcs: [":filelife.bpf.o"],
+    out: ["filelife.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "filelife",
+    srcs: ["filelife.c"],
+    generated_headers:  ["filelife.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "filetop.bpf.o",
+    srcs: ["filetop.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "filetop.skel.h",
+    srcs: [":filetop.bpf.o"],
+    out: ["filetop.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "filetop",
+    srcs: ["filetop.c"],
+    generated_headers:  ["filetop.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "fsdist.bpf.o",
+    srcs: ["fsdist.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "fsdist.skel.h",
+    srcs: [":fsdist.bpf.o"],
+    out: ["fsdist.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "fsdist",
+    srcs: ["fsdist.c"],
+    generated_headers:  ["fsdist.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "fsslower.bpf.o",
+    srcs: ["fsslower.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "fsslower.skel.h",
+    srcs: [":fsslower.bpf.o"],
+    out: ["fsslower.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "fsslower",
+    srcs: ["fsslower.c"],
+    generated_headers:  ["fsslower.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "funclatency.bpf.o",
+    srcs: ["funclatency.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "funclatency.skel.h",
+    srcs: [":funclatency.bpf.o"],
+    out: ["funclatency.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "funclatency",
+    srcs: [
+        "funclatency.c",
+        "uprobe_helpers.c",
+    ],
+    generated_headers:  ["funclatency.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "gethostlatency.bpf.o",
+    srcs: ["gethostlatency.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "gethostlatency.skel.h",
+    srcs: [":gethostlatency.bpf.o"],
+    out: ["gethostlatency.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "gethostlatency",
+    srcs: [
+        "gethostlatency.c",
+        "uprobe_helpers.c",
+    ],
+    generated_headers: ["gethostlatency.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "ksnoop.bpf.o",
+    srcs: ["ksnoop.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "ksnoop.skel.h",
+    srcs: [":ksnoop.bpf.o"],
+    out: ["ksnoop.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "ksnoop",
+    srcs: ["ksnoop.c"],
+    generated_headers: ["ksnoop.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "llcstat.bpf.o",
+    srcs: ["llcstat.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "llcstat.skel.h",
+    srcs: [":llcstat.bpf.o"],
+    out: ["llcstat.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "llcstat",
+    srcs: ["llcstat.c"],
+    generated_headers:  ["llcstat.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "offcputime.bpf.o",
+    srcs: ["offcputime.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "offcputime.skel.h",
+    srcs: [":offcputime.bpf.o"],
+    out: ["offcputime.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "offcputime",
+    srcs: [
+        "offcputime.c",
+        "uprobe_helpers.c",
+    ],
+    generated_headers:  ["offcputime.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "oomkill.bpf.o",
+    srcs: ["oomkill.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "oomkill.skel.h",
+    srcs: [":oomkill.bpf.o"],
+    out: ["oomkill.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "oomkill",
+    srcs: [
+        "oomkill.c",
+        "compat.c",
+],
+    generated_headers:  ["oomkill.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "runqlat.bpf.o",
+    srcs: ["runqlat.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "runqlat.skel.h",
+    srcs: [":runqlat.bpf.o"],
+    out: ["runqlat.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "runqlat",
+    srcs: ["runqlat.c"],
+    generated_headers:  ["runqlat.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "runqlen.bpf.o",
+    srcs: ["runqlen.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "runqlen.skel.h",
+    srcs: [":runqlen.bpf.o"],
+    out: ["runqlen.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "runqlen",
+    srcs: ["runqlen.c"],
+    generated_headers:  ["runqlen.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "runqslower.bpf.o",
+    srcs: ["runqslower.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "runqslower.skel.h",
+    srcs: [":runqslower.bpf.o"],
+    out: ["runqslower.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "runqslower",
+    srcs: ["runqslower.c"],
+    generated_headers:  ["runqslower.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "softirqs.bpf.o",
+    srcs: ["softirqs.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "softirqs.skel.h",
+    srcs: [":softirqs.bpf.o"],
+    out: ["softirqs.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "softirqs",
+    srcs: ["softirqs.c"],
+    generated_headers:  ["softirqs.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "solisten.bpf.o",
+    srcs: ["solisten.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "solisten.skel.h",
+    srcs: [":solisten.bpf.o"],
+    out: ["solisten.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "solisten",
+    srcs: ["solisten.c"],
+    generated_headers:  ["solisten.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+//The following targets are temporarily disabled to to b/241472915
+//TODO (b/241472915)
+/*
+cc_object {
+    name: "tcpconnect.bpf.o",
+    srcs: ["tcpconnect.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "tcpconnect.skel.h",
+    srcs: [":tcpconnect.bpf.o"],
+    out: ["tcpconnect.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "tcpconnect",
+    srcs: [
+        "map_helpers.c",
+        "tcpconnect.c",
+    ],
+    generated_headers:  ["tcpconnect.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+*/
+
+cc_object {
+    name: "tcprtt.bpf.o",
+    srcs: ["tcprtt.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "tcprtt.skel.h",
+    srcs: [":tcprtt.bpf.o"],
+    out: ["tcprtt.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "tcprtt",
+    srcs: ["tcprtt.c"],
+    generated_headers:  ["tcprtt.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "vfsstat.bpf.o",
+    srcs: ["vfsstat.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "vfsstat.skel.h",
+    srcs: [":vfsstat.bpf.o"],
+    out: ["vfsstat.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "vfsstat",
+    srcs: ["vfsstat.c"],
+    generated_headers:  ["vfsstat.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "biolatency.bpf.o",
+    srcs: ["biolatency.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "biolatency.skel.h",
+    srcs: [":biolatency.bpf.o"],
+    out: ["biolatency.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "biolatency",
+    srcs: ["biolatency.c"],
+    generated_headers:  ["biolatency.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "biostacks.bpf.o",
+    srcs: ["biostacks.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "biostacks.skel.h",
+    srcs: [":biostacks.bpf.o"],
+    out: ["biostacks.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "biostacks",
+    srcs: ["biostacks.c"],
+    generated_headers:  ["biostacks.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "biosnoop.bpf.o",
+    srcs: ["biosnoop.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "biosnoop.skel.h",
+    srcs: [":biosnoop.bpf.o"],
+    out: ["biosnoop.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "biosnoop",
+    srcs: ["biosnoop.c"],
+    generated_headers:  ["biosnoop.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+// The following tools viz. exitsnoop, biopattern and bitesize
+// will not work on Android without this libbpf patch:
+//
+// https://lore.kernel.org/bpf/20220523212808.603526-1-connoro@google.com/T/#u
+//
+// The patch is trivial but important as it looks for tracepoints under /sys/kernel/tracing
+// as there is no debugfs on Android.
+//
+// Additionally, any new tools which depend on kernel static tracepoints should
+// have this libbpf patch.
+
+cc_object {
+    name: "exitsnoop.bpf.o",
+    srcs: ["exitsnoop.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "exitsnoop.skel.h",
+    srcs: [":exitsnoop.bpf.o"],
+    out: ["exitsnoop.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "exitsnoop",
+    srcs: ["exitsnoop.c"],
+    generated_headers:  ["exitsnoop.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "biopattern.bpf.o",
+    srcs: ["biopattern.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "biopattern.skel.h",
+    srcs: [":biopattern.bpf.o"],
+    out: ["biopattern.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "biopattern",
+    srcs: ["biopattern.c"],
+    generated_headers:  ["biopattern.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}
+
+cc_object {
+    name: "bitesize.bpf.o",
+    srcs: ["bitesize.bpf.c"],
+    defaults: ["bcc_bpf_defaults"],
+}
+
+genrule {
+    name: "bitesize.skel.h",
+    srcs: [":bitesize.bpf.o"],
+    out: ["bitesize.skel.h"],
+    defaults: ["bpf_skeleton_hdr_defaults"],
+}
+
+cc_binary {
+    name: "bitesize",
+    srcs: ["bitesize.c"],
+    generated_headers:  ["bitesize.skel.h"],
+    defaults: ["bcc_binary_defaults"],
+}

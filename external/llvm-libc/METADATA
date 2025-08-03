@@ -1,0 +1,19 @@
+name: "llvmlibc"
+description: "LLVM's libc"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://libc.llvm.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/llvm/llvm-project.git"
+  }
+  version: "30aa9fb4c1da33892a38f952fbdf6e7e45e5953a"
+  last_upgrade_date {
+    year: 2024
+    month: 1
+    day: 31
+  }
+  license_type: NOTICE
+}

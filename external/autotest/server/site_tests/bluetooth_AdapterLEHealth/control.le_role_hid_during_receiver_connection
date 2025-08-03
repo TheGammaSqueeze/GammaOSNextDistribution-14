@@ -1,0 +1,36 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterLEHealth.le_role_hid_during_receiver_connection'
+PURPOSE = ('Tests controller can initiate HID connection while connected to'
+            'device in Sender role')
+CRITERIA = 'Pass the test'
+ATTRIBUTES = ''
+TIME = 'SHORT'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:2'
+PY_VERSION = 3
+
+DOC = """Tests HID capability while connected to Nearby device
+
+      In Receiver role, the DUT will be connected to a device in Sender role
+      as part of its duties. This test checks if the controller is able to
+      initiate a new connection to a HID device while already in connection
+      as secondary role to the Sender device.
+      """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterLEHealth', host=host,
+                 num_iterations=1, args_dict=args_dict,
+                 test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

@@ -1,0 +1,13 @@
+name: "Wuffs Mirror Release C"
+description:
+    ""
+
+third_party {
+  url {
+    type: GIT
+    value: "https://skia.googlesource.com/external/github.com/google/wuffs-mirror-release-c/"
+  }
+  version: "a0e2454f0c21369f9775cad3bcaf1e3bb1db70b6"
+  last_upgrade_date { year: 2021 month: 12 day: 8 }
+  license_type: NOTICE
+}

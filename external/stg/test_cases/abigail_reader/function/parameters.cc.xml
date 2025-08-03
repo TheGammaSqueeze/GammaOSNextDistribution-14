@@ -1,0 +1,220 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_Z3f01ii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f02ii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f03ii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f04iii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f05iii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f06iii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f07iii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f08iii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f09iiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f10iiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f11iiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_Z3f12iiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f01Eii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f02Eii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f03Eii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f04Eiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f05Eiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f06Eiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f07Eiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f08Eiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f09Eiiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f10Eiiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f11Eiiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN1S3f12Eiiii' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='s' size='1' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='parameters.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='S' size-in-bits='8' is-struct='yes' visibility='default' id='50d9a3fa'>
+      <member-function access='public'>
+        <function-decl name='f01' mangled-name='_ZN1S3f01Eii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f01Eii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f02' mangled-name='_ZN1S3f02Eii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f02Eii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f03' mangled-name='_ZN1S3f03Eii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f03Eii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f04' mangled-name='_ZN1S3f04Eiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f04Eiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f05' mangled-name='_ZN1S3f05Eiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f05Eiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f06' mangled-name='_ZN1S3f06Eiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f06Eiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f07' mangled-name='_ZN1S3f07Eiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f07Eiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f08' mangled-name='_ZN1S3f08Eiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f08Eiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f09' mangled-name='_ZN1S3f09Eiiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f09Eiiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f10' mangled-name='_ZN1S3f10Eiiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f10Eiiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f11' mangled-name='_ZN1S3f11Eiiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f11Eiiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='f12' mangled-name='_ZN1S3f12Eiiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN1S3f12Eiiii'>
+          <parameter type-id='fd01f598' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+    </class-decl>
+    <pointer-type-def type-id='50d9a3fa' size-in-bits='64' id='fd01f598'/>
+    <function-decl name='f01' mangled-name='_Z3f01ii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f01ii'>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f02' mangled-name='_Z3f02ii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f02ii'>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f03' mangled-name='_Z3f03ii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f03ii'>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f04' mangled-name='_Z3f04iii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f04iii'>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f05' mangled-name='_Z3f05iii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f05iii'>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f06' mangled-name='_Z3f06iii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f06iii'>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f07' mangled-name='_Z3f07iii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f07iii'>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f08' mangled-name='_Z3f08iii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f08iii'>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f09' mangled-name='_Z3f09iiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f09iiii'>
+      <parameter type-id='95e97e5e' name='d'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f10' mangled-name='_Z3f10iiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f10iiii'>
+      <parameter type-id='95e97e5e' name='d'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f11' mangled-name='_Z3f11iiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f11iiii'>
+      <parameter type-id='95e97e5e' name='d'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <function-decl name='f12' mangled-name='_Z3f12iiii' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3f12iiii'>
+      <parameter type-id='95e97e5e' name='d'/>
+      <parameter type-id='95e97e5e' name='a'/>
+      <parameter type-id='95e97e5e' name='b'/>
+      <parameter type-id='95e97e5e' name='c'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+    <var-decl name='s' type-id='50d9a3fa' mangled-name='s' visibility='default' elf-symbol-id='s'/>
+  </abi-instr>
+</abi-corpus>

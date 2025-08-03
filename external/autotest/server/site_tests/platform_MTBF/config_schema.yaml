@@ -1,0 +1,82 @@
+"$schema": http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  version:
+    type: integer
+    minimum: 1
+  const:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+      required:
+      - name
+      - value
+  tests:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        tool:
+          type: string
+          pattern: "^(tast|tauto)$"
+        test_expr:
+          type: string
+        args:
+          type: array
+          items:
+            type: string
+        attributes:
+          type: array
+          items:
+            type: string
+        deps:
+          type: array
+          items:
+            type: string
+      required:
+      - name
+      - tool
+      - test_expr
+    minItems: 1
+    uniqueItems: true
+  suites:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        args_file:
+          type: string
+        args:
+          type: array
+          items:
+            type: string
+        tests:
+          type: array
+          items:
+            type: object
+            properties:
+              test:
+                type: string
+              repeats:
+                type: integer
+            required:
+            - test
+            - repeats
+      required:
+      - name
+      - tests
+    minItems: 1
+    uniqueItems: true
+required:
+- version
+- tests
+- suites

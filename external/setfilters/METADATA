@@ -1,0 +1,14 @@
+name: "setfilters"
+description:
+    "A library which contains a collection of space efficient set filters data "
+    "structures such as cuckoo filter."
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/setfilters"
+  }
+  version: "1.0.0"
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 9 day: 1 }
+}

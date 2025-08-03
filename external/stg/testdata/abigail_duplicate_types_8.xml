@@ -1,0 +1,34 @@
+<!-- corrected version of the minimised stray anonymous member example -->
+<abi-corpus version='2.1' architecture='elf-arm' soname='libc.so'>
+  <elf-function-symbols>
+    <elf-symbol name='sigaction64' version='LIBC_P' is-default-version='yes' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+  </elf-variable-symbols>
+  <abi-instr address-size='32' path='bionic/libc/arch-arm/bionic/__aeabi.c' language='LANG_C99'>
+    <type-decl name='void' id='48b5725f'/>
+    <pointer-type-def type-id='fe1f25f2' size-in-bits='32' id='daeedd90'/>
+    <class-decl name='siginfo' size-in-bits='1024' is-struct='yes' visibility='default' is-declaration-only='yes' id='fe1f25f2'>
+      <member-type access='public'>
+        <union-decl name='__anonymous_union__' size-in-bits='1024' is-anonymous='yes' visibility='default' id='ac5ab59e'>
+          <member-type access='public'>
+            <class-decl name='__anonymous_struct__' size-in-bits='256' is-struct='yes' is-anonymous='yes' visibility='default' id='e7f43f7d'>
+              <data-member access='public' layout-offset-in-bits='0'>
+                <var-decl name='si_signo' type-id='48b5725f' visibility='default'/>
+              </data-member>
+            </class-decl>
+          </member-type>
+          <data-member access='public'>
+            <var-decl name='' type-id='48b5725f' visibility='default'/>
+          </data-member>
+        </union-decl>
+      </member-type>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='' type-id='ac5ab59e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <function-decl name='sigaction64' mangled-name='sigaction64' visibility='default' binding='global' size-in-bits='32' elf-symbol-id='sigaction64@@LIBC_P'>
+      <return type-id='fe1f25f2'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

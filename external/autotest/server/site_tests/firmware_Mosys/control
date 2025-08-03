@@ -1,0 +1,34 @@
+# Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "ChromeOS Team"
+NAME = "firmware_Mosys"
+PURPOSE = "Execute firmware Mosys commands and check return value."
+CRITERIA = """
+This test will fail if mosys return unexpected output or incorrect value.
+"""
+ATTRIBUTES = "suite:faft_bios, suite:faft_bios_ro_qual, suite:faft_bios_rw_qual, suite:faft_lv1, suite:faft_normal, suite:faft_bios_tot, suite:labqual"
+DEPENDENCIES = "servo_state:WORKING"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "firmware"
+TEST_TYPE = "server"
+JOB_RETRIES = 0
+PY_VERSION = 3
+
+DOC = """
+Exercise Mosys command and verify the output.
+"""
+
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run_mosys(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test("firmware_Mosys", host=host, cmdline_args=args,
+                 disable_sysinfo=True, dev_mode=False, tag="normal")
+
+parallel_simple(run_mosys, machines)

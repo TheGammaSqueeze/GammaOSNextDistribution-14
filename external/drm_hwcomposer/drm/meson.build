@@ -1,0 +1,15 @@
+src_common += files(
+    'DrmAtomicStateManager.cpp',
+    'DrmConnector.cpp',
+    'DrmCrtc.cpp',
+    'DrmDevice.cpp',
+    'DrmDisplayPipeline.cpp',
+    'DrmEncoder.cpp',
+    'DrmFbImporter.cpp',
+    'DrmMode.cpp',
+    'DrmPlane.cpp',
+    'DrmProperty.cpp',
+    'ResourceManager.cpp',
+    'UEventListener.cpp',
+    'VSyncWorker.cpp',
+)

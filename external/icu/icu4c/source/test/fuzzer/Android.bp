@@ -1,0 +1,140 @@
+// Copyright (C) 2021 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_java_core_libraries",
+    default_visibility: [
+        "//external/icu:__subpackages__",
+    ],
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_icu_icu4c_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["external_icu_icu4c_license"],
+}
+
+cc_defaults {
+    name: "libicu_fuzzer_defaults",
+    defaults: ["icu_test_defaults"],
+    srcs: [
+        "locale_util.cpp",
+    ],
+    fuzz_config: {
+        componentid: 24949, // Bugs are filed to the "Core library" component
+        hotlists: ["930429"], // The hotlist applied on the bug
+        fuzz_on_haiku_device: true,
+        // Email addresses of users who should be CC'd on bugs.
+        cc: [
+            "vichang@google.com",
+            "g2.corp.android-icu-maintainers@google.com",
+        ],
+        // acknowledged in the Android Security Bulletin for any CVEs found by this fuzz target.
+        acknowledgement: [
+            "Victor Chang of Google",
+            "ICU Contributors of Google",
+        ],
+    },
+}
+
+cc_fuzz {
+    name: "libicu_break_iterator_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["break_iterator_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "libicu_collator_compare_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["collator_compare_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "libicu_collator_rulebased_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["collator_rulebased_fuzzer.cpp"],
+    corpus: ["collator_rulebased_fuzzer_seed_corpus.txt"],
+}
+
+cc_fuzz {
+    name: "libicu_converter_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["converter_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "libicu_locale_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["locale_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "libicu_number_format_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["number_format_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "libicu_ucasemap_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["ucasemap_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "libicu_uloc_canonicalize_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["uloc_canonicalize_fuzzer.cpp"],
+    corpus: ["uloc_canonicalize_fuzzer_seed_corpus.txt"],
+}
+
+cc_fuzz {
+    name: "libicu_uloc_for_language_tag_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["uloc_for_language_tag_fuzzer.cpp"],
+    corpus: ["uloc_for_language_tag_fuzzer_seed_corpus.txt"],
+}
+
+cc_fuzz {
+    name: "libicu_uloc_get_name_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["uloc_get_name_fuzzer.cpp"],
+    corpus: ["uloc_get_name_fuzzer_seed_corpus.txt"],
+}
+
+cc_fuzz {
+    name: "libicu_uloc_is_right_to_left_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["uloc_is_right_to_left_fuzzer.cpp"],
+    corpus: ["uloc_is_right_to_left_fuzzer_seed_corpus.txt"],
+}
+
+cc_fuzz {
+    name: "libicu_uloc_open_keywords_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["uloc_open_keywords_fuzzer.cpp"],
+    corpus: ["uloc_open_keywords_fuzzer_seed_corpus.txt"],
+}
+
+cc_fuzz {
+    name: "libicu_unicode_string_codepage_create_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["unicode_string_codepage_create_fuzzer.cpp"],
+}
+
+cc_fuzz {
+    name: "libicu_uregex_open_fuzzer",
+    defaults: ["libicu_fuzzer_defaults"],
+    srcs: ["uregex_open_fuzzer.cpp"],
+    dictionary: "uregex_open_fuzzer.dict",
+}

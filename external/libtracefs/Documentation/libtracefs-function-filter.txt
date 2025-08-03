@@ -1,0 +1,237 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_function_filter, tracefs_function_notrace, tracefs_filter_functions
+- Functions to modify the the function trace filters
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_function_filter*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_filter_, const char pass:[*]_module_, int _flags_);
+int *tracefs_function_notrace*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_filter_, const char pass:[*]_module_, int _flags_);
+int *tracefs_filter_functions*(const char pass:[*]_filter_, const char pass:[*]_module_, char pass:[*]pass:[*]pass:[*]_list_);
+--
+
+DESCRIPTION
+-----------
+*tracefs_function_filter* and *tracefs_function_notrace* can be used to limit the
+Linux kernel functions that would be traced by the function and function-graph tracers.
+The *tracefs_function_filter* defines a list of functions that can be traced.
+The *tracefs_function_notrace* defines a list of functions that will not be traced.
+If a function is in both lists, it will not be traced.
+
+They take an _instance_ , that can be NULL for the top level tracing,
+_filter_, a string that represents a filter that should
+be applied to define what functions are to be traced,
+_module_, to limit the filtering on a specific module (or NULL to filter on all functions),
+_flags_ which holds control knobs on how the filters will be handled (see *FLAGS*)
+section below.
+
+The *tracefs_filter_functions* returns a list of functions that can be filtered on
+via the _filter_ and _module_ that are supplied. If both _filter_ and _module_ are
+NULL then, all available functions that can be filtered is returned.
+On success, _list_ must be freed with *tracefs_list_free()*(3).
+
+The _filter_ may be either a straight match of a
+function, a glob or regex(3). A glob is where 'pass:[*]' matches zero or more
+characters, '?' will match zero or one character, and '.' only matches a
+period. If the _filter_ is determined to be a regex (where it contains
+anything other than alpha numeric characters, or '.', 'pass:[*]', '?') the _filter_
+will be processed as a regex(3) following the rules of regex(3), and '.' is
+not a period, but will match any one character. To force a regular
+expression, either prefix _filter_ with a '^' or append it with a '$' as
+the _filter_ does complete matches of the functions anyway.
+
+If _module_ is set and _filter_ is NULL, this will imply the same as _filter_ being
+equal to "pass:[*]". Which will enable all functions for a given _module_. Otherwise
+the _filter_ may be NULL if a previous call to *tracefs_function_filter()* with
+the same _instance_ had *TRACEFS_FL_CONTINUE* set and this call does not. This is
+useful to simply commit the previous filters. It may also be NULL
+if *TRACEFS_FL_RESET* is set and the previous call did not have the same _instance_
+and *TRACEFS_FL_CONTINUE* set. This is useful to just clear the filter.
+
+FLAGS
+-----
+
+The _flags_ parameter may have the following set, or be zero.
+
+*TRACEFS_FL_RESET* :
+If _flags_ contains *TRACEFS_FL_RESET*, then it will clear the filters that
+are currently set before applying _filter_. Otherwise, _filter_ is added to
+the current set of filters already enabled. If this flag is set and the
+previous call to tracefs_function_filter() had the same _instance_ and the
+*TRACEFS_FL_CONTINUE* flag was set, then the function will fail with a
+return of -1 and errno set to EBUSY.
+
+*TRACEFS_FL_CONTINUE* :
+If _flags_ contains *TRACEFS_FL_CONTINUE*, then _filter_ will not take
+effect after a successful call to tracefs_function_filter(). This allows for
+multiple calls to tracefs_function_filter() to update the filter function
+and then a single call (one without the *TRACEFS_FL_CONTINUE* flag set) to
+commit all the filters.
+It can be called multiple times to add more filters. A call without this
+flag set will commit the changes before returning (if the _filter_ passed in
+successfully matched). A tracefs_function_filter() call after one that had
+the *TRACEFS_FL_CONTINUE* flag set for the same instance will fail if
+*TRACEFS_FL_RESET* flag is set, as the reset flag is only applicable for the
+first filter to be added before committing.
+
+*TRACEFS_FL_FUTURE* :
+If _flags_ contains *TRACEFS_FL_FUTURE* and _module_ holds a string of a module,
+then if the module is not loaded it will attemp to write the filter with the module
+in the filter file. Starting in Linux v4.13 module functions could be added to the
+filter before they are loaded. The filter will be cached, and when the module is
+loaded, the filter will be set before the module executes, allowing to trace
+init functions of a module. This will only work if the _filter_ is not a
+regular expression.
+
+RETURN VALUE
+------------
+
+For *tracefs_function_filter()* and *tracefs_function_notrace()* a
+return of 0 means success. If the there is an error but the filtering was not
+started, then 1 is returned. If filtering was started but an error occurs,
+then -1 is returned. The state of the filtering may be in an unknown state.
+
+If *TRACEFS_FL_CONTINUE* was set, and 0 or -1 was returned, then another call
+to *tracefs_function_filter()* must be done without *TRACEFS_FL_CONTINUE* set
+in order to commit (and close) the filtering.
+
+For *tracefs_filter_functions()*, a return of 0 means success, and the _list_
+parameter is filled with a list of function names that matched _filter_ and
+_module_. _list_ is a string array, where the last string pointer in the
+array is NULL. The _list_ must be freed with *tracefs_list_free()*.
+On failure, a negative is returned, and _list_ is ignored.
+
+ERRORS
+------
+
+*tracefs_function_filter*() can fail with the following errors:
+
+*EINVAL* The filter is invalid or did not match any functions.
+
+*EBUSY* The previous call of *tracefs_function_filter*() was called
+with the same instance and *TRACEFS_FL_CONTINUE* set and the current call
+had *TRACEFS_FL_RESET* set.
+
+Other errors may also happen caused by internal system calls.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <stdio.h>
+#include <errno.h>
+#include <tracefs.h>
+
+#define INST "dummy"
+
+static const char *filters[] = { "run_init_process", "try_to_run_init_process", "dummy1", NULL };
+
+int main(int argc, char *argv[])
+{
+	struct tracefs_instance *inst = tracefs_instance_create(INST);
+	char **func_list;
+	int ret;
+	int i;
+
+	if (!inst) {
+		/* Error creating new trace instance */
+	}
+
+	if (tracefs_filter_functions("*lock*", NULL, &func_list) < 0) {
+		printf("Failed to read filter functions\n");
+		goto out;
+	}
+	printf("Ignoring the following functions:\n");
+	for (i = 0; func_list[i]; i++)
+		printf("  %s\n", func_list[i]);
+	tracefs_list_free(func_list);
+
+	/* Do not trace any function with the word "lock" in it */
+	ret = tracefs_function_notrace(inst, "*lock*", NULL, TRACEFS_FL_RESET);
+	if (ret) {
+		printf("Failed to set the notrace filter\n");
+		goto out;
+	}
+
+	/* First reset the filter */
+	ret = tracefs_function_filter(inst, NULL, NULL,
+				      TRACEFS_FL_RESET | TRACEFS_FL_CONTINUE);
+	if (ret) {
+		printf("Failed to reset the filter\n");
+		/* Make sure it is closed, -1 means filter was started */
+		if (ret < 0)
+			tracefs_function_filter(inst, NULL, NULL, 0);
+	}
+
+	for (i = 0; filters[i]; i++) {
+		ret = tracefs_function_filter(inst, filters[i], NULL,
+					      TRACEFS_FL_CONTINUE);
+
+		if (ret) {
+			if (errno == EINVAL)
+				printf("Filter %s did not match\n", filters[i]);
+			else
+				printf("Failed writing %s\n", filters[i]);
+		}
+	}
+
+	ret = tracefs_function_filter(inst, "*", "ext4", 0);
+	if (ret) {
+		printf("Failed to set filters for ext4\n");
+		/* Force the function to commit previous filters */
+		tracefs_function_filter(inst, NULL, NULL, 0);
+	}
+
+ out:
+	tracefs_instance_destroy(inst);
+	return ret;
+}
+--
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+*sameeruddin shaik* <sameeruddin.shaik8@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

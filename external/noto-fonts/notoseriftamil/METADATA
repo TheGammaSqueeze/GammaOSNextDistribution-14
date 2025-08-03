@@ -1,0 +1,13 @@
+name: "notoseriftamil"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Serif Tamil is a modulated (“serif”) design for texts in theIndic Tamil script. It has italic styles, multiple weights andwidths, and 222 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notoseriftamil"
+  }
+  version: "2.001"
+  license_type: NOTICE
+  last_upgrade_date { year: 2020 month: 12 day: 14 }
+}

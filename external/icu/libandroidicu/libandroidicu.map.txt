@@ -1,0 +1,146 @@
+# GENERATED SOURCE. DO NOT MODIFY.
+# Run external/icu/tools/icu4c_srcgen/generate_libandroidicu.py to regenerate
+#
+# Copyright (C) 2018 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+LIBANDROIDICU_EXTERNAL_1 {
+  global:
+    UCNV_FROM_U_CALLBACK_STOP_android; # apex
+    UCNV_TO_U_CALLBACK_STOP_android; # apex
+    u_charDirection_android; # apex
+    u_charMirror_android; # apex
+    u_charName_android; # apex
+    u_charType_android; # apex
+    u_countChar32_android; # apex
+    u_digit_android; # apex
+    u_errorName_android; # apex
+    u_foldCase_android; # apex
+    u_getCombiningClass_android; # apex
+    u_getIntPropertyMaxValue_android; # apex
+    u_getIntPropertyValue_android; # apex
+    u_getNumericValue_android; # apex
+    u_hasBinaryProperty_android; # apex
+    u_isIDIgnorable_android; # apex
+    u_isIDPart_android; # apex
+    u_isIDStart_android; # apex
+    u_isJavaSpaceChar_android; # apex
+    u_isMirrored_android; # apex
+    u_isUAlphabetic_android; # apex
+    u_isUWhiteSpace_android; # apex
+    u_isWhitespace_android; # apex
+    u_isalnum_android; # apex
+    u_isalpha_android; # apex
+    u_iscntrl_android; # apex
+    u_isdefined_android; # apex
+    u_isdigit_android; # apex
+    u_islower_android; # apex
+    u_ispunct_android; # apex
+    u_isspace_android; # apex
+    u_istitle_android; # apex
+    u_isupper_android; # apex
+    u_strFromUTF8_android; # apex
+    u_strFromUTF8WithSub_android; # apex
+    u_strToLower_android; # apex
+    u_strToUTF8_android; # apex
+    u_strToUpper_android; # apex
+    u_tolower_android; # apex
+    u_totitle_android; # apex
+    u_toupper_android; # apex
+    ubidi_close_android; # apex
+    ubidi_countRuns_android; # apex
+    ubidi_getDirection_android; # apex
+    ubidi_getLength_android; # apex
+    ubidi_getLevelAt_android; # apex
+    ubidi_getParaLevel_android; # apex
+    ubidi_getVisualRun_android; # apex
+    ubidi_open_android; # apex
+    ubidi_openSized_android; # apex
+    ubidi_reorderVisual_android; # apex
+    ubidi_setClassCallback_android; # apex
+    ubidi_setPara_android; # apex
+    ubrk_clone_android; # apex
+    ubrk_close_android; # apex
+    ubrk_current_android; # apex
+    ubrk_first_android; # apex
+    ubrk_following_android; # apex
+    ubrk_getRuleStatus_android; # apex
+    ubrk_isBoundary_android; # apex
+    ubrk_next_android; # apex
+    ubrk_open_android; # apex
+    ubrk_preceding_android; # apex
+    ubrk_setText_android; # apex
+    ubrk_setUText_android; # apex
+    ucnv_close_android; # apex
+    ucnv_convert_android; # apex
+    ucnv_convertEx_android; # apex
+    ucnv_getNextUChar_android; # apex
+    ucnv_open_android; # apex
+    ucnv_setFromUCallBack_android; # apex
+    ucnv_setToUCallBack_android; # apex
+    ucol_close_android; # apex
+    ucol_open_android; # apex
+    ucol_setAttribute_android; # apex
+    ucol_strcoll_android; # apex
+    ucol_strcollIter_android; # apex
+    ucsdet_close_android; # apex
+    ucsdet_detect_android; # apex
+    ucsdet_detectAll_android; # apex
+    ucsdet_getConfidence_android; # apex
+    ucsdet_getName_android; # apex
+    ucsdet_open_android; # apex
+    ucsdet_setText_android; # apex
+    udatpg_close_android; # apex
+    udatpg_getBestPattern_android; # apex
+    udatpg_open_android; # apex
+    uiter_setUTF8_android; # apex
+    uloc_addLikelySubtags_android; # apex
+    uloc_canonicalize_android; # apex
+    uloc_countAvailable_android; # apex
+    uloc_forLanguageTag_android; # apex
+    uloc_getAvailable_android; # apex
+    uloc_getDefault_android; # apex
+    uloc_getISO3Country_android; # apex
+    uloc_getISO3Language_android; # apex
+    uloc_getISOCountries_android; # apex
+    uloc_getISOLanguages_android; # apex
+    uloc_getName_android; # apex
+    uloc_getScript_android; # apex
+    uloc_setDefault_android; # apex
+    uloc_toLanguageTag_android; # apex
+    unorm2_composePair_android; # apex
+    unorm2_getDecomposition_android; # apex
+    unorm2_getNFCInstance_android; # apex
+    unorm2_getNFDInstance_android; # apex
+    unorm2_getRawDecomposition_android; # apex
+    uregex_close_android; # apex
+    uregex_matches_android; # apex
+    uregex_open_android; # apex
+    uregex_setText_android; # apex
+    ures_close_android; # apex
+    ures_getByIndex_android; # apex
+    ures_getByKey_android; # apex
+    ures_getString_android; # apex
+    ures_openDirect_android; # apex
+    uscript_getScript_android; # apex
+    uscript_getShortName_android; # apex
+    utext_close_android; # apex
+    utext_openUChars_android; # apex
+    utext_openUTF8_android; # apex
+    utrans_close_android; # apex
+    utrans_openU_android; # apex
+    utrans_transUChars_android; # apex
+  local:
+    *;
+};

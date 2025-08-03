@@ -1,0 +1,14 @@
+[
+  {
+    "cmd": [
+      "vpython3",
+      "./tools/chromeos/merge_bot",
+      "--verbose",
+      "update-merges",
+      "--is-bot",
+      "origin/main"
+    ],
+    "cwd": "[CACHE]/builder/crosvm",
+    "name": "Update Merges"
+  }
+]

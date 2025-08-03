@@ -1,0 +1,14 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index d28fd87..35eabca 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -420,7 +420,8 @@
+ //! For details on exactly what's generated for it, see the [`Field0`](example_generated/struct.Field0.html)
+ //! example docs.
+ 
+-#![cfg_attr(not(any(feature = "std", test)), no_std)]
++// ANDROID: Use std to allow building as a dylib.
++#![cfg_attr(not(any(feature = "std", test, android_dylib)), no_std)]
+ #![cfg_attr(not(test), forbid(unsafe_code))]
+ 
+ #![doc(html_root_url = "https://docs.rs/bitflags/2.2.1")]

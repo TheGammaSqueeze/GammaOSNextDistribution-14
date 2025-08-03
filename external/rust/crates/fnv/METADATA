@@ -1,0 +1,17 @@
+name: "fnv"
+description:
+    "Fowler–Noll–Vo hash function"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/fnv"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/fnv/fnv-1.0.7.crate"
+  }
+  version: "1.0.7"
+  last_upgrade_date { year: 2020 month: 10 day: 15 }
+  license_type: NOTICE
+}

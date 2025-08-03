@@ -1,0 +1,164 @@
+// Copyright (C) 2015 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// build caliper host jar
+// ============================================================
+
+package {
+    default_applicable_licenses: ["external_caliper_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_caliper_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-CDDL",
+        "SPDX-license-identifier-CDDL-1.0",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+    ],
+    license_text: [
+        "COPYING",
+        "NOTICE",
+    ],
+}
+
+java_library_host {
+    name: "caliper",
+
+    srcs: ["caliper/src/main/java/**/*.java"],
+    java_resource_dirs: ["caliper/src/main/resources"],
+
+    static_libs: [
+        "apache-commons-math",
+        "caliper-prebuilts",
+        "dagger2",
+        "gson",
+        "guava",
+        "jsr330",
+    ],
+
+    // Use Dagger2 annotation processor
+    plugins: ["dagger2-compiler"],
+
+    java_version: "1.8",
+}
+
+// build caliper target api jar
+// ============================================================
+// This contains just those classes needed for benchmarks to compile.
+
+java_library {
+    name: "caliper-api-target",
+    installable: true,
+
+    srcs: [
+        "caliper/src/main/java/com/google/caliper/AfterExperiment.java",
+        "caliper/src/main/java/com/google/caliper/BeforeExperiment.java",
+        "caliper/src/main/java/com/google/caliper/Param.java",
+        "caliper/src/main/java/com/google/caliper/All.java",
+        "caliper/src/main/java/com/google/caliper/Benchmark.java",
+    ],
+    sdk_version: "core_current",
+
+    java_version: "1.8",
+}
+
+// build caliper tests
+// ============================================================
+// vogar --expectations $ANDROID_BUILD_TOP/external/caliper/expectations/knownfailures.txt \
+//        --test-only \
+//        --classpath $ANDROID_BUILD_TOP/out/host/common/obj/JAVA_LIBRARIES/caliper-tests_intermediates/javalib.jar \
+//        com.google.caliper
+
+java_test_host {
+    name: "caliper-tests",
+
+    srcs: ["caliper/src/test/java/**/*.java"],
+    java_resource_dirs: ["caliper/src/test/resources"],
+
+    static_libs: [
+        "caliper",
+        "junit",
+        "mockito",
+    ],
+    // Avoid the tests running as unit tests. They have some jar requirement that doesn't currently
+    // quite work in CI.
+    test_options: {
+        unit_test: false,
+    },
+
+    // Use Dagger2 annotation processor
+    plugins: ["dagger2-compiler"],
+
+    java_version: "1.8",
+}
+
+// build caliper examples
+// ============================================================
+
+java_library_host {
+    name: "caliper-examples",
+
+    srcs: ["examples/src/main/java/**/*.java"],
+
+    static_libs: [
+        "caliper",
+        "junit",
+        "mockito",
+    ],
+
+    java_version: "1.8",
+
+    errorprone: {
+        javacflags: [
+            "-Xep:ReturnValueIgnored:WARN",
+        ],
+    },
+}
+
+// Build host dependencies.
+// ============================================================
+
+java_import_host {
+    name: "caliper-prebuilts",
+    jars: [
+        "lib/java-allocation-instrumenter-2.0.jar",
+        "lib/jersey-client-1.11.jar",
+        "lib/jersey-core-1.11.jar",
+        "lib/joda-time-2.1.jar",
+        "lib/jsr311-api-1.1.1.jar",
+    ],
+}

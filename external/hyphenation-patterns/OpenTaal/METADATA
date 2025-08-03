@@ -1,0 +1,13 @@
+name: "OpenTaal"
+description:
+    "Dutch hyphenation patterns"
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/OpenTaal/opentaal-hunspell"
+  }
+  version: "ad0351b7c1a862f05d88131046a054f1cc84944a"
+  last_upgrade_date { year: 2023 month: 5 day: 10 }
+  license_type: NOTICE
+}

@@ -1,0 +1,399 @@
+// Copyright 2022 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+option java_outer_classname = "HostProto";
+
+package pandora;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+
+// Service to trigger Bluetooth Host procedures
+//
+// At startup, the Host must be in BR/EDR connectable mode
+// (see GAP connectability modes).
+service Host {
+  // Factory reset the host.
+  // **After** responding to this command, the gRPC server should loose
+  // all its state.
+  // This is comparable to a process restart or an hardware reset.
+  // The gRPC server might take some time to be available after
+  // this command.
+  rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty);
+  // Reset the host by performing an HCI reset. Previous bonds must
+  // not be removed and the gRPC server must not be restarted.
+  rpc Reset(google.protobuf.Empty) returns (google.protobuf.Empty);
+  // Read the local Bluetooth device address.
+  // This should return the same value as a Read BD_ADDR HCI command.
+  rpc ReadLocalAddress(google.protobuf.Empty) returns (ReadLocalAddressResponse);
+  // Create an ACL BR/EDR connection to a peer.
+  // If the two devices have not established a previous bond,
+  // the peer must be discoverable.
+  // Whether this also triggers pairing (i.e. authentication and/or encryption)
+  // is implementation defined:
+  // some Bluetooth Host stack trigger pairing when ACL connection is being
+  // established, others when a profile or service requiring a specific
+  // security level is being opened. If it does trigger pairing, pairing events
+  // shall be handled through `Security.OnPairing` if a corresponding stream
+  // has been opened prior to this call, otherwise, they shall be automatically
+  // confirmed by the host before this method returns.
+  rpc Connect(ConnectRequest) returns (ConnectResponse);
+  // Wait for an active ACL BR/EDR connection from a peer.
+  // If the peer has been connected prior to this call, the server will
+  // return it. This shall return the same connection only once.
+  rpc WaitConnection(WaitConnectionRequest) returns (WaitConnectionResponse);
+  // Create an ACL LE connection.
+  // Unlike BR/EDR `Connect`, this must not trigger or wait any
+  // pairing/encryption and return as soon as the connection is complete.
+  rpc ConnectLE(ConnectLERequest) returns (ConnectLEResponse);
+  // Disconnect an ACL connection.
+  // The related Connection must not be reused afterwards.
+  rpc Disconnect(DisconnectRequest) returns (google.protobuf.Empty);
+  // Wait for the disconnection of an ACL connection.
+  rpc WaitDisconnection(WaitDisconnectionRequest) returns (google.protobuf.Empty);
+  // Start an advertising set using legacy or extended advertising,
+  // except periodic advertising.
+  // If it is set as connectable, the advertisement may lead to a connection,
+  // the server shall restart advertising again after any incoming connection has
+  // been established.
+  // Canceling the `Advertise` call shall stop advertising.
+  rpc Advertise(AdvertiseRequest) returns (stream AdvertiseResponse);
+  // Run LE scanning and return each device found.
+  // Canceling the `Scan` call shall stop scanning.
+  rpc Scan(ScanRequest) returns (stream ScanningResponse);
+  // Start BR/EDR inquiry and returns each device found.
+  // Canceling the `Inquiry` call shall stop inquiry.
+  rpc Inquiry(google.protobuf.Empty) returns (stream InquiryResponse);
+  // Set BR/EDR discoverability mode.
+  rpc SetDiscoverabilityMode(SetDiscoverabilityModeRequest) returns (google.protobuf.Empty);
+  // Set BR/EDR connectability mode.
+  rpc SetConnectabilityMode(SetConnectabilityModeRequest) returns (google.protobuf.Empty);
+}
+
+// Bluetooth device own address type.
+enum OwnAddressType {
+  PUBLIC = 0x0;
+  RANDOM = 0x1;
+  RESOLVABLE_OR_PUBLIC = 0x2;
+  RESOLVABLE_OR_RANDOM = 0x3;
+}
+
+// Advertisement primary PHY types.
+enum PrimaryPhy {
+  PRIMARY_1M = 0;
+  PRIMARY_CODED = 2;
+}
+
+// Advertisement secondary PHY types.
+enum SecondaryPhy {
+  SECONDARY_NONE = 0;
+  SECONDARY_1M = 1;
+  SECONDARY_2M = 2;
+  SECONDARY_CODED = 3;
+}
+
+// Discoverability modes.
+enum DiscoverabilityMode {
+  NOT_DISCOVERABLE = 0;
+  DISCOVERABLE_LIMITED = 1;
+  DISCOVERABLE_GENERAL = 2;
+}
+
+// Connectability modes (BR/EDR only).
+enum ConnectabilityMode {
+  NOT_CONNECTABLE = 0;
+  CONNECTABLE = 1;
+}
+
+// A Token representing an ACL connection.
+// It's acquired via a `Connect` or `ConnectLE`.
+message Connection {
+  // Opaque value filled by the gRPC server, must not be modified nor crafted.
+  google.protobuf.Any cookie = 1;
+}
+
+// Data types notably used for Extended Inquiry Response and Advertising Data.
+// The Flags data type is mandatory must be automatically set by the IUT and is
+// not exposed here.
+// include_<data type> are used in advertising requests for data types
+// which may not be exposed to the user and that must be set by the IUT
+// when specified.
+// See Core Supplement, Part A, Data Types for details.
+message DataTypes {
+  repeated string incomplete_service_class_uuids16 = 1; // Incomplete List of 16bit Service Class UUIDs
+  repeated string complete_service_class_uuids16 = 2; // Complete List of 16bit Service Class UUIDs
+  repeated string incomplete_service_class_uuids32 = 3; // Incomplete List of 32bit Service Class UUIDs
+  repeated string complete_service_class_uuids32 = 4; // Complete List of 32bit Service Class UUIDs
+  repeated string incomplete_service_class_uuids128 = 5; // Incomplete List of 128bit Service Class UUIDs
+  repeated string complete_service_class_uuids128 = 6; // Complete List of 128bit Service Class UUIDs
+  // Shortened Local Name
+  oneof shortened_local_name_oneof {
+    string shortened_local_name = 7;
+    bool include_shortened_local_name = 8;
+  }
+  // Complete Local Name
+  oneof complete_local_name_oneof {
+    string complete_local_name = 9;
+    bool include_complete_local_name = 10;
+  }
+  // Tx Power Level
+  oneof tx_power_level_oneof {
+    uint32 tx_power_level = 11;
+    bool include_tx_power_level = 12;
+  }
+  //  Class of Device
+  oneof class_of_device_oneof {
+    uint32 class_of_device = 13;
+    bool include_class_of_device = 14;
+  }
+  uint32 peripheral_connection_interval_min = 15; // Peripheral Connection Interval Range minimum value, 16 bits
+  uint32 peripheral_connection_interval_max = 16; // Peripheral Connection Interval Range maximum value, 16 bits
+  repeated string service_solicitation_uuids16 = 17; // List of 16bit Service Solicitation UUIDs
+  repeated string service_solicitation_uuids128 = 18; // List of 128bit Service Solicitation UUIDs
+  map<string, bytes> service_data_uuid16 = 19; // Service Data 16bit UUID
+  repeated bytes public_target_addresses = 20; // Public Target Addresses
+  repeated bytes random_target_addresses = 21; // Random Target Addresses
+  uint32 appearance = 22; // Appearance (16bits)
+  // Advertising Interval
+  oneof advertising_interval_oneof {
+    uint32 advertising_interval = 23; // 16 bits
+    bool include_advertising_interval = 24;
+  }
+  repeated string service_solicitation_uuids32 = 25; // List of 32bit Service Solicitation UUIDs
+  map<string, bytes> service_data_uuid32 = 26; // Service Data 32bit UUID
+  map<string, bytes> service_data_uuid128 = 27; // Service Data 128bit UUID
+  string uri = 28; // URI
+  bytes le_supported_features = 29; // LE Supported Features
+  bytes manufacturer_specific_data = 30; // Manufacturer Specific Data
+  DiscoverabilityMode le_discoverability_mode = 31; // Flags LE Discoverability Mode
+  DataTypes encrypted_data = 32;
+}
+
+// Response of the `ReadLocalAddress` method.
+message ReadLocalAddressResponse {
+  // Local Bluetooth device address as array of 6 bytes.
+  bytes address = 1;
+}
+
+// Request of the `Connect` method.
+message ConnectRequest {
+  // Peer Bluetooth device address as array of 6 bytes.
+  bytes address = 1;
+}
+
+// Response of the `Connect` method.
+message ConnectResponse {
+  // Response result.
+  oneof result {
+    // Connection on `Connect` success
+    Connection connection = 1;
+    // Peer not found error.
+    google.protobuf.Empty peer_not_found = 2;
+    // A connection with peer already exists.
+    google.protobuf.Empty connection_already_exists = 3;
+    // Pairing failure error.
+    google.protobuf.Empty pairing_failure = 4;
+    // Authentication failure error.
+    google.protobuf.Empty authentication_failure = 5;
+    // Encryption failure error.
+    google.protobuf.Empty encryption_failure = 6;
+  }
+}
+
+// Request of the `WaitConnection` method.
+message WaitConnectionRequest {
+  // Peer Bluetooth device address as array of 6 bytes.
+  bytes address = 1;
+}
+
+// Response of the `WaitConnection` method.
+message WaitConnectionResponse {
+  // Response result.
+  oneof result {
+    // Connection on `WaitConnection` success
+    Connection connection = 1;
+  }
+}
+
+// Request of the `ConnectLE` method.
+message ConnectLERequest {
+  // Own address type.
+  OwnAddressType own_address_type = 1;
+  // Peer Bluetooth device address as array of 6 bytes.
+  oneof address {
+    // Public device address.
+    bytes public = 2;
+    // Random device address.
+    bytes random = 3;
+    // Public identity device address.
+    bytes public_identity = 4;
+    // Random (static) identity device address.
+    bytes random_static_identity = 5;
+  }
+}
+
+// Response of the `ConnectLE` method.
+message ConnectLEResponse {
+  // Response result.
+  oneof result {
+    // Connection on `ConnectLE` success
+    Connection connection = 1;
+    // Peer not found error.
+    google.protobuf.Empty peer_not_found = 2;
+    // A connection with peer already exists.
+    google.protobuf.Empty connection_already_exists = 3;
+  }
+}
+
+// Request of the `Disconnect` method.
+message DisconnectRequest {
+  // Connection that should be disconnected.
+  Connection connection = 1;
+}
+
+// Request of the `WaitDisconnection` method.
+message WaitDisconnectionRequest {
+  // Connection to wait disconnection from.
+  Connection connection = 1;
+}
+
+// Request of the `Advertise` method.
+message AdvertiseRequest {
+  // `true` to use legacy advertising.
+  // The implementation shall fail when set to `false` and
+  // extended advertising is not supported.
+  bool legacy = 1;
+  // Advertisement data.
+  DataTypes data = 2;
+  // If none, the device is not scannable.
+  DataTypes scan_response_data = 3;
+  // Target Bluetooth device address as array of 6 bytes.
+  // If none, advertisement is undirected.
+  oneof target {
+    // Public device address or public identity address.
+    bytes public = 4;
+    // Random device address or random (static) identity address.
+    bytes random = 5;
+  }
+  // Own address type to advertise.
+  OwnAddressType own_address_type = 6;
+  // `true` if the device is connectable.
+  bool connectable = 7;
+  // Interval & range of the advertisement.
+  float interval = 8;
+  // If not specified, the IUT is free to select any interval min and max
+  // which comprises the specified interval.
+  float interval_range = 9;
+  // Extended only: primary PHYs.
+  PrimaryPhy primary_phy = 10;
+  // Extended only: secondary PHYs.
+  SecondaryPhy secondary_phy = 11;
+}
+
+// Response of the `Advertise` method.
+message AdvertiseResponse {
+  // Connection of a connectable `Advertise`.
+  Connection connection = 1;
+}
+
+// Request of the `Scan` method.
+message ScanRequest {
+  // `true` the use legacy scanning.
+  // The implementation shall fail when set to `false` and
+  // extended scanning is not supported.
+  bool legacy = 1;
+  // Scan in passive mode (versus active one).
+  bool passive = 2;
+  // Own address type.
+  OwnAddressType own_address_type = 3;
+  // Interval & window of the scan.
+  float interval = 4;
+  float window = 5;
+  // Scanning PHYs.
+  repeated PrimaryPhy phys = 6;
+}
+
+// Response of the `Scan` method.
+message ScanningResponse {
+  // `true` if the response is legacy.
+  bool legacy = 1;
+  // Peer Bluetooth device address as array of 6 bytes.
+  oneof address {
+    // Public device address.
+    bytes public = 2;
+    // Random device address.
+    bytes random = 3;
+    // Public identity device address (corresponds to resolved private address).
+    bytes public_identity = 4;
+    // Random (static) identity device address (corresponds to resolved private address).
+    bytes random_static_identity = 5;
+  }
+  // Direct Bluetooth device address as array of 6 bytes.
+  oneof direct_address {
+    // Public device address.
+    bytes direct_public = 6;
+    // Non-resolvable private address or static device address.
+    bytes direct_non_resolvable_random = 7;
+    // Resolvable private address (resolved by controller).
+    bytes direct_resolved_public = 8;
+    // Resolvable private address (resolved by controller).
+    bytes direct_resolved_random = 9;
+    // Resolvable private address (controller unable to resolve).
+    bytes direct_unresolved_random = 10;
+  }
+  // `true` if the peer is connectable.
+  bool connectable = 11;
+  // `true` if the peer is scannable.
+  bool scannable = 12;
+  // `true` if the `undirected.data` is truncated.
+  // This indicates that the advertisement data are truncated.
+  bool truncated = 13;
+  // Advertising SID from 0x00 to 0x0F.
+  uint32 sid = 14;
+  // On extended only: primary PHYs.
+  PrimaryPhy primary_phy = 15;
+  // On extended only: secondary PHYs.
+  SecondaryPhy secondary_phy = 16;
+  // TX power in dBm, range: -127 to +20.
+  int32 tx_power = 17;
+  // Received Signal Strength Indication in dBm, range: -127 to +20.
+  int32 rssi = 18;
+  // Interval of the periodic advertising, 0 if not periodic
+  // or within 7.5 ms to 81,918.75 ms range.
+  float periodic_advertising_interval = 19;
+  // Scan response data.
+  DataTypes data = 20;
+}
+
+// Response of the `Inquiry` method.
+message InquiryResponse {
+  bytes address = 1;
+  uint32 page_scan_repetition_mode = 2;
+  uint32 class_of_device = 3;
+  uint32 clock_offset = 4;
+  int32 rssi = 5;
+  DataTypes data = 6;
+}
+
+// Request of the `SetDiscoverabilityMode` method.
+message SetDiscoverabilityModeRequest {
+  DiscoverabilityMode mode = 1;
+}
+
+// Request of the `SetConnectabilityMode` method.
+message SetConnectabilityModeRequest {
+  ConnectabilityMode mode = 1;
+}

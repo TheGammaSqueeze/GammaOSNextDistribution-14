@@ -1,0 +1,35 @@
+# This is the global list of words which are still too commonly used in the
+# codebase to be blocked outright. This list will continue to shrink as the
+# codebase moves away from the use of these terms.
+#
+# Copy this file to your project and comment more words to enable the repo hook
+# to block the words.
+# KEEP THIS COMMENT IN YOUR COPY.
+#
+# Don't delete this file if you want to keep keyword_check enabled even if it's
+# empty.
+#
+# See repohooks/README.md for more details.
+# black.?hat
+# black.?list
+# build.?cop
+dummy
+# first.?class.?citizen
+# gr[ae]y.?hat
+gr[ae]y.?list
+\bhe\b
+\bshe\b
+\bhim\b
+\bher\b
+\bhis\b
+\bhers\b
+man.?in.?the.?middle
+# master
+\bnative
+\bred.?line
+sanity
+# slave
+# white.?glove
+# white.?hat
+white.?label
+# white.?list

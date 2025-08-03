@@ -1,0 +1,14 @@
+name: "bazelbuild-rules_testing"
+description:
+    "rules_testing is a framework to help test Bazel rule implementations"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/bazelbuild/rules_testing"
+  }
+  version: "v0.0.4"
+  last_upgrade_date { year: 2023 month: 5 day: 10 }
+  license_type: NOTICE
+}
+

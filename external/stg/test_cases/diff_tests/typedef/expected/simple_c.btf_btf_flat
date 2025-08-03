@@ -1,0 +1,16 @@
+function symbol 'long id1(struct foo)' changed
+  type 'long(struct foo)' changed
+    parameter 1 type 'struct foo' changed
+
+function symbol changed from 'long id2(small)' to 'long id2(large)'
+  type changed from 'long(small)' to 'long(large)'
+    parameter 1 type changed from 'small' = 'short' to 'large' = 'int'
+      resolved type changed from 'short' to 'int'
+
+type 'struct foo' changed
+  byte size changed from 2 to 4
+  member changed from 'small x' to 'large x'
+    type changed from 'small' = 'short' to 'large' = 'int'
+      resolved type changed from 'short' to 'int'
+
+exit code 4

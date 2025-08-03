@@ -1,0 +1,37 @@
+package {
+    default_applicable_licenses: ["external_kotlinpoet_license"],
+}
+
+license {
+    name: "external_kotlinpoet_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE.txt",
+    ],
+}
+
+java_library_host {
+    name: "kotlinpoet",
+    srcs: [
+        "kotlinpoet/src/commonMain/**/*.kt",
+    ],
+    kotlincflags: ["-Xjvm-default=all"],
+    static_libs: [
+        "kotlin-stdlib-jdk8",
+        "kotlin-reflect",
+    ],
+}
+
+java_library_host {
+    name: "kotlinpoet-javapoet",
+    srcs: ["interop/javapoet/src/main/**/*.kt"],
+    kotlincflags: ["-Xjvm-default=all"],
+    static_libs: [
+        "javapoet",
+        "kotlin-stdlib-jdk8",
+        "kotlinpoet",
+    ],
+}

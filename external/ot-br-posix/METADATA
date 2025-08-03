@@ -1,0 +1,17 @@
+name: "ot-br-posix"
+description:
+    "ot-br-posix is an open-source implementation of the Thread Border Router."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/openthread/ot-br-posix"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/openthread/ot-br-posix.git"
+  }
+  version: "c75203a9c7d0df0188527360e556d17e940a945f"
+  last_upgrade_date { year: 2022 month: 11 day: 15 }
+  license_type: NOTICE
+}

@@ -1,0 +1,15 @@
+diff --git a/src/sys/memfd.rs b/src/sys/memfd.rs
+index ad9345e..e43e1e5 100644
+--- a/src/sys/memfd.rs
++++ b/src/sys/memfd.rs
+@@ -49,7 +49,9 @@ pub fn memfd_create(name: &CStr, flags: MemFdCreateFlag) -> Result<RawFd> {
+                 any(
+                     target_os = "freebsd",
+                     // If the OS is Linux, gnu and musl expose a memfd_create symbol but not uclibc
+-                    target_env = "gnu",
++                    //
++                    // ANDROID: Our glibc is too old to have memfd_create.
++                    // target_env = "gnu",
+                     target_env = "musl",
+                 )))]
+             {

@@ -1,0 +1,37 @@
+{
+  "basePath": "/drive/v3/",
+  "name": "drive",
+  "revision": "20210322",
+  "rootUrl": "https://www.googleapis.com/",
+  "schemas": {
+    "FileList": {
+      "description": "A list of files.",
+      "id": "FileList",
+      "properties": {
+        "files": {
+          "description": "The list of files. If nextPageToken is populated, then this list may be incomplete and an additional page of results should be fetched.",
+          "items": {
+            "$ref": "File"
+          },
+          "type": "array"
+        },
+        "incompleteSearch": {
+          "description": "Whether the search process was incomplete. If true, then some search results may be missing, since all documents were not searched. This may occur when searching multiple drives with the \"allDrives\" corpora, but all corpora could not be searched. When this happens, it is suggested that clients narrow their query by choosing a different corpus such as \"user\" or \"drive\".",
+          "type": "boolean"
+        },
+        "kind": {
+          "default": "drive#fileList",
+          "description": "Identifies what kind of resource this is. Value: the fixed string \"drive#fileList\".",
+          "type": "string"
+        },
+        "nextPageToken": {
+          "description": "The page token for the next page of files. This will be absent if the end of the files list has been reached. If the token is rejected for any reason, it should be discarded, and pagination should be restarted from the first page of results.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "title": "Drive API",
+  "version": "v3"
+}

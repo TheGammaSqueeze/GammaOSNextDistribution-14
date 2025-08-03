@@ -1,0 +1,19 @@
+{
+  "run_cargo": false,
+  "variants": [
+    {},
+    {
+      "features": [],
+      "module_name_overrides": {
+        "libbyteorder": "libbyteorder_nostd"
+      },
+      "package": {
+        "byteorder": {
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

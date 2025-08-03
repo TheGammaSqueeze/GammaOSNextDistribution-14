@@ -1,0 +1,5 @@
+include platform/prebuilts/rust:main:/OWNERS
+devinmoore@google.com
+fmayle@google.com
+khei@google.com
+smoreland@google.com

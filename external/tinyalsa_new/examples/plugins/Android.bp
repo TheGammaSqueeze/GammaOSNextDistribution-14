@@ -1,0 +1,24 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_tinyalsa_new_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_tinyalsa_new_license"],
+}
+
+cc_library {
+    name: "libtinyalsav2_example_plugin_pcm",
+    vendor: true,
+    srcs: ["sample_pcm_plugin.c"],
+    cflags: ["-Werror", "-Wno-unused-parameter"],
+    header_libs: ["libtinyalsav2_headers"],
+}
+
+cc_library {
+    name: "libtinyalsav2_example_plugin_mixer",
+    vendor: true,
+    srcs: ["sample_mixer_plugin.c"],
+    cflags: ["-Werror", "-Wno-unused-parameter"],
+    header_libs: ["libtinyalsav2_headers"],
+}

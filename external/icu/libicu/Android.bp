@@ -1,0 +1,92 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_java_core_libraries",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_icu_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-Unicode-DFS
+    default_applicable_licenses: ["external_icu_license"],
+}
+
+ndk_library {
+    name: "libicu",
+    symbol_file: "libicu.map.txt",
+    first_version: "31",
+    unversioned_until: "current",
+    export_header_libs: [
+        "libicu_ndk_headers",
+    ],
+}
+
+ndk_headers {
+    name: "libicu_ndk_headers",
+    from: "ndk_headers",
+    to: "",
+    srcs: ["ndk_headers/**/*.h"],
+    license: ":icu_license",
+}
+
+cc_library_shared {
+    name: "libicu",
+    defaults: ["icu4c_defaults"],
+    host_supported: true,
+    native_bridge_supported: true,
+    export_include_dirs: ["ndk_headers"],
+    // The whole implementation comes from the intermediate library libicu_static because
+    // ndk_headers/ has symbol name collisions with the headers in libicuuc/libicui18n.
+    whole_static_libs: ["libicu_static"],
+    shared_libs: [
+        "libicuuc",
+        "libicui18n",
+    ],
+    apex_available: [
+        "com.android.i18n",
+    ],
+    stubs: {
+        symbol_file: "libicu.map.txt",
+        versions: ["31"],
+    },
+    target: {
+        android: {
+            version_script: "libicu.map.txt",
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libicu_cts_stub",
+    defaults: ["icu4c_defaults"],
+    host_supported: false,
+    native_bridge_supported: false,
+    installable: false,
+    stem: "libicu",
+    export_include_dirs: ["cts_headers"],
+    // The whole implementation comes from the intermediate library libicu_static because
+    // ndk_headers/ has collision with the headers in libicuuc/libicui18n.
+    whole_static_libs: ["libicu_static"],
+    shared_libs: [
+        "libicuuc_cts_stub",
+        "libicui18n_cts_stub",
+    ],
+    target: {
+        android: {
+            version_script: "libicu.map.txt",
+        },
+    },
+}

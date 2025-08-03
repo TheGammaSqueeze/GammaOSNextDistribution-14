@@ -1,0 +1,75 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import logging
+
+from autotest_lib.client.common_lib.error import TestFail
+from autotest_lib.server.cros import chrome_sideloader
+
+AUTHOR = 'ChromeOS SW Engprod Team (chromeos-sw-engprod@google.com)'
+NAME = 'tast.nearby-share-cb2cb-chrome-from-tls'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+# This mount point controls the version of chrome to use
+CHROME_MOUNT_POINT = '/opt/google/chrome'
+# Location to put the sideloaded chrome artifacts
+CHROME_DIR = '/usr/local/chrome'
+
+DOC = '''
+Runs the Tast Nearby Share remote tests with a custom chrome binary.
+
+These Nearby Share tests require two chromebooks, so we must provision
+both DUTs with the custom chrome binary before the tests are kicked off.
+
+This test is used by Chrome builder for Nearby Share CI/CQ purposes.
+A chrome builder creates a chrome binary and artifacts,
+which is in turn provisioned to both DUTs through TLS.
+
+Tast tests uses the sideloaded version of chrome for testing.
+
+'''
+
+
+def run(machine):
+    primary_dut = hosts.create_host(machine)
+    companions = hosts.create_companion_hosts(companion_hosts)
+
+    if not companions:
+        raise TestFail('Missing companion hosts')
+
+    secondary_dut = companions[0]
+
+    logging.info("Running %s on primary_dut: %s and companion_host:%s", NAME,
+                 primary_dut, secondary_dut)
+
+    # Setup both DUTs to use the chrome binary from TLS
+    for host in [primary_dut, secondary_dut]:
+        chrome_sideloader.setup_host(
+            host, CHROME_DIR, CHROME_MOUNT_POINT)
+
+    # Register a clean up callback to reset the chrome mount.
+    def cleanup():
+        for host in [primary_dut, secondary_dut]:
+            chrome_sideloader.cleanup_host(
+                host, CHROME_DIR, CHROME_MOUNT_POINT)
+    job.add_post_run_hook(cleanup)
+
+    job.run_test('tast',
+                 host=primary_dut,
+                 test_exprs=['("group:nearby-share-cq")'],
+                 download_data_lazily=False,
+                 ignore_test_failures=False,
+                 max_run_sec=3600,
+                 companion_duts={'cd1': secondary_dut},
+                 command_args=args
+                 )
+
+
+parallel_simple(run, machines)

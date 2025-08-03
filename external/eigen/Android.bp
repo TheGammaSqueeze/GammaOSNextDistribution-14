@@ -1,0 +1,101 @@
+// Copyright (C) 2012 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["eigen_license"],
+}
+
+license {
+    name: "eigen_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        // Apache 2.0 is only used in Eigen/src/Core/arch/Default/BFloat16.h,
+        // which was copied from TensorFlow.
+        "SPDX-license-identifier-Apache-2.0",
+        // BSD is used in CMake build scripts, which are not used in Android,
+        // and for code derived from the MINPACK library.
+        "SPDX-license-identifier-BSD",
+        // Almost all of the actual Eigen code is licensed under MPL 2.0.
+        "SPDX-license-identifier-MPL-2.0",
+    ],
+    license_text: [
+        "COPYING.APACHE",
+        "COPYING.BSD",
+        "COPYING.MINPACK",
+        "COPYING.MPL2",
+        "NOTICE",
+    ],
+}
+
+license {
+    name: "eigen_bench_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL-2.0+",
+    ],
+    license_text: [
+        "COPYING.APACHE",
+        "COPYING.GPL",
+    ],
+}
+
+license {
+    name: "eigen_restricted_code_license",
+    visibility: ["//visibility:private"],
+    license_kinds: [
+        "SPDX-license-identifier-LGPL-2.1",
+    ],
+    license_text: ["COPYING.LGPL"],
+}
+
+filegroup {
+    name: "eigen_bench",
+    srcs: ["bench/**/*"],
+    licenses: ["eigen_bench_license"],
+    visibility: ["//visibility:private"],
+}
+
+filegroup {
+    name: "eigen_restricted_code",
+    srcs: [
+        "unsupported/Eigen/src/IterativeSolvers/ConstrainedConjGrad.h",
+        "unsupported/Eigen/src/IterativeSolvers/IterationController.h",
+    ],
+    licenses: ["eigen_restricted_code_license"],
+    visibility: ["//visibility:private"],
+}
+
+cc_library_headers {
+    name: "libeigen",
+
+    // Although entire directory is exported, only Eigen and unsupported/Eigen
+    // contain actual exported headers. When capturing header files for
+    // snapshot, only these two directories will be globbed.
+    export_include_dirs: ["."],
+    cflags: ["-DEIGEN_MPL2_ONLY"],
+
+    vendor_available: true,
+    host_supported: true,
+    apex_available: [
+        "com.android.neuralnetworks",
+        "test_com.android.neuralnetworks",
+        "//apex_available:platform",
+        "com.android.ondevicepersonalization",
+    ],
+    min_sdk_version: "apex_inherit",
+    sdk_version: "current",
+}
+
+subdirs = ["blas"]

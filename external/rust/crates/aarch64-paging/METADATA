@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/aarch64-paging
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "aarch64-paging"
+description: "A library to manipulate AArch64 VMSA EL1 page tables."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/aarch64-paging"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/aarch64-paging/aarch64-paging-0.5.0.crate"
+  }
+  version: "0.5.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 25
+  }
+}

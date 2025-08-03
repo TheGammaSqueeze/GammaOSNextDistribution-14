@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><out>
+      Cos value of zero is:
+      1<br/> 
+      Cos value of nzero is:
+      1<br/> 
+      Cos value of num1 is:
+      -0.4070332066592655<br/> 
+      Cos value of num2 is:
+      -0.9999992126803468<br/> 
+      Cos value of temp1 is:
+      0.7539022543433046<br/> 
+      Cos value of temp2 is:
+      -0.8390769692456075<br/> 
+      Cos value of rad1 is: 
+      0.5403023058681398<br/> 
+      Cos value of rad2 is:
+      0.9912028118634736<br/> 
+      Cos value of rad3 is:
+      0.9681658508435709<br/> 
+      Cos value of rad4 is:
+      0.6309649102090216<br/> 
+      Cos value of input1 number is:
+      -0.3865140198680434<br/> 
+      Cos value of input2 number is:
+      NaN<br/> 
+      Cos value of input3 number is:
+      NaN</out>

@@ -1,0 +1,23 @@
+# Issue 431: Excluded copies and blitting tests
+dEQP-VK.api.copy_and_blit.core.blit_image.simple_tests.scaling_and_offset.b8g8r8a8_unorm_linear
+
+#VK-GL-CTS 110: Excluded wsi android tests as they require android loader support
+dEQP-VK.wsi.android.surface.query_devgroup_*
+
+# Exclude conformance version from android test, issue 1839
+dEQP-VK.api.driver_properties.conformance_version
+
+# Issue: b/235946943
+dEQP-VK.texture.conversion.snorm_clamp_linear.a8b8g8r8_snorm_pack32
+dEQP-VK.texture.conversion.snorm_clamp_linear.b8g8r8a8_snorm
+dEQP-VK.texture.conversion.snorm_clamp_linear.r16g16b16a16_snorm
+dEQP-VK.texture.conversion.snorm_clamp_linear.r16g16b16_snorm
+dEQP-VK.texture.conversion.snorm_clamp_linear.r16g16_snorm
+dEQP-VK.texture.conversion.snorm_clamp_linear.r16_snorm
+dEQP-VK.texture.conversion.snorm_clamp_linear.r8g8b8a8_snorm
+dEQP-VK.texture.conversion.snorm_clamp_linear.r8g8_snorm
+dEQP-VK.texture.conversion.snorm_clamp_linear.r8_snorm
+
+# VK-GL-CTS 3005
+dEQP-VK.ray_tracing_pipeline.build.cpuht*1048576_1_1
+dEQP-VK.ray_tracing_pipeline.build.cpuht*65536_4_4

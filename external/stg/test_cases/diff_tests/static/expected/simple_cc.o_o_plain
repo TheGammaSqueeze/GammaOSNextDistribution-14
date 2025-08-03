@@ -1,0 +1,16 @@
+variable symbol 'int Rename::st' {_ZN6Rename2stE} was removed
+
+function symbol 'int Rename::print()' {_ZN6Rename5printEv} was removed
+
+variable symbol 'int Rename::st_new' {_ZN6Rename6st_newE} was added
+
+function symbol 'int Rename::print_new()' {_ZN6Rename9print_newEv} was added
+
+variable symbol changed from 'int ChangeType::st' {_ZN10ChangeType2stE} to 'long ChangeType::st' {_ZN10ChangeType2stE}
+  type changed from 'int' to 'long'
+
+function symbol changed from 'int ChangeType::print()' {_ZN10ChangeType5printEv} to 'long ChangeType::print()' {_ZN10ChangeType5printEv}
+  type changed from 'int()' to 'long()'
+    return type changed from 'int' to 'long'
+
+exit code 4

@@ -1,0 +1,228 @@
+// Fork of external/zlib to external/tflite-support/third_party/zlib.
+// TODO(b/233151429): Clean up external/tflite-support/third_party/zlib so that it contains the
+// minimum set of files needed to support `BertNLClassifier`.
+
+package {
+    default_applicable_licenses: [
+        "external_tflite-support_third_party_zlib_license",
+    ],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_tflite-support_third_party_zlib_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-Zlib",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+srcs_opt = [
+    "adler32_simd.c",
+    // See https://chromium-review.googlesource.com/749732.
+    // TODO: causes `atest org.apache.harmony.tests.java.util.zip.DeflaterTest` failures.
+    //    "contrib/optimizations/inffast_chunk.c",
+    //    "contrib/optimizations/inflate.c",
+    // This file doesn't build for non-neon, so it can't be in the main srcs.
+    "crc32_simd.c",
+]
+
+cflags_arm = [
+    // Testing with zlib_bench shows -O3 is a win for ARM but a bit of a wash
+    // for x86, so match the BUILD file in only enabling this for ARM.
+    "-O3",
+    // We need a non-NEON libz.a for the NDK, and cpu_features.c won't build
+    // without this.
+    "-DCPU_NO_SIMD",
+]
+cflags_arm_neon = [
+    // Undo the -DCPU_NO_SIMD from the generic (non-NEON) ARM flags.
+    "-UCPU_NO_SIMD",
+    // We no longer support non-Neon platform builds, but the NDK just has one libz.
+    "-DADLER32_SIMD_NEON",
+    // TODO: causes `atest org.apache.harmony.tests.java.util.zip.DeflaterTest` failures.
+    //    "-DINFLATE_CHUNK_SIMD_NEON",
+    // HWCAP_CRC32 is checked at runtime, so it's okay to turn crc32
+    // acceleration on for both 32- and 64-bit.
+    "-DCRC32_ARMV8_CRC32",
+]
+cflags_arm64 = cflags_arm + cflags_arm_neon
+
+// The *host* x86 configuration (with *lower* CPU feature requirements).
+cflags_x86 = [
+    // See ARMV8_OS_LINUX above.
+    "-DX86_NOT_WINDOWS",
+    // TODO: see arm above.
+    //    "-DINFLATE_CHUNK_SIMD_SSE2",
+    // Android's host CPU feature requirements are *lower* than the
+    // corresponding device CPU feature requirements, so it's easier to just
+    // say "no SIMD for you" rather than specificially disable SSSE3.
+    // We should have a conversation about that, but not until we at least have
+    // data on how many Studio users have CPUs that don't make the grade...
+    // https://issuetracker.google.com/171235570
+    "-DCPU_NO_SIMD",
+]
+// The *device* x86 configuration (with *higher* CPU feature requirements).
+cflags_android_x86 = [
+    // Android's x86/x86-64 ABI includes SSE2 and SSSE3.
+    "-UCPU_NO_SIMD",
+    "-DADLER32_SIMD_SSSE3",
+    // PCLMUL isn't in the ABI, but it won't actually be used unless CPUID
+    // reports that the processor really does have the instruction.
+    "-mpclmul",
+    "-DCRC32_SIMD_SSE42_PCLMUL",
+]
+srcs_x86 = [
+    "crc_folding.c",
+    "fill_window_sse.c",
+] + srcs_opt
+
+// This optimization is applicable to arm64 and x86-64.
+cflags_64 = ["-DINFLATE_CHUNK_READ_64LE"]
+
+tflite_support_libz_srcs = [
+    "adler32.c",
+    "compress.c",
+    "cpu_features.c",
+    "crc32.c",
+    "deflate.c",
+    "gzclose.c",
+    "gzlib.c",
+    "gzread.c",
+    "gzwrite.c",
+    "infback.c",
+    "inffast.c",
+    "inflate.c",
+    "inftrees.c",
+    "trees.c",
+    "uncompr.c",
+    "zutil.c",
+    "contrib/minizip/ioapi.c",
+    "contrib/minizip/unzip.c",
+]
+
+cc_defaults {
+    name: "tflite_support_libz_defaults",
+
+    cflags: [
+        // We do support hidden visibility, so turn that on.
+        "-DHAVE_HIDDEN",
+        // We do support const, so turn that on.
+        "-DZLIB_CONST",
+        // Enable -O3 as per chromium.
+        "-O3",
+        "-Wall",
+        "-Werror",
+        "-Wno-unused",
+        "-Wno-unused-parameter",
+    ],
+    stl: "none",
+    export_include_dirs: ["."],
+    srcs: tflite_support_libz_srcs,
+
+    arch: {
+        arm: {
+            // TODO: This is to work around b/24465209. Remove after root cause
+            // is fixed.
+            pack_relocations: false,
+            ldflags: ["-Wl,--hash-style=both"],
+
+            cflags: cflags_arm,
+            neon: {
+                cflags: cflags_arm_neon,
+                srcs: srcs_opt,
+            },
+        },
+        arm64: {
+            cflags: cflags_arm64 + cflags_64,
+            srcs: srcs_opt,
+        },
+        x86: {
+            cflags: cflags_x86,
+            srcs: srcs_x86,
+        },
+        x86_64: {
+            cflags: cflags_x86 + cflags_64,
+            srcs: srcs_x86,
+        },
+    },
+    target: {
+        android_arm: {
+            cflags: [
+                // Since we're building for the platform, we claim to be Linux rather than
+                // Android so we use getauxval() directly instead of the NDK
+                // android_getCpuFeatures which isn't available to us anyway.
+                "-DARMV8_OS_LINUX",
+            ],
+        },
+        android_x86: {
+            cflags: cflags_android_x86,
+        },
+        android_x86_64: {
+            cflags: cflags_android_x86,
+        },
+        darwin_arm64: {
+            cflags: [
+                "-DARMV8_OS_MACOS",
+            ],
+        },
+        linux_arm64: {
+            cflags: [
+                // Since we're building for the platform, we claim to be Linux rather than
+                // Android so we use getauxval() directly instead of the NDK
+                // android_getCpuFeatures which isn't available to us anyway.
+                "-DARMV8_OS_LINUX",
+            ],
+        },
+    },
+}
+
+cc_library_static {
+    name: "tflite_support_libz",
+    defaults: ["tflite_support_libz_defaults"],
+
+    host_supported: true,
+    unique_host_soname: true,
+    static_ndk_lib: true,
+    sdk_version: "current",
+    min_sdk_version: "30",
+
+    vendor_available: true,
+    product_available: true,
+    ramdisk_available: true,
+    vendor_ramdisk_available: true,
+    recovery_available: true,
+    native_bridge_supported: true,
+
+    target: {
+        linux_bionic: {
+            enabled: true,
+        },
+        windows: {
+            enabled: true,
+        },
+    },
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.adservices",
+        "com.android.extservices",
+    ],
+}

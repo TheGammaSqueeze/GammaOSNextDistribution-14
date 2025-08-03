@@ -1,0 +1,70 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_java_core_libraries",
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_icu_icu4c_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-MIT
+    //   SPDX-license-identifier-Unicode-DFS
+    //   legacy_unencumbered
+    default_applicable_licenses: ["external_icu_icu4c_license"],
+}
+
+subdirs = [
+    "cintltst",
+    "intltest",
+]
+
+cc_defaults {
+    name: "icu_test_defaults",
+    gtest: false,
+    rtti: true,
+    cpp_std: "gnu++17",
+    cflags: [
+        "-Wno-deprecated-declarations",
+        "-Wno-missing-field-initializers",
+        "-Wno-tautological-undefined-compare",
+        "-Wno-unused-function",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+        "-DUCONFIG_USE_ML_PHRASE_BREAKING=1",
+    ],
+    shared_libs: [
+        "libicu_cts_stub",
+        "libicuuc_cts_stub",
+        "libicui18n_cts_stub",
+        "libbase",
+        "liblog",
+    ],
+
+    static_libs: [
+        "libicuctest",
+        "libicutoolutil",
+    ],
+    target: {
+        android: {
+            cflags: [
+                // Required to link libicuuc_cts_stub
+                "-DANDROID_LINK_SHARED_ICU4C",
+                // Do not set the data directory explicitly on Android because libicuuc has set it.
+                "-DANDROID_USE_ICU_REG",
+                // Used by loadSourceTestData() to find the testdata.
+                "-DU_TOPSRCDIR=\"/data/local/tmp\"",
+            ],
+        },
+    },
+}

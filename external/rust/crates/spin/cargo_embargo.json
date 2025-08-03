@@ -1,0 +1,32 @@
+{
+  "min_sdk_version": "29",
+  "run_cargo": false,
+  "variants": [
+    {
+      "features": [
+        "once",
+        "mutex",
+        "spin_mutex",
+        "std"
+      ],
+      "tests": true
+    },
+    {
+      "features": [
+        "once",
+        "mutex",
+        "spin_mutex"
+      ],
+      "module_name_overrides": {
+        "libspin": "libspin_nostd"
+      },
+      "package": {
+        "spin": {
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

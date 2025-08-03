@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+  <title name="title-name-attr">title-content</title>
+  <list>
+    <item version="1">Xalan-J 1.x</item>
+    <item version="2">Xalan-J 2.x</item>
+    <item version="1">Xalan-C 1.x</item>
+    <list-bad-tag>
+      <item>Xalan documentation</item>
+      <item>Xalan tests</item>
+    </list>
+  </list>
+</doc>

@@ -1,0 +1,30 @@
+{
+  "presubmit": [
+    {
+      "name": "cpu_features-bit_utils_test"
+    },
+    {
+      "name": "cpu_features-string_view_test"
+    },
+    {
+      "name": "cpu_features-stack_line_reader_test"
+    },
+    {
+      "name": "cpu_features-cpuinfo_test"
+    }
+  ],
+  "hwasan-postsubmit": [
+    {
+      "name": "cpu_features-bit_utils_test"
+    },
+    {
+      "name": "cpu_features-string_view_test"
+    },
+    {
+      "name": "cpu_features-stack_line_reader_test"
+    },
+    {
+      "name": "cpu_features-cpuinfo_test"
+    }
+  ]
+}

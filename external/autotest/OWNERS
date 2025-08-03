@@ -1,0 +1,6 @@
+include /HARNESS_OWNERS
+
+per-file site_utils/attribute_allowlist.txt = *
+
+per-file WIFI_OWNERS = file:/WIFI_OWNERS
+per-file ENGPROD_OWNERS = file:/ENGPROD_OWNERS

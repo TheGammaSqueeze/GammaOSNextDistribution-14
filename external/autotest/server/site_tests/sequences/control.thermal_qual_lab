@@ -1,0 +1,75 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "puthik"
+NAME = "ThermalQual.lab"
+ATTRIBUTES = "suite:crosbolt_perf_perbuild"
+TIME = "LENGTHY"
+TEST_CATEGORY = "Stress"
+TEST_CLASS = "suite"
+TEST_TYPE = "server"
+EXTENDED_TIMEOUT = 3600 # 1 hour
+PY_VERSION = 3
+
+DOC = """
+Shorter thermal qual sequence for lab regression test. This should be able to
+detect if there is a thermal issue most of the time. And full thermal qual can
+be used to pin point which workload that caused the issue.
+
+* 30 minutes subtest instead of 2 to 2.5 hours.
+* Don't wait for cooldown between each subtest to make total heavy load time
+  to be about 2 hours.
+* power_BatteryCharge is not expected to run in normal lab environment.
+  Lab DUTs should have near-full battery charge.
+
+"""
+
+import datetime
+from autotest_lib.client.common_lib import utils
+
+MINUTES=60
+
+# Need separate list for client and server test due to how these test work.
+CLIENT_TESTS = [
+    ('power_WaitForCoolDown', {}),
+    ('power_Speedometer2', {'tag' : 'thermal_qual_lab_before'}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 30, 'max_run_time': 30 * MINUTES}),
+    ('power_WaitForCoolDown', {}),
+
+    ('power_ThermalLoad', {
+        'tag' : 'thermal_qual_lab_discharge', 'force_discharge' : True,
+        'duration': 30 * MINUTES}),
+    ('power_VideoCall', {
+        'tag' : 'thermal_qual_lab_discharge', 'force_discharge' : True,
+        'duration': 30 * MINUTES}),
+    ('power_ThermalLoad', {
+        'tag' : 'thermal_qual_lab_charge', 'duration': 30 * MINUTES}),
+    ('power_VideoCall', {
+        'tag' : 'thermal_qual_lab_charge', 'duration': 30 * MINUTES}),
+
+    ('power_Speedometer2', {'tag' : 'thermal_qual_lab_after'})
+]
+
+# Workaround to make it compatible with moblab autotest UI.
+global args_dict
+try:
+    args_dict
+except NameError:
+    args_dict = utils.args_to_dict(args)
+
+# Use time as pdash_note if not supplied to track all tests in same suite.
+pdash_note = args_dict.get('pdash_note',
+                           NAME + '_' + datetime.datetime.utcnow().isoformat())
+
+def run_client_test(machine):
+    client = hosts.create_host(machine)
+    client_at = autotest.Autotest(client)
+
+    for test, argv in CLIENT_TESTS:
+        argv['pdash_note'] = pdash_note
+        client_at.run_test(test, timeout=EXTENDED_TIMEOUT, **argv)
+
+job.parallel_on_machines(run_client_test, machines)

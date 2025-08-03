@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/async-stream-impl
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "async-stream-impl"
+description: "proc macros for async-stream crate"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/async-stream-impl"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/async-stream-impl/async-stream-impl-0.3.5.crate"
+  }
+  version: "0.3.5"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 10
+  }
+}

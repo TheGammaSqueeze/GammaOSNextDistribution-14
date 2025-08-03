@@ -1,0 +1,18 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "gatong@google.com"
+NAME = "dummy_Fail.naerror"
+PURPOSE = "Demonstrate TEST_NA error."
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "dummy"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This is a helper test that will always generate TEST_NA
+"""
+
+job.run_test('dummy_Fail', tag='NAError', to_throw='TestNAError')

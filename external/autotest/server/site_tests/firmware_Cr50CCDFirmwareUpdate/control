@@ -1,0 +1,39 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "Cr50 FW team"
+NAME = "firmware_Cr50CCDFirmwareUpdate"
+PURPOSE = "Verify flashing firmware through ccd_cr50"
+ATTRIBUTES = "suite:faft_ccd, suite:faft_cr50_prepvt, suite:faft_cr50_pvt"
+# We mark TIME as 'FAST' intentionally to have this test scheduled later than
+# other tests (having longer TIME attribute) among the test suite.
+# This is to minimize a side-effect of this test failures on the rest of
+# scheduled tests.
+TIME = "FAST"
+TEST_TYPE = "server"
+DEPENDENCIES = "servo_state:WORKING"
+PY_VERSION = 3
+
+DOC = """
+This is a test to program both EC and AP firmware through ccd_cr50 device.
+
+If you intend to backup and restore the original firmware, then add
+'--args="backup_fw=True"' to your test_that command line.
+"""
+
+if 'args_dict' not in locals():
+    args_dict = {}
+
+args_dict.update(utils.args_to_dict(args))
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    fw_path = args_dict.get("fw_path", None)
+    job.run_test('firmware_Cr50CCDFirmwareUpdate', host=host, cmdline_args=args,
+                 full_args=args_dict, rw_only=False, fw_path=fw_path)
+
+parallel_simple(run, machines)

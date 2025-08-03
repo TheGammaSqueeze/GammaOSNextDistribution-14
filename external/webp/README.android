@@ -1,0 +1,12 @@
+URL: https://chromium.googlesource.com/webm/libwebp
+Version: v1.3.1-1-g2af26267
+License: Google BSD like
+
+Local modifications:
+- LOCAL_LICENSE_KINDS and related variables added to **/Android.mk
+- merge d64e6d7d Merge "PaletteSortModifiedZeng: fix leak on error" into main
+- cherry-pick 904941b4 Fix OOB write in BuildHuffmanTable.
+
+The Android.bp file creates WebP decoder and encoder static libraries which
+can be added to any application by adding libwebp-decode and libwebp-encode to
+'static_libs'.

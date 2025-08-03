@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/libm
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "libm"
+description: "libm in pure Rust"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 2
+  }
+  homepage: "https://crates.io/crates/libm"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/libm/libm-0.2.8.crate"
+    version: "0.2.8"
+  }
+}

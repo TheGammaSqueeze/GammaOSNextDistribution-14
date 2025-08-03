@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+<list number="1">
+  <item number="1">one</item>
+  <item number="2">two</item>
+  <item number="3">three</item>
+</list>
+<list number="2">
+  <item number="a">aaa</item>
+  <item number="b">bbb</item>
+</list>
+</doc>

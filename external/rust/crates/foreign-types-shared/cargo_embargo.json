@@ -1,0 +1,13 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.compos",
+    "com.android.virt"
+  ],
+  "package": {
+    "foreign-types-shared": {
+      "force_rlib": true
+    }
+  },
+  "run_cargo": false
+}

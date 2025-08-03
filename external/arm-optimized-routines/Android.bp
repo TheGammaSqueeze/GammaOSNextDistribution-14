@@ -1,0 +1,245 @@
+package {
+    default_applicable_licenses: ["external_arm-optimized-routines_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_arm-optimized-routines_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "arm-optimized-routines-defaults",
+    host_supported: true,
+    cflags: [
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-O2",
+        "-ffp-contract=fast",
+        "-fno-math-errno",
+
+        // bionic configuration.
+
+        // We're actually implementing bionic here, so we don't want <math.h>
+        // to try to be helpful by renaming long double routines.
+        "-D__BIONIC_LP32_USE_LONG_DOUBLE",
+        "-DFLT_EVAL_METHOD=0",
+
+        // arm-optimized-routines configuration.
+
+        // BSD libm doesn't set errno, and bionic was based on the BSDs.
+        // https://github.com/ARM-software/optimized-routines/issues/16#issuecomment-572009659
+        "-DWANT_ERRNO=0",
+        // TODO: we may want the vector code in future, but it's not ready yet.
+        "-DWANT_VMATH=0",
+    ],
+    local_include_dirs: ["math/include"],
+}
+
+cc_defaults {
+    name: "libarm-optimized-routines-defaults",
+    defaults: ["arm-optimized-routines-defaults"],
+    ramdisk_available: true,
+    vendor_ramdisk_available: true,
+    recovery_available: true,
+    native_bridge_supported: true,
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.runtime",
+    ],
+
+    stl: "none",
+    target: {
+        bionic: {
+            static: {
+                system_shared_libs: [],
+            },
+            header_libs: ["libc_headers"],
+        },
+    },
+}
+
+cc_library_static {
+    name: "libarm-optimized-routines-math",
+    defaults: ["libarm-optimized-routines-defaults"],
+    exclude_srcs: [
+        // Provided by:
+        // bionic/libm/upstream-freebsd/lib/msun/src/s_erf.c
+        // bionic/libm/upstream-freebsd/lib/msun/src/s_erff.c
+        "math/erf.c",
+        "math/erf_data.c",
+        "math/erff.c",
+        "math/erff_data.c",
+    ],
+    srcs: [
+        "math/*.c",
+    ],
+
+    // arch-specific settings
+    arch: {
+        arm64: {
+            cflags: [
+                "-DHAVE_FAST_FMA=1",
+            ],
+        },
+    },
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        linux_bionic: {
+            enabled: true,
+        },
+    },
+}
+
+cc_library_static {
+    name: "libarm-optimized-routines-string",
+    defaults: ["libarm-optimized-routines-defaults"],
+
+    arch: {
+        arm64: {
+            srcs: [
+                "string/aarch64/memchr-mte.S",
+                "string/aarch64/memchr-sve.S",
+                "string/aarch64/memchr.S",
+                "string/aarch64/memcmp-sve.S",
+                "string/aarch64/memcmp.S",
+                "string/aarch64/memcpy-advsimd.S",
+                "string/aarch64/memcpy-sve.S",
+                "string/aarch64/memcpy.S",
+                "string/aarch64/memrchr.S",
+                "string/aarch64/memset.S",
+                "string/aarch64/stpcpy-sve.S",
+                "string/aarch64/stpcpy.S",
+                "string/aarch64/strchrnul-mte.S",
+                "string/aarch64/strchrnul-sve.S",
+                "string/aarch64/strchrnul.S",
+                "string/aarch64/strchr-mte.S",
+                "string/aarch64/strchr-sve.S",
+                "string/aarch64/strchr.S",
+                "string/aarch64/strcmp-sve.S",
+                "string/aarch64/strcmp.S",
+                "string/aarch64/strcpy-sve.S",
+                "string/aarch64/strcpy.S",
+                "string/aarch64/strlen-mte.S",
+                "string/aarch64/strlen-sve.S",
+                "string/aarch64/strlen.S",
+                "string/aarch64/strncmp-sve.S",
+                "string/aarch64/strncmp.S",
+                "string/aarch64/strnlen-sve.S",
+                "string/aarch64/strnlen.S",
+                "string/aarch64/strrchr-mte.S",
+                "string/aarch64/strrchr-sve.S",
+                "string/aarch64/strrchr.S",
+            ],
+            asflags: [
+                "-march=armv8-a+sve",
+                "-D__memset_aarch64=memset",
+                "-D__memrchr_aarch64=memrchr",
+            ]
+        },
+    },
+}
+
+// Memory intrinsics for bare-metal Rust binaries.
+cc_library_static {
+    name: "libarm-optimized-routines-mem",
+    nocrt: true,
+    system_shared_libs: [],
+    stl: "none",
+    sanitize: {
+        hwaddress: false,
+    },
+    arch: {
+        arm64: {
+            srcs: [
+                "string/aarch64/memchr.S",
+                "string/aarch64/memcmp.S",
+                "string/aarch64/memcpy.S",
+                "string/aarch64/memrchr.S",
+                "string/aarch64/memset.S",
+                "string/aarch64/stpcpy.S",
+                "string/aarch64/strchr.S",
+                "string/aarch64/strchrnul.S",
+                "string/aarch64/strcmp.S",
+                "string/aarch64/strcpy.S",
+                "string/aarch64/strlen.S",
+                "string/aarch64/strncmp.S",
+                "string/aarch64/strnlen.S",
+                "string/aarch64/strrchr.S",
+            ],
+            asflags: [
+                "-D__memchr_aarch64=memchr",
+                "-D__memcmp_aarch64=memcmp",
+                "-D__memcpy_aarch64=memcpy",
+                "-D__memmove_aarch64=memmove",
+                "-D__memrchr_aarch64=memrchr",
+                "-D__memset_aarch64=memset",
+                "-D__stpcpy_aarch64=stpcpy",
+                "-D__strchr_aarch64=strchr",
+                "-D__strchrnul_aarch64=strchrnul",
+                "-D__strcmp_aarch64=strcmp",
+                "-D__strcpy_aarch64=strcpy",
+                "-D__strlen_aarch64=strlen",
+                "-D__strncmp_aarch64=strncmp",
+                "-D__strnlen_aarch64=strnlen",
+                "-D__strrchr_aarch64=strrchr",
+            ],
+        },
+    },
+    visibility: ["//bionic/libc"],
+}
+
+// adb shell "/data/nativetest64/mathtest/mathtest /data/nativetest64/mathtest/test/testcases/directed/*"
+// adb shell "/data/nativetest/mathtest/mathtest /data/nativetest/mathtest/test/testcases/directed/*"
+cc_test {
+    name: "mathtest",
+    defaults: ["arm-optimized-routines-defaults"],
+    gtest: false,
+    cflags: ["-Wno-missing-braces"],
+    srcs: ["math/test/mathtest.c"],
+    data: ["math/test/testcases/directed/*.tst"],
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        linux_bionic: {
+            enabled: true,
+        },
+    },
+}
+
+cc_test {
+    name: "ulp",
+    defaults: ["arm-optimized-routines-defaults"],
+    gtest: false,
+
+    // https://github.com/ARM-software/optimized-routines/issues/53
+    local_include_dirs: ["math/"],
+
+    srcs: ["math/test/ulp.c"],
+    data: ["math/test/runulp.sh"],
+}
+
+sh_test {
+    name: "arm-optimized-routines-tests",
+    src: "run-arm-optimized-routines-tests-on-android.sh",
+    filename: "run-arm-optimized-routines-tests-on-android.sh",
+    test_suites: ["general-tests"],
+    host_supported: true,
+    device_supported: false,
+    require_root: true,
+    target_required: [
+        "mathtest",
+        "ulp",
+    ],
+}

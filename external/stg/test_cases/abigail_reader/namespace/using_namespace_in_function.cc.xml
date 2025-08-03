@@ -1,0 +1,11 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_Z3barv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='using_namespace_in_function.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <function-decl name='bar' mangled-name='_Z3barv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z3barv'>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

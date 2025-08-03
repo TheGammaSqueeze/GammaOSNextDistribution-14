@@ -1,0 +1,19 @@
+name: "tinyxml2"
+description: "TinyXML-2 is a simple, small, efficient, C++ XML parser that can be easily integrating into other programs."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/leethomason/tinyxml2"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/leethomason/tinyxml2.git"
+  }
+  version: "9.0.0"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2021
+    month: 8
+    day: 10
+  }
+}

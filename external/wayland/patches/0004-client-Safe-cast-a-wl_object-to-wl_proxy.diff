@@ -1,0 +1,87 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Lloyd Pique <lpique@google.com>
+Date: Fri, 11 Mar 2022 18:17:20 -0800
+Subject: [PATCH 4/6] client: Safe cast a "wl_object *" to "wl_proxy *"
+
+Client message observers 4/6
+
+When given an array of wl_arguments for a wl_closure, the ".o" field is an
+opaque wl_object pointer, which the client code cannot really do anything with,
+without a potentially unsafe cast that assumes details about the internal
+implementation.
+
+By adding a wl_proxy_from_object() function to the client interface, the client
+can safely get the wl_proxy pointer.
+
+This can be used by client message observers in particular to get the proxy id
+and class name, for logging those details.
+
+Signed-off-by: Lloyd Pique <lpique@google.com>
+
+diff --git a/src/wayland-client-core.h b/src/wayland-client-core.h
+index 2aa72a4..a57cbe0 100644
+--- a/src/wayland-client-core.h
++++ b/src/wayland-client-core.h
+@@ -222,6 +222,9 @@ wl_proxy_get_class(struct wl_proxy *proxy);
+ void
+ wl_proxy_set_queue(struct wl_proxy *proxy, struct wl_event_queue *queue);
+ 
++struct wl_proxy *
++wl_proxy_from_object(struct wl_object *object);
++
+ struct wl_display *
+ wl_display_connect(const char *name);
+ 
+diff --git a/src/wayland-client.c b/src/wayland-client.c
+index 04b4f60..ab68bdb 100644
+--- a/src/wayland-client.c
++++ b/src/wayland-client.c
+@@ -2594,6 +2594,28 @@ wl_proxy_wrapper_destroy(void *proxy_wrapper)
+ 	free(wrapper);
+ }
+ 
++/** Safely converts an object into its corresponding proxy
++ *
++ * \param object object to get the proxy for
++ * \return A corresponding proxy, or NULL on failure.
++ *
++ * Safely converts an object into its corresponding proxy.
++ *
++ * This is useful for implementing functions that are given a \c wl_argument
++ * array, and that need to do further introspection on the ".o" field, as it
++ * is otherwise an opaque type.
++ *
++ * \memberof wl_proxy
++ */
++WL_EXPORT struct wl_proxy *
++wl_proxy_from_object(struct wl_object *object)
++{
++	struct wl_proxy *proxy;
++	if (object == NULL)
++		return NULL;
++	return wl_container_of(object, proxy, object);
++}
++
+ WL_EXPORT void
+ wl_log_set_handler_client(wl_log_func_t handler)
+ {
+diff --git a/tests/protocol-logger-test.c b/tests/protocol-logger-test.c
+index 082f055..9420b5e 100644
+--- a/tests/protocol-logger-test.c
++++ b/tests/protocol-logger-test.c
+@@ -275,10 +275,11 @@ client_log_to_stderr_demo(void *user_data, enum wl_client_message_type type,
+ 			break;
+ 		case 'o':
+ 			if (args[i].o) {
+-				// Note: server logger should instead cast to
+-				// wl_resource, and use wl_resource_get_class
+-				// and wl_resource_get_id.
+-				arg_proxy = (struct wl_proxy *)(args[i].o);
++				// Note: server logger should instead use
++				// wl_resource_from_object, and then
++				// wl_resource_get_class and
++				// wl_resource_get_id.
++				arg_proxy = wl_proxy_from_object(args[i].o);
+ 				arg_class = wl_proxy_get_class(arg_proxy);
+ 
+ 				fprintf(f, "%s@%u",

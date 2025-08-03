@@ -1,0 +1,5 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='func' type='gnu-ifunc-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+</abi-corpus>

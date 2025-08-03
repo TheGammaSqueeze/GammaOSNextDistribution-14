@@ -1,0 +1,2 @@
+# Intermittently passes on lulu GT2, at least
+dEQP-GLES31.functional.geometry_shading.layered.render_with_default_layer_cubemap

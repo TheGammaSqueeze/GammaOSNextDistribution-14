@@ -1,0 +1,13 @@
+diff --git a/src/unix/linux_like/linux/musl/mod.rs b/src/unix/linux_like/linux/musl/mod.rs
+index 70710734..929108ce 100644
+--- a/src/unix/linux_like/linux/musl/mod.rs
++++ b/src/unix/linux_like/linux/musl/mod.rs
+@@ -9,7 +9,7 @@ pub type clock_t = c_long;
+                 See #1848 for more info."
+     )
+ )]
+-pub type time_t = c_long;
++pub type time_t = i64;
+ pub type suseconds_t = c_long;
+ pub type ino_t = u64;
+ pub type off_t = i64;

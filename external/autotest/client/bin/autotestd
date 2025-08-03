@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+
+import common
+import sys, os, subprocess, fcntl
+
+
+bindir = os.path.dirname(__file__)
+autotest = os.path.join(bindir, 'autotest')
+
+logdir = sys.argv[1]
+
+
+# We want to simulate the behaviour of autotest_client, where fd3 would be
+# routed to stderr and fd1 & fd2 to stdout
+
+# HACK: grab fd3 for now
+os.dup2(2, 3)
+
+# open up log files to use for std*
+stdout = open(os.path.join(logdir, 'stdout'), 'a', buffering=2)
+stderr = open(os.path.join(logdir, 'stderr'), 'a', buffering=2)
+
+# set up the file descriptors now, simulating the old behaviour
+os.dup2(stdout.fileno(), 1)
+os.dup2(stdout.fileno(), 2)
+os.dup2(stderr.fileno(), 3)
+
+# we don't need the file objects any more
+stdout.close()
+stderr.close()
+
+
+args = [autotest] + sys.argv[2:]
+if '-H' not in args:
+    args[1:1] = ['-H', 'autoserv']
+cmd = ' '.join(args)
+
+# open up a log file for saving off the exit code
+exit_file = open(os.path.join(logdir, 'exit_code'), 'wb', buffering=0)
+fcntl.flock(exit_file, fcntl.LOCK_EX)
+
+# touch a 'started' file to indicate we've been initialized
+open(os.path.join(logdir, 'started'), 'w').close()
+
+# run the actual autotest client and write the exit code into the log file
+# close_fds must be False to support python 2 and 3. In 3 the default changes
+# to True, and will break fd writing used elsewhere (e.g. harness_autoserv)
+exit_code = subprocess.call("{} {}".format(sys.executable, cmd),
+                            shell=True,
+                            close_fds=False)
+exit_file.write(b'%+04d' % exit_code)
+exit_file.flush()
+fcntl.flock(exit_file, fcntl.LOCK_UN)
+exit_file.close()

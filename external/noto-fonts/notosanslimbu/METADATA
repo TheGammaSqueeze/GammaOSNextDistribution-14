@@ -1,0 +1,13 @@
+name: "notosanslimbu"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Limbu is an unmodulated (“sans serif”) design for textsin the Indic Limbu script. It has 79 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanslimbu"
+  }
+  version: "1.050"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

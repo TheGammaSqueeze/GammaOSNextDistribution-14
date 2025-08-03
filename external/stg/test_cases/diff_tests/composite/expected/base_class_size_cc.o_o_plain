@@ -1,0 +1,19 @@
+variable symbol 'struct DiffSize diff_size' changed
+  type 'struct DiffSize' changed
+    byte size changed from 8 to 16
+    base class 'struct B' changed
+      type 'struct B' changed
+        byte size changed from 4 to 8
+        member changed from 'int y' to 'long y'
+          type changed from 'int' to 'long'
+    member 'int z' changed
+      offset changed from 32 to 64
+
+variable symbol 'struct SameSize same_size' changed
+  type 'struct SameSize' changed
+    base class 'struct A' changed
+      type 'struct A' changed
+        member changed from 'int x' to 'unsigned int x'
+          type changed from 'int' to 'unsigned int'
+
+exit code 4

@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/tracing-attributes
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "tracing-attributes"
+description: "Macro attributes for application-level tracing."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/tracing-attributes"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/tracing-attributes/tracing-attributes-0.1.27.crate"
+  }
+  version: "0.1.27"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 17
+  }
+}

@@ -1,0 +1,45 @@
+
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_tensorflow_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_tensorflow_license"],
+}
+
+filegroup(
+    name = "tensorflow_core_lib_io_mobile_src_only_runtime",
+    srcs = [
+        "block.cc",
+        "block_builder.cc",
+        "buffered_inputstream.cc",
+        "cache.cc",
+        "compression.cc",
+        "format.cc",
+        "inputbuffer.cc",
+        "inputstream_interface.cc",
+        "iterator.cc",
+        "random_inputstream.cc",
+        "record_reader.cc",
+        "table.cc",
+        "table_builder.cc",
+        "two_level_iterator.cc",
+        "zlib_compression_options.cc",
+        "zlib_inputstream.cc",
+    ],
+)

@@ -1,0 +1,6 @@
+#### NAMESPACE from Ad, Reverse Axis:false
+ 65538: NAMESPACE xmlns:xml  Level=3 	Value="http://www.w3.org/XML/1998/namespace"
+ 65539: NAMESPACE xmlns:d  Level=3 	Value="www.d.com"
+ 65559: NAMESPACE xmlns:Ad  Level=4 	Value="www.Ad.com"
+ 65560: NAMESPACE xmlns:y  Level=4 	Value="www.y.com"
+ 65561: NAMESPACE xmlns:z  Level=4 	Value="www.z.com"

@@ -1,0 +1,16 @@
+package {
+    default_applicable_licenses: ["external_chromium-trace_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_chromium-trace_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "legacy_restricted",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}

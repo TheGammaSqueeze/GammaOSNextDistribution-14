@@ -1,0 +1,75 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_cronet_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_cronet_license"],
+}
+
+java_test_host {
+    name: "net_unittests_tester",
+    srcs: ["src/**/*.java"],
+    auto_gen_config: false,
+    test_config: "AndroidNetTest.xml",
+    libs: [
+        "tradefed",
+        "framework-annotations-lib",
+    ],
+    data: [
+        ":cronet_net_tester_app",
+        ":net_unittests_data",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-tethering",
+    ],
+    // This build fails on windows targets with "windows_common" depends on some disabled modules
+    // that are used by this test. Thus, disable this on target windows.
+    // TODO(aymanm): Remove this when b/201754360 is fixed.
+    target: {
+        windows: {
+            enabled: false,
+        },
+    },
+}
+
+java_test_host {
+    name: "cronet_unittests_tester",
+    srcs: ["src/**/*.java"],
+    auto_gen_config: false,
+    test_config: "AndroidTest.xml",
+    libs: [
+        "tradefed",
+        "framework-annotations-lib",
+    ],
+    test_suites: [
+        "general-tests",
+        "mts-tethering",
+    ],
+    // This build fails on windows targets with "windows_common" depends on some disabled modules
+    // that are used by this test. Thus, disable this on target windows.
+    // TODO(aymanm): Remove this when b/201754360 is fixed.
+    target: {
+        windows: {
+            enabled: false,
+        },
+    },
+    data: [
+        ":cronet_tester_app",
+    ],
+}

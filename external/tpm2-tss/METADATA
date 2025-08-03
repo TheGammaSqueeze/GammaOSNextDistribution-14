@@ -1,0 +1,19 @@
+name: "tpm2-tss"
+description: "This repository hosts source code implementing the Trusted Computing Group\'s (TCG) TPM2 Software Stack (TSS)."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://tpm2-software.github.io/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/tpm2-software/tpm2-tss"
+  }
+  version: "2.4.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 4
+    day: 10
+  }
+}

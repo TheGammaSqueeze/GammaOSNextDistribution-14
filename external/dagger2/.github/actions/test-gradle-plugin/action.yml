@@ -1,0 +1,54 @@
+name: 'Test Hilt Gradle plugin'
+description: 'Tests the Hilt Gradle plugin.'
+
+runs:
+  using: "composite"
+  steps:
+    - name: 'Install Java ${{ env.USE_JAVA_VERSION }}'
+      uses: actions/setup-java@v3
+      with:
+        distribution: '${{ env.USE_JAVA_DISTRIBUTION }}'
+        java-version: '${{ env.USE_JAVA_VERSION }}'
+    - name: 'Check out repository'
+      uses: actions/checkout@v3
+    - name: 'Cache local Maven repository'
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.m2/repository
+          !~/.m2/repository/com/google/dagger
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: 'Cache Bazel files'
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/bazel
+        key: ${{ runner.os }}-bazel-build-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-bazel-build-
+    - name: 'Cache Gradle files'
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+    - name: 'Download local snapshot for tests'
+      uses: actions/download-artifact@v3
+      with:
+        name: local-snapshot
+        path: ~/.m2/repository/com/google/dagger
+    - name: 'Build and test Hilt Gradle plugin'
+      run: ./java/dagger/hilt/android/plugin/gradlew -p java/dagger/hilt/android/plugin clean test  --continue --no-daemon --stacktrace
+      shell: bash
+    - name: 'Clean bazel cache'
+      # According to the documentation, we should be able to exclude these via
+      # the actions/cache path, e.g. "!~/.cache/bazel/*/*/external/" but that
+      # doesn't seem to work.
+      run: |
+        rm -rf $(bazel info repository_cache)
+        rm -rf ~/.cache/bazel/*/*/external/
+      shell: bash

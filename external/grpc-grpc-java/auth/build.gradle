@@ -1,0 +1,18 @@
+plugins {
+    id "java-library"
+    id "maven-publish"
+
+    id "me.champeau.gradle.japicmp"
+    id "ru.vyarus.animalsniffer"
+}
+
+description = "gRPC: Auth"
+dependencies {
+    api project(':grpc-api'),
+            libraries.google.auth.credentials
+    implementation libraries.guava
+    testImplementation project(':grpc-testing'),
+            libraries.google.auth.oauth2Http
+    signature libraries.signature.java
+    signature libraries.signature.android
+}

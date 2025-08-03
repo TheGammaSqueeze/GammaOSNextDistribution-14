@@ -1,0 +1,9 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'const unsigned short l' -> 'const unsigned long l'"]
+  "2" [label="'const unsigned short' -> 'const unsigned long'"]
+  "3" [color=red, label="'unsigned short' -> 'unsigned long'"]
+  "2" -> "3" [label="underlying"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

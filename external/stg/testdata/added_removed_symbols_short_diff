@@ -1,0 +1,20 @@
+1 function symbol(s) removed
+  'void f()'
+
+1 variable symbol(s) removed
+  'int b'
+
+1 function symbol(s) added
+  'int g(int)'
+
+1 variable symbol(s) added
+  'int c'
+
+variable symbol changed from 'struct A a[5]' to 'struct A a[10]'
+  type changed from 'struct A[5]' to 'struct A[10]'
+    number of elements changed from 5 to 10
+
+type 'struct A' changed
+  byte size changed from 4 to 8
+  member 'int y' was added
+

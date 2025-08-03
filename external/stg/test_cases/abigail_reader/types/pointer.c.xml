@@ -1,0 +1,32 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='a' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='b' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='c' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='e' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='g' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='h' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='j' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='pointer.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <class-decl name='foo' size-in-bits='64' is-struct='yes' visibility='default' id='3f46facf'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <qualified-type-def type-id='3f46facf' const='yes' id='5a6bc354'/>
+    <pointer-type-def type-id='5a6bc354' size-in-bits='64' id='d5a4bf5a'/>
+    <pointer-type-def type-id='d5a4bf5a' size-in-bits='64' id='c2595d50'/>
+    <pointer-type-def type-id='3f46facf' size-in-bits='64' id='8750e847'/>
+    <pointer-type-def type-id='8750e847' size-in-bits='64' id='715de397'/>
+    <var-decl name='a' type-id='95e97e5e' mangled-name='a' visibility='default' elf-symbol-id='a'/>
+    <var-decl name='b' type-id='3f46facf' mangled-name='b' visibility='default' elf-symbol-id='b'/>
+    <var-decl name='c' type-id='8750e847' mangled-name='c' visibility='default' elf-symbol-id='c'/>
+    <var-decl name='e' type-id='715de397' mangled-name='e' visibility='default' elf-symbol-id='e'/>
+    <var-decl name='g' type-id='5a6bc354' mangled-name='g' visibility='default' elf-symbol-id='g'/>
+    <var-decl name='h' type-id='d5a4bf5a' mangled-name='h' visibility='default' elf-symbol-id='h'/>
+    <var-decl name='j' type-id='c2595d50' mangled-name='j' visibility='default' elf-symbol-id='j'/>
+  </abi-instr>
+</abi-corpus>

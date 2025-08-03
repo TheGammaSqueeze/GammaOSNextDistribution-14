@@ -1,0 +1,2 @@
+include platform/frameworks/base:/SQLITE_OWNERS
+include platform/libcore:/OWNERS

@@ -1,0 +1,12 @@
+diff --git b/rules.mk a/rules.mk
+index 81f63ed..69b7784 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -21,7 +21,6 @@ MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="default"' \
+ 
+ MODULE_LIBRARY_DEPS := \
+-	external/rust/crates/bytes \
+ 	external/rust/crates/once_cell \
+ 	external/rust/crates/protobuf-support \
+ 	external/rust/crates/thiserror \

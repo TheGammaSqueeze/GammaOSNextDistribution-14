@@ -1,0 +1,23 @@
+function symbol 'unsigned int fun(enum A, enum B, enum C, enum D)' changed
+  type 'unsigned int(enum A, enum B, enum C, enum D)' changed
+    parameter 1 type 'enum A' changed
+    parameter 2 type 'enum B' changed
+    parameter 3 type 'enum C' changed
+    parameter 4 type 'enum D' changed
+
+type 'enum A' changed
+  underlying type changed from 'unsigned int' to 'unsigned long'
+  enumerator 'Ae' value changed from 16777216 to 281474976710656
+
+type 'enum B' changed
+  enumerator 'Be' value changed from 2147483647 to 2147483648
+
+type 'enum C' changed
+  underlying type changed from 'long' to 'unsigned long'
+  enumerator 'Ce' value changed from -9223372036854775808 to -1
+
+type 'enum D' changed
+  underlying type changed from 'int' to 'unsigned int'
+  enumerator 'De' value changed from -1 to 1
+
+exit code 4

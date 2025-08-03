@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+# Copyright 2019 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# To check for violations:
+# $ ./tools/clippy
+#
+# To fix violations where possible:
+# $ ./tools/clippy --fix
+
+from typing import Optional
+from impl.common import CROSVM_ROOT, run_main, cmd, chdir, Triple, SHORTHANDS
+from impl.test_config import DO_NOT_BUILD_RISCV64
+
+clippy = cmd("cargo clippy").with_color_flag()
+
+
+def main(
+    fix: bool = False,
+    json: bool = False,
+    locked: bool = False,
+    platform: Optional[str] = None,
+):
+    try:
+        triple: Triple = Triple.from_shorthand(platform) if platform else Triple.host_default()
+    except Exception as e:
+        raise type(e)(str(e) + f"\nValid platforms are {', '.join(SHORTHANDS.keys())}")
+
+    chdir(CROSVM_ROOT)
+
+    # Note: Clippy checks are configured in .cargo/config.toml
+    common_args = [
+        "--message-format=json" if json else None,
+        "--locked" if locked else None,
+        "--all-targets",
+        "--",
+        "-Dwarnings",
+    ]
+    if fix:
+        common_args = [
+            "--fix",
+            "--allow-no-vcs",
+            "--allow-dirty",
+            "--allow-staged",
+            *common_args,
+        ]
+    print("Clippy crosvm workspace")
+    exclude_args = []
+    if triple == Triple.from_shorthand("riscv64"):
+        exclude_args = ["--exclude=" + s for s in DO_NOT_BUILD_RISCV64]
+    clippy(
+        "--workspace",
+        f"--features={triple.feature_flag}",
+        *exclude_args,
+        *common_args,
+    ).with_envs(triple.get_cargo_env()).fg()
+
+
+if __name__ == "__main__":
+    run_main(main)

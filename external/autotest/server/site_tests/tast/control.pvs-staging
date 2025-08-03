@@ -1,0 +1,33 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'mwiitala, ChromeOS Kernel Team'
+NAME = 'tast.pvs-staging'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:pvs-staging'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the Tast test(s) which will be exported to partners for PVS testing.
+For more info on PVS, please check out go/cros-pvs-prd
+'''
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['('
+                             '"group:mainline" && '
+                             '!informational && '
+                             '!"name:printer.AddBrotherPrinter" && '     # b/192458034
+                             '!"name:printer.ResolutionBrother.*" && '   # b/192458034
+                             '!"name:typec.Basic"' # typec.Basic requires a servo, which may not be available for PVS testing.
+                             ')'],
+                 ignore_test_failures=False, max_run_sec=3600,
+                 command_args=args,
+		 clear_tmp=True)
+parallel_simple(run, machines)

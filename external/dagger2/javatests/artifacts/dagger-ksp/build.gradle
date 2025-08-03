@@ -1,0 +1,49 @@
+/*
+ * Copyright (C) 2021 The Dagger Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+buildscript {
+  ext {
+    dagger_version = "LOCAL-SNAPSHOT"
+    kotlin_version = "1.8.0"
+    ksp_version = "1.8.0-1.0.9"
+    junit_version = "4.13"
+    truth_version = "1.0.1"
+  }
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
+  dependencies {
+    classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$ksp_version")
+  }
+}
+
+allprojects {
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
+
+  configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+      if (details.requested.group == 'com.google.dagger'
+            && "$dagger_version" == 'LOCAL-SNAPSHOT') {
+        details.useVersion 'LOCAL-SNAPSHOT'
+        details.because 'LOCAL-SNAPSHOT should act as latest version.'
+      }
+    }
+  }
+}

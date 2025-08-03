@@ -1,0 +1,11 @@
+<foo>
+  <bar>1</bar>
+  <bar>2</bar>
+  <bar>3</bar>
+  <bang>
+    <bat>1</bat>
+  </bang>
+  <bang>
+    <bat>3</bat>
+  </bang>
+</foo>

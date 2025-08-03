@@ -1,0 +1,266 @@
+//
+//  Copyright (c) 2021, The OpenThread Authors.
+//  All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions are met:
+//  1. Redistributions of source code must retain the above copyright
+//     notice, this list of conditions and the following disclaimer.
+//  2. Redistributions in binary form must reproduce the above copyright
+//     notice, this list of conditions and the following disclaimer in the
+//     documentation and/or other materials provided with the distribution.
+//  3. Neither the name of the copyright holder nor the
+//     names of its contributors may be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+//  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+//  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+//  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+//  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+//  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+//  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+//  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+//  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
+//
+
+package {
+    default_team: "trendy_team_fwk_thread_network",
+    default_applicable_licenses: ["external_ot-br-posix_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_ot-br-posix_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+        "NOTICE",
+    ],
+}
+
+genrule {
+    name: "otbr_version_header",
+    cmd: "$(location src/android/config-android-version-gen.sh) < $(in) > $(out)",
+    srcs: ["src/android/otbr-config-android-version.h.in"],
+    out: ["otbr-config-android-version.h"],
+    tool_files: [
+        "src/android/config-android-version-gen.sh",
+    ],
+}
+
+// The config shared by all ot-daemon dependency libraries
+cc_defaults {
+    name: "ot-daemon-debuggable-cc-defaults",
+    cflags: [
+        // Optimize for size
+        "-Os",
+
+        // Disable exception since OT never uses exceptions
+        "-fno-exceptions",
+        "-fno-asynchronous-unwind-tables",
+        "-fno-unwind-tables",
+    ],
+    product_variables: {
+        debuggable: {
+            cflags: [
+                // Optimize for debugging
+                "-Og",
+            ],
+        },
+    },
+
+    // Enable security checks
+    sanitize: {
+        misc_undefined: ["bounds"],
+        cfi: true,
+        scs: true,
+    },
+}
+
+cc_defaults {
+    name: "ot-daemon-defaults",
+    generated_headers: ["otbr_version_header"],
+
+    include_dirs: [
+        "external/mdnsresponder/mDNSShared",
+        "external/openthread/include",
+        "external/openthread/src",
+        "external/openthread/src/posix/platform/include",
+        "external/openthread/third_party/mbedtls/repo/include",
+    ],
+
+    local_include_dirs: [
+        "include",
+        "src",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Wno-unused-function",
+
+        // The HAL client implementation requires features which are
+        // available on only 31+, but it's guaranteed that ot-daemon
+        // will never run on Android U- devices.
+        "-Wno-unguarded-availability",
+
+        "-DOTBR_CONFIG_ANDROID_PROPERTY_ENABLE=1",
+        "-DOTBR_CONFIG_ANDROID_VERSION_HEADER_ENABLE=1",
+        "-DOTBR_CONFIG_FILE=\"src/android/otbr-config-android.h\"",
+        "-DOTBR_ENABLE_VENDOR_SERVER=1", // for OtDaemonServer
+        "-DOTBR_ENABLE_BORDER_ROUTING=1",
+        "-DOTBR_ENABLE_BORDER_AGENT=1",
+        "-DOTBR_ENABLE_PUBLISH_MESHCOP_BA_ID=1",
+        // Used for bypassing the macro check. In fact mdnssd is not used because we don't compile
+        // the related source files.
+        "-DOTBR_ENABLE_MDNS_MDNSSD=1",
+        "-DOTBR_ENABLE_SRP_ADVERTISING_PROXY=0",
+        "-DOTBR_ENABLE_DNSSD_DISCOVERY_PROXY=0",
+        "-DOTBR_PACKAGE_NAME=\"OTBR_AGENT\"",
+    ],
+
+    srcs: [
+        "src/agent/application.cpp",
+        "src/android/mdns_publisher.cpp",
+        "src/android/otdaemon_server.cpp",
+        "src/android/otdaemon_telemetry.cpp",
+        "src/border_agent/border_agent.cpp",
+        "src/ncp/ncp_openthread.cpp",
+        "src/sdp_proxy/advertising_proxy.cpp",
+        "src/sdp_proxy/discovery_proxy.cpp",
+        "src/common/code_utils.cpp",
+        "src/common/dns_utils.cpp",
+        "src/common/logging.cpp",
+        "src/common/mainloop.cpp",
+        "src/common/mainloop_manager.cpp",
+        "src/common/task_runner.cpp",
+        "src/common/types.cpp",
+        "src/mdns/mdns.cpp",
+        "src/utils/crc16.cpp",
+        "src/utils/dns_utils.cpp",
+        "src/utils/hex.cpp",
+        "src/utils/infra_link_selector.cpp",
+        "src/utils/pskc.cpp",
+        "src/utils/socket_utils.cpp",
+        "src/utils/steering_data.cpp",
+        "src/utils/string_utils.cpp",
+        "src/utils/system_utils.cpp",
+        "src/utils/thread_helper.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libutils",
+        "libcutils",
+        "libbinder_ndk",
+        "android.hardware.threadnetwork-V1-ndk",
+        "liblog",
+        "libstatssocket",
+    ],
+
+    static_libs: [
+        "libopenthread-cli",
+        "ot-core",
+        "ot-daemon-aidl-ndk",
+        "libstatslog_threadnetwork",
+        "threadnetwork-atom-cc-proto-lite",
+        "libprotobuf-cpp-lite",
+    ],
+
+    host_ldlibs: ["-lutil"],
+    min_sdk_version: "30",
+    apex_available: ["com.android.tethering"],
+}
+
+cc_binary {
+    name: "ot-daemon",
+    defaults: [
+        "ot-daemon-defaults",
+        "ot-daemon-debuggable-cc-defaults",
+    ],
+    srcs: [
+        "src/agent/main.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "ot_daemon_service_fuzzer",
+    defaults: [
+        "ot-daemon-defaults",
+        "service_fuzzer_defaults",
+    ],
+    srcs: [
+        "src/android/otdaemon_fuzzer.cpp",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+    fuzz_config: {
+        cc: [
+            "wgtdkp@google.com",
+        ],
+    },
+}
+
+cc_library_static {
+    name: "libstatslog_threadnetwork",
+    generated_sources: ["statslog_threadnetwork.cpp"],
+    generated_headers: ["statslog_threadnetwork.h"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    export_generated_headers: ["statslog_threadnetwork.h"],
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libstatssocket",
+        "libutils",
+    ],
+    min_sdk_version: "30",
+    apex_available: ["com.android.tethering"],
+}
+
+genrule {
+    name: "statslog_threadnetwork.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog_threadnetwork.h --module threadnetwork --namespace threadnetwork",
+    out: [
+        "statslog_threadnetwork.h",
+    ],
+}
+
+genrule {
+    name: "statslog_threadnetwork.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --cpp $(genDir)/statslog_threadnetwork.cpp --module threadnetwork --namespace threadnetwork --importHeader statslog_threadnetwork.h",
+    out: [
+        "statslog_threadnetwork.cpp",
+    ],
+}

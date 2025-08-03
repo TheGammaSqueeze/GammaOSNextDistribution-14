@@ -1,0 +1,199 @@
+libtracefs(3)
+=============
+
+NAME
+----
+
+tracefs_instance_file_open,
+tracefs_instance_file_write, tracefs_instance_file_append, tracefs_instance_file_clear,
+tracefs_instance_file_read, tracefs_instance_file_read_number - Work with files in tracing instances.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_instance_file_open*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_file_, int _mode_);
+int *tracefs_instance_file_write*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_file_, const char pass:[*]_str_);
+int *tracefs_instance_file_append*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_file_, const char pass:[*]_str_);
+int *tracefs_instance_file_clear*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_file_);
+char pass:[*]*tracefs_instance_file_read*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_file_, int pass:[*]_psize_);
+int *tracefs_instance_file_read_number*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_file_, long long int pass:[*]_res_);
+
+--
+
+DESCRIPTION
+-----------
+This set of APIs can be used to work with trace files in all trace instances.
+Each of these APIs take an _instance_ argument, that can be NULL to act
+on the top level instance. Otherwise, it acts on an instance created with
+*tracefs_insance_create*(3)
+
+The *tracefs_instance_file_open()* function opens trace _file_ from given _instance_ and returns
+a file descriptor to it. The file access _mode_ can be specified, see *open*(3) for more details.
+If -1 is passed as _mode_, default O_RDWR is used.
+
+The *tracefs_instance_file_write()* function writes a string _str_ in a _file_ from
+the given _instance_, without the terminating NULL character. When opening the file, this function
+tries to truncates the size of the file to zero, which clears all previously existing settings.
+
+The *tracefs_instance_file_append()* function writes a string _str_ in a _file_ from
+the given _instance_, without the terminating NULL character.  This function is similar to
+*tracefs_instance_file_write()*, but the existing content of the is not cleared. Thus the
+new settings are appended to the existing ones (if any).
+
+The *tracefs_instance_file_clear()* function tries to truncates the size of the file to zero,
+which clears all previously existing settings. If the file has content that does not get
+cleared in this way, this will not have any effect.
+
+The *tracefs_instance_file_read()* function reads the content of a _file_ from
+the given _instance_.
+
+The *tracefs_instance_file_read_number()* function reads the content of a _file_ from
+the given _instance_ and converts it to a long long integer, which is stored in _res_.
+
+RETURN VALUE
+------------
+The *tracefs_instance_file_open()* function returns a file descriptor to the opened file. It must be
+closed with *close*(3). In case of an error, -1 is returned.
+
+The *tracefs_instance_file_write()* function returns the number of written bytes,
+or -1 in case of an error.
+
+The *tracefs_instance_file_append()* function returns the number of written bytes,
+or -1 in case of an error.
+
+The *tracefs_instance_file_clear()* function returns 0 on success, or -1 in case of an error.
+
+The *tracefs_instance_file_read()* function returns a pointer to a NULL terminated
+string, read from the file, or NULL in case of an error. The returned string must
+be freed with free().
+
+The *tracefs_instance_file_read_number()* function returns 0 if a valid integer is read from
+the file and stored in _res_ or -1 in case of an error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+
+struct tracefs_instance *inst = tracefs_instance_create("foo");
+	if (!inst) {
+		/* Error creating a new trace instance */
+		...
+	}
+
+	if (tracefs_file_exists(inst,"trace_clock")) {
+		/* The instance foo supports trace clock */
+		char *path, *clock;
+		int size;
+
+		path =  = tracefs_instance_get_file(inst, "trace_clock")
+		if (!path) {
+			/* Error getting the path to trace_clock file in instance foo */
+			...
+		}
+		...
+		tracefs_put_tracing_file(path);
+
+		clock = tracefs_instance_file_read(inst, "trace_clock", &size);
+		if (!clock) {
+			/* Failed to read trace_clock file in instance foo */
+			...
+		}
+		...
+		free(clock);
+
+		if (tracefs_instance_file_write(inst, "trace_clock", "global") != strlen("global")) {
+			/* Failed to set gloabl trace clock in instance foo */
+			...
+		}
+	} else {
+		/* The instance foo does not support trace clock */
+	}
+
+	if (tracefs_dir_exists(inst,"options")) {
+		/* The instance foo supports trace options */
+		char *path = tracefs_instance_get_file(inst, "options");
+		if (!path) {
+			/* Error getting the path to options directory in instance foo */
+			...
+		}
+
+		tracefs_put_tracing_file(path);
+	} else {
+		/* The instance foo does not support trace options */
+	}
+
+	...
+
+	if (tracefs_instance_is_new(inst))
+		tracefs_instance_destroy(inst);
+	else
+		tracefs_instance_free(inst);
+	...
+
+	long long int res;
+	if (tracefs_instance_file_read_number(NULL, "tracing_on", &res) == 0) {
+		if (res == 0) {
+			/* tracing is disabled in the top instance */
+		} else if (res == 1) {
+			/* tracing is enabled in the top instance */
+		} else {
+			/* Unknown tracing state of the top instance */
+		}
+	} else {
+		/* Failed to read integer from tracing_on file */
+	}
+
+	...
+
+	int fd;
+	fd = tracefs_instance_file_open(NULL, "tracing_on", O_WRONLY);
+	if (fd >= 0) {
+		/* Got file descriptor to the tracing_on file from the top instance for writing */
+		...
+		close(fd);
+	}
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

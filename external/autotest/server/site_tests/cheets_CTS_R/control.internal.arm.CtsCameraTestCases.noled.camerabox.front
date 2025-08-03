@@ -1,0 +1,38 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file has been automatically generated. Do not edit!
+
+AUTHOR = 'ARC++ Team'
+NAME = 'cheets_CTS_R.internal.arm.CtsCameraTestCases.noled.camerabox.front'
+ATTRIBUTES = 'suite:arc-cts, suite:arc-cts-camera, suite:arc-cts-r, suite:arc-cts-unibuild, suite:arc-cts-unibuild-hw'
+DEPENDENCIES = 'arc, camerabox_light:noled, camerabox_facing:front'
+JOB_RETRIES = 1
+TEST_TYPE = 'server'
+TIME = 'LONG'
+MAX_RESULT_SIZE_KB = 512000
+PY_VERSION = 3
+DOC = 'Run module CtsCameraTestCases of the Android Compatibility Test Suite (CTS) using arm ABI in the ARC++ container.'
+
+def run_TS(machine):
+    host_list = [hosts.create_host(machine)]
+    job.run_test(
+        'cheets_CTS_R',
+        camera_facing='front',
+        cmdline_args=args,
+        hosts=host_list,
+        iterations=1,
+        tag='internal.arm.CtsCameraTestCases.noled.camerabox.front',
+        test_name='cheets_CTS_R.internal.arm.CtsCameraTestCases.noled.camerabox.front',
+        run_template=['run', 'commandAndExit', 'cts', '--module', 'CtsCameraTestCases', '--logcat-on-failure'],
+        retry_template=['run', 'commandAndExit', 'retry', '--retry', '{session_id}'],
+        target_module='CtsCameraTestCases',
+        target_plan=None,
+        bundle='arm',
+        uri='DEV',
+        use_jdk9=True,
+        retry_manual_tests=True,
+        timeout=5400)
+
+parallel_simple(run_TS, machines)

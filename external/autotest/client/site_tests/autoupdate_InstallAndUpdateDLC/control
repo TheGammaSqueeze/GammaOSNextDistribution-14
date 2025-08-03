@@ -1,0 +1,21 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "kyleshima, Chromium OS"
+NAME = "autoupdate_InstallAndUpdateDLC"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "client"
+PURPOSE = "Tests installing a DLC and doing an N-to-N update with DLC present."
+TIME = "SHORT"
+PY_VERSION = 3
+
+DOC = """
+This test will first install a DLC and check that it was installed
+successfully. Then it will update the OS (N-to-N) and the DLC will get updated
+along with it. Testing that the DLC updated successfully will be done as part
+of a server test.
+"""
+
+job.run_test('autoupdate_InstallAndUpdateDLC')

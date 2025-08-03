@@ -1,0 +1,383 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/scoring.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// Stats of the top-level function IcingSearchEngine::Initialize().
+// Next tag: 14
+message InitializeStatsProto {
+  // Overall time used for the function call.
+  optional int32 latency_ms = 1;
+
+  // The cause of IcingSearchEngine recovering from a previous bad state during
+  // initialization.
+  enum RecoveryCause {
+    // No recovery happened.
+    NONE = 0;
+
+    // Data loss in ground truth.
+    DATA_LOSS = 1;
+
+    // Data in index is inconsistent with ground truth.
+    INCONSISTENT_WITH_GROUND_TRUTH = 2;
+
+    // Changes were made to the schema, but possibly not fully applied to the
+    // document store and the index - requiring a recovery.
+    SCHEMA_CHANGES_OUT_OF_SYNC = 3;
+
+    // Random I/O errors.
+    IO_ERROR = 4;
+
+    // The document log is using legacy format.
+    LEGACY_DOCUMENT_LOG_FORMAT = 5;
+
+    // The current code version is different from existing data version.
+    VERSION_CHANGED = 6;
+
+    // Any dependencies have changed.
+    DEPENDENCIES_CHANGED = 7;
+
+    // Change detected in Icing's feature flags since last initialization that
+    // requires recovery.
+    FEATURE_FLAG_CHANGED = 8;
+  }
+
+  // Possible recovery causes for document store:
+  // - DATA_LOSS
+  // - SCHEMA_CHANGES_OUT_OF_SYNC
+  // - IO_ERROR
+  optional RecoveryCause document_store_recovery_cause = 2;
+
+  // Possible recovery causes for index:
+  // - INCONSISTENT_WITH_GROUND_TRUTH
+  // - SCHEMA_CHANGES_OUT_OF_SYNC
+  // - IO_ERROR
+  optional RecoveryCause index_restoration_cause = 3;
+
+  // Possible recovery causes for index:
+  // - IO_ERROR
+  optional RecoveryCause schema_store_recovery_cause = 4;
+
+  // Time used to recover the document store.
+  optional int32 document_store_recovery_latency_ms = 5;
+
+  // Time used to restore the index.
+  optional int32 index_restoration_latency_ms = 6;
+
+  // Time used to restore the schema store.
+  optional int32 schema_store_recovery_latency_ms = 7;
+
+  // Status regarding how much data is lost during the initialization.
+  enum DocumentStoreDataStatus {
+    // Document store is successfully initialized or fully recovered.
+    NO_DATA_LOSS = 0;
+
+    // Ground truth data is partially lost.
+    PARTIAL_LOSS = 1;
+
+    // Ground truth data is completely lost.
+    COMPLETE_LOSS = 2;
+  }
+  optional DocumentStoreDataStatus document_store_data_status = 8;
+
+  // Number of documents currently in document store. Those may
+  // include alive, deleted, and expired documents.
+  optional int32 num_documents = 9;
+
+  // Number of schema types currently in schema store.
+  optional int32 num_schema_types = 10;
+
+  // Number of consecutive initialization failures that immediately preceded
+  // this initialization.
+  optional int32 num_previous_init_failures = 11;
+
+  // Possible recovery causes for integer index:
+  // - INCONSISTENT_WITH_GROUND_TRUTH
+  // - SCHEMA_CHANGES_OUT_OF_SYNC
+  // - IO_ERROR
+  optional RecoveryCause integer_index_restoration_cause = 12;
+
+  // Possible recovery causes for qualified id join index:
+  // - INCONSISTENT_WITH_GROUND_TRUTH
+  // - SCHEMA_CHANGES_OUT_OF_SYNC
+  // - IO_ERROR
+  optional RecoveryCause qualified_id_join_index_restoration_cause = 13;
+}
+
+// Stats of the top-level function IcingSearchEngine::Put().
+// Next tag: 12
+message PutDocumentStatsProto {
+  // Overall time used for the function call.
+  optional int32 latency_ms = 1;
+
+  // Time used to store the document.
+  optional int32 document_store_latency_ms = 2;
+
+  // Time used to index the document.
+  optional int32 index_latency_ms = 3;
+
+  // Time used to merge the indices.
+  optional int32 index_merge_latency_ms = 4;
+
+  // Document size in bytes.
+  optional int32 document_size = 5;
+
+  message TokenizationStats {
+    // Number of tokens added to the index.
+    optional int32 num_tokens_indexed = 1;
+
+    // Number of metadata tokens added to the index, which can only be added by
+    // PropertyExistenceIndexingHandler currently.
+    optional int32 num_metadata_tokens_indexed = 3;
+
+    reserved 2;
+  }
+  optional TokenizationStats tokenization_stats = 6;
+
+  // Time used to index all indexable string terms and property existence
+  // metadata terms in the document. It does not include the time to merge
+  // indices or the time to sort the lite index.
+  optional int32 term_index_latency_ms = 7;
+
+  // Time used to index all indexable integers in the document.
+  optional int32 integer_index_latency_ms = 8;
+
+  // Time used to index all qualified id join strings in the document.
+  optional int32 qualified_id_join_index_latency_ms = 9;
+
+  // Time used to sort the LiteIndex's HitBuffer.
+  optional int32 lite_index_sort_latency_ms = 10;
+
+  // Time used to index all metadata terms in the document, which can only be
+  // added by PropertyExistenceIndexingHandler currently.
+  optional int32 metadata_term_index_latency_ms = 11;
+}
+
+// Stats of the top-level function IcingSearchEngine::Search() and
+// IcingSearchEngine::GetNextPage().
+// Next tag: 28
+message QueryStatsProto {
+  // TODO(b/305098009): deprecate. Use parent_search_stats instead.
+  // The UTF-8 length of the query string
+  optional int32 query_length = 16;
+
+  // TODO(b/305098009): deprecate. Use parent_search_stats instead.
+  // Number of terms in the query string.
+  optional int32 num_terms = 1;
+
+  // TODO(b/305098009): deprecate. Use parent_search_stats instead.
+  // Number of namespaces filtered.
+  optional int32 num_namespaces_filtered = 2;
+
+  // TODO(b/305098009): deprecate. Use parent_search_stats instead.
+  // Number of schema types filtered.
+  optional int32 num_schema_types_filtered = 3;
+
+  // TODO(b/305098009): deprecate. Use parent_search_stats instead.
+  // Strategy of scoring and ranking.
+  optional ScoringSpecProto.RankingStrategy.Code ranking_strategy = 4;
+
+  // Whether the function call is querying the first page. If it’s
+  // not, Icing will fetch the results from cache so that some steps
+  // may be skipped.
+  optional bool is_first_page = 5;
+
+  // The requested number of results in one page.
+  optional int32 requested_page_size = 6;
+
+  // The actual number of results returned in the current page.
+  optional int32 num_results_returned_current_page = 7;
+
+  // TODO(b/305098009): deprecate. Use parent_search_stats instead.
+  // Number of documents scored.
+  optional int32 num_documents_scored = 8;
+
+  // How many of the results in the page returned were snippeted.
+  optional int32 num_results_with_snippets = 15;
+
+  // Overall time used for the function call.
+  optional int32 latency_ms = 10;
+
+  // TODO(b/305098009): deprecate. Use parent_search_stats instead.
+  // Time used to parse the query, including 2 parts: tokenizing and
+  // transforming tokens into an iterator tree.
+  optional int32 parse_query_latency_ms = 11;
+
+  // TODO(b/305098009): deprecate. Use parent_search_stats instead.
+  // Time used to score the raw results.
+  optional int32 scoring_latency_ms = 12;
+
+  // Time used to rank the scored results.
+  optional int32 ranking_latency_ms = 13;
+
+  // Time used to fetch the document protos. Note that it includes the
+  // time to snippet if ‘has_snippets’ is true.
+  optional int32 document_retrieval_latency_ms = 14;
+
+  // Time passed while waiting to acquire the lock before query execution.
+  optional int32 lock_acquisition_latency_ms = 17;
+
+  // Timestamp taken just before sending proto across the JNI boundary from
+  // native to java side.
+  optional int64 native_to_java_start_timestamp_ms = 18;
+
+  // Time used to send protos across the JNI boundary from java to native side.
+  optional int32 java_to_native_jni_latency_ms = 19;
+
+  // Time used to send protos across the JNI boundary from native to java side.
+  optional int32 native_to_java_jni_latency_ms = 20;
+
+  // The native latency due to the join operation.
+  optional int32 join_latency_ms = 21;
+
+  // Number of documents scored.
+  optional int32 num_joined_results_returned_current_page = 22;
+
+  // Whether it contains join query or not.
+  optional bool is_join_query = 23;
+
+  // Stats of the search. Only valid for first page.
+  // Next tag: 16
+  message SearchStats {
+    // The UTF-8 length of the query string
+    optional int32 query_length = 1;
+
+    // Number of terms in the query string.
+    optional int32 num_terms = 2;
+
+    // Number of namespaces filtered.
+    optional int32 num_namespaces_filtered = 3;
+
+    // Number of schema types filtered.
+    optional int32 num_schema_types_filtered = 4;
+
+    // Strategy of scoring and ranking.
+    optional ScoringSpecProto.RankingStrategy.Code ranking_strategy = 5;
+
+    // Number of documents scored.
+    optional int32 num_documents_scored = 6;
+
+    // Time used to parse the query, including 2 parts: tokenizing and
+    // transforming tokens into an iterator tree.
+    optional int32 parse_query_latency_ms = 7;
+
+    // Time used to score the raw results.
+    optional int32 scoring_latency_ms = 8;
+
+    // Whether it contains numeric query or not.
+    optional bool is_numeric_query = 9;
+
+    // Number of hits fetched by lite index before applying any filters.
+    optional int32 num_fetched_hits_lite_index = 10;
+
+    // Number of hits fetched by main index before applying any filters.
+    optional int32 num_fetched_hits_main_index = 11;
+
+    // Number of hits fetched by integer index before applying any filters.
+    optional int32 num_fetched_hits_integer_index = 12;
+
+    // Time used in Lexer to extract lexer tokens from the query.
+    optional int32 query_processor_lexer_extract_token_latency_ms = 13;
+
+    // Time used in Parser to consume lexer tokens extracted from the query.
+    optional int32 query_processor_parser_consume_query_latency_ms = 14;
+
+    // Time used in QueryVisitor to visit and build (nested) DocHitInfoIterator.
+    optional int32 query_processor_query_visitor_latency_ms = 15;
+  }
+
+  // Search stats for parent. Only valid for first page.
+  optional SearchStats parent_search_stats = 24;
+
+  // Search stats for child.
+  optional SearchStats child_search_stats = 25;
+
+  // Byte size of the lite index hit buffer.
+  optional int64 lite_index_hit_buffer_byte_size = 26;
+
+  // Byte size of the unsorted tail of the lite index hit buffer.
+  optional int64 lite_index_hit_buffer_unsorted_byte_size = 27;
+
+  reserved 9;
+}
+
+// Stats of the top-level functions IcingSearchEngine::Delete,
+// IcingSearchEngine::DeleteByNamespace, IcingSearchEngine::DeleteBySchemaType.
+// Next tag: 4
+message DeleteStatsProto {
+  // Overall time used for the function call.
+  optional int32 latency_ms = 1;
+
+  message DeleteType {
+    enum Code {
+      // Default. Should never be used.
+      UNKNOWN = 0;
+
+      // Delete one document.
+      SINGLE = 1;
+
+      // Delete by query. This value is deprecated.
+      // IcingSearchEngine::DeleteByQuery will return a DeleteByQueryStatsProto
+      // rather than a DeleteStatsProto.
+      DEPRECATED_QUERY = 2 [deprecated = true];
+
+      // Delete by namespace.
+      NAMESPACE = 3;
+
+      // Delete by schema type.
+      SCHEMA_TYPE = 4;
+    }
+  }
+  optional DeleteType.Code delete_type = 2;
+
+  // Number of documents deleted by this call.
+  optional int32 num_documents_deleted = 3;
+}
+
+// Stats of the top-level functions IcingSearchEngine::DeleteByQuery.
+// Next tag: 9
+message DeleteByQueryStatsProto {
+  // Overall time used for the function call.
+  optional int32 latency_ms = 1;
+
+  // Number of documents deleted by this call.
+  optional int32 num_documents_deleted = 2;
+
+  // The UTF-8 length of the query string
+  optional int32 query_length = 3;
+
+  // Number of terms in the query string.
+  optional int32 num_terms = 4;
+
+  // Number of namespaces filtered.
+  optional int32 num_namespaces_filtered = 5;
+
+  // Number of schema types filtered.
+  optional int32 num_schema_types_filtered = 6;
+
+  // Time used to parse the query, including 2 parts: tokenizing and
+  // transforming tokens into an iterator tree.
+  optional int32 parse_query_latency_ms = 7;
+
+  // Time used to delete each document.
+  optional int32 document_removal_latency_ms = 8;
+}

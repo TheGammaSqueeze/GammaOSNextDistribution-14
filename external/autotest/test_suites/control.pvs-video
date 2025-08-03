@@ -1,0 +1,27 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'ChromeOS Team'
+NAME = 'pvs-video'
+PURPOSE = 'PVS Video tests that require no special hardware to run'
+
+TIME = 'SHORT'
+TEST_CATEGORY = 'General'
+TEST_CLASS = 'suite'
+TEST_TYPE = 'Server'
+
+DOC = '''
+This test suite is part of the Platform Validation Suite (go/cros-pvs)
+and includes a collection of Video tests that run without additional hardware.
+'''
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['max_runtime_mins'] = 240
+args_dict['add_experimental'] = True
+args_dict['name'] = NAME
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

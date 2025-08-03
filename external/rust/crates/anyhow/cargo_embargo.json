@@ -1,0 +1,24 @@
+{
+  "tests": true,
+  "min_sdk_version": "29",
+  "package": {
+    "anyhow": {
+      "dep_blocklist": [
+        "libbacktrace_rust",
+        "librustversion",
+        "libsyn",
+        "libtrybuild"
+      ]
+    }
+  },
+  "cfg_blocklist": [
+    "backtrace"
+  ],
+  "module_blocklist": [
+    "anyhow_test_tests_compiletest",
+    "anyhow_test_tests_test_backtrace",
+    "anyhow_test_tests_test_ensure",
+    "anyhow_test_tests_test_ffi"
+  ],
+  "run_cargo": false
+}

@@ -1,0 +1,151 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_trace_is_on, tracefs_trace_on, tracefs_trace_off, tracefs_trace_on_get_fd,
+tracefs_trace_on_fd, tracefs_trace_off_fd - Functions to enable or disable tracing.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_trace_is_on*(struct tracefs_instance pass:[*]_instance_);
+int *tracefs_trace_on*(struct tracefs_instance pass:[*]_instance_);
+int *tracefs_trace_off*(struct tracefs_instance pass:[*]_instance_);
+int *tracefs_trace_on_get_fd*(struct tracefs_instance pass:[*]_instance_);
+int *tracefs_trace_on_fd*(int _fd_);
+int *tracefs_trace_off_fd*(int _fd_);
+--
+
+DESCRIPTION
+-----------
+This set of functions can be used to check, enable or disable writing to the ring buffer in
+the given trace instance. The tracing is enabled when writing to the ring buffer is enabled.
+
+The *tracefs_trace_is_on()* function checks if tracing is enabled for the given _instance_. If
+_instance_ is NULL, the top instance is used.
+
+The *tracefs_trace_on()* and *tracefs_trace_off()* functions set the tracing in the _instance_
+to enable or disable state. If _instance_ is NULL, the top instance is used.
+
+The *tracefs_trace_on_get_fd()* function returns a file descriptor to the "tracing_on" file from
+the given _instance_. If _instance_ is NULL, the top trace instance is used. The returned descriptor
+can be used for fast enabling or disabling the tracing of the instance.
+
+The *tracefs_trace_on_fd()* and *tracefs_trace_off_fd()* functions set the tracing state to enable
+or disable using the given _fd_. This file descriptor must be opened for writing with
+*tracefs_trace_on_get_fd*(3) of the desired trace instance. These functions are faster than
+*tracefs_trace_on* and *tracefs_trace_off*.
+
+RETURN VALUE
+------------
+The *tracefs_trace_is_on()* function returns 0 if tracing is disable, 1 if it is enabled or
+-1 in case of an error.
+
+The *tracefs_trace_on_get_fd()* function returns a file descriptor to "tracing_on"
+file for reading and writing, which must be closed wuth close(). In case of an error -1 is returned.
+
+The *tracefs_trace_on()*, *tracefs_trace_off()*, *tracefs_trace_on_fd()* and
+*tracefs_trace_off_fd()* functions return -1 in case of an error or 0 otherwise.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+
+	int ret;
+
+	ret = tracefs_trace_is_on(NULL);
+	if (ret == 0) {
+		/* Tracing is disabled in the top instance */
+	} else if (ret == 1) {
+		/* Tracing is enabled in the top instance */
+	} else {
+		/* Error getting tracing state of the top instance */
+	}
+
+	...
+
+	if (!tracefs_trace_on(NULL)) {
+	    /* Enabled tracing in the top instance */
+
+	    ...
+
+	    if (!tracefs_trace_off(NULL)) {
+	    	/* Disabled tracing in the top instance */
+	    } else {
+	    	/* Error disabling tracing in the top instance */
+	    }
+	} else {
+		/* Error enabling tracing in the top instance */
+	}
+
+	...
+
+	int fd = tracefs_trace_on_get_fd(NULL);
+
+	if (fd < 0) {
+		/* Error opening tracing_on file */
+	}
+	...
+	if (!tracefs_trace_on_fd(fd)) {
+	    /* Enabled tracing in the top instance */
+
+	    ...
+
+	    if (!tracefs_trace_off_fd(fd)) {
+	    	/* Disabled tracing in the top instance */
+	    } else {
+	    	/* Error disabling tracing in the top instance */
+	    }
+	} else {
+		/* Error enabling tracing in the top instance */
+	}
+
+	...
+
+	close(fd);
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2021 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

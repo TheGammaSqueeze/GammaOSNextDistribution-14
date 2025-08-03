@@ -1,0 +1,15 @@
+name: "Connected Apps SDK"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/connectedappssdk"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/connectedappssdk"
+  }
+  version: "a78c9c1a60b6c26d896a26dcb19be78feee18c3e"
+  last_upgrade_date { year: 2021 month: 4 day: 12 }
+  license_type: NOTICE
+}

@@ -1,0 +1,14 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 52bbbe0..acea490 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -28,6 +28,9 @@
+ #![deny(missing_docs)]
+ #![cfg_attr(test, deny(warnings))]
+ 
++// ANDROID: Use std to allow building as a dylib.
++extern crate std;
++
+ /// The main macro provided by this crate. See crate documentation for more
+ /// information.
+ #[macro_export]

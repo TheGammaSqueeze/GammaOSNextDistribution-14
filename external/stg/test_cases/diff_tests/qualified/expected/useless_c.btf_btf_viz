@@ -1,0 +1,28 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [color=red, label="removed(void bar_1(const volatile struct foo*))"]
+  "0" -> "1" [label=""]
+  "2" [color=red, label="added(void bar_2(struct foo*))"]
+  "0" -> "2" [label=""]
+  "3" [label="'void bar(struct foo)' -> 'void bar(const volatile struct foo*)'"]
+  "4" [label="'void(struct foo)' -> 'void(const volatile struct foo*)'"]
+  "5" [color=red, label="'struct foo' -> 'const volatile struct foo*'"]
+  "4" -> "5" [label="parameter 1"]
+  "3" -> "4" [label=""]
+  "0" -> "3" [label=""]
+  "6" [label="'void baz(void(*)(struct foo))' -> 'void baz(void(* volatile const)(const volatile struct foo*))'"]
+  "7" [label="'void(void(*)(struct foo))' -> 'void(void(* volatile const)(const volatile struct foo*))'"]
+  "8" [color=red, label="'void(*)(struct foo)' -> 'void(* volatile const)(const volatile struct foo*)'"]
+  "8" -> "8:0"
+  "8:0" [color=red, label="qualifier const added"]
+  "8" -> "8:1"
+  "8:1" [color=red, label="qualifier volatile added"]
+  "9" [label="'void(*)(struct foo)' -> 'void(*)(const volatile struct foo*)'"]
+  "10" [label="'void(struct foo)' -> 'void(const volatile struct foo*)'"]
+  "10" -> "5" [label="parameter 1"]
+  "9" -> "10" [label="pointed-to"]
+  "8" -> "9" [label="underlying"]
+  "7" -> "8" [label="parameter 1"]
+  "6" -> "7" [label=""]
+  "0" -> "6" [label=""]
+}

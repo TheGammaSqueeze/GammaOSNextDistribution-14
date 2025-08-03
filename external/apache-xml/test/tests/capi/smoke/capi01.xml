@@ -1,0 +1,259 @@
+<?xml version="1.0"?>
+<!--This is my first attempt at creating a xml document -->
+<Family_Geneologies>
+	<Family Surname= "The Smith">
+		<Parents>
+			<Father First="Lewis" MI="R" Last="Smith">Lew Smith</Father> 
+			<Mother First="Ruth" MI="C" Last="Smith">Ruth Smith</Mother> 
+			<GrandKids>
+				<gkid>1</gkid>
+				<gkid>2</gkid>
+				<gkid>3</gkid>
+				<gkid>4</gkid>
+				<gkid>5</gkid>
+				<gkid>6</gkid>
+				<gkid>7</gkid>
+				<gkid>8</gkid>
+				<gkid>9</gkid>
+			</GrandKids>
+		</Parents>
+		<Children>
+			<Child>
+				<Basic_Information>
+					<Name First="Andy" MI="A" Last="Smith">Andy Smith</Name>
+					<Address Street="32 Stonefield Dr" Town="Princton" State="NJ" Zip="07642">Stonefield Dr</Address>
+					<Phone>
+						<Home>483-23-5432</Home>
+						<Work/>
+						<Fax/>
+						<Celluar/>					  
+					</Phone>
+					<Social_Security>012-23-1234</Social_Security>
+				</Basic_Information>
+				<Personal_Information>
+					<Sex>Male</Sex>
+					<Age>45</Age>
+					<Married Kids="2">Yes</Married>
+					<Family_Information>
+						<Wife>
+							<Name First="Suzie" MI="A" Last="Smith">Suzie</Name>
+							<Age>45</Age>
+						</Wife>
+						<Kids>
+							<Kid ID="1">
+								<Name First="Julie" MI="A" Last="Smith">Jules</Name>
+								<Age>9</Age></Kid>
+							<Kid ID="4">
+								<Name First="Daniel" MI="L" Last="Smith">Daniel</Name>
+								<Age>8</Age></Kid></Kids>
+					</Family_Information>
+				</Personal_Information>
+				<Education>
+					<PA What="Physican Assistant" From="Hannamen College" When="'84">PA</PA>
+					<BS What="Organic Chemistry" From="Ohio Weslyean University" When="'78">BS</BS>
+				</Education>
+			</Child>
+<Child>
+<Basic_Information>
+<Name First="Thomas" MI="B" Last="Smith">Tom Smith</Name>
+<Address Street="47 Pondside Lane" Town="Needham" State="MA" Zip="04532">Pondside Lane</Address>
+<Phone>
+<Home>508.257.2754</Home>
+<Work/>
+<Fax/>
+<Celluar/>
+</Phone>
+<Social_Security>274-76-2971</Social_Security>
+</Basic_Information>
+<Personal_Information>
+<Sex>Male</Sex>
+<Age>30</Age>
+<Married Kids="2">Yes</Married>
+<Family_Information>
+<Wife>
+<Name First="Margaret" MI="A" Last="Young">Maggy</Name>
+<Age>39</Age>
+</Wife>
+<Kids>
+<Kid ID="3">
+<Name First="Joshua" MI="R" Last="Smith">Joshua</Name>
+<Age>7</Age></Kid>
+<Kid ID="6">
+<Name First="Lauren" MI="R" Last="Smith">Lauren</Name>
+<Age>5</Age></Kid></Kids>
+</Family_Information>
+</Personal_Information>
+<Education What="Finance" From="Boston University" When="'81">BA</Education>
+</Child>
+<Child>
+<Basic_Information>
+<Name First="Henry" MI="M" Last="Smith">Henry Smith</Name>
+<Address Street="25 Lakeview" Town="Pittsfield" State="MA" Zip="98623">Lakeview</Address>
+<Phone>
+<Home>417.645.4954</Home>
+<Work/>
+<Fax/>
+<Celluar/>
+</Phone>
+<Social_Security>231-45-3590</Social_Security>
+</Basic_Information>
+<Personal_Information>
+<Sex>Male</Sex>
+<Age>40</Age>
+<Married Kids="2">Yes</Married>
+<Family_Information>
+<Wife>
+<Name First="Elizbeth" MI="Q" Last="Smith">Beth</Name>
+<Age>40</Age>
+</Wife>
+<Kids>
+<Kid ID="2">
+<Name First="Nathaniel" MI="Q" Last="Smith">Nate</Name>
+<Age>8</Age></Kid>
+<Kid ID="5">
+<Name First="Samual" MI="Q" Last="Smith">Sam</Name>
+<Age>7</Age></Kid></Kids>
+</Family_Information>
+</Personal_Information>
+<Education>
+<MBA In="Technology MBA" From="Northeastern University" When="'96">MBA</MBA>
+<BA In="Applied Physics &amp; Math" From="Mass Institute of Technology" When="'82">BA</BA>
+</Education>
+</Child>
+<Child>
+<Basic_Information>
+<Name First="Bruce" MI="E" Last="Smith">Bruce Smith</Name>
+<Address Street="36 Strawberry Lane" Town="North Attleboro" State="MA" Zip="73564">Strawberry Lane</Address>
+<Phone>
+<Work>617.432.5607</Work>
+<Home>213.457.2190</Home>
+<Fax/>
+<Celluar/>
+</Phone>
+<Social_Security>675-00-4312</Social_Security>
+</Basic_Information>
+<Personal_Information>
+<Sex>Male</Sex>
+<Age>38</Age>
+<Married Kids="1">Yes</Married>
+<Family_Information>
+<Wife>
+<Name First="Betsy" MI="A" Last="Smith">Betsy</Name>
+<Age>34</Age>
+</Wife>
+<Kids>
+<Kid ID="7">
+<Name First="Benjamin" MI="D" Last="Smith">Ben</Name>
+<Age>5</Age></Kid>
+<Kid ID="8">
+<Name First="Lucy" MI="E" Last="Smith">Lucy</Name>
+<Age>2</Age></Kid>
+<Kid ID="9">
+<Name First="Jake" MI="E" Last="Smith">Jake</Name>
+<Age>1</Age></Kid></Kids>
+</Family_Information>
+</Personal_Information>
+<Education What="Computer Science &amp; Psychology" From="University of Maine" When="'84">BA</Education>
+</Child>
+<Child>
+<Basic_Information>
+<Name First="Joseph" MI="A" Last="Smith">Joe Smith</Name>
+<Address Street="85 Green St." Town="Melrose" State="MA" Zip="02176">Green St.</Address>
+<Phone>
+<Home>781.665.0539</Home>
+<Work/>
+<Fax/>
+<Celluar/>
+</Phone>
+<Social_Security>425-46-6982</Social_Security>
+</Basic_Information>
+<Personal_Information>
+<Sex>Male</Sex>
+<Age>34</Age>
+<Married Kids="0">Yes</Married>
+<Family_Information>
+<Wife>
+<Name First="Lilla" MI="A" Last="Smith">Lilla</Name>
+<Age>38</Age>
+</Wife>
+</Family_Information>
+</Personal_Information>
+<Education>
+<MA What="Education" From="Boston College" When="'92">MA</MA>
+<BA What="Political Science" From="University of Maine" When="'89">BA</BA>
+</Education>
+</Child>
+</Children>
+</Family>
+<Family Surname= "The Westons">
+<Parents>
+<Father First="Melvin" MI="O" Last="Weston">Melvin Weston</Father> 
+<Mother First="Elizabeth" MI="A" Last="Harris">Liz Harris</Mother> 
+<GrandKids>
+<gkid>7</gkid>
+<gkid>8</gkid>
+<gkid>9</gkid>
+</GrandKids>
+</Parents>
+<Children>
+<Child>
+<Basic_Information>
+<Name First="Caroline" MI="A" Last="Weston">Caroline Weston</Name>
+<Address Street="Finchly Road" Town="Hanover" State="NH" Zip="23765">Finchly Road</Address>
+<Phone>
+<Home>715.264.8205</Home>
+<Work/>
+<Fax/>
+<Celluar/>
+</Phone>
+<Social_Security>09-46-8791</Social_Security>
+</Basic_Information>
+<Personal_Information>
+<Sex>Female</Sex>
+<Age>37</Age>
+<Married >No</Married>
+<Family_Information>
+</Family_Information>
+</Personal_Information>
+<Education What="Administrator" From="Cathrine Gibbs" When="'80">Assoc</Education>
+</Child>
+<Child>
+<Basic_Information>
+<Name First="Betsy" MI="A" Last="Weston">Betsy Weston</Name>
+<Address Street="36 Strawberry Lane" Town="North Attleboro" State="MA" Zip="73564">Strawberry Lane</Address>
+<Phone>
+<Work>617.432.5607</Work>
+<Home>213.457.2190</Home>
+<Celluar/>
+</Phone>
+<Social_Security>123-46-9876</Social_Security>
+</Basic_Information>
+<Personal_Information>
+<Sex>Female</Sex>
+<Age>34</Age>
+<Married Kids="1">Yes</Married>
+<Family_Information>
+<Husband>
+<Name First="Bruce" MI="E" Last="Smith">Bruce</Name>
+<Age>38</Age>
+</Husband>
+<Kids>
+<Kid ID="7">
+<Name First="Benjamin" MI="D" Last="Smith">Ben</Name>
+<Age>5</Age></Kid>
+<Kid ID="8">
+<Name First="Lucy" MI="E" Last="Smith">Lucy</Name>
+<Age>2</Age></Kid>
+<Kid ID="9">
+<Name First="Jake" MI="E" Last="Smith">Jake</Name>
+<Age>1</Age></Kid></Kids>
+</Family_Information>
+</Personal_Information>
+<Education>
+<MA What="Exercise Physiology" From="Indiania University" When="'89">MA</MA>
+<BS What="Kinetics" From="Leeds Poloytechnical" When="'87">BS</BS>
+</Education>
+</Child>
+</Children>
+</Family>
+</Family_Geneologies>

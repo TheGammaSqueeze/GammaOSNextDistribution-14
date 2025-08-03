@@ -1,0 +1,76 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "puthik"
+NAME = "PowerQual.mandatory"
+TIME = "LENGTHY"
+TEST_CATEGORY = "Stress"
+TEST_CLASS = "suite"
+TEST_TYPE = "server"
+EXTENDED_TIMEOUT = 58500  # 16 Hours + 900 second guard.
+PY_VERSION = 3
+
+DOC = """
+Sequence for qualification for power, mandatory tests only.
+
+- power_LoadTest (from full battery to 5%)
+- power_BatteryCharge (from 5% to full battery)
+- power_VideoPlayback (h264 1080p & vp9 1080p 1 hour each)
+- power_VideoCall (2 hours)
+"""
+
+import datetime
+from autotest_lib.client.common_lib import utils
+
+HOURS=60*60
+
+CLIENT_TESTS = [
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 100, 'max_run_time': 5 * HOURS}),
+    ('power_WaitForCoolDown', {}),
+    ('power_LoadTest', {
+        'tag' : 'powerqual', 'force_discharge' : True, 'loop_time' : HOURS,
+        'loop_count' : 24, 'test_low_batt_p' : 5}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 100, 'max_run_time': 5 * HOURS,
+        'tag' : 'powerqual'}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoPlayback', {
+        'tag' : 'powerqual', 'force_discharge' : True, 'secs_per_video' : 3600,
+        'videos' : [('h264_1080_30fps', ''), ('vp9_1080_30fps', '')]}),
+
+    ('power_BatteryCharge', {
+        'percent_target_charge' : 100, 'max_run_time': 5 * HOURS,
+        'tag' : 'powerqual'}),
+    ('power_WaitForCoolDown', {}),
+    ('power_VideoCall', {
+        'tag' : 'powerqual', 'force_discharge' : True,
+        'min_run_time_percent': 75}),
+
+    ('power_WaitForCoolDown', {}),
+    ('power_UiResume', {
+        'tag' : 'powerqual'}),
+]
+
+# Workaround to make it compatible with moblab autotest UI.
+global args_dict
+try:
+    args_dict
+except NameError:
+    args_dict = utils.args_to_dict(args)
+
+# Use time as pdash_note if not supplied to track all tests in same suite.
+pdash_note = args_dict.get('pdash_note',
+                           NAME + '_' + datetime.datetime.utcnow().isoformat())
+
+def run_client_test(machine):
+    client = hosts.create_host(machine)
+    client_at = autotest.Autotest(client)
+
+    for test, argv in CLIENT_TESTS:
+        argv['pdash_note'] = pdash_note
+        client_at.run_test(test, timeout=EXTENDED_TIMEOUT, **argv)
+
+job.parallel_on_machines(run_client_test, machines)

@@ -1,0 +1,58 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x33756485
+  name: "unsigned long"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x5d8155a5
+  name: "unsigned char"
+  encoding: UNSIGNED_CHARACTER
+  bytesize: 0x00000001
+}
+enumeration {
+  id: 0xd3d36586
+  name: "A"
+  definition {
+    underlying_type_id: 0x5d8155a5
+    enumerator {
+      name: "Ae"
+    }
+  }
+}
+enumeration {
+  id: 0x909102c3
+  name: "B"
+  definition {
+    underlying_type_id: 0x33756485
+    enumerator {
+      name: "Be"
+    }
+  }
+}
+function {
+  id: 0xf86de391
+  return_type_id: 0x4585663f
+  parameter_id: 0xd3d36586
+  parameter_id: 0x909102c3
+}
+elf_symbol {
+  id: 0x1b84c9d2
+  name: "_Z3fun1A1B"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xf86de391
+  full_name: "fun"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x1b84c9d2
+}

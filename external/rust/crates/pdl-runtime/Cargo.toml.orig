@@ -1,0 +1,19 @@
+[package]
+name = "pdl-runtime"
+version = "0.2.3"
+edition = "2021"
+description = "PDL's runtime library"
+repository = "https://github.com/google/pdl/"
+license = "Apache-2.0"
+readme = "../README.md"
+keywords = ["pdl", "parser", "serializer", "grammar"]
+authors = [
+    "Henri Chataing <henrichataing@google.com>",
+    "David de Jesus Duarte <licorne@google.com>",
+    "Martin Geisler <mgeisler@google.com>"
+]
+categories = ["parsing"]
+
+[dependencies]
+bytes = "1.4.0"
+thiserror = "1.0.47"

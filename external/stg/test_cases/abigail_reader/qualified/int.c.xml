@@ -1,0 +1,18 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='a' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='b' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='c' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='d' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='int.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <qualified-type-def type-id='95e97e5e' const='yes' id='2448a865'/>
+    <qualified-type-def type-id='e024ff18' const='yes' id='308f9f71'/>
+    <qualified-type-def type-id='95e97e5e' volatile='yes' id='e024ff18'/>
+    <var-decl name='a' type-id='2448a865' mangled-name='a' visibility='default' elf-symbol-id='a'/>
+    <var-decl name='b' type-id='e024ff18' mangled-name='b' visibility='default' elf-symbol-id='b'/>
+    <var-decl name='c' type-id='308f9f71' mangled-name='c' visibility='default' elf-symbol-id='c'/>
+    <var-decl name='d' type-id='308f9f71' mangled-name='d' visibility='default' elf-symbol-id='d'/>
+  </abi-instr>
+</abi-corpus>

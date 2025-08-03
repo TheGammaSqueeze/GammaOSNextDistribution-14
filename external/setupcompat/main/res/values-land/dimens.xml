@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="setup_compat_footer_button_min_height">36.0dip</dimen>
+    <dimen name="setup_compat_footer_button_padding_bottom">0.0dip</dimen>
+    <dimen name="setup_compat_footer_button_padding_top">0.0dip</dimen>
+    <dimen name="setup_design_content_padding_top">32.0dip</dimen>
+    <dimen name="setup_design_layout_margin_end">32.0dip</dimen>
+    <dimen name="setup_design_layout_margin_start">32.0dip</dimen>
+</resources>

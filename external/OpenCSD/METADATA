@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update OpenCSD
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "OpenCSD"
+description: "This library provides an API suitable for the decode of ARM(r) CoreSight(tm) trace streams."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/Linaro/OpenCSD"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/Linaro/OpenCSD.git"
+  }
+  version: "v1.4.1"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2023
+    month: 8
+    day: 17
+  }
+}

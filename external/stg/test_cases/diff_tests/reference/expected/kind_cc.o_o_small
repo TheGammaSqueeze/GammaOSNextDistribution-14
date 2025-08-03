@@ -1,0 +1,15 @@
+type 'struct foo' changed
+  member changed from 'int& lref_to_ptr' to 'int* lref_to_ptr'
+    type changed from 'int&' to 'int*'
+  member changed from 'int* ptr_to_lref' to 'int& ptr_to_lref'
+    type changed from 'int*' to 'int&'
+  member changed from 'int&& rref_to_ptr' to 'int* rref_to_ptr'
+    type changed from 'int&&' to 'int*'
+  member changed from 'int* ptr_to_rref' to 'int&& ptr_to_rref'
+    type changed from 'int*' to 'int&&'
+  member changed from 'int& lref_to_rref' to 'int&& lref_to_rref'
+    type changed from 'int&' to 'int&&'
+  member changed from 'int&& rref_to_lref' to 'int& rref_to_lref'
+    type changed from 'int&&' to 'int&'
+
+exit code 4

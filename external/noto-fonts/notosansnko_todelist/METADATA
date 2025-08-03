@@ -1,0 +1,13 @@
+name: "notosansnko_todelist"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans NKo is an unmodulated (“sans serif”) design for texts inthe African N’Ko script. It has 184 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansnko_todelist"
+  }
+  version: "1.020"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

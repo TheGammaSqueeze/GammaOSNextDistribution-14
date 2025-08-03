@@ -1,0 +1,13 @@
+name: "notosansanatolianhieroglyphs"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Anatolian Hieroglyphs is an unmodulated (“sans serif”)design for texts in the historical Middle EasternAnatolian hieroglyphs script. It has 589 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansanatolianhieroglyphs"
+  }
+  version: "2.000"
+  license_type: NOTICE
+  last_upgrade_date { year: 2018 month: 3 day: 19 }
+}

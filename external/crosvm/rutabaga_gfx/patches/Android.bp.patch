@@ -1,0 +1,96 @@
+diff --git a/rutabaga_gfx/Android.bp b/rutabaga_gfx/Android.bp
+index f2c450cb4..b05d9cf86 100644
+--- a/rutabaga_gfx/Android.bp
++++ b/rutabaga_gfx/Android.bp
+@@ -29,11 +29,56 @@ rust_library {
+         "libzerocopy",
+     ],
+     proc_macros: ["libremain"],
++    cfgs: [
++        "gfxstream_unstable",
++    ],
++    target: {
++        host: {
++            features: ["gfxstream"],
++            shared_libs: [
++                "libgfxstream_backend",
++                "libvirglrenderer",
++            ],
++        },
++        android: {
++            shared_libs: [
++                "libcutils",
++                "libdrm",
++            ],
++            static_libs: [
++                "libepoxy",
++                "libgbm",
++                "libvirglrenderer",
++            ],
++        },
++    },
++}
++
++rust_library {
++    name: "librutabaga_gfx_gfxstream",
++    defaults: ["crosvm_inner_defaults"],
++    host_supported: true,
++    vendor_available: true,
++    crate_name: "rutabaga_gfx",
++    cargo_env_compat: true,
++    cargo_pkg_version: "0.1.2",
++    srcs: ["src/lib.rs"],
++    edition: "2021",
++    rustlibs: [
++        "libcfg_if",
++        "liblibc",
++        "liblog_rust",
++        "libnix",
++        "libthiserror",
++        "libzerocopy",
++    ],
++    proc_macros: ["libremain"],
++    cfgs: [
++        "gfxstream_unstable",
++    ],
++    features: ["gfxstream"],
+     shared_libs: [
+-        "libdrm",
+-        "libepoxy",
+-        "libgbm",
+-        "libvirglrenderer",
++        "libgfxstream_backend",
+     ],
+ }
+ 
+@@ -61,10 +106,24 @@ rust_test {
+         "libzerocopy",
+     ],
+     proc_macros: ["libremain"],
+-    shared_libs: [
+-        "libdrm",
+-        "libepoxy",
+-        "libgbm",
+-        "libvirglrenderer",
+-    ],
++    target: {
++        host: {
++            features: ["gfxstream"],
++            shared_libs: [
++                "libgfxstream_backend",
++                "libvirglrenderer",
++            ],
++        },
++        android: {
++            shared_libs: [
++                "libcutils",
++                "libdrm",
++            ],
++            static_libs: [
++                "libepoxy",
++                "libgbm",
++                "libvirglrenderer",
++            ],
++        },
++    },
+ }

@@ -1,0 +1,221 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_tracer_set, tracefs_tracer_clear - Enable or disable a tracer in an instance or the top level
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_tracer_set*(struct tracefs_instance pass:[*]_instance_, enum tracefs_tracers _tracer_);
+int *tracefs_tracer_set*(struct tracefs_instance pass:[*]_instance_, enum tracefs_tracers _tracer_, const char pass:[*]_name_);
+int *tracefs_tracer_clear*(struct tracefs_instance pass:[*]_instance_);
+--
+
+DESCRIPTION
+-----------
+*tracefs_tracer_set* enables a tracer in the given instance, defined by the
+_instance_ parameter. If _instance_ is NULL, then the top level instance is
+changed. If _tracer_ is set to *TRACFES_TRACER_CUSTOM* then a _name_
+string must be passed in as the third parameter, and that is written into the
+instance to enable the tracer with that name. This is useful for newer or
+custom kernels that contain tracers that are not yet identified by the
+tracefs_tracers enum.
+
+*tracefs_tracer_clear* disables the tracer for the given instance defined by
+the _instance_ variable, or the top level instance if it is NULL.
+This is the same as calling *tracefs_tracer_set* with TRACEFS_TRACER_NOP as
+the _tracer_ parameter.
+
+TRACEFS_TRACER ENUMS
+--------------------
+
+The currently defined enums that are accepted are:
+
+*TRACEFS_TRACER_NOP* :
+This is the idle tracer, which does nothing and is used to clear any
+active tracer.
+
+*TRACEFS_TRACER_FUNCTION* :
+Enables most functions in the kernel to be traced.
+
+*TRACEFS_TRACER_FUNCTION_GRAPH* :
+Enables most functions in the kernel to be traced as well as the return
+of the function.
+
+*TRACEFS_TRACER_IRQSOFF* :
+Tracers the latency of interrupts disabled.
+
+*TRACEFS_TRACER_PREEMPTOFF* :
+Tracers the latency of preemption disabled (the time in the kernel that
+tasks can not be scheduled from the CPU).
+
+*TRACEFS_TRACER_PREEMPTIRQSOFF* :
+Traces the combined total latency of when interrupts are disabled as well as when
+preemption is disabled.
+
+*TRACEFS_TRACER_WAKEUP* :
+Traces the latency of when the highest priority task takes to wake up.
+
+*TRACEFS_TRACER_WAKEUP_RT* :
+Traces the latency of when the highest priority real-time task takes to wake up.
+All other tasks are ignored.
+
+*TRACEFS_TRACER_WAKEUP_DL* :
+Traces the latency of when the highest priority DEADLINE task takes to wake up.
+All other tasks are ignored.
+
+*TRACEFS_TRACER_MMIOTRACE* :
+Traces the interaction of devices with the kernel.
+
+*TRACEFS_TRACER_HWLAT* :
+Detects latency caused by the hardware that is outside the scope of the kernel.
+
+*TRACEFS_TRACER_BRANCH* :
+Traces when likely or unlikely branches are taken.
+
+*TRACEFS_TRACER_BLOCK* :
+Special tracer for the block devices.
+
+Note that the above tracers may not be available in the kernel and
+*tracefs_tracer_set()* will return an error with errno set to ENODEV,
+if the kernel does not support the _tracer_ option, or the custom one
+if TRACEFS_TRACER_CUSTOM is used.
+
+RETURN VALUE
+------------
+Returns 0 on success, or -1 on error.
+
+ERRORS
+------
+
+*tracefs_tracer_set*() can fail with the following errors:
+
+*EINVAL* The _tracer_ parameter is outside the scope of what is defined.
+
+*ENOMEM* Memory allocation error.
+
+*ENOENT* Tracers are not supported on the running kernel.
+
+*ENODEV* The specified tracer is not supported on the running kernel.
+
+Other errors may also happen caused by internal system calls.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <stdlib.h>
+#include <stdio.h>
+#include <getopt.h>
+#include <errno.h>
+#include <tracefs.h>
+
+int main(int argc, char *argv[])
+{
+	struct tracefs_instance *inst = NULL;
+	enum tracefs_tracers t = TRACEFS_TRACER_NOP;
+	const char *buf = NULL;
+	const char *cust;
+	int ret;
+	int ch;
+
+	while ((ch = getopt(argc, argv, "nfgiwdc:B:")) > 0) {
+		switch (ch) {
+		case 'f': t = TRACEFS_TRACER_FUNCTION; break;
+		case 'g': t = TRACEFS_TRACER_FUNCTION_GRAPH; break;
+		case 'i': t = TRACEFS_TRACER_PREEMPTIRQSOFF; break;
+		case 'w': t = TRACEFS_TRACER_WAKEUP_RT; break;
+		case 'd': t = TRACEFS_TRACER_WAKEUP_DL; break;
+		case 'c':
+			t = TRACEFS_TRACER_CUSTOM;
+			cust = optarg;
+			break;
+		case 'B':
+			buf = optarg;
+			break;
+		case 'n':
+			/* nop */
+			break;
+		default:
+			printf("Unknow arg %c\n", ch);
+			exit(-1);
+		}
+	}
+
+	if (buf) {
+		inst = tracefs_instance_create(buf);
+		if (!inst) {
+			printf("failed to create instance\n");
+			exit(-1);
+		}
+	}
+
+	if (t == TRACEFS_TRACER_CUSTOM)
+		ret = tracefs_tracer_set(inst, t, cust);
+	else
+		ret = tracefs_tracer_set(inst, t);
+
+	if (ret < 0) {
+		if (inst) {
+			tracefs_instance_destroy(inst);
+			tracefs_instance_free(inst);
+		}
+		if (errno == ENODEV)
+			printf("Tracer not supported by kernel\n");
+		else
+			perror("Error");
+		exit(-1);
+	}
+
+	if (inst)
+		tracefs_instance_free(inst);
+
+	exit(0);
+}
+--
+
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+*sameeruddin shaik* <sameeruddin.shaik8@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

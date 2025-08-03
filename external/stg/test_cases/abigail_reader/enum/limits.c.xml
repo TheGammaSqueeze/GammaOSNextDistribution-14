@@ -1,0 +1,68 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='G' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='a' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='b' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='c' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='d' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='e' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='f' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='h' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='i' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='j' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='limits.c' language='LANG_C11'>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='9cac1fee'/>
+    <type-decl name='unnamed-enum-underlying-type-64' is-anonymous='yes' size-in-bits='64' alignment-in-bits='64' id='94b8df49'/>
+    <enum-decl name='A' id='c2c319f3'>
+      <underlying-type type-id='9cac1fee'/>
+      <enumerator name='Ae' value='-2147483648'/>
+    </enum-decl>
+    <enum-decl name='B' id='c3c31b86'>
+      <underlying-type type-id='9cac1fee'/>
+      <enumerator name='Be' value='-1'/>
+    </enum-decl>
+    <enum-decl name='C' id='c4c31d19'>
+      <underlying-type type-id='9cac1fee'/>
+      <enumerator name='Ce' value='2147483647'/>
+    </enum-decl>
+    <enum-decl name='D' id='c5c31eac'>
+      <underlying-type type-id='9cac1fee'/>
+      <enumerator name='De' value='2147483648'/>
+    </enum-decl>
+    <enum-decl name='E' id='c6c3203f'>
+      <underlying-type type-id='94b8df49'/>
+      <enumerator name='Ee' value='-9223372036854775808'/>
+    </enum-decl>
+    <enum-decl name='F' id='c7c321d2'>
+      <underlying-type type-id='94b8df49'/>
+      <enumerator name='Fe' value='9223372036854775807'/>
+    </enum-decl>
+    <enum-decl name='G' id='c8c32365'>
+      <underlying-type type-id='9cac1fee'/>
+      <enumerator name='Ge' value='16777216'/>
+    </enum-decl>
+    <enum-decl name='H' id='c9c324f8'>
+      <underlying-type type-id='94b8df49'/>
+      <enumerator name='He' value='281474976710656'/>
+    </enum-decl>
+    <enum-decl name='I' id='cac3268b'>
+      <underlying-type type-id='9cac1fee'/>
+      <enumerator name='Ie' value='4294967295'/>
+    </enum-decl>
+    <enum-decl name='J' id='cbc3281e'>
+      <underlying-type type-id='94b8df49'/>
+      <enumerator name='Je' value='-1'/>
+    </enum-decl>
+    <var-decl name='a' type-id='c2c319f3' mangled-name='a' visibility='default' elf-symbol-id='a'/>
+    <var-decl name='b' type-id='c3c31b86' mangled-name='b' visibility='default' elf-symbol-id='b'/>
+    <var-decl name='c' type-id='c4c31d19' mangled-name='c' visibility='default' elf-symbol-id='c'/>
+    <var-decl name='d' type-id='c5c31eac' mangled-name='d' visibility='default' elf-symbol-id='d'/>
+    <var-decl name='e' type-id='c6c3203f' mangled-name='e' visibility='default' elf-symbol-id='e'/>
+    <var-decl name='f' type-id='c7c321d2' mangled-name='f' visibility='default' elf-symbol-id='f'/>
+    <var-decl name='G' type-id='c8c32365' mangled-name='G' visibility='default' elf-symbol-id='G'/>
+    <var-decl name='h' type-id='c9c324f8' mangled-name='h' visibility='default' elf-symbol-id='h'/>
+    <var-decl name='i' type-id='cac3268b' mangled-name='i' visibility='default' elf-symbol-id='i'/>
+    <var-decl name='j' type-id='cbc3281e' mangled-name='j' visibility='default' elf-symbol-id='j'/>
+  </abi-instr>
+</abi-corpus>

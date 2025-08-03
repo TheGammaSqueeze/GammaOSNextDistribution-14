@@ -1,0 +1,38 @@
+# Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "firmware_FWupdate.upgrade_rw"
+TIME = "MEDIUM"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "firmware"
+TEST_TYPE = "server"
+DEPENDENCIES = "servo_state:WORKING"
+PY_VERSION = 3
+
+DOC = """
+RO+RW firmware update using chromeos-firmwareupdate --mode=recovery
+This variant is RO=old, RW=new.
+
+Required arguments:
+    test_that ... --args "old_bios=/path/to/old.bin \
+                          new_bios=/path/to/new.bin \
+                          servo_host=my_servo_host \
+			  servo_port=my_servo_port"
+
+The *_bios arguments can also be split into separate _bios_ro and _bios_rw args.
+"""
+
+from autotest_lib.client.common_lib import utils
+
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run_firmwareupdate(machine):
+    # Setup the client machine.
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test('firmware_FWupdate', test_name=NAME, host=host,
+                 cmdline_args=args)
+
+parallel_simple(run_firmwareupdate, machines)

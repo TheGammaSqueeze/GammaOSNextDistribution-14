@@ -1,0 +1,816 @@
+// Build musl libc from source to eventually use as the libc for host modules in the platform build.
+// The list of sources to compile for each library is loaded from sources.bp, which is generated
+// by generate_bp.py.
+
+package {
+    default_visibility: ["//visibility:private"],
+    default_applicable_licenses: ["musl_license"],
+}
+
+license {
+    name: "musl_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: ["COPYRIGHT"],
+}
+
+cc_library_headers {
+    name: "libc_musl_arch_headers",
+    host_supported: true,
+    device_supported: false,
+    system_shared_libs: [],
+    generated_headers: [
+        "libc_musl_alltypes.h",
+        "libc_musl_syscall.h",
+    ],
+    export_generated_headers: [
+        "libc_musl_alltypes.h",
+        "libc_musl_syscall.h",
+    ],
+    export_include_dirs: [
+        "arch/generic",
+    ],
+    arch: {
+        arm: {
+            export_include_dirs: ["arch/arm"],
+        },
+        arm64: {
+            export_include_dirs: ["arch/aarch64"],
+        },
+        x86: {
+            export_include_dirs: ["arch/i386"],
+        },
+        x86_64: {
+            export_include_dirs: ["arch/x86_64"],
+        },
+    },
+}
+
+cc_library_headers {
+    name: "libc_musl_private_headers",
+    host_supported: true,
+    device_supported: false,
+    system_shared_libs: [],
+    generated_headers: [
+        "libc_musl_version.h",
+    ],
+    export_generated_headers: [
+        "libc_musl_version.h",
+    ],
+    export_include_dirs: [
+        "src/include",
+        "src/internal",
+    ],
+}
+
+cc_library_headers {
+    name: "libc_musl_public_headers",
+    host_supported: true,
+    device_supported: false,
+    system_shared_libs: [],
+    export_system_include_dirs: [
+        "android/include",
+        "include",
+    ],
+}
+
+cc_defaults {
+    name: "libc_musl_base_defaults",
+    host_supported: true,
+    device_supported: false,
+    system_shared_libs: [],
+    cflags: [
+        // CFLAGS_C99FSE
+        "-nostdinc",
+        "-ffreestanding",
+        "-Wa,--noexecstack",
+
+        // CFLAGS_AUTO
+        "-Os",
+        "-pipe",
+        "-fomit-frame-pointer",
+        "-fno-unwind-tables",
+        "-fno-asynchronous-unwind-tables",
+        "-ffunction-sections",
+        "-fdata-sections",
+        //"-w",
+        "-Wno-pointer-to-int-cast",
+        "-Werror=implicit-function-declaration",
+        "-Werror=implicit-int",
+        "-Werror=pointer-sign",
+        "-Werror=pointer-arith",
+        "-Werror=int-conversion",
+        "-Werror=incompatible-pointer-types",
+        "-Qunused-arguments",
+        "-Waddress",
+        "-Warray-bounds",
+        "-Wchar-subscripts",
+        "-Wduplicate-decl-specifier",
+        "-Winit-self",
+        "-Wreturn-type",
+        "-Wsequence-point",
+        "-Wstrict-aliasing",
+        "-Wunused-function",
+        "-Wunused-label",
+        "-Wunused-variable",
+
+        // CFLAGS_ALL
+        "-D_XOPEN_SOURCE=700",
+
+        // undefine NDEBUG from global flags, musl defines it locally
+        "-UNDEBUG",
+
+        // disable warnings:
+        "-Wno-bitwise-op-parentheses",
+        "-Wno-dangling-else",
+        "-Wno-ignored-attributes",
+        "-Wno-logical-op-parentheses",
+        "-Wno-missing-braces",
+        "-Wno-missing-field-initializers",
+        "-Wno-parentheses",
+        "-Wno-shift-op-parentheses",
+        "-Wno-string-plus-int",
+        "-Wno-unused-parameter",
+    ],
+
+    arch: {
+        x86: {
+            cflags: ["-frounding-math"],
+        },
+        x86_64: {
+            cflags: ["-frounding-math"],
+        },
+        arm: {
+            cflags: ["-Wno-ignored-pragmas"],
+        },
+        arm64: {
+            cflags: ["-Wno-ignored-pragmas"],
+        },
+    },
+
+    ldflags: [
+        "-Wl,--sort-section,alignment",
+        "-Wl,--sort-common",
+        "-Wl,--gc-sections",
+        "-Wl,--hash-style=both",
+        "-Wl,--no-undefined",
+        // Can't use --exclude-libs=ALL, that excludes the static libraries
+        // used for building subparts of libc_musl.
+        //"-Wl,--exclude-libs=ALL",
+        "-Wl,--exclude-libs=libgcc.a",
+        "-Wl,--exclude-libs=libgcc_stripped.a",
+        "-Wl,--exclude-libs=libclang_rt.builtins-arm-android.a",
+        "-Wl,--exclude-libs=libclang_rt.builtins-aarch64-android.a",
+        "-Wl,--exclude-libs=libclang_rt.builtins-i686-android.a",
+        "-Wl,--exclude-libs=libclang_rt.builtins-x86_64-android.a",
+    ],
+
+    asflags: ["-Wno-unused-command-line-argument"],
+
+    stl: "none",
+    c_std: "c99",
+    sanitize: {
+        never: true,
+    },
+    target: {
+        darwin: {
+            enabled: false,
+        },
+        bionic: {
+            enabled: false,
+        },
+        glibc: {
+            enabled: false,
+        },
+    },
+    lto: {
+        never: true,
+    },
+}
+
+cc_defaults {
+    name: "libc_musl_defaults",
+    defaults: ["libc_musl_base_defaults"],
+    header_libs: [
+        // The order here is very important, private headers like src/include/features.h override
+        // public headers like include/features.h, and arch headers like arch/x86_64/ksigaction.h
+        // override private headers like src/internal/ksigaction.h.
+        "libc_musl_arch_headers",
+        "libc_musl_private_headers",
+        "libc_musl_public_headers",
+    ],
+}
+
+cc_library_headers {
+    name: "libc_musl_headers",
+    visibility: ["//bionic/libc"],
+    host_supported: true,
+    device_supported: false,
+    system_shared_libs: [],
+    export_header_lib_headers: [
+        "libc_musl_arch_headers",
+        "libc_musl_public_headers",
+        "libc_llndk_headers",
+    ],
+    header_libs: [
+        "libc_musl_arch_headers",
+        "libc_musl_public_headers",
+        "libc_llndk_headers",
+    ],
+}
+
+//
+// The main musl libc library
+//
+
+cc_library {
+    name: "libc_musl",
+    visibility: ["//visibility:public"],
+    defaults: ["libc_musl_defaults"],
+    whole_static_libs: ["libc_musl_static"],
+    shared: {
+        whole_static_libs: ["libc_musl_ldso"],
+    },
+    ldflags: [
+        "-Wl,-e,_dlstart",
+        "-nostdlib",
+    ],
+    dynamic_list: "dynamic.list",
+    export_header_lib_headers: [
+        "libc_musl_arch_headers",
+        "libc_musl_public_headers",
+        "libc_llndk_headers",
+    ],
+    header_libs: [
+        "libc_llndk_headers",
+    ],
+}
+
+// All the static parts of the main musl libc.  Don't use this directly, use
+// the version exported through libc_musl instead.
+cc_library_static {
+    name: "libc_musl_static",
+    defaults: [
+        "libc_musl_defaults",
+        "libc_musl_sources",
+    ],
+    whole_static_libs: [
+        "libc_musl_opt",
+        "libc_musl_opt_nossp",
+        "libc_musl_nossp",
+        "libexecinfo",
+        "libb64",
+        "libunwind",
+    ],
+    multilib: {
+        lib32: {
+            whole_static_libs: ["libc_musl_compat32"],
+        },
+    },
+    export_header_lib_headers: [
+        "libc_musl_arch_headers",
+        "libc_musl_public_headers",
+        "libc_llndk_headers",
+    ],
+    header_libs: [
+        "libc_llndk_headers",
+    ],
+}
+
+// Musl sources that are compiled with -O3
+cc_library_static {
+    name: "libc_musl_opt",
+    defaults: [
+        "libc_musl_defaults",
+        "libc_musl_opt_sources",
+    ],
+    cflags: ["-O3"],
+}
+
+// Musl sources that are compiled with -O3 and -fno-stack-protector
+cc_library_static {
+    name: "libc_musl_opt_nossp",
+    defaults: [
+        "libc_musl_defaults",
+        "libc_musl_opt_nossp_sources",
+    ],
+    cflags: [
+        "-O3",
+        "-fno-stack-protector",
+    ],
+}
+
+// Musl sources that are compiled with -fno-stack-protector
+cc_library_static {
+    name: "libc_musl_nossp",
+    defaults: [
+        "libc_musl_defaults",
+        "libc_musl_nossp_sources",
+    ],
+    cflags: ["-fno-stack-protector"],
+}
+
+// Musl sources for 32-bit architectures
+cc_library_static {
+    name: "libc_musl_compat32",
+    defaults: [
+        "libc_musl_defaults",
+        "libc_musl_compat32_sources",
+    ],
+}
+
+// Musl sources for the dynamic linker.
+cc_library_static {
+    name: "libc_musl_ldso",
+    defaults: [
+        "libc_musl_defaults",
+        "libc_musl_ldso_sources",
+    ],
+    cflags: [
+        "-fno-stack-protector",
+        "-DLIBC_SONAME=libc_musl.so",
+    ],
+}
+
+// An attempt to compile the dynamic linker as a standalone library separate from libc_musl.so.
+// Not used yet.
+cc_library_shared {
+    name: "musl_linker",
+    defaults: [
+        "libc_musl_defaults",
+    ],
+    nocrt: true,
+    static_libs: [
+        "libc_musl_ldso",
+        "libc_musl",
+    ],
+    ldflags: [
+        "-Wl,-e,_dlstart",
+        "-nostdlib",
+        "-Wl,--exclude-libs=libc_musl.a",
+    ],
+}
+
+//
+// The musl CRT objects
+//
+
+cc_defaults {
+    name: "libc_musl_crt_defaults",
+    defaults: ["libc_musl_base_defaults"],
+    cflags: [
+        // These are required to make sure the C code in crt/*.c
+        // doesn't have any dependencies on libc.
+        "-fno-stack-protector",
+        "-ftrivial-auto-var-init=uninitialized",
+    ],
+    ldflags: [
+        "-Wl,--no-gc-sections",
+    ],
+
+    // The headers below are the same as the header_libs in
+    // libc_musl_defaults, but bazel considers the crt depending
+    // on a header lib to be a circular dependency (toolchain ->
+    // crt objects -> header lib -> toolchain).
+    // TODO(b/263407827): go back to using header_libs once bazel
+    // supports it without introducing a dependency on the toolchain.
+    arch: {
+        arm: {
+            local_include_dirs: ["arch/arm"],
+        },
+        arm64: {
+            local_include_dirs: ["arch/aarch64"],
+        },
+        x86: {
+            local_include_dirs: ["arch/i386"],
+        },
+        x86_64: {
+            local_include_dirs: ["arch/x86_64"],
+        },
+    },
+    generated_headers: [
+        "libc_musl_alltypes.h",
+        "libc_musl_syscall.h",
+        "libc_musl_version.h",
+    ],
+    local_include_dirs: [
+        "arch/generic",
+        "src/include",
+        "src/internal",
+        "android/include",
+        "include",
+    ],
+}
+
+cc_object {
+    name: "libc_musl_crt1",
+    defaults: [
+        "libc_musl_crt_defaults",
+        "libc_musl_crt1_sources",
+    ],
+}
+
+cc_object {
+    name: "libc_musl_crti",
+    defaults: [
+        "libc_musl_crt_defaults",
+        "libc_musl_crti_sources",
+    ],
+}
+
+cc_object {
+    name: "libc_musl_crtn",
+    defaults: [
+        "libc_musl_crt_defaults",
+        "libc_musl_crtn_sources",
+    ],
+}
+
+cc_object {
+    name: "libc_musl_rcrt1",
+    defaults: [
+        "libc_musl_crt_defaults",
+        "libc_musl_rcrt1_sources",
+    ],
+}
+
+cc_object {
+    name: "libc_musl_Scrt1",
+    defaults: [
+        "libc_musl_crt_defaults",
+        "libc_musl_Scrt1_sources",
+    ],
+}
+
+//
+// The custom CRT objects for use in the platform build.
+// Embeds the linker into crtbegin_dynamic.
+//
+
+cc_object {
+    name: "libc_musl_crtbegin_dynamic",
+    defaults: ["libc_musl_crt_defaults"],
+    visibility: ["//visibility:public"],
+    objs: [
+        "libc_musl_crti",
+        "clang_rt.crtbegin",
+    ],
+    srcs: [
+        "android/relinterp.c",
+    ],
+    cflags: ["-DLOADER_PATH=\"libc_musl.so\""],
+}
+
+cc_object {
+    name: "libc_musl_crtbegin_static",
+    defaults: ["libc_musl_crt_defaults"],
+    visibility: ["//visibility:public"],
+    objs: [
+        "libc_musl_Scrt1",
+        "libc_musl_crti",
+        "clang_rt.crtbegin",
+    ],
+}
+
+cc_object {
+    name: "libc_musl_crtend",
+    defaults: ["libc_musl_crt_defaults"],
+    visibility: ["//visibility:public"],
+    objs: [
+        "clang_rt.crtend",
+        "libc_musl_crtn",
+    ],
+}
+
+cc_object {
+    name: "libc_musl_crtbegin_so",
+    defaults: ["libc_musl_crt_defaults"],
+    visibility: ["//visibility:public"],
+    objs: [
+        "libc_musl_crti",
+        "clang_rt.crtbegin",
+    ],
+}
+
+cc_object {
+    name: "libc_musl_crtend_so",
+    defaults: ["libc_musl_crt_defaults"],
+    visibility: ["//visibility:public"],
+    objs: [
+        "clang_rt.crtend",
+        "libc_musl_crtn",
+    ],
+}
+
+//
+// Tests for the embedded linker trampoline
+//
+
+cc_test_host {
+    name: "libc_musl_ldso_trampoline_test",
+    srcs: ["android/ldso_trampoline_test.cpp"],
+    stl: "libc++",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+}
+
+//
+// Generated headers
+//
+
+genrule {
+    name: "libc_musl_version.h",
+    srcs: ["VERSION"],
+    out: ["version.h"],
+    cmd: "printf '#define VERSION \"%s\"\n' \"$$(cat $(location VERSION))\" > $(out)",
+}
+
+// libc_musl_arch_alltypes.h is split out of libc_musl_alltypes.h to ensure the arch-specific
+// alltypes.h.in ends up before the generic alltypes.h.in in the output.
+cc_genrule {
+    name: "libc_musl_arch_alltypes.h",
+    host_supported: true,
+    device_supported: false,
+    arch: {
+        arm: {
+            srcs: ["arch/arm/bits/alltypes.h.in"],
+        },
+        arm64: {
+            srcs: ["arch/aarch64/bits/alltypes.h.in"],
+        },
+        x86: {
+            srcs: ["arch/i386/bits/alltypes.h.in"],
+        },
+        x86_64: {
+            srcs: ["arch/x86_64/bits/alltypes.h.in"],
+        },
+    },
+    tool_files: ["tools/mkalltypes.sed"],
+    out: ["bits/arch/alltypes.h"],
+    cmd: "sed -f $(location tools/mkalltypes.sed) $(in) > $(out)",
+}
+
+cc_genrule {
+    name: "libc_musl_alltypes.h",
+    host_supported: true,
+    device_supported: false,
+    srcs: [
+        "include/alltypes.h.in",
+        ":libc_musl_arch_alltypes.h",
+    ],
+    tool_files: ["tools/mkalltypes.sed"],
+    out: ["bits/alltypes.h"],
+    cmd: "( " +
+        "cat $(location :libc_musl_arch_alltypes.h) && " +
+        "sed -f $(location tools/mkalltypes.sed) $(location include/alltypes.h.in) " +
+        ") > $(out)",
+}
+
+cc_genrule {
+    name: "libc_musl_syscall.h",
+    host_supported: true,
+    device_supported: false,
+    arch: {
+        arm: {
+            srcs: ["arch/arm/bits/syscall.h.in"],
+        },
+        arm64: {
+            srcs: ["arch/aarch64/bits/syscall.h.in"],
+        },
+        x86: {
+            srcs: ["arch/i386/bits/syscall.h.in"],
+        },
+        x86_64: {
+            srcs: ["arch/x86_64/bits/syscall.h.in"],
+        },
+    },
+    out: ["bits/syscall.h"],
+    cmd: "cp $(in) $(out) && sed -n -e s/__NR_/SYS_/p < $(in) >> $(out)",
+}
+
+//
+// Rules to generate a sysroot.  This isn't used during the build, but can be convenient to run
+// configure scripts from external projects to generate necessary files to build against musl.
+//
+
+
+// An empty static library that will be copied to libdl.a, etc. in the sysroot.
+// Shouldn't be used by anything else besides the sysroot cc_genrule.
+cc_library_static {
+    name: "libc_musl_sysroot_static_empty",
+    defaults: [
+        "libc_musl_defaults",
+    ],
+}
+
+// The linker and trampoline compiled as a .o file to use as part of the sysroot
+// crt.
+cc_object {
+    name: "libc_musl_linker_object",
+    defaults: ["libc_musl_crt_defaults"],
+    srcs: [
+        "android/relinterp.c",
+    ],
+    cflags: ["-DLOADER_PATH=\"libc_musl.so\""],
+}
+
+// The architecture-specific bits have to be handled separately because the label varies based
+// on architecture, which prevents using $(locations) to find them and requires using $(in)
+// instead, which would mix in all the other files if this were part of the main libc_musl_sysroot
+// genrule.
+cc_genrule {
+    name: "libc_musl_sysroot_bits",
+    host_supported: true,
+    device_supported: false,
+    arch: {
+        arm: {
+            srcs: ["arch/arm/bits/*.h"],
+        },
+        arm64: {
+            srcs: ["arch/aarch64/bits/*.h"],
+        },
+        x86: {
+            srcs: ["arch/i386/bits/*.h"],
+        },
+        x86_64: {
+            srcs: ["arch/x86_64/bits/*.h"],
+        },
+    },
+    out: ["libc_musl_sysroot_bits.zip"],
+    tools: ["soong_zip"],
+    cmd: "includes=($(in)) && $(location soong_zip) -o $(out) -P include/bits -j -D $$(dirname $${includes[0]})",
+}
+
+genrule {
+    name: "libc_musl_clang_wrapper",
+    srcs: ["tools/musl-clang.in"],
+    out: ["musl-clang"],
+    cmd: "sed -e 's`@CC@`clang`' -e 's`@PREFIX@`$$(dirname \"$$0\")/..`' -e 's`@INCDIR@`$${libc}/include`' -e 's`@LIBDIR@`$${libc}/lib`' $(in) > $(out) && " +
+        "chmod a+x $(out)",
+}
+
+genrule {
+    name: "libc_musl_ld_wrapper",
+    srcs: ["tools/ld.musl-clang.in"],
+    out: ["ld.musl-clang"],
+    cmd: "sed -e 's`@CC@`clang`' -e 's`@LIBDIR@`$$(dirname \"$$0\")/../lib`' -e 's`@LDSO@`$$(dirname \"$$0\")/../lib/ld-musl.so.1`' $(in) > $(out) && " +
+        "chmod a+x $(out)",
+}
+
+cc_library_host_static {
+    name: "libz_static_for_sysroot",
+    whole_static_libs: ["libz"],
+}
+
+cc_genrule {
+    name: "libc_musl_sysroot",
+    host_supported: true,
+    device_supported: false,
+    enabled: false,
+    target: {
+        musl: {
+            enabled: true,
+        },
+    },
+    srcs: [
+        "LICENSE",
+        "COPYRIGHT",
+
+        // Headers
+        "include/**/*.h",
+        "arch/generic/bits/*.h",
+        "android/include/bits/*.h",
+        "android/include/sys/cdefs.h",
+        ":libc_musl_syscall.h",
+        ":libc_musl_alltypes.h",
+        ":libc_musl_sysroot_bits",
+
+        // Bionic kernel uapi headers
+        ":libc_musl_sysroot_bionic_headers",
+
+        ":libc_musl_sysroot_zlib_headers",
+
+        // Libraries
+        ":libc_musl",
+        ":libc_musl_static",
+        ":libz_static_for_sysroot",
+
+        // Objects
+        ":libc_musl_crti",
+        ":libc_musl_crtn",
+        ":libc_musl_crt1",
+        ":libc_musl_rcrt1",
+        ":libc_musl_Scrt1",
+        ":clang_rt.crtbegin",
+        ":clang_rt.crtend",
+
+        // Embedded linker objects and linker scripts
+        ":libc_musl_linker_object",
+        "android/relinterp.script",
+
+        // Wrapper scripts
+        ":libc_musl_clang_wrapper",
+        ":libc_musl_ld_wrapper",
+
+        // Empty static libraries
+        ":libc_musl_sysroot_static_empty",
+    ],
+    out: ["libc_musl_sysroot.zip"],
+    tools: [
+        "soong_zip",
+        "merge_zips",
+        "zip2zip",
+    ],
+    cmd: "includes=($(locations include/**/*.h)) && " +
+        "bits=($(locations arch/generic/bits/*.h)) && " +
+        "android_bits=($(locations android/include/bits/*.h)) && " +
+        "ln -s libc_musl.so $(genDir)/ld-musl.so.1 && " +
+        "echo -e 'GROUP ( libc_musl_linker_object.o )\nINCLUDE relinterp.script' > $(genDir)/Scrt1.ld && " +
+        "echo -e 'GROUP ( libc_musl.so )' > $(genDir)/libc.so && " +
+        "$(location soong_zip) -o $(genDir)/sysroot.zip " +
+        " -j " +
+        "  -f $(location LICENSE) " +
+        "  -f $(location COPYRIGHT) " +
+        // headers
+        " -P include " +
+        "  -C $$(dirname $${includes[0]}) " +
+        "  -D $$(dirname $${includes[0]}) " +
+        " -P include/bits -j " +
+        "  -f $(location :libc_musl_syscall.h) " +
+        "  -f $(location :libc_musl_alltypes.h) " +
+        "  -D $$(dirname $${bits[0]}) " +
+        "  -D $$(dirname $${android_bits[0]}) " +
+        " -P include/sys -j " +
+        "  -f $(location android/include/sys/cdefs.h) " +
+        // embedded linker crt objects
+        " -P lib -j " +
+        "  -f $(location android/relinterp.script) " +
+        "  -f $(location :libc_musl_linker_object) " +
+        // libs
+        "  -f $(location :libc_musl) " +
+        "  -f $(genDir)/ld-musl.so.1 " +
+        "  -f $(genDir)/libc.so " +
+        // clang wrappers
+        " -P bin -j " +
+        "  -f $(location :libc_musl_clang_wrapper) " +
+        "  -f $(location :libc_musl_ld_wrapper) " +
+        " && " +
+        // libs in a separate zip so they can be renamed
+        "$(location soong_zip) -o $(genDir)/libs.zip " +
+        " -P lib -j " +
+        "  -f $(location :libc_musl_static) " +
+        "  -f $(location :libc_musl_sysroot_static_empty) " +
+        "  -f $(genDir)/Scrt1.ld " +
+        "  -f $(location :libc_musl_crti) " +
+        "  -f $(location :libc_musl_crtn) " +
+        "  -f $(location :libc_musl_crt1) " +
+        "  -f $(location :libc_musl_rcrt1) " +
+        "  -f $(location :libc_musl_Scrt1) " +
+        "  -f $(location :clang_rt.crtbegin) " +
+        "  -f $(location :clang_rt.crtend) " +
+        "  -f $(location :libz_static_for_sysroot) " +
+        " && " +
+        "$(location zip2zip) -i $(genDir)/libs.zip -o $(genDir)/libs_renamed.zip " +
+        // rename libs from module names to desired names in sysroot
+        " lib/libc_musl_static.a:lib/libc.a " +
+        // Swap in linker script for Scrt1.o
+        " lib/Scrt1.o:lib/Scrt1-real.o " +
+        " lib/Scrt1.ld:lib/Scrt1.o " +
+        // copy empty static libs
+        " lib/libc_musl_sysroot_static_empty.a:lib/libcrypt.a " +
+        " lib/libc_musl_sysroot_static_empty.a:lib/libdl.a " +
+        " lib/libc_musl_sysroot_static_empty.a:lib/libm.a " +
+        " lib/libc_musl_sysroot_static_empty.a:lib/libpthread.a " +
+        " lib/libc_musl_sysroot_static_empty.a:lib/libresolv.a " +
+        " lib/libc_musl_sysroot_static_empty.a:lib/librt.a " +
+        " lib/libc_musl_sysroot_static_empty.a:lib/libutil.a " +
+        " lib/libc_musl_sysroot_static_empty.a:lib/libxnet.a " +
+        // rename clang crt objects to gcc names
+        " lib/clang_rt.crtbegin.o:lib/crtbegin.o " +
+        " lib/clang_rt.crtbegin.o:lib/crtbeginS.o " +
+        " lib/clang_rt.crtbegin.o:lib/crtbeginT.o " +
+        " lib/clang_rt.crtend.o:lib/crtend.o " +
+        " lib/clang_rt.crtend.o:lib/crtendS.o " +
+        // rename crt objects
+        " lib/libc_musl_crti.o:lib/crti.o " +
+        " lib/libc_musl_crtn.o:lib/crtn.o " +
+        " lib/libc_musl_crt1.o:lib/crt1.o " +
+        " lib/libc_musl_rcrt1.o:lib/rcrt1.o " +
+        // rename static libz
+        " lib/libz_static_for_sysroot.a:lib/libz.a " +
+        " && " +
+        "$(location merge_zips) -ignore-duplicates $(out) " +
+        " $(location :libc_musl_sysroot_bionic_headers) " +
+        " $(location :libc_musl_sysroot_zlib_headers) " +
+        " $(location :libc_musl_sysroot_bits) " +
+        " $(genDir)/sysroot.zip " +
+        " $(genDir)/libs_renamed.zip",
+}
+
+build=["sources.bp"]

@@ -1,0 +1,12 @@
+diff --git a/tests/test_bytes.rs b/tests/test_bytes.rs
+index f0cae99..402017b 100644
+--- a/tests/test_bytes.rs
++++ b/tests/test_bytes.rs
+@@ -288,6 +288,7 @@ fn split_to_uninitialized() {
+ }
+ 
+ #[test]
++#[ignore = "Android: we unwind differently."]
+ fn split_off_to_at_gt_len() {
+     fn make_bytes() -> Bytes {
+         let mut bytes = BytesMut::with_capacity(100);

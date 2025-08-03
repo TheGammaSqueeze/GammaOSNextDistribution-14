@@ -1,0 +1,16 @@
+name: "doubleconversion"
+description:
+    "This project (double-conversion) provides binary-decimal and "
+    "decimal-binary routines for IEEE doubles. "
+    " "
+    ""
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/double-conversion"
+  }
+  version: "v3.2.1"
+  last_upgrade_date { year: 2022 month: 10 day: 18 }
+  license_type: NOTICE
+}

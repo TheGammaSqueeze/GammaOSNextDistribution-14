@@ -1,0 +1,109 @@
+// Copyright 2023 The Pigweed Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not
+// use this file except in compliance with the License. You may obtain a copy of
+// the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations under
+// the License.
+
+#include "pw_bluetooth_sapphire/internal/host/common/device_class.h"
+
+#include "pw_unit_test/framework.h"
+
+namespace bt {
+namespace {
+
+struct TestPayload {
+  uint8_t arg0;
+  DeviceClass class_of_device;
+} __attribute__((packed));
+
+TEST(DeviceClassTest, CastFromBytes) {
+  std::array<uint8_t, 4> bytes{{10, 0x06, 0x02, 0x02}};
+  EXPECT_EQ(bytes.size(), sizeof(TestPayload));
+
+  auto* test_payload = reinterpret_cast<TestPayload*>(bytes.data());
+  EXPECT_EQ(10, test_payload->arg0);
+  EXPECT_EQ(DeviceClass::MajorClass::kPhone,
+            test_payload->class_of_device.major_class());
+  std::unordered_set<DeviceClass::ServiceClass> srvs_expected = {
+      DeviceClass::ServiceClass::kNetworking};
+  EXPECT_EQ(srvs_expected, test_payload->class_of_device.GetServiceClasses());
+
+  // Computer -- Laptop with no Serivces.
+  std::array<uint8_t, 4> no_srv_bytes{{0xBA, 0x0C, 0x01, 0x00}};
+  EXPECT_EQ(no_srv_bytes.size(), sizeof(TestPayload));
+
+  test_payload = reinterpret_cast<TestPayload*>(no_srv_bytes.data());
+  EXPECT_EQ(0xBA, test_payload->arg0);
+  EXPECT_EQ(DeviceClass::MajorClass::kComputer,
+            test_payload->class_of_device.major_class());
+  srvs_expected = {};
+  EXPECT_EQ(srvs_expected, test_payload->class_of_device.GetServiceClasses());
+
+  // Wearable -- watch with Location and Audio services
+  std::array<uint8_t, 4> two_srv_bytes{{0xA0, 0x04, 0x07, 0x21}};
+  EXPECT_EQ(two_srv_bytes.size(), sizeof(TestPayload));
+
+  test_payload = reinterpret_cast<TestPayload*>(two_srv_bytes.data());
+  EXPECT_EQ(0xA0, test_payload->arg0);
+  EXPECT_EQ(DeviceClass::MajorClass::kWearable,
+            test_payload->class_of_device.major_class());
+  srvs_expected = {DeviceClass::ServiceClass::kAudio,
+                   DeviceClass::ServiceClass::kPositioning};
+  EXPECT_EQ(srvs_expected, test_payload->class_of_device.GetServiceClasses());
+}
+
+TEST(DeviceClassTest, ConstructFromUInt32) {
+  // AudioVideo -- headset with Rendering and Audio services
+  DeviceClass class_of_device(0x240404);
+
+  EXPECT_EQ(DeviceClass::MajorClass::kAudioVideo,
+            class_of_device.major_class());
+
+  const uint8_t WEARABLE_HEADSET_DEVICE_MINOR_CLASS = 1;
+  EXPECT_EQ(WEARABLE_HEADSET_DEVICE_MINOR_CLASS, class_of_device.minor_class());
+
+  std::unordered_set<DeviceClass::ServiceClass> srvs_expected = {
+      DeviceClass::ServiceClass::kAudio, DeviceClass::ServiceClass::kRendering};
+  EXPECT_EQ(srvs_expected, class_of_device.GetServiceClasses());
+}
+
+TEST(DeviceClassTest, ConvertToUInt32) {
+  uint32_t raw = 0x240304;
+  DeviceClass class_of_device(raw);
+  EXPECT_EQ(class_of_device.to_int(), raw);
+}
+
+TEST(DeviceClassTest, GetBytes) {
+  DeviceClass class_of_device(0x240404);
+  EXPECT_EQ(class_of_device.bytes(), (DeviceClass::Bytes{{0x04, 0x04, 0x24}}));
+}
+
+TEST(DeviceClassTest, ToString) {
+  DeviceClass device;
+  EXPECT_EQ("Unspecified", device.ToString());
+
+  device = DeviceClass({0x06, 0x02, 0x02});
+  EXPECT_EQ("Phone (Networking)", device.ToString());
+
+  device = DeviceClass({0x06, 0x02, 0x60});
+  EXPECT_EQ("Phone (Telephony, Audio)", device.ToString());
+}
+
+TEST(DeviceClassTest, Comparison) {
+  DeviceClass class1(DeviceClass::MajorClass::kPhone);
+  DeviceClass class2(DeviceClass::MajorClass::kPhone);
+  DeviceClass class3(DeviceClass::MajorClass::kComputer);
+  EXPECT_EQ(class1, class2);
+  EXPECT_NE(class2, class3);
+}
+
+}  // namespace
+}  // namespace bt

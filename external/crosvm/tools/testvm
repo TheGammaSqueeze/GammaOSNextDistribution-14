@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+# Copyright 2021 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import shutil
+from typing import Iterable, Optional
+
+from impl.common import run_commands, argh, console, strip_ansi_escape_sequences
+from impl import testvm
+from impl.testvm import Arch, VmState
+
+USAGE = """Manages VMs for testing crosvm.
+
+Can run an x86_64 and an aarch64 vm via `./tools/x86vm` and `./tools/aarch64vm`.
+Both are a wrapper around `./tools/testvm --arch=x86_64/aarch64`.
+
+The easiest way to use the VM is:
+
+  $ ./tools/aarch64vm ssh
+
+Which will initialize and boot the VM, then wait for SSH to be available and
+opens an SSH session. The VM will stay alive between calls.
+
+Available commands are:
+    - up: Start the VM if it is not already running.
+    - stop: Gracefully stop the VM
+    - kill: Send SIGKILL to the VM
+    - clean: Stop the VM and delete all images
+    - logs: Print logs of the VM console
+
+All of these can be called on `./tools/x86vm` or `./tools/aarch64vm`, but also on
+`tools/testvm` to apply to both VMs.
+"""
+
+
+def cli_shorthand(arch: Arch):
+    if arch == "x86_64":
+        return "tools/x86vm"
+    elif arch == "aarch64":
+        return "tools/aarch64vm"
+    else:
+        raise Exception(f"Unknown architecture: {arch}")
+
+
+def arch_or_all(arch: Optional[Arch]):
+    return (arch,) if arch else testvm.ARCH_OPTIONS
+
+
+ARCHS = testvm.ARCH_OPTIONS
+
+
+@argh.arg("--arch-list", "--arch", nargs="*", type=str, default=ARCHS, choices=ARCHS)
+def up(arch_list: Iterable[Arch] = [], reset: bool = False, wait: bool = False, timeout: int = 120):
+    "Start the VM if it's not already running."
+    for arch in arch_list:
+        testvm.up(arch, reset, wait, timeout)
+
+
+@argh.arg("--arch", required=True, choices=testvm.ARCH_OPTIONS)
+def run(arch: Arch = "x86_64", reset: bool = False):
+    "Run the VM in foreground for debugging purposes."
+    if testvm.is_running(arch):
+        raise Exception("VM is already running")
+    testvm.build_if_needed(arch, reset)
+    testvm.run_qemu(
+        arch,
+        testvm.rootfs_img_path(arch),
+        background=False,
+    )
+
+
+@argh.arg("--arch", required=True, choices=testvm.ARCH_OPTIONS)
+def shell(arch: Arch = "x86_64", timeout: int = 120):
+    "Starts an interactive shell via SSH, will ensure the VM is running."
+    testvm.up(arch, wait=True, timeout=timeout)
+    testvm.ssh_exec(arch)
+
+
+@argh.arg("--arch-list", "--arch", nargs="*", type=str, default=ARCHS, choices=ARCHS)
+def stop(arch_list: Iterable[Arch] = []):
+    "Gracefully stops the running VM."
+    for arch in arch_list:
+        if not testvm.is_running(arch):
+            print(f"{arch} VM is not running")
+            break
+        console.print(f"Stopping {arch} VM")
+        testvm.ssh_exec(arch, "sudo poweroff")
+
+
+@argh.arg("--arch-list", "--arch", nargs="*", type=str, default=ARCHS, choices=ARCHS)
+def kill(arch_list: Iterable[Arch] = []):
+    "Kills the running VM with SIGKILL."
+    for arch in arch_list:
+        if not testvm.is_running(arch):
+            console.print(f"{arch} VM is not running")
+            break
+        console.print(f"Killing {arch} VM process")
+        testvm.kill_vm(arch)
+        print()
+
+
+@argh.arg("--arch-list", "--arch", nargs="*", type=str, default=ARCHS, choices=ARCHS)
+def clean(arch_list: Iterable[Arch] = []):
+    "Stops the VM or VMs and deletes all data."
+    for arch in arch_list:
+        if testvm.is_running(arch):
+            kill(arch)
+        if testvm.data_dir(arch).exists():
+            console.print("Cleaning data directory", testvm.data_dir(arch))
+            shutil.rmtree(testvm.data_dir(arch))
+        print()
+
+
+def vm_status(arch: Arch):
+    def cli_tip(*args: str):
+        return f"[green][bold]{cli_shorthand(arch)} {' '.join(args)}[/bold][/green]"
+
+    vm = f"{arch} VM"
+    port = f"[blue]{testvm.SSH_PORTS[arch]}[/blue]"
+
+    state = testvm.state(arch)
+    if state == VmState.REACHABLE:
+        console.print(f"{vm} is [green]reachable[/green] on port {port}")
+        console.print(f"Start a shell with {cli_tip('shell')}")
+    elif state == VmState.STOPPED:
+        console.print(f"{vm} is [red]stopped[/red]")
+        console.print(f"Start the VM with {cli_tip('up')}")
+    else:
+        console.print(f"{vm} is running but [red]not reachable[/red] on port {port}")
+        console.print(f"Recent logs:")
+        logs(arch, 10, style="light_slate_grey")
+        console.print(f"See all logs with {cli_tip('logs')}")
+
+
+@argh.arg("--arch-list", "--arch", nargs="*", type=str, default=ARCHS, choices=ARCHS)
+def status(arch_list: Iterable[Arch] = []):
+    for arch in arch_list:
+        vm_status(arch)
+        print()
+
+
+@argh.arg("--arch", required=True, choices=testvm.ARCH_OPTIONS)
+def logs(arch: Arch = "x86_64", n: int = 0, style: Optional[str] = None):
+    log_lines = testvm.log_path(arch).read_text().splitlines()
+    if n > 0 and len(log_lines) > n:
+        log_lines = log_lines[-n:]
+    for line in log_lines:
+        if style:
+            console.print(
+                strip_ansi_escape_sequences(line), style=style, markup=False, highlight=False
+            )
+        else:
+            print(line)
+
+
+if __name__ == "__main__":
+    run_commands(up, run, shell, stop, kill, clean, status, logs, usage=USAGE, default_fn=status)

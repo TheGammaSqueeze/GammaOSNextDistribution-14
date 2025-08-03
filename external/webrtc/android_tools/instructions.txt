@@ -1,0 +1,22 @@
+Follow the following steps to update this project:
+
+1- Git merge aosp/upstream-main, resolving any conflicts, to obtain a recent enough version of the code.
+2- Use an upstream checkout to generate the json files.
+  2.1 - Follow instructions to download and build upstream webrtc from https://webrtc.googlesource.com/src/+/main/docs/native-code/development/index.md.
+  2.2 - Generate the json files for each architecture.
+    2.2.1 - Disable libaom (search for enable_libaom in all .gni/.gn files and set it to false).
+    2.2.2 - Disable x11 (set rtc_use_x11 to false in webrtc.gni).
+    2.2.3 - Disable pipewire (rtc_use_pipewire to false in webrtc.gni).
+    2.2.4 - Enable dummy audio file (rtc_use_dummy_audio_file_devices to true in webrtc.gni).
+    2.2.5 - Disable dav1d decoder (rtc_include_dav1d_in_internal_decoder_factory to false in webrtc.gni).
+    2.2.6 - Disable protobuf (rtc_enable_protobuf to false in webrtc.gni).
+    2.2.7 - Set is_clang to true unconditionally in build/config/BUILDCONFIG.gn
+    2.2.8 - Run this command:
+      for arch in x64 x86 arm64 arm riscv64; do
+          gn gen out/Debug --args="target_os=\"linux\" target_cpu=\"${arch}\"" --json-file-name=project_${arch}.json --ide=json
+      done
+  2.3 Copy out/Debug/project_*.json into android_tools.
+3- Run android_tools/generate_android_bp.sh.
+4- Build cuttlefish and run it in all architectures to ensure webrtc is working correctly (connect to it, press a few buttons and make sure audio works).
+5- The build in step number 4 likely failed, fix any errors. Make sure to not edit external/webrtc/Android.bp directly, but modify the generating script instead.
+6- Update these instructions with any new steps needed.

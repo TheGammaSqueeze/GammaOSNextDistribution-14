@@ -1,0 +1,315 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 078e0b0..76e3a88 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -11,12 +11,6 @@ dependencies = [
+  "memchr",
+ ]
+ 
+-[[package]]
+-name = "anstyle"
+-version = "1.0.1"
+-source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "3a30da5c5f2d5e72842e00bcb57657162cdabef0931f40e2deb9b4140440cecd"
+-
+ [[package]]
+ name = "autocfg"
+ version = "1.1.0"
+@@ -78,7 +72,6 @@ dependencies = [
+ name = "predicates"
+ version = "3.0.4"
+ dependencies = [
+- "anstyle",
+  "difflib",
+  "float-cmp",
+  "itertools",
+@@ -86,6 +79,7 @@ dependencies = [
+  "predicates-core",
+  "predicates-tree",
+  "regex",
++ "termcolor",
+ ]
+ 
+ [[package]]
+@@ -133,8 +127,48 @@ version = "0.7.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "e5ea92a5b6195c6ef2a0295ea818b312502c6fc94dde986c5553242e18fd4ce2"
+ 
++[[package]]
++name = "termcolor"
++version = "1.4.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ff1bc3d3f05aff0403e8ac0d92ced918ec05b666a43f83297ccef5bea8a3d449"
++dependencies = [
++ "winapi-util",
++]
++
+ [[package]]
+ name = "termtree"
+ version = "0.4.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
++
++[[package]]
++name = "winapi"
++version = "0.3.9"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "5c839a674fcd7a98952e593242ea400abe93992746761e38641405d28b00f419"
++dependencies = [
++ "winapi-i686-pc-windows-gnu",
++ "winapi-x86_64-pc-windows-gnu",
++]
++
++[[package]]
++name = "winapi-i686-pc-windows-gnu"
++version = "0.4.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6"
++
++[[package]]
++name = "winapi-util"
++version = "0.1.6"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "f29e6f9198ba0d26b4c9f07dbe6f9ed633e1f3d5b8b414090084349e46a52596"
++dependencies = [
++ "winapi",
++]
++
++[[package]]
++name = "winapi-x86_64-pc-windows-gnu"
++version = "0.4.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
+diff --git a/Cargo.toml b/Cargo.toml
+index 2659c95..a679840 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -96,9 +96,6 @@ replace = """
+ [Unreleased]: https://github.com/assert-rs/predicates-rs/compare/{{tag_name}}...HEAD"""
+ search = "<!-- next-url -->"
+ 
+-[dependencies.anstyle]
+-version = "1.0.0"
+-
+ [dependencies.difflib]
+ version = "0.4"
+ optional = true
+@@ -121,6 +118,9 @@ version = "1.0"
+ version = "1.0"
+ optional = true
+ 
++[dependencies.termcolor]
++version = "1.2.0"
++
+ [dev-dependencies.predicates-tree]
+ version = "1.0"
+ 
+diff --git a/patches/use-termcolor.patch b/patches/use-termcolor.patch
+index 9831f7d..e69de29 100644
+--- a/patches/use-termcolor.patch
++++ b/patches/use-termcolor.patch
+@@ -1,111 +0,0 @@
+---- a/Android.bp	2023-11-07 14:29:55.304929829 +0100
+-+++ b/Android.bp	2023-11-07 14:30:05.916987569 +0100
+-@@ -16,7 +16,7 @@
+-         "regex",
+-     ],
+-     rustlibs: [
+--        "libanstyle",
+-+        "libtermcolor",
+-         "libitertools",
+-         "libpredicates_core",
+-         "libregex",
+-@@ -47,7 +47,7 @@
+-         "regex",
+-     ],
+-     rustlibs: [
+--        "libanstyle",
+-+        "libtermcolor",
+-         "libitertools",
+-         "libpredicates_core",
+-         "libpredicates_tree",
+---- a/src/color.rs	2006-07-24 03:21:28.000000000 +0200
+-+++ b/src/color.rs	2023-11-07 14:26:51.131915579 +0100
+-@@ -1,17 +1,29 @@
+--#[derive(Copy, Clone, Debug, Default)]
+-+use std::io::Write;
+-+use termcolor::{Color, ColorSpec, WriteColor};
+-+
+-+#[derive(Clone, Debug, Default)]
+- pub(crate) struct Palette {
+--    description: anstyle::Style,
+--    var: anstyle::Style,
+--    expected: anstyle::Style,
+-+    description: ColorSpec,
+-+    var: ColorSpec,
+-+    expected: ColorSpec,
+- }
+- 
+- impl Palette {
+-     pub(crate) fn new(alternate: bool) -> Self {
+-         if alternate && cfg!(feature = "color") {
+-             Self {
+--                description: anstyle::AnsiColor::Blue.on_default() | anstyle::Effects::BOLD,
+--                var: anstyle::AnsiColor::Red.on_default() | anstyle::Effects::BOLD,
+--                expected: anstyle::AnsiColor::Green.on_default() | anstyle::Effects::BOLD,
+-+                description: ColorSpec::new()
+-+                    .set_fg(Some(Color::Blue))
+-+                    .set_bold(true)
+-+                    .clone(),
+-+                var: ColorSpec::new()
+-+                    .set_fg(Some(Color::Red))
+-+                    .set_bold(true)
+-+                    .clone(),
+-+                expected: ColorSpec::new()
+-+                    .set_fg(Some(Color::Green))
+-+                    .set_bold(true)
+-+                    .clone(),
+-             }
+-         } else {
+-             Self::plain()
+-@@ -26,27 +38,27 @@
+-         }
+-     }
+- 
+--    pub(crate) fn description<D: std::fmt::Display>(self, display: D) -> Styled<D> {
+--        Styled::new(display, self.description)
+-+    pub(crate) fn description<D: std::fmt::Display>(&self, display: D) -> Styled<D> {
+-+        Styled::new(display, self.description.clone())
+-     }
+- 
+--    pub(crate) fn var<D: std::fmt::Display>(self, display: D) -> Styled<D> {
+--        Styled::new(display, self.var)
+-+    pub(crate) fn var<D: std::fmt::Display>(&self, display: D) -> Styled<D> {
+-+        Styled::new(display, self.var.clone())
+-     }
+- 
+--    pub(crate) fn expected<D: std::fmt::Display>(self, display: D) -> Styled<D> {
+--        Styled::new(display, self.expected)
+-+    pub(crate) fn expected<D: std::fmt::Display>(&self, display: D) -> Styled<D> {
+-+        Styled::new(display, self.expected.clone())
+-     }
+- }
+- 
+- #[derive(Debug)]
+- pub(crate) struct Styled<D> {
+-     display: D,
+--    style: anstyle::Style,
+-+    style: ColorSpec,
+- }
+- 
+- impl<D: std::fmt::Display> Styled<D> {
+--    pub(crate) fn new(display: D, style: anstyle::Style) -> Self {
+-+    pub(crate) fn new(display: D, style: ColorSpec) -> Self {
+-         Self { display, style }
+-     }
+- }
+-@@ -55,10 +67,11 @@
+-     #[inline]
+-     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+-         if f.alternate() {
+--            write!(f, "{}", self.style.render())?;
+--            self.display.fmt(f)?;
+--            write!(f, "{}", self.style.render_reset())?;
+--            Ok(())
+-+            let mut buf = termcolor::Buffer::ansi();
+-+            buf.set_color(&self.style).unwrap();
+-+            write!(&mut buf, "{}", &self.display).unwrap();
+-+            buf.reset().unwrap();
+-+            write!(f, "{}", String::from_utf8(buf.into_inner()).unwrap())
+-         } else {
+-             self.display.fmt(f)
+-         }
+diff --git a/src/color.rs b/src/color.rs
+index f1b6a21..2b9449c 100644
+--- a/src/color.rs
++++ b/src/color.rs
+@@ -1,17 +1,29 @@
+-#[derive(Copy, Clone, Debug, Default)]
++use std::io::Write;
++use termcolor::{Color, ColorSpec, WriteColor};
++
++#[derive(Clone, Debug, Default)]
+ pub(crate) struct Palette {
+-    description: anstyle::Style,
+-    var: anstyle::Style,
+-    expected: anstyle::Style,
++    description: ColorSpec,
++    var: ColorSpec,
++    expected: ColorSpec,
+ }
+ 
+ impl Palette {
+     pub(crate) fn new(alternate: bool) -> Self {
+         if alternate && cfg!(feature = "color") {
+             Self {
+-                description: anstyle::AnsiColor::Blue.on_default() | anstyle::Effects::BOLD,
+-                var: anstyle::AnsiColor::Red.on_default() | anstyle::Effects::BOLD,
+-                expected: anstyle::AnsiColor::Green.on_default() | anstyle::Effects::BOLD,
++                description: ColorSpec::new()
++                    .set_fg(Some(Color::Blue))
++                    .set_bold(true)
++                    .clone(),
++                var: ColorSpec::new()
++                    .set_fg(Some(Color::Red))
++                    .set_bold(true)
++                    .clone(),
++                expected: ColorSpec::new()
++                    .set_fg(Some(Color::Green))
++                    .set_bold(true)
++                    .clone(),
+             }
+         } else {
+             Self::plain()
+@@ -26,27 +38,27 @@ impl Palette {
+         }
+     }
+ 
+-    pub(crate) fn description<D: std::fmt::Display>(self, display: D) -> Styled<D> {
+-        Styled::new(display, self.description)
++    pub(crate) fn description<D: std::fmt::Display>(&self, display: D) -> Styled<D> {
++        Styled::new(display, self.description.clone())
+     }
+ 
+-    pub(crate) fn var<D: std::fmt::Display>(self, display: D) -> Styled<D> {
+-        Styled::new(display, self.var)
++    pub(crate) fn var<D: std::fmt::Display>(&self, display: D) -> Styled<D> {
++        Styled::new(display, self.var.clone())
+     }
+ 
+-    pub(crate) fn expected<D: std::fmt::Display>(self, display: D) -> Styled<D> {
+-        Styled::new(display, self.expected)
++    pub(crate) fn expected<D: std::fmt::Display>(&self, display: D) -> Styled<D> {
++        Styled::new(display, self.expected.clone())
+     }
+ }
+ 
+ #[derive(Debug)]
+ pub(crate) struct Styled<D> {
+     display: D,
+-    style: anstyle::Style,
++    style: ColorSpec,
+ }
+ 
+ impl<D: std::fmt::Display> Styled<D> {
+-    pub(crate) fn new(display: D, style: anstyle::Style) -> Self {
++    pub(crate) fn new(display: D, style: ColorSpec) -> Self {
+         Self { display, style }
+     }
+ }
+@@ -55,10 +67,11 @@ impl<D: std::fmt::Display> std::fmt::Display for Styled<D> {
+     #[inline]
+     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+         if f.alternate() {
+-            write!(f, "{}", self.style.render())?;
+-            self.display.fmt(f)?;
+-            write!(f, "{}", self.style.render_reset())?;
+-            Ok(())
++            let mut buf = termcolor::Buffer::ansi();
++            buf.set_color(&self.style).unwrap();
++            write!(&mut buf, "{}", &self.display).unwrap();
++            buf.reset().unwrap();
++            write!(f, "{}", String::from_utf8(buf.into_inner()).unwrap())
+         } else {
+             self.display.fmt(f)
+         }

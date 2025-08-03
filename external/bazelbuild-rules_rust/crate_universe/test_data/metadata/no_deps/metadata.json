@@ -1,0 +1,66 @@
+{
+    "metadata": null,
+    "packages": [
+        {
+            "authors": [],
+            "categories": [],
+            "default_run": null,
+            "dependencies": [],
+            "description": null,
+            "documentation": null,
+            "edition": "2018",
+            "features": {},
+            "homepage": null,
+            "id": "no-deps 0.1.0 (path+file://{TEMP_DIR}/no_deps)",
+            "keywords": [],
+            "license": null,
+            "license_file": null,
+            "links": null,
+            "manifest_path": "{TEMP_DIR}/no_deps/Cargo.toml",
+            "metadata": null,
+            "name": "no-deps",
+            "publish": null,
+            "readme": null,
+            "repository": null,
+            "rust_version": null,
+            "source": null,
+            "targets": [
+                {
+                    "crate_types": [
+                        "lib"
+                    ],
+                    "doc": true,
+                    "doctest": true,
+                    "edition": "2018",
+                    "kind": [
+                        "lib"
+                    ],
+                    "name": "no-deps",
+                    "src_path": "{TEMP_DIR}/no_deps/lib.rs",
+                    "test": true
+                }
+            ],
+            "version": "0.1.0"
+        }
+    ],
+    "resolve": {
+        "nodes": [
+            {
+                "dependencies": [],
+                "deps": [],
+                "features": [],
+                "id": "no-deps 0.1.0 (path+file://{TEMP_DIR}/no_deps)"
+            }
+        ],
+        "root": "no-deps 0.1.0 (path+file://{TEMP_DIR}/no_deps)"
+    },
+    "target_directory": "{TEMP_DIR}/no_deps/target",
+    "version": 1,
+    "workspace_default_members": [
+        "no-deps 0.1.0 (path+file://{TEMP_DIR}/no_deps)"
+    ],
+    "workspace_members": [
+        "no-deps 0.1.0 (path+file://{TEMP_DIR}/no_deps)"
+    ],
+    "workspace_root": "{TEMP_DIR}/no_deps"
+}

@@ -1,0 +1,19 @@
+name: "p9_wire_format_derive"
+description: "Supporting proc-macro for the `p9` crate."
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/p9_wire_format_derive"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/p9_wire_format_derive/p9_wire_format_derive-0.2.3.crate"
+  }
+  version: "0.2.3"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 1
+    day: 17
+  }
+}

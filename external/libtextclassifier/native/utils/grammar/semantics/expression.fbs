@@ -1,0 +1,119 @@
+//
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+include "utils/flatbuffers/flatbuffers.fbs";
+
+namespace libtextclassifier3.grammar.SemanticExpression_;
+union Expression {
+  ConstValueExpression,
+  ConstituentExpression,
+  ComposeExpression,
+  SpanAsStringExpression,
+  ParseNumberExpression,
+  MergeValueExpression,
+  ArithmeticExpression,
+}
+
+// A semantic expression.
+namespace libtextclassifier3.grammar;
+table SemanticExpression {
+  expression:SemanticExpression_.Expression;
+}
+
+// A constant flatbuffer value.
+namespace libtextclassifier3.grammar;
+table ConstValueExpression {
+  // The base type of the value.
+  base_type:int;
+
+  // The id of the type of the value.
+  // The id is used for lookup in the semantic values type metadata.
+  type:int;
+
+  // The serialized value.
+  value:[ubyte];
+}
+
+// The value of a rule constituent.
+namespace libtextclassifier3.grammar;
+table ConstituentExpression {
+  // The id of the constituent.
+  id:ushort;
+}
+
+// The fields to set.
+namespace libtextclassifier3.grammar.ComposeExpression_;
+table Field {
+  // The field to set.
+  path:libtextclassifier3.FlatbufferFieldPath;
+
+  // The value.
+  value:SemanticExpression;
+}
+
+// A combination: Compose a result from arguments.
+// https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book-Z-H-4.html#%_toc_%_sec_1.1.1
+namespace libtextclassifier3.grammar;
+table ComposeExpression {
+  // The id of the type of the result.
+  type:int;
+
+  fields:[ComposeExpression_.Field];
+}
+
+// Lifts a span as a value.
+namespace libtextclassifier3.grammar;
+table SpanAsStringExpression {
+}
+
+// Parses a string as a number.
+namespace libtextclassifier3.grammar;
+table ParseNumberExpression {
+  // The base type of the value.
+  base_type:int;
+
+  value:SemanticExpression;
+}
+
+// Merge the semantic expressions.
+namespace libtextclassifier3.grammar;
+table MergeValueExpression {
+  // The id of the type of the result.
+  type:int;
+
+  values:[SemanticExpression];
+}
+
+// The operator of the arithmetic expression.
+namespace libtextclassifier3.grammar.ArithmeticExpression_;
+enum Operator : int {
+  NO_OP = 0,
+  OP_ADD = 1,
+  OP_MUL = 2,
+  OP_MAX = 3,
+  OP_MIN = 4,
+}
+
+// Simple arithmetic expression.
+namespace libtextclassifier3.grammar;
+table ArithmeticExpression {
+  // The base type of the operation.
+  base_type:int;
+
+  op:ArithmeticExpression_.Operator;
+  values:[SemanticExpression];
+}
+

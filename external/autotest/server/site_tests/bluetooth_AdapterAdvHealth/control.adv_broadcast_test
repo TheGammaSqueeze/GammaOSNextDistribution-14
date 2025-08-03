@@ -1,0 +1,29 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterAdvHealth.adv_broadcast_test'
+PURPOSE = 'Test broadcast advertising capabilities.'
+CRITERIA = 'Adapter should advertise with correct parameters.'
+ATTRIBUTES = 'suite:bluetooth, suite:bluetooth_standalone'
+TIME = 'SHORT'  # ~2 minutes on hatch
+MAX_RESULT_SIZE_KB = 128000
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth'
+PY_VERSION = 3
+
+DOC = """
+Validate that we can register an advertisement that uses the 'broadcast' mode,
+which may configure alternate advertising intervals, and uses a random
+address.
+"""
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterAdvHealth', host=host, num_iterations=1,
+                 test_name=NAME.split('.')[1], peer_required=False)
+
+parallel_simple(run, machines)

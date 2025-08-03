@@ -1,0 +1,18 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dbeckett"
+NAME = "infra_ServerPythonVersion.3"
+TIME = "SHORT"
+TEST_TYPE = "server"
+DOC = """Verify the Sever & Client Python Version."""
+PY_VERSION = 3
+ATTRIBUTES = "suite:py3-beta"
+
+def run(machine):
+    job.run_test('infra_ServerPythonVersion',
+                 host=hosts.create_host(machine),
+                 case=3)
+
+parallel_simple(run, machines)

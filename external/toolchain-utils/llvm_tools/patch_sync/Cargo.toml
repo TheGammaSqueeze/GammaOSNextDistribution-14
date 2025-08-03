@@ -1,0 +1,21 @@
+[package]
+name = "patch_sync"
+version = "1.1.0"
+authors = ["Jordan R Abrahams-Whitehead <ajordanr@google.com>"]
+edition = "2018"
+
+[profile.release]
+panic = "abort"
+
+[dependencies]
+anyhow = "1.0"
+regex = "1.5"
+serde = {version = "1.0", features = ["derive"]}
+serde_json = "1.0"
+sha2 = "0.9"
+structopt = "0.3"
+time = "0.3"
+scopeguard = "1.1.0"
+
+[dev-dependencies]
+rand = "0.8"

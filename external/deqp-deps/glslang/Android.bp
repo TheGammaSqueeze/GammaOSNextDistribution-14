@@ -1,0 +1,248 @@
+
+// This file is derived (manually) from the CMake targets.
+// We only consider the targets that dEQP depends on (including transitive
+// dependencies). Search for "GLSLANG_LIBRARIES" in dEQP.
+//
+// dEQP depends on:
+// - glslang
+//   - OSDependent
+//   - MachineIndependent
+//     - OGLCompiler
+//     - OSDependent
+//     - GenericCodeGen
+// - SPIRV (does not depend on SPIRV-Tools-opt because ENABLE_OPT=0)
+//   - MachineIndependent
+//     - ...
+// - SPVRemapper
+
+package {
+    default_applicable_licenses: ["external_deqp-deps_glslang_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+//
+// large-scale-change filtered out the below license kinds as false-positives:
+//   SPDX-license-identifier-GPL
+//   SPDX-license-identifier-GPL-3.0
+// See: http://go/android-license-faq
+license {
+    name: "external_deqp-deps_glslang_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+        "LICENSE.txt",
+    ],
+}
+
+genrule {
+    name: "deqp_glslang_gen_build_info_h",
+    srcs: ["CHANGES.md", "build_info.h.tmpl"],
+    out: ["glslang/build_info.h"],
+    cmd: "$(location) $$(dirname $(location CHANGES.md)) -i $(location build_info.h.tmpl) -o $(location glslang/build_info.h)",
+    tool_files: ["build_info.py"],
+}
+
+cc_defaults {
+    name: "deqp_glslang_defaults",
+    defaults: ["deqp_and_deps_defaults"],
+    cppflags: [
+        "-Wno-enum-enum-conversion",
+        "-Wno-implicit-fallthrough",
+        "-Wno-missing-field-initializers",
+        "-Wno-unused-variable",
+        "-Wno-implicit-int-conversion",
+        "-Wno-sign-conversion",
+        "-Wno-unused-parameter",
+        "-Wno-unused-but-set-variable",
+        "-Wno-shorten-64-to-32",
+    ],
+    export_include_dirs: [
+        ".",
+    ],
+    generated_headers: [
+        "deqp_glslang_gen_build_info_h",
+    ],
+}
+
+cc_library_static {
+    name: "deqp_glslang_OSDependent",
+    defaults: [
+        "deqp_glslang_defaults",
+    ],
+    export_include_dirs: [
+        "glslang/OSDependent",
+    ],
+    srcs: [
+        "glslang/OSDependent/Unix/ossource.cpp",
+    ],
+}
+
+cc_library_static {
+    name: "deqp_glslang_MachineIndependent",
+    defaults: [
+        "deqp_glslang_defaults",
+    ],
+    export_include_dirs: [
+        "glslang/MachineIndependent",
+        "glslang/HLSL",
+    ],
+    srcs: [
+//        "glslang/MachineIndependent/glslang.m4",
+//        "glslang/MachineIndependent/glslang.y",
+        "glslang/MachineIndependent/glslang_tab.cpp",
+        "glslang/MachineIndependent/attribute.cpp",
+        "glslang/MachineIndependent/Constant.cpp",
+        "glslang/MachineIndependent/iomapper.cpp",
+        "glslang/MachineIndependent/InfoSink.cpp",
+        "glslang/MachineIndependent/Initialize.cpp",
+        "glslang/MachineIndependent/IntermTraverse.cpp",
+        "glslang/MachineIndependent/Intermediate.cpp",
+        "glslang/MachineIndependent/ParseContextBase.cpp",
+        "glslang/MachineIndependent/ParseHelper.cpp",
+        "glslang/MachineIndependent/PoolAlloc.cpp",
+        "glslang/MachineIndependent/RemoveTree.cpp",
+        "glslang/MachineIndependent/Scan.cpp",
+        "glslang/MachineIndependent/ShaderLang.cpp",
+        "glslang/MachineIndependent/SpirvIntrinsics.cpp",
+        "glslang/MachineIndependent/SymbolTable.cpp",
+        "glslang/MachineIndependent/Versions.cpp",
+        "glslang/MachineIndependent/intermOut.cpp",
+        "glslang/MachineIndependent/limits.cpp",
+        "glslang/MachineIndependent/linkValidate.cpp",
+        "glslang/MachineIndependent/parseConst.cpp",
+        "glslang/MachineIndependent/reflection.cpp",
+        "glslang/MachineIndependent/preprocessor/Pp.cpp",
+        "glslang/MachineIndependent/preprocessor/PpAtom.cpp",
+        "glslang/MachineIndependent/preprocessor/PpContext.cpp",
+        "glslang/MachineIndependent/preprocessor/PpScanner.cpp",
+        "glslang/MachineIndependent/preprocessor/PpTokens.cpp",
+        "glslang/MachineIndependent/propagateNoContraction.cpp",
+
+        "glslang/HLSL/hlslAttributes.cpp",
+        "glslang/HLSL/hlslParseHelper.cpp",
+        "glslang/HLSL/hlslScanContext.cpp",
+        "glslang/HLSL/hlslOpMap.cpp",
+        "glslang/HLSL/hlslTokenStream.cpp",
+        "glslang/HLSL/hlslGrammar.cpp",
+        "glslang/HLSL/hlslParseables.cpp",
+    ],
+    static_libs: [
+        "deqp_glslang_OSDependent",
+        "deqp_glslang_GenericCodeGen",
+    ],
+}
+
+cc_library_static {
+    name: "deqp_glslang_glslang",
+    defaults: [
+        "deqp_glslang_defaults",
+    ],
+    export_include_dirs: [
+        "glslang",
+    ],
+    srcs: [
+        "glslang/CInterface/glslang_c_interface.cpp"
+    ],
+    static_libs: [
+        "deqp_glslang_OSDependent",
+        "deqp_glslang_MachineIndependent",
+    ],
+}
+
+cc_library_static {
+    name: "deqp_glslang_SPIRV",
+    defaults: [
+        "deqp_glslang_defaults",
+    ],
+    export_include_dirs: [
+        "SPIRV",
+    ],
+    srcs: [
+        "SPIRV/GlslangToSpv.cpp",
+        "SPIRV/InReadableOrder.cpp",
+        "SPIRV/Logger.cpp",
+        "SPIRV/SpvBuilder.cpp",
+        "SPIRV/SpvPostProcess.cpp",
+        "SPIRV/doc.cpp",
+        "SPIRV/SpvTools.cpp",
+        "SPIRV/disassemble.cpp",
+        "SPIRV/CInterface/spirv_c_interface.cpp",
+    ],
+    static_libs: [
+        "deqp_glslang_MachineIndependent",
+    ],
+}
+
+cc_library_static {
+    name: "deqp_glslang_SPVRemapper",
+    defaults: [
+        "deqp_glslang_defaults",
+    ],
+    export_include_dirs: [
+        "SPIRV",
+    ],
+    srcs: [
+        "SPIRV/SPVRemapper.cpp",
+        "SPIRV/doc.cpp",
+    ],
+}
+
+cc_library_static {
+    name: "deqp_glslang_GenericCodeGen",
+    defaults: [
+        "deqp_glslang_defaults",
+    ],
+    export_include_dirs: [
+        "glslang/GenericCodeGen",
+    ],
+    srcs: [
+        "glslang/GenericCodeGen/CodeGen.cpp",
+        "glslang/GenericCodeGen/Link.cpp",
+    ],
+}
+
+cc_library_headers {
+    name: "deqp_glslang_ResourceLimits_headers",
+    defaults: ["deqp_and_deps_defaults"],
+    export_include_dirs: [
+        "glslang/Public/ResourceLimits.h",
+    ],
+}
+
+cc_library_static {
+    name: "deqp_glslang_ResourceLimits",
+    defaults: [
+        "deqp_glslang_defaults",
+    ],
+    export_include_dirs: [
+        "glslang/ResourceLimits",
+    ],
+    srcs: [
+        "glslang/ResourceLimits/ResourceLimits.cpp",
+    ],
+    header_libs: [
+        "deqp_glslang_ResourceLimits_headers",
+    ],
+}

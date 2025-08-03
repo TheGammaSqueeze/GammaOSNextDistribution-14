@@ -1,0 +1,99 @@
+load("@fmeum_rules_jni//jni:defs.bzl", "java_jni_library")
+
+java_library(
+    name = "junit",
+    visibility = ["//deploy:__pkg__"],
+    runtime_deps = [
+        ":fuzz_test",
+    ],
+)
+
+java_library(
+    name = "agent_configurator",
+    srcs = [
+        "AgentConfigurator.java",
+    ],
+    deps = [
+        ":utils",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+    ],
+)
+
+java_library(
+    name = "fuzz_test",
+    srcs = [
+        "AgentConfiguringArgumentsProvider.java",
+        "FuzzTest.java",
+        "FuzzTestExtensions.java",
+        "FuzzingArgumentsProvider.java",
+        "SeedArgumentsProvider.java",
+    ],
+    visibility = [
+        "//examples/junit/src/test/java/com/example:__pkg__",
+    ],
+    runtime_deps = [
+        # The JUnit launcher that is part of the Jazzer driver needs this on the classpath
+        # to run an @FuzzTest with JUnit. This will also result in a transitive dependency
+        # in the generated pom file.
+        "@maven//:org_junit_platform_junit_platform_launcher",
+    ],
+    deps = [
+        ":fuzz_test_executor",
+        ":seed_serializer",
+        ":utils",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+        "@maven//:org_junit_jupiter_junit_jupiter_params",
+        "@maven//:org_junit_platform_junit_platform_commons",
+    ],
+)
+
+java_jni_library(
+    name = "fuzz_test_executor",
+    srcs = [
+        "FuzzTestExecutor.java",
+    ],
+    native_libs = [
+        "//src/main/native/com/code_intelligence/jazzer/driver:jazzer_driver",
+    ],
+    deps = [
+        ":agent_configurator",
+        ":seed_serializer",
+        ":utils",
+        "//src/main/java/com/code_intelligence/jazzer/agent:agent_installer",
+        "//src/main/java/com/code_intelligence/jazzer/api",
+        "//src/main/java/com/code_intelligence/jazzer/autofuzz",
+        "//src/main/java/com/code_intelligence/jazzer/driver:fuzz_target_holder",
+        "//src/main/java/com/code_intelligence/jazzer/driver:fuzz_target_runner",
+        "//src/main/java/com/code_intelligence/jazzer/driver:opt",
+        "//src/main/java/com/code_intelligence/jazzer/driver/junit:exit_code_exception",
+        "//src/main/java/com/code_intelligence/jazzer/mutation",
+        "//src/main/java/com/code_intelligence/jazzer/utils",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+        "@maven//:org_junit_jupiter_junit_jupiter_params",
+        "@maven//:org_junit_platform_junit_platform_commons",
+    ],
+)
+
+java_library(
+    name = "seed_serializer",
+    srcs = ["SeedSerializer.java"],
+    deps = [
+        "//src/main/java/com/code_intelligence/jazzer/api",
+        "//src/main/java/com/code_intelligence/jazzer/autofuzz",
+        "//src/main/java/com/code_intelligence/jazzer/driver:fuzzed_data_provider_impl",
+        "//src/main/java/com/code_intelligence/jazzer/driver:opt",
+        "//src/main/java/com/code_intelligence/jazzer/mutation",
+    ],
+)
+
+java_library(
+    name = "utils",
+    srcs = ["Utils.java"],
+    visibility = ["//src/test/java/com/code_intelligence/jazzer/junit:__pkg__"],
+    deps = [
+        "//src/main/java/com/code_intelligence/jazzer/utils:unsafe_provider",
+        "//src/main/java/com/code_intelligence/jazzer/utils:unsafe_utils",
+        "@maven//:org_junit_jupiter_junit_jupiter_api",
+        "@maven//:org_junit_jupiter_junit_jupiter_params",
+    ],
+)

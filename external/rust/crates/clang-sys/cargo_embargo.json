@@ -1,0 +1,12 @@
+{
+  "features": [
+    "runtime",
+    "clang_10_0"
+  ],
+  "package": {
+    "clang-sys": {
+      "copy_out": true,
+      "device_supported": false
+    }
+  }
+}

@@ -1,0 +1,30 @@
+<abi-corpus version='2.1' path='test.o' architecture='elf-amd-x86_64'>
+  <elf-function-symbols>
+    <elf-symbol name='g' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='a' size='80' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='c' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='test.c' language='LANG_C11'>
+    <array-type-def dimensions='1' type-id='3ed987a4' size-in-bits='640' id='d3bd7ecb'>
+      <subrange length='10' type-id='7359adad' id='487da03a'/>
+    </array-type-def>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <type-decl name='unsigned long int' size-in-bits='64' id='7359adad'/>
+    <class-decl name='A' size-in-bits='64' is-struct='yes' visibility='default' id='3ed987a4'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='32'>
+        <var-decl name='y' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='a' type-id='d3bd7ecb' mangled-name='a' visibility='default' elf-symbol-id='a'/>
+    <var-decl name='c' type-id='95e97e5e' mangled-name='c' visibility='default' elf-symbol-id='c'/>
+    <function-decl name='g' mangled-name='g' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='g'>
+      <parameter type-id='95e97e5e'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

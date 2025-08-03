@@ -1,0 +1,29 @@
+# Note that Skylake boards (asuka, at least) can have a GT1 and GT2
+# variant, and this can impact the set of tests that fail, but we
+# don't distinguish them in testing.  So, some failing cases end up
+# listed here as flakes even if they might reliably pass or fail on
+# a specific variant, because the results will be flaky dependening
+# on ChromeOS infra choices.
+
+# These almost always fail (though occasionally flake to a Pass) on
+# asuka GT1 and lars GT1
+dEQP-GLES31.functional.geometry_shading.layered.render_with_default_layer_2d_array
+dEQP-GLES31.functional.geometry_shading.layered.render_with_default_layer_cubemap
+dEQP-GLES31.functional.geometry_shading.layered.render_with_default_layer_2d_multisample_array
+dEQP-GLES31.functional.geometry_shading.layered.render_with_default_layer_3d
+
+# Seen on both asuka (Skylake U, GT1 510 and GT2 520) and sentry ().  Not seen yet on cave or caroline (Skylake Y, GT2 515).
+dEQP-VK.subgroups.ballot_broadcast.compute.subgroupbroadcast_f16vec4
+dEQP-VK.subgroups.ballot_broadcast.compute.subgroupbroadcast_i16vec4
+dEQP-VK.subgroups.ballot_broadcast.compute.subgroupbroadcast_i8vec4
+dEQP-VK.subgroups.ballot_broadcast.compute.subgroupbroadcast_u16vec4
+dEQP-VK.subgroups.ballot_broadcast.compute.subgroupbroadcast_u8vec4
+dEQP-VK.subgroups.*.compute.subgroupclustered.*64vec4_requiredsubgroupsize
+dEQP-VK.subgroups.*.compute.subgroupclustered.*dvec4_requiredsubgroupsize
+
+# Seen on asuka GT1 and sentry, at least.
+dEQP-GLES31.functional.image_load_store.2d_array.atomic.exchange_r32f_return_value
+dEQP-GLES31.functional.image_load_store.3d.atomic.exchange_r32f_return_value
+dEQP-GLES31.functional.image_load_store.cube.atomic.exchange_r32f_return_value
+
+dEQP-VK.binding_model.descriptorset_random.sets8.noarray.ubolimitlow.sbolimitlow.sampledimglow.outimgtexlow.iublimitlow.uab.frag.noia.0

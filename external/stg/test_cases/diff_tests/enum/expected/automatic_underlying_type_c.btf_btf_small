@@ -1,0 +1,16 @@
+type 'enum A' changed
+  underlying type changed from 'enum-underlying-unsigned-32' to 'enum-underlying-unsigned-64'
+  enumerator 'Ae' value changed from 16777216 to 281474976710656
+
+type 'enum B' changed
+  enumerator 'Be' value changed from 2147483647 to 2147483648
+
+type 'enum C' changed
+  underlying type changed from 'enum-underlying-signed-64' to 'enum-underlying-unsigned-64'
+  enumerator 'Ce' value changed from -9223372036854775808 to -1
+
+type 'enum D' changed
+  underlying type changed from 'enum-underlying-signed-32' to 'enum-underlying-unsigned-32'
+  enumerator 'De' value changed from -1 to 1
+
+exit code 4

@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava-parent</artifactId>
+    <version>32.1.2-jre</version>
+  </parent>
+  <artifactId>guava-gwt</artifactId>
+  <name>Guava GWT compatible libs</name>
+  <description>
+    Guava is a suite of core and expanded libraries that include
+    utility classes, Google's collections, I/O classes, and
+    much more.
+
+    This project includes GWT-friendly sources.
+  </description>
+  <properties>
+    <gwt.version>2.10.0</gwt.version>
+    <gwt.plugin.version>2.10.0</gwt.plugin.version>
+    <gwt.logLevel>WARN</gwt.logLevel>
+  </properties>
+  <repositories>
+    <repository>
+      <id>sonatype-google-snapshots</id>
+      <name>sonatype-google-snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/google-snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>sonatype-snapshots</id>
+      <name>sonatype-snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+  <dependencies>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>failureaccess</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-testlib</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-testlib</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-tests</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gwtproject</groupId>
+      <artifactId>gwt-dev</artifactId>
+      <version>${gwt.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gwtproject</groupId>
+      <artifactId>gwt-user</artifactId>
+      <version>${gwt.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <version>${truth.version}</version>
+      <classifier>gwt</classifier>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <!-- use the guava we're building. -->
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.google.truth.extensions</groupId>
+      <artifactId>truth-java8-extension</artifactId>
+      <version>${truth.version}</version>
+      <classifier>gwt</classifier>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <!-- use the guava we're building. -->
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.checkerframework</groupId>
+      <artifactId>checker-qual</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!-- Yes, we want to exclude ForceGuavaCompilation 4 times: -->
+            <!-- (And we might as well exclude DummyJavadocClass 3 times (though it would be harmless to include).) -->
+            <!-- 1. Don't compile it (since that requires a *non-test* dep on gwt-user. -->
+            <exclude>**/ForceGuavaCompilation*</exclude>
+            <exclude>**/DummyJavadocClass*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!-- 2. Don't include the source in the jar (since that would let users depend on it from GWT client code, which is compiled from source). -->
+            <exclude>**/ForceGuavaCompilation*</exclude>
+            <exclude>**/DummyJavadocClass*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!-- 3. Don't include it in the source jar (since it's really more of a "test" than it is production code). -->
+            <exclude>**/ForceGuavaCompilation*</exclude>
+            <exclude>**/DummyJavadocClass*</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <sourceFileExcludes>
+            <!-- 4. Don't build Javadoc for it (since that, too, would require a *non-test* dep on gwt-user. -->
+            <sourceFileExclude>**/ForceGuavaCompilation*</sourceFileExclude>
+          </sourceFileExcludes>
+          <!-- The above exclusion doesn't actually matter unless I prevent Javadoc from autodiscovering the source in the sourcepath, which defaults to the source directory :\ Boo for -sourcepath. -->
+          <sourcepath>doesnotexist</sourcepath>
+          <!-- Note that we do need to build Javadoc for *some* class. Otherwise, we get an empty Javadoc jar, which the Sonatype repository manager rejects. To avoid that, we've introduced a dummy class. But we made it package-private so that no one can depend on it. That in turn forced us to configure Javadoc to show package-private APIs. -->
+          <show>package</show>
+        </configuration>
+      </plugin>
+      <!-- Disable "normal" testing, which doesn't work for GWT tests. -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-failureaccess-sources</id>
+            <phase>generate-resources</phase>
+            <goals><goal>unpack-dependencies</goal></goals>
+            <configuration>
+              <includeArtifactIds>failureaccess</includeArtifactIds>
+              <classifier>sources</classifier>
+              <excludeTransitive>true</excludeTransitive>
+              <excludes>META-INF/MANIFEST.MF</excludes>
+              <outputDirectory>${project.build.directory}/failureaccess-sources</outputDirectory>
+              <type>java-source</type>
+              <silent>false</silent>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-guava-sources</id>
+            <phase>generate-resources</phase>
+            <goals><goal>unpack-dependencies</goal></goals>
+            <configuration>
+              <includeArtifactIds>guava</includeArtifactIds>
+              <classifier>sources</classifier>
+              <excludeTransitive>true</excludeTransitive>
+              <excludes>META-INF/MANIFEST.MF</excludes>
+              <outputDirectory>${project.build.directory}/guava-sources</outputDirectory>
+              <type>java-source</type>
+              <silent>false</silent>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-guava-testlib-sources</id>
+            <phase>generate-resources</phase>
+            <goals><goal>unpack-dependencies</goal></goals>
+            <configuration>
+              <includeArtifactIds>guava-testlib</includeArtifactIds>
+              <classifier>sources</classifier>
+              <excludeTransitive>true</excludeTransitive>
+              <excludes>META-INF/MANIFEST.MF</excludes>
+              <outputDirectory>${project.build.directory}/guava-test-sources</outputDirectory>
+              <type>java-source</type>
+              <silent>false</silent>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-guava-testlib-test-sources</id>
+            <phase>generate-resources</phase>
+            <goals><goal>unpack-dependencies</goal></goals>
+            <configuration>
+              <includeArtifactIds>guava-testlib</includeArtifactIds>
+              <classifier>test-sources</classifier>
+              <excludeTransitive>true</excludeTransitive>
+              <excludes>META-INF/MANIFEST.MF</excludes>
+              <outputDirectory>${project.build.directory}/guava-test-sources</outputDirectory>
+              <type>java-source</type>
+              <silent>false</silent>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-guava-test-sources</id>
+            <phase>generate-resources</phase>
+            <goals><goal>unpack-dependencies</goal></goals>
+            <configuration>
+              <includeArtifactIds>guava-tests</includeArtifactIds>
+              <classifier>test-sources</classifier>
+              <excludeTransitive>true</excludeTransitive>
+              <excludes>META-INF/MANIFEST.MF</excludes>
+              <outputDirectory>${project.build.directory}/guava-test-sources</outputDirectory>
+              <type>java-source</type>
+              <silent>false</silent>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>failureaccess</artifactId>
+            <version>1.0.2</version>
+            <classifier>sources</classifier>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-testlib</artifactId>
+            <version>${project.version}</version>
+            <classifier>sources</classifier>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-testlib</artifactId>
+            <version>${project.version}</version>
+            <classifier>test-sources</classifier>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-tests</artifactId>
+            <version>${project.version}</version>
+            <classifier>test-sources</classifier>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-gwt-files</id>
+            <phase>generate-resources</phase>
+            <goals><goal>run</goal></goals>
+            <configuration>
+              <target name="copy-gwt-resources">
+                <copy toDir="${project.build.directory}/guava-gwt-sources">
+                  <fileset dir="${project.build.directory}/guava-sources">
+                    <contains text="@GwtCompatible"/>
+                  </fileset>
+                </copy>
+                <!-- The following don't contain @GwtCompatible for dependency reasons. -->
+                <copy toDir="${project.build.directory}/guava-gwt-sources">
+                  <fileset dir="${project.build.directory}/guava-sources">
+                    <include name="**/ListenableFuture.java" />
+                  </fileset>
+                </copy>
+                <copy toDir="${project.build.directory}/guava-gwt-sources">
+                  <fileset dir="${project.build.directory}/failureaccess-sources">
+                    <include name="**/InternalFutures.java" />
+                  </fileset>
+                </copy>
+                <copy toDir="${project.build.directory}/guava-gwt-sources">
+                  <fileset dir="${project.build.directory}/failureaccess-sources">
+                    <include name="**/InternalFutureFailureAccess.java" />
+                  </fileset>
+                </copy>
+                <!-- Any manually written supersource should take priority over the original guava source, so we set overwrite=true. -->
+                <copy toDir="${project.build.directory}/guava-gwt-sources" overwrite="true">
+                  <fileset dir="src-super" />
+                </copy>
+                <copy toDir="${project.build.directory}/guava-test-gwt-sources">
+                  <fileset dir="${project.build.directory}/guava-test-sources">
+                    <contains text="@GwtCompatible"/>
+                  </fileset>
+                </copy>
+                <!-- TODO(cpovirk): If we continue stripping these once we use @ElementTypesAreNonnullByDefault, then we should strip @ElementTypesAreNonnullByDefault, too, to reflect that the classes are *not* fully annotated. But hopefully we can stop stripping them, as https://github.com/jspecify/jspecify/issues/184 should make possible. -->
+                <replace token="@Nullable" value="">
+                  <fileset dir="${project.build.directory}">
+                    <include name="guava-gwt-sources/**/*.java"/>
+                    <include name="guava-test-gwt-sources/**/*.java"/>
+                  </fileset>
+                </replace>
+                <replace token="@NonNull" value="">
+                  <fileset dir="${project.build.directory}">
+                    <include name="guava-gwt-sources/**/*.java"/>
+                    <include name="guava-test-gwt-sources/**/*.java"/>
+                  </fileset>
+                </replace>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>gwt-maven-plugin</artifactId>
+        <version>${gwt.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>gwt-compile</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <module>com.google.common.ForceGuavaCompilation</module>
+              <failOnError>true</failOnError>
+              <logLevel>${gwt.logLevel}</logLevel>
+              <generateJsInteropExports>true</generateJsInteropExports>
+              <validateOnly>true</validateOnly>
+              <sourceLevel>1.8</sourceLevel>
+              <!--
+                To avoid "java.io.IOException: User limit of inotify watches reached" under JDK10.
+                Presumably we don't need inotify, since we don't intend to change files during the
+                build?
+                -->
+              <extraJvmArgs>-Dgwt.watchFileChanges=false</extraJvmArgs>
+            </configuration>
+          </execution>
+          <!--
+            GWT issues some scary warnings while running tests, but I believe they are harmless.
+            Let's take the warnings for one module, c.g.c.base.testModule, as an example:
+
+              [INFO] Validating units:
+              [INFO]    Ignored 53 units with compilation errors in first pass.
+              [INFO] Compile with -strict or with -logLevel set to TRACE or DEBUG to see all errors.
+
+            Turning up the log level, we see that GWT is trying to compile classes from other
+            packages, like RangeTest. The reason for this is that GWT doesn't distinguish between
+            .java files in c.g.c.collect.Collect, a module that the c.g.c.base test module inherits,
+            and .java files in c.g.c.collect.testModule, one that it doesn't[*]. Consequently,
+            c.g.c.base.testModule transitively pulls in .java files from both modules while reading
+            the module description of only the prod module. And the prod module doesn't inherit all
+            the modules that the test module classes use, so we get errors.
+
+            The good news is that, despite ignoring errors here, GWT does fail if any errors affect
+            classes that are actually used in the module under test.
+
+            One way to eliminate the warnings is to make base.testModule include the not really
+            necessary <inherits> lines for c.g.c.collect.testModule, etc. However, adding <inherits>
+            lines could make c.g.c.base.testModule transitively inherit from extra modules. If some
+            of those modules are ones that it uses but forgets to list in its own <inherits>, we'd
+            like to get an error. Currently we do, but if we add the extra <inherits> lines, we
+            won't.
+
+            I have one idea for a better approach, but it's painful, and I haven't tested it: We
+            could postprocess Collect.gwt.xml to add <skip> lines for all the files that should be
+            covered by testModule.gwt.xml. Maybe I'll try it someday.
+
+            [*] https://code.google.com/p/google-web-toolkit/wiki/ResourceOracle#When_multiple_PathPrefix_es_have_the_same_path
+                https://code.google.com/p/google-web-toolkit/issues/detail?id=7581
+            -->
+          <execution>
+            <id>gwt-test</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <module>com.google.common.GuavaTests</module>
+              <includes>**/GwtTestSuite.java</includes>
+              <logLevel>${gwt.logLevel}</logLevel>
+              <mode>htmlunit</mode>
+              <htmlunit>FF38</htmlunit>
+              <productionMode>true</productionMode>
+              <!-- Fix OutOfMemoryError under Travis. -->
+              <extraJvmArgs>-Xms3500m -Xmx3500m -Xss1024k</extraJvmArgs>
+              <sourceLevel>1.8</sourceLevel>
+              <!-- Keep these timeouts very large because, if we hit the timeout, the tests silently pass :( -->
+              <testTimeOut>86400 <!-- seconds --></testTimeOut>
+              <testMethodTimeout>1440 <!-- minutes --></testMethodTimeout>
+              <!-- Presumably we want watchFileChanges=false here, since we want it for compile: -->
+              <extraJvmArgs>-Dgwt.watchFileChanges=false</extraJvmArgs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>src</directory>
+      </resource>
+      <!-- src-super is copied to guava-gwt-sources (so that we can strip its @Nullable annotations), so we don't need to list it here. We may want to arrange something similar for test-super someday. -->
+      <!-- TODO(cpovirk): Why do we have separate src and src-super directories, anyway? -->
+      <resource>
+        <directory>${project.build.directory}/guava-gwt-sources</directory>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>test</directory>
+      </testResource>
+      <testResource>
+        <directory>test-super</directory>
+      </testResource>
+      <testResource>
+        <directory>${project.build.directory}/guava-test-gwt-sources</directory>
+      </testResource>
+    </testResources>
+  </build>
+</project>

@@ -1,0 +1,45 @@
+--- src/prefixed.rs.orig	2023-11-21 14:54:21.563997351 +0000
++++ src/prefixed.rs	2023-11-21 14:48:18.346428666 +0000
+@@ -73,6 +73,7 @@
+     };
+ }
+ 
++#[cfg(not(soong))]
+ macro_rules! prefixed_item {
+     // Calculate the prefixed name in a separate layer of macro expansion
+     // because rustc won't currently accept a non-literal expression as
+@@ -88,6 +89,34 @@
+             { $( $item )+ }
+         }
+     };
++
++    // Output the item.
++    {
++        $attr:ident
++        { $prefixed_name:expr }
++        { $( $item:tt )+ }
++    } => {
++        #[$attr = $prefixed_name]
++        $( $item )+
++    };
++}
++
++#[cfg(soong)]
++macro_rules! prefixed_item {
++    // Calculate the prefixed name in a separate layer of macro expansion
++    // because rustc won't currently accept a non-literal expression as
++    // the value for `#[link_name = value]`.
++    {
++        $attr:ident
++        $name:ident
++        { $( $item:tt )+ }
++    } => {
++        prefixed_item! {
++            $attr
++            { concat!("ring_core_android_platform_", stringify!($name)) }
++            { $( $item )+ }
++        }
++    };
+ 
+     // Output the item.
+     {

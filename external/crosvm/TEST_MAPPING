@@ -1,0 +1,73 @@
+{
+  // New tests are temporarily added to postsubmit first, see go/test-mapping-slo-guide.
+  "postsubmit": [
+    {"name": "base_test_tests_syslog"},
+    {"name": "bit_field_derive_test_bit_field_derive"},
+    {"name": "cros_async_test_tests_executor"},
+    {"name": "hypervisor_test_src_lib"},
+    {"name": "jail_test_src_lib"},
+    {"name": "metrics_test_src_lib"},
+    {"name": "net_util_test_src_lib"},
+    {"name": "p9_wire_format_derive_test_src_lib"},
+    {"name": "x86_64_test_src_lib"}
+  ],
+  "presubmit": [
+    // Commented out tests entries have failures.
+    //
+    // Many of these probably just need root permissions (via
+    // rust_test.require_root) to access /dev/kvm.
+    //
+    // android-test-mapping-entries.sh can be used to help update this list.
+    {"name": "acpi_tables_test_src_lib"},
+    {"name": "arch_test_src_lib"},
+    {"name": "audio_streams_test_src_audio_streams"},
+    {"name": "base_event_token_derive_test_src_lib"},
+    // {"name": "base_test_src_lib"},
+    // {"name": "base_test_tests_linux_main"},
+    {"name": "base_test_tests_tube"},
+    {"name": "bit_field_test_tests_test_enum"},
+    {"name": "bit_field_test_tests_test_tuple_struct"},
+    // {"name": "cros_async_test_src_lib"},
+    {"name": "cros_fdt_test_src_lib"},
+    {"name": "crosvm_test_src_main"},
+    {"name": "data_model_test_src_lib"},
+    // {"name": "devices_test_src_lib"},
+    // {"name": "devices_test_tests_irqchip_main"},
+    {"name": "disk_test_src_disk"},
+    {"name": "fuse_test_src_lib"},
+    // {"name": "hypervisor_test_tests_dirty_log"},
+    // {"name": "hypervisor_test_tests_kvm_main"},
+    // {"name": "hypervisor_test_tests_mmio_and_pio"},
+    // {"name": "hypervisor_test_tests_read_only_memory"},
+    // {"name": "hypervisor_test_tests_real_run_addr"},
+    // {"name": "hypervisor_test_tests_remove_memory"},
+    // {"name": "hypervisor_test_tests_tsc_offsets"},
+    {"name": "kernel_cmdline_test_src_kernel_cmdline"},
+    {"name": "kernel_loader_test_src_lib"},
+    // {"name": "kvm_sys_test_tests_basic"},
+    // {"name": "kvm_test_tests_dirty_log"},
+    // {"name": "kvm_test_tests_kvm_tests"},
+    // {"name": "kvm_test_tests_read_only_memory"},
+    // {"name": "kvm_test_tests_real_run_adder"},
+    // {"name": "net_util_test_tests_unix_tap"},
+    {"name": "p9_test_src_lib"},
+    {"name": "resources_test_src_lib"},
+    {"name": "rutabaga_gfx_test_src_lib"},
+    {"name": "serde_keyvalue_test_src_lib"},
+    {"name": "usb_util_test_src_lib"},
+    // {"name": "vhost_test_tests_linux"},
+    {"name": "vm_control_test_src_lib"},
+    {"name": "vm_memory_test_src_lib"}
+    // {"name": "vmm_vhost_test_src_lib"},
+    // {"name": "x86_64_test_tests_integration_main"},
+    // {"name": "x86_64_test_tests_linux"},
+  ],
+  "imports": [
+    {
+      "path": "packages/modules/Virtualization"
+    },
+    {
+      "path": "device/google/cuttlefish"
+    }
+  ]
+}

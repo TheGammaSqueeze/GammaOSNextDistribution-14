@@ -1,0 +1,27 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "mwiitala, ChromeOS Kernel Team"
+NAME = "debug_kernel_testing"
+PURPOSE = "Suite to run Syzkaller tests on ChromeOS devices."
+
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite is intended to run miscellaneous tests for
+go/cros-automated-debug-kernel-testing. Other test suites run for
+debug kernel testing (DKT) as well, but this suite allows tests to be
+added to the set without adding an entire suite.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

@@ -1,0 +1,14 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index f466756..995f3bd 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -48,6 +48,10 @@ pub use crate::{
+ };
+ pub use der::{self, asn1::ObjectIdentifier};
+ 
++/// Local Android change: Use std to allow building as a dylib.
++#[cfg(android_dylib)]
++extern crate std;
++
+ #[cfg(feature = "alloc")]
+ pub use {crate::traits::EncodePublicKey, der::Document};

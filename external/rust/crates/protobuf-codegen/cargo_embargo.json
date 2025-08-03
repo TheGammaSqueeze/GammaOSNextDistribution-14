@@ -1,0 +1,9 @@
+{
+  "package": {
+    "protobuf-codegen": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false,
+  "tests": true
+}

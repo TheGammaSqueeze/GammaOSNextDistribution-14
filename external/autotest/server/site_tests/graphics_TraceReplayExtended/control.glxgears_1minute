@@ -1,0 +1,29 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+PY_VERSION = 3
+AUTHOR = "ChromeOS Team"
+NAME = "graphics_TraceReplayExtended.glxgears_1minute"
+TIME = "MEDIUM"
+TEST_CATEGORY = "Performance"
+TEST_CLASS = "graphics"
+ATTRIBUTES = "suite:graphics_per-build"
+TEST_TYPE = "server"
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = """
+This test runs a game trace replay on repeat for X minutes and measures system/proc status
+"""
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test("graphics_TraceReplayExtended", host=host,
+                 client_tast_test='glxgears_1minute',
+                 tast_build_bundle='cros',
+                 tast_command_args=args,
+                 max_duration_minutes=10)
+
+parallel_simple(run, machines)

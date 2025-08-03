@@ -1,0 +1,35 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# This file has been automatically generated. Do not edit!
+
+AUTHOR = 'ARC++ Team'
+NAME = 'cheets_CTS_R.internal.x86.CtsShortcut'
+ATTRIBUTES = 'suite:arc-cts, suite:arc-cts-r, suite:arc-cts-unibuild'
+DEPENDENCIES = 'arc, cts_abi_x86'
+JOB_RETRIES = 1
+TEST_TYPE = 'server'
+TIME = 'MEDIUM'
+MAX_RESULT_SIZE_KB = 512000
+PY_VERSION = 3
+DOC = 'Run module CtsShortcutHostTestCases, CtsShortcutManagerLauncher1, CtsShortcutManagerLauncher1[secondary_user], CtsShortcutManagerLauncher2, CtsShortcutManagerLauncher2[secondary_user], CtsShortcutManagerLauncher3, CtsShortcutManagerLauncher3[secondary_user], CtsShortcutManagerLauncher4, CtsShortcutManagerLauncher4[secondary_user], CtsShortcutManagerPackage1, CtsShortcutManagerPackage1[secondary_user], CtsShortcutManagerPackage2, CtsShortcutManagerPackage2[secondary_user], CtsShortcutManagerPackage3, CtsShortcutManagerPackage3[secondary_user], CtsShortcutManagerPackage4, CtsShortcutManagerPackage4[secondary_user], CtsShortcutManagerTestCases, CtsShortcutManagerTestCases[secondary_user], CtsShortcutManagerThrottlingTest, CtsShortcutManagerThrottlingTest[secondary_user] of the Android Compatibility Test Suite (CTS) using x86 ABI in the ARC++ container.'
+
+def run_TS(machine):
+    host_list = [hosts.create_host(machine)]
+    job.run_test(
+        'cheets_CTS_R',
+        hosts=host_list,
+        iterations=1,
+        tag='internal.x86.CtsShortcut',
+        test_name='cheets_CTS_R.internal.x86.CtsShortcut',
+        run_template=['run', 'commandAndExit', 'cts', '--include-filter', 'CtsShortcutHostTestCases', '--include-filter', 'CtsShortcutManagerLauncher1', '--include-filter', 'CtsShortcutManagerLauncher1[secondary_user]', '--include-filter', 'CtsShortcutManagerLauncher2', '--include-filter', 'CtsShortcutManagerLauncher2[secondary_user]', '--include-filter', 'CtsShortcutManagerLauncher3', '--include-filter', 'CtsShortcutManagerLauncher3[secondary_user]', '--include-filter', 'CtsShortcutManagerLauncher4', '--include-filter', 'CtsShortcutManagerLauncher4[secondary_user]', '--include-filter', 'CtsShortcutManagerPackage1', '--include-filter', 'CtsShortcutManagerPackage1[secondary_user]', '--include-filter', 'CtsShortcutManagerPackage2', '--include-filter', 'CtsShortcutManagerPackage2[secondary_user]', '--include-filter', 'CtsShortcutManagerPackage3', '--include-filter', 'CtsShortcutManagerPackage3[secondary_user]', '--include-filter', 'CtsShortcutManagerPackage4', '--include-filter', 'CtsShortcutManagerPackage4[secondary_user]', '--include-filter', 'CtsShortcutManagerTestCases', '--include-filter', 'CtsShortcutManagerTestCases[secondary_user]', '--include-filter', 'CtsShortcutManagerThrottlingTest', '--include-filter', 'CtsShortcutManagerThrottlingTest[secondary_user]', '--logcat-on-failure'],
+        retry_template=['run', 'commandAndExit', 'retry', '--retry', '{session_id}'],
+        target_module='CtsShortcut',
+        target_plan=None,
+        bundle='x86',
+        uri='DEV',
+        use_jdk9=True,
+        timeout=39600)
+
+parallel_simple(run_TS, machines)

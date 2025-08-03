@@ -1,0 +1,73 @@
+package {
+    default_applicable_licenses: ["external_llvm_lib_Target_ARM_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_llvm_lib_Target_ARM_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-NCSA",
+    ],
+    license_text: [
+        "LICENSE.TXT",
+    ],
+}
+
+cc_library_static {
+    name: "libLLVMARMCodeGen",
+    defaults: [
+        "llvm-lib-defaults",
+        "llvm-arm-defaults",
+    ],
+    srcs: ["*.cpp"],
+
+    // b/31559947, b/31938382 clang-tidy segmentation fault.
+    tidy_checks: [
+        "-clang-analyzer-*",
+        "-readability-*",
+    ],
+}
+
+cc_defaults {
+    name: "llvm-arm-defaults",
+    generated_headers: ["llvm-gen-arm"],
+    static_libs: ["llvm-arm-headers"],
+}
+
+cc_library_static {
+    name: "llvm-arm-headers",
+    vendor_available: true,
+    product_available: true,
+    host_supported: true,
+    // TODO(b/153609531): remove when no longer needed.
+    native_bridge_supported: true,
+    target: {
+        windows: {
+            enabled: true,
+        },
+    },
+    export_include_dirs: ["."],
+}
+
+llvm_tblgen {
+    name: "llvm-gen-arm",
+    in: "ARM.td",
+    outs: [
+        "ARMGenRegisterInfo.inc",
+        "ARMGenInstrInfo.inc",
+        "ARMGenCodeEmitter.inc",
+        "ARMGenMCCodeEmitter.inc",
+        "ARMGenMCPseudoLowering.inc",
+        "ARMGenAsmWriter.inc",
+        "ARMGenAsmMatcher.inc",
+        "ARMGenDAGISel.inc",
+        "ARMGenFastISel.inc",
+        "ARMGenCallingConv.inc",
+        "ARMGenSubtargetInfo.inc",
+        "ARMGenDisassemblerTables.inc",
+    ],
+}
+
+subdirs = ["*"]

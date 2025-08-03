@@ -1,0 +1,23 @@
+variable symbol '_ZTI15VirtualToNormal' was removed
+
+variable symbol '_ZTS15VirtualToNormal' was removed
+
+variable symbol '_ZTV15VirtualToNormal' was removed
+
+variable symbol '_ZTI15NormalToVirtual' was added
+
+variable symbol '_ZTS15NormalToVirtual' was added
+
+variable symbol '_ZTV15NormalToVirtual' was added
+
+type 'struct NormalToVirtual' changed
+  byte size changed from 1 to 8
+  method 'print {_ZN15NormalToVirtual5printEv}' was added
+  member 'int(** _vptr$NormalToVirtual)()' was added
+
+type 'struct VirtualToNormal' changed
+  byte size changed from 8 to 1
+  method 'print {_ZN15VirtualToNormal5printEv}' was removed
+  member 'int(** _vptr$VirtualToNormal)()' was removed
+
+exit code 4

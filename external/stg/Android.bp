@@ -1,0 +1,120 @@
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+//
+// Copyright 2021 Google LLC
+//
+// Licensed under the Apache License v2.0 with LLVM Exceptions (the
+// "License"); you may not use this file except in compliance with the
+// License.  You may obtain a copy of the License at
+//
+//     https://llvm.org/LICENSE.txt
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Author: Giuliano Procida
+
+package {
+    default_applicable_licenses: ["llvm_license"],
+}
+
+// http://go/android-license-faq
+license {
+    name: "llvm_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "defaults",
+    defaults: ["elfutils_transitive_defaults"],
+    visibility: [
+        "//visibility:private",
+    ],
+    cpp_std: "c++20",
+    cflags: [
+        "-DUSE_ANDROID_BUILD_NUMBER",
+        "-fexceptions",
+        "-Wno-error=unused-parameter",
+    ],
+    static_libs: [
+        "libbpf",
+        "libbuildversion",
+        "libdw",
+        "libelf",
+        "libicuuc",
+        "libicuuc_stubdata",
+        "libjemalloc5",
+        "libprotobuf-cpp-full",
+        "libxml2",
+    ],
+    compile_multilib: "64",
+    target: {
+        darwin: {
+            enabled: false,
+        },
+    },
+    // TODO(b/324274771): figure out a better solution
+    native_coverage: false,
+}
+
+cc_library_host_static {
+    name: "libstg",
+    defaults: ["defaults"],
+    srcs: [
+        "abigail_reader.cc",
+        "btf_reader.cc",
+        "comparison.cc",
+        "deduplication.cc",
+        "dwarf_processor.cc",
+        "dwarf_wrappers.cc",
+        "elf_loader.cc",
+        "elf_reader.cc",
+        "fidelity.cc",
+        "file_descriptor.cc",
+        "filter.cc",
+        "fingerprint.cc",
+        "graph.cc",
+        "input.cc",
+        "naming.cc",
+        "post_processing.cc",
+        "proto_reader.cc",
+        "proto_writer.cc",
+        "reporting.cc",
+        "runtime.cc",
+        "stable_hash.cc",
+        "stg.proto",
+        "type_normalisation.cc",
+        "type_resolution.cc",
+        "unification.cc",
+    ],
+    proto: {
+        export_proto_headers: true,
+    },
+
+}
+
+cc_binary_host {
+    name: "stg",
+    defaults: ["defaults"],
+    srcs: [
+        "stg.cc",
+    ],
+    static_libs: ["libstg"],
+}
+
+cc_binary_host {
+    name: "stgdiff",
+    defaults: ["defaults"],
+    srcs: [
+        "stgdiff.cc",
+    ],
+    static_libs: ["libstg"],
+}

@@ -1,0 +1,47 @@
+rust_defaults {
+    name: "crosvm_defaults",
+    edition: "2018",
+    enabled: false,
+    target: {
+        linux_glibc_x86_64: {
+            enabled: true,
+        },
+        linux_musl_x86_64: {
+            enabled: true,
+        },
+        android64: {
+            compile_multilib: "64",
+            enabled: true,
+        },
+        linux_bionic_arm64: {
+            enabled: true,
+        },
+        linux_musl_arm64: {
+            enabled: true,
+        },
+        darwin: {
+            enabled: false,
+        },
+    },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+    defaults_visibility: [
+        "//external/crosvm:__subpackages__",
+        "//packages/modules/Virtualization/authfs",
+        // For QCOM's crosvm fork.
+        "//vendor:__subpackages__",
+    ],
+}
+
+// "crosvm_defaults" is being used outside of external/crosvm, so we need a
+// layer of indirection to add options that would break those users.
+//
+// TODO(b/238324526): move others off of "crosvm_defaults"
+rust_defaults {
+    name: "crosvm_inner_defaults",
+    defaults: ["crosvm_defaults"],
+    defaults_visibility: ["//external/crosvm:__subpackages__"],
+    visibility: ["//external/crosvm:__subpackages__"],
+}

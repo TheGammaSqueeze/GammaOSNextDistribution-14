@@ -1,0 +1,57 @@
+# Copyright 2018 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.critical-android-shard-2'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+DEPENDENCIES = 'servo_state:WORKING'
+# Android tests can also be broken by Chrome and OS changes, so these tests need
+# to run in both PFQs and the CQ.
+ATTRIBUTES = 'suite:bvt-tast-cq, suite:bvt-tast-android-pfq, suite:bvt-tast-arc, suite:bvt-tast-chrome-pfq, suite:cft-beta'
+MAX_RESULT_SIZE_KB = 256 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the Tast must-pass ARC test suite.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+This test runs Android-dependent Tast-based tests that are required to pass
+against a remote DUT. It fails if any individual Tast tests fail.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+args_dict = utils.args_to_dict(args)
+assert 'servo_state:WORKING' in DEPENDENCIES
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    # TODO(crbug.com/992303): Fix android condition.
+    # Make sure if you modify this condition to update ATP side config
+    # in http://cs/file:tast_critical.gcl
+    job.run_test('tast',
+                 host=hosts.create_host(machine, servo_args=servo_args),
+                 test_exprs=['('
+                             '"group:mainline" && '
+                             '!informational && '
+                             '!"name:crostini.*" && '
+                             '"dep:android*"'
+                             ')'],
+                 ignore_test_failures=False, max_run_sec=3600,
+                 totalshards=3,
+                 shardindex=2,
+                 command_args=args,
+                 clear_tpm=True,
+                 retries=2)
+
+parallel_simple(run, machines)

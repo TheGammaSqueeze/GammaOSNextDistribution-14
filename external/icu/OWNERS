@@ -1,0 +1,12 @@
+# Default reviewers
+vichang@google.com
+mingaleev@google.com
+
+# Bug component: 24949
+# libcore team is the larger team owning the library.
+include platform/libcore:/OWNERS
+
+libcore-bugs-triage@google.com
+# g2.corp.android-icu-maintainers@google.com
+# android-libcore-team+review@google.com
+

@@ -1,0 +1,105 @@
+package {
+    default_applicable_licenses: ["external_libfuse_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_libfuse_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-LGPL-2.0",
+        "SPDX-license-identifier-LGPL-2.1",
+        "SPDX-license-identifier-LGPL-3.0",
+    ],
+    license_text: [
+        "LGPL2.txt",
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "libfuse_default_flags",
+    local_include_dirs: [
+        "include/",
+        "lib/",
+    ],
+    cflags: [
+        "-D_FILE_OFFSET_BITS=64",
+        "-DFUSERMOUNT_DIR=\"/system/bin\"",
+        "-DFUSE_USE_VERSION=35",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-sign-compare",
+        "-Wno-incompatible-pointer-types",
+        "-Wno-missing-field-initializers",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+    ],
+
+    sdk_version: "current",
+    min_sdk_version: "30",
+
+    ldflags: [
+    ],
+}
+
+cc_library {
+    name: "libfuse",
+    defaults: [
+        "libfuse_default_flags",
+    ],
+
+    export_include_dirs: [
+        "include",
+        "lib",
+    ],
+
+    version_script: "lib/fuse_versionscript",
+
+    vendor_available: true,
+
+    srcs: [
+        "lib/buffer.c",
+        "lib/cuse_lowlevel.c",
+        "lib/fuse.c",
+        "lib/fuse_log.c",
+        "lib/fuse_loop.c",
+        "lib/fuse_loop_mt.c",
+        "lib/fuse_lowlevel.c",
+        "lib/fuse_opt.c",
+        "lib/fuse_signals.c",
+        "lib/helper.c",
+        "lib/modules/subdir.c",
+        "lib/modules/iconv.c",
+        "lib/mount.c",
+        "lib/mount_util.c",
+    ],
+
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.mediaprovider",
+    ],
+}

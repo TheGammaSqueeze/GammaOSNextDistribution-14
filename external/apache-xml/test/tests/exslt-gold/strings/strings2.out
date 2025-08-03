@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><out>
+   Concatentating all a/* nodes from the input file gives us:
+   Dmitry HayesMatthew HoytDave Bertoni
+    June Ng
+    Henry Zongaro
+    Joanne Tong
+    Morris Kwan
+  <br/>
+   Concatenating a/c/d nodes from my input file gives us:
+   June NgHenry ZongaroJoanne Tong</out>

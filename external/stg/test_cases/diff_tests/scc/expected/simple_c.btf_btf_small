@@ -1,0 +1,5 @@
+type 'struct N' changed
+  member changed from 'char extra' to 'short extra'
+    type changed from 'char' to 'short'
+
+exit code 4

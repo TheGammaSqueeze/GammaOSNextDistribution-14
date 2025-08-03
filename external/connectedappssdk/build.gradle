@@ -1,0 +1,29 @@
+buildscript {
+    ext.deps = [
+            androidGradlePlugin: "com.android.tools.build:gradle:4.1.0",
+            checkerFramework: "org.checkerframework:checker-qual:3.9.1",
+            androidxTest: "androidx.test:core:1.3.0",
+            autovalue: "com.google.auto.value:auto-value:1.6.3",
+            autovalueAnnotations: "com.google.auto.value:auto-value-annotations:1.6.3",
+            autoservice: "com.google.auto.service:auto-service:1.0-rc6",
+            autoserviceAnnotations: "com.google.auto.service:auto-service-annotations:1.0-rc6",
+            javapoet: "com.squareup:javapoet:1.13.0",
+            guava: "com.google.guava:guava:29.0-jre",
+            errorprone: "com.google.errorprone:error_prone_core:2.8.1",
+            robolectric: "org.robolectric:robolectric:4.7.2"
+    ]
+    repositories {
+        jcenter()
+        google()
+    }
+    dependencies {
+        classpath deps.androidGradlePlugin
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}

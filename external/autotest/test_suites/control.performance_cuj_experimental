@@ -1,0 +1,35 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "abergman, chromeos-engprod-platform-syd"
+NAME = "performance_cuj_experimental"
+PURPOSE = "Suite for running experimental performance CUJ tests on Moblab."
+TIME = "LONG"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite executes a set of experimental performance CUJs (critical user
+journey) test cases. Supposed to be run by developers of test and for
+verification purposes to validate newly added tests before adding them to the
+production suite.
+
+@param build: The name of the image to test.
+          Ex: x86-mario-release/R17-1412.33.0-a1-b29
+@param board: The board to test on. Ex: x86-mario
+@param pool: The pool of machines to utilize for scheduling. If pool=None
+             board is used.
+@param dry_run: simulate test execution without stressing the storage.
+@param SKIP_IMAGE: (optional) If present and True, don't re-image devices.
+"""
+
+import common
+
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['name'] = NAME
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

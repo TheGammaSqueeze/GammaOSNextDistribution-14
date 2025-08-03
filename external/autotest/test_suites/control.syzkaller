@@ -1,0 +1,26 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "mwiitala, ChromeOS Kernel Team"
+NAME = "syzkaller"
+PURPOSE = "Suite to run Syzkaller tests on ChromeOS devices."
+
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+
+DOC = """
+This suite utilizes Syzkaller to fuzz the ChromeOS Kernel.
+See go/ctp-syzkaller for more details.
+"""
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+
+args_dict['max_runtime_mins'] = 60
+args_dict['name'] = NAME
+args_dict['job'] = job
+
+dynamic_suite.reimage_and_run(**args_dict)

@@ -1,0 +1,44 @@
+#!/bin/bash --posix
+
+bundletool="%bundletool_path%"
+aab="%aab%"
+oldest_signer_properties="%oldest_signer_properties%"
+newest_key="%newest_key%"
+lineage="%lineage%"
+min_rotation_api="%min_rotation_api%"
+tmp="$(mktemp /tmp/XXXXbundle.apks)"
+
+function cleanup {
+  rm  -r "$tmp"
+}
+trap cleanup EXIT
+
+args=(
+  --bundle="$aab"
+  --output="$tmp"
+  --overwrite
+  --local-testing
+  --ks="$newest_key"
+  --ks-pass=pass:android
+  --ks-key-alias=androiddebugkey
+  --key-pass=pass:android
+)
+
+if [[ ! -z "$lineage" ]]; then
+  args+=(--lineage="$lineage")
+fi
+
+if [[ ! -z "$oldest_signer_properties" ]]; then
+  args+=(--oldest-signer="$oldest_signer_properties")
+fi
+
+if [[ ! -z "$min_rotation_api" ]]; then
+  args+=(--rotation-min-sdk-version="$min_rotation_api")
+fi
+
+java -jar "$bundletool" build-apks "${args[@]}" || exit
+
+java -jar "$bundletool" install-apks \
+  --adb="$(which adb)" \
+  --apks "$tmp" \
+  --modules=_ALL_ || exit

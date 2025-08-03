@@ -1,0 +1,18 @@
+package {
+    default_applicable_licenses: ["external_go-cmp_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_go-cmp_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+build = ["Android.gen.bp"]

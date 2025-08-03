@@ -1,0 +1,6 @@
+{
+  "git": {
+    "sha1": "0494c052bbcdb0565f2a3f29ddbe3e5e8bc55b67"
+  },
+  "path_in_vcs": "crates/virtio-bindings"
+}

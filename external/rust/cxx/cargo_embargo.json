@@ -1,0 +1,8 @@
+{
+  "module_blocklist": ["demo", "libcxx", "libcxx_build", "libcxx_test_suite", "libcxxbridge_flags"],
+  "package": {
+    "cxxbridge-cmd": { "device_supported": false, "host_first_multilib": true },
+    "cxx-gen": {"device_supported": false, "host_first_multilib": true}
+  },
+  "run_cargo": false
+}

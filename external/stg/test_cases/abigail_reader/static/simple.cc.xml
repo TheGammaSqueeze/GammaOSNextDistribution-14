@@ -1,0 +1,24 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_ZN3Foo7DefaultEv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='_ZN3Foo2stE' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='simple.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='Foo' size-in-bits='32' is-struct='yes' visibility='default' id='a44bfb6f'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='bar' type-id='95e97e5e' visibility='default'/>
+      </data-member>
+      <data-member access='public' static='yes'>
+        <var-decl name='st' type-id='95e97e5e' mangled-name='_ZN3Foo2stE' visibility='default' elf-symbol-id='_ZN3Foo2stE'/>
+      </data-member>
+      <member-function access='public' static='yes'>
+        <function-decl name='Default' mangled-name='_ZN3Foo7DefaultEv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN3Foo7DefaultEv'>
+          <return type-id='a44bfb6f'/>
+        </function-decl>
+      </member-function>
+    </class-decl>
+  </abi-instr>
+</abi-corpus>

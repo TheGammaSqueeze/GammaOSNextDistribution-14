@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/clap_lex
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "clap_lex"
+description: "Minimal, flexible command line parser"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/clap_lex"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/clap_lex/clap_lex-0.3.2.crate"
+  }
+  version: "0.3.2"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 3
+    day: 2
+  }
+}

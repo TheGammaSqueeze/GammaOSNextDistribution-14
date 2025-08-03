@@ -1,0 +1,17 @@
+diff --git a/rules.mk b/rules.mk
+index 28e6a41..893dbc6 100644
+--- a/rules.mk
++++ b/rules.mk
+@@ -10,6 +10,12 @@ MODULE_SRCS := \
+ MODULE_RUST_EDITION := 2018
+ MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="default"' \
++
++ifeq ($(call TOBOOL,$(TRUSTY_USERSPACE)),true)
++
++MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="std"' \
+ 
++endif
++
+ include make/library.mk

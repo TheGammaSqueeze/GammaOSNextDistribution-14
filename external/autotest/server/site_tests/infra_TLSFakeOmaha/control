@@ -1,0 +1,19 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dbeckett"
+NAME = "infra_TLSFakeOmaha"
+TIME = "SHORT"
+TEST_TYPE = "server"
+PY_VERSION = 3
+
+DOC = """
+Test the TLS FakeOmaha API
+"""
+
+def run(machine):
+    job.run_test('infra_TLSFakeOmaha',
+                 host=hosts.create_host(machine))
+
+parallel_simple(run, machines)

@@ -1,0 +1,42 @@
+function symbol 'void fun(struct S*)' changed
+  type 'void(struct S*)' changed
+    parameter 1 type 'struct S*' changed
+      pointed-to type 'struct S' changed
+        member changed from 'A c_a' to 'const A c_a'
+          type changed from 'A' = 'int[7]' to 'const A'
+            qualifier const added
+        member changed from 'A v_a' to 'volatile A v_a'
+          type changed from 'A' = 'int[7]' to 'volatile A'
+            qualifier volatile added
+        member changed from 'B c_b' to 'const B c_b'
+          type changed from 'B' = 'A' = 'int[7]' to 'const B'
+            qualifier const added
+        member changed from 'B v_b' to 'volatile B v_b'
+          type changed from 'B' = 'A' = 'int[7]' to 'volatile B'
+            qualifier volatile added
+        member changed from 'C c_c' to 'const C c_c'
+          type changed from 'C' = 'const B' to 'const C'
+            qualifier const added
+        member changed from 'C v_c' to 'volatile C v_c'
+          type changed from 'C' = 'const B' to 'volatile C'
+            qualifier volatile added
+        member changed from 'D c_d' to 'const D c_d'
+          type changed from 'D' = 'C' = 'const B' to 'const D'
+            qualifier const added
+        member changed from 'D v_d' to 'volatile D v_d'
+          type changed from 'D' = 'C' = 'const B' to 'volatile D'
+            qualifier volatile added
+        member changed from 'E c_e' to 'const E c_e'
+          type changed from 'E' = 'volatile D' to 'const E'
+            qualifier const added
+        member changed from 'E v_e' to 'volatile E v_e'
+          type changed from 'E' = 'volatile D' to 'volatile E'
+            qualifier volatile added
+        member changed from 'F c_f' to 'const F c_f'
+          type changed from 'F' = 'E' = 'volatile D' to 'const F'
+            qualifier const added
+        member changed from 'F v_f' to 'volatile F v_f'
+          type changed from 'F' = 'E' = 'volatile D' to 'volatile F'
+            qualifier volatile added
+
+exit code 4

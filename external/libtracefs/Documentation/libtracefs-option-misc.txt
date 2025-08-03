@@ -1,0 +1,100 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_option_enable, tracefs_option_disable, tracefs_option_name -
+Various trace option functions.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+int *tracefs_option_enable*(struct tracefs_instance pass:[*]_instance_, enum tracefs_option_id _id_);
+int *tracefs_option_disable*(struct tracefs_instance pass:[*]_instance_, enum tracefs_option_id _id_);
+const char pass:[*]*tracefs_option_name*(enum tracefs_option_id _id_);
+--
+
+DESCRIPTION
+-----------
+This set of APIs can be used to enable and disable ftrace options and to get the name of an option.
+
+The *tracefs_option_enable()* function enables the option with _id_ in the given _instance_. If
+_instance_ is NULL, the option is enabled in the top trace instance.
+
+The *tracefs_option_disable()* function disables the option with _id_ in the given _instance_. If
+_instance_ is NULL, the option is disabled in the top trace instance.
+
+The *tracefs_option_name()* function returns a string, representing the option with _id_. The string
+must *not* be freed.
+
+
+RETURN VALUE
+------------
+The *tracefs_option_enable()* and *tracefs_option_disable()* functions return 0 if the state of the
+option is set successfully, or -1 in case of an error.
+
+The *tracefs_option_name()* function returns string with option name, or "unknown" in case of an
+error. The returned string must *not* be freed.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+...
+if (tracefs_option_enable(NULL, TRACEFS_OPTION_ANNOTATE)) {
+	/* Failed to enable annotate option in top trace instance */
+}
+...
+if (tracefs_option_disable(NULL, TRACEFS_OPTION_CONTEXT_INFO)) {
+	/* Failed to disable context info option in top trace instance */
+}
+...
+char *name = tracefs_option_name(TRACEFS_OPTION_FUNC_STACKTRACE);
+if (strcmp(name, "unknown")) {
+	/* Cannot get the name of the option */
+}
+
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

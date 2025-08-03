@@ -1,0 +1,38 @@
+{
+  "min_sdk_version": "29",
+  "package": {
+    "tokio": {
+      "add_toplevel_block": "cargo2android_tests.bp"
+    }
+  },
+  "variants": [
+    {
+      "features": [
+        "fs",
+        "io-util",
+        "macros",
+        "net",
+        "rt",
+        "rt-multi-thread",
+        "sync",
+        "time"
+      ]
+    },
+    {
+      "features": [
+        "fs",
+        "io-util",
+        "macros",
+        "net",
+        "rt",
+        "rt-multi-thread",
+        "sync",
+        "test-util",
+        "time"
+      ],
+      "module_name_overrides": {
+        "libtokio": "libtokio_for_test"
+      }
+    }
+  ]
+}

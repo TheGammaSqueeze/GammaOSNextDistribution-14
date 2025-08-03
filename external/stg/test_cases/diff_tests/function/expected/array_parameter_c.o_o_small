@@ -1,0 +1,5 @@
+variable symbol changed from 'const unsigned short l' to 'const unsigned long l'
+  type changed from 'const unsigned short' to 'const unsigned long'
+    underlying type changed from 'unsigned short' to 'unsigned long'
+
+exit code 4

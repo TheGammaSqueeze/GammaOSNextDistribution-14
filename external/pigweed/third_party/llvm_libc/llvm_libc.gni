@@ -1,0 +1,150 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+
+import("$dir_pw_build/target_types.gni")
+import("$dir_pw_unit_test/test.gni")
+
+declare_args() {
+  # This variable is set to the path of llvm-libc. If set, pw_libc.a will
+  # be created using llvm-libc sources.
+  dir_pw_third_party_llvm_libc = ""
+}
+
+# Creates a source set from llvm-libc functions.
+#
+# This template creates both pw_source_set and pw_test targets pulling in the
+# necessary files to build the functions listed in the `functions` argument.
+# The target name should be the name of the standard header file the functions
+# are found in. For example, the source set that pulls in `printf` should be
+# called `stdio`. This is important because the `target_name` tells this
+# template where to look in the llvm-libc source tree for the functions.
+#
+# Args:
+#  defines: A list of defines to be passed to both the implementation and test
+#    sources.
+#
+#  functions: This is a list of strings for the functions to include in the
+#    source set. Additionally their tests will also be pulled in.
+#
+#  no_test_functions: This is a list of functions from `functions` which should
+#    not be tested. This is useful when the upstream tests either don't exist
+#    or are not suitable for whatever reason.
+#
+#  additional_srcs: This is a list of additional sources which should be added
+#    to the source set. Some functions have their implementation split across
+#    multiple source files, and not entirely in $function.cpp. In this case
+#    `additional_srcs` should be used to pull those files in.
+#
+#  non_cpu_dir: This tells the template which subdirectory to find the default
+#    implementations of functions. For example, some direcotries like math/
+#    have cpu specific implementations in their respective directories for
+#    certain functions. `non_cpu_dir` describes where those functions can be
+#    found. Note, at present upstream llvm-libc only has implementations for
+#    x86 and arm64, so this template doesn't bother looking for the cpu
+#    specific version, and will exclusively use the generic versions found in
+#    `non_cpu_dir`.
+#
+template("pw_libc_source_set") {
+  source_set_target_name = target_name
+
+  target_dir = "$dir_pw_third_party_llvm_libc/src/$source_set_target_name"
+
+  pw_source_set(target_name) {
+    _dir = target_dir
+    _src_dir = _dir
+    if (defined(invoker.non_cpu_dir)) {
+      _src_dir += "/${invoker.non_cpu_dir}"
+    }
+
+    _additional_srcs = []
+    if (defined(invoker.additional_srcs)) {
+      _additional_srcs = invoker.additional_srcs
+    }
+
+    include_dirs = [ dir_pw_third_party_llvm_libc ]
+
+    defines = [
+      "LIBC_COPT_PUBLIC_PACKAGING=1",
+      "LIBC_COPT_USE_C_ASSERT=1",
+      "LIBC_INLINE=inline",
+    ]
+
+    if (defined(invoker.defines)) {
+      defines += invoker.defines
+    }
+
+    forward_variables_from(invoker,
+                           "*",
+                           [
+                             "defines",
+                             "functions",
+                             "no_test_functions",
+                             "additional_srcs",
+                             "non_cpu_dir",
+                           ])
+
+    public = []
+    sources = []
+
+    foreach(function, invoker.functions) {
+      public += [ "$_dir/$function.h" ]
+      sources += [ "$_src_dir/$function.cpp" ]
+    }
+
+    foreach(_src, _additional_srcs) {
+      sources += [ "$_dir/$_src" ]
+    }
+  }
+
+  pw_test("${source_set_target_name}_tests") {
+    _dir = "$dir_pw_third_party_llvm_libc/test/src/$source_set_target_name"
+
+    # This might not be used if all test functions are in no_test_functions
+    not_needed([ _dir ])
+
+    include_dirs = [ dir_pw_third_party_llvm_libc ]
+    defines = [
+      "LIBC_COPT_TEST_USE_PIGWEED",
+      "LIBC_COPT_USE_C_ASSERT=1",
+    ]
+
+    if (defined(invoker.defines)) {
+      defines += invoker.defines
+    }
+
+    forward_variables_from(invoker,
+                           "*",
+                           [
+                             "defines",
+                             "functions",
+                             "no_test_functions",
+                             "additional_srcs",
+                             "non_cpu_dir",
+                           ])
+
+    sources = []
+
+    _no_test_functions = []
+    if (defined(invoker.no_test_functions)) {
+      _no_test_functions = invoker.no_test_functions
+    }
+    foreach(function, invoker.functions - _no_test_functions) {
+      sources += [ "$_dir/${function}_test.cpp" ]
+    }
+
+    deps = [ ":$source_set_target_name" ]
+  }
+}

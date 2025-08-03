@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/regex
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "regex"
+description: "An implementation of regular expressions for Rust. This implementation uses finite automata and guarantees linear time matching on all inputs."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/regex"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/regex/regex-1.7.3.crate"
+  }
+  version: "1.7.3"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 4
+    day: 3
+  }
+}

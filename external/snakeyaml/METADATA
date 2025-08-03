@@ -1,0 +1,19 @@
+name: "snakeyaml"
+description: "a complete YAML 1.1 processor for JVM"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://bitbucket.org/snakeyaml/snakeyaml/"
+  }
+  url {
+    type: GIT
+    value: "https://bitbucket.org/snakeyaml/snakeyaml.git"
+  }
+  version: "snakeyaml-1.32"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 4
+    day: 24
+  }
+}

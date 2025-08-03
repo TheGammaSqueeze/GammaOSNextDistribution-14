@@ -1,0 +1,5 @@
+version: 0x00000002
+root_id: 0x84ea5130
+interface {
+  id: 0x84ea5130
+}

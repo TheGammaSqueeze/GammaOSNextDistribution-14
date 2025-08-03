@@ -1,0 +1,48 @@
+diff --git a/src/mutex/spin.rs b/src/mutex/spin.rs
+index 60be1e8..36d65fd 100644
+--- a/src/mutex/spin.rs
++++ b/src/mutex/spin.rs
+@@ -432,6 +432,7 @@ mod tests {
+     }
+ 
+     #[test]
++    #[ignore = "Android uses panic_abort"]
+     fn test_mutex_arc_access_in_unwind() {
+         let arc = Arc::new(SpinMutex::new(1));
+         let arc2 = arc.clone();
+diff --git a/src/mutex/ticket.rs b/src/mutex/ticket.rs
+index df36e95..4186fb8 100644
+--- a/src/mutex/ticket.rs
++++ b/src/mutex/ticket.rs
+@@ -428,6 +428,7 @@ mod tests {
+     }
+ 
+     #[test]
++    #[ignore = "Android uses panic_abort"]
+     fn test_mutex_arc_access_in_unwind() {
+         let arc = Arc::new(TicketMutex::new(1));
+         let arc2 = arc.clone();
+diff --git a/src/once.rs b/src/once.rs
+index 5d4b451..ad60405 100644
+--- a/src/once.rs
++++ b/src/once.rs
+@@ -384,6 +384,7 @@ mod tests {
+     }
+ 
+     #[test]
++    #[ignore = "Android uses panic_abort"]
+     fn panic() {
+         use ::std::panic;
+ 
+diff --git a/src/rwlock.rs b/src/rwlock.rs
+index 5c009cf..ed50407 100644
+--- a/src/rwlock.rs
++++ b/src/rwlock.rs
+@@ -932,6 +932,7 @@ mod tests {
+     }
+ 
+     #[test]
++    #[ignore = "Android uses panic_abort"]
+     fn test_rw_access_in_unwind() {
+         let arc = Arc::new(RwLock::new(1));
+         let arc2 = arc.clone();

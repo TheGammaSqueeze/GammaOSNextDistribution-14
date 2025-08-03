@@ -1,0 +1,42 @@
+From cee5b1e7290443c472b3fa379212076dc45242fd Mon Sep 17 00:00:00 2001
+From: Edward Liaw <edliaw@google.com>
+Date: Thu, 12 Oct 2023 22:01:34 +0000
+Subject: [PATCH] Revert "selftests/uffd: enable uffd-wp for shmem/hugetlbfs"
+
+This reverts commit c0eeeb02d9df878c71a457008900b650d94bd0d9.
+
+Reason for revert: uffd-wp support is only from >5.19 of the kernel.  It
+will fail on most of the active Android kernels
+
+Bug: 303675116
+Test: atest vts_linux_kselftest_arm_64:vm_userfaultfd_shmem_arm_64
+Signed-off-by: Edward Liaw <edliaw@google.com>
+---
+ tools/testing/selftests/vm/userfaultfd.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
+index 02cc35b65a7a..20f0e1ff4635 100644
+--- a/tools/testing/selftests/vm/userfaultfd.c
++++ b/tools/testing/selftests/vm/userfaultfd.c
+@@ -90,7 +90,7 @@ static bool test_dev_userfaultfd;
+ static volatile bool test_uffdio_copy_eexist = true;
+ static volatile bool test_uffdio_zeropage_eexist = true;
+ /* Whether to test uffd write-protection */
+-static bool test_uffdio_wp = true;
++static bool test_uffdio_wp = false;
+ /* Whether to test uffd minor faults */
+ static bool test_uffdio_minor = false;
+ 
+@@ -1764,6 +1764,8 @@ static void set_test_type(const char *type)
+ 	if (!strcmp(type, "anon")) {
+ 		test_type = TEST_ANON;
+ 		uffd_test_ops = &anon_uffd_test_ops;
++		/* Only enable write-protect test for anonymous test */
++		test_uffdio_wp = true;
+ 	} else if (!strcmp(type, "hugetlb")) {
+ 		test_type = TEST_HUGETLB;
+ 		uffd_test_ops = &hugetlb_uffd_test_ops;
+-- 
+2.42.0.655.g421f12c284-goog
+

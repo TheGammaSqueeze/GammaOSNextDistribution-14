@@ -1,0 +1,976 @@
+// SPDX-License-Identifier: GPL-2.0+ OR Apache-2.0
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#if defined(HAVE_ZLIB)
+#include <zlib.h>
+#endif
+#include "erofs/print.h"
+#include "erofs/cache.h"
+#include "erofs/diskbuf.h"
+#include "erofs/inode.h"
+#include "erofs/list.h"
+#include "erofs/tar.h"
+#include "erofs/io.h"
+#include "erofs/xattr.h"
+#include "erofs/blobchunk.h"
+#include "erofs/rebuild.h"
+
+/* This file is a tape/volume header.  Ignore it on extraction.  */
+#define GNUTYPE_VOLHDR 'V'
+
+struct tar_header {
+	char name[100];		/*   0-99 */
+	char mode[8];		/* 100-107 */
+	char uid[8];		/* 108-115 */
+	char gid[8];		/* 116-123 */
+	char size[12];		/* 124-135 */
+	char mtime[12];		/* 136-147 */
+	char chksum[8];		/* 148-155 */
+	char typeflag;		/* 156-156 */
+	char linkname[100];	/* 157-256 */
+	char magic[6];		/* 257-262 */
+	char version[2];	/* 263-264 */
+	char uname[32];		/* 265-296 */
+	char gname[32];		/* 297-328 */
+	char devmajor[8];	/* 329-336 */
+	char devminor[8];	/* 337-344 */
+	char prefix[155];	/* 345-499 */
+	char padding[12];	/* 500-512 (pad to exactly the 512 byte) */
+};
+
+s64 erofs_read_from_fd(int fd, void *buf, u64 bytes)
+{
+	s64 i = 0;
+
+	while (bytes) {
+		int len = bytes > INT_MAX ? INT_MAX : bytes;
+		int ret;
+
+		ret = read(fd, buf + i, len);
+		if (ret < 1) {
+			if (ret == 0) {
+				break;
+			} else if (errno != EINTR) {
+				erofs_err("failed to read : %s\n",
+					  strerror(errno));
+				return -errno;
+			}
+		}
+		bytes -= ret;
+		i += ret;
+        }
+        return i;
+}
+
+void erofs_iostream_close(struct erofs_iostream *ios)
+{
+	free(ios->buffer);
+	if (ios->decoder == EROFS_IOS_DECODER_GZIP) {
+#if defined(HAVE_ZLIB)
+		gzclose(ios->handler);
+#endif
+		return;
+	}
+	close(ios->fd);
+}
+
+int erofs_iostream_open(struct erofs_iostream *ios, int fd, int decoder)
+{
+	s64 fsz;
+
+	ios->tail = ios->head = 0;
+	ios->decoder = decoder;
+	if (decoder == EROFS_IOS_DECODER_GZIP) {
+#if defined(HAVE_ZLIB)
+		ios->handler = gzdopen(fd, "r");
+		if (!ios->handler)
+			return -ENOMEM;
+		ios->sz = fsz = 0;
+		ios->bufsize = 32768;
+#else
+		return -EOPNOTSUPP;
+#endif
+	} else {
+		ios->fd = fd;
+		fsz = lseek(fd, 0, SEEK_END);
+		if (fsz <= 0) {
+			ios->feof = !fsz;
+			ios->sz = 0;
+		} else {
+			ios->feof = false;
+			ios->sz = fsz;
+			if (lseek(fd, 0, SEEK_SET))
+				return -EIO;
+#ifdef HAVE_POSIX_FADVISE
+			if (posix_fadvise(fd, 0, 0, POSIX_FADV_SEQUENTIAL))
+				erofs_warn("failed to fadvise: %s, ignored.",
+					   erofs_strerror(errno));
+#endif
+		}
+		ios->bufsize = 16384;
+	}
+
+	do {
+		ios->buffer = malloc(ios->bufsize);
+		if (ios->buffer)
+			break;
+		ios->bufsize >>= 1;
+	} while (ios->bufsize >= 1024);
+
+	if (!ios->buffer)
+		return -ENOMEM;
+	return 0;
+}
+
+int erofs_iostream_read(struct erofs_iostream *ios, void **buf, u64 bytes)
+{
+	unsigned int rabytes = ios->tail - ios->head;
+	int ret;
+
+	if (rabytes >= bytes) {
+		*buf = ios->buffer + ios->head;
+		ios->head += bytes;
+		return bytes;
+	}
+
+	if (ios->head) {
+		memmove(ios->buffer, ios->buffer + ios->head, rabytes);
+		ios->head = 0;
+		ios->tail = rabytes;
+	}
+
+	if (!ios->feof) {
+		if (ios->decoder == EROFS_IOS_DECODER_GZIP) {
+#if defined(HAVE_ZLIB)
+			ret = gzread(ios->handler, ios->buffer + rabytes,
+				     ios->bufsize - rabytes);
+			if (!ret) {
+				int errnum;
+				const char *errstr;
+
+				errstr = gzerror(ios->handler, &errnum);
+				if (errnum != Z_STREAM_END) {
+					erofs_err("failed to gzread: %s", errstr);
+					return -EIO;
+				}
+				ios->feof = true;
+			}
+			ios->tail += ret;
+#else
+			return -EOPNOTSUPP;
+#endif
+		} else {
+			ret = erofs_read_from_fd(ios->fd, ios->buffer + rabytes,
+						 ios->bufsize - rabytes);
+			if (ret < 0)
+				return ret;
+			ios->tail += ret;
+			if (ret < ios->bufsize - rabytes)
+				ios->feof = true;
+		}
+	}
+	*buf = ios->buffer;
+	ret = min_t(int, ios->tail, bytes);
+	ios->head = ret;
+	return ret;
+}
+
+int erofs_iostream_bread(struct erofs_iostream *ios, void *buf, u64 bytes)
+{
+	u64 rem = bytes;
+	void *src;
+	int ret;
+
+	do {
+		ret = erofs_iostream_read(ios, &src, rem);
+		if (ret < 0)
+			return ret;
+		memcpy(buf, src, ret);
+		rem -= ret;
+	} while (rem && ret);
+
+	return bytes - rem;
+}
+
+int erofs_iostream_lskip(struct erofs_iostream *ios, u64 sz)
+{
+	unsigned int rabytes = ios->tail - ios->head;
+	int ret;
+	void *dummy;
+
+	if (rabytes >= sz) {
+		ios->head += sz;
+		return 0;
+	}
+
+	sz -= rabytes;
+	ios->head = ios->tail = 0;
+	if (ios->feof)
+		return sz;
+
+	if (ios->sz) {
+		s64 cur = lseek(ios->fd, sz, SEEK_CUR);
+
+		if (cur > ios->sz)
+			return cur - ios->sz;
+		return 0;
+	}
+
+	do {
+		ret = erofs_iostream_read(ios, &dummy, sz);
+		if (ret < 0)
+			return ret;
+		sz -= ret;
+	} while (!(ios->feof || !ret || !sz));
+
+	return sz;
+}
+
+static long long tarerofs_otoi(const char *ptr, int len)
+{
+	char inp[32];
+	char *endp = inp;
+	long long val;
+
+	memcpy(inp, ptr, len);
+	inp[len] = '\0';
+
+	errno = 0;
+	val = strtol(ptr, &endp, 8);
+	if ((!val && endp == inp) |
+	     (*endp && *endp != ' '))
+		errno = EINVAL;
+	return val;
+}
+
+static long long tarerofs_parsenum(const char *ptr, int len)
+{
+	/*
+	 * For fields containing numbers or timestamps that are out of range
+	 * for the basic format, the GNU format uses a base-256 representation
+	 * instead of an ASCII octal number.
+	 */
+	if (*(char *)ptr == '\200') {
+		long long res = 0;
+
+		while (--len)
+			res = (res << 8) + (u8)*(++ptr);
+		return res;
+	}
+	return tarerofs_otoi(ptr, len);
+}
+
+struct tarerofs_xattr_item {
+	struct list_head list;
+	char *kv;
+	unsigned int len, namelen;
+};
+
+int tarerofs_insert_xattr(struct list_head *xattrs,
+			  char *kv, int namelen, int len, bool skip)
+{
+	struct tarerofs_xattr_item *item;
+	char *nv;
+
+	DBG_BUGON(namelen >= len);
+	list_for_each_entry(item, xattrs, list) {
+		if (!strncmp(item->kv, kv, namelen + 1)) {
+			if (skip)
+				return 0;
+			goto found;
+		}
+	}
+
+	item = malloc(sizeof(*item));
+	if (!item)
+		return -ENOMEM;
+	item->kv = NULL;
+	item->namelen = namelen;
+	namelen = 0;
+	list_add_tail(&item->list, xattrs);
+found:
+	nv = realloc(item->kv, len);
+	if (!nv)
+		return -ENOMEM;
+	item->kv = nv;
+	item->len = len;
+	memcpy(nv + namelen, kv + namelen, len - namelen);
+	return 0;
+}
+
+int tarerofs_merge_xattrs(struct list_head *dst, struct list_head *src)
+{
+	struct tarerofs_xattr_item *item;
+
+	list_for_each_entry(item, src, list) {
+		int ret;
+
+		ret = tarerofs_insert_xattr(dst, item->kv, item->namelen,
+					    item->len, true);
+		if (ret)
+			return ret;
+	}
+	return 0;
+}
+
+void tarerofs_remove_xattrs(struct list_head *xattrs)
+{
+	struct tarerofs_xattr_item *item, *n;
+
+	list_for_each_entry_safe(item, n, xattrs, list) {
+		DBG_BUGON(!item->kv);
+		free(item->kv);
+		list_del(&item->list);
+		free(item);
+	}
+}
+
+int tarerofs_apply_xattrs(struct erofs_inode *inode, struct list_head *xattrs)
+{
+	struct tarerofs_xattr_item *item;
+	int ret;
+
+	list_for_each_entry(item, xattrs, list) {
+		const char *v = item->kv + item->namelen + 1;
+		unsigned int vsz = item->len - item->namelen - 1;
+
+		if (item->len <= item->namelen - 1) {
+			DBG_BUGON(item->len < item->namelen - 1);
+			continue;
+		}
+		item->kv[item->namelen] = '\0';
+		erofs_dbg("Recording xattr(%s)=\"%s\" (of %u bytes) to file %s",
+			  item->kv, v, vsz, inode->i_srcpath);
+		ret = erofs_setxattr(inode, item->kv, v, vsz);
+		if (ret == -ENODATA)
+			erofs_err("Failed to set xattr(%s)=%s to file %s",
+				  item->kv, v, inode->i_srcpath);
+		else if (ret)
+			return ret;
+	}
+	return 0;
+}
+
+static const char lookup_table[65] =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+,";
+
+static int base64_decode(const char *src, int len, u8 *dst)
+{
+	int i, bits = 0, ac = 0;
+	const char *p;
+	u8 *cp = dst;
+
+	if(!(len % 4)) {
+		/* Check for and ignore any end padding */
+		if (src[len - 2] == '=' && src[len - 1] == '=')
+			len -= 2;
+		else if (src[len - 1] == '=')
+			--len;
+	}
+
+	for (i = 0; i < len; i++) {
+		p = strchr(lookup_table, src[i]);
+		if (p == NULL || src[i] == 0)
+			return -2;
+		ac += (p - lookup_table) << bits;
+		bits += 6;
+		if (bits >= 8) {
+			*cp++ = ac & 0xff;
+			ac >>= 8;
+			bits -= 8;
+		}
+	}
+	if (ac)
+		return -1;
+	return cp - dst;
+}
+
+int tarerofs_parse_pax_header(struct erofs_iostream *ios,
+			      struct erofs_pax_header *eh, u32 size)
+{
+	char *buf, *p;
+	int ret;
+
+	buf = malloc(size);
+	if (!buf)
+		return -ENOMEM;
+	p = buf;
+
+	ret = erofs_iostream_bread(ios, buf, size);
+	if (ret != size)
+		goto out;
+
+	while (p < buf + size) {
+		char *kv, *value;
+		int len, n;
+		/* extended records are of the format: "LEN NAME=VALUE\n" */
+		ret = sscanf(p, "%d %n", &len, &n);
+		if (ret < 1 || len <= n || len > buf + size - p) {
+			ret = -EIO;
+			goto out;
+		}
+		kv = p + n;
+		p += len;
+		len -= n;
+
+		if (p[-1] != '\n') {
+			ret = -EIO;
+			goto out;
+		}
+		p[-1] = '\0';
+
+		value = memchr(kv, '=', p - kv);
+		if (!value) {
+			ret = -EIO;
+			goto out;
+		} else {
+			long long lln;
+
+			value++;
+
+			if (!strncmp(kv, "path=", sizeof("path=") - 1)) {
+				int j = p - 1 - value;
+				free(eh->path);
+				eh->path = strdup(value);
+				while (eh->path[j - 1] == '/')
+					eh->path[--j] = '\0';
+			} else if (!strncmp(kv, "linkpath=",
+					sizeof("linkpath=") - 1)) {
+				free(eh->link);
+				eh->link = strdup(value);
+			} else if (!strncmp(kv, "mtime=",
+					sizeof("mtime=") - 1)) {
+				ret = sscanf(value, "%lld %n", &lln, &n);
+				if(ret < 1) {
+					ret = -EIO;
+					goto out;
+				}
+				eh->st.st_mtime = lln;
+				if (value[n] == '.') {
+					ret = sscanf(value + n + 1, "%d", &n);
+					if (ret < 1) {
+						ret = -EIO;
+						goto out;
+					}
+#if ST_MTIM_NSEC
+					ST_MTIM_NSEC(&eh->st) = n;
+#endif
+				}
+				eh->use_mtime = true;
+			} else if (!strncmp(kv, "size=",
+					sizeof("size=") - 1)) {
+				ret = sscanf(value, "%lld %n", &lln, &n);
+				if(ret < 1 || value[n] != '\0') {
+					ret = -EIO;
+					goto out;
+				}
+				eh->st.st_size = lln;
+				eh->use_size = true;
+			} else if (!strncmp(kv, "uid=", sizeof("uid=") - 1)) {
+				ret = sscanf(value, "%lld %n", &lln, &n);
+				if(ret < 1 || value[n] != '\0') {
+					ret = -EIO;
+					goto out;
+				}
+				eh->st.st_uid = lln;
+				eh->use_uid = true;
+			} else if (!strncmp(kv, "gid=", sizeof("gid=") - 1)) {
+				ret = sscanf(value, "%lld %n", &lln, &n);
+				if(ret < 1 || value[n] != '\0') {
+					ret = -EIO;
+					goto out;
+				}
+				eh->st.st_gid = lln;
+				eh->use_gid = true;
+			} else if (!strncmp(kv, "SCHILY.xattr.",
+				   sizeof("SCHILY.xattr.") - 1)) {
+				char *key = kv + sizeof("SCHILY.xattr.") - 1;
+
+				--len; /* p[-1] == '\0' */
+				ret = tarerofs_insert_xattr(&eh->xattrs, key,
+						value - key - 1,
+						len - (key - kv), false);
+				if (ret)
+					goto out;
+			} else if (!strncmp(kv, "LIBARCHIVE.xattr.",
+				   sizeof("LIBARCHIVE.xattr.") - 1)) {
+				char *key;
+				key = kv + sizeof("LIBARCHIVE.xattr.") - 1;
+
+				--len; /* p[-1] == '\0' */
+				ret = base64_decode(value, len - (value - kv),
+						    (u8 *)value);
+				if (ret < 0) {
+					ret = -EFSCORRUPTED;
+					goto out;
+				}
+
+				ret = tarerofs_insert_xattr(&eh->xattrs, key,
+						value - key - 1,
+						value - key + ret, false);
+				if (ret)
+					goto out;
+			} else {
+				erofs_info("unrecognized pax keyword \"%s\", ignoring", kv);
+			}
+		}
+	}
+	ret = 0;
+out:
+	free(buf);
+	return ret;
+}
+
+void tarerofs_remove_inode(struct erofs_inode *inode)
+{
+	struct erofs_dentry *d;
+
+	--inode->i_nlink;
+	if (!S_ISDIR(inode->i_mode))
+		return;
+
+	/* remove all subdirss */
+	list_for_each_entry(d, &inode->i_subdirs, d_child) {
+		if (!is_dot_dotdot(d->name))
+			tarerofs_remove_inode(d->inode);
+		erofs_iput(d->inode);
+		d->inode = NULL;
+	}
+	--inode->i_parent->i_nlink;
+}
+
+static int tarerofs_write_file_data(struct erofs_inode *inode,
+				    struct erofs_tarfile *tar)
+{
+	unsigned int j;
+	void *buf;
+	int fd, nread;
+	u64 off;
+
+	if (!inode->i_diskbuf) {
+		inode->i_diskbuf = calloc(1, sizeof(*inode->i_diskbuf));
+		if (!inode->i_diskbuf)
+			return -ENOSPC;
+	} else {
+		erofs_diskbuf_close(inode->i_diskbuf);
+	}
+
+	fd = erofs_diskbuf_reserve(inode->i_diskbuf, 0, &off);
+	if (fd < 0)
+		return -EBADF;
+
+	for (j = inode->i_size; j; ) {
+		nread = erofs_iostream_read(&tar->ios, &buf, j);
+		if (nread < 0)
+			break;
+		if (write(fd, buf, nread) != nread) {
+			nread = -EIO;
+			break;
+		}
+		j -= nread;
+	}
+	erofs_diskbuf_commit(inode->i_diskbuf, inode->i_size);
+	inode->with_diskbuf = true;
+	return 0;
+}
+
+static int tarerofs_write_file_index(struct erofs_inode *inode,
+		struct erofs_tarfile *tar, erofs_off_t data_offset)
+{
+	int ret;
+
+	ret = tarerofs_write_chunkes(inode, data_offset);
+	if (ret)
+		return ret;
+	if (erofs_iostream_lskip(&tar->ios, inode->i_size))
+		return -EIO;
+	return 0;
+}
+
+int tarerofs_parse_tar(struct erofs_inode *root, struct erofs_tarfile *tar)
+{
+	char path[PATH_MAX];
+	struct erofs_pax_header eh = tar->global;
+	struct erofs_sb_info *sbi = root->sbi;
+	bool whout, opq, e = false;
+	struct stat st;
+	erofs_off_t tar_offset, data_offset;
+
+	struct tar_header *th;
+	struct erofs_dentry *d;
+	struct erofs_inode *inode;
+	unsigned int j, csum, cksum;
+	int ckksum, ret, rem;
+
+	if (eh.path)
+		eh.path = strdup(eh.path);
+	if (eh.link)
+		eh.link = strdup(eh.link);
+	init_list_head(&eh.xattrs);
+
+restart:
+	rem = tar->offset & 511;
+	if (rem) {
+		if (erofs_iostream_lskip(&tar->ios, 512 - rem)) {
+			ret = -EIO;
+			goto out;
+		}
+		tar->offset += 512 - rem;
+	}
+
+	tar_offset = tar->offset;
+	ret = erofs_iostream_read(&tar->ios, (void **)&th, sizeof(*th));
+	if (ret != sizeof(*th)) {
+		erofs_err("failed to read header block @ %llu", tar_offset);
+		ret = -EIO;
+		goto out;
+	}
+	tar->offset += sizeof(*th);
+	if (*th->name == '\0') {
+		if (e) {	/* end of tar 2 empty blocks */
+			ret = 1;
+			goto out;
+		}
+		e = true;	/* empty jump to next block */
+		goto restart;
+	}
+
+	/* chksum field itself treated as ' ' */
+	csum = tarerofs_otoi(th->chksum, sizeof(th->chksum));
+	if (errno) {
+		erofs_err("invalid chksum @ %llu", tar_offset);
+		ret = -EBADMSG;
+		goto out;
+	}
+	cksum = 0;
+	for (j = 0; j < 8; ++j)
+		cksum += (unsigned int)' ';
+	ckksum = cksum;
+	for (j = 0; j < 148; ++j) {
+		cksum += (unsigned int)((u8*)th)[j];
+		ckksum += (int)((char*)th)[j];
+	}
+	for (j = 156; j < 500; ++j) {
+		cksum += (unsigned int)((u8*)th)[j];
+		ckksum += (int)((char*)th)[j];
+	}
+	if (csum != cksum && csum != ckksum) {
+		erofs_err("chksum mismatch @ %llu", tar_offset);
+		ret = -EBADMSG;
+		goto out;
+	}
+
+	if (th->typeflag == GNUTYPE_VOLHDR) {
+		if (th->size[0])
+			erofs_warn("GNUTYPE_VOLHDR with non-zeroed size @ %llu",
+				   tar_offset);
+		/* anyway, strncpy could cause some GCC warning here */
+		memcpy(sbi->volume_name, th->name, sizeof(sbi->volume_name));
+		goto restart;
+	}
+
+	if (memcmp(th->magic, "ustar", 5)) {
+		erofs_err("invalid tar magic @ %llu", tar_offset);
+		ret = -EIO;
+		goto out;
+	}
+
+	st.st_mode = tarerofs_otoi(th->mode, sizeof(th->mode));
+	if (errno)
+		goto invalid_tar;
+
+	if (eh.use_uid) {
+		st.st_uid = eh.st.st_uid;
+	} else {
+		st.st_uid = tarerofs_parsenum(th->uid, sizeof(th->uid));
+		if (errno)
+			goto invalid_tar;
+	}
+
+	if (eh.use_gid) {
+		st.st_gid = eh.st.st_gid;
+	} else {
+		st.st_gid = tarerofs_parsenum(th->gid, sizeof(th->gid));
+		if (errno)
+			goto invalid_tar;
+	}
+
+	if (eh.use_size) {
+		st.st_size = eh.st.st_size;
+	} else {
+		st.st_size = tarerofs_parsenum(th->size, sizeof(th->size));
+		if (errno)
+			goto invalid_tar;
+	}
+
+	if (eh.use_mtime) {
+		st.st_mtime = eh.st.st_mtime;
+#if ST_MTIM_NSEC
+		ST_MTIM_NSEC(&st) = ST_MTIM_NSEC(&eh.st);
+#endif
+	} else {
+		st.st_mtime = tarerofs_parsenum(th->mtime, sizeof(th->mtime));
+		if (errno)
+			goto invalid_tar;
+	}
+
+	if (th->typeflag <= '7' && !eh.path) {
+		eh.path = path;
+		j = 0;
+		if (*th->prefix) {
+			memcpy(path, th->prefix, sizeof(th->prefix));
+			path[sizeof(th->prefix)] = '\0';
+			j = strlen(path);
+			if (path[j - 1] != '/') {
+				path[j] = '/';
+				path[++j] = '\0';
+			}
+		}
+		memcpy(path + j, th->name, sizeof(th->name));
+		path[j + sizeof(th->name)] = '\0';
+		j = strlen(path);
+		while (path[j - 1] == '/')
+			path[--j] = '\0';
+	}
+
+	data_offset = tar->offset;
+	tar->offset += st.st_size;
+	switch(th->typeflag) {
+	case '0':
+	case '7':
+	case '1':
+		st.st_mode |= S_IFREG;
+		break;
+	case '2':
+		st.st_mode |= S_IFLNK;
+		break;
+	case '3':
+		st.st_mode |= S_IFCHR;
+		break;
+	case '4':
+		st.st_mode |= S_IFBLK;
+		break;
+	case '5':
+		st.st_mode |= S_IFDIR;
+		break;
+	case '6':
+		st.st_mode |= S_IFIFO;
+		break;
+	case 'g':
+		ret = tarerofs_parse_pax_header(&tar->ios, &tar->global,
+						st.st_size);
+		if (ret)
+			goto out;
+		if (tar->global.path) {
+			free(eh.path);
+			eh.path = strdup(tar->global.path);
+		}
+		if (tar->global.link) {
+			free(eh.link);
+			eh.link = strdup(tar->global.link);
+		}
+		goto restart;
+	case 'x':
+		ret = tarerofs_parse_pax_header(&tar->ios, &eh, st.st_size);
+		if (ret)
+			goto out;
+		goto restart;
+	case 'L':
+		free(eh.path);
+		eh.path = malloc(st.st_size + 1);
+		if (st.st_size != erofs_iostream_bread(&tar->ios, eh.path,
+						       st.st_size))
+			goto invalid_tar;
+		eh.path[st.st_size] = '\0';
+		goto restart;
+	case 'K':
+		free(eh.link);
+		eh.link = malloc(st.st_size + 1);
+		if (st.st_size > PATH_MAX || st.st_size !=
+		    erofs_iostream_bread(&tar->ios, eh.link, st.st_size))
+			goto invalid_tar;
+		eh.link[st.st_size] = '\0';
+		goto restart;
+	default:
+		erofs_info("unrecognized typeflag %xh @ %llu - ignoring",
+			   th->typeflag, tar_offset);
+		(void)erofs_iostream_lskip(&tar->ios, st.st_size);
+		ret = 0;
+		goto out;
+	}
+
+	st.st_rdev = 0;
+	if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode)) {
+		int major, minor;
+
+		major = tarerofs_parsenum(th->devmajor, sizeof(th->devmajor));
+		if (errno) {
+			erofs_err("invalid device major @ %llu", tar_offset);
+			goto out;
+		}
+
+		minor = tarerofs_parsenum(th->devminor, sizeof(th->devminor));
+		if (errno) {
+			erofs_err("invalid device minor @ %llu", tar_offset);
+			goto out;
+		}
+
+		st.st_rdev = (major << 8) | (minor & 0xff) | ((minor & ~0xff) << 12);
+	} else if (th->typeflag == '1' || th->typeflag == '2') {
+		if (!eh.link)
+			eh.link = strndup(th->linkname, sizeof(th->linkname));
+	}
+
+	if (tar->index_mode && !tar->mapfile &&
+	    erofs_blkoff(sbi, data_offset)) {
+		erofs_err("invalid tar data alignment @ %llu", tar_offset);
+		ret = -EIO;
+		goto out;
+	}
+
+	erofs_dbg("parsing %s (mode %05o)", eh.path, st.st_mode);
+
+	d = erofs_rebuild_get_dentry(root, eh.path, tar->aufs, &whout, &opq, true);
+	if (IS_ERR(d)) {
+		ret = PTR_ERR(d);
+		goto out;
+	}
+
+	if (!d) {
+		/* some tarballs include '.' which indicates the root directory */
+		if (!S_ISDIR(st.st_mode)) {
+			ret = -ENOTDIR;
+			goto out;
+		}
+		inode = root;
+	} else if (opq) {
+		DBG_BUGON(d->type == EROFS_FT_UNKNOWN);
+		DBG_BUGON(!d->inode);
+		ret = erofs_set_opaque_xattr(d->inode);
+		goto out;
+	} else if (th->typeflag == '1') {	/* hard link cases */
+		struct erofs_dentry *d2;
+		bool dumb;
+
+		if (S_ISDIR(st.st_mode)) {
+			ret = -EISDIR;
+			goto out;
+		}
+
+		if (d->type != EROFS_FT_UNKNOWN) {
+			tarerofs_remove_inode(d->inode);
+			erofs_iput(d->inode);
+		}
+		d->inode = NULL;
+
+		d2 = erofs_rebuild_get_dentry(root, eh.link, tar->aufs,
+					      &dumb, &dumb, false);
+		if (IS_ERR(d2)) {
+			ret = PTR_ERR(d2);
+			goto out;
+		}
+		if (d2->type == EROFS_FT_UNKNOWN) {
+			ret = -ENOENT;
+			goto out;
+		}
+		if (S_ISDIR(d2->inode->i_mode)) {
+			ret = -EISDIR;
+			goto out;
+		}
+		inode = erofs_igrab(d2->inode);
+		d->inode = inode;
+		d->type = d2->type;
+		++inode->i_nlink;
+		ret = 0;
+		goto out;
+	} else if (d->type != EROFS_FT_UNKNOWN) {
+		if (d->type != EROFS_FT_DIR || !S_ISDIR(st.st_mode)) {
+			struct erofs_inode *parent = d->inode->i_parent;
+
+			tarerofs_remove_inode(d->inode);
+			erofs_iput(d->inode);
+			d->inode = parent;
+			goto new_inode;
+		}
+		inode = d->inode;
+	} else {
+new_inode:
+		inode = erofs_new_inode();
+		if (IS_ERR(inode)) {
+			ret = PTR_ERR(inode);
+			goto out;
+		}
+		inode->i_parent = d->inode;
+		d->inode = inode;
+		d->type = erofs_mode_to_ftype(st.st_mode);
+	}
+
+	if (whout) {
+		inode->i_mode = (inode->i_mode & ~S_IFMT) | S_IFCHR;
+		inode->u.i_rdev = EROFS_WHITEOUT_DEV;
+		d->type = EROFS_FT_CHRDEV;
+
+		/*
+		 * Mark the parent directory as copied-up to avoid exposing
+		 * whiteouts if mounted.  See kernel commit b79e05aaa166
+		 * ("ovl: no direct iteration for dir with origin xattr")
+		 */
+		inode->i_parent->whiteouts = true;
+	} else {
+		inode->i_mode = st.st_mode;
+		if (S_ISBLK(st.st_mode) || S_ISCHR(st.st_mode))
+			inode->u.i_rdev = erofs_new_encode_dev(st.st_rdev);
+	}
+
+	inode->i_srcpath = strdup(eh.path);
+	if (!inode->i_srcpath) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	ret = __erofs_fill_inode(inode, &st, eh.path);
+	if (ret)
+		goto out;
+	inode->i_size = st.st_size;
+
+	if (!S_ISDIR(inode->i_mode)) {
+		if (S_ISLNK(inode->i_mode)) {
+			inode->i_size = strlen(eh.link);
+			inode->i_link = malloc(inode->i_size + 1);
+			memcpy(inode->i_link, eh.link, inode->i_size + 1);
+		} else if (inode->i_size) {
+			if (tar->index_mode)
+				ret = tarerofs_write_file_index(inode, tar,
+								data_offset);
+			else
+				ret = tarerofs_write_file_data(inode, tar);
+			if (ret)
+				goto out;
+		}
+		inode->i_nlink++;
+	} else if (!inode->i_nlink) {
+		ret = erofs_init_empty_dir(inode);
+		if (ret)
+			goto out;
+	}
+
+	ret = tarerofs_merge_xattrs(&eh.xattrs, &tar->global.xattrs);
+	if (ret)
+		goto out;
+
+	ret = tarerofs_apply_xattrs(inode, &eh.xattrs);
+
+out:
+	if (eh.path != path)
+		free(eh.path);
+	free(eh.link);
+	tarerofs_remove_xattrs(&eh.xattrs);
+	return ret;
+
+invalid_tar:
+	erofs_err("invalid tar @ %llu", tar_offset);
+	ret = -EIO;
+	goto out;
+}

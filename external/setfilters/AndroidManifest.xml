@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.google.setfilters.cuckoofilter" >
+
+  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="21" />
+
+  <application>
+      <uses-library android:name="android.test.runner" />
+  </application>
+
+  <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
+                   android:targetPackage="com.google.setfilters.cuckoofilter"
+                   android:label="Cuckoo Filter Instrumentation Test"/>
+
+</manifest>

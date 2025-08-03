@@ -1,0 +1,256 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+import("$dir_pw_fuzzer/fuzzer.gni")
+import("$dir_pw_unit_test/test.gni")
+
+dir_public_l2cap = "../../public/pw_bluetooth_sapphire/internal/host/l2cap"
+
+# Basic target with protocol definitions and no logic, suitable for test
+# emulation.
+pw_source_set("definitions") {
+  public = [
+    "$dir_public_l2cap/frame_headers.h",
+    "$dir_public_l2cap/l2cap_defs.h",
+  ]
+
+  public_deps = [
+    "$dir_pw_bluetooth_sapphire/host/hci-spec",
+    "$dir_pw_bluetooth_sapphire/host/sm:definitions",
+  ]
+}
+
+pw_source_set("l2cap") {
+  public = [
+    "$dir_public_l2cap/a2dp_offload_manager.h",
+    "$dir_public_l2cap/basic_mode_rx_engine.h",
+    "$dir_public_l2cap/basic_mode_tx_engine.h",
+    "$dir_public_l2cap/bredr_command_handler.h",
+    "$dir_public_l2cap/bredr_dynamic_channel.h",
+    "$dir_public_l2cap/bredr_signaling_channel.h",
+    "$dir_public_l2cap/channel.h",
+    "$dir_public_l2cap/channel_configuration.h",
+    "$dir_public_l2cap/channel_manager.h",
+    "$dir_public_l2cap/command_handler.h",
+    "$dir_public_l2cap/dynamic_channel.h",
+    "$dir_public_l2cap/dynamic_channel_registry.h",
+    "$dir_public_l2cap/enhanced_retransmission_mode_engines.h",
+    "$dir_public_l2cap/enhanced_retransmission_mode_rx_engine.h",
+    "$dir_public_l2cap/enhanced_retransmission_mode_tx_engine.h",
+    "$dir_public_l2cap/fcs.h",
+    "$dir_public_l2cap/fragmenter.h",
+    "$dir_public_l2cap/le_signaling_channel.h",
+    "$dir_public_l2cap/logical_link.h",
+    "$dir_public_l2cap/low_energy_command_handler.h",
+    "$dir_public_l2cap/pdu.h",
+    "$dir_public_l2cap/recombiner.h",
+    "$dir_public_l2cap/rx_engine.h",
+    "$dir_public_l2cap/scoped_channel.h",
+    "$dir_public_l2cap/signaling_channel.h",
+    "$dir_public_l2cap/tx_engine.h",
+    "$dir_public_l2cap/types.h",
+  ]
+
+  sources = [
+    "a2dp_offload_manager.cc",
+    "basic_mode_rx_engine.cc",
+    "basic_mode_tx_engine.cc",
+    "bredr_command_handler.cc",
+    "bredr_dynamic_channel.cc",
+    "bredr_signaling_channel.cc",
+    "channel.cc",
+    "channel_configuration.cc",
+    "channel_manager.cc",
+    "command_handler.cc",
+    "dynamic_channel.cc",
+    "dynamic_channel_registry.cc",
+    "enhanced_retransmission_mode_engines.cc",
+    "enhanced_retransmission_mode_rx_engine.cc",
+    "enhanced_retransmission_mode_tx_engine.cc",
+    "fcs.cc",
+    "fragmenter.cc",
+    "le_signaling_channel.cc",
+    "logical_link.cc",
+    "low_energy_command_handler.cc",
+    "pdu.cc",
+    "recombiner.cc",
+    "scoped_channel.cc",
+    "signaling_channel.cc",
+    "types.cc",
+  ]
+
+  public_deps = [
+    ":definitions",
+    "$dir_pw_bluetooth_sapphire:config",
+    "$dir_pw_bluetooth_sapphire/host/hci",
+    "$dir_pw_bluetooth_sapphire/host/transport",
+    "$dir_pw_string",
+    "$dir_pw_third_party/fuchsia:fit",
+  ]
+}
+
+# Separate from :testing to avoid a dependency cycle.
+pw_source_set("channel_manager_mock_controller_test_fixture") {
+  testonly = pw_unit_test_TESTONLY
+
+  public =
+      [ "$dir_public_l2cap/channel_manager_mock_controller_test_fixture.h" ]
+
+  public_deps = [
+    ":l2cap",
+    ":testing",
+    "$dir_pw_bluetooth_sapphire/host/hci",
+    "$dir_pw_bluetooth_sapphire/host/testing",
+  ]
+}
+
+pw_source_set("testing") {
+  testonly = pw_unit_test_TESTONLY
+
+  public = [
+    "$dir_public_l2cap/fake_channel.h",
+    "$dir_public_l2cap/fake_channel_test.h",
+    "$dir_public_l2cap/fake_l2cap.h",
+    "$dir_public_l2cap/fake_signaling_channel.h",
+    "$dir_public_l2cap/mock_channel_test.h",
+    "$dir_public_l2cap/test_packets.h",
+  ]
+
+  sources = [
+    "fake_channel.cc",
+    "fake_channel_test.cc",
+    "fake_l2cap.cc",
+    "fake_signaling_channel.cc",
+    "mock_channel_test.cc",
+    "test_packets.cc",
+  ]
+
+  public_deps = [
+    ":l2cap",
+    "$dir_pw_async:fake_dispatcher_fixture",
+    "$dir_pw_async:heap_dispatcher",
+    "$dir_pw_bluetooth",
+    "$dir_pw_bluetooth_sapphire/host/common",
+    "$dir_pw_bluetooth_sapphire/host/hci",
+    "$dir_pw_bluetooth_sapphire/host/testing:test_helpers",
+    "$dir_pw_unit_test",
+  ]
+}
+
+pw_test("l2cap_tests") {
+  sources = [
+    "a2dp_offload_manager_test.cc",
+    "basic_mode_rx_engine_test.cc",
+    "basic_mode_tx_engine_test.cc",
+    "bredr_command_handler_test.cc",
+    "bredr_dynamic_channel_test.cc",
+    "bredr_signaling_channel_test.cc",
+    "channel_configuration_test.cc",
+    "channel_manager_test.cc",
+    "channel_test.cc",
+    "command_handler_test.cc",
+    "dynamic_channel_registry_test.cc",
+    "enhanced_retransmission_mode_engines_test.cc",
+    "enhanced_retransmission_mode_rx_engine_test.cc",
+    "enhanced_retransmission_mode_tx_engine_test.cc",
+    "fcs_test.cc",
+    "fragmenter_test.cc",
+    "frame_headers_test.cc",
+    "le_signaling_channel_test.cc",
+    "logical_link_test.cc",
+    "low_energy_command_handler_test.cc",
+    "pdu_test.cc",
+    "recombiner_test.cc",
+    "scoped_channel_test.cc",
+    "signaling_channel_test.cc",
+    "types_test.cc",
+  ]
+
+  deps = [
+    ":channel_manager_mock_controller_test_fixture",
+    ":l2cap",
+    ":testing",
+    "$dir_pw_async:fake_dispatcher_fixture",
+    "$dir_pw_bluetooth_sapphire/host/hci",
+    "$dir_pw_bluetooth_sapphire/host/hci:testing",
+    "$dir_pw_bluetooth_sapphire/host/testing",
+    "$dir_pw_bluetooth_sapphire/host/transport:testing",
+  ]
+
+  test_main = "$dir_pw_bluetooth_sapphire/host/testing:gtest_main"
+}
+
+pw_fuzzer("basic_mode_rx_engine_fuzzer") {
+  sources = [ "basic_mode_rx_engine_fuzztest.cc" ]
+  deps = [
+    ":l2cap",
+    ":testing",
+  ]
+}
+
+pw_fuzzer("enhanced_retransmission_mode_engines_fuzzer") {
+  sources = [ "enhanced_retransmission_mode_engines_fuzztest.cc" ]
+  deps = [
+    ":l2cap",
+    ":testing",
+  ]
+}
+
+pw_fuzzer("bredr_dynamic_channel_registry_fuzzer") {
+  sources = [ "bredr_dynamic_channel_registry_fuzztest.cc" ]
+  deps = [
+    ":l2cap",
+    ":testing",
+    "$dir_pw_random:fuzzer_generator",
+  ]
+}
+
+pw_fuzzer("channel_configuration_fuzzer") {
+  sources = [ "channel_configuration_fuzztest.cc" ]
+  deps = [
+    ":l2cap",
+    ":testing",
+  ]
+}
+
+pw_fuzzer("common_handler_fuzzer") {
+  sources = [ "common_handler_fuzztest.cc" ]
+  deps = [
+    ":l2cap",
+    ":testing",
+  ]
+}
+
+pw_fuzzer("l2cap_fuzzer") {
+  sources = [ "l2cap_fuzztest.cc" ]
+  deps = [
+    ":l2cap",
+    "$dir_pw_bluetooth_sapphire/host/testing",
+    "$dir_pw_bluetooth_sapphire/host/testing:controller_test_double_base",
+    "$dir_pw_random:fuzzer_generator",
+  ]
+}
+
+pw_test_group("tests") {
+  tests = [
+    ":l2cap_tests",
+    ":basic_mode_rx_engine_fuzzer_test",
+    ":enhanced_retransmission_mode_engines_fuzzer_test",
+    ":bredr_dynamic_channel_registry_fuzzer_test",
+    ":channel_configuration_fuzzer_test",
+    ":common_handler_fuzzer_test",
+    ":l2cap_fuzzer_test",
+  ]
+}

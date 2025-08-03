@@ -1,0 +1,227 @@
+erofs-utils
+===========
+
+Userspace tools for EROFS filesystem, currently including:
+
+  mkfs.erofs    filesystem formatter
+  erofsfuse     FUSE daemon alternative
+  dump.erofs    filesystem analyzer
+  fsck.erofs    filesystem compatibility & consistency checker as well
+                as extractor
+
+
+EROFS filesystem overview
+-------------------------
+
+EROFS filesystem stands for Enhanced Read-Only File System.  It aims to
+form a generic read-only filesystem solution for various read-only use
+cases instead of just focusing on storage space saving without
+considering any side effects of runtime performance.
+
+Typically EROFS could be considered in the following use scenarios:
+  - Firmwares in performance-sensitive systems, such as system
+    partitions of Android smartphones;
+
+  - Mountable immutable images such as container images for effective
+    metadata & data access compared with tar, cpio or other local
+    filesystems (e.g. ext4, XFS, btrfs, etc.)
+
+  - FSDAX-enabled rootfs for secure containers (Linux 5.15+);
+
+  - Live CDs which need a set of files with another high-performance
+    algorithm to optimize startup time; others files for archival
+    purposes only are not needed;
+
+  - and more.
+
+Note that all EROFS metadata is uncompressed by design, so that you
+could take EROFS as a drop-in read-only replacement of ext4, XFS,
+btrfs, etc. without any compression-based dependencies and EROFS can
+bring more effective filesystem accesses to users with reduced
+metadata.
+
+For more details of EROFS filesystem itself, please refer to:
+https://www.kernel.org/doc/html/next/filesystems/erofs.html
+
+For more details on how to build erofs-utils, see `docs/INSTALL.md`.
+
+For more details about filesystem performance, see
+`docs/PERFORMANCE.md`.
+
+
+mkfs.erofs
+----------
+
+Two main kinds of EROFS images can be generated: (un)compressed images.
+
+ - For uncompressed images, there will be none of compresssed files in
+   these images.  However, it can decide whether the tail block of a
+   file should be inlined or not properly [1].
+
+ - For compressed images, it'll try to use the given algorithms first
+   for each regular file and see if storage space can be saved with
+   compression. If not, fallback to an uncompressed file.
+
+How to generate EROFS images (LZ4 for Linux 5.3+, LZMA for Linux 5.16+)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently lz4(hc) and lzma are available for compression, e.g.
+ $ mkfs.erofs -zlz4hc foo.erofs.img foo/
+
+Or leave all files uncompressed as an option:
+ $ mkfs.erofs foo.erofs.img foo/
+
+In addition, you could specify a higher compression level to get a
+(slightly) better compression ratio than the default level, e.g.
+ $ mkfs.erofs -zlz4hc,12 foo.erofs.img foo/
+
+Note that all compressors are still single-threaded for now, thus it
+could take more time on the multiprocessor platform. Multi-threaded
+approach is already in our TODO list.
+
+How to generate EROFS big pcluster images (Linux 5.13+)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to get much better compression ratios (thus better sequential
+read performance for common storage devices), big pluster feature has
+been introduced since linux-5.13, which is not forward-compatible with
+old kernels.
+
+In details, -C is used to specify the maximum size of each big pcluster
+in bytes, e.g.
+ $ mkfs.erofs -zlz4hc -C65536 foo.erofs.img foo/
+
+So in that case, pcluster size can be 64KiB at most.
+
+Note that large pcluster size can cause bad random performance, so
+please evaluate carefully in advance. Or make your own per-(sub)file
+compression strategies according to file access patterns if needed.
+
+How to generate EROFS images with multiple algorithms (Linux 5.16+)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's possible to generate an EROFS image with files in different
+algorithms due to various purposes.  For example, LZMA for archival
+purposes and LZ4 for runtime purposes.
+
+In order to use alternative algorithms, just specify two or more
+compressing configurations together separated by ':' like below:
+    -zlzma:lz4hc,12:lzma,9 -C32768
+
+Although mkfs still choose the first one by default, you could try to
+write a compress-hints file like below:
+    4096  1 .*\.so$
+    32768 2 .*\.txt$
+    4096    sbin/.*$
+    16384 0 .*
+
+and specify with `--compress-hints=` so that ".so" files will use
+"lz4hc,12" compression with 4k pclusters, ".txt" files will use
+"lzma,9" compression with 32k pclusters, files  under "/sbin" will use
+the default "lzma" compression with 4k plusters and other files will
+use "lzma" compression with 16k pclusters.
+
+Note that the largest pcluster size should be specified with the "-C"
+option (here 32k pcluster size), otherwise all larger pclusters will be
+limited.
+
+How to generate well-compressed EROFS images
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Even if EROFS is not designed for such purposes in the beginning, it
+could still produce some smaller images (not always) compared to other
+approaches with better performance (see `docs/PERFORMANCE.md`).  In
+order to build well-compressed EROFS images, try the following options:
+ -C1048576                     (5.13+)
+ -Eztailpacking                (5.16+)
+ -Efragments / -Eall-fragments ( 6.1+);
+ -Ededupe                      ( 6.1+).
+
+Also EROFS uses lz4hc level 9 by default, whereas some other approaches
+use lz4hc level 12 by default.  So please explicitly specify
+`-zlz4hc,12 ` for comparison purposes.
+
+How to generate legacy EROFS images (Linux 4.19+)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Decompression inplace and compacted indexes have been introduced in
+Linux v5.3, which are not forward-compatible with older kernels.
+
+In order to generate _legacy_ EROFS images for old kernels,
+consider adding "-E legacy-compress" to the command line, e.g.
+
+ $ mkfs.erofs -E legacy-compress -zlz4hc foo.erofs.img foo/
+
+For Linux kernel >= 5.3, legacy EROFS images are _NOT recommended_
+due to runtime performance loss compared with non-legacy images.
+
+Obsoleted erofs.mkfs
+~~~~~~~~~~~~~~~~~~~~
+
+There is an original erofs.mkfs version developed by Li Guifu,
+which was replaced by the new erofs-utils implementation.
+
+git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git -b obsoleted_mkfs
+
+PLEASE NOTE: This version is highly _NOT recommended_ now.
+
+
+erofsfuse
+---------
+
+erofsfuse is introduced to support EROFS format for various platforms
+(including older linux kernels) and new on-disk features iteration.
+It can also be used as an unpacking tool for unprivileged users.
+
+It supports fixed-sized output decompression *without* any in-place
+I/O or in-place decompression optimization. Also like the other FUSE
+implementations, it suffers from most common performance issues (e.g.
+significant I/O overhead, double caching, etc.)
+
+Therefore, NEVER use it if performance is the top concern.
+
+How to mount an EROFS image with erofsfuse
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As the other FUSE implementations, it's quite easy to mount by using
+erofsfuse, e.g.:
+ $ erofsfuse foo.erofs.img foo/
+
+Alternatively, to make it run in foreground (with debugging level 3):
+ $ erofsfuse -f --dbglevel=3 foo.erofs.img foo/
+
+To debug erofsfuse (also automatically run in foreground):
+ $ erofsfuse -d foo.erofs.img foo/
+
+To unmount an erofsfuse mountpoint as a non-root user:
+ $ fusermount -u foo/
+
+
+dump.erofs and fsck.erofs
+-------------------------
+
+dump.erofs and fsck.erofs are used to analyze, check, and extract
+EROFS filesystems. Note that extended attributes and ACLs are still
+unsupported when extracting images with fsck.erofs.
+
+Note that fragment extraction with fsck.erofs could be slow now and
+it needs to be optimized later.  If you are interested, contribution
+is, as always, welcome.
+
+
+Contribution
+------------
+
+erofs-utils is a part of EROFS filesystem project, which is completely
+community-driven open source software.  If you have interest in EROFS,
+feel free to send feedback and/or patches to:
+  linux-erofs mailing list   <linux-erofs@lists.ozlabs.org>
+
+
+Comments
+--------
+
+[1] According to the EROFS on-disk format, the tail blocks of files
+    could be inlined aggressively with their metadata (called
+    tail-packing) in order to minimize the extra I/Os and the storage
+    space.

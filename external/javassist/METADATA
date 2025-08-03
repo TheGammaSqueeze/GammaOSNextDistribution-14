@@ -1,0 +1,20 @@
+name: "javassist"
+description: "Java bytecode engineering toolkit"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.javassist.org/"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://github.com/jboss-javassist/javassist/archive/refs/tags/rel_3_24_1_ga.tar.gz"
+  }
+  version: "rel_3_24_1_ga"
+  license_type: NOTICE
+  license_note: "The project can be licensed under one of MPL, LGPL or AL, and Apache 2.0 is a \"notice\" license."
+  last_upgrade_date {
+    year: 2020
+    month: 9
+    day: 24
+  }
+}

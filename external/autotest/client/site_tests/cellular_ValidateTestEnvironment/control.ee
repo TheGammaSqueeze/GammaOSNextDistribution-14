@@ -1,0 +1,38 @@
+# Copyright (c) 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "cellular_ValidateTestEnvironment.ee"
+PURPOSE = "Verify that the test setup common to all other tests has no failures."
+CRITERIA = """
+    Check that no errors occur when the setup and tear down of the
+    base class CellularTestEnvironment is executed multiple times.
+"""
+ATTRIBUTES = "suite:cellular_ota_flaky"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "network"
+TEST_TYPE = "client"
+DEPENDENCIES = "carrier:ee"
+PY_VERSION = 3
+
+DOC = """
+    Verify that the test setup common to all other tests has no failures.
+"""
+
+from autotest_lib.client.cros.cellular import test_environment
+
+ITERATIONS_PER_TEST=3
+
+test_env = test_environment.CellularTestEnvironment(enable_temp_containments=False)
+job.run_test('cellular_ValidateTestEnvironment',
+             tag='Base',
+             test_env=test_env,
+             iterations=ITERATIONS_PER_TEST)
+
+test_env = test_environment.CellularOTATestEnvironment(enable_temp_containments=False)
+job.run_test('cellular_ValidateTestEnvironment',
+             tag='OTA',
+             test_env=test_env,
+             iterations=ITERATIONS_PER_TEST)

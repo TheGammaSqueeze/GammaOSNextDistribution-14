@@ -1,0 +1,41 @@
+# Copyright (c) 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "firmware_CheckEOPState"
+PURPOSE = "Ensure that firmware told ME that the boot process is complete."
+ATTRIBUTES = "suite:faft_bios_ro_qual, suite:faft_bios_rw_qual"
+CRITERIA = "Fail if ME on Tiger Lake or later is not in post-boot state"
+TIME = "SHORT"
+TEST_CATEGORY = "Security"
+TEST_CLASS = "firmware"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+Intel x86 CPUs come with a Management Engine (going by more complicated
+names sometimes, look for ME, CSE or CSME) that coordinates various
+tasks during boot and after.
+
+That coprocessor needs to know when the boot process is complete so
+it can reject privileged boot-only requests until next reboot.
+
+This test PASSES if the ME reports that it's in Post-Boot State.
+
+This test FAILS if any of the following is true:
+ - The Intel microarchitecture isn't defined in client/bin/utils.py
+ - The ME reports it's not in Post-Boot State. This is the main condition.
+ - The ME's firmware supports a sufficiently new protocol but returns
+   failure to execute the query, failure to understand the query, responded
+   to a different query or returns an unexpectedly formatted response.
+ - The kernel doesn't provide a /dev/mei0 device even though we expect
+   it to be there.
+
+This test reports NA if any of the following is true:
+ - The test is executed on non-Intel CPUs (e.g. AMD or ARM)
+ - The ME reports an old protocol version where we can't query the
+   state. (At least Sky Lake-E and older)
+"""
+
+job.run_test('firmware_CheckEOPState')

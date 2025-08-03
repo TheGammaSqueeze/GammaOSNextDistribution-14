@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/libz-sys
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "libz-sys"
+description: "Low-level bindings to the system libz library (also known as zlib)."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/libz-sys"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/libz-sys/libz-sys-1.1.8.crate"
+  }
+  version: "1.1.8"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 12
+    day: 12
+  }
+}

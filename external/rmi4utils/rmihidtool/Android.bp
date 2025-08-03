@@ -1,0 +1,19 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_rmi4utils_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_rmi4utils_license"],
+}
+
+cc_binary {
+    name: "rmihidtool",
+    srcs: ["main.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    static_libs: ["rmidevice"],
+}

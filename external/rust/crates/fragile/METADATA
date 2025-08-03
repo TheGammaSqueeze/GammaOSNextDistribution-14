@@ -1,0 +1,19 @@
+name: "fragile"
+description: "Provides wrapper types for sending non-send values to other threads."
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/fragile"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/fragile/fragile-2.0.0.crate"
+  }
+  version: "2.0.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 6
+  }
+}

@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/ciborium
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "ciborium"
+description: "serde implementation of CBOR using ciborium-basic"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 1
+    day: 24
+  }
+  homepage: "https://crates.io/crates/ciborium"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/ciborium/ciborium-0.2.2.crate"
+    version: "0.2.2"
+  }
+}

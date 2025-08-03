@@ -1,0 +1,73 @@
+--- libicu/ndk_headers/unicode/ucol.h	2022-02-07 13:48:24.008286549 +0000
++++ libicu/ndk_headers/unicode/ucol.h	2022-02-07 13:48:24.108287466 +0000
+@@ -73,7 +73,7 @@
+  * Possible values for a comparison result 
+  * \xrefitem stable "Stable" "Stable List" ICU 2.0
+  */
+-typedef enum {
++typedef enum UCollationResult : int32_t {
+   /** string a == string b */
+   UCOL_EQUAL    = 0,
+   /** string a > string b */
+@@ -89,7 +89,7 @@
+  * value for that locale 
+  * \xrefitem stable "Stable" "Stable List" ICU 2.0
+  */
+-typedef enum {
++typedef enum UColAttributeValue : int32_t {
+   /** accepted by most attributes */
+   UCOL_DEFAULT = -1,
+ 
+@@ -146,7 +146,7 @@
+  * @see UScriptCode
+  * \xrefitem stable "Stable" "Stable List" ICU 4.8
+  */
+- typedef enum {
++ typedef enum UColReorderCode : int32_t {
+    /**
+     * A special reordering code that is used to specify the default
+     * reordering codes for a locale.
+@@ -242,7 +242,7 @@
+  * value, as well as the values specific to each one. 
+  * \xrefitem stable "Stable" "Stable List" ICU 2.0
+  */
+-typedef enum {
++typedef enum UColAttribute : int32_t {
+      /** Attribute for direction of secondary weights - used in Canadian French.
+       * Acceptable values are UCOL_ON, which results in secondary weights
+       * being considered backwards and UCOL_OFF which treats secondary
+@@ -356,25 +356,6 @@
+ #endif  // U_FORCE_HIDE_DEPRECATED_API
+ } UColAttribute;
+ 
+-/** Options for retrieving the rule string 
+- *  \xrefitem stable "Stable" "Stable List" ICU 2.0
+- */
+-typedef enum {
+-  /**
+-   * Retrieves the tailoring rules only.
+-   * Same as calling the version of getRules() without UColRuleOption.
+-   * \xrefitem stable "Stable" "Stable List" ICU 2.0
+-   */
+-  UCOL_TAILORING_ONLY, 
+-  /**
+-   * Retrieves the "UCA rules" concatenated with the tailoring rules.
+-   * The "UCA rules" are an <i>approximation</i> of the root collator's sort order.
+-   * They are almost never used or useful at runtime and can be removed from the data.
+-   * See https://unicode-org.github.io/icu/userguide/collation/customization#building-on-existing-locales
+-   * \xrefitem stable "Stable" "Stable List" ICU 2.0
+-   */
+-  UCOL_FULL_RULES 
+-} UColRuleOption ;
+ 
+ /**
+  * Open a UCollator for comparing strings.
+@@ -878,7 +859,7 @@
+  * depends on them having these numbers     
+  * \xrefitem stable "Stable" "Stable List" ICU 2.0
+  */
+-typedef enum {
++typedef enum UColBoundMode : int32_t {
+   /** lower bound */
+   UCOL_BOUND_LOWER = 0,
+   /** upper bound that will match strings of exact size */

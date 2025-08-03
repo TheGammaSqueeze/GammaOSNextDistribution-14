@@ -1,0 +1,47 @@
+function symbol 'void VirtualToNon::VirtualToNon(struct VirtualToNon*)' {_ZN12VirtualToNonC1Ev} was removed
+
+variable symbol '_ZTI12VirtualToNon' was removed
+
+variable symbol '_ZTS12VirtualToNon' was removed
+
+variable symbol '_ZTT12VirtualToNon' was removed
+
+variable symbol '_ZTV12VirtualToNon' was removed
+
+function symbol 'void NonToVirtual::NonToVirtual(struct NonToVirtual*)' {_ZN12NonToVirtualC1Ev} was added
+
+variable symbol '_ZTI12NonToVirtual' was added
+
+variable symbol '_ZTS12NonToVirtual' was added
+
+variable symbol '_ZTT12NonToVirtual' was added
+
+variable symbol '_ZTV12NonToVirtual' was added
+
+variable symbol 'struct NonToVirtual non_to_virtual' changed
+  type 'struct NonToVirtual' changed
+
+variable symbol 'struct VirtualToNon virtual_to_non' changed
+  type 'struct VirtualToNon' changed
+
+type 'struct NonToVirtual' changed
+  byte size changed from 2 to 16
+  base class 'struct A' changed
+    inheritance changed from non-virtual to virtual
+    offset changed from 0 to 192
+  base class 'struct B' changed
+    inheritance changed from non-virtual to virtual
+    offset changed from 8 to 256
+  member 'int(** _vptr$NonToVirtual)()' was added
+
+type 'struct VirtualToNon' changed
+  byte size changed from 16 to 2
+  base class 'struct A' changed
+    inheritance changed from virtual to non-virtual
+    offset changed from 192 to 0
+  base class 'struct B' changed
+    inheritance changed from virtual to non-virtual
+    offset changed from 256 to 8
+  member 'int(** _vptr$VirtualToNon)()' was removed
+
+exit code 4

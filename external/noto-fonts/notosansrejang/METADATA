@@ -1,0 +1,13 @@
+name: "notosansrejang"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Rejang is an unmodulated (“sans serif”) design for textsin the Southeast Asian Rejang script. It has 46 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansrejang"
+  }
+  version: "1.050"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

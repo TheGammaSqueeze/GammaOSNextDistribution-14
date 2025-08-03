@@ -1,0 +1,1 @@
+--- &[  foo # we do not allow special characters in anchor names - YAML 1.2

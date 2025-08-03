@@ -1,0 +1,21 @@
+# This project was upgraded manually.
+
+name: "socket2"
+description: "Utilities for handling networking sockets with a maximal amount of configuration possible intended."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/socket2"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/socket2/socket2-0.5.5.crate"
+  }
+  version: "0.5.5"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 25
+  }
+}

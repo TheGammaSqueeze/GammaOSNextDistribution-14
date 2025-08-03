@@ -1,0 +1,11 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='bar' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='variable_length.c' language='LANG_C11'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <function-decl name='bar' mangled-name='bar' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='bar'>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

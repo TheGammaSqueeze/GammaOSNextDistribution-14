@@ -1,0 +1,45 @@
+[project]
+name = "bt-test-interfaces"
+readme = "../README.md"
+authors = [{name = "Pandora", email = "pandora-core@google.com"}]
+dynamic = ["version", "description"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License"
+]
+dependencies = [
+    "grpcio==1.57",
+    "protobuf>=4.22.0"
+]
+
+[project.urls]
+Source = "https://github.com/google/bt-test-interfaces"
+
+[project.optional-dependencies]
+dev = [
+    "pyright==1.1.298",
+    "types-psutil==5.9.5.16",
+    "types-setuptools==68.1.0.1",
+    "types-protobuf==4.24.0.1"
+]
+
+[tool.flit.module]
+name = "pandora"
+
+[tool.flit.sdist]
+include = ["_build", ".."]
+
+[tool.pyright]
+include = ["pandora"]
+exclude = ["**/__pycache__", "**/*_pb2.py"]
+typeCheckingMode = "strict"
+useLibraryCodeForTypes = true
+verboseOutput = false
+reportMissingTypeStubs = false
+reportUnknownLambdaType = false
+reportImportCycles = false
+reportPrivateUsage = false
+
+[build-system]
+requires = ["flit_core==3.7.1", "grpcio-tools>=1.51.1"]
+build-backend = "_build.backend"
+backend-path = ["."]

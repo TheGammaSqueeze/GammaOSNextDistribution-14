@@ -1,0 +1,19 @@
+name: "antlr3"
+description: "ANTLR (ANother Tool for Language Recognition) is a language tool that provides a framework for constructing recognizers, interpreters, compilers, and translators from grammatical descriptions containing actions in a variety of target languages."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/antlr/antlr3"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://github.com/antlr/antlr3/archive/3.5.3.zip"
+  }
+  version: "3.5.3"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 5
+    day: 3
+  }
+}

@@ -1,0 +1,94 @@
+/*
+ * Copyright 2017-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license.
+ */
+
+apply plugin: 'kotlin'
+apply plugin: 'maven'
+
+apply from: rootProject.file('gradle/compile-options.gradle')
+
+ext.configureKotlin()
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile project(":atomicfu-transformer")
+    compile "org.apache.maven:maven-core:$maven_version"
+    compile "org.apache.maven:maven-plugin-api:$maven_version"
+    compile 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.5'
+}
+
+def pomFile = file("$buildDir/pom.xml")
+def outputDir = compileKotlin.destinationDirectory
+def buildSnapshots = rootProject.properties['build_snapshot_train'] != null
+
+evaluationDependsOn(':atomicfu-transformer')
+
+task generatePomFile(dependsOn: [compileKotlin, ':atomicfu-transformer:publishToMavenLocal']) {
+    def buildDir = project.buildDir // because Maven model also has "project"
+    outputs.file(pomFile)
+    doLast {
+        install.repositories.mavenInstaller.pom.with {
+            groupId = project.group
+            artifactId = project.name
+            version = project.version
+            packaging = 'maven-plugin'
+
+            withXml {
+                asNode().with {
+                    appendNode('build').with {
+                        appendNode('directory', buildDir)
+                        appendNode('outputDirectory', outputDir.get().getAsFile())
+                    }
+                    appendNode('properties').with {
+                        appendNode('project.build.sourceEncoding', 'UTF-8')
+                    }
+                    appendNode('repositories').with {
+                        appendNode('repository').with {
+                            appendNode('id', 'dev')
+                            appendNode('url', 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev')
+                        }
+
+                        if (buildSnapshots) {
+                            appendNode('repository').with {
+                                appendNode('id', 'kotlin-snapshots')
+                                appendNode('url', "https://oss.sonatype.org/content/repositories/snapshots")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        install.repositories.mavenInstaller.pom.writeTo(pomFile)
+        assert pomFile.file, "$pomFile: was not generated"
+        logger.info("POM is generated in $pomFile")
+    }
+}
+
+String mavenUserHome = System.getProperty("maven.user.home")
+String mavenRepoLocal = System.getProperty("maven.repo.local")
+
+// runs the plugin description generator
+task generatePluginDescriptor(type: Exec, dependsOn: generatePomFile) {
+    def pluginDescriptorFile = outputDir.file('META-INF/maven/plugin.xml')
+
+    workingDir projectDir
+    boolean isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0
+    def args = isWindows ? ['cmd', '/c', 'mvnw.cmd'] : ['sh', './mvnw']
+    if (mavenUserHome != null) args.add("-Dmaven.user.home=${new File(mavenUserHome).getAbsolutePath()}")
+    if (mavenRepoLocal != null) args.add("-Dmaven.repo.local=${new File(mavenRepoLocal).getAbsolutePath()}")
+    args.addAll([
+        '--settings', './settings.xml',
+        '--errors',
+        '--batch-mode',
+        '--file', pomFile.toString(),
+        'org.apache.maven.plugins:maven-plugin-plugin:3.5.1:descriptor'
+    ])
+    commandLine args
+    doLast {
+        def descriptorFile = pluginDescriptorFile.get().getAsFile()
+        assert descriptorFile, "$descriptorFile: was not generated"
+        logger.info("Plugin descriptor is generated in $descriptorFile")
+    }
+}
+
+project.jar.dependsOn(generatePluginDescriptor)

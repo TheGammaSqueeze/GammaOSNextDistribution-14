@@ -1,0 +1,291 @@
+/*
+ * Copyright (C) 2020 The Dagger Authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+
+plugins {
+  id 'org.jetbrains.kotlin.jvm'
+  id 'java-gradle-plugin'
+  id 'maven-publish'
+  id 'com.github.johnrengelman.shadow'
+}
+
+configurations {
+  // Config for dependencies that will be shadowed / jarjared
+  shadowed
+  // Make all shadowed dependencies be compileOnly dependencies to not affect
+  // main compilation / configuration
+  compileOnly.extendsFrom(shadowed)
+  // Make all shadowed dependencies be included in the plugin test classpath
+  // since they are compileOnly in the main configuration
+  testPluginCompile.extendsFrom(shadowed)
+  // Config for plugin classpath to be used during tests
+  testPluginCompile {
+    canBeConsumed = false
+    canBeResolved = true
+  }
+}
+
+// Renames default jar to avoid using it in publications.
+jar {
+  archiveClassifier = "before-jarjar"
+}
+shadowJar {
+  archiveClassifier = ""
+  configurations = [project.configurations.shadowed]
+  dependencies {
+    // Don't jarjar stdlib deps that are automatically added by Kotlin plugin
+    exclude(dependency("org.jetbrains.kotlin::"))
+    exclude(dependency("org.jetbrains:annotations:"))
+  }
+  doLast {
+    outputs.files.each { jarFile ->
+      checkJarFile(jarFile,  'dagger',  'META-INF')
+    }
+  }
+}
+
+dependencies {
+  shadowed project(':agp-wrapper-impl')
+  shadowed fileTree(dir: 'libs', include: '*.jar')
+  implementation gradleApi()
+  compileOnly "com.android.tools.build:gradle:$agp_version"
+  compileOnly "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+  compileOnly "com.google.devtools.ksp:symbol-processing-gradle-plugin:$ksp_version"
+  implementation 'org.ow2.asm:asm:9.0'
+  implementation "com.squareup:javapoet:1.13.0"
+
+  testImplementation gradleTestKit()
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'com.google.truth:truth:1.0.1'
+  testImplementation 'org.javassist:javassist:3.26.0-GA'
+  testPluginCompile 'com.android.tools.build:gradle:7.1.2'
+  testPluginCompile 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0'
+  testPluginCompile 'com.google.devtools.ksp:symbol-processing-gradle-plugin:1.8.0-1.0.9'
+}
+
+// Configure the generating task of plugin-under-test-metadata.properties to
+// include additional dependencies for the injected plugin classpath that
+// are not present in the main runtime dependencies. This allows us to test
+// the desired AGP version while keeping a compileOnly dep on the main source.
+tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
+  it.pluginClasspath.from(configurations.testPluginCompile)
+}
+
+kotlin {
+  jvmToolchain(11)
+}
+
+compileKotlin {
+  kotlinOptions {
+    allWarningsAsErrors = true
+    freeCompilerArgs += [ "-opt-in=kotlin.ExperimentalStdlibApi" ]
+  }
+}
+
+// Imports a shared library from the main project. The library and its classes
+// will be shadowed in the plugin's artifact.
+tasks.register("importSharedLib").configure {
+  def outputDir = file("${project.projectDir}/libs")
+  outputs.dir(outputDir)
+  doLast {
+    def buildCmd = 'bazel'
+    def buildDir = 'bazel-bin'
+    def findGenFilesParent
+    findGenFilesParent = { File dir ->
+      if (dir == null || !dir.isDirectory()) {
+        return null
+      }
+      if (new File(dir, buildDir).exists()) {
+        return dir
+      } else {
+        return findGenFilesParent(dir.parentFile)
+      }
+    }
+    // Build shared lib
+    def bazelOutput = new ByteArrayOutputStream()
+    def buildResult = exec {
+      commandLine buildCmd, 'build', 'import-shared-lib'
+      standardOutput = bazelOutput
+      errorOutput = bazelOutput
+    }
+    buildResult.assertNormalExitValue()
+    // Find shared lib Jar in build directory.
+    def genFilesDir = findGenFilesParent(project.buildFile.parentFile)
+    if (genFilesDir == null) {
+      throw new GradleException("Couldn't find build folder '$buildDir'")
+    }
+    def libPath = bazelOutput.toString().split('\n')
+      .find { line -> line.contains("$buildDir/") }.trim()
+    def inputFile = file("$genFilesDir/$libPath")
+    def outputFile = file("$outputDir/${inputFile.name}")
+    outputFile << inputFile.newInputStream()
+  }
+}
+tasks.getByName('compileKotlin').dependsOn('importSharedLib')
+
+// Task that generates a top-level property containing the version of the
+// project so that it can be used in code and at runtime.
+def pluginVersionOutDir = file("$buildDir/generated/source/plugin-version/")
+tasks.register("generatePluginVersionSource").configure {
+  def version = getPublishVersion()
+  inputs.property('version', version)
+  outputs.dir(pluginVersionOutDir)
+  doLast {
+    def versionFile =
+      file("$pluginVersionOutDir/dagger/hilt/android/plugin/Version.kt")
+    versionFile.parentFile.mkdirs()
+    versionFile.text = """
+      // Generated file. Do not edit!
+      package dagger.hilt.android.plugin
+
+      val HILT_VERSION = "${version}"
+    """.stripIndent()
+  }
+}
+sourceSets.main.java.srcDir pluginVersionOutDir
+tasks.getByName('compileKotlin').dependsOn('generatePluginVersionSource')
+
+// Create sources Jar from main kotlin sources
+tasks.register("sourcesJar", Jar).configure {
+  group = JavaBasePlugin.DOCUMENTATION_GROUP
+  description = "Assembles sources JAR"
+  archiveClassifier.set("sources")
+  from(sourceSets["main"].allSource)
+  dependsOn('generatePluginVersionSource')
+}
+
+// Create javadoc Jar. The jar is empty since we don't really have docs
+// for this plugin but this is required to upload to Sonatype.
+// https://central.sonatype.org/pages/requirements.html#supply-javadoc-and-sources
+tasks.register("javadocJar", Jar).configure {
+  group = JavaBasePlugin.DOCUMENTATION_GROUP
+  description = "Assembles javadoc JAR"
+  archiveClassifier.set("javadoc")
+}
+
+// Disable Gradle metadata publication.
+tasks.withType(GenerateModuleMetadata) {
+  enabled = false
+}
+
+// TODO(danysantiago): Use POM template in tools/ to avoid duplicating lines.
+publishing {
+  publications {
+    plugin(MavenPublication) {
+      artifactId = pluginArtifactId
+      version = getPublishVersion()
+      from components.kotlin
+      artifact(shadowJar)
+      artifact(sourcesJar)
+      artifact(javadocJar)
+      pom {
+        addPomTemplate(owner)
+      }
+    }
+    // https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_markers
+    pluginMarker(MavenPublication) {
+      groupId = pluginId
+      artifactId = "${pluginId}.gradle.plugin"
+      version = getPublishVersion()
+      pom {
+        addPomTemplate(owner)
+        withXml {
+          def dependencyNode =
+                  asNode().appendNode("dependencies").appendNode("dependency")
+          dependencyNode.appendNode("groupId", group)
+          dependencyNode.appendNode("artifactId", pluginArtifactId)
+          dependencyNode.appendNode("version", getPublishVersion())
+        }
+      }
+    }
+  }
+  // Publish to build output repository.
+  repositories {
+    maven {
+      url = uri("$buildDir/repo")
+    }
+  }
+}
+
+group = 'com.google.dagger'
+
+// TODO(danysantiago): Use POM template in tools/ to avoid duplicating lines.
+def addPomTemplate(pom) {
+  pom.name = 'Hilt Android Gradle Plugin'
+  pom.description = 'A fast dependency injector for Android and Java.'
+  pom.url = 'https://github.com/google/dagger'
+  pom.scm {
+    url = 'https://github.com/google/dagger/'
+    connection = 'scm:git:git://github.com/google/dagger.git'
+    developerConnection = 'scm:git:ssh://git@github.com/google/dagger.git'
+    tag = 'HEAD'
+  }
+  pom.issueManagement {
+    system = 'GitHub Issues'
+    url = 'https://github.com/google/dagger/issues'
+  }
+  pom.licenses {
+    license {
+      name = 'Apache 2.0'
+      url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+    }
+  }
+  pom.organization {
+    name = 'Google, Inc.'
+    url = 'https://www.google.com'
+  }
+  pom.withXml {
+    def projectNode = asNode()
+    // Adds:
+    // <parent>
+    //   <groupId>org.sonatype.oss</groupId>
+    //   <artifactId>oss-parent</artifactId>
+    //   <version>7</version>
+    // </parent>
+    def parentNode = projectNode.appendNode('parent')
+    parentNode.appendNode('groupId', 'org.sonatype.oss')
+    parentNode.appendNode('artifactId', 'oss-parent')
+    parentNode.appendNode('version', '7')
+    // Adds scm->tag because for some reason the DSL API does not.
+    // <scm>
+    //   <tag>HEAD</tag>
+    // </scm>
+    projectNode.get('scm').first().appendNode('tag', 'HEAD')
+  }
+}
+
+def getPublishVersion() {
+  def publishVersion = findProperty("PublishVersion")
+  return (publishVersion != null) ? publishVersion : "LOCAL-SNAPSHOT"
+}
+
+def checkJarFile(File jarFile, String... allowedPrefixes) {
+  def zip = new ZipFile(jarFile)
+  try {
+    Enumeration<ZipEntry> list = zip.entries()
+    while (list.hasMoreElements()) {
+      String entry = list.nextElement().name
+      if (!allowedPrefixes.any { entry.startsWith(it) }) {
+        throw new GradleException(
+          "Found a file that is not in " +
+          "${ allowedPrefixes.collect { "'$it'" }.join('/') }: $entry")
+      }
+    }
+  } finally {
+      zip.close()
+  }
+}

@@ -1,0 +1,14 @@
+name: "Tex-hyphen"
+description:
+    "Hyphenation patterns for automatic hyphenation from TeX hyphenation "
+    "patterns project at http://www.hyphenation.org."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/hyphenation/tex-hyphen"
+  }
+  version: "ecf976ab6995acb653d38ab1af0b9b9829ec0c77"
+  last_upgrade_date { year: 2023 month: 5 day: 10 }
+  license_type: NOTICE
+}

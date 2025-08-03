@@ -1,0 +1,19 @@
+name: "cxx"
+description: "Safe interop between Rust and C++"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/dtolnay/cxx"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/dtolnay/cxx.git"
+  }
+  version: "36d9ac1fab726e14305ce1919ebf8a3d64949d30"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 9
+    day: 23
+  }
+}

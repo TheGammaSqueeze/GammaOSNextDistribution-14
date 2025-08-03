@@ -1,0 +1,211 @@
+.\" Copyright (c) 2019 Gao Xiang <xiang@kernel.org>
+.\"
+.TH MKFS.EROFS 1
+.SH NAME
+mkfs.erofs \- tool to create an EROFS filesystem
+.SH SYNOPSIS
+\fBmkfs.erofs\fR [\fIOPTIONS\fR] \fIDESTINATION\fR \fISOURCE\fR
+.SH DESCRIPTION
+EROFS is a new enhanced lightweight linux read-only filesystem with modern
+designs (eg. no buffer head, reduced metadata, inline xattrs/data, etc.) for
+scenarios which need high-performance read-only requirements, e.g. Android OS
+for smartphones and LIVECDs.
+.PP
+It also provides fixed-sized output compression support, which improves storage
+density, keeps relatively higher compression ratios, which is more useful to
+achieve high performance for embedded devices with limited memory since it has
+unnoticable memory overhead and page cache thrashing.
+.PP
+mkfs.erofs is used to create such EROFS filesystem \fIDESTINATION\fR image file
+from \fISOURCE\fR directory.
+.SH OPTIONS
+.TP
+.BI "\-z " compression-algorithm \fR[\fP, # \fR][\fP: ... \fR]\fP
+Set a primary algorithm for data compression, which can be set with an optional
+compression level (1 to 12 for LZ4HC, 0 to 9 for LZMA and 100 to 109 for LZMA
+extreme compression) separated by a comma.  Alternative algorithms could be
+specified and separated by colons.
+.TP
+.BI "\-b " block-size
+Set the fundamental block size of the filesystem in bytes.  In other words,
+specify the smallest amount of data that can be accessed at a time.  The
+default is the system page size.  It cannot be less than 512 bytes.
+.TP
+.BI "\-C " max-pcluster-size
+Specify the maximum size of compress physical cluster in bytes.
+This may cause the big pcluster feature to be enabled (Linux v5.13+).
+.TP
+.BI "\-d " #
+Specify the level of debugging messages. The default is 2, which shows basic
+warning messages.
+.TP
+.BI "\-x " #
+Limit how many xattrs will be inlined. The default is 2.
+Disables storing xattrs if < 0.
+.TP
+.BI "\-E " extended-option \fR[\fP, ... \fR]\fP
+Set extended options for the filesystem. Extended options are comma separated,
+and may take an extra argument using the equals ('=') sign.
+The following extended options are supported:
+.RS 1.2i
+.TP
+.BI all-fragments
+Forcely record the whole files into a special inode for better compression and
+it may take an argument as the pcluster size of the packed inode in bytes.
+(Linux v6.1+)
+.TP
+.BI dedupe
+Enable global compressed data deduplication to minimize duplicated data in
+the filesystem. May further reduce image size when used with
+.BR -E\ fragments .
+(Linux v6.1+)
+.TP
+.BI force-inode-compact
+Force generation of compact (32-byte) inodes.
+.TP
+.BI force-inode-extended
+Force generation of extended (64-byte) inodes.
+.TP
+.BI force-inode-blockmap
+Force generation of inode chunk format as a 4-byte block address array.
+.TP
+.BI force-chunk-indexes
+Forcely generate inode chunk format as an 8-byte chunk index (with device ID).
+.TP
+.BI fragments\fR[\fP= size \fR]\fP
+Pack the tail part (pcluster) of compressed files, or entire files, into a
+special inode for smaller image sizes, and it may take an argument as the
+pcluster size of the packed inode in bytes. (Linux v6.1+)
+.TP
+.BI legacy-compress
+Disable "inplace decompression" and "compacted indexes",
+for compatibility with Linux pre-v5.4.
+.TP
+.BI noinline_data
+Don't inline regular files to enable FSDAX for these files (Linux v5.15+).
+.TP
+.B ^xattr-name-filter
+Turn off/on xattr name filter to optimize negative xattr lookups (Linux v6.6+).
+.TP
+.BI ztailpacking
+Pack the tail part (pcluster) of compressed files into its metadata to save
+more space and the tail part I/O. (Linux v5.17+)
+.RE
+.TP
+.BI "\-L " volume-label
+Set the volume label for the filesystem to
+.IR volume-label .
+The maximum length of the volume label is 16 bytes.
+.TP
+.BI "\-T " #
+Set all files to the given UNIX timestamp. Reproducible builds require setting
+all to a specific one. By default, the source file's modification time is used.
+.TP
+.BI "\-U " UUID
+Set the universally unique identifier (UUID) of the filesystem to
+.IR UUID .
+The format of the UUID is a series of hex digits separated by hyphens,
+like this: "c1b9d5a2-f162-11cf-9ece-0020afc76f16".
+.TP
+.B \-\-all-root
+Make all files owned by root.
+.TP
+.BI "\-\-blobdev " file
+Specify an extra blob device to store chunk-based data.
+.TP
+.BI "\-\-chunksize " #
+Generate chunk-based files with #-byte chunks.
+.TP
+.BI "\-\-compress-hints " file
+Apply a per-file compression strategy. Each line in
+.I file
+is defined by
+tokens separated by spaces in the following form.  Optionally, instead of
+the given primary algorithm, alternative algorithms can be specified with
+\fIalgorithm-index\fR explicitly:
+.RS 1.2i
+<pcluster-size-in-bytes> [algorithm-index] <match-pattern>
+.RE
+.IR match-pattern s
+are extended regular expressions, matched against absolute paths within
+the output filesystem, with no leading /.
+.TP
+.BI "\-\-exclude-path=" path
+Ignore file that matches the exact literal path.
+You may give multiple
+.B --exclude-path
+options.
+.TP
+.BI "\-\-exclude-regex=" regex
+Ignore files that match the given extended regular expression.
+You may give multiple
+.B --exclude-regex
+options.
+.TP
+.BI "\-\-file-contexts=" file
+Read SELinux label configuration/overrides from \fIfile\fR in the
+.BR selinux_file (5)
+format.
+.TP
+.BI "\-\-force-uid=" UID
+Set all file UIDs to \fIUID\fR.
+.TP
+.BI "\-\-force-gid=" GID
+Set all file GIDs to \fIGID\fR.
+.TP
+.BI "\-\-gid-offset=" GIDOFFSET
+Add \fIGIDOFFSET\fR to all file GIDs.
+When this option is used together with
+.BR --force-gid ,
+the final file gids are
+set to \fIGID\fR + \fIGID-OFFSET\fR.
+.TP
+.B \-\-gzip
+Filter tarball streams through gzip.
+.TP
+.B \-\-help
+Display help string and exit.
+.TP
+.B "\-\-ignore-mtime"
+Ignore the file modification time whenever it would cause \fBmkfs.erofs\fR to
+use extended inodes over compact inodes. When not using a fixed timestamp, this
+can reduce total metadata size. Implied by
+.BR "-E force-inode-compact" .
+.TP
+.BI "\-\-max-extent-bytes " #
+Specify maximum decompressed extent size in bytes.
+.TP
+.B "\-\-preserve-mtime"
+Use extended inodes instead of compact inodes if the file modification time
+would overflow compact inodes. This is the default. Overrides
+.BR --ignore-mtime .
+.TP
+.B "\-\-tar=f"
+Generate a full EROFS image from a tarball.
+.TP
+.B "\-\-tar=i"
+Generate an meta-only EROFS image from a tarball.
+.TP
+.BI "\-\-uid-offset=" UIDOFFSET
+Add \fIUIDOFFSET\fR to all file UIDs.
+When this option is used together with
+.BR --force-uid ,
+the final file uids are
+set to \fIUID\fR + \fIUIDOFFSET\fR.
+.TP
+.BI "\-\-xattr-prefix=" PREFIX
+Specify a customized extended attribute namespace prefix for space saving,
+e.g. "trusted.overlay.".  You may give multiple
+.B --xattr-prefix
+options (Linux v6.4+).
+.SH AUTHOR
+This version of \fBmkfs.erofs\fR is written by Li Guifu <blucerlee@gmail.com>,
+Miao Xie <miaoxie@huawei.com> and Gao Xiang <xiang@kernel.org> with
+continuously improvements from others.
+.PP
+This manual page was written by Gao Xiang <xiang@kernel.org>.
+.SH AVAILABILITY
+\fBmkfs.erofs\fR is part of erofs-utils package and is available from
+git://git.kernel.org/pub/scm/linux/kernel/git/xiang/erofs-utils.git.
+.SH SEE ALSO
+.BR mkfs (8).

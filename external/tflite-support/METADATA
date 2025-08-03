@@ -1,0 +1,19 @@
+name: "tflite-support"
+description:
+    "TFLite Support is a toolkit that helps users to develop ML and deploy "
+    "TFLite models onto mobile devices. It works cross-Platform and is "
+    "supported on Java, C++ (WIP), and Swift (WIP)."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/tensorflow/tflite-support"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/tensorflow/tflite-support"
+  }
+  version: "v0.1.0"
+  last_upgrade_date { year: 2021 month: 1 day: 14 }
+  license_type: NOTICE
+}

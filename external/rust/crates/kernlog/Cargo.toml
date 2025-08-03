@@ -1,0 +1,15 @@
+[package]
+name = "kernlog"
+version = "0.3.1"
+description = "Kernel logger implementation (for low level logging to `/dev/kmsg`)."
+authors = ["Konstantin Stepanov <me@kstep.me>"]
+readme = "README.md"
+repository = "https://github.com/kstep/kernlog.rs.git"
+documentation = "http://kstep.me/kernlog.rs/kernlog/index.html"
+license = "MIT"
+keywords = ["kmsg", "log", "logger", "kernel", "dmesg"]
+edition = "2018"
+
+[dependencies]
+log = { version = "0.4", features = ["std"] }
+libc = "0.2"

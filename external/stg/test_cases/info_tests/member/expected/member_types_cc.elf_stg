@@ -1,0 +1,110 @@
+version: 0x00000002
+root_id: 0x84ea5130
+typedef {
+  id: 0x4cf6e5b0
+  name: "Scope::TypedefDecl"
+  referred_type_id: 0xfc0e1dbd
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+member {
+  id: 0xa04e65cb
+  name: "x"
+  type_id: 0xfc0e1dbd
+}
+struct_union {
+  id: 0xcaaeb4e7
+  kind: STRUCT
+  name: "Scope::ClassDecl"
+  definition {
+    bytesize: 8
+    member_id: 0xa04e65cb
+  }
+}
+struct_union {
+  id: 0x7c169231
+  kind: STRUCT
+  name: "Scope::StructDecl"
+  definition {
+    bytesize: 8
+    member_id: 0xa04e65cb
+  }
+}
+struct_union {
+  id: 0xb493105f
+  kind: UNION
+  name: "Scope::UnionDecl"
+  definition {
+    bytesize: 8
+    member_id: 0xa04e65cb
+  }
+}
+enumeration {
+  id: 0x83c8a573
+  name: "Scope::EnumDecl"
+  definition {
+    underlying_type_id: 0x4585663f
+    enumerator {
+      name: "X"
+      value: 2
+    }
+  }
+}
+elf_symbol {
+  id: 0x477e22e9
+  name: "class_decl"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xcaaeb4e7
+  full_name: "class_decl"
+}
+elf_symbol {
+  id: 0xd58568f2
+  name: "enum_decl"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x83c8a573
+  full_name: "enum_decl"
+}
+elf_symbol {
+  id: 0x2e5e5d2a
+  name: "struct_decl"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x7c169231
+  full_name: "struct_decl"
+}
+elf_symbol {
+  id: 0xb9b8f74f
+  name: "typedef_decl"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x4cf6e5b0
+  full_name: "typedef_decl"
+}
+elf_symbol {
+  id: 0xc1804b63
+  name: "union_decl"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xb493105f
+  full_name: "union_decl"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x477e22e9
+  symbol_id: 0xd58568f2
+  symbol_id: 0x2e5e5d2a
+  symbol_id: 0xb9b8f74f
+  symbol_id: 0xc1804b63
+}

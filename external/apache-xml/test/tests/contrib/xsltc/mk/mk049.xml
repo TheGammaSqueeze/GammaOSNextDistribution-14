@@ -1,0 +1,38 @@
+<orgchart date="28 March 2000">
+<person>
+<name>Keith Todd</name>
+<title>Chief Executive Officer</title>
+<reports>
+	<person>
+   		<name>Andrew Boswell</name>
+   		<title>Technical Director</title>
+		<reports>
+			<person>
+			    <name>Dave McVitie</name>
+			    <title>Chief Engineer</title>
+			</person>
+			<person>
+			    <name>John Elmore</name>
+			    <title>Director of Research</title>
+			</person>
+		</reports>			
+	</person>
+	<person>
+		<name>Alan Gibson</name>
+		<title>Operations and Finance</title>
+	</person>
+	<person>
+		<name>Fiona Colquhoun</name>
+		<title>Human Resources</title>
+	</person>
+	<person>
+		<name>John Davison</name>
+		<title>Marketing</title>
+	</person>
+	<person>
+		<name>Marie-Anne van Ingen</name>
+		<title>International</title>
+	</person>
+</reports>
+</person>
+</orgchart>       

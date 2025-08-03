@@ -1,0 +1,59 @@
+[integer]
+# celt/celt_decoder.c:1055:61: 0 - 1 cannot be represented in type 'unsigned int'
+fun:celt_decode_with_ec
+# celt/celt_encoder.c:2171:75: 0 - 1 cannot be represented in type 'unsigned int'
+fun:celt_encode_with_ec
+fun:celt_lcg_rand
+# celt/entcode.h:131: negation of 100 cannot be represented in type 'opus_uint32'
+fun:celt_udiv
+# celt/mdct.c:273
+# celt/mdct.c:274
+# celt/mdct.c:304
+# celt/mdct.c:305
+# celt/mdct.c:315
+# celt/mdct.c:316
+# celt/mdct.c:336
+# celt/mdct.c:337
+fun:clt_mdct_backward_c
+fun:ec_dec_init
+# celt/entdec.c:143
+fun:ec_decode
+# celt/entdec.c:150
+fun:ec_decode_bin
+# silk/NSQ_del_dec.c:537:38: -242159836 - 2132528648 cannot be represented in type 'int'
+fun:silk_noise_shape_quantizer_del_dec
+# silk/NSQ.c:265:25: 1318152552 + 1068143768 cannot be represented in type 'int'
+fun:silk_noise_shape_quantizer
+# silk/x86/NSQ_del_dec_sse4_1.c:571:28: 1162446838 - -1165932966 cannot be represented in type 'int'
+fun:silk_noise_shape_quantizer_del_dec_sse4_1
+# silk/fixed/x86/burg_modified_FIX_sse4_1.c:277: 1940085720 + 252655088 cannot be represented
+# in type 'int'
+fun:silk_burg_modified_sse4_1
+# silk/fixed/burg_modified_FIX.c:181 1940085720 + 252655088 cannot be represented in type 'int'
+fun:silk_burg_modified_c
+src:*/celt/kiss_fft.c
+
+# assembly optimizations that know what they are doing
+fun:silk_SMULWB_armv4
+fun:silk_SMULWT_armv4
+fun:silk_SMULWW_armv4
+fun:silk_SMLAWW_armv4
+#
+fun:silk_SMULWB_armv5e
+fun:silk_SMLAWB_armv5e
+fun:silk_SMULWT_armv5e
+fun:silk_SMLAWT_armv5e
+fun:silk_SMULBB_armv5e
+fun:silk_SMLABB_armv5e
+fun:silk_SMULBT_armv5e
+fun:silk_SMLABT_armv5e
+fun:silk_ADD_SAT32_armv5e
+fun:silk_SUB_SAT32_armv5e
+fun:silk_CLZ16_armv5
+fun:silk_CLZ32_armv5
+
+
+# Performance related
+fun:exp_rotation1
+fun:haar1
+fun:celt_preemphasis

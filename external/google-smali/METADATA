@@ -1,0 +1,19 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/google-smali
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "google-smali"
+description: "smali/baksmali is an assembler/disassembler for the dex format used by dalvik, Android\'s Java VM implementation."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 2
+    day: 7
+  }
+  identifier {
+    type: "Git"
+    value: "https://github.com/google/smali"
+    version: "3.0.4"
+  }
+}

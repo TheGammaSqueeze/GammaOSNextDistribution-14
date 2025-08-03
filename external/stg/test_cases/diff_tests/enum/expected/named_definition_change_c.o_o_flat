@@ -1,0 +1,7 @@
+variable symbol changed from 'enum E1 v1' to 'enum { a1 = 1, b1 = 1, } v1'
+  type changed from 'enum E1' to 'enum { a1 = 1, b1 = 1, }'
+
+variable symbol changed from 'enum { a2 = 2, } v2' to 'enum E2 v2'
+  type changed from 'enum { a2 = 2, }' to 'enum E2'
+
+exit code 4

@@ -1,0 +1,15 @@
+name: "sg3_utils"
+description: "Utilities that send SCSI commands to devices"
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/doug-gilbert/sg3_utils"
+  }
+  version: "06055a99dd188cda35a4802966656a5b3d3bb288"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 11
+    day: 23
+  }
+}

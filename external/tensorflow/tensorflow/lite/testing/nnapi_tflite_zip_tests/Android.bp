@@ -1,0 +1,48 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_tensorflow_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_tensorflow_license"],
+}
+
+cc_test {
+    name: "TfliteGeneratedNnapiTest",
+    sdk_version: "current",
+    srcs: [
+        "generated_examples_zip_test.cc",
+        "message.cc",
+        "parse_testdata.cc",
+        "split.cc",
+        "tflite_driver.cc",
+        "tokenize.cc",
+    ],
+    data: [
+        "models.tar",
+        "test_manifest.txt",
+    ],
+    include_dirs: [
+        "external/flatbuffers/include",
+        "external/tensorflow",
+    ],
+    cflags: [
+        "-DPLATFORM_POSIX_ANDROID",
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-extern-c-compat",
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+        "-Wno-unused-private-field",
+    ],
+    stl: "libc++_static",
+    static_libs: [
+        "libgmock_ndk",
+        "libruy_static",
+        "libtflite_static",
+    ],
+    shared_libs: [
+        "liblog",
+    ],
+}

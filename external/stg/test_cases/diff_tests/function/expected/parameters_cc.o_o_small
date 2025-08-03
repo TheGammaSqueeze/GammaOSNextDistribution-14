@@ -1,0 +1,57 @@
+function symbol 'int f01(int, int, int)' {_Z3f01iii} was removed
+
+function symbol 'int f02(int, int, int)' {_Z3f02iii} was removed
+
+function symbol 'int f03(int, int, int)' {_Z3f03iii} was removed
+
+function symbol 'int f09(int, int, int)' {_Z3f09iii} was removed
+
+function symbol 'int f10(int, int, int)' {_Z3f10iii} was removed
+
+function symbol 'int f11(int, int, int)' {_Z3f11iii} was removed
+
+function symbol 'int f12(int, int, int)' {_Z3f12iii} was removed
+
+function symbol 'int S::f01(struct S*, int, int, int)' {_ZN1S3f01Eiii} was removed
+
+function symbol 'int S::f02(struct S*, int, int, int)' {_ZN1S3f02Eiii} was removed
+
+function symbol 'int S::f03(struct S*, int, int, int)' {_ZN1S3f03Eiii} was removed
+
+function symbol 'int S::f09(struct S*, int, int, int)' {_ZN1S3f09Eiii} was removed
+
+function symbol 'int S::f10(struct S*, int, int, int)' {_ZN1S3f10Eiii} was removed
+
+function symbol 'int S::f11(struct S*, int, int, int)' {_ZN1S3f11Eiii} was removed
+
+function symbol 'int S::f12(struct S*, int, int, int)' {_ZN1S3f12Eiii} was removed
+
+function symbol 'int f01(int, int)' {_Z3f01ii} was added
+
+function symbol 'int f02(int, int)' {_Z3f02ii} was added
+
+function symbol 'int f03(int, int)' {_Z3f03ii} was added
+
+function symbol 'int f09(int, int, int, int)' {_Z3f09iiii} was added
+
+function symbol 'int f10(int, int, int, int)' {_Z3f10iiii} was added
+
+function symbol 'int f11(int, int, int, int)' {_Z3f11iiii} was added
+
+function symbol 'int f12(int, int, int, int)' {_Z3f12iiii} was added
+
+function symbol 'int S::f01(struct S*, int, int)' {_ZN1S3f01Eii} was added
+
+function symbol 'int S::f02(struct S*, int, int)' {_ZN1S3f02Eii} was added
+
+function symbol 'int S::f03(struct S*, int, int)' {_ZN1S3f03Eii} was added
+
+function symbol 'int S::f09(struct S*, int, int, int, int)' {_ZN1S3f09Eiiii} was added
+
+function symbol 'int S::f10(struct S*, int, int, int, int)' {_ZN1S3f10Eiiii} was added
+
+function symbol 'int S::f11(struct S*, int, int, int, int)' {_ZN1S3f11Eiiii} was added
+
+function symbol 'int S::f12(struct S*, int, int, int, int)' {_ZN1S3f12Eiiii} was added
+
+exit code 4

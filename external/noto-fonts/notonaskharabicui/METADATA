@@ -1,0 +1,13 @@
+name: "notonaskharabicui"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Naskh Arabic UI is a modulated (“serif”) Naskh design for appand website user interfaces in the Middle Eastern Arabic script. Ithas multiple weights and 1,597 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notonaskharabicui"
+  }
+  version: "1.080"
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 2 day: 7 }
+}

@@ -1,0 +1,35 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterAUHealth.au_a2dp_to_hfp_wbs_dut_as_source_test'
+PURPOSE = ('Run the test, A2DP to HFP WBS, with DUT as source')
+CRITERIA = 'Pass all audio file checking'
+ATTRIBUTES = 'suite:bluetooth, suite:bluetooth_e2e'
+TIME = 'SHORT'  # Approximately 5 mins
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+    Run the test, A2DP to HFP WBS, with DUT as source.
+
+    HFP_WBS_MEDIUM profile is used. This test first uses A2DP profile and plays
+    the audio stream on the DUT, checking if the peer receives the audio stream
+    correctly. And then switch to the HFP_WBS profile and check the audio
+    stream again.
+    """
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterAUHealth', host=host, num_iterations=1,
+                 args_dict=args_dict, test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

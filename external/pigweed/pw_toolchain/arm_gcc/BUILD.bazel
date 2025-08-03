@@ -1,0 +1,326 @@
+# Copyright 2022 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+load(
+    "@pw_toolchain//cc_toolchain:defs.bzl",
+    "pw_cc_flag_set",
+    "pw_cc_toolchain",
+)
+
+licenses(["notice"])
+
+cc_library(
+    name = "newlib_os_interface_stubs",
+    srcs = ["newlib_os_interface_stubs.cc"],
+    linkopts = [
+        "-Wl,--wrap=__sread",
+        "-Wl,--wrap=__swrite",
+        "-Wl,--wrap=__sseek",
+        "-Wl,--wrap=__sclose",
+    ],
+    visibility = ["//visibility:public"],
+    deps = ["//pw_assert"],
+    alwayslink = 1,
+)
+
+cc_library(
+    name = "arm_none_eabi_gcc_support",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":newlib_os_interface_stubs",
+        "//pw_toolchain:wrap_abort",
+    ],
+)
+
+# Although we use similar warnings for clang and arm_gcc, we don't have one
+# centralized list, since we might want to use different warnings based on the
+# compiler in the future.
+pw_cc_flag_set(
+    name = "warnings",
+    actions = [
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+    ],
+    flags = [
+        "-Wall",
+        "-Wextra",
+        # Make all warnings errors, except for the exemptions below.
+        "-Werror",
+        "-Wno-error=cpp",  # preprocessor #warning statement
+        "-Wno-error=deprecated-declarations",  # [[deprecated]] attribute
+        "-Wno-psabi",  # Silence the really verbose ARM warnings.
+    ],
+)
+
+pw_cc_flag_set(
+    name = "thumb_abi",
+    actions = [
+        "@pw_toolchain//actions:all_asm_actions",
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+        "@pw_toolchain//actions:all_link_actions",
+    ],
+    flags = [
+        "-mabi=aapcs",
+        "-mthumb",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex_common",
+    actions = [
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+    ],
+    flags = [
+        "-ffreestanding",
+        "-specs=nano.specs",
+        "-specs=nosys.specs",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex_common_link",
+    actions = ["@pw_toolchain//actions:all_link_actions"],
+    flags = [
+        "-Wl,--gc-sections",
+        "-specs=nano.specs",
+        "-specs=nosys.specs",
+        "-lstdc++",
+        "-lnosys",
+        "-lc",
+        "-lm",
+        "-Wl,--no-warn-rwx-segment",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex-m0",
+    actions = [
+        "@pw_toolchain//actions:all_asm_actions",
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+        "@pw_toolchain//actions:all_link_actions",
+    ],
+    flags = [
+        "-mcpu=cortex-m0",
+        "-mfloat-abi=soft",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex-m3",
+    actions = [
+        "@pw_toolchain//actions:all_asm_actions",
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+        "@pw_toolchain//actions:all_link_actions",
+    ],
+    flags = [
+        "-mcpu=cortex-m3",
+        "-mfloat-abi=soft",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex-m4",
+    actions = [
+        "@pw_toolchain//actions:all_asm_actions",
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+        "@pw_toolchain//actions:all_link_actions",
+    ],
+    flags = [
+        "-mcpu=cortex-m4",
+        "-mfloat-abi=hard",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex-m4+nofp",
+    actions = [
+        "@pw_toolchain//actions:all_asm_actions",
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+        "@pw_toolchain//actions:all_link_actions",
+    ],
+    flags = [
+        "-mcpu=cortex-m4+nofp",
+        "-mfloat-abi=soft",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex-m7",
+    actions = [
+        "@pw_toolchain//actions:all_asm_actions",
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+        "@pw_toolchain//actions:all_link_actions",
+    ],
+    flags = [
+        "-mcpu=cortex-m7",
+        "-mfloat-abi=hard",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex-m33",
+    actions = [
+        "@pw_toolchain//actions:all_asm_actions",
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+        "@pw_toolchain//actions:all_link_actions",
+    ],
+    flags = [
+        "-mcpu=cortex-m33",
+        "-mfloat-abi=hard",
+    ],
+)
+
+pw_cc_flag_set(
+    name = "cortex-m33+nofp",
+    actions = [
+        "@pw_toolchain//actions:all_asm_actions",
+        "@pw_toolchain//actions:all_c_compiler_actions",
+        "@pw_toolchain//actions:all_cpp_compiler_actions",
+        "@pw_toolchain//actions:all_link_actions",
+    ],
+    flags = [
+        "-mcpu=cortex-m33+nofp",
+        "-mfloat-abi=soft",
+    ],
+)
+
+pw_cc_toolchain(
+    name = "arm_gcc_toolchain_cortex-m",
+    action_configs = [
+        "@gcc_arm_none_eabi_toolchain//:arm-none-eabi-ar",
+        "@gcc_arm_none_eabi_toolchain//:arm-none-eabi-gcc",
+        "@gcc_arm_none_eabi_toolchain//:arm-none-eabi-g++",
+        "@gcc_arm_none_eabi_toolchain//:arm-none-eabi-gcov",
+        "@gcc_arm_none_eabi_toolchain//:arm-none-eabi-ld",
+        "@gcc_arm_none_eabi_toolchain//:arm-none-eabi-objcopy",
+        "@gcc_arm_none_eabi_toolchain//:arm-none-eabi-objdump",
+        "@gcc_arm_none_eabi_toolchain//:arm-none-eabi-strip",
+    ],
+    builtin_sysroot = "external/gcc_arm_none_eabi_toolchain",
+    cxx_builtin_include_directories = [
+        "%sysroot%/arm-none-eabi/include/newlib-nano",
+        "%sysroot%/arm-none-eabi/include/c++/12.2.1",
+        "%sysroot%/arm-none-eabi/include/c++/12.2.1/arm-none-eabi",
+        "%sysroot%/arm-none-eabi/include/c++/12.2.1/backward",
+        "%sysroot%/lib/gcc/arm-none-eabi/12.2.1/include",
+        "%sysroot%/lib/gcc/arm-none-eabi/12.2.1/include-fixed",
+        "%sysroot%/arm-none-eabi/include",
+    ],
+    flag_sets = [
+        "@pw_toolchain//flag_sets:o2",
+        "@pw_toolchain//flag_sets:c++17",
+        "@pw_toolchain//flag_sets:debugging",
+        "@pw_toolchain//flag_sets:reduced_size",
+        "@pw_toolchain//flag_sets:no_canonical_prefixes",
+        "@pw_toolchain//flag_sets:no_rtti",
+        "@pw_toolchain//flag_sets:wno_register",
+        "@pw_toolchain//flag_sets:wnon_virtual_dtor",
+    ] + select({
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m0": [":cortex-m0"],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m3": [":cortex-m3"],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m4": [":cortex-m4"],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m4+nofp": [":cortex-m4+nofp"],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m7": [":cortex-m7"],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m33": [":cortex-m33"],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m33+nofp": [":cortex-m33+nofp"],
+        "@pw_toolchain//constraints/arm_mcpu:none": [],
+    }) + [
+        ":thumb_abi",
+        ":cortex_common",
+        ":cortex_common_link",
+        ":warnings",
+    ],
+    target_compatible_with = select({
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m0": [],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m3": [],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m4": [],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m4+nofp": [],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m7": [],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m33": [],
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m33+nofp": [],
+        "@pw_toolchain//constraints/arm_mcpu:none": ["@platforms//:incompatible"],
+    }),
+    toolchain_identifier = "arm-gcc-toolchain",
+)
+
+toolchain(
+    name = "arm_gcc_cc_toolchain_cortex-m0",
+    target_compatible_with = [
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m0",
+    ],
+    toolchain = ":arm_gcc_toolchain_cortex-m",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+toolchain(
+    name = "arm_gcc_cc_toolchain_cortex-m3",
+    target_compatible_with = [
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m3",
+    ],
+    toolchain = ":arm_gcc_toolchain_cortex-m",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+toolchain(
+    name = "arm_gcc_cc_toolchain_cortex-m4",
+    target_compatible_with = [
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m4",
+    ],
+    toolchain = ":arm_gcc_toolchain_cortex-m",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+toolchain(
+    name = "arm_gcc_cc_toolchain_cortex-m4+nofp",
+    target_compatible_with = [
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m4+nofp",
+    ],
+    toolchain = ":arm_gcc_toolchain_cortex-m",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+toolchain(
+    name = "arm_gcc_cc_toolchain_cortex-m7",
+    target_compatible_with = [
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m7",
+    ],
+    toolchain = ":arm_gcc_toolchain_cortex-m",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+toolchain(
+    name = "arm_gcc_cc_toolchain_cortex-m33",
+    target_compatible_with = [
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m33",
+    ],
+    toolchain = ":arm_gcc_toolchain_cortex-m",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)
+
+toolchain(
+    name = "arm_gcc_cc_toolchain_cortex-m33+nofp",
+    target_compatible_with = [
+        "@pw_toolchain//constraints/arm_mcpu:cortex-m33+nofp",
+    ],
+    toolchain = ":arm_gcc_toolchain_cortex-m",
+    toolchain_type = "@bazel_tools//tools/cpp:toolchain_type",
+)

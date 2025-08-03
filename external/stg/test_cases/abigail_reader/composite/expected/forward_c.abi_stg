@@ -1,0 +1,61 @@
+version: 0x00000002
+root_id: 0x84ea5130
+pointer_reference {
+  id: 0x1945b139
+  kind: POINTER
+  pointee_type_id: 0x4f562278
+}
+pointer_reference {
+  id: 0x2467b5d6
+  kind: POINTER
+  pointee_type_id: 0xbbde31c7
+}
+pointer_reference {
+  id: 0x26fa5112
+  kind: POINTER
+  pointee_type_id: 0xb1a9a2d5
+}
+struct_union {
+  id: 0x4f562278
+  kind: STRUCT
+  name: "S"
+}
+struct_union {
+  id: 0xb1a9a2d5
+  kind: UNION
+  name: "U"
+}
+enumeration {
+  id: 0xbbde31c7
+  name: "E"
+}
+elf_symbol {
+  id: 0xead90f5f
+  name: "v0"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x2467b5d6
+  full_name: "v0"
+}
+elf_symbol {
+  id: 0xab18a5e8
+  name: "v1"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x1945b139
+  full_name: "v1"
+}
+elf_symbol {
+  id: 0x975e59cf
+  name: "v2"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x26fa5112
+  full_name: "v2"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0xead90f5f
+  symbol_id: 0xab18a5e8
+  symbol_id: 0x975e59cf
+}

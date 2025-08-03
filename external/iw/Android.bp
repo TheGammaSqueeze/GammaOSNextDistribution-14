@@ -1,0 +1,120 @@
+package {
+    default_applicable_licenses: ["external_iw_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_iw_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-ISC",
+    ],
+    license_text: [
+        "COPYING",
+        "NOTICE",
+    ],
+}
+
+genrule {
+    name: "iw_version",
+    cmd: "echo '#include \"iw.h\"' >$(out) && " +
+        "echo \"const char iw_version[] = $$(grep ^VERSION $(location version.sh) | sed \"s/VERSION=//\");\" >>$(out)",
+    srcs: ["version.sh"],
+    out: ["version.c"],
+}
+
+cc_defaults {
+    name: "iw_common",
+
+    srcs: [
+        "iw.c",
+        "genl.c",
+        "event.c",
+        "info.c",
+        "phy.c",
+        "interface.c",
+        "ibss.c",
+        "station.c",
+        "survey.c",
+        "util.c",
+        "ocb.c",
+        "mesh.c",
+        "mpath.c",
+        "mpp.c",
+        "scan.c",
+        "reg.c",
+        "reason.c",
+        "status.c",
+        "connect.c",
+        "link.c",
+        "offch.c",
+        "ps.c",
+        "cqm.c",
+        "bitrate.c",
+        "wowlan.c",
+        "coalesce.c",
+        "roc.c",
+        "p2p.c",
+        "vendor.c",
+        "sections.c",
+        "ap.c",
+        "bloom.c",
+        "ftm.c",
+        "measurements.c",
+        "mgmt.c",
+        "nan.c",
+        "sar.c",
+        "sha256.c",
+
+        ":iw_version",
+    ],
+
+    cflags: [
+        "-fno-strict-aliasing",
+        "-D_GNU_SOURCE",
+        "-DCONFIG_LIBNL20",
+
+        // Silence some warnings for now. Needs to be fixed upstream. b/26105799
+        "-Wno-unused-parameter",
+        "-Wno-sign-compare",
+        "-Wno-format",
+        "-Wno-absolute-value",
+        "-Wno-enum-conversion",
+        "-Werror",
+    ],
+
+    ldflags: ["-Wl,--no-gc-sections"],
+    shared_libs: ["libnl"],
+}
+
+cc_binary {
+    name: "iw",
+
+    defaults: ["iw_common"],
+}
+
+cc_binary {
+    name: "iw_vendor",
+    stem: "iw",
+    vendor: true,
+    defaults: ["iw_common"],
+}

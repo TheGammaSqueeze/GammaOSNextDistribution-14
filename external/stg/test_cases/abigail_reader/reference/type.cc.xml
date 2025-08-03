@@ -1,0 +1,26 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_Z4func3foo' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <abi-instr address-size='64' path='type.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <class-decl name='foo' size-in-bits='192' is-struct='yes' visibility='default' id='3f46facf'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='ptr' type-id='7292109c' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='64'>
+        <var-decl name='lref' type-id='769216e8' visibility='default'/>
+      </data-member>
+      <data-member access='public' layout-offset-in-bits='128'>
+        <var-decl name='rref' type-id='75f9e64a' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <reference-type-def kind='lvalue' type-id='95e97e5e' size-in-bits='64' id='769216e8'/>
+    <reference-type-def kind='rvalue' type-id='95e97e5e' size-in-bits='64' id='75f9e64a'/>
+    <pointer-type-def type-id='95e97e5e' size-in-bits='64' id='7292109c'/>
+    <function-decl name='func' mangled-name='_Z4func3foo' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_Z4func3foo'>
+      <parameter type-id='3f46facf' name='x'/>
+      <return type-id='95e97e5e'/>
+    </function-decl>
+  </abi-instr>
+</abi-corpus>

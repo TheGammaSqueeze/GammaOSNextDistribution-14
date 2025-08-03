@@ -1,0 +1,4 @@
+type 'enum Colour' changed
+  underlying type changed from 'unsigned int' to 'unsigned char'
+
+exit code 4

@@ -1,0 +1,8 @@
+description = 'Conscrypt: Android-Stub'
+
+dependencies {
+    compileOnly project(':conscrypt-libcore-stub')
+}
+
+// Disable the javadoc task.
+tasks.withType(Javadoc).configureEach { enabled = false }

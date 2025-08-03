@@ -1,0 +1,49 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'struct Foo var'"]
+  "2" [color=red, shape=rectangle, label="'struct Foo'"]
+  "2" -> "2:0"
+  "2:0" [color=red, label="byte size changed from 16 to 32"]
+  "3" [label="'struct { int x; } anon_class' -> 'struct { long x; } anon_class'"]
+  "4" [color=red, label="'struct { int x; }' -> 'struct { long x; }'"]
+  "4" -> "4:0"
+  "4:0" [color=red, label="byte size changed from 4 to 8"]
+  "5" [label="'int x' -> 'long x'"]
+  "6" [color=red, label="'int' -> 'long'"]
+  "5" -> "6" [label=""]
+  "4" -> "5" [label=""]
+  "3" -> "4" [label=""]
+  "2" -> "3" [label=""]
+  "7" [color=red, label="'struct { int x; } anon_struct' -> 'struct { long x; } anon_struct'"]
+  "7" -> "7:0"
+  "7:0" [color=red, label="offset changed from 32 to 64"]
+  "8" [color=red, label="'struct { int x; }' -> 'struct { long x; }'"]
+  "8" -> "8:0"
+  "8:0" [color=red, label="byte size changed from 4 to 8"]
+  "9" [label="'int x' -> 'long x'"]
+  "9" -> "6" [label=""]
+  "8" -> "9" [label=""]
+  "7" -> "8" [label=""]
+  "2" -> "7" [label=""]
+  "10" [color=red, label="'union { int x; } anon_union' -> 'union { long x; } anon_union'"]
+  "10" -> "10:0"
+  "10:0" [color=red, label="offset changed from 64 to 128"]
+  "11" [color=red, label="'union { int x; }' -> 'union { long x; }'"]
+  "11" -> "11:0"
+  "11:0" [color=red, label="byte size changed from 4 to 8"]
+  "12" [label="'int x' -> 'long x'"]
+  "12" -> "6" [label=""]
+  "11" -> "12" [label=""]
+  "10" -> "11" [label=""]
+  "2" -> "10" [label=""]
+  "13" [color=red, label="'enum { X = 1, } anon_enum' -> 'enum { X = 2, } anon_enum'"]
+  "13" -> "13:0"
+  "13:0" [color=red, label="offset changed from 96 to 192"]
+  "14" [color=red, label="'enum { X = 1, }' -> 'enum { X = 2, }'"]
+  "14" -> "14:0"
+  "14:0" [color=red, label="enumerator 'X' value changed from 1 to 2"]
+  "13" -> "14" [label=""]
+  "2" -> "13" [label=""]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

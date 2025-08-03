@@ -1,0 +1,39 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.client.common_lib import utils
+from autotest_lib.server.site_tests.tast import tast
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.testfilterfile'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+MAX_RESULT_SIZE_KB = 256 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Serve as an example of how to use testfilterfile flag for tast.
+
+Examples:
+    test_that --args=test_filter_files=filter1.txt,filter2.txt ${DUT} tast.testfilterfile
+'''
+
+command_args, varslist = tast.split_arguments(args)
+
+def run(machine):
+    args_dict = utils.args_to_dict(command_args)
+    test_filter_files = []
+    if 'test_filter_files' in args_dict:
+        test_filter_files = args_dict['test_filter_files'].split(',')
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['("group:meta")'],
+                 ignore_test_failures=False, max_run_sec=3600,
+		 test_filter_files=test_filter_files,
+                 command_args=args)
+
+parallel_simple(run, machines)

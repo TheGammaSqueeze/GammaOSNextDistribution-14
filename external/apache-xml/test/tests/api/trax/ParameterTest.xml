@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!-- Testing xsl:param-->
+<doc filename="ParameterTest.xml">
+  <item number="1">1</item>
+  <item number="2">2</item>
+  <item number="3">3</item>
+</doc>

@@ -1,0 +1,111 @@
+##############################################################################
+# OpenCL submission details template
+# $Id $
+# $URL $
+##############################################################################
+#
+# This form should be filled in and included in the conformance submission
+# as the file submission_details.txt
+#
+# Lines beginning with "#" are comments to assist in filling out the template.
+#
+##############################################################################
+
+##############################################################################
+#
+# Submission information that needs to be copied onto the web submission form
+#
+##############################################################################
+
+# Contact details.
+#
+Company:
+Contact Name:
+Contact Email:
+Contact Telephone:
+
+# Version of OpenCL specification being tested
+#
+OpenCL Version: Major.Minor
+
+# Statement of conformance listing each conformant product (at a specific
+# version) that is covered by this implementation. List each conformant product
+# on a separate line starting "Conformant Product:". The first in the list
+# is the product/device that the tests were actually run on.
+#
+# Each conformant product is likely to be one of:
+#  * a type of computer (e.g. Windows XP PC) plus the software product
+#    that contains this OpenCL implementation required to build and run
+#    the tests, plus the OpenCL device tested, for example
+#  * Conformant Product: Windows XP PC with Buzzleware OpenCL Library for Windows 0.2
+#    with OpenCL running on a BrandX 322 PCIe GPU
+#
+Conformant Product:
+
+# CPU type and instruction set architecture level required by the implementation
+# and method of running the tests (for example X86_64 with SSE 4_2), and/or model
+# number
+#
+CPU Type:
+
+# OS with version number, including GUI framework if used by OpenKODE
+# implementation, e.g. Microsoft Windows XP SP2, Symbian 9.1 UIQ 3.1
+#
+OS Name and Version Number:
+
+# Tested compute device info, fill-in all the below fields for Compute Device, as returned by the clGetDeviceInfo query
+#ex:
+# Compute Device Type: CL_DEVICE_TYPE_GPU                       (show enum returned by CL_DEVICE_TYPE)
+# Compute Device Name: Brand X 322 PICe GPU,                    (as returned by CL_DEVICE_NAME)
+# Compute Device Version: OpenCL 2.0 MyGPU(TM) 1234,            (as returned by CL_DEVICE_VERSION)
+# Compute Device Driver Version: OpenCL 2.0 build: 2.003.05.02  (as returned by CL_DRIVER_VERSION)
+# Compute Device OpenCL C Version: OpenCL 2.0 MyGPU(TM) 1234    (as returned by CL_DEVICE_OPENCL_C_VERSION)
+Compute Device Type:
+Compute Device Name:
+Compute Device Version:
+Compute Device Driver Version:
+Compute Device OpenCL C Version:
+
+# Platform information and version. These are the values returned from the 
+# clGetPlaformInfo API call.
+Platform Profile: 
+Platform Version: 
+
+##############################################################################
+#
+# Further submission information
+#
+##############################################################################
+
+# git tag of the tests used from GitHub (e.g. vYYYY-MM-DD-XX)
+# 
+Tests version:
+
+# Commit SHAs (7-digit) of any cherry-picked patches subsequent to tagged
+# version. Any patches included must apply without conflicts to the tagged
+# version in the order listed.
+#
+Patches:
+
+# Implementations that support cl_khr_icd are required to use a loader to run
+# the tests and document the loader that was used.
+#
+Loader used:
+
+# Date of "Khronos Conformance Process" that this submission
+# adheres to (as shown in the change history at the start of the document).
+#
+Conformance Process Document date:
+
+# Date of "OpenCL Conformance Process Details" attachment to
+# the Khronos Conformance Process document that this submission adheres to
+# (as shown in the change history at the start of the attachment).
+#
+OpenCL Conformance Process Attachment date:
+
+# The conformance process document makes allowances for skipping specific tests
+# in some situations. A list of tests that were skipped in accordance to these
+# rules along with the justification must be documented here.
+#
+List of skipped tests in accordance with conformance process:
+

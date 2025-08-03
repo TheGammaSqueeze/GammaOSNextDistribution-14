@@ -1,0 +1,19 @@
+name: "rnnoise"
+description: "Recurrent neural network for audio noise reduction"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/xiph/rnnoise"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/xiph/rnnoise.git"
+  }
+  version: "1cbdbcf1283499bbb2230a6b0f126eb9b236defd"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 2
+    day: 9
+  }
+}

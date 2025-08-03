@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+if git log -n 1 --format='%B' $1 | grep -q -E "^Ignore-Upstream-First: .+" ; then
+  # Change is explicitly marked as ok to skip upstream
+  exit 0
+elif git log -n 1 --format='%s' $1 | grep -q -E "^(UPSTREAM|Upstream): .+" ; then
+  # Change is explicitly marked as coming from the upstream
+  exit 0
+fi
+
+echo "WARNING: Here is not the upstream."
+echo ""
+echo "Do not submit changes to this repository directly. Please submit changes to upstream"
+echo "from https://chromium-review.googlesource.com/q/project:chromiumos/platform/minijail"
+echo ""
+echo "If the change is from the upstream, please prepend \"UPSTREAM: \" to the subject."
+echo ""
+echo "If indeed necessary, please add \"Ignore-Upstream-First: <reason>\" to commit message"
+echo "to bypass."
+
+exit 1

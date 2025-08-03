@@ -1,0 +1,18 @@
+name: "pyee"
+description:
+    "A rough port of Node.js's EventEmitter to Python with a few tricks of its "
+    "own."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://pyee.readthedocs.io/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/jfhbrook/pyee"
+  }
+  version: "9.0.4"
+  last_upgrade_date { year: 2022 month: 7 day: 26 }
+  license_type: NOTICE
+}

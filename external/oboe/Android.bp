@@ -1,0 +1,143 @@
+//
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: ["external_oboe_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_oboe_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_static {
+    name: "oboe",
+    srcs: [
+        "src/aaudio/AAudioLoader.cpp",
+        "src/aaudio/AudioStreamAAudio.cpp",
+        "src/common/AudioSourceCaller.cpp",
+        "src/common/AudioStream.cpp",
+        "src/common/AudioStreamBuilder.cpp",
+        "src/common/DataConversionFlowGraph.cpp",
+        "src/common/FilterAudioStream.cpp",
+        "src/common/FixedBlockAdapter.cpp",
+        "src/common/FixedBlockReader.cpp",
+        "src/common/FixedBlockWriter.cpp",
+        "src/common/LatencyTuner.cpp",
+        "src/common/OboeExtensions.cpp",
+        "src/common/SourceFloatCaller.cpp",
+        "src/common/SourceI16Caller.cpp",
+        "src/common/SourceI24Caller.cpp",
+        "src/common/SourceI32Caller.cpp",
+        "src/common/Utilities.cpp",
+        "src/common/QuirksManager.cpp",
+        "src/fifo/FifoBuffer.cpp",
+        "src/fifo/FifoController.cpp",
+        "src/fifo/FifoControllerBase.cpp",
+        "src/fifo/FifoControllerIndirect.cpp",
+        "src/flowgraph/FlowGraphNode.cpp",
+        "src/flowgraph/ChannelCountConverter.cpp",
+        "src/flowgraph/ClipToRange.cpp",
+        "src/flowgraph/Limiter.cpp",
+        "src/flowgraph/ManyToMultiConverter.cpp",
+        "src/flowgraph/MonoBlend.cpp",
+        "src/flowgraph/MonoToMultiConverter.cpp",
+        "src/flowgraph/MultiToManyConverter.cpp",
+        "src/flowgraph/MultiToMonoConverter.cpp",
+        "src/flowgraph/RampLinear.cpp",
+        "src/flowgraph/SampleRateConverter.cpp",
+        "src/flowgraph/SinkFloat.cpp",
+        "src/flowgraph/SinkI16.cpp",
+        "src/flowgraph/SinkI24.cpp",
+        "src/flowgraph/SinkI32.cpp",
+        "src/flowgraph/SourceFloat.cpp",
+        "src/flowgraph/SourceI16.cpp",
+        "src/flowgraph/SourceI24.cpp",
+        "src/flowgraph/SourceI32.cpp",
+        "src/flowgraph/resampler/IntegerRatio.cpp",
+        "src/flowgraph/resampler/LinearResampler.cpp",
+        "src/flowgraph/resampler/MultiChannelResampler.cpp",
+        "src/flowgraph/resampler/PolyphaseResampler.cpp",
+        "src/flowgraph/resampler/PolyphaseResamplerMono.cpp",
+        "src/flowgraph/resampler/PolyphaseResamplerStereo.cpp",
+        "src/flowgraph/resampler/SincResampler.cpp",
+        "src/flowgraph/resampler/SincResamplerStereo.cpp",
+        "src/opensles/AudioInputStreamOpenSLES.cpp",
+        "src/opensles/AudioOutputStreamOpenSLES.cpp",
+        "src/opensles/AudioStreamBuffered.cpp",
+        "src/opensles/AudioStreamOpenSLES.cpp",
+        "src/opensles/EngineOpenSLES.cpp",
+        "src/opensles/OpenSLESUtilities.cpp",
+        "src/opensles/OutputMixerOpenSLES.cpp",
+        "src/common/StabilizedCallback.cpp",
+        "src/common/Trace.cpp",
+        "src/common/Version.cpp",
+    ],
+    header_libs: ["jni_headers"],
+    include_dirs: [
+        "external/oboe/include",
+        "external/oboe/src",
+        "frameworks/wilhelm/include",
+        "frameworks/av/media/libaaudio/include",
+    ],
+    cflags: [
+        "-std=c++14",
+        "-Wall",
+        "-Wextra-semi",
+        "-Wshadow",
+        "-Wshadow-field",
+        "-Wno-unused-parameter",
+        "-Wno-deprecated-declarations",
+        "-Ofast",
+        "-DFLOWGRAPH_ANDROID_INTERNAL=0",
+        "-DFLOWGRAPH_OUTER_NAMESPACE=oboe",
+        "-DRESAMPLER_OUTER_NAMESPACE=oboe",
+    ],
+    sdk_version: "current",
+    stl: "libc++_static",
+}
+
+cc_library_headers {
+    name: "oboe_headers",
+    export_include_dirs: ["include"],
+}

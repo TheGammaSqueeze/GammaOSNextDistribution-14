@@ -1,0 +1,22 @@
+name: "gRPC"
+description:
+    "The C based gRPC (C++, Python, Ruby, Objective-C, PHP, C#)"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://grpc.io"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/grpc/grpc"
+  }
+  # grpc_version_defaults in Android.bp must be updated when importing a new version.
+  version: "1.61.1"
+  last_upgrade_date { year: 2024 month: 2 day: 14 }
+  license_note: "would be NOTICE save for MPL 2.0 in: etc/roots.pem and src/android/test/interop/app/src/main/assets/roots.pem"
+  license_type: RECIPROCAL
+  security {
+    tag: "NVD-CPE2.3:cpe:2.3:a:grpc:grpc:1.61.1"
+  }
+}

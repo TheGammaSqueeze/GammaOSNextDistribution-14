@@ -1,0 +1,42 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_crosvm_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_crosvm_license"],
+}
+
+cc_library_headers {
+    name: "rutabaga_gfx_ffi_headers",
+    host_supported: true,
+    vendor_available: true,
+    export_include_dirs: ["src/include"],
+}
+
+rust_ffi_shared {
+    name: "librutabaga_gfx_ffi",
+    crate_name: "rutabaga_gfx_ffi",
+    host_supported: true,
+    vendor_available: true,
+    srcs: ["src/lib.rs"],
+    rustlibs: [
+        "librutabaga_gfx_gfxstream",
+        "liblibc",
+        "liblog_rust",
+        "libnix",
+        "libthiserror",
+        "libzerocopy",
+    ],
+    shared_libs: [
+        "libgfxstream_backend",
+    ],
+    target: {
+        host: {
+            compile_multilib: "64",
+        },
+        android: {
+            compile_multilib: "64",
+        },
+    },
+}

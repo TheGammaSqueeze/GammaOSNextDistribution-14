@@ -1,0 +1,41 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='anon_class' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='anon_enum' size='4' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='anon_struct' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='anon_union' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='nested_anonymous_types.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <type-decl name='unnamed-enum-underlying-type-32' is-anonymous='yes' size-in-bits='32' alignment-in-bits='32' id='9cac1fee'/>
+    <namespace-decl name='Scope'>
+      <class-decl name='AnonClass' size-in-bits='64' naming-typedef-id='e70da19e' visibility='default' id='cd939cab'>
+        <data-member access='private' layout-offset-in-bits='0'>
+          <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+        </data-member>
+      </class-decl>
+      <typedef-decl name='AnonClass' type-id='cd939cab' id='e70da19e'/>
+      <class-decl name='AnonStruct' size-in-bits='64' is-struct='yes' naming-typedef-id='af2d598b' visibility='default' id='6b02aa44'>
+        <data-member access='public' layout-offset-in-bits='0'>
+          <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+        </data-member>
+      </class-decl>
+      <typedef-decl name='AnonStruct' type-id='6b02aa44' id='af2d598b'/>
+      <union-decl name='AnonUnion' size-in-bits='64' naming-typedef-id='a51f7f55' visibility='default' id='bbfccd65'>
+        <data-member access='public'>
+          <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+        </data-member>
+      </union-decl>
+      <typedef-decl name='AnonUnion' type-id='bbfccd65' id='a51f7f55'/>
+      <enum-decl name='AnonEnum' naming-typedef-id='d5fe0daf' id='7d93db13'>
+        <underlying-type type-id='9cac1fee'/>
+        <enumerator name='X' value='2'/>
+      </enum-decl>
+      <typedef-decl name='AnonEnum' type-id='7d93db13' id='d5fe0daf'/>
+    </namespace-decl>
+    <var-decl name='anon_class' type-id='e70da19e' mangled-name='anon_class' visibility='default' elf-symbol-id='anon_class'/>
+    <var-decl name='anon_struct' type-id='af2d598b' mangled-name='anon_struct' visibility='default' elf-symbol-id='anon_struct'/>
+    <var-decl name='anon_union' type-id='a51f7f55' mangled-name='anon_union' visibility='default' elf-symbol-id='anon_union'/>
+    <var-decl name='anon_enum' type-id='d5fe0daf' mangled-name='anon_enum' visibility='default' elf-symbol-id='anon_enum'/>
+  </abi-instr>
+</abi-corpus>

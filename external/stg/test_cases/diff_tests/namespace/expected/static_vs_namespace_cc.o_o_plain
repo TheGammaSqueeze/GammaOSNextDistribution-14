@@ -1,0 +1,4 @@
+function symbol 'void StaticOffset::print()' {_ZN12StaticOffset5printEv} changed
+  binding changed from weak to global
+
+exit code 4

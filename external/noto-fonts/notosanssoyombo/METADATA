@@ -1,0 +1,13 @@
+name: "notosanssoyombo"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Soyombo is an unmodulated (“sans serif”) design for textsin the Indic Soyombo script. It has 323 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanssoyombo"
+  }
+  version: "2.000"
+  license_type: NOTICE
+  last_upgrade_date { year: 2020 month: 11 day: 7 }
+}

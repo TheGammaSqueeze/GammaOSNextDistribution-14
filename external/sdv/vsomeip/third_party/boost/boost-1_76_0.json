@@ -1,0 +1,194 @@
+{
+  "templates": {
+    "cc_defaults": {
+      "name": "boost_module_defaults",
+      "vendor_available": true,
+      "host_supported": true,
+      "target": {
+        "linux_glibc_x86_64": {
+          "cflags": [
+            "-msse4.1"
+          ]
+        }
+      },
+      "rtti": true,
+      "cflags": [
+        "-Wall",
+        "-Werror",
+        "-fexceptions"
+      ],
+      "visibility": ["//external/sdv/vsomeip"]
+    },
+
+    "cc_library_headers": {
+      "name": "libboost_library_headers",
+      "vendor_available": true,
+      "host_supported": true,
+      "export_include_dirs": [],
+      "visibility": ["//external/sdv/vsomeip"]
+    }
+  },
+
+  "ignored_modules": [
+    "context",
+    "coroutine",
+    "dll",
+    "fiber",
+    "graph_parallel",
+    "graph",
+    "mpi",
+    "nowide",
+    "type_erasure",
+    "poly_collection",
+    "parameter_python",
+    "python",
+    "test",
+    "wave",
+    "winapi"
+  ],
+
+  "modules": {
+    "<DEFAULT>": {
+      "defaults": ["boost_module_defaults"],
+      "export_header_lib_headers": ["libboost_library_headers"],
+      "header_libs": [
+        "libboost_library_headers"
+      ]
+    },
+    "asio": {
+      "cflags": [
+        "-DBOOST_ASIO_HAS_STD_STRING_VIEW"
+      ],
+      "exclude_srcs": [
+        "asio/example/cpp03/windows/*.cpp"
+      ]
+    },
+    "atomic": {
+      "exclude_srcs": [
+        "atomic/src/wait_ops_windows.cpp"
+      ],
+      "local_include_dirs" : [
+          "atomic/src/"
+      ]
+    },
+    "container": {
+      "cflags": [
+        "-Wno-expansion-to-defined"
+      ],
+      "srcs": [
+        "container/src/alloc_lib.c",
+        "container/src/dlmalloc.cpp",
+        "container/src/global_resource.cpp",
+        "container/src/monotonic_buffer_resource.cpp",
+        "container/src/pool_resource.cpp",
+        "container/src/synchronized_pool_resource.cpp",
+        "container/src/unsynchronized_pool_resource.cpp"
+      ]
+    },
+    "date_time": {
+      "cflags": [
+        "-DBOOST_DATE_TIME_DYN_LINK",
+        "-Wno-ignored-attributes",
+        "-DBOOST_NO_STD_WSTRING"
+      ],
+      "exclude_srcs": [
+        "date_time/src/gregorian/date_generators.cpp",
+        "date_time/src/gregorian/greg_weekday.cpp"
+      ]
+    },
+    "filesystem": {
+      "cflags": [
+        "-DBOOST_FILESYSTEM_TARGET_TYPE=SHARED_LIBRARY",
+        "-Wl,--no-undefined",
+        "-DBOOST_FILESYSTEM_NO_CXX20_ATOMIC_REF",
+        "-Wno-unused-command-line-argument",
+	      "-Wno-unused-parameter",
+        "-Wno-non-virtual-dtor"
+      ]
+    },
+    "iostreams": {
+      "exclude_srcs": [
+        "iostreams/src/zlib.cpp",
+        "iostreams/src/gzip.cpp",
+        "iostreams/src/bzip2.cpp",
+        "iostreams/src/lzma.cpp",
+        "iostreams/src/zstd.cpp"
+      ]
+    },
+    "json": {
+      "cflags": [
+        "-Wno-non-virtual-dtor",
+        "-Wno-implicit-fallthrough"
+      ]
+    },
+    "locale": {
+      "exclude_srcs": [
+        "locale/src/icu/*.cpp",
+        "locale/src/posix/*.cpp",
+        "locale/src/win32/*.cpp"
+      ],
+      "cflags": [
+        "-DBOOST_LOCALE_WITH_ICONV",
+        "-DBOOST_LOCALE_NO_POSIX_BACKEND",
+        "-DBOOST_LOCALE_NO_WINAPI_BACKEND",
+        "-Wno-implicit-fallthrough"
+      ]
+    },
+    "log": {
+      "local_include_dirs" : [
+        "log/src",
+        "log/src/posix",
+        "log/src/setup"
+      ],
+      "exclude_srcs": [
+        "log/src/dump_ssse3.cpp",
+        "log/src/dump_avx2.cpp",
+        "log/src/windows/*.cpp"
+      ],
+      "cflags": [
+        "-DBOOST_LOG_NO_THREADS",
+        "-DBOOST_THREAD_DONT_PROVIDE_INTERRUPTIONS"
+      ]
+    },
+    "math": {
+      "local_include_dirs": [
+        "math/src/tr1"
+      ],
+      "cflags": [
+       "-Wno-unused-parameter"
+      ]
+    },
+    "stacktrace": {
+      "exclude_srcs": [
+        "stacktrace/src/backtrace.cpp",
+        "stacktrace/src/basic.cpp",
+        "stacktrace/src/noop.cpp",
+        "stacktrace/src/win*.cpp"
+      ]
+    },
+    "thread": {
+      "exclude_srcs": [
+        "thread/src/win32/*.cpp"
+      ],
+      "cflags": [
+        "-Wno-non-virtual-dtor",
+        "-DBOOST_THREAD_THREADAPI=pthread",
+        "-DBOOST_THREAD_BUILD_LIB",
+        "-DBOOST_LOCALE_NO_POSIX_BACKEND",
+        "-DBOOST_LOCALE_NO_WINAPI_BACKEND",
+        "-DBOOST_THREAD_DONT_PROVIDE_INTERRUPTIONS"
+      ],
+      "srcs": [
+        "thread/src/future.cpp",
+        "thread/src/tss_null.cpp",
+        "thread/src/pthread/once.cpp",
+        "thread/src/pthread/thread.cpp"
+      ]
+    },
+    "url": {
+      "cflags": [
+        "-Wno-non-virtual-dtor"
+      ]
+    }
+  }
+}

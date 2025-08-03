@@ -1,0 +1,17 @@
+{
+  "tests": true,
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "package": {
+    "argh": {
+      "dep_blocklist": [
+        "libtrybuild"
+      ]
+    }
+  },
+  "module_blocklist": [
+    "argh_test_tests_compiletest"
+  ]
+}

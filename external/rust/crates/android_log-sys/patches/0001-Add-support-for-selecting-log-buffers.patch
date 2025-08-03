@@ -1,0 +1,33 @@
+From fb544f370ca1ae5b5c9de3a0c336ad9986537443 Mon Sep 17 00:00:00 2001
+From: Matthew Maurer <mmaurer@google.com>
+Date: Thu, 24 Feb 2022 13:41:53 -0800
+Subject: [PATCH] Add support for selecting log buffers
+
+While `__android_log_write_log_message` can select a target log buffer,
+it did not exist before API version 30. To allow selecting a log buffer
+for earlier APIs, we add a signature for `__android_log_buf_write`.
+
+Change-Id: Ie933a9b00436a626bd200242047d646c564e9e13
+---
+ src/lib.rs | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/lib.rs b/src/lib.rs
+index eba5b19..b648ed5 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -66,6 +66,11 @@ extern "C" {
+                                tag: *const c_char,
+                                text: *const c_char)
+                                -> c_int;
++    pub fn __android_log_buf_write(bufID: c_int,
++                                   prio: c_int,
++                                   tag: *const c_char,
++                                   text: *const c_char)
++                                   -> c_int;
+     pub fn __android_log_print(prio: c_int,
+                                tag: *const c_char,
+                                fmt: *const c_char,
+-- 
+2.35.1.574.g5d30c73bfb-goog
+

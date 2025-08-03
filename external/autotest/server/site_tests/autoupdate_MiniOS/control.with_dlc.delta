@@ -1,0 +1,32 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "yuanpengni, Chromium OS"
+NAME = "autoupdate_MiniOS.with_dlc.delta"
+TIME = "MEDIUM"
+PURPOSE = "Tests MiniOS update."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+DEPENDENCIES = "servo_state:WORKING"
+ATTRIBUTES = "suite:nbr"
+PY_VERSION = 3
+DOC = """
+This tests the MiniOS update with the platform (OS) and DLC update.
+Use the `running_at_desk` arg when testing locally.
+
+Example usage:
+test_that autoupdate_MiniOS.with_dlc.delta <DUT> --board=<board> --args="running_at_desk=True"
+"""
+
+from autotest_lib.client.common_lib import utils
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test('autoupdate_MiniOS', host=host, full_payload=False,
+                 with_dlc=True, **args_dict)
+
+job.parallel_simple(run, machines)

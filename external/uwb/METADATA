@@ -1,0 +1,14 @@
+name: "uwb"
+description:
+    "Native stack for UWB subsystem. This contains the UCI protocol "
+    "implementation as defined in the FIRA specifications."
+
+third_party {
+  url {
+    type: OTHER
+    value: "Delivered by partner upstream: go/pag/1948389"
+  }
+  version: "https://partner-android-review.googlesource.com/c/platform/system/uwb/+/1948389"
+  last_upgrade_date { year: 2021 month: 8 day: 2 }
+  license_type: NOTICE
+}

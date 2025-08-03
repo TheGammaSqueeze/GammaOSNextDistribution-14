@@ -1,0 +1,19 @@
+name: "rand_chacha"
+description: "ChaCha random number generator"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/rand_chacha"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/rand_chacha/rand_chacha-0.3.1.crate"
+  }
+  version: "0.3.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 6
+    day: 21
+  }
+}

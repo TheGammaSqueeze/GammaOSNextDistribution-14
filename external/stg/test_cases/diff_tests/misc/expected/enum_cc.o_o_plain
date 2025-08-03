@@ -1,0 +1,8 @@
+function symbol 'void foo(const enum Colour&)' {_Z3fooRK6Colour} changed
+  type 'void(const enum Colour&)' changed
+    parameter 1 type 'const enum Colour&' changed
+      referred-to type 'const enum Colour' changed
+        underlying type 'enum Colour' changed
+          underlying type changed from 'unsigned int' to 'unsigned char'
+
+exit code 4

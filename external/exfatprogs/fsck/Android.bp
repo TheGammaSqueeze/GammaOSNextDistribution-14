@@ -1,0 +1,21 @@
+// Copyright 2020 The Android Open Source Project
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_exfatprogs_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-GPL-2.0
+    default_applicable_licenses: ["external_exfatprogs_license"],
+}
+
+cc_binary {
+    name: "fsck.exfat",
+
+    srcs: [
+        "fsck.c",
+        "repair.c",
+    ],
+    defaults: ["exfatprogs-defaults"],
+    static_libs: ["libexfat"],
+}

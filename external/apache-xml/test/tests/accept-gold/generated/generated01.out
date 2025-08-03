@@ -1,0 +1,24 @@
+<HTML>
+<P>Reference numbers should match the titles, links should work.</P>
+<HR>
+<H1 id="N10004">1. Introduction</H1>
+    Introduction
+    <P>For more information see the <A href="#N1002A">3. Expressions</A> section.</P>
+    
+<P>(alternate id link: id3)</P>
+  
+<HR>
+<H1 id="N10017">2. Stylesheet Structure</H1>
+    Stylesheet Structure
+    <P>For more information see the <A href="#N10004">1. Introduction</A> section.</P>
+    
+<P>(alternate id link: id1)</P>
+  
+<HR>
+<H1 id="N1002A">3. Expressions</H1>
+    Expressions
+    <P>For more information see the <A href="#N10017">2. Stylesheet Structure</A> section.</P>
+    
+<P>(alternate id link: id2)</P>
+  
+</HTML>

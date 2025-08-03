@@ -1,0 +1,13 @@
+diff --git a/tests/slab.rs b/tests/slab.rs
+index c1570fa..8ba3064 100644
+--- a/tests/slab.rs
++++ b/tests/slab.rs
+@@ -580,6 +580,8 @@ fn compact_doesnt_move_if_closure_errors() {
+ }
+ 
+ #[test]
++// Android aborts on panic and this test relies on stack unwinding.
++#[cfg(not(target_os = "android"))]
+ fn compact_handles_closure_panic() {
+     let mut slab = Slab::new();
+     for i in 0..10 {

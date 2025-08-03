@@ -1,0 +1,25 @@
+[package]
+name = "win_audio"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+
+[target.'cfg(windows)'.dependencies]
+async-trait = "0.1.36"
+audio_streams = { path = "../common/audio_streams"}
+audio_util = { path = "../audio_util" }
+base = { path = "../base" }
+cros_async = { path = "../cros_async" }
+libc = "*"
+win_util = { path = "../win_util" }
+winapi = "*"
+wio = "*"
+sync = { path = "../common/sync" }
+thiserror = "*"
+metrics = { path = "../metrics"}
+once_cell = "1.7.2"
+
+[build-dependencies]
+anyhow = "*"
+prebuilts = { path = "../prebuilts" }
+

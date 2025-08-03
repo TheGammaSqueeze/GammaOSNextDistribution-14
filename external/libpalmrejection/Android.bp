@@ -1,0 +1,114 @@
+package {
+    default_team: "trendy_team_input_framework",
+    default_applicable_licenses: ["external_libpalmrejection_license"],
+}
+
+license {
+    name: "external_libpalmrejection_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_library_static {
+    name: "libpalmrejection",
+    local_include_dirs: ["."],
+    export_include_dirs: ["."],
+    srcs: [
+        "chrome_to_android_compatibility.cc",
+        "ui/events/ozone/features.cc",
+        "ui/events/ozone/evdev/touch_evdev_types.cc",
+        "ui/events/ozone/evdev/touch_filter/neural_stylus_palm_detection_filter.cc",
+        "ui/events/ozone/evdev/touch_filter/neural_stylus_palm_detection_filter_model.cc",
+        "ui/events/ozone/evdev/touch_filter/neural_stylus_palm_detection_filter_util.cc",
+        "ui/events/ozone/evdev/touch_filter/palm_detection_filter.cc",
+        "ui/events/ozone/evdev/touch_filter/shared_palm_detection_filter_state.cc",
+        "ui/events/ozone/evdev/touch_filter/palm_model/onedevice_train_palm_detection_filter_model.cc",
+        "ui/events/ozone/evdev/touch_filter/palm_model/onedevice_train_palm_detection_filter_inference.cc",
+        "ui/events/ozone/evdev/touch_filter/palm_model/onedevice_train_palm_detection_filter_inference_beta.cc",
+        "ui/events/ozone/evdev/touch_filter/palm_model/onedevice_train_palm_detection_filter_inference_v2.cc",
+    ],
+    visibility: [
+        "//frameworks/native/services/inputflinger:__subpackages__",
+    ],
+    shared_libs: [
+        "libchrome",
+    ],
+    cpp_std: "c++20",
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wthread-safety",
+        "-Wshadow",
+        "-Wshadow-field-in-constructor-modified",
+        "-Wshadow-uncaptured-local",
+        "-Wno-unused-parameter",
+        "-Wno-unneeded-internal-declaration",
+    ],
+    sanitize: {
+        misc_undefined: ["bounds"],
+    },
+    host_supported: true,
+    target: {
+        host: {
+            include_dirs: [
+                "bionic/libc/kernel/uapi",
+            ],
+            cflags: [
+                "-D__ANDROID_HOST__",
+            ],
+        },
+    },
+}
+
+cc_test {
+    name: "libpalmrejection_test",
+    srcs: [
+        "ui/events/ozone/evdev/touch_filter/neural_stylus_palm_detection_filter_unittest.cc",
+        "ui/events/ozone/evdev/touch_filter/neural_stylus_palm_detection_filter_util_unittest.cc",
+        "chrome_to_android_compatibility_test_support.cc",
+    ],
+    shared_libs: [
+        "libbase",
+        "libchrome",
+    ],
+    static_libs: [
+        "libc++fs",
+        "libgmock",
+        "liblog",
+        "libpalmrejection",
+    ],
+    cpp_std: "c++20",
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wthread-safety",
+        "-Wshadow",
+        "-Wshadow-field-in-constructor-modified",
+        "-Wshadow-uncaptured-local",
+    ],
+    sanitize: {
+        misc_undefined: ["bounds"],
+    },
+    host_supported: true,
+    target: {
+        host: {
+            include_dirs: [
+                "bionic/libc/kernel/uapi",
+            ],
+            cflags: [
+                "-D__ANDROID_HOST__",
+            ],
+        },
+    },
+    test_options: {
+        unit_test: true,
+    },
+    test_suites: ["device-tests"],
+}

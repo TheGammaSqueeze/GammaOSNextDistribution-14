@@ -1,0 +1,46 @@
+cc_library_shared {
+    name: "hwcomposer.filegroups_build_test",
+    defaults: ["hwcomposer.drm_defaults"],
+
+    srcs: [
+        ":drm_hwcomposer_common",
+        ":drm_hwcomposer_platformhisi",
+        ":drm_hwcomposer_platformimagination",
+        ":drm_hwcomposer_platformmediatek",
+        ":drm_hwcomposer_platformmeson",
+    ],
+
+    local_include_dirs: [
+        "test_include",
+    ],
+
+    cppflags: [
+        "-DDISABLE_LEGACY_GETTERS",
+    ],
+}
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_drm_hwcomposer_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_drm_hwcomposer_license"],
+}
+
+// Tool for listening and dumping uevents
+cc_test {
+    name: "hwc-drm-uevent-print",
+
+    srcs: [
+        ":drm_hwcomposer_fd",
+        "uevent_print.cpp",
+    ],
+
+    vendor: true,
+    header_libs: [
+        "drm_hwcomposer_headers",
+        "libhardware_headers",
+    ],
+    shared_libs: ["liblog"],
+}

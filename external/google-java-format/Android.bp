@@ -1,0 +1,77 @@
+package {
+    default_applicable_licenses: ["external_google-java-format_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_google-java-format_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-NCSA",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+java_library_host {
+    name: "google_java_format_android_annotation_stubs",
+    srcs: ["android-annotation-stubs/src/**/*.java"],
+}
+
+filegroup {
+    name: "google_java_format_main_srcs",
+    srcs: [
+        "core/src/main/java/com/google/googlejavaformat/java/Main.java",
+        "core/src/main/java/com/google/googlejavaformat/java/GoogleJavaFormatTool.java",
+        "core/src/main/java/com/google/googlejavaformat/java/UsageException.java",
+    ],
+}
+
+java_library_host {
+    name: "google_java_format",
+    srcs: ["core/src/main/java/**/*.java"],
+    exclude_srcs: [
+        ":google_java_format_main_srcs",
+        "core/src/main/java/com/google/googlejavaformat/java/GoogleJavaFormatToolProvider.java",
+        "core/src/main/java/com/google/googlejavaformat/java/java21/Java21InputAstVisitor.java",
+    ],
+    libs: [
+        "error_prone_annotations",
+        "google_java_format_android_annotation_stubs",
+        "guava",
+        "auto_service_annotations",
+        "auto_value_annotations",
+    ],
+    plugins: [
+        "auto_oneof_plugin",
+        "auto_service_plugin",
+        "auto_value_plugin",
+    ],
+    javacflags: [
+        "--add-modules=jdk.compiler",
+        "--add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+        "--add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+    ],
+}

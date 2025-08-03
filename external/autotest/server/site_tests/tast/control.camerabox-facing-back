@@ -1,0 +1,39 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'ChromeOS Camera Team/chromeos-camera-eng@google.com'
+NAME = 'tast.camerabox-facing-back'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:camerabox_facing-back'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the Tast camerabox_facing-back test suite.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+This test runs all Tast-based back camera tests against a remote DUT in back
+facing camerabox setup.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+def run(machine):
+    # By setting "use_camera_box" to true, the IP address of chart device in
+    # CameraBox can be brought when running tests to allow local tests connect
+    # to chart directly.
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['("group:camerabox" && camerabox_facing_back)'],
+                 ignore_test_failures=True, max_run_sec=60*60*3,
+                 use_camera_box=True, command_args=args)
+
+parallel_simple(run, machines)

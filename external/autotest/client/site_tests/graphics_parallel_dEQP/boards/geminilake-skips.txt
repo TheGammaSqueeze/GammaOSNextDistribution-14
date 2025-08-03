@@ -1,0 +1,20 @@
+# https://gitlab.freedesktop.org/mesa/mesa/-/issues/4641
+dEQP-VK.ssbo.phys.layout.random.16bit.scalar.13
+
+# timeouts on octopus.  buffer_device_address has workarounds in VK-GL-CTS
+# to extend the watchdog during pipeline creation, so we're probably just
+# slow in the compiler.
+dEQP-VK.binding_model.buffer_device_address.set3.depth3.basessbo.convertcheck.*
+dEQP-VK.binding_model.buffer_device_address.set3.depth3.baseubo.convertcheck.*
+
+# These tests should not exist. They are from renderpass-with-dynamic-rendering.txt which should
+# have been removed upstream.
+dEQP-VK.renderpass_with_dynamic_rendering.dedicated_allocation.*
+dEQP-VK.renderpass_with_dynamic_rendering.suballocation.*
+
+# We have random failures all over compute_shader_invocations.
+dEQP-VK.query_pool.statistics_query.compute_shader_invocations.*
+dEQP-VK.query_pool.statistics_query.host_query_reset.compute_shader_invocations.*
+
+# Test sometimes fails.
+dEQP-VK.wsi.display_control.register_display_event

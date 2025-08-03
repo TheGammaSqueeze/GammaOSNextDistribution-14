@@ -1,0 +1,19 @@
+name: "byteorder"
+description: "Library for reading/writing numbers in big-endian and little-endian."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/byteorder"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/byteorder/byteorder-1.4.3.crate"
+  }
+  version: "1.4.3"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2021
+    month: 4
+    day: 1
+  }
+}

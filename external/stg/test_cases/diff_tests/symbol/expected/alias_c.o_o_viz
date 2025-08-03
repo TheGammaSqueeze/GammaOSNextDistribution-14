@@ -1,0 +1,7 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [color=red, label="'int a()' {c} -> 'int b()' {c}"]
+  "1" -> "1:0"
+  "1:0" [color=red, label="binding changed from weak to global"]
+  "0" -> "1" [label=""]
+}

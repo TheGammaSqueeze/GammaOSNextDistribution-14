@@ -1,0 +1,16 @@
+[package]
+name = "libvda"
+version = "0.1.0"
+authors = ["The ChromiumOS Authors"]
+edition = "2021"
+links = "vda"
+
+[features]
+libvda-stub = []
+
+[dependencies]
+enumn = "0.1.0"
+libc = "*"
+
+[build-dependencies]
+pkg-config = "*"

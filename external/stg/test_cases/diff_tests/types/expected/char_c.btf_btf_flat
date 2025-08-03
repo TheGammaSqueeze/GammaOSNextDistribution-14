@@ -1,0 +1,25 @@
+function symbol changed from 'void u(char)' to 'void u(unsigned char)'
+  type changed from 'void(char)' to 'void(unsigned char)'
+    parameter 1 type changed from 'char' to 'unsigned char'
+
+function symbol changed from 'void v(unsigned char)' to 'void v(signed char)'
+  type changed from 'void(unsigned char)' to 'void(signed char)'
+    parameter 1 type changed from 'unsigned char' to 'signed char'
+
+function symbol changed from 'void w(signed char)' to 'void w(char)'
+  type changed from 'void(signed char)' to 'void(char)'
+    parameter 1 type changed from 'signed char' to 'char'
+
+function symbol changed from 'void x(char)' to 'void x(signed char)'
+  type changed from 'void(char)' to 'void(signed char)'
+    parameter 1 type changed from 'char' to 'signed char'
+
+function symbol changed from 'void y(unsigned char)' to 'void y(char)'
+  type changed from 'void(unsigned char)' to 'void(char)'
+    parameter 1 type changed from 'unsigned char' to 'char'
+
+function symbol changed from 'void z(signed char)' to 'void z(unsigned char)'
+  type changed from 'void(signed char)' to 'void(unsigned char)'
+    parameter 1 type changed from 'signed char' to 'unsigned char'
+
+exit code 4

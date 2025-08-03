@@ -1,0 +1,49 @@
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option ula_prefix 'fd72:5afb:a7cf::/48'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'eth0'
+
+config device
+	option name 'br-wifi0'
+	option type 'bridge'
+	list ports 'eth0.0'
+
+config device
+	option name 'br-wifi1'
+	option type 'bridge'
+	list ports 'eth0.1'
+
+config device
+	option name 'eth0.0'
+	option macaddr '28:80:88:2A:6D:01'
+
+config device
+	option name 'eth0.1'
+	option macaddr '28:80:88:2A:6D:02'
+
+config interface 'wan'
+	option device 'br-lan'
+	option proto 'static'
+	option ip6assign '30'
+	option dns '8.8.8.8'
+
+config interface 'wifi0'
+	option device 'br-wifi0'
+	option proto 'static'
+	option netmask '255.255.255.128'
+	option ipaddr '192.168.99.1'
+
+config interface 'wifi1'
+	option device 'br-wifi1'
+	option proto 'static'
+	option netmask '255.255.255.128'
+	option ipaddr '192.168.99.129'

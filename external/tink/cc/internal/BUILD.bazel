@@ -1,0 +1,1215 @@
+package(default_visibility = ["//:__subpackages__"])
+
+licenses(["notice"])
+
+cc_library(
+    name = "ssl_util",
+    hdrs = ["ssl_util.h"],
+    include_prefix = "tink/internal",
+    deps = ["@boringssl//:crypto"],
+)
+
+cc_library(
+    name = "keyset_wrapper",
+    hdrs = ["keyset_wrapper.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        "//proto:tink_cc_proto",
+        "//util:statusor",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
+
+cc_library(
+    name = "util",
+    srcs = ["util.cc"],
+    hdrs = ["util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/log",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_library(
+    name = "test_file_util",
+    testonly = 1,
+    srcs = [
+        "test_file_util.cc",
+        "test_file_util_bazel.cc",
+    ],
+    hdrs = ["test_file_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        "//subtle:random",
+        "//util:status",
+        "//util:test_util",
+        "@bazel_tools//tools/cpp/runfiles",
+        "@com_google_absl//absl/log:check",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+cc_library(
+    name = "keyset_wrapper_impl",
+    hdrs = ["keyset_wrapper_impl.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":key_info",
+        ":keyset_wrapper",
+        "//:primitive_set",
+        "//:primitive_wrapper",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "//util:validation",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/functional:any_invocable",
+    ],
+)
+
+cc_library(
+    name = "ssl_unique_ptr",
+    hdrs = ["ssl_unique_ptr.h"],
+    include_prefix = "tink/internal",
+    deps = ["@boringssl//:crypto"],
+)
+
+cc_library(
+    name = "key_info",
+    srcs = ["key_info.cc"],
+    hdrs = ["key_info.h"],
+    include_prefix = "tink/internal",
+    deps = ["//proto:tink_cc_proto"],
+)
+
+cc_library(
+    name = "registry_impl",
+    srcs = ["registry_impl.cc"],
+    hdrs = ["registry_impl.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":fips_utils",
+        ":key_type_info_store",
+        ":keyset_wrapper",
+        ":keyset_wrapper_store",
+        "//:core/key_type_manager",
+        "//:core/private_key_type_manager",
+        "//:input_stream",
+        "//:key_manager",
+        "//:primitive_set",
+        "//:primitive_wrapper",
+        "//monitoring",
+        "//proto:tink_cc_proto",
+        "//util:errors",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/functional:any_invocable",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/synchronization",
+    ],
+)
+
+config_setting(
+    name = "fips_enabled",
+    flag_values = {"//config:use_only_fips": "True"},
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "fips_utils",
+    srcs = ["fips_utils.cc"],
+    hdrs = ["fips_utils.h"],
+    defines = select({
+        "fips_enabled": ["TINK_USE_ONLY_FIPS"],
+        "//conditions:default": [],
+    }),
+    include_prefix = "tink/internal",
+    deps = [
+        "//util:status",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/status",
+    ],
+)
+
+cc_library(
+    name = "err_util",
+    srcs = ["err_util.cc"],
+    hdrs = ["err_util.h"],
+    include_prefix = "tink/internal",
+    deps = ["@boringssl//:crypto"],
+)
+
+cc_library(
+    name = "bn_util",
+    srcs = ["bn_util.cc"],
+    hdrs = ["bn_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":ssl_unique_ptr",
+        "//subtle:subtle_util",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+cc_library(
+    name = "rsa_util",
+    srcs = ["rsa_util.cc"],
+    hdrs = ["rsa_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":bn_util",
+        ":err_util",
+        ":fips_utils",
+        ":ssl_unique_ptr",
+        ":ssl_util",
+        "//config:tink_fips",
+        "//subtle:common_enums",
+        "//util:errors",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_library(
+    name = "ec_util",
+    srcs = ["ec_util.cc"],
+    hdrs = ["ec_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":bn_util",
+        ":err_util",
+        ":fips_utils",
+        ":ssl_unique_ptr",
+        "//subtle:common_enums",
+        "//subtle:random",
+        "//subtle:subtle_util",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+cc_library(
+    name = "md_util",
+    srcs = ["md_util.cc"],
+    hdrs = ["md_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":err_util",
+        ":util",
+        "//subtle:common_enums",
+        "//subtle:subtle_util",
+        "//util:status",
+        "//util:statusor",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "util_test",
+    srcs = ["util_test.cc"],
+    deps = [
+        ":util",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "keyset_wrapper_impl_test",
+    srcs = ["keyset_wrapper_impl_test.cc"],
+    deps = [
+        ":keyset_wrapper_impl",
+        "//:primitive_set",
+        "//:primitive_wrapper",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "//util:test_util",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "key_info_test",
+    srcs = ["key_info_test.cc"],
+    deps = [
+        ":key_info",
+        "//proto:tink_cc_proto",
+        "@com_google_googletest//:gtest_main",
+        "@com_google_protobuf//:protobuf",
+    ],
+)
+
+cc_test(
+    name = "registry_impl_test",
+    size = "small",
+    srcs = ["registry_impl_test.cc"],
+    tags = ["fips"],
+    deps = [
+        ":fips_utils",
+        ":registry_impl",
+        "//:aead",
+        "//:core/key_manager_impl",
+        "//:core/key_type_manager",
+        "//:core/private_key_manager_impl",
+        "//:core/private_key_type_manager",
+        "//:core/template_util",
+        "//:hybrid_decrypt",
+        "//:input_stream",
+        "//:key_manager",
+        "//:mac",
+        "//:primitive_set",
+        "//:primitive_wrapper",
+        "//:registry",
+        "//aead:aead_wrapper",
+        "//aead:aes_gcm_key_manager",
+        "//hybrid:ecies_aead_hkdf_private_key_manager",
+        "//hybrid:ecies_aead_hkdf_public_key_manager",
+        "//monitoring:monitoring_client_mocks",
+        "//proto:aes_ctr_hmac_aead_cc_proto",
+        "//proto:aes_gcm_cc_proto",
+        "//proto:common_cc_proto",
+        "//proto:ecdsa_cc_proto",
+        "//proto:ecies_aead_hkdf_cc_proto",
+        "//proto:tink_cc_proto",
+        "//subtle:aes_gcm_boringssl",
+        "//subtle:random",
+        "//util:input_stream_util",
+        "//util:istream_input_stream",
+        "//util:protobuf_helper",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "//util:test_util",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/status:statusor",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "fips_utils_test",
+    size = "small",
+    srcs = ["fips_utils_test.cc"],
+    tags = ["fips"],
+    deps = [
+        ":fips_utils",
+        "//util:status",
+        "//util:test_matchers",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "err_util_test",
+    size = "small",
+    srcs = ["err_util_test.cc"],
+    deps = [
+        ":err_util",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "bn_util_test",
+    size = "small",
+    srcs = ["bn_util_test.cc"],
+    deps = [
+        ":bn_util",
+        ":ssl_unique_ptr",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "rsa_util_test",
+    srcs = ["rsa_util_test.cc"],
+    deps = [
+        ":bn_util",
+        ":rsa_util",
+        ":ssl_unique_ptr",
+        "//subtle:random",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "ec_util_test",
+    srcs = ["ec_util_test.cc"],
+    data = [
+        "//testvectors:ecdh",
+        "//testvectors:ecdsa_webcrypto",
+        "//testvectors:eddsa",
+    ],
+    deps = [
+        ":bn_util",
+        ":ec_util",
+        ":fips_utils",
+        ":ssl_unique_ptr",
+        ":ssl_util",
+        "//subtle:common_enums",
+        "//subtle:subtle_util",
+        "//subtle:wycheproof_util",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_main",
+        "@rapidjson",
+    ],
+)
+
+cc_test(
+    name = "md_util_test",
+    size = "small",
+    srcs = ["md_util_test.cc"],
+    deps = [
+        ":md_util",
+        "//subtle:common_enums",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "aes_util",
+    srcs = ["aes_util.cc"],
+    hdrs = ["aes_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":util",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+    ],
+)
+
+cc_test(
+    name = "aes_util_test",
+    size = "small",
+    srcs = ["aes_util_test.cc"],
+    deps = [
+        ":aes_util",
+        "//subtle:subtle_util",
+        "//util:secret_data",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@boringssl//:crypto",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "monitoring_util",
+    hdrs = ["monitoring_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":key_status_util",
+        "//:key_status",
+        "//:primitive_set",
+        "//monitoring",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "monitoring_util_test",
+    srcs = ["monitoring_util_test.cc"],
+    deps = [
+        ":monitoring_util",
+        "//:key_status",
+        "//:primitive_set",
+        "//monitoring",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "serialization",
+    hdrs = ["serialization.h"],
+    include_prefix = "tink/internal",
+    deps = ["@com_google_absl//absl/strings"],
+)
+
+cc_library(
+    name = "proto_parameters_serialization",
+    srcs = ["proto_parameters_serialization.cc"],
+    hdrs = ["proto_parameters_serialization.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":serialization",
+        ":util",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "proto_parameters_serialization_test",
+    srcs = ["proto_parameters_serialization_test.cc"],
+    deps = [
+        ":proto_parameters_serialization",
+        "//proto:test_proto_cc_proto",
+        "//proto:tink_cc_proto",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "proto_key_serialization",
+    srcs = ["proto_key_serialization.cc"],
+    hdrs = ["proto_key_serialization.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":serialization",
+        ":util",
+        "//:restricted_data",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+cc_test(
+    name = "proto_key_serialization_test",
+    srcs = ["proto_key_serialization_test.cc"],
+    deps = [
+        ":proto_key_serialization",
+        "//:insecure_secret_key_access",
+        "//:restricted_data",
+        "//proto:tink_cc_proto",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "legacy_proto_parameters",
+    srcs = ["legacy_proto_parameters.cc"],
+    hdrs = ["legacy_proto_parameters.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":proto_parameters_serialization",
+        "//:parameters",
+        "//proto:tink_cc_proto",
+    ],
+)
+
+cc_test(
+    name = "legacy_proto_parameters_test",
+    srcs = ["legacy_proto_parameters_test.cc"],
+    deps = [
+        ":legacy_proto_parameters",
+        ":proto_parameters_serialization",
+        "//:parameters",
+        "//proto:test_proto_cc_proto",
+        "//proto:tink_cc_proto",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "legacy_proto_key",
+    srcs = ["legacy_proto_key.cc"],
+    hdrs = ["legacy_proto_key.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":proto_key_serialization",
+        "//:key",
+        "//:parameters",
+        "//:secret_key_access_token",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+cc_test(
+    name = "legacy_proto_key_test",
+    srcs = ["legacy_proto_key_test.cc"],
+    deps = [
+        ":legacy_proto_key",
+        ":proto_key_serialization",
+        "//:insecure_secret_key_access",
+        "//:key",
+        "//:parameters",
+        "//:restricted_data",
+        "//:secret_key_access_token",
+        "//proto:tink_cc_proto",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "parser_index",
+    hdrs = ["parser_index.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":serialization",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "parser_index_test",
+    srcs = ["parser_index_test.cc"],
+    deps = [
+        ":parser_index",
+        ":serialization",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "serializer_index",
+    hdrs = ["serializer_index.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":serialization",
+        "//:key",
+        "//:parameters",
+    ],
+)
+
+cc_test(
+    name = "serializer_index_test",
+    srcs = ["serializer_index_test.cc"],
+    deps = [
+        ":serialization_test_util",
+        ":serializer_index",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "parameters_parser",
+    hdrs = ["parameters_parser.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":parser_index",
+        ":serialization",
+        "//:parameters",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "parameters_parser_test",
+    srcs = ["parameters_parser_test.cc"],
+    deps = [
+        ":parameters_parser",
+        ":parser_index",
+        ":serialization",
+        ":serialization_test_util",
+        "//:parameters",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "parameters_serializer",
+    hdrs = ["parameters_serializer.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":serialization",
+        ":serializer_index",
+        "//:parameters",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "parameters_serializer_test",
+    srcs = ["parameters_serializer_test.cc"],
+    deps = [
+        ":parameters_serializer",
+        ":serialization",
+        ":serialization_test_util",
+        ":serializer_index",
+        "//:parameters",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "key_parser",
+    hdrs = ["key_parser.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":parser_index",
+        ":serialization",
+        "//:key",
+        "//:secret_key_access_token",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/functional:function_ref",
+        "@com_google_absl//absl/log",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+cc_test(
+    name = "key_parser_test",
+    srcs = ["key_parser_test.cc"],
+    deps = [
+        ":key_parser",
+        ":parser_index",
+        ":serialization",
+        ":serialization_test_util",
+        "//:insecure_secret_key_access",
+        "//:key",
+        "//:parameters",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "key_serializer",
+    hdrs = ["key_serializer.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":serialization",
+        ":serializer_index",
+        "//:key",
+        "//:secret_key_access_token",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/functional:function_ref",
+        "@com_google_absl//absl/log",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+cc_test(
+    name = "key_serializer_test",
+    srcs = ["key_serializer_test.cc"],
+    deps = [
+        ":key_serializer",
+        ":serialization",
+        ":serialization_test_util",
+        ":serializer_index",
+        "//:insecure_secret_key_access",
+        "//:key",
+        "//:secret_key_access_token",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "key_status_util",
+    srcs = ["key_status_util.cc"],
+    hdrs = ["key_status_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        "//:key_status",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/status",
+    ],
+)
+
+cc_test(
+    name = "key_status_util_test",
+    srcs = ["key_status_util_test.cc"],
+    deps = [
+        ":key_status_util",
+        "//:key_status",
+        "//proto:tink_cc_proto",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "keyset_handle_builder_entry",
+    srcs = ["keyset_handle_builder_entry.cc"],
+    hdrs = ["keyset_handle_builder_entry.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":key_status_util",
+        ":legacy_proto_key",
+        ":legacy_proto_parameters",
+        ":mutable_serialization_registry",
+        ":proto_key_serialization",
+        ":proto_parameters_serialization",
+        ":serialization",
+        "//:insecure_secret_key_access",
+        "//:key",
+        "//:key_status",
+        "//:parameters",
+        "//:registry",
+        "//:restricted_data",
+        "//:secret_key_access_token",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+cc_test(
+    name = "keyset_handle_builder_entry_test",
+    srcs = ["keyset_handle_builder_entry_test.cc"],
+    deps = [
+        ":keyset_handle_builder_entry",
+        ":legacy_proto_key",
+        ":legacy_proto_parameters",
+        ":proto_key_serialization",
+        ":proto_parameters_serialization",
+        "//:insecure_secret_key_access",
+        "//:key",
+        "//:key_status",
+        "//:keyset_handle",
+        "//:keyset_handle_builder",
+        "//:parameters",
+        "//:partial_key_access",
+        "//:restricted_data",
+        "//:secret_key_access_token",
+        "//config:tink_config",
+        "//mac:aes_cmac_key",
+        "//mac:aes_cmac_parameters",
+        "//mac:mac_key_templates",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "serialization_registry",
+    srcs = ["serialization_registry.cc"],
+    hdrs = ["serialization_registry.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":key_parser",
+        ":key_serializer",
+        ":parameters_parser",
+        ":parameters_serializer",
+        ":parser_index",
+        ":serialization",
+        ":serializer_index",
+        "//:key",
+        "//:parameters",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings:str_format",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+cc_test(
+    name = "serialization_registry_test",
+    srcs = ["serialization_registry_test.cc"],
+    deps = [
+        ":key_parser",
+        ":key_serializer",
+        ":parameters_parser",
+        ":parameters_serializer",
+        ":serialization",
+        ":serialization_registry",
+        ":serialization_test_util",
+        "//:insecure_secret_key_access",
+        "//:key",
+        "//:parameters",
+        "//:secret_key_access_token",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "mutable_serialization_registry",
+    srcs = ["mutable_serialization_registry.cc"],
+    hdrs = ["mutable_serialization_registry.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":key_parser",
+        ":key_serializer",
+        ":legacy_proto_key",
+        ":parameters_parser",
+        ":parameters_serializer",
+        ":proto_key_serialization",
+        ":serialization",
+        ":serialization_registry",
+        "//:insecure_secret_key_access",
+        "//:key",
+        "//:parameters",
+        "//:secret_key_access_token",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/synchronization",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+cc_test(
+    name = "mutable_serialization_registry_test",
+    srcs = ["mutable_serialization_registry_test.cc"],
+    deps = [
+        ":key_parser",
+        ":key_serializer",
+        ":mutable_serialization_registry",
+        ":parameters_parser",
+        ":parameters_serializer",
+        ":proto_key_serialization",
+        ":serialization",
+        ":serialization_test_util",
+        "//:insecure_secret_key_access",
+        "//:key",
+        "//:parameters",
+        "//:restricted_data",
+        "//:secret_key_access_token",
+        "//proto:tink_cc_proto",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "serialization_test_util",
+    testonly = 1,
+    hdrs = ["serialization_test_util.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":serialization",
+        "//:key",
+        "//:parameters",
+        "//:secret_key_access_token",
+        "//util:statusor",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:optional",
+    ],
+)
+
+cc_test(
+    name = "serialization_test_util_test",
+    srcs = ["serialization_test_util_test.cc"],
+    deps = [
+        ":serialization_test_util",
+        "//:insecure_secret_key_access",
+        "//:parameters",
+        "//util:statusor",
+        "//util:test_matchers",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "test_random_access_stream",
+    testonly = 1,
+    srcs = ["test_random_access_stream.cc"],
+    hdrs = ["test_random_access_stream.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        "//:random_access_stream",
+        "//util:buffer",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "test_random_access_stream_test",
+    srcs = ["test_random_access_stream_test.cc"],
+    deps = [
+        ":test_random_access_stream",
+        "//subtle:random",
+        "//util:buffer",
+        "//util:status",
+        "//util:test_matchers",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "configuration_impl",
+    hdrs = ["configuration_impl.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":key_type_info_store",
+        ":keyset_wrapper_store",
+        "//:configuration",
+    ],
+)
+
+cc_test(
+    name = "configuration_impl_test",
+    srcs = ["configuration_impl_test.cc"],
+    deps = [
+        ":configuration_impl",
+        ":keyset_wrapper_store",
+        "//:cleartext_keyset_handle",
+        "//:configuration",
+        "//proto:aes_gcm_cc_proto",
+        "//proto:rsa_ssa_pss_cc_proto",
+        "//subtle:random",
+        "//util:test_matchers",
+        "//util:test_util",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "key_type_info_store",
+    srcs = ["key_type_info_store.cc"],
+    hdrs = ["key_type_info_store.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":fips_utils",
+        "//:core/key_manager_impl",
+        "//:core/key_type_manager",
+        "//:core/private_key_manager_impl",
+        "//:core/private_key_type_manager",
+        "//:key_manager",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_test(
+    name = "key_type_info_store_test",
+    srcs = ["key_type_info_store_test.cc"],
+    deps = [
+        ":fips_utils",
+        ":key_type_info_store",
+        "//:aead",
+        "//:core/key_manager_impl",
+        "//:key_manager",
+        "//aead:aes_gcm_key_manager",
+        "//aead:cord_aead",
+        "//aead:kms_envelope_aead_key_manager",
+        "//proto:aes_gcm_cc_proto",
+        "//proto:common_cc_proto",
+        "//proto:ecdsa_cc_proto",
+        "//signature:ecdsa_sign_key_manager",
+        "//signature:ecdsa_verify_key_manager",
+        "//util:test_matchers",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/types:optional",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "keyset_wrapper_store",
+    hdrs = ["keyset_wrapper_store.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":keyset_wrapper",
+        ":keyset_wrapper_impl",
+        "//:primitive_wrapper",
+        "//util:status",
+        "//util:statusor",
+        "@com_google_absl//absl/functional:any_invocable",
+    ],
+)
+
+cc_test(
+    name = "keyset_wrapper_store_test",
+    srcs = ["keyset_wrapper_store_test.cc"],
+    deps = [
+        ":keyset_wrapper_store",
+        ":registry_impl",
+        "//:primitive_set",
+        "//:primitive_wrapper",
+        "//mac:mac_wrapper",
+        "//proto:aes_gcm_cc_proto",
+        "//subtle:random",
+        "//util:status",
+        "//util:statusor",
+        "//util:test_matchers",
+        "//util:test_util",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "key_gen_configuration_impl",
+    hdrs = ["key_gen_configuration_impl.h"],
+    include_prefix = "tink/internal",
+    deps = [
+        ":key_type_info_store",
+        "//:key_gen_configuration",
+    ],
+)
+
+cc_test(
+    name = "key_gen_configuration_impl_test",
+    srcs = ["key_gen_configuration_impl_test.cc"],
+    deps = [
+        ":key_gen_configuration_impl",
+        "//:key_gen_configuration",
+        "//aead:aead_key_templates",
+        "//proto:aes_gcm_cc_proto",
+        "//proto:rsa_ssa_pss_cc_proto",
+        "//util:test_matchers",
+        "//util:test_util",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "call_with_core_dump_protection",
+    hdrs = ["call_with_core_dump_protection.h"],
+)

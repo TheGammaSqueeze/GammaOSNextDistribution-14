@@ -1,0 +1,9 @@
+function symbol 'int Y::g(struct Y*)' {_ZN1Y1gEv} was added
+
+type 'struct X' changed
+  method 'g {_ZN1X1gEv}' was added
+
+type 'struct Y' changed
+  method 'g {_ZN1Y1gEv}' was added
+
+exit code 4

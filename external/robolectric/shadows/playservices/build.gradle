@@ -1,0 +1,33 @@
+import org.robolectric.gradle.DeployedRoboJavaModulePlugin
+import org.robolectric.gradle.RoboJavaModulePlugin
+
+apply plugin: RoboJavaModulePlugin
+apply plugin: DeployedRoboJavaModulePlugin
+
+apply plugin: ShadowsPlugin
+
+shadows {
+    packageName "org.robolectric.shadows.gms"
+    sdkCheckMode "OFF"
+}
+
+dependencies {
+    compileOnly project(":shadows:framework")
+    api project(":annotations")
+    api libs.guava
+
+    compileOnly libs.bundles.play.services.base.for.shadows
+
+    compileOnly AndroidSdk.MAX_SDK.coordinates
+
+    testCompileOnly AndroidSdk.MAX_SDK.coordinates
+    testCompileOnly libs.bundles.play.services.base.for.shadows
+
+    testImplementation project(":robolectric")
+    testImplementation libs.junit4
+    testImplementation libs.truth
+    testImplementation libs.mockito
+    testRuntimeOnly libs.bundles.play.services.base.for.shadows
+
+    testRuntimeOnly AndroidSdk.MAX_SDK.coordinates
+}

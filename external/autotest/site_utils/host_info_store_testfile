@@ -1,0 +1,11 @@
+{
+    "attributes": {
+        "attrib1": "1"
+    },
+    "labels": [
+        "some",
+        "labels"
+    ],
+    "serializer_version": 1,
+    "stable_versions": {}
+}

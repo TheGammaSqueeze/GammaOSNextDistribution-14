@@ -1,0 +1,424 @@
+#!/bin/bash
+# Copyright 2020 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Due to crbug.com/1081332, we need to update AFDO metadata
+# manually. This script performs a few checks and generates a
+# new kernel_afdo.json file, which can then be submitted.
+#
+
+USAGE="
+Usage: $(basename "$0") [--help] [--(no)upload] [--nointeractive]
+          [main|beta|stable|all]
+
+Description:
+  The script takes one optional argument which is the channel where we want
+to update the kernel afdo and creates a commit (or commits with \"all\"
+channels) in the corresponding branch.
+  No arguments defaults to \"all\".
+  Follow the prompt to upload the changes with --noupload. Otherwise
+  the script will automatically create CL and send to the detective
+  for review.
+  NO CLEAN-UP NEEDED. The script ignores any local changes and keeps
+the current branch unchanged.
+
+  Args:
+    --help      Show this help.
+    --upload    Upload CLs when the update succeeded (default).
+    --noupload  Do not upload CLs. Instead, print the upload commands.
+    --nointeractive   Runs the script without user interaction.
+    main|beta|stable  Update metadata only on the specified channel.
+"
+
+set -eu
+set -o pipefail
+
+# Branch independent constants.
+# Changes here will affect kernel afdo update in cros branches.
+# -------------------
+ARCHS="amd arm"
+AMD_GS_BASE=gs://chromeos-prebuilt/afdo-job/vetted/kernel/amd64
+ARM_GS_BASE=gs://chromeos-prebuilt/afdo-job/vetted/kernel/arm
+UPDATE_CONFIG_FILE="afdo_tools/update_kernel_afdo.cfg"
+# CL reviewers and cc.
+REVIEWERS="c-compiler-chrome@google.com"
+CC="denik@google.com,gbiv@google.com"
+# Add skipped chrome branches in ascending order here.
+SKIPPED_BRANCHES="95"
+# NOTE: We enable/disable kernel AFDO starting from a particular branch.
+#   For example if we want to enable kernel AFDO in 5.15, first, we do it
+#   in main. In this case we want to disable it in beta and stable branches.
+#   The second scenario is when we want to disable kernel AFDO (when all devices
+#   move to kernelnext and there are no new profiles from the field). In this
+#   case we disable AFDO in main but still keep it live in beta and stable.
+declare -A SKIPPED_ARCHKVERS_IN_BRANCHES
+# In SKIPPED_ARCHKVERS_IN_BRANCHES
+# - key is a branch number string;
+# - value is the list of arch/kver separated by space.
+# Example: SKIPPED_ARCHKVERS_IN_BRANCHES["105"]="amd/4.4 arm/5.15"
+# -------------------
+# Kernel tracing was disabled on arm in 114, b/275560674.
+SKIPPED_ARCHKVERS_IN_BRANCHES["114"]="arm/5.15"
+SKIPPED_ARCHKVERS_IN_BRANCHES["115"]="arm/5.15"
+
+script_dir=$(dirname "$0")
+tc_utils_dir="${script_dir}/.."
+# Convert toolchain_utils into the absolute path.
+abs_tc_utils_dir="$(realpath "${tc_utils_dir}")"
+
+# Check profiles uploaded within the last week.
+expected_time=$(date +%s -d "week ago")
+# Upload CLs on success.
+upload_cl=true
+# Interactive mode.
+interactive=true
+# Without arguments the script updates all branches.
+channels=""
+failed_channels=""
+
+declare -A arch_gsbase arch_kvers arch_outfile
+declare -A branch branch_number commit
+remote_repo=$(git -C "${tc_utils_dir}" remote)
+canary_ref="refs/heads/main"
+# Read the last two release-Rxx from remote branches
+# and assign them to stable_ref and beta_ref.
+# sort -V is the version sort which puts R100 after R99.
+# We need `echo` to convert newlines into spaces for read.
+read -r stable_ref beta_ref <<< "$(git -C "${tc_utils_dir}" ls-remote -h \
+  "${remote_repo}" release-R\* | cut -f2 | sort -V | tail -n 2 | paste -s)"
+# Branch names which start from release-R.
+branch["beta"]=${beta_ref##*/}
+branch["stable"]=${stable_ref##*/}
+branch["canary"]=${canary_ref##*/}
+
+# Get current branch numbers (number which goes after R).
+branch_number["stable"]=$(echo "${branch["stable"]}" | \
+  sed -n -e "s/^release-R\([0-9][0-9]*\).*$/\1/p")
+branch_number["beta"]=$(echo "${branch["beta"]}" | \
+  sed -n -e "s/^release-R\([0-9][0-9]*\).*$/\1/p")
+branch_number["canary"]="$((branch_number[beta] + 1))"
+for skipped_branch in ${SKIPPED_BRANCHES} ; do
+  if [[ ${branch_number["canary"]} == "${skipped_branch}" ]] ; then
+    ((branch_number[canary]++))
+  fi
+done
+config_file="$(realpath --relative-to="${tc_utils_dir}" \
+       "${tc_utils_dir}/${UPDATE_CONFIG_FILE}")"
+
+for arg in "$@"
+do
+  case "${arg}" in
+  stable | canary | beta )
+    channels="${channels} ${arg}"
+    ;;
+  main )
+    channels="${channels} canary"
+    ;;
+  all )
+    channels="canary beta stable"
+    ;;
+  --noupload | --no-upload)
+    upload_cl=false
+    ;;
+  --upload)
+    upload_cl=true
+    ;;
+  --nointeractive)
+    interactive=false
+    ;;
+  --help | help | -h )
+    echo "${USAGE}"
+    exit 0
+    ;;
+  -*)
+    echo "ERROR: Option \"${arg}\" is not supported." >&2
+    echo "${USAGE}"
+    exit 1
+    ;;
+  *)
+    echo "Channel \"${arg}\" is not supported.
+Must be main (or canary), beta, stable or all." >&2
+    echo "${USAGE}"
+    exit 1
+  esac
+done
+
+if [[ -z "${channels}" ]]
+then
+  channels="canary beta stable"
+fi
+
+# Fetch latest branches.
+git -C "${tc_utils_dir}" fetch "${remote_repo}"
+
+worktree_dir=$(mktemp -d)
+echo "-> Working in ${worktree_dir}"
+# Create a worktree and make changes there.
+# This way we don't need to clean-up and sync toolchain_utils before the
+# change. Neither we should care about clean-up after the submit.
+git -C "${tc_utils_dir}" worktree add --detach "${worktree_dir}"
+trap 'git -C "${abs_tc_utils_dir}" worktree remove -f "${worktree_dir}" \
+      && git -C "${abs_tc_utils_dir}" branch -D ${channels}' EXIT
+pushd "${worktree_dir}"
+
+for channel in ${channels}
+do
+  set +u
+  if [[ -n "${commit[${channel}]}" ]]
+  then
+    echo "Skipping channel ${channel} which already has commit\
+ ${commit[${channel}]}."
+    continue
+  fi
+  set -u
+
+  errs=""
+  successes=0
+  curr_branch_number=${branch_number[${channel}]}
+  curr_branch=${branch[${channel}]}
+  echo
+  echo "Checking \"${channel}\" channel..."
+  echo "branch_number=${curr_branch_number} branch=${curr_branch}"
+
+  git reset --hard HEAD
+  git checkout -b "${channel}" "${remote_repo}/${curr_branch}"
+
+  # Read branch-dependent constants from $remote_repo.
+  # shellcheck source=afdo_tools/update_kernel_afdo.cfg
+  if [[ -e "${config_file}" ]]
+  then
+    # Branch dependent constants were moved to config_file.
+    # IMPORTANT: Starting from M-113 update_kernel_afdo reads branch-dependent
+    # constants from config_file from remote refs.
+    source "${config_file}"
+  else
+    # DON'T UPDATE THESE CONSTANTS HERE!
+    # Update ${config_file} instead.
+    AMD_KVERS="4.14 4.19 5.4 5.10"
+    ARM_KVERS="5.15"
+    AMD_METADATA_FILE="afdo_metadata/kernel_afdo.json"
+    ARM_METADATA_FILE="afdo_metadata/kernel_arm_afdo.json"
+  fi
+
+  amd_outfile="$(realpath --relative-to="${tc_utils_dir}" \
+    "${tc_utils_dir}/${AMD_METADATA_FILE}")"
+  arm_outfile="$(realpath --relative-to="${tc_utils_dir}" \
+    "${tc_utils_dir}/${ARM_METADATA_FILE}")"
+  arch_gsbase["amd"]="${AMD_GS_BASE}"
+  arch_gsbase["arm"]="${ARM_GS_BASE}"
+  arch_kvers["amd"]="${AMD_KVERS}"
+  arch_kvers["arm"]="${ARM_KVERS}"
+  arch_outfile["amd"]="${amd_outfile}"
+  arch_outfile["arm"]="${arm_outfile}"
+
+  new_changes=false
+  for arch in ${ARCHS}
+  do
+    json="{"
+    sep=""
+    for kver in ${arch_kvers[${arch}]}
+    do
+      # Skip kernels disabled in this branch.
+      skipped=false
+      for skipped_branch in "${!SKIPPED_ARCHKVERS_IN_BRANCHES[@]}"
+      do
+        if [[ ${curr_branch_number} == "${skipped_branch}" ]]
+        then
+          # Current branch is in the keys of SKIPPED_ARCHKVERS_IN_BRANCHES.
+          # Now lets check if $arch/$kver is in the list.
+          for skipped_archkver in \
+            ${SKIPPED_ARCHKVERS_IN_BRANCHES[${skipped_branch}]}
+          do
+            if [[ "${arch}/${kver}" == "${skipped_archkver}" ]]
+            then
+              skipped=true
+              break
+            fi
+          done
+        fi
+      done
+      if ${skipped}
+      then
+        echo "${arch}/${kver} is skipped in branch ${curr_branch_number}."
+        continue
+      fi
+      # Sort the gs output by timestamp, default ordering is by name. So
+      # R86-13310.3-1594633089.gcov.xz goes after
+      # R86-13310.18-1595237847.gcov.xz.
+      latest=$(gsutil.py ls -l "${arch_gsbase[${arch}]}/${kver}/" | sort -k2 | \
+               grep "R${curr_branch_number}" | tail -1 || true)
+      prev_branch=$((curr_branch_number - 1))
+      if [[ -z "${latest}" && "${channel}" != "stable" ]]
+      then
+        # if no profiles exist for the current branch, try the previous branch
+        latest=$(gsutil.py ls -l "${arch_gsbase[${arch}]}/${kver}/" | \
+          sort -k2 | grep "R${prev_branch}" | tail -1 || true)
+      fi
+      if [[ -z "${latest}" ]]
+      then
+        echo "ERROR: No M${curr_branch_number}, M${prev_branch} profiles in\
+ ${arch_gsbase[${arch}]}/${kver}/" >&2
+        echo "Skipping ${arch}/${kver}" >&2
+        errs="${errs} ${kver}"
+        continue
+      fi
+
+      # Verify that the file has the expected date.
+      file_time=$(echo "${latest}" | awk '{print $2}')
+      file_time_unix=$(date +%s -d "${file_time}")
+      if [ "${file_time_unix}" -lt "${expected_time}" ]
+      then
+        expected=$(env TZ=UTC date +%Y-%m-%dT%H:%M:%SZ -d @"${expected_time}")
+        echo "ERROR: Wrong date for ${kver}: ${file_time} is before\
+ ${expected}" >&2
+        errs="${errs} ${kver}"
+        continue
+      fi
+
+      # Generate JSON.
+      json_kver=$(echo "${kver}" | tr . _)
+      # b/147370213 (migrating profiles from gcov format) may result in the
+      # pattern below no longer doing the right thing.
+      name="$(basename "${latest%.gcov.*}")"
+      # Skip kernels with no AFDO support in the current channel.
+      if [[ "${name}" == "" ]]
+      then
+        continue
+      fi
+      json=$(cat <<EOT
+${json}${sep}
+    "chromeos-kernel-${json_kver}": {
+        "name": "${name}"
+    }
+EOT
+      )
+      sep=","
+      successes=$((successes + 1))
+    done # kvers loop
+
+    # If we did not succeed for any kvers, exit now.
+    if [[ ${successes} -eq 0 ]]
+    then
+      echo "ERROR: AFDO profiles out of date for all kernel versions" >&2
+      failed_channels="${failed_channels} ${channel}"
+      continue
+    fi
+
+    # Write new JSON file.
+    # Don't use `echo` since `json` might have esc characters in it.
+    printf "%s\n}\n" "${json}" > "${arch_outfile[${arch}]}"
+
+    # If no changes were made, say so.
+    outdir=$(dirname "${arch_outfile[${arch}]}")
+    shortstat=$(cd "${outdir}" &&\
+      git status --short "$(basename "${arch_outfile[${arch}]}")")
+    [ -z "${shortstat}" ] &&\
+      echo "$(basename "${arch_outfile[${arch}]}") is up to date." \
+      && continue
+
+    # If we had any errors, warn about them.
+    if [[ -n "${errs}" ]]
+    then
+      echo "WARNING: failed to update ${errs} in ${channel}" >&2
+      failed_channels="${failed_channels} ${channel}"
+      continue
+    fi
+
+    git add "${arch_outfile[${arch}]}"
+    new_changes=true
+  done # ARCHS loop
+
+  if ! ${new_changes}
+  then
+    echo "Skipping \"${channel}\" - all profiles are up to date"
+    continue
+  fi
+
+  case "${channel}" in
+    canary )
+      commit_contents=$'afdo_metadata: Publish the new kernel profiles\n\n'
+      for arch in ${ARCHS} ; do
+        for kver in ${arch_kvers[${arch}]} ; do
+          commit_contents="${commit_contents}Update ${arch} profile on\
+ chromeos-kernel-${kver}"$'\n'
+        done
+      done
+      commit_contents="${commit_contents}
+
+BUG=None
+TEST=Verified in kernel-release-afdo-verify-orchestrator"
+      ;;
+    beta | stable )
+      commit_contents="afdo_metadata: Publish the new kernel profiles\
+ in ${curr_branch}
+
+Have PM pre-approval because this shouldn't break the release branch.
+
+BUG=None
+TEST=Verified in kernel-release-afdo-verify-orchestrator"
+      ;;
+    * )
+      echo "Internal error: unhandled channel \"${channel}\"" >&2
+      exit 2
+  esac
+
+  if ${interactive}
+  then
+    git commit -v -e -m "${commit_contents}"
+  else
+    git commit -m "${commit_contents}"
+  fi
+
+  commit[${channel}]=$(git -C "${worktree_dir}" rev-parse HEAD)
+done
+
+popd
+echo
+# Array size check doesn't play well with the unbound variable option.
+set +u
+if [[ ${#commit[@]} -gt 0 ]]
+then
+  set -u
+  echo "The change is applied in ${!commit[*]}."
+  if ${upload_cl}
+  then
+    for channel in "${!commit[@]}"
+    do
+      if ${interactive}
+      then
+        (cd "${tc_utils_dir}" && \
+          repo upload --br="${channel}" --re="${REVIEWERS}" --cc="${CC}" .)
+      else
+        (cd "${tc_utils_dir}" && \
+          repo upload --br="${channel}" --no-verify -y --re="${REVIEWERS}" \
+                      --cc="${CC}" .)
+      fi
+    done
+  else
+    echo "Run these commands to upload the change:"
+    echo
+    for channel in "${!commit[@]}"
+    do
+      echo -e "\tgit -C ${tc_utils_dir} push ${remote_repo} \
+  ${commit[${channel}]}:refs/for/${branch[${channel}]}"
+    done
+  fi
+
+  # Report failed channels.
+  if [[ -n "${failed_channels}" ]]
+  then
+    echo
+    echo "ERROR: failed to update kernel afdo in ${failed_channels}" >&2
+    exit 3
+  fi
+else
+  # No commits. Check if it is due to failures.
+  if [[ -z "${failed_channels}" ]]
+  then
+    echo "No changes are applied. It looks like AFDO versions are up to date."
+  else
+    echo "ERROR: update in ${failed_channels} failed" >&2
+    exit 3
+  fi
+fi

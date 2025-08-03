@@ -1,0 +1,20 @@
+name: "pathdiff"
+description: "Library for diffing paths to obtain relative paths"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/pathdiff"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/pathdiff/pathdiff-0.2.1.crate"
+  }
+  version: "0.2.1"
+  # Dual-licensed, using the least restrictive per go/thirdpartylicenses#same.
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 6
+    day: 12
+  }
+}

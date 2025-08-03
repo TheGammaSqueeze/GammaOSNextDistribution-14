@@ -1,0 +1,79 @@
+package(default_visibility = ["//:__subpackages__"])
+
+licenses(["notice"])
+
+cc_library(
+    name = "aws_kms_aead",
+    srcs = ["aws_kms_aead.cc"],
+    hdrs = ["aws_kms_aead.h"],
+    include_prefix = "tink/integration/awskms",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@aws_cpp_sdk//:aws_sdk_core",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@tink_cc//:aead",
+        "@tink_cc//util:status",
+        "@tink_cc//util:statusor",
+    ],
+    alwayslink = 1,
+)
+
+cc_library(
+    name = "aws_kms_client",
+    srcs = ["aws_kms_client.cc"],
+    hdrs = ["aws_kms_client.h"],
+    include_prefix = "tink/integration/awskms",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":aws_kms_aead",
+        "@aws_cpp_sdk//:aws_sdk_core",
+        "@com_google_absl//absl/base",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/synchronization",
+        "@tink_cc//:kms_client",
+        "@tink_cc//:kms_clients",
+        "@tink_cc//util:status",
+        "@tink_cc//util:statusor",
+    ],
+    alwayslink = 1,
+)
+
+cc_test(
+    name = "aws_kms_aead_integration_test",
+    size = "small",
+    srcs = ["aws_kms_aead_integration_test.cc"],
+    data = ["//testdata/aws:credentials"],
+    # This target requires valid credentials to interact with the AWS KMS.
+    tags = ["manual"],
+    deps = [
+        ":aws_kms_aead",
+        ":aws_kms_client",
+        "//tink/integration/awskms/internal:test_file_util",
+        "@bazel_tools//tools/cpp/runfiles",
+        "@com_google_absl//absl/log:check",
+        "@com_google_absl//absl/strings",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//util:statusor",
+        "@tink_cc//util:test_matchers",
+    ],
+)
+
+cc_test(
+    name = "aws_kms_client_test",
+    size = "small",
+    srcs = ["aws_kms_client_test.cc"],
+    data = ["//testdata/aws:credentials"],
+    deps = [
+        ":aws_kms_client",
+        "//tink/integration/awskms/internal:test_file_util",
+        "@aws_cpp_sdk//:aws_sdk_core",
+        "@com_google_absl//absl/status",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//util:status",
+        "@tink_cc//util:statusor",
+        "@tink_cc//util:test_matchers",
+        "@tink_cc//util:test_util",
+    ],
+)

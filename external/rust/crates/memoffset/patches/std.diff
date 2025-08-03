@@ -1,0 +1,21 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 77fe68f..bc62b4a 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -10,4 +10,5 @@
+ # See Cargo.toml.orig for the original contents.
+ 
+ [package]
++edition = "2018" # ANDROID: Required to build dylib in no_std.
+ name = "memoffset"
+diff --git a/src/lib.rs b/src/lib.rs
+index c85fb01..25b0444 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -55,5 +55,5 @@
+ //! let checksum = crc16(checksum_range);
+ //! ```
+ 
+-#![no_std]
++#![cfg_attr(not(aosp_force_use_std), no_std)]
+ #![cfg_attr(

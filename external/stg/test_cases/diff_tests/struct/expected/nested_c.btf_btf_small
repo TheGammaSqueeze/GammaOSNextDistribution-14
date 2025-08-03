@@ -1,0 +1,9 @@
+type 'struct containing' changed
+  byte size changed from 4 to 8
+
+type 'struct nested' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+exit code 4

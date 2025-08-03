@@ -1,0 +1,75 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_nos_host_generic_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_nos_host_generic_license"],
+}
+
+// For keymaster 3/4/4.1 @ citadel
+genrule {
+    name: "nos_app_keymaster_service_ctdl_genc++",
+    out: ["Keymaster.client.cpp"],
+    srcs: [
+        "keymaster.proto",
+        "keymaster_defs.proto",
+        "keymaster_types.proto",
+        ":nugget_options_proto",
+        ":libprotobuf-internal-protos",
+    ],
+    tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
+    cmd: GEN_SERVICE_SOURCE,
+}
+
+genrule {
+    name: "nos_app_keymaster_service_ctdl_genc++_headers",
+    out: ["Keymaster.client.h"],
+    srcs: [
+        "keymaster.proto",
+        "keymaster_defs.proto",
+        "keymaster_types.proto",
+        ":nugget_options_proto",
+        ":libprotobuf-internal-protos",
+    ],
+    tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
+    cmd: GEN_SERVICE_HEADER,
+}
+
+genrule {
+    name: "nos_app_keymaster_service_ctdl_genc++_mock",
+    out: ["MockKeymaster.client.h"],
+    srcs: [
+        "keymaster.proto",
+        "keymaster_defs.proto",
+        "keymaster_types.proto",
+        ":nugget_options_proto",
+        ":libprotobuf-internal-protos",
+    ],
+    tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
+    cmd: GEN_SERVICE_MOCK,
+}
+
+cc_library {
+    name: "nos_app_keymaster_ctdl",
+    generated_sources: ["nos_app_keymaster_service_ctdl_genc++"],
+    generated_headers: ["nos_app_keymaster_service_ctdl_genc++_headers"],
+    defaults: ["nos_app_service_defaults"],
+    export_generated_headers: ["nos_app_keymaster_service_ctdl_genc++_headers"],
+}

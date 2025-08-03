@@ -1,0 +1,13 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'enum { one = 1, two = 2, four = 4, } v' -> 'enum { zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, } v'"]
+  "2" [color=red, label="'enum { one = 1, two = 2, four = 4, }' -> 'enum { zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, }'"]
+  "2" -> "2:0"
+  "2:0" [color=red, label="enumerator 'zero' (0) was added"]
+  "2" -> "2:1"
+  "2:1" [color=red, label="enumerator 'three' (3) was added"]
+  "2" -> "2:2"
+  "2:2" [color=red, label="enumerator 'five' (5) was added"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

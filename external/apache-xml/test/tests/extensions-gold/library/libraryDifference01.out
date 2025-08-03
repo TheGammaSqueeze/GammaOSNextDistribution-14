@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<test desc="selects abc (abc, xyz)">
+<item>a</item>
+<item>b</item>
+<item>c</item>, a</test>
+<test desc="selects xyz (xyz, abc)">
+<item>x</item>
+<item>y</item>
+<item>z</item>
+</test>
+<test desc="selects nothing (abc, abc)"/>
+<test desc="selects nothing (abc, abc and parent)"/>
+<test desc="selects bc (abc, abc[1])">
+<item>b</item>
+<item>c</item>
+</test>
+<test desc="selects nothing (abc[1], abc)"/>
+<test desc="selects a (abc[1], abc[2])">
+<item>a</item>
+</test>
+</out>

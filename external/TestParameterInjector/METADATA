@@ -1,0 +1,17 @@
+name: "TestParameterInjector"
+description:
+    "JUnit runner for parameterized tests"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/TestParameterInjector"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/TestParameterInjector"
+  }
+  version: "e65d6bebdba9df211b258fae996fe34b6eadb787"
+  last_upgrade_date { year: 2021 month: 7 day: 26 }
+  license_type: NOTICE
+}

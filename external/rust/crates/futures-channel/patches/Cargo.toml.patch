@@ -1,0 +1,13 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index d0a13f6..66f5639 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -38,6 +38,8 @@ optional = true
+ default-features = false
+ 
+ [dev-dependencies]
++futures = "0.3.21"
++futures-test = "0.3.21"
+ 
+ [features]
+ alloc = ["futures-core/alloc"]

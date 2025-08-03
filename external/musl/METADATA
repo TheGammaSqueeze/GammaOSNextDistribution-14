@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update musl
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "musl"
+description: "musl is an implementation of the C standard library built on top of the Linux system call API, including interfaces defined in the base language standard, POSIX, and widely agreed-upon extensions. musl is lightweight, fast, simple, free, and strives to be correct in the sense of standards-conformance and safety.  "
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://musl.libc.org/"
+  }
+  url {
+    type: GIT
+    value: "git://git.musl-libc.org/musl"
+  }
+  version: "v1.2.4"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 6
+    day: 15
+  }
+}

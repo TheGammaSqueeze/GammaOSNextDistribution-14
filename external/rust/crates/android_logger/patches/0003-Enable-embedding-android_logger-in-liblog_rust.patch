@@ -1,0 +1,95 @@
+From ff9b04d9a87d2bda1281cf31e9df32c60133ef42 Mon Sep 17 00:00:00 2001
+From: Marcin Radomski <dextero@google.com>
+Date: Thu, 17 Aug 2023 16:07:56 +0000
+Subject: [PATCH] Enable embedding android_logger in liblog_rust
+
+Add default_log_impl cfg that, when enabled:
+* Removes the dependency on env_logger,
+* Imports all log crate symbols from current crate.
+
+This makes it possible to embed android_logger as mod inside liblog_rust
+crate, so that AndroidLogger can be used as default logger instead of a
+NopLogger.
+
+Changing that default prevents dropping logs when the logger is
+uninitialized. This can happen by accident when an application doesn't
+intialize the logger in all linker namespaces it pulls libraries from.
+See discussion at b/294216366#comment7.
+
+Bug: 275290559
+Test: compile test app from aosp/2717614
+Test: run it on a Cuttlefish device
+Test: observe logcat logs on all level from FFI call
+Test: observe all logs on non-FFI call without initializing the logger
+Test: observe set log filter applying only to non-FFI call
+Change-Id: I324f77d840101391299e2693acc6f814d062c659
+---
+ src/lib.rs | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib.rs b/src/lib.rs
+index c22f07e..c2a3c08 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -67,20 +67,35 @@
+ extern crate android_log_sys as log_ffi;
+ extern crate once_cell;
+ use once_cell::sync::OnceCell;
++#[cfg(default_log_impl)]
++use crate as log;
++#[cfg(not(default_log_impl))]
+ #[macro_use]
+ extern crate log;
+ 
++#[cfg(not(default_log_impl))]
+ extern crate env_logger;
+ 
+-use log::{Level, LevelFilter, Log, Metadata, Record};
++use self::log::{Level, LevelFilter, Log, Metadata, Record};
+ #[cfg(target_os = "android")]
+-use log_ffi::LogPriority;
++use self::log_ffi::LogPriority;
+ use std::ffi::{CStr, CString};
+ use std::fmt;
+ use std::mem::{self, MaybeUninit};
+ use std::ptr;
+ 
++#[cfg(default_log_impl)]
++pub mod env_logger {
++    pub mod filter {
++        pub struct Filter;
++        impl Filter {
++            pub fn matches(&self, _: &crate::Record) -> bool { true }
++        }
++    }
++}
++#[cfg(not(default_log_impl))]
+ pub use env_logger::filter::{Builder as FilterBuilder, Filter};
++#[cfg(not(default_log_impl))]
+ pub use env_logger::fmt::Formatter;
+ 
+ pub(crate) type FormatFn = Box<dyn Fn(&mut dyn fmt::Write, &Record) -> fmt::Result + Sync + Send>;
+@@ -499,6 +514,12 @@ pub fn init_once(config: Config) {
+     } else if let Some(level) = log_level {
+         log::set_max_level(level);
+     }
++    // On Android, log crate is patched to default to LevelFilter::Trace rather than Off. Preserve
++    // the existing "android_logger default level is Off" behavior by explicitly setting the level.
++    #[cfg(target_os = "android")]
++    if log_level.is_none() {
++        log::set_max_level(LevelFilter::Off);
++    }
+ }
+ 
+ // FIXME: When `maybe_uninit_uninit_array ` is stabilized, use it instead of this helper
+@@ -553,6 +574,7 @@ mod tests {
+ 
+     // Test whether the filter gets called correctly. Not meant to be exhaustive for all filter
+     // options, as these are handled directly by the filter itself.
++    #[cfg(not(default_log_impl))]
+     #[test]
+     fn config_filter_match() {
+         let info_record = Record::builder().level(Level::Info).build();
+-- 
+2.42.0.rc1.204.g551eb34607-goog
+

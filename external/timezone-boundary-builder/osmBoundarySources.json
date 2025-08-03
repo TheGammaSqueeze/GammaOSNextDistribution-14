@@ -1,0 +1,1485 @@
+{
+  "鲁林地区": {
+    "name": "鲁林地区"
+  },
+  "查马普地区": {
+    "name": "查马普地区"
+  },
+  "基伍地区": {
+    "name": "基伍地区"
+  },
+  "中国实控白玉地区": {
+    "name:zh": "中国实控白玉地区"
+  },
+  "שטח B": {
+    "name:he": "שטח B"
+  },
+  "שטח C": {
+    "name:he": "שטח C"
+  },
+  "Acre": {
+    "ISO3166-2": "BR-AC"
+  },
+  "Adair County, KY": {
+    "name": "Adair County",
+    "nist:state_fips": "21"
+  },
+  "Afghanistan": {
+    "ISO3166-1": "AF"
+  },
+  "Aktobe": {
+    "ISO3166-2": "KZ-AKT"
+  },
+  "Alabama": {
+    "ISO3166-2": "US-AL"
+  },
+  "Alagoas": {
+    "ISO3166-2": "BR-AL"
+  },
+  "Albania": {
+    "ISO3166-1": "AL"
+  },
+  "Algeria": {
+    "ISO3166-1": "DZ"
+  },
+  "Altai Krai": {
+    "ISO3166-2": "RU-ALT"
+  },
+  "Altai Republic": {
+    "ISO3166-2": "RU-AL"
+  },
+  "Amur": {
+    "ISO3166-2": "RU-AMU"
+  },
+  "Andorra": {
+    "ISO3166-1": "AD"
+  },
+  "Angola": {
+    "ISO3166-1": "AO"
+  },
+  "Anguilla": {
+    "ISO3166-1": "AI"
+  },
+  "Antigua and Barbuda": {
+    "ISO3166-1": "AG"
+  },
+  "Argentina": {
+    "ISO3166-1": "AR"
+  },
+  "Armenia": {
+    "ISO3166-1": "AM"
+  },
+  "Arthur County, NE": {
+    "name": "Arthur County",
+    "nist:state_fips": "31"
+  },
+  "Aruba": {
+    "ISO3166-1": "AW"
+  },
+  "Astrakhan": {
+    "ISO3166-2": "RU-AST"
+  },
+  "Atyrau Region": {
+    "ISO3166-2": "KZ-ATY"
+  },
+  "Australia": {
+    "ISO3166-1": "AU"
+  },
+  "Australian Capital Territory": {
+    "ISO3166-2": "AU-ACT"
+  },
+  "Austria": {
+    "ISO3166-1": "AT"
+  },
+  "Autonomous Region of Bougainville": {
+    "ISO3166-2": "PG-NSB"
+  },
+  "Atikokan-tz": {
+    "timezone": "America/Atikokan"
+  },
+  "Azerbaijan": {
+    "ISO3166-1": "AZ"
+  },
+  "Åland Islands": {
+    "ISO3166-2": "FI-01"
+  },
+  "Bahia": {
+    "ISO3166-2": "BR-BA"
+  },
+  "Bahía de Banderas": {
+    "name": "Bahía de Banderas"
+  },
+  "Bahrain": {
+    "ISO3166-1": "BH"
+  },
+  "Bangladesh": {
+    "ISO3166-1": "BD"
+  },
+  "Barbados": {
+    "ISO3166-1": "BB"
+  },
+  "Bas-Uele": {
+    "name": "Bas-Uele",
+    "admin_level": "4"
+  },
+  "Bay County, FL": {
+    "name": "Bay County",
+    "nist:state_fips": "12"
+  },
+  "Belarus": {
+    "ISO3166-1": "BY"
+  },
+  "Belem-tz": {
+    "timezone": "America/Belem"
+  },
+  "Belgium": {
+    "ISO3166-1": "BE"
+  },
+  "Belize": {
+    "ISO3166-1": "BZ"
+  },
+  "Benin": {
+    "ISO3166-1": "BJ"
+  },
+  "Bermuda": {
+    "ISO3166-1": "BM"
+  },
+  "Bir Tawil": {
+    "alt_name:en": "Bi'r Tawīl"
+  },
+  "Blanc Sablon-tz": {
+    "timezone": "America/Blanc-Sablon"
+  },
+  "Bledsoe County, TN": {
+    "name": "Bledsoe County",
+    "nist:state_fips": "47"
+  },
+  "Buenos Aires": {
+    "ISO3166-2": "AR-B"
+  },
+  "Bhutan": {
+    "ISO3166-1": "BT"
+  },
+  "Boise-tz": {
+    "timezone": "America/Boise"
+  },
+  "Bolivia": {
+    "ISO3166-1": "BO"
+  },
+  "Bonaire, Sint Eustatius and Saba": {
+    "ISO3166-1": "BQ"
+  },
+  "Bosnia and Herzegovina": {
+    "ISO3166-1": "BA"
+  },
+  "Botswana": {
+    "ISO3166-1": "BW"
+  },
+  "Brazil": {
+    "ISO3166-1": "BR"
+  },
+  "Breckinridge County, KY": {
+    "name": "Breckinridge County",
+    "nist:state_fips": "21"
+  },
+  "British Indian Ocean Territory": {
+    "ISO3166-1": "IO"
+  },
+  "British Sovereign Base Areas": {
+    "name": "British Sovereign Base Areas"
+  },
+  "British Virgin Islands": {
+    "ISO3166-1": "VG"
+  },
+  "Broken_Hill-tz": {
+    "timezone": "Australia/Broken_Hill"
+  },
+  "Brunei": {
+    "ISO3166-1": "BN"
+  },
+  "Bulgaria": {
+    "ISO3166-1": "BG"
+  },
+  "Burkina Faso": {
+    "ISO3166-1": "BF"
+  },
+  "Burundi": {
+    "ISO3166-1": "BI"
+  },
+  "Buryatia": {
+    "ISO3166-2": "RU-BU"
+  },
+  "Calhoun County, FL": {
+    "name": "Calhoun County",
+    "nist:state_fips": "12"
+  },
+  "Cambridge Bay-tz": {
+    "timezone": "America/Cambridge_Bay"
+  },
+  "Cambodia": {
+    "ISO3166-1": "KH"
+  },
+  "Cameroon": {
+    "ISO3166-1": "CM"
+  },
+  "Canada": {
+    "ISO3166-1": "CA"
+  },
+  "Cancun-tz": {
+    "timezone": "America/Cancun"
+  },
+  "Cape Verde": {
+    "ISO3166-1": "CV"
+  },
+  "Catamarca": {
+    "ISO3166-2": "AR-K"
+  },
+  "Cayman Islands": {
+    "ISO3166-1": "KY"
+  },
+  "Central African Republic": {
+    "ISO3166-1": "CF"
+  },
+  "Central Kalimantan": {
+    "name:en": "Central Kalimantan"
+  },
+  "Chaco": {
+    "ISO3166-2": "AR-H"
+  },
+  "Chad": {
+    "ISO3166-1": "TD"
+  },
+  "Chase County, NE": {
+    "name": "Chase County",
+    "nist:state_fips": "31"
+  },
+  "Chihuahua": {
+    "ISO3166-2": "MX-CHH"
+  },
+  "Chile": {
+    "ISO3166-1": "CL"
+  },
+  "China": {
+    "ISO3166-1": "CN"
+  },
+  "Chubut": {
+    "ISO3166-2": "AR-U"
+  },
+  "Chukotka": {
+    "ISO3166-2": "RU-CHU"
+  },
+  "Chuuk": {
+    "ISO3166-2": "FM-TRK"
+  },
+  "Clark County, IN": {
+    "name": "Clark County",
+    "nist:state_fips": "18"
+  },
+  "Colombia": {
+    "ISO3166-1": "CO"
+  },
+  "Colorado": {
+    "ISO3166-2": "US-CO"
+  },
+  "Comoros": {
+    "ISO3166-1": "KM"
+  },
+  "Congo-Brazzaville": {
+    "ISO3166-1": "CG"
+  },
+  "Congo-Kinshasa": {
+    "ISO3166-1": "CD"
+  },
+  "Cook Islands": {
+    "ISO3166-1": "CK"
+  },
+  "Corrientes": {
+    "ISO3166-2": "AR-W"
+  },
+  "Corson County, SD": {
+    "name": "Corson County",
+    "nist:state_fips": "46"
+  },
+  "Costa Rica": {
+    "ISO3166-1": "CR"
+  },
+  "Córdoba": {
+    "ISO3166-2": "AR-X"
+  },
+  "Côte d'Ivoire": {
+    "ISO3166-1": "CI"
+  },
+  "Crawford County, IN": {
+    "name": "Crawford County",
+    "nist:state_fips": "18"
+  },
+  "Creston-tz": {
+    "name": "America/Creston"
+  },
+  "Crimea": {
+    "name:en": "Republic of Crimea"
+  },
+  "Croatia": {
+    "ISO3166-1": "HR"
+  },
+  "Cuba": {
+    "ISO3166-1": "CU"
+  },
+  "Curaçao": {
+    "ISO3166-1": "CW"
+  },
+  "Cumberland County, TN": {
+    "name": "Cumberland County",
+    "nist:state_fips": "47"
+  },
+  "Cyprus": {
+    "ISO3166-1": "CY"
+  },
+  "Czech Republic": {
+    "ISO3166-1": "CZ"
+  },
+  "Dawson Creek-tz": {
+    "timezone": "America/Dawson_Creek"
+  },
+  "Dearborn County, IN": {
+    "name": "Dearborn County",
+    "nist:state_fips": "18"
+  },
+  "Denver-tz": {
+    "timezone": "America/Denver"
+  },
+  "Departamento Atlántico": {
+    "name": "Departamento Atlántico"
+  },
+  "Denmark": {
+    "ISO3166-1": "DK"
+  },
+  "Dewey County, SD": {
+    "name": "Dewey County",
+    "nist:state_fips": "46"
+  },
+  "Dickinson County, MI": {
+    "name": "Dickinson County",
+    "nist:state_fips": "26"
+  },
+  "Djibouti": {
+    "ISO3166-1": "DJ"
+  },
+  "Doklam 洞朗地区": {
+    "name": "Doklam 洞朗地区"
+  },
+  "Dominica": {
+    "ISO3166-1": "DM"
+  },
+  "Dominican Republic": {
+    "ISO3166-1": "DO"
+  },
+  "Dornod": {
+    "ISO3166-2": "MN-061"
+  },
+  "Dubois County, IN": {
+    "name": "Dubois County",
+    "nist:state_fips": "18"
+  },
+  "Dundy County, NE": {
+    "name": "Dundy County",
+    "nist:state_fips": "31"
+  },
+  "East Java": {
+    "name:en": "East Java"
+  },
+  "East Timor": {
+    "ISO3166-1": "TL"
+  },
+  "Ecuador": {
+    "ISO3166-1": "EC"
+  },
+  "Edmonton-tz": {
+    "timezone": "America/Edmonton"
+  },
+  "Egypt": {
+    "ISO3166-1": "EG"
+  },
+  "Eirunepe-tz": {
+    "timezone": "America/Eirunepe"
+  },
+  "El Salvador": {
+    "ISO3166-1": "SV"
+  },
+  "Entre Ríos": {
+    "ISO3166-2": "AR-E"
+  },
+  "Equatorial Guinea": {
+    "ISO3166-1": "GQ"
+  },
+  "Eritrea": {
+    "ISO3166-1": "ER"
+  },
+  "Estonia": {
+    "ISO3166-1": "EE"
+  },
+  "Ethiopia": {
+    "ISO3166-1": "ET"
+  },
+  "Falkland Islands": {
+    "ISO3166-1": "FK"
+  },
+  "Faroe Islands": {
+    "ISO3166-1": "FO"
+  },
+  "Fentress County, TN": {
+    "name": "Fentress County",
+    "nist:state_fips": "47"
+  },
+  "Fiji": {
+    "ISO3166-1": "FJ"
+  },
+  "Finland": {
+    "ISO3166-1": "FI"
+  },
+  "Floyd County, IN": {
+    "name": "Floyd County",
+    "nist:state_fips": "18"
+  },
+  "Formosa": {
+    "ISO3166-2": "AR-P"
+  },
+  "France": {
+    "ISO3166-1:alpha2": "FR"
+  },
+  "Franklin County, FL": {
+    "name": "Franklin County",
+    "nist:state_fips": "12"
+  },
+  "Gabon": {
+    "ISO3166-1": "GA"
+  },
+  "Georgia": {
+    "ISO3166-1": "GE"
+  },
+  "Germany": {
+    "ISO3166-1": "DE"
+  },
+  "Ghana": {
+    "ISO3166-1": "GH"
+  },
+  "Gibraltar": {
+    "ISO3166-1": "GI"
+  },
+  "Gibson County, IN": {
+    "name": "Gibson County",
+    "nist:state_fips": "18"
+  },
+  "Glace Bay-tz": {
+    "boundary": "timezone",
+    "name": "America/Glace_Bay Timezone"
+  },
+  "Gogebic County": {
+    "name": "Gogebic County"
+  },
+  "Govi-Altai": {
+    "ISO3166-2": "MN-065"
+  },
+  "Grant County, ND": {
+    "name": "Grant County",
+    "nist:state_fips": "38"
+  },
+  "Grayson County, KY": {
+    "name": "Grayson County",
+    "nist:state_fips": "21"
+  },
+  "Greece": {
+    "ISO3166-1": "GR"
+  },
+  "Greeley County, KS": {
+    "name": "Greeley County",
+    "nist:state_fips": "20"
+  },
+  "Green County, KY": {
+    "name": "Green County",
+    "nist:state_fips": "21"
+  },
+  "Greenland": {
+    "ISO3166-1": "GL"
+  },
+  "Grenada": {
+    "ISO3166-1": "GD"
+  },
+  "Guadeloupe": {
+    "ISO3166-1": "GP"
+  },
+  "Guatemala": {
+    "ISO3166-1": "GT"
+  },
+  "Guernsey": {
+    "ISO3166-1": "GG"
+  },
+  "Guinea": {
+    "ISO3166-1": "GN"
+  },
+  "Guinea-Bissau": {
+    "ISO3166-1": "GW"
+  },
+  "Guyana": {
+    "ISO3166-1": "GY"
+  },
+  "Haiti": {
+    "ISO3166-1": "HT"
+  },
+  "Halifax-tz": {
+    "timezone": "America/Halifax"
+  },
+  "Hamilton County, KS": {
+    "name": "Hamilton County",
+    "nist:state_fips": "20"
+  },
+  "Hart County, KY": {
+    "name": "Hart County",
+    "nist:state_fips": "21"
+  },
+  "Harrison County, IN": {
+    "name": "Harrison County",
+    "nist:state_fips": "18"
+  },
+  "Honduras": {
+    "ISO3166-1": "HN"
+  },
+  "Hong Kong": {
+    "ISO3166-1": "HK"
+  },
+  "Hooker County, NE": {
+    "name": "Hooker County",
+    "nist:state_fips": "31"
+  },
+  "Hoonah-Angoon": {
+    "name": "Hoonah-Angoon"
+  },
+  "Hudspeth County, TX": {
+    "name": "Hudspeth County",
+    "nist:state_fips": "48"
+  },
+  "Hughes County, SD": {
+    "name": "Hughes County",
+    "nist:state_fips": "46"
+  },
+  "Hungary": {
+    "ISO3166-1": "HU"
+  },
+  "Iceland": {
+    "ISO3166-1": "IS"
+  },
+  "Illinois": {
+    "ISO3166-2": "US-IL"
+  },
+  "India": {
+    "ISO3166-1": "IN"
+  },
+  "Indiana": {
+    "ISO3166-2": "US-IN"
+  },
+  "Indianapolis-tz": {
+    "timezone": "America/Indiana/Indianapolis"
+  },
+  "Indonesia": {
+    "name": "Indonesia"
+  },
+  "Iran": {
+    "ISO3166-1": "IR"
+  },
+  "Iraq": {
+    "ISO3166-1": "IQ"
+  },
+  "Ireland": {
+    "ISO3166-1": "IE"
+  },
+  "Irkutsk": {
+    "ISO3166-2": "RU-IRK"
+  },
+  "Iron County, MI": {
+    "name": "Iron County",
+    "nist:state_fips": "26"
+  },
+  "Iqaluit-tz": {
+    "timezone": "America/Iqaluit"
+  },
+  "Isle of Man": {
+    "ISO3166-1": "IM"
+  },
+  "Israel": {
+    "ISO3166-1": "IL"
+  },
+  "Italy": {
+    "ISO3166-1": "IT"
+  },
+  "Jackson County, FL": {
+    "name": "Jackson County",
+    "nist:state_fips": "12"
+  },
+  "Jalisco": {
+    "ISO3166-2": "MX-JAL"
+  },
+  "Jamaica": {
+    "ISO3166-1": "JM"
+  },
+  "Japan": {
+    "ISO3166-1": "JP"
+  },
+  "Jasper County, IN": {
+    "name": "Jasper County",
+    "nist:state_fips": "18"
+  },
+  "Jefferson County, KY": {
+    "name": "Jefferson County",
+    "nist:state_fips": "21"
+  },
+  "Jersey": {
+    "ISO3166-1": "JE"
+  },
+  "Jones County, SD": {
+    "name": "Jones County",
+    "nist:state_fips": "46"
+  },
+  "Jordan": {
+    "ISO3166-1": "JO"
+  },
+  "Jujuy": {
+    "ISO3166-2": "AR-Y"
+  },
+  "Kaliningrad": {
+    "ISO3166-2": "RU-KGD"
+  },
+  "Kamchatka": {
+    "ISO3166-2": "RU-KAM"
+  },
+  "Kasai": {
+    "name:en": "Kasai",
+    "admin_level": "4"
+  },
+  "Kazakhstan": {
+    "ISO3166-1": "KZ"
+  },
+  "Keith County, NE": {
+    "name": "Keith County",
+    "nist:state_fips": "31"
+  },
+  "Kemerovo": {
+    "ISO3166-2": "RU-KEM"
+  },
+  "Kenya": {
+    "ISO3166-1": "KE"
+  },
+  "Khakassia": {
+    "ISO3166-2": "RU-KK"
+  },
+  "Kiribati": {
+    "ISO3166-1": "KI"
+  },
+  "Kirov": {
+    "ISO3166-2": "RU-KIR"
+  },
+  "Kosrae": {
+    "ISO3166-2": "FM-KSA"
+  },
+  "Kostanay": {
+    "ISO3166-2": "KZ-KUS"
+  },
+  "Krasnoyarsk": {
+    "ISO3166-2": "RU-KYA"
+  },
+  "Kuwait": {
+    "ISO3166-1": "KW"
+  },
+  "Kyrgyzstan": {
+    "ISO3166-1": "KG"
+  },
+  "Kyzylorda": {
+    "ISO3166-2": "KZ-KZY"
+  },
+  "La Pampa": {
+    "ISO3166-2": "AR-L"
+  },
+  "La Rioja": {
+    "ISO3166-2": "AR-F"
+  },
+  "Laos": {
+    "ISO3166-1": "LA"
+  },
+  "LaPorte County, IN": {
+    "name": "LaPorte County",
+    "nist:state_fips": "18"
+  },
+  "Latvia": {
+    "ISO3166-1": "LV"
+  },
+  "Lebanon": {
+    "ISO3166-1": "LB"
+  },
+  "Lesotho": {
+    "ISO3166-1": "LS"
+  },
+  "Liberia": {
+    "ISO3166-1": "LR"
+  },
+  "Liberty County, FL": {
+    "name": "Liberty County",
+    "nist:state_fips": "12"
+  },
+  "Libya": {
+    "ISO3166-1": "LY"
+  },
+  "Liechtenstein": {
+    "ISO3166-1": "LI"
+  },
+  "Lithuania": {
+    "ISO3166-1": "LT"
+  },
+  "Los Angeles-tz": {
+    "timezone": "America/Los_Angeles"
+  },
+  "Luxemburg": {
+    "ISO3166-1": "LU"
+  },
+  "Macau": {
+    "ISO3166-1": "MO"
+  },
+  "Macedonia": {
+    "ISO3166-1": "MK"
+  },
+  "Madagascar": {
+    "ISO3166-1": "MG"
+  },
+  "Magadan": {
+    "ISO3166-2": "RU-MAG"
+  },
+  "Magallanes Region": {
+    "ISO3166-2": "CL-MA"
+  },
+  "Malawi": {
+    "ISO3166-1": "MW"
+  },
+  "Malaysia": {
+    "ISO3166-1": "MY"
+  },
+  "Maldives": {
+    "ISO3166-1": "MV"
+  },
+  "Mali": {
+    "ISO3166-1": "ML"
+  },
+  "Malta": {
+    "ISO3166-1": "MT"
+  },
+  "Maluku": {
+    "ISO3166-2": "ID-MA"
+  },
+  "Manaus-tz": {
+    "timezone": "America/Manaus"
+  },
+  "Mangystau Region": {
+    "ISO3166-2": "KZ-MAN"
+  },
+  "Marion County, TN": {
+    "name": "Marion County",
+    "nist:state_fips": "47"
+  },
+  "Marshall Islands": {
+    "ISO3166-1": "MH"
+  },
+  "Martinique": {
+    "ISO3166-1": "MQ"
+  },
+  "Mauritania": {
+    "ISO3166-1": "MR"
+  },
+  "Mauritius": {
+    "ISO3166-1": "MU"
+  },
+  "Matamoros-tz": {
+    "timezone": "America/Matamoros"
+  },
+  "Mato Grosso": {
+    "ISO3166-2": "BR-MT"
+  },
+  "Mato Grosso do Sul": {
+    "ISO3166-2": "BR-MS"
+  },
+  "McLean County, ND": {
+    "name": "McLean County",
+    "nist:state_fips": "38"
+  },
+  "Mendoza": {
+    "ISO3166-2": "AR-M"
+  },
+  "Menominee County, MI": {
+    "name": "Menominee County",
+    "nist:state_fips": "26"
+  },
+  "Mercer County, ND": {
+    "name": "Mercer County",
+    "nist:state_fips": "38"
+  },
+  "Mellette County, SD": {
+    "name": "Mellette County",
+    "nist:state_fips": "46"
+  },
+  "Merida-tz": {
+    "timezone": "America/Merida"
+  },
+  "Mexico": {
+    "ISO3166-1": "MX"
+  },
+  "Michigan": {
+    "ISO3166-2": "US-MI"
+  },
+  "Misiones": {
+    "ISO3166-2": "AR-N"
+  },
+  "Moldova": {
+    "ISO3166-1": "MD"
+  },
+  "Monaco": {
+    "ISO3166-1": "MC"
+  },
+  "Mongolia": {
+    "ISO3166-1": "MN"
+  },
+  "Montana": {
+    "ISO3166-2": "US-MT"
+  },
+  "Montenegro": {
+    "ISO3166-1": "ME"
+  },
+  "Monterrey-tz": {
+    "timezone": "America/Monterrey"
+  },
+  "Montserrat": {
+    "ISO3166-1": "MS"
+  },
+  "Morocco": {
+    "ISO3166-1": "MA"
+  },
+  "Morton County, ND": {
+    "name": "Morton County",
+    "nist:state_fips": "38"
+  },
+  "Moscow-tz": {
+    "timezone": "Europe/Moscow"
+  },
+  "Mozambique": {
+    "ISO3166-1": "MZ"
+  },
+  "Myanmar": {
+    "ISO3166-1": "MM"
+  },
+  "Namibia": {
+    "ISO3166-1": "NA"
+  },
+  "Nauru": {
+    "ISO3166-1": "NR"
+  },
+  "Nayarit": {
+    "ISO3166-2": "MX-NAY"
+  },
+  "Nepal": {
+    "ISO3166-1": "NP"
+  },
+  "Neuquén": {
+    "ISO3166-2": "AR-Q"
+  },
+  "New Brunswick": {
+    "ISO3166-2": "CA-NB"
+  },
+  "New Mexico": {
+    "ISO3166-2": "US-NM"
+  },
+  "New South Wales": {
+    "ISO3166-2": "AU-NSW"
+  },
+  "New Zealand": {
+    "ISO3166-1": "NZ"
+  },
+  "Newton County, IN": {
+    "name": "Newton County",
+    "nist:state_fips": "18"
+  },
+  "Nicaragua": {
+    "ISO3166-1": "NI"
+  },
+  "Niger": {
+    "ISO3166-1": "NE"
+  },
+  "Nigeria": {
+    "ISO3166-1": "NG"
+  },
+  "Nipigon-tz": {
+    "timezone": "America/Nipigon"
+  },
+  "Niue": {
+    "ISO3166-1": "NU"
+  },
+  "North Korea": {
+    "ISO3166-1": "KP"
+  },
+  "North Maluku": {
+    "name:en": "North Maluku"
+  },
+  "Northern Rockies Regional Municipality": {
+    "name": "Northern Rockies Regional Municipality"
+  },
+  "Northern Territory": {
+    "ISO3166-2": "AU-NT"
+  },
+  "Northwest Territories": {
+    "ISO3166-2": "CA-NT"
+  },
+  "Norway": {
+    "ISO3166-1": "NO"
+  },
+  "Novosibirsk": {
+    "ISO3166-2": "RU-NVS"
+  },
+  "Ohio County, IN": {
+    "name": "Ohio County",
+    "nist:state_fips": "18"
+  },
+  "Ojinaga-tz": {
+    "timezone": "America/Ojinaga"
+  },
+  "Oliver County, ND": {
+    "name": "Oliver County",
+    "nist:state_fips": "38"
+  },
+  "Oman": {
+    "ISO3166-1": "OM"
+  },
+  "Omsk": {
+    "ISO3166-2": "RU-OMS"
+  },
+  "Oymyakonsky": {
+    "name:en": "Oymyakonsky Ulus"
+  },
+  "Page": {
+    "name": "Page",
+    "is_in:state_code": "AZ"
+  },
+  "Pakistan": {
+    "ISO3166-1": "PK"
+  },
+  "Palau": {
+    "ISO3166-1": "PW"
+  },
+  "Palestinian Territories": {
+    "ISO3166-1": "PS"
+  },
+  "Panama": {
+    "ISO3166-1": "PA"
+  },
+  "Pangnirtung-tz": {
+    "timezone": "America/Pangnirtung"
+  },
+  "Papua New Guinea": {
+    "ISO3166-1": "PG"
+  },
+  "Paraguay": {
+    "ISO3166-1": "PY"
+  },
+  "Pernambuco": {
+    "ISO3166-2": "BR-PE"
+  },
+  "Peru": {
+    "ISO3166-1:alpha2": "PE"
+  },
+  "Perkins County, NE": {
+    "name": "Perkins County",
+    "nist:state_fips": "31"
+  },
+  "Perry County, IN": {
+    "name": "Perry County",
+    "nist:state_fips": "18"
+  },
+  "Philippines": {
+    "ISO3166-1": "PH"
+  },
+  "Phoenix-tz": {
+    "timezone": "America/Phoenix"
+  },
+  "Pickett County, TN": {
+    "name": "Pickett County",
+    "nist:state_fips": "47"
+  },
+  "Pitcairn Islands": {
+    "ISO3166-1": "PN"
+  },
+  "Pike County, IN": {
+    "name": "Pike County",
+    "nist:state_fips": "18"
+  },
+  "Pohnpei": {
+    "ISO3166-2": "FM-PNI"
+  },
+  "Poland": {
+    "ISO3166-1": "PL"
+  },
+  "Porter County, IN": {
+    "name": "Porter County",
+    "nist:state_fips": "18"
+  },
+  "Portugal": {
+    "ISO3166-1": "PT"
+  },
+  "Prince of Wales-Hyder": {
+    "name": "Prince of Wales-Hyder"
+  },
+  "Pulaski County, IN": {
+    "name": "Pulaski County",
+    "nist:state_fips": "18"
+  },
+  "Qatar": {
+    "ISO3166-1": "QA"
+  },
+  "Quang Tri": {
+    "ISO3166-2": "VN-25"
+  },
+  "Quebec": {
+    "ISO3166-2": "CA-QC"
+  },
+  "Queensland": {
+    "ISO3166-2": "AU-QLD"
+  },
+  "Rainy River-tz": {
+    "timezone": "America/Rainy_River"
+  },
+  "Rankin Inlet-tz": {
+    "timezone": "America/Rankin_Inlet"
+  },
+  "Regina-tz": {
+    "timezone": "America/Regina"
+  },
+  "Republic of China": {
+    "ISO3166-1": "TW"
+  },
+  "Republic of Kosovo": {
+    "ISO3166-1": "XK"
+  },
+  "Resolute-tz": {
+    "timezone": "America/Resolute"
+  },
+  "Rio Negro": {
+    "ISO3166-2": "AR-R"
+  },
+  "Romania": {
+    "ISO3166-1": "RO"
+  },
+  "Rondônia": {
+    "ISO3166-2": "BR-RO"
+  },
+  "Roraima": {
+    "ISO3166-2": "BR-RR"
+  },
+  "Russell County, KY": {
+    "name": "Russell County",
+    "nist:state_fips": "21"
+  },
+  "Rwanda": {
+    "ISO3166-1": "RW"
+  },
+  "Saint-Barthélemy": {
+    "ISO3166-1": "BL"
+  },
+  "Saint Helena, Ascension and Tristan da Cunha": {
+    "ISO3166-1": "SH"
+  },
+  "Saint Kitts and Nevis": {
+    "ISO3166-1": "KN"
+  },
+  "Saint Lucia": {
+    "ISO3166-1": "LC"
+  },
+  "Saint Maarten": {
+    "ISO3166-1": "MF"
+  },
+  "Saint Pierre and Miquelon": {
+    "ISO3166-1": "PM"
+  },
+  "Saint Vincent and the Grenadines": {
+    "ISO3166-1": "VC"
+  },
+  "Salta": {
+    "ISO3166-2": "AR-A"
+  },
+  "Sakha Republic": {
+    "ISO3166-2": "RU-SA"
+  },
+  "Sakhalin": {
+    "ISO3166-2": "RU-SAK"
+  },
+  "Samara": {
+    "ISO3166-2": "RU-SAM"
+  },
+  "Samarkand": {
+    "timezone": "Asia/Samarkand"
+  },
+  "Samoa": {
+    "ISO3166-1": "WS"
+  },
+  "San Juan": {
+    "ISO3166-2": "AR-J"
+  },
+  "San Luis": {
+    "ISO3166-2": "AR-D"
+  },
+  "San Luis Potosí": {
+    "ISO3166-2": "MX-SLP"
+  },
+  "San Marino": {
+    "ISO3166-1": "SM"
+  },
+  "Sankuru": {
+    "name": "Sankuru",
+    "admin_level": "4"
+  },
+  "Santa Fe": {
+    "ISO3166-2": "AR-S"
+  },
+  "Santarem-tz": {
+    "timezone": "America/Santarem"
+  },
+  "Santiago del Estero": {
+    "ISO3166-2": "AR-G"
+  },
+  "Saratov": {
+    "ISO3166-2": "RU-SAR"
+  },
+  "Saudi Arabia": {
+    "ISO3166-1": "SA"
+  },
+  "São Tomé and Príncipe": {
+    "ISO3166-1": "ST"
+  },
+  "Senegal": {
+    "ISO3166-1": "SN"
+  },
+  "Serbia": {
+    "ISO3166-1": "RS"
+  },
+  "Sergipe": {
+    "ISO3166-2": "BR-SE"
+  },
+  "Sequatchie County, TN": {
+    "name": "Sequatchie County",
+    "nist:state_fips": "47"
+  },
+  "Sevastopol": {
+    "name:en": "Sevastopol"
+  },
+  "Seychelles": {
+    "ISO3166-1": "SC"
+  },
+  "Sherman County, KS": {
+    "name": "Sherman County",
+    "nist:state_fips": "20"
+  },
+  "Sierra Leone": {
+    "ISO3166-1": "SL"
+  },
+  "Sinaloa": {
+    "ISO3166-2": "MX-SIN"
+  },
+  "Singapore": {
+    "ISO3166-1": "SG"
+  },
+  "Sint Maarten": {
+    "ISO3166-1": "SX"
+  },
+  "Sioux County, ND": {
+    "name": "Sioux County",
+    "nist:state_fips": "38"
+  },
+  "Slovakia": {
+    "ISO3166-1": "SK"
+  },
+  "Slovenia": {
+    "ISO3166-1": "SI"
+  },
+  "Solomon Islands": {
+    "ISO3166-1": "SB"
+  },
+  "Somalia": {
+    "ISO3166-1": "SO"
+  },
+  "Sonora": {
+    "ISO3166-2": "MX-SON"
+  },
+  "South Africa": {
+    "ISO3166-1": "ZA",
+    "admin_level": "2"
+  },
+  "South Australia": {
+    "ISO3166-2": "AU-SA"
+  },
+  "South Georgia and the South Sandwich Islands": {
+    "ISO3166-1": "GS"
+  },
+  "South Korea": {
+    "ISO3166-1": "KR"
+  },
+  "South Sudan": {
+    "ISO3166-1": "SS"
+  },
+  "Spain": {
+    "ISO3166-1:alpha2": "ES"
+  },
+  "Srednekolymsk-tz": {
+    "timezone": "Asia/Srednekolymsk"
+  },
+  "Sri Lanka": {
+    "ISO3166-1": "LK"
+  },
+  "Starke County, IN": {
+    "name": "Starke County",
+    "nist:state_fips": "18"
+  },
+  "Sudan": {
+    "ISO3166-1": "SD"
+  },
+  "Sully County, SD": {
+    "name": "Sully County",
+    "nist:state_fips": "46"
+  },
+  "Suriname": {
+    "ISO3166-1": "SR"
+  },
+  "Sühbaatar": {
+    "ISO3166-2": "MN-051"
+  },
+  "Swaziland": {
+    "ISO3166-1": "SZ"
+  },
+  "Sweden": {
+    "ISO3166-1": "SE"
+  },
+  "Swift Current-tz": {
+    "boundary": "timezone",
+    "name": "America/Swift_Current timezone"
+  },
+  "Switzerland": {
+    "ISO3166-1": "CH"
+  },
+  "Switzerland County, IN": {
+    "name": "Switzerland County",
+    "nist:state_fips": "18"
+  },
+  "Syria": {
+    "ISO3166-1": "SY"
+  },
+  "Tabasco": {
+    "ISO3166-2": "MX-TAB"
+  },
+  "Tajikistan": {
+    "ISO3166-1": "TJ"
+  },
+  "Tanzania": {
+    "name:en": "Tanzania"
+  },
+  "Tasmania": {
+    "ISO3166-2": "AU-TAS"
+  },
+  "Thailand": {
+    "ISO3166-1": "TH",
+    "admin_level": "2"
+  },
+  "The Bahamas": {
+    "ISO3166-1": "BS"
+  },
+  "The Gambia": {
+    "ISO3166-1": "GM"
+  },
+  "The Netherlands": {
+    "ISO3166-1": "NL"
+  },
+  "Thomas County, NE": {
+    "name": "Thomas County",
+    "nist:state_fips": "31"
+  },
+  "Thunder Bay-tz": {
+    "timezone": "America/Thunder_Bay"
+  },
+  "Tocantins": {
+    "ISO3166-2": "BR-TO"
+  },
+  "Todd County, SD": {
+    "name": "Todd County",
+    "nist:state_fips": "46"
+  },
+  "Togo": {
+    "ISO3166-1": "TG"
+  },
+  "Tokelau": {
+    "ISO3166-1": "TK"
+  },
+  "Tomponsky": {
+    "name:en": "Tomponsky Ulus"
+  },
+  "Tomsk": {
+    "ISO3166-2": "RU-TOM"
+  },
+  "Tonga": {
+    "ISO3166-1": "TO"
+  },
+  "Toronto-tz": {
+    "timezone": "America/Toronto"
+  },
+  "Trinidad and Tobago": {
+    "ISO3166-1": "TT"
+  },
+  "Tshopo": {
+    "name": "Tshopo",
+    "admin_level": "4"
+  },
+  "Tucumán": {
+    "ISO3166-2": "AR-T"
+  },
+  "Tunisia": {
+    "ISO3166-1": "TN"
+  },
+  "Turkey": {
+    "ISO3166-1": "TR"
+  },
+  "Turkmenistan": {
+    "ISO3166-1": "TM"
+  },
+  "Turks and Caicos Islands": {
+    "ISO3166-1": "TC"
+  },
+  "Tuva": {
+    "ISO3166-2": "RU-TY"
+  },
+  "Tuvalu": {
+    "ISO3166-1": "TV"
+  },
+  "Udmurtia": {
+    "ISO3166-2": "RU-UD"
+  },
+  "Uganda": {
+    "ISO3166-1": "UG"
+  },
+  "Ulyanovsk": {
+    "ISO3166-2": "RU-ULY"
+  },
+  "Ukraine": {
+    "ISO3166-1": "UA"
+  },
+  "United Arab Emirates": {
+    "ISO3166-1": "AE"
+  },
+  "United Kingdom": {
+    "ISO3166-1": "GB"
+  },
+  "United Nations Buffer Zone": {
+    "name": "United Nations Buffer Zone"
+  },
+  "United States of America": {
+    "ISO3166-1": "US"
+  },
+  "Uruguay": {
+    "ISO3166-1": "UY"
+  },
+  "Ust-Maysky": {
+    "name:en": "Ust-Maysky Ulus"
+  },
+  "Uzbekistan": {
+    "ISO3166-1": "UZ"
+  },
+  "Vancouver-tz": {
+    "timezone": "America/Vancouver"
+  },
+  "Vanuatu": {
+    "ISO3166-1": "VU"
+  },
+  "Vatican City": {
+    "ISO3166-1": "VA"
+  },
+  "Venezuela": {
+    "ISO3166-1": "VE"
+  },
+  "Veracruz": {
+    "ISO3166-2": "MX-VER"
+  },
+  "Victoria": {
+    "ISO3166-2": "AU-VIC"
+  },
+  "Vietnam": {
+    "ISO3166-1": "VN"
+  },
+  "Vincennes-tz": {
+    "timezone": "America/Indiana/Vincennes"
+  },
+  "Vladivostok-tz": {
+    "timezone": "Asia/Vladivostok"
+  },
+  "Volgograd": {
+    "ISO3166-2": "RU-VGG"
+  },
+  "Wallace County, KS": {
+    "name": "Wallace County",
+    "nist:state_fips": "20"
+  },
+  "Wayne County, KY": {
+    "name": "Wayne County",
+    "nist:state_fips": "21"
+  },
+  "West Kalimantan": {
+    "name:en": "West Kalimantan"
+  },
+  "West Kazakhstan": {
+    "ISO3166-2": "KZ-ZAP"
+  },
+  "West Wendover": {
+    "name": "West Wendover"
+  },
+  "Western Australia": {
+    "ISO3166-2": "AU-WA"
+  },
+  "Western Sahara": {
+    "ISO3166-1": "EH"
+  },
+  "Winnipeg-tz": {
+    "timezone": "America/Winnipeg"
+  },
+  "Xinjiang": {
+    "ISO3166-2": "CN-XJ"
+  },
+  "Yap": {
+    "ISO3166-2": "FM-YAP"
+  },
+  "Yekaterinburg-tz": {
+    "timezone": "Asia/Yekaterinburg"
+  },
+  "Yemen": {
+    "ISO3166-1": "YE"
+  },
+  "Yukon": {
+    "ISO3166-2": "CA-YT"
+  },
+  "Zabaykalsk": {
+    "ISO3166-2": "RU-ZAB"
+  },
+  "Zacatecas": {
+    "ISO3166-2": "MX-ZAC"
+  },
+  "Zakarpattia": {
+    "ISO3166-2": "UA-21"
+  },
+  "Zambia": {
+    "ISO3166-1": "ZM"
+  },
+  "Zaporizhzhia": {
+    "ISO3166-2": "UA-23"
+  },
+  "Zavkhan": {
+    "ISO3166-2": "MN-057"
+  },
+  "Zimbabwe": {
+    "ISO3166-1": "ZW"
+  }
+}

@@ -1,0 +1,29 @@
+variable symbol 'struct ClassToStruct class_to_struct' changed
+  type 'struct ClassToStruct' changed
+
+variable symbol changed from 'struct ClassToUnion class_to_union' to 'union ClassToUnion class_to_union'
+  type changed from 'struct ClassToUnion' to 'union ClassToUnion'
+
+variable symbol 'struct StructToClass struct_to_class' changed
+  type 'struct StructToClass' changed
+
+variable symbol changed from 'struct StructToUnion struct_to_union' to 'union StructToUnion struct_to_union'
+  type changed from 'struct StructToUnion' to 'union StructToUnion'
+
+variable symbol changed from 'union UnionToClass union_to_class' to 'struct UnionToClass union_to_class'
+  type changed from 'union UnionToClass' to 'struct UnionToClass'
+
+variable symbol changed from 'union UnionToStruct union_to_struct' to 'struct UnionToStruct union_to_struct'
+  type changed from 'union UnionToStruct' to 'struct UnionToStruct'
+
+type 'struct ClassToStruct' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+type 'struct StructToClass' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+exit code 4

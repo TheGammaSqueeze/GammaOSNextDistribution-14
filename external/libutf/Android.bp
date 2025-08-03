@@ -1,0 +1,76 @@
+// We only build the static library at the moment.
+package {
+    default_applicable_licenses: ["external_libutf_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_libutf_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-LPL-1.02",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library_static {
+    name: "libutf",
+    srcs: [
+        "rune.c",
+        "runestrcat.c",
+        "runestrchr.c",
+        "runestrcmp.c",
+        "runestrcpy.c",
+        "runestrdup.c",
+        "runestrlen.c",
+        "runestrecpy.c",
+        "runestrncat.c",
+        "runestrncmp.c",
+        "runestrncpy.c",
+        "runestrrchr.c",
+        "runestrstr.c",
+        "runetype.c",
+        "utfecpy.c",
+        "utflen.c",
+        "utfnlen.c",
+        "utfrrune.c",
+        "utfrune.c",
+        "utfutf.c",
+    ],
+    cflags: [
+        "-O3",
+        "-Wall",
+        "-Wno-missing-braces",
+        "-Wno-parentheses",
+        "-Wno-switch",
+    ],
+    export_include_dirs: ["."],
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+    sdk_version: "14",
+    min_sdk_version: "14",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.appsearch",
+        "com.android.extservices",
+    ],
+}

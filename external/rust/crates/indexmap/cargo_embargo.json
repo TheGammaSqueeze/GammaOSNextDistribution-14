@@ -1,0 +1,5 @@
+{
+  "features": [
+    "serde-1"
+  ]
+}

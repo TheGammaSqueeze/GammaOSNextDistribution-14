@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/zerocopy-derive
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "zerocopy-derive"
+description: "Custom derive for traits from the zerocopy crate"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 12
+    day: 5
+  }
+  homepage: "https://crates.io/crates/zerocopy-derive"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/zerocopy-derive/zerocopy-derive-0.7.29.crate"
+    version: "0.7.29"
+  }
+}

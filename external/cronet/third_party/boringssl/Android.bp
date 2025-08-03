@@ -1,0 +1,284 @@
+// Copyright (C) 2023 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Cronet handles all of its licenses declaration in the top level Android.bp and
+// LICENSE files (//external/cronet/Android.bp and //external/cronet/LICENSE).
+// Boringsll's license can also be found at
+// //external/cronet/third_party/boringssl/src/LICENSE.
+
+// Guard with a namespace not to clash with //external/boringssl's targets.
+// All targets, with the exception of :cronet_defaults, have been copied from
+// //external/boringssl/Android.bp with just some minor changes due to the smaller
+// scope of Cronet's Boringssl.
+soong_namespace {}
+
+package {
+    default_visibility: [
+        "//external/cronet:__subpackages__",
+        "//packages/modules/Connectivity/Tethering:__subpackages__",
+    ],
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_cronet_license"
+    // to get the below license kinds:
+    //   legacy_unencumbered
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-BSD-3-Clause
+    //   SPDX-license-identifier-ISC
+    //   SPDX-license-identifier-MIT
+    //   SPDX-license-identifier-OpenSSL
+    default_applicable_licenses: ["external_cronet_license"],
+}
+
+build = ["sources.bp"]
+
+cc_defaults {
+    name: "cronet_defaults",
+    stl: "none",
+    apex_available: [
+        "com.android.tethering",
+    ],
+    min_sdk_version: "30",
+    include_dirs: [
+        "external/cronet/buildtools/third_party/libc++/",
+        "external/cronet/third_party/libc++/src/include",
+        "external/cronet/third_party/libc++abi/src/include",
+    ],
+}
+
+cc_defaults {
+    name: "boringssl_flags",
+    cflags: [
+        "-fvisibility=hidden",
+        "-DBORINGSSL_SHARED_LIBRARY",
+        "-DBORINGSSL_ANDROID_SYSTEM",
+        "-DOPENSSL_SMALL",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+    cppflags: [
+        "-Wall",
+        "-Werror",
+    ],
+}
+
+cc_defaults {
+    name: "boringssl_defaults",
+    local_include_dirs: ["src/include"],
+    export_include_dirs: ["src/include"],
+    cflags: [
+        "-DBORINGSSL_IMPLEMENTATION",
+    ],
+}
+
+cc_defaults {
+    name: "libcrypto_defaults",
+    target: {
+        android: {
+            // On FIPS builds (i.e. Android only) prevent other libraries
+            // from pre-empting symbols in libcrypto which could affect FIPS
+            // compliance and cause integrity checks to fail. See b/160231064.
+            ldflags: ["-Wl,-Bsymbolic"],
+        },
+    },
+    local_include_dirs: ["src/crypto"],
+}
+
+cc_object {
+    name: "bcm_object",
+    defaults: [
+        "boringssl_defaults",
+        "boringssl_flags",
+        "cronet_defaults",
+        "libcrypto_bcm_sources",
+        "libcrypto_defaults",
+    ],
+    sanitize: {
+        address: false,
+        hwaddress: false,
+        // This is a placeholder
+        // to help prevent
+        // merge conflicts.
+        memtag_stack: false,
+        // This is a placeholder
+        // to help prevent
+        // merge conflicts.
+        fuzzer: false,
+        memtag_globals: false,
+    },
+    target: {
+        android: {
+            cflags: [
+                "-DBORINGSSL_FIPS",
+                "-fPIC",
+                // -fno[data|text]-sections required to ensure a
+                // single text and data section for FIPS integrity check
+                "-fno-data-sections",
+                "-fno-function-sections",
+            ],
+            linker_script: "src/crypto/fipsmodule/fips_shared.lds",
+        },
+        // From //external/boringssl: Temporary hack to let BoringSSL build with a new compiler.
+        // This doesn't enable HWASAN unconditionally, it just causes
+        // BoringSSL's asm code to unconditionally use a HWASAN-compatible
+        // global variable reference so that the non-HWASANified (because of
+        // sanitize: { hwaddress: false } above) code in the BCM can
+        // successfully link against the HWASANified code in the rest of
+        // BoringSSL in HWASAN builds.
+        android_arm64: {
+            asflags: [
+                "-fsanitize=hwaddress",
+            ],
+        },
+    },
+}
+
+// Version of bcm_object built with BORINGSSL_FIPS_BREAK_TESTS defined.
+// Only for use with the FIPS break-tests.sh script.
+// Must be kept in sync with bcm_object.
+cc_object {
+    name: "bcm_object_for_testing",
+    visibility: ["//visibility:private"],
+    defaults: [
+        "boringssl_defaults",
+        "boringssl_flags",
+        "cronet_defaults",
+        "libcrypto_bcm_sources",
+        "libcrypto_defaults",
+    ],
+    sanitize: {
+        address: false,
+        hwaddress: false,
+        fuzzer: false,
+        memtag_globals: false,
+    },
+    target: {
+        android: {
+            cflags: [
+                "-DBORINGSSL_FIPS",
+                "-DBORINGSSL_FIPS_BREAK_TESTS",
+                "-fPIC",
+                // -fno[data|text]-sections required to ensure a
+                // single text and data section for FIPS integrity check
+                "-fno-data-sections",
+                "-fno-function-sections",
+            ],
+            linker_script: "src/crypto/fipsmodule/fips_shared.lds",
+        },
+        // From //external/boringssl: Temporary hack to let BoringSSL build with a new compiler.
+        // This doesn't enable HWASAN unconditionally, it just causes
+        // BoringSSL's asm code to unconditionally use a HWASAN-compatible
+        // global variable reference so that the non-HWASANified (because of
+        // sanitize: { hwaddress: false } above) code in the BCM can
+        // successfully link against the HWASANified code in the rest of
+        // BoringSSL in HWASAN builds.
+        android_arm64: {
+            asflags: [
+                "-fsanitize=hwaddress",
+            ],
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libcrypto",
+    defaults: [
+        "boringssl_defaults",
+        "boringssl_flags",
+        "cronet_defaults",
+        "libcrypto_defaults",
+        "libcrypto_sources",
+    ],
+    unique_host_soname: true,
+    srcs: [
+        ":bcm_object",
+    ],
+    target: {
+        android: {
+            cflags: [
+                "-DBORINGSSL_FIPS",
+            ],
+            sanitize: {
+                // Disable address sanitizing otherwise libcrypto will not report
+                // itself as being in FIPS mode, which causes boringssl_self_test
+                // to fail.
+                address: false,
+            },
+            inject_bssl_hash: true,
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libcrypto_for_testing",
+    visibility: ["//visibility:private"],
+    defaults: [
+        "boringssl_defaults",
+        "boringssl_flags",
+        "cronet_defaults",
+        "libcrypto_defaults",
+        "libcrypto_sources",
+    ],
+    unique_host_soname: true,
+    srcs: [
+        ":bcm_object_for_testing",
+    ],
+    target: {
+        android: {
+            cflags: [
+                "-DBORINGSSL_FIPS",
+                "-DBORINGSSL_FIPS_BREAK_TESTS",
+            ],
+            sanitize: {
+                // Disable address sanitizing otherwise libcrypto will not report
+                // itself as being in FIPS mode, which causes boringssl_self_test
+                // to fail.
+                address: false,
+            },
+            inject_bssl_hash: true,
+        },
+    },
+}
+
+cc_library_shared {
+    name: "libssl",
+    defaults: [
+        "boringssl_defaults",
+        "boringssl_flags",
+        "cronet_defaults",
+        "libssl_sources",
+    ],
+    unique_host_soname: true,
+    shared_libs: ["libcrypto"],
+}
+
+// Utility binary for CMVP on-site testing.
+cc_binary {
+    name: "test_fips",
+    host_supported: false,
+    defaults: [
+        "boringssl_flags",
+    ],
+    shared_libs: [
+        "libcrypto",
+    ],
+    srcs: [
+        "src/util/fipstools/test_fips.c",
+    ],
+    required: [
+        "adb",
+        "libcrypto_for_testing",
+    ],
+}

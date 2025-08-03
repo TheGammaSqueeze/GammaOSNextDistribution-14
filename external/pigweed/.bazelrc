@@ -1,0 +1,145 @@
+# Copyright 2021 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+# TODO: https://pwbug.dev/258836641#comment4: Enabling bzlmod breaks the build.
+common --noenable_bzlmod
+
+# Improve debugability by printing all arguments for failing commands.
+common --verbose_failures
+
+# TODO: https://pwbug.dev/319664275: Disable hermetic sandbox tmp due to issues
+# with arm toolchain.
+build --noincompatible_sandbox_hermetic_tmp
+
+# TODO: https://pwbug.dev/319664275: Go binaries fail at runtime with "fatal
+# error: invalid function symbol table" unless we disable cgo via the below
+# flag. This error is resolved when enabling --incompatible_sandbox_hermetic_tmp
+# but that can't be turned on until this bug is resolved.
+# Reference:
+# https://github.com/bazelbuild/rules_go/blob/release-0.45/go/modes.rst#build-settings
+build --@io_bazel_rules_go//go/config:pure
+
+# Silence all C/C++ warnings in external code.
+#
+# Note that this will not silence warnings from external headers #include'd in
+# first-party code.
+common --per_file_copt=external/.*@-w
+common --host_per_file_copt=external/.*@-w
+
+# Don't automatically create __init__.py files.
+#
+# This prevents spurious package name collisions at import time, and should be
+# the default (https://github.com/bazelbuild/bazel/issues/7386). It's
+# particularly helpful for Pigweed, because we have many potential package name
+# collisions due to a profusion of stuttering paths like
+# pw_transfer/py/pw_transfer.
+common --incompatible_default_to_explicit_init_py
+
+# Required for new toolchain resolution API.
+build --incompatible_enable_cc_toolchain_resolution
+
+# Do not attempt to configure an autodetected (local) toolchain. We vendor all
+# our toolchains, and CI VMs may not have any local toolchain to detect.
+common --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+
+# Required for combined code coverage reports.
+coverage --experimental_generate_llvm_lcov
+coverage --combined_report=lcov
+
+# Suppress the DEBUG: log messages from bazel. We get lots of spammy DEBUG:
+# messages from our third-party dependencies.
+build --ui_event_filters=-debug
+
+# Enforces consistent action environment variables. This is important to
+# address Protobuf's rebuild sensitivity on changes to the environment
+# variables.
+build --incompatible_strict_action_env
+
+# Workaround for https://github.com/bazelbuild/rules_jvm_external/issues/445.
+build --java_language_version=11
+build --tool_java_language_version=11
+build --java_runtime_version=remotejdk_11
+build --repo_env=JAVA_HOME=../bazel_tools/jdk
+
+# Silence compiler warnings from external repositories.
+#
+# This is supported by Bazel's default C++ toolchain, but not yet by
+# rules_cc_toolchain
+# (https://github.com/bazelembedded/rules_cc_toolchain/issues/46).
+build --features=external_include_paths
+
+# This feature can't be enabled until __unordtf2 and __letf2 are implemented by
+# compiler-rt. See https://reviews.llvm.org/D53608.
+# build --features=fully_static_link
+
+build --@mbedtls//:mbedtls_config=//third_party/mbedtls:default_config
+
+# Define the --config=asan-libfuzzer configuration.
+build:asan-libfuzzer \
+    --@rules_fuzzing//fuzzing:cc_engine=@rules_fuzzing//fuzzing/engines:libfuzzer
+build:asan-libfuzzer \
+    --@rules_fuzzing//fuzzing:cc_engine_instrumentation=libfuzzer
+build:asan-libfuzzer --@rules_fuzzing//fuzzing:cc_engine_sanitizer=asan
+
+# Include FuzzTest build configurations.
+try-import %workspace%/third_party/fuzztest/fuzztest.bazelrc
+build:fuzztest \
+    --@pigweed//targets:pw_fuzzer_fuzztest_backend=@com_google_fuzztest//fuzztest:fuzztest_core
+build:fuzztest \
+    --@pigweed//targets:pw_unit_test_main=@com_google_fuzztest//fuzztest:fuzztest_gtest_main
+
+# We use non-default labels for the STM32Cube repositories upstream (to reserve
+# the option of building for more than one MCU family down the road), so need to
+# override the three labels below.
+common --//third_party/stm32cube:hal_driver=@stm32f4xx_hal_driver//:hal_driver
+common --@stm32f4xx_hal_driver//:cmsis_device=@cmsis_device_f4//:cmsis_device
+common --@stm32f4xx_hal_driver//:cmsis_init=@cmsis_device_f4//:default_cmsis_init
+
+# Config for the stm32f429i_disc1_stm32cube platform.
+#
+# TODO: b/301334234 - Make the platform set the flags below.
+build:stm32f429i --platforms=//targets/stm32f429i_disc1_stm32cube:platform
+build:stm32f429i --copt="-DSTM32CUBE_HEADER=\"stm32f4xx.h\""
+build:stm32f429i --copt="-DSTM32F429xx"
+build:stm32f429i --@stm32f4xx_hal_driver//:hal_config=//targets/stm32f429i_disc1_stm32cube:hal_config
+build:stm32f429i --//pw_log:backend_impl=@pigweed//pw_log_tokenized:impl
+build:stm32f429i --//targets:pw_log_backend=@pigweed//pw_log_tokenized
+build:stm32f429i --//targets:pw_log_tokenized_handler_backend=@pigweed//pw_system:log_backend
+
+
+# For some platforms i.e. google/oss-fuzz we need to use the system provided
+# rather than the hermetic toolchains. This allows oss-fuzz to override the
+# build with specialised compilers that are tightly coupled to the fuzzing
+# runtimes.
+# Detect toolchains
+common:non_hermetic --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=0
+common:non_hermetic --extra_toolchains=@local_config_cc_toolchains//...
+
+# Specifies desired output mode for running tests.
+# Valid values are
+#   'summary' to output only test status summary
+#   'errors' to also print test logs for failed tests
+#   'all' to print logs for all tests
+#   'streamed' to output logs for all tests in real time
+#     (this will force tests to be executed locally one at a time regardless
+#     of --test_strategy value).
+test --test_output=errors
+
+# User bazelrc file; see
+# https://bazel.build/configure/best-practices#bazelrc-file
+#
+# Note: this should be at the bottom of the file, so that user-specified
+# options override anything in this file
+# (https://bazel.build/run/bazelrc#imports)
+try-import %workspace%/user.bazelrc

@@ -1,0 +1,48 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterCLHealth.cl_connect_disconnect_by_device_loop_test'
+PURPOSE = ('Batch of Bluetooth CL health tests')
+CRITERIA = 'Pass all health test'
+# TODO: Remove ['Quick Health'] flag from AdapterCLHealth when moving to stable.
+ATTRIBUTES = 'suite:bluetooth_flaky'
+TIME = 'MEDIUM'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """ Tests connection and disconnection by the device in a loop.
+
+Specifically, the following subtests are executed in this autotest.
+    - test_reset_on_adapter
+    - test_pairable
+    - test_discover_device
+    - test_pairing
+    - test_device_is_connected
+    - test_hid_device_created
+    - test_device_set_discoverable
+    - test_disconnection_by_device
+    - iteration start
+    - test_device_is_not_connected
+    - test_connection_by_device
+    - check_connected_method
+    - test_disconnection_by_device
+    - iteration end
+    - test_remove_pairing
+"""
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterCLHealth', host=host,
+                 num_iterations=1, args_dict=args_dict,
+                 test_name=NAME.split('.')[1])
+
+parallel_simple(run, machines)

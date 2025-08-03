@@ -1,0 +1,97 @@
+// Copyright (C) 2022 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_truth_license"],
+}
+
+license {
+    name: "external_truth_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+java_library {
+    name: "truth",
+    host_supported: true,
+    srcs: ["core/src/main/java/com/google/common/truth/*.java"],
+    libs: [
+        "auto_value_annotations",
+        "error_prone_annotations",
+        "guava-android-annotation-stubs",
+        "junit",
+    ],
+    static_libs: [
+        "guava",
+    ],
+    plugins: ["auto_value_plugin"],
+    sdk_version: "current",
+    // Exclude the functionality that requires bytecode analysis on the device.
+    // Android does not use standard Java .class files.
+    target: {
+        android: {
+            exclude_srcs: ["core/src/main/java/com/google/common/truth/ActualValueInference.java"],
+        },
+        host: {
+            static_libs: ["ow2-asm"],
+        },
+    },
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+    errorprone: {
+        javacflags: [
+            "-Xep:NoCanIgnoreReturnValueOnClasses:WARN",
+        ],
+    },
+}
+
+java_library {
+    name: "truth-java8-extension",
+    host_supported: true,
+    srcs: ["extensions/java8/src/main/java/**/*.java"],
+    libs: [
+        "auto_value_annotations",
+        "error_prone_annotations",
+        "guava-android-annotation-stubs",
+        "truth",
+    ],
+    static_libs: [
+        "guava",
+    ],
+    java_version: "1.8",
+    sdk_version: "current",
+}
+
+
+java_library {
+    name: "truth-liteproto-extension",
+    host_supported: true,
+    srcs: ["extensions/liteproto/src/main/java/**/*.java"],
+    libs: [
+        "auto_value_annotations",
+        "error_prone_annotations",
+        "guava-android-annotation-stubs",
+        "truth",
+    ],
+    static_libs: [
+        "guava",
+        "libprotobuf-java-lite",
+    ],
+    sdk_version: "current",
+}

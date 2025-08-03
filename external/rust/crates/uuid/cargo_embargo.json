@@ -1,0 +1,26 @@
+{
+  "run_cargo": false,
+  "variants": [
+    {
+      "features": [
+        "serde",
+        "std",
+        "v1",
+        "v4"
+      ]
+    },
+    {
+      "features": [],
+      "module_name_overrides": {
+        "libuuid": "libuuid_nostd"
+      },
+      "package": {
+        "uuid": {
+          "force_rlib": true,
+          "host_supported": false,
+          "no_std": true
+        }
+      }
+    }
+  ]
+}

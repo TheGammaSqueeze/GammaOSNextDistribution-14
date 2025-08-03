@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+<orders>
+ my_reference
+</orders><customer id="c1">
+ <name>Dupont</name>
+</customer>
+
+
+</root>

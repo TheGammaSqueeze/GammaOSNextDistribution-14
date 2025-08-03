@@ -1,0 +1,13 @@
+name: "notoserifhentaigana"
+description:
+    "Noto Serif Hentaigana fonts. The Hentaigana is a variant form of Hiragana in Japanese.",
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://notofonts.github.io/hentaigana/"
+  }
+  version: "1.000"
+  license_type: NOTICE
+  last_upgrade_date { year: 2024 month: 1 day: 27 }
+}

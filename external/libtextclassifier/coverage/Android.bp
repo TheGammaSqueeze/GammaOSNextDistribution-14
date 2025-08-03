@@ -1,0 +1,22 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_libtextclassifier_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_libtextclassifier_license"],
+}
+
+android_library {
+    name: "TextClassifierCoverageLib",
+
+    srcs: ["src/**/*.java"],
+
+    static_libs: [
+        "androidx.test.ext.junit",
+        "androidx.test.rules",
+    ],
+
+    min_sdk_version: "30",
+    sdk_version: "current",
+}

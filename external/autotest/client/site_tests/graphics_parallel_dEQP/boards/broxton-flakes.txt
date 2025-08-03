@@ -1,0 +1,11 @@
+# There is clearly some flakiness around depth/stencil.
+dEQP-VK.pipeline.extended_dynamic_state.cmd_buffer_start.stencil_state_face.*
+dEQP-VK.pipeline.stencil.format.*.states.*
+dEQP-VK.pipeline.depth.*.format.*
+
+# Something wrong with semaphores
+dEQP-VK.synchronization.cross_instance.*binary_semaphore.*
+
+# Some other flakes
+dEQP-VK.transform_feedback.simple.*
+dEQP-VK.pipeline.dynamic_offset.graphics.arrays.storage_buffer.*

@@ -1,0 +1,107 @@
+--- libicu/ndk_headers/unicode/ulocdata.h	2021-07-29 18:40:17.450265175 +0100
++++ libicu/ndk_headers/unicode/ulocdata.h	2021-07-29 18:40:17.566266189 +0100
+@@ -21,10 +21,6 @@
+ 
+ #include "unicode/uloc.h"
+ 
+-#if U_SHOW_CPLUSPLUS_API
+-#include "unicode/localpointer.h"
+-#endif   // U_SHOW_CPLUSPLUS_API
+-
+ /**
+  * @addtogroup icu4c ICU4C
+  * @{
+@@ -40,70 +36,12 @@
+ 
+ 
+ 
+-/** The possible types of exemplar character sets.
+-  * \xrefitem stable "Stable" "Stable List" ICU 3.4
+-  */
+-typedef enum ULocaleDataExemplarSetType  {
+-    /** Basic set \xrefitem stable "Stable" "Stable List" ICU 3.4 */
+-    ULOCDATA_ES_STANDARD=0,
+-    /** Auxiliary set \xrefitem stable "Stable" "Stable List" ICU 3.4 */
+-    ULOCDATA_ES_AUXILIARY=1,
+-    /** Index Character set \xrefitem stable "Stable" "Stable List" ICU 4.8 */
+-    ULOCDATA_ES_INDEX=2,
+-    /** Punctuation set \xrefitem stable "Stable" "Stable List" ICU 51 */
+-    ULOCDATA_ES_PUNCTUATION=3,
+-#ifndef U_HIDE_DEPRECATED_API
+-    /**
+-     * One more than the highest normal ULocaleDataExemplarSetType value.
+-     * \xrefitem deprecated "Deprecated" "Deprecated List" ICU 58 The numeric value may change over time, see ICU ticket #12420.
+-     */
+-    ULOCDATA_ES_COUNT=4
+-#endif  /* U_HIDE_DEPRECATED_API */
+-} ULocaleDataExemplarSetType;
+-
+-/** The possible types of delimiters.
+-  * \xrefitem stable "Stable" "Stable List" ICU 3.4
+-  */
+-typedef enum ULocaleDataDelimiterType {
+-    /** Quotation start \xrefitem stable "Stable" "Stable List" ICU 3.4 */
+-    ULOCDATA_QUOTATION_START = 0,
+-    /** Quotation end \xrefitem stable "Stable" "Stable List" ICU 3.4 */
+-    ULOCDATA_QUOTATION_END = 1,
+-    /** Alternate quotation start \xrefitem stable "Stable" "Stable List" ICU 3.4 */
+-    ULOCDATA_ALT_QUOTATION_START = 2,
+-    /** Alternate quotation end \xrefitem stable "Stable" "Stable List" ICU 3.4 */
+-    ULOCDATA_ALT_QUOTATION_END = 3,
+-#ifndef U_HIDE_DEPRECATED_API
+-    /**
+-     * One more than the highest normal ULocaleDataDelimiterType value.
+-     * \xrefitem deprecated "Deprecated" "Deprecated List" ICU 58 The numeric value may change over time, see ICU ticket #12420.
+-     */
+-    ULOCDATA_DELIMITER_COUNT = 4
+-#endif  /* U_HIDE_DEPRECATED_API */
+-} ULocaleDataDelimiterType;
+-
+-
+-
+ 
+ 
+-#if U_SHOW_CPLUSPLUS_API
+ 
+-U_NAMESPACE_BEGIN
+ 
+-/**
+- * \class LocalULocaleDataPointer
+- * "Smart pointer" class, closes a ULocaleData via ulocdata_close().
+- * For most methods see the LocalPointerBase base class.
+- *
+- * @see LocalPointerBase
+- * @see LocalPointer
+- * \xrefitem stable "Stable" "Stable List" ICU 4.4
+- */
+-U_DEFINE_LOCAL_OPEN_POINTER(LocalULocaleDataPointer, ULocaleData, ulocdata_close);
+ 
+-U_NAMESPACE_END
+ 
+-#endif
+ 
+ 
+ 
+@@ -113,22 +51,6 @@
+ 
+ 
+ 
+-/**
+- * Enumeration for representing the measurement systems.
+- * \xrefitem stable "Stable" "Stable List" ICU 2.8
+- */
+-typedef enum UMeasurementSystem {
+-    UMS_SI,     /**< Measurement system specified by SI otherwise known as Metric system. \xrefitem stable "Stable" "Stable List" ICU 2.8 */
+-    UMS_US,     /**< Measurement system followed in the United States of America. \xrefitem stable "Stable" "Stable List" ICU 2.8 */
+-    UMS_UK,     /**< Mix of metric and imperial units used in Great Britain. \xrefitem stable "Stable" "Stable List" ICU 55 */
+-#ifndef U_HIDE_DEPRECATED_API
+-    /**
+-     * One more than the highest normal UMeasurementSystem value.
+-     * \xrefitem deprecated "Deprecated" "Deprecated List" ICU 58 The numeric value may change over time, see ICU ticket #12420.
+-     */
+-    UMS_LIMIT
+-#endif  /* U_HIDE_DEPRECATED_API */
+-} UMeasurementSystem;
+ 
+ 
+ 

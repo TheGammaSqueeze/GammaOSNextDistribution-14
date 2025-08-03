@@ -1,0 +1,28 @@
+# Lint as: python3
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = (
+    'Mohammad Sabri <mohammad.kh.sabri@exalt.ps>, '
+    'Rajaa Abdallah <rajaa.abdallah@exalt.ps>')
+NAME = 'bluetooth_AVLHCI.spec_4_1_test'
+ATTRIBUTES = 'suite:bluetooth_flaky'
+PURPOSE = 'Tests the Bluetooth v4.1 specification of Bluetooth AVL requirements'
+CRITERIA = 'all subtests passed'
+TIME = 'SHORT'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'client'
+PY_VERSION = 3
+
+DOC = """
+    This class can be called to run bluetooth_AVLHCI.spec_4_1_test
+
+    This test contains these subtests:
+        test_le_dual_mode_topology_feature()
+        test_br_edr_controller_secure_connection_feature()
+
+    """
+
+job.run_test('bluetooth_AVLHCI', test_name=NAME.split('.')[1])

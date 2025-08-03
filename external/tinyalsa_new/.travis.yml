@@ -1,0 +1,23 @@
+os: linux
+dist: bionic
+sudo: false
+language: c
+compiler:
+        - gcc
+        - clang
+
+addons:
+    apt:
+        packages:
+            - doxygen
+            - graphviz
+            - python3-pip
+            - python3-setuptools
+
+before_script:
+    - pip3 install --upgrade pip
+    - pip3 install --user ninja
+    - pip3 install --user meson
+
+script:
+    - scripts/travis-build.sh

@@ -1,0 +1,99 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # turns off tox's output redirection so we can debug package installation
+  TOX_OPTIONS: -vv
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    # https://github.community/t/github-actions-does-not-respect-skip-ci/17325/8
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+    - name: Install packages
+      run: pip install tox
+    - name: Run Tox
+      run: tox $TOX_OPTIONS -e lint,package_readme
+
+  test:
+    runs-on: ${{ matrix.platform }}
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.11", "3.12"]
+        platform: [ubuntu-latest]
+        include: # Only test on the latest supported stable Python on macOS and Windows.
+          - platform: macos-latest
+            python-version: 3.11
+          - platform: windows-latest
+            python-version: 3.11
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        allow-prereleases: true
+    - name: Install packages
+      run: pip install tox coverage
+    - name: Run Tox
+      run: tox $TOX_OPTIONS -e py-cov
+    - name: Run Tox without extra dependencies
+      run: tox $TOX_OPTIONS -e py-cov-noextra
+    - name: Produce coverage files
+      run: |
+        coverage combine
+        coverage xml
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        # TODO(anthrotype): Set fail_ci_if_error: true if/when Codecov becomes less flaky
+        fail_ci_if_error: false
+        # see https://github.com/codecov/codecov-action/issues/557
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-cython:
+    runs-on: ubuntu-latest
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    - name: Install packages
+      run: pip install tox
+    - name: Run Tox
+      run: tox $TOX_OPTIONS -e py-cy
+
+  test-pypy3:
+    runs-on: ubuntu-latest
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python pypy3
+      uses: actions/setup-python@v4
+      with:
+        python-version: "pypy-3.9"
+    - name: Install packages
+      run: pip install tox
+    - name: Run Tox
+      run: tox $TOX_OPTIONS -e pypy3

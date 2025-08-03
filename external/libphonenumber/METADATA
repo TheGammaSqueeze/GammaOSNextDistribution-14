@@ -1,0 +1,19 @@
+name: "libphonenumber"
+description: "Google's common Java, C++ and JavaScript library for parsing, formatting, and validating international phone numbers."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/libphonenumber"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/libphonenumber/archive/refs/tags/v8.13.16.tar.gz"
+  }
+  version: "v8.13.16"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 7
+    day: 11
+  }
+}

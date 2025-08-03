@@ -1,0 +1,18 @@
+<abi-corpus version='2.1'>
+  <elf-variable-symbols>
+    <elf-symbol name='variable' size='68' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='template_class.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='__ARRAY_SIZE_TYPE__' size-in-bits='64' id='7ff19f0f'/>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <array-type-def dimensions='1' type-id='95e97e5e' size-in-bits='544' id='b7c5660e'>
+      <subrange length='17' type-id='7ff19f0f' id='888ad0ed'/>
+    </array-type-def>
+    <class-decl name='wrapper&lt;int, 17&gt;' size-in-bits='544' is-struct='yes' visibility='default' id='b194033d'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='member' type-id='b7c5660e' visibility='default'/>
+      </data-member>
+    </class-decl>
+    <var-decl name='variable' type-id='b194033d' mangled-name='variable' visibility='default' elf-symbol-id='variable'/>
+  </abi-instr>
+</abi-corpus>

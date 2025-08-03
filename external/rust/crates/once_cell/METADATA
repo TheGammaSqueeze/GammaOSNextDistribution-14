@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/once_cell
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "once_cell"
+description: "Single assignment cells and lazy values."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/once_cell"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/once_cell/once_cell-1.17.1.crate"
+  }
+  version: "1.17.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 2
+    day: 16
+  }
+}

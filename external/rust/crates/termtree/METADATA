@@ -1,0 +1,19 @@
+name: "termtree"
+description: "Visualize tree-like data on the command-line"
+third_party {
+  identifier {
+    type: "crates.io"
+    value: "https://crates.io/crates/termtree"
+  }
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/termtree/termtree-0.4.1.crate"
+  }
+  version: "0.4.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 6
+  }
+}

@@ -1,0 +1,13 @@
+name: "notoseriflao"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Serif Lao is a modulated (“serif”) design for texts in theSoutheast Asian Lao script. It has multiple weights and widths, and117 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notoseriflao"
+  }
+  version: "2.000"
+  license_type: NOTICE
+  last_upgrade_date { year: 2022 month: 1 day: 27 }
+}

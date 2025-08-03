@@ -1,0 +1,146 @@
+package {
+    default_visibility : ["//visibility:private"],
+    default_applicable_licenses: ["libact_license"],
+}
+
+license {
+    name: "libact_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["LICENSE"],
+}
+
+filegroup {
+    name: "act-proto",
+    srcs: [
+       "**/*.proto",
+       "act/act.proto",
+    ],
+    visibility: ["//packages/modules/AdServices:__subpackages__"],
+    path: "act",
+}
+
+cc_defaults {
+    name: "libact_defaults",
+    host_supported: true,
+}
+
+cc_library_static {
+    name: "libact",
+    defaults: ["libact_defaults"],
+    min_sdk_version: "30",
+    sdk_version: "current",
+    stl: "libc++_static",    
+    srcs: [
+      "act/act.proto",
+      "act/act_v0/act_v0.cc",
+      "act/act_v0/act_v0.proto",
+      "act/act_v0/parameters.cc",
+      "act/util.proto",
+    ],
+    shared_libs: [
+      "libcrypto",
+      "liblog",
+    ],
+    whole_static_libs: [
+      "libpjc_crypto",
+      "libpjc_third_party_libabsl",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+    export_include_dirs: ["."],
+    include_dirs: [
+      "external/protobuf",
+      "external/protobuf/src",
+    ],
+    proto: {
+      type: "lite",
+      export_proto_headers: true,
+      local_include_dirs: [
+        ".",
+      ],
+      include_dirs: [
+        "external/private-join-and-compute",
+        "external/protobuf",
+        "external/protobuf/src",        
+      ]
+    },
+    sanitize: {
+      integer_overflow: true,
+      misc_undefined: ["bounds"],
+    },
+    apex_available: ["com.android.adservices", "com.android.extservices",],
+    visibility: [
+    	"//packages/modules/AdServices:__subpackages__",
+    ],
+    target: {
+	android: {
+	    whole_static_libs: [
+	        "libprotobuf-cpp-lite-ndk",
+	    ]
+	}
+    }
+}
+
+cc_test {
+    name: "libact_fake_act_test",
+    defaults: ["libact_defaults"],
+    srcs: [
+      "act/fake_act.cc",
+      "act/fake_act_test.cc",
+    ],
+    shared_libs: [
+      "libcrypto",
+      "liblog",
+      "libprotobuf-cpp-lite",
+    ],
+    static_libs: [
+      "libpjc_crypto",
+      "libact",
+      "libgmock",
+      "libpjc_third_party_libabsl",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+}
+
+cc_test {
+    name: "libact_test",
+    defaults: ["libact_defaults"],
+    srcs: [
+      "act/act_v0/act_v0_test.cc",
+    ],
+    shared_libs: [
+      "libcrypto",
+      "liblog",
+      "libprotobuf-cpp-lite",
+    ],
+    static_libs: [
+      "libpjc_crypto",
+      "libact",
+      "libgmock",
+      "libpjc_third_party_libabsl",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+    test_suites: ["general-tests"],
+}
+
+// This test times out.
+cc_test {
+    name: "libact_parameters_test",
+    defaults: ["libact_defaults"],
+    enabled: false,
+    srcs: [
+      "act/act_v0/parameters_test.cc",
+    ],
+    shared_libs: [
+      "libcrypto",
+      "liblog",
+      "libprotobuf-cpp-lite",
+    ],
+    static_libs: [
+      "libpjc_crypto",
+      "libact",
+      "libgmock",
+      "libpjc_third_party_libabsl",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+}

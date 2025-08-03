@@ -1,0 +1,147 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["external_libffi_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_libffi_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-GPL-3.0",
+        "SPDX-license-identifier-LGPL",
+        "SPDX-license-identifier-LGPL-2.1",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-MPL",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "LICENSE",
+        "LICENSE-BUILDTOOLS",
+    ],
+}
+
+genrule {
+    name: "ffi_header",
+    cmd: "$(location gen_ffi_header.sh) < $(in) > $(out)",
+    srcs: ["include/ffi.h.in"],
+    out: ["ffi_gen.h"],
+    tool_files: ["gen_ffi_header.sh"],
+}
+
+cc_library {
+    name: "libffi",
+    host_supported: true,
+    vendor_available: true,
+    cflags: [
+        "-Wall",
+        "-Werror",
+
+        "-Wno-error=incompatible-pointer-types",
+        "-Wno-incompatible-pointer-types",
+
+        "-Wno-deprecated-declarations",
+        "-Wno-missing-field-initializers",
+        "-Wno-null-pointer-arithmetic",
+        "-Wno-pointer-arith",
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+        "-Wno-unused-result",
+    ],
+    local_include_dirs: ["include"],
+    generated_headers: ["ffi_header"],
+    export_generated_headers: ["ffi_header"],
+    srcs: [
+        "src/closures.c",
+        "src/debug.c",
+        "src/java_raw_api.c",
+        "src/prep_cif.c",
+        "src/raw_api.c",
+        "src/types.c",
+    ],
+    arch: {
+        arm: {
+            srcs: [
+                "src/arm/sysv.S",
+                "src/arm/ffi.c",
+            ],
+            export_include_dirs: ["linux-arm"],
+        },
+        arm64: {
+            srcs: [
+                "src/aarch64/sysv.S",
+                "src/aarch64/ffi.c",
+            ],
+            export_include_dirs: ["linux-arm64"],
+        },
+        x86: {
+            srcs: [
+                "src/x86/ffi.c",
+                "src/x86/sysv.S",
+            ],
+            asflags: [
+                "-DHAVE_AS_X86_PCREL",
+                "-DHAVE_AS_ASCII_PSEUDO_OP",
+            ],
+            export_include_dirs: ["linux-x86"],
+        },
+        x86_64: {
+            srcs: [
+                "src/x86/ffi64.c",
+                "src/x86/ffiw64.c",
+                "src/x86/unix64.S",
+                "src/x86/win64.S",
+            ],
+            asflags: [
+                "-DHAVE_AS_X86_PCREL",
+                "-DHAVE_AS_ASCII_PSEUDO_OP",
+            ],
+            export_include_dirs: ["linux-x86_64"],
+        },
+        riscv64: {
+            srcs: [
+                "src/riscv/ffi.c",
+                "src/riscv/sysv.S",
+            ],
+            export_include_dirs: ["linux-riscv64"],
+        },
+    },
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.virt",
+    ],
+}

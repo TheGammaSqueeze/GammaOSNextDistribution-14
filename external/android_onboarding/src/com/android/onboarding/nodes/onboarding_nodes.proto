@@ -1,0 +1,139 @@
+syntax = "proto2";
+
+package com.android.onboarding.protos;
+
+option java_outer_classname = "OnboardingProtos";
+option java_package = "com.android.onboarding";
+
+message LogProto {
+  optional ActivityNodeExecutedDirectlyProto activity_node_executed_directly =
+      1;
+  optional ActivityNodeExecutedForResultProto
+      activity_node_executed_for_result = 2;
+  optional ActivityNodeValidatingProto activity_node_validating = 3;
+  optional ActivityNodeFailedValidationProto activity_node_failed_validation =
+      4;
+  optional ActivityNodeExtractArgumentProto activity_node_extract_argument = 5;
+  optional ActivityNodeArgumentExtractedProto activity_node_argument_extracted =
+      6;
+  optional ActivityNodeSetResultProto activity_node_set_result = 7;
+  optional ActivityNodeFailProto activity_node_fail = 8;
+  optional ActivityNodeResultReceivedProto activity_node_result_received = 9;
+  optional ActivityNodeStartExecuteSynchronouslyProto
+      activity_node_start_execute_synchronously = 10;
+  optional ActivityNodeExecutedSynchronouslyProto
+      activity_node_executed_synchronously = 11;
+  optional ActivityNodeFinishedProto activity_node_finished = 12;
+  optional ActivityNodeResumedAfterLaunchProto
+      activity_node_resumed_after_launch = 13;
+  optional ActivityNodeResumedProto activity_node_resumed = 14;
+}
+
+message ActivityNodeExecutedDirectlyProto {
+  optional int64 source_node_id = 1;
+  optional int64 node_id = 2;
+  optional string node_name = 3;
+  optional int64 timestamp = 4;
+  optional string node_component = 5;
+}
+
+message ActivityNodeExecutedForResultProto {
+  optional int64 source_node_id = 1;
+  optional int64 node_id = 2;
+  optional string node_name = 3;
+  optional int64 timestamp = 4;
+  optional string node_component = 5;
+}
+
+message ActivityNodeValidatingProto {
+  optional int64 node_id = 1;
+  optional string node_name = 2;
+  optional int64 timestamp = 3;
+  optional string node_component = 4;
+}
+
+message ActivityNodeFailedValidationProto {
+  optional int64 node_id = 1;
+  optional string node_name = 2;
+  optional IntentDataProto intent = 3;
+  optional int64 timestamp = 4;
+  optional string node_component = 5;
+}
+
+message ActivityNodeExtractArgumentProto {
+  optional int64 node_id = 1;
+  optional string node_name = 2;
+  optional IntentDataProto intent = 3;
+  optional int64 timestamp = 4;
+  optional string node_component = 5;
+}
+
+message ActivityNodeArgumentExtractedProto {
+  optional int64 node_id = 1;
+  optional string node_name = 2;
+  optional int64 timestamp = 3;
+  optional string node_component = 4;
+}
+
+message ActivityNodeSetResultProto {
+  optional int64 node_id = 1;
+  optional string node_name = 2;
+  optional int64 timestamp = 3;
+  optional string node_component = 4;
+}
+
+message ActivityNodeFailProto {
+  optional int64 node_id = 1;
+  optional string reason = 2;
+  optional int64 timestamp = 3;
+  optional string node_component = 4;
+}
+
+message ActivityNodeResultReceivedProto {
+  optional int64 node_id = 1;
+  optional string node_name = 2;
+  optional int64 timestamp = 3;
+  optional string node_component = 4;
+}
+
+message ActivityNodeStartExecuteSynchronouslyProto {
+  optional int64 source_node_id = 1;
+  optional int64 node_id = 2;
+  optional string node_name = 3;
+  optional int64 timestamp = 4;
+  optional string node_component = 5;
+}
+
+message ActivityNodeExecutedSynchronouslyProto {
+  optional int64 source_node_id = 1;
+  optional int64 node_id = 2;
+  optional string node_name = 3;
+  optional int64 timestamp = 4;
+  optional string node_component = 5;
+}
+
+message ActivityNodeFinishedProto {
+  optional int64 node_id = 1;
+  optional string node_name = 2;
+  optional int64 timestamp = 3;
+  optional string node_component = 4;
+}
+
+message ActivityNodeResumedAfterLaunchProto {
+  optional int64 source_node_id = 1;
+  optional int64 node_id = 2;
+  optional string node_name = 3;
+  optional int64 timestamp = 4;
+  optional string node_component = 5;
+}
+
+message ActivityNodeResumedProto {
+  optional int64 node_id = 1;
+  optional string node_name = 2;
+  optional int64 timestamp = 3;
+  optional string node_component = 4;
+}
+
+message IntentDataProto {
+  optional string action = 1;
+}

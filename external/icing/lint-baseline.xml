@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`GetSchemaResultProto`) and setter parameter type (`SchemaProto`) getter and setter methods for property `schema` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="  public GetSchemaResultProto getSchema() {"
+        errorLine2="                              ~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngine.java"/>
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngine.java"
+            message="Setter here"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`GetSchemaResultProto`) and setter parameter type (`SchemaProto`) getter and setter methods for property `schema` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="  GetSchemaResultProto getSchema();"
+        errorLine2="                       ~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"
+            message="Setter here"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  public BreakIteratorBatcher(Locale locale) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/BreakIteratorBatcher.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  public void setText(String text) {"
+        errorLine2="                      ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/BreakIteratorBatcher.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  public int[] next(int batchSize) {"
+        errorLine2="         ~~~~~">
+        <location
+            file="java/src/com/google/android/icing/BreakIteratorBatcher.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  public DebugInfoResultProto getDebugInfo(DebugInfoVerbosity.Code verbosity) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngine.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  public static boolean shouldLog(LogSeverity.Code severity) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngine.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  public static boolean shouldLog(LogSeverity.Code severity, short verbosity) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngine.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  public static boolean setLoggingLevel(LogSeverity.Code severity) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngine.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  public static boolean setLoggingLevel(LogSeverity.Code severity, short verbosity) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngine.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  InitializeResultProto initialize();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  SetSchemaResultProto setSchema(SchemaProto schema);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  SetSchemaResultProto setSchema(SchemaProto schema);"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  SetSchemaResultProto setSchema(SchemaProto schema, boolean ignoreErrorsAndDeleteDocuments);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  SetSchemaResultProto setSchema(SchemaProto schema, boolean ignoreErrorsAndDeleteDocuments);"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetSchemaResultProto getSchema();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetSchemaTypeResultProto getSchemaType(String schemaType);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetSchemaTypeResultProto getSchemaType(String schemaType);"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  PutResultProto put(DocumentProto document);"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  PutResultProto put(DocumentProto document);"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetResultProto get(String namespace, String uri, GetResultSpecProto getResultSpec);"
+        errorLine2="  ~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetResultProto get(String namespace, String uri, GetResultSpecProto getResultSpec);"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetResultProto get(String namespace, String uri, GetResultSpecProto getResultSpec);"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetResultProto get(String namespace, String uri, GetResultSpecProto getResultSpec);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  ReportUsageResultProto reportUsage(UsageReport usageReport);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  ReportUsageResultProto reportUsage(UsageReport usageReport);"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetAllNamespacesResultProto getAllNamespaces();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  SearchResultProto search("
+        errorLine2="  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="      SearchSpecProto searchSpec, ScoringSpecProto scoringSpec, ResultSpecProto resultSpec);"
+        errorLine2="      ~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="      SearchSpecProto searchSpec, ScoringSpecProto scoringSpec, ResultSpecProto resultSpec);"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="      SearchSpecProto searchSpec, ScoringSpecProto scoringSpec, ResultSpecProto resultSpec);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  SearchResultProto getNextPage(long nextPageToken);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteResultProto delete(String namespace, String uri);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteResultProto delete(String namespace, String uri);"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteResultProto delete(String namespace, String uri);"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  SuggestionResponse searchSuggestions(SuggestionSpecProto suggestionSpec);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  SuggestionResponse searchSuggestions(SuggestionSpecProto suggestionSpec);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteByNamespaceResultProto deleteByNamespace(String namespace);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteByNamespaceResultProto deleteByNamespace(String namespace);"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteBySchemaTypeResultProto deleteBySchemaType(String schemaType);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteBySchemaTypeResultProto deleteBySchemaType(String schemaType);"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteByQueryResultProto deleteByQuery(SearchSpecProto searchSpec);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteByQueryResultProto deleteByQuery(SearchSpecProto searchSpec);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DeleteByQueryResultProto deleteByQuery("
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="      SearchSpecProto searchSpec, boolean returnDeletedDocumentInfo);"
+        errorLine2="      ~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  PersistToDiskResultProto persistToDisk(PersistType.Code persistTypeCode);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  PersistToDiskResultProto persistToDisk(PersistType.Code persistTypeCode);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  OptimizeResultProto optimize();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  GetOptimizeInfoResultProto getOptimizeInfo();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  StorageInfoResultProto getStorageInfo();"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DebugInfoResultProto getDebugInfo(DebugInfoVerbosity.Code verbosity);"
+        errorLine2="  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  DebugInfoResultProto getDebugInfo(DebugInfoVerbosity.Code verbosity);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="  ResetResultProto reset();"
+        errorLine2="  ~~~~~~~~~~~~~~~~">
+        <location
+            file="java/src/com/google/android/icing/IcingSearchEngineInterface.java"/>
+    </issue>
+
+</issues>

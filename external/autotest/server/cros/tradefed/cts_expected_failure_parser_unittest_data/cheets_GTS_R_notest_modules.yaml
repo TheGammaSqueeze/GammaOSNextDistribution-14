@@ -1,0 +1,3 @@
+GtsOnlyPrimaryAbiTestCases: [binarytranslated]
+GtsOpenglTestCases: [vulkan]
+GtsVulkanTestCases: [no_vulkan]

@@ -1,0 +1,16 @@
+name: "roboto-classic"
+description: "This is a variable version of Roboto intended to be a 1:1 match with the official non-variable release from Google."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/googlefonts/roboto-classic"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://github.com/googlefonts/roboto-classic/releases/tag/v3.005"
+  }
+  version: "3.005"
+  last_upgrade_date { year: 2023 month: 3 day: 13 }
+  license_type: NOTICE
+}

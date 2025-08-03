@@ -1,0 +1,53 @@
+/*******************************************************************************
+ * Copyright (c) 2009, 2021 Mountainminds GmbH & Co. KG and Contributors
+ * This program and the accompanying materials are made available under
+ * the terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *    Evgeny Mandrikov - initial API and implementation
+ *
+ *******************************************************************************/
+import java.io.*;
+import org.codehaus.plexus.util.*;
+
+String projectReportsPage = FileUtils.fileRead( new File( basedir, "target/site/project-reports.html" ) );
+if ( projectReportsPage.indexOf( "JaCoCo Coverage Report." ) < 0 ) {
+    throw new RuntimeException( "project-reports.html does not contain link to JaCoCo report" );
+}
+
+File htmlReportFile = new File( basedir, "target/site/jacoco/index.html" );
+if ( !htmlReportFile.isFile() ) {
+    throw new RuntimeException( "HTML report was not created" );
+}
+
+File xmlReportFile = new File( basedir, "target/site/jacoco/jacoco.xml" );
+if ( !xmlReportFile.isFile() ) {
+    throw new RuntimeException( "XML report was not created" );
+}
+
+File csvReportFile = new File( basedir, "target/site/jacoco/jacoco.csv" );
+if ( !csvReportFile.isFile() ) {
+    throw new RuntimeException( "CSV report was not created" );
+}
+
+if ( projectReportsPage.indexOf( "JaCoCo IT Coverage Report." ) < 0 ) {
+    throw new RuntimeException( "project-reports.html does not contain link to JaCoCo Integration report" );
+}
+
+File htmlReportFile = new File( basedir, "target/site/jacoco-it/index.html" );
+if ( !htmlReportFile.isFile() ) {
+    throw new RuntimeException( "Integration HTML report was not created" );
+}
+
+File xmlReportFile = new File( basedir, "target/site/jacoco-it/jacoco.xml" );
+if ( !xmlReportFile.isFile() ) {
+    throw new RuntimeException( "Integration XML report was not created" );
+}
+
+File csvReportFile = new File( basedir, "target/site/jacoco-it/jacoco.csv" );
+if ( !csvReportFile.isFile() ) {
+    throw new RuntimeException( "Integration CSV report was not created" );
+}

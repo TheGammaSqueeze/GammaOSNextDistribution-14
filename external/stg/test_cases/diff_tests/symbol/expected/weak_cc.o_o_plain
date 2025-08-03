@@ -1,0 +1,4 @@
+function symbol 'void x()' {_Z1xv} changed
+  binding changed from global to weak
+
+exit code 4

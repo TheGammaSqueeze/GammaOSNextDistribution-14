@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Execute crosvm using the Bionic linker. This is because DT_INTERP of the
+# host rust binaries are incorrectly set to /system/bin/linker64. The path
+# doesn't exist on host targets, but this is unavoidable because we are
+# building the host rust binaries using "-target aarch64-linux-android".
+# The target is for Android and therefore DT_INTERP is set to that of Android.
+# We have to use the target until rustc supports non-Android target using Bionic
+# as libc. Until then, let's override DT_INTERP by executing the dynamic linker
+# and feed the absolute path to the rust binary as the first argument.
+exec $(dirname $0)/linker64 $(readlink -f $(dirname $0)/$(uname -m)-linux-bionic/$(basename "$0")) "${@}"

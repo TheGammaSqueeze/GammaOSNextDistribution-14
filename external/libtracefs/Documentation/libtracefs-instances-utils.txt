@@ -1,0 +1,141 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_instance_get_name, tracefs_instance_get_trace_dir, tracefs_instances_walk, tracefs_instance_exists,
+tracefs_instance_get_buffer_size, tracefs_instance_set_buffer_size - Helper functions for working with tracing instances.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+const char pass:[*]*tracefs_instance_get_name*(struct tracefs_instance pass:[*]_instance_);
+const char pass:[*]*tracefs_instance_get_trace_dir*(struct tracefs_instance pass:[*]_instance_);
+int *tracefs_instances_walk*(int (pass:[*]_callback_)(const char pass:[*], void pass:[*]), void pass:[*]_context)_;
+bool *tracefs_instance_exists*(const char pass:[*]_name_);
+size_t *tracefs_instance_get_buffer_size*(struct tracefs_instance pass:[*]_instance_, int _cpu_);
+int *tracefs_instance_set_buffer_size*(struct tracefs_instance pass:[*]_instance_, size_t _size_, int _cpu_);
+--
+
+DESCRIPTION
+-----------
+Helper functions for working with trace instances.
+
+The *tracefs_instance_get_name()* function returns the name of the given _instance_.
+Note that the top instance has no name, the function returns NULL for it.
+
+The *tracefs_instance_get_trace_dir()* function returns the tracing directory, where
+the given _instance_ is configured.
+
+The *tracefs_instances_walk()* function walks through all configured tracing
+instances in the system and calls _callback_ for each one of them. The _context_
+argument is passed to the _callback_, together with the instance name. If the
+_callback_ returns non-zero, the iteration stops. Note, the _callback_ is not
+called for the top top instance.
+
+The *tracefs_instance_exists()* function checks if an instance with the given
+_name_ exists in the system.
+
+The *tracefs_instace_get_buffer_size()* returns the size of the ring buffer. If _cpu_
+is negative, it returns the total size of all the per CPU ring buffers, otherwise
+it returns the size of the per CPU ring buffer for _cpu_.
+
+The *tracefs_instance_set_buffer_size()* function sets the size of the ring buffer.
+If _cpu_ is negative, then it sets all the per CPU ring buffers to _size_ (note
+the total size is the number of CPUs * _size_). If _cpu_ is specified, then it only
+sets the size of the per CPU ring buffer.
+
+RETURN VALUE
+------------
+The *tracefs_instance_get_name()* returns a string or NULL in case of the top
+instance. The returned string must _not_ be freed.
+
+The *tracefs_instance_get_trace_dir()* returns a string or NULL in case of an error.
+The returned string must _not_ be freed.
+
+The *tracefs_instances_walk()* function returns 0, if all instances were iterated, 1
+if the iteration was stopped by the _callback_, or -1 in case of an error.
+
+The *tracefs_instance_exists()* returns true if an instance with the given _name_
+exists in the system or false otherwise.
+
+The *tracefs_instance_get_buffer_size()* returns the size of the ring buffer depending on
+the _cpu_ value passed in, or -1 on error.
+
+The *tracefs_instance_set_buffer_size()* returns zero on success and -1 on error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+
+struct tracefs_instance *inst;
+....
+char *name = tracefs_instance_get_name(inst);
+	if(name) {
+		/* Got name of the instance */
+	}
+char *dir = tracefs_instance_get_trace_dir(inst);
+	if(dir) {
+		/* Got tracing directory of the instance */
+	}
+...
+static int instance_walk(char *name, void *context)
+{
+	/* Got instance with name */
+	return 0;
+}
+...
+	if (tracefs_instances_walk(instance_walk, NULL) < 0) {
+		/* Error walking through the instances */
+	}
+...
+	if (tracefs_instance_exists("foo")) {
+		/* There is instance with name foo in the system */
+	} else {
+		/* There is no instance with name foo in the system */
+	}
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

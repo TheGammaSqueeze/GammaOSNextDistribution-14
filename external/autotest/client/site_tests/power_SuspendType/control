@@ -1,0 +1,17 @@
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "bbrotherton,chromeos-pvs-dev"
+NAME = "power_SuspendType"
+PURPOSE = "This test is used to verify requirement boot-perf-0003-v01."
+ATTRIBUTES = ""
+TIME = "FAST"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test verify that either mem or freeze suspend mode is supported
+"""
+
+job.run_test('power_SuspendType')

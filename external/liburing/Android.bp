@@ -1,0 +1,60 @@
+package {
+    default_applicable_licenses: ["external_liburing_license"],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_liburing_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "legacy_notice",
+    ],
+    license_text: [
+        "COPYING",
+        "COPYING.GPL",
+        "LICENSE",
+        "NOTICE",
+    ],
+}
+
+cc_defaults {
+    name: "iouring_defaults",
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-pointer-arith",
+        "-Wno-unused-parameter",
+	"-Wno-implicit-function-declaration",
+	"-D_GNU_SOURCE"
+    ],
+    include_dirs: ["bionic/libc/kernel"],
+    export_include_dirs: [
+        "src/include",
+	"src/arch",
+    ],
+    srcs: [
+        "src/queue.c",
+        "src/register.c",
+        "src/setup.c",
+        "src/syscall.c",
+    ],
+}
+
+cc_library_static {
+    name: "liburing",
+    defaults: [
+        "iouring_defaults",
+    ],
+    recovery_available: true,
+    ramdisk_available: true,
+    vendor_ramdisk_available: true,
+    host_supported: true,
+    device_supported: true,
+}

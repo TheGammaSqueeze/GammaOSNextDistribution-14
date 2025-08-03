@@ -1,0 +1,130 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_pdfium_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Artistic
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-FTL
+    //   SPDX-license-identifier-MIT
+    //   SPDX-license-identifier-Zlib
+    //   SPDX-license-identifier-libtiff
+    //   legacy_unencumbered
+    default_applicable_licenses: ["external_pdfium_license"],
+}
+
+cc_defaults {
+    name: "pdfium-third-party",
+    defaults: [
+        "pdfium-common"
+    ],
+    visibility: ["//external/pdfium:__subpackages__"],
+    sdk_version: "current",
+    min_sdk_version: "apex_inherit",
+    apex_available: [
+        "com.android.mediaprovider",
+        "//apex_available:platform"
+    ],
+    stl: "c++_static",
+}
+
+cc_library_static {
+    name: "libpdfium-third_party-base",
+    defaults: ["pdfium-third-party"],
+    visibility: ["//external/pdfium:__subpackages__"],
+
+    arch: {
+        arm: {
+            cflags: [
+                "-DARCH_CPU_32_BITS",
+                "-DARCH_CPU_ARMEL",
+            ],
+        },
+        arm64: {
+            cflags: [
+                "-DARCH_CPU_64_BITS",
+                "-DARCH_CPU_ARM64",
+            ],
+        },
+        riscv64: {
+            cflags: [
+                "-DARCH_CPU_64_BITS",
+                "-DARCH_CPU_RISCV64",
+            ],
+        },
+        x86: {
+            cflags: [
+                "-DARCH_CPU_32_BITS",
+                "-DARCH_CPU_X86",
+            ],
+        },
+        x86_64: {
+            cflags: [
+                "-DARCH_CPU_64_BITS",
+                "-DARCH_CPU_X86_64",
+            ],
+        },
+    },
+
+    srcs: [
+        "base/debug/*.cc",
+        "base/memory/*.cc",
+        "base/allocator/partition_allocator/*.cc",
+    ],
+}
+
+cc_library_static {
+    name: "libpdfium-lcms2",
+    defaults: ["pdfium-third-party"],
+
+    cflags: [
+      // cmslut.cc is sloppy with aggregate initialization. Version 2.7 of this
+      // library doesn't appear to have this problem.
+      "-Wno-missing-braces",
+
+      // FindPrev() in cmsplugin.c is unused.
+      "-Wno-unused-function",
+    ],
+
+    srcs: [
+        "lcms/src/*.c",
+    ],
+}
+
+cc_library_static {
+    name: "libpdfium-libopenjpeg2",
+    defaults: ["pdfium-third-party"],
+    visibility: ["//cts/hostsidetests/securitybulletin/securityPatch/CVE-2016-8332"],
+
+    exclude_srcs: [
+        "libopenjpeg/t1_generate_luts.c",
+    ],
+
+    srcs: [
+        "libopenjpeg/*.c",
+        "libopenjpeg/*.cc",
+    ],
+}
+
+cc_library_static {
+    name: "libpdfium-agg",
+    defaults: ["pdfium-third-party"],
+
+    cflags: [
+        // calc_butt_cap() in agg_vcgen_stroke.cpp is unused.
+        "-Wno-unused-function",
+    ],
+
+    srcs: [
+        "agg23/*.cpp",
+    ]
+}
+
+cc_library_static {
+    name: "libpdfium-skia_shared",
+    defaults: ["pdfium-third-party"],
+
+    srcs: [
+        "skia_shared/*.cpp",
+    ],
+}

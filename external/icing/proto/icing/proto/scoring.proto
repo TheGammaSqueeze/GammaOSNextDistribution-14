@@ -1,0 +1,168 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto2";
+
+package icing.lib;
+
+import "icing/proto/term.proto";
+
+option java_package = "com.google.android.icing.proto";
+option java_multiple_files = true;
+option objc_class_prefix = "ICNG";
+
+// Encapsulates the configurations on how Icing should score and rank the search
+// results.
+// TODO(b/170347684): Change all timestamps to seconds.
+// Next tag: 12
+message ScoringSpecProto {
+  // OPTIONAL: Indicates how the search results will be ranked.
+  message RankingStrategy {
+    enum Code {
+      // No ranking strategy specified, documents may be returned in an
+      // arbitrary order.
+      NONE = 0;
+
+      // Ranked by user-provided document scores.
+      DOCUMENT_SCORE = 1;
+
+      // Ranked by document creation timestamps.
+      CREATION_TIMESTAMP = 2;
+
+      // The following ranking strategies are based on usage reporting. Please
+      // see usage.proto for more information. If one of the usage ranking
+      // strategy is used but none of result documents have reported usage, the
+      // documents will be returned in the default reverse insertion order.
+
+      // Ranked by count of reports with usage type 1.
+      USAGE_TYPE1_COUNT = 3;
+
+      // Ranked by count of reports with usage type 2.
+      USAGE_TYPE2_COUNT = 4;
+
+      // Ranked by count of reports with usage type 3.
+      USAGE_TYPE3_COUNT = 5;
+
+      // Ranked by last used timestamp with usage type 1. The timestamps are
+      // compared in seconds.
+      USAGE_TYPE1_LAST_USED_TIMESTAMP = 6;
+
+      // Ranked by last used timestamp with usage type 2. The timestamps are
+      // compared in seconds.
+      USAGE_TYPE2_LAST_USED_TIMESTAMP = 7;
+
+      // Ranked by last used timestamp with usage type 3. The timestamps are
+      // compared in seconds.
+      USAGE_TYPE3_LAST_USED_TIMESTAMP = 8;
+
+      // Ranked by relevance score, currently computed as BM25F score.
+      RELEVANCE_SCORE = 9;
+
+      // Ranked by the aggregated score of the joined documents.
+      JOIN_AGGREGATE_SCORE = 10;
+
+      // Ranked by the advanced scoring expression provided.
+      ADVANCED_SCORING_EXPRESSION = 11;
+    }
+  }
+  optional RankingStrategy.Code rank_by = 1;
+
+  // OPTIONAL: Indicates the order of returned search results, the default is
+  // DESC, meaning that results with higher scores come first. This order field
+  // will be ignored if 'rank_by' is NONE.
+  message Order {
+    enum Code {
+      // Search results will be returned in a descending order.
+      DESC = 0;
+
+      // Search results will be returned in a ascending order.
+      ASC = 1;
+    }
+  }
+  optional Order.Code order_by = 2;
+
+  // OPTIONAL: Specifies property weights for RELEVANCE_SCORE scoring strategy.
+  // Property weights are used for promoting or demoting query term matches in a
+  // document property. When property weights are provided, the term frequency
+  // is multiplied by the normalized property weight when computing the
+  // normalized term frequency component of BM25F. To prefer query term matches
+  // in the "subject" property over the "body" property of "Email" documents,
+  // set a higher property weight value for "subject" than "body". By default,
+  // all properties that are not specified are given a raw, pre-normalized
+  // weight of 1.0 when scoring.
+  repeated TypePropertyWeights type_property_weights = 3;
+
+  // OPTIONAL: Specifies the scoring expression for ADVANCED_SCORING_EXPRESSION
+  // RankingStrategy.
+  optional string advanced_scoring_expression = 4;
+}
+
+// Next tag: 3
+message SuggestionScoringSpecProto {
+  message SuggestionRankingStrategy {
+    enum Code {
+      // No ranking strategy specified, terms may be returned in an arbitrary
+      // order.
+      NONE = 0;
+
+      // Ranked by the term's hit count.
+      DOCUMENT_COUNT = 1;
+
+      // Ranked by the term's frequency.
+      TERM_FREQUENCY = 2;
+    }
+  }
+
+  // TermMatchType.Code=UNKNOWN
+  // Should never purposely be set and may lead to undefined behavior. This is
+  // used for backwards compatibility reasons.
+  //
+  // TermMatchType.Code=EXACT_ONLY
+  // Only exact hits will be counted to score a suggestion term.
+  //
+  // TermMatchType.Code=PREFIX
+  // Both exact hits and prefix hits will be counted to score a suggestion
+  // term.
+  optional TermMatchType.Code scoring_match_type = 1;
+
+  // Rank the output suggested result by given SuggestionRankingStrategy.
+  optional SuggestionRankingStrategy.Code rank_by = 2;
+}
+
+// Next tag: 3
+message TypePropertyWeights {
+  // Schema type to apply property weights to.
+  optional string schema_type = 1;
+
+  // Property weights to apply to the schema type.
+  repeated PropertyWeight property_weights = 2;
+}
+
+// Next tag: 3
+message PropertyWeight {
+  // Property path to assign property weight to. Property paths must be composed
+  // only of property names and property separators (the '.' character).
+  // For example, if an "Email" schema type has string property "subject" and
+  // document property "sender", which has string property "name", the property
+  // path for the email's subject would just be "subject" and the property path
+  // for the sender's name would be "sender.name". If an invalid path is
+  // specified, the property weight is discarded.
+  optional string path = 1;
+
+  // Property weight, valid values are positive and zero. Setting a zero
+  // property weight will remove scoring contribution for a query term match in
+  // the property. Negative weights are invalid and will result in an error.
+  // By default, a property is given a raw, pre-normalized weight of 1.0.
+  optional double weight = 2;
+}

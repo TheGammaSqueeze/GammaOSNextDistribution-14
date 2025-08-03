@@ -1,0 +1,14 @@
+function symbol 'int fun(struct N, struct N*)' changed
+  type 'int(struct N, struct N*)' changed
+    parameter 1 type 'struct N' changed
+      member 'struct N* next' changed
+        type 'struct N*' changed
+          pointed-to type 'struct N' changed
+            (being reported)
+      member changed from 'char extra' to 'short extra'
+        type changed from 'char' to 'short'
+    parameter 2 type 'struct N*' changed
+      pointed-to type 'struct N' changed
+        (already reported)
+
+exit code 4

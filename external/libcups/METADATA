@@ -1,0 +1,26 @@
+# *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+#     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+#     DEPENDING ON IT IN YOUR PROJECT. ***
+name: "libcups"
+description: "CUPS is the standards-based, open source printing system."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://www.cups.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/apple/cups/"
+  }
+  version: "v2.3.6"
+  license_type: BY_EXCEPTION_ONLY
+  license_note: "would be RESTRICTED save for Apple license in backend/usb-darwin.c"
+  security {
+    tag: "NVD-CPE2.3:cpe:/a:cups:cups:2.3.6"
+  }
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 4
+  }
+}

@@ -1,0 +1,9 @@
+diff --git a/src/lib.rs b/src/lib.rs
+index 3d4d185..9081ecf 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -1,3 +1,4 @@
++extern crate proc_macro;
+ use proc_macro::TokenStream;
+ use proc_macro2::{Delimiter, Group, TokenStream as TokenStream2, TokenTree};
+ use quote::quote;

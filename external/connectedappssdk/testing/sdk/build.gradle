@@ -1,0 +1,50 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+
+dependencies {
+    implementation project(path: ':connectedapps-annotations')
+    implementation project(path: ':connectedapps')
+    implementation deps.androidxTest
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from components.release
+                groupId = 'com.google.android.enterprise.connectedapps'
+                artifactId = 'connectedapps-testing'
+                version = project.version
+
+                pom {
+                    licenses {
+                        license {
+                            name = 'Apache 2.0'
+                            url = 'https://opensource.org/licenses/Apache-2.0'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+android {
+    defaultConfig {
+        compileSdkVersion 30
+        minSdkVersion 26
+    }
+
+    buildFeatures {
+        aidl = true
+    }
+
+    testOptions.unitTests.includeAndroidResources = true
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}

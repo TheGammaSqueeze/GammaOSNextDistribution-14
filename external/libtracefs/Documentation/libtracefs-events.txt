@@ -1,0 +1,195 @@
+libtracefs(3)
+=============
+
+NAME
+----
+tracefs_event_systems, tracefs_system_events, tracefs_event_enable, tracefs_event_disable,
+tracefs_event_is_enabled - Work with trace systems and events.
+
+SYNOPSIS
+--------
+[verse]
+--
+*#include <tracefs.h>*
+
+enum tracefs_event_state {
+	TRACEFS_ERROR = -1,
+	TRACEFS_ALL_DISABLED = 0,
+	TRACEFS_ALL_ENABLED = 1,
+	TRACEFS_SOME_ENABLED = 2,
+};
+
+char pass:[*]pass:[*]*tracefs_event_systems*(const char pass:[*]_tracing_dir_);
+char pass:[*]pass:[*]*tracefs_system_events*(const char pass:[*]_tracing_dir_, const char pass:[*]_system_);
+int *tracefs_event_enable*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_system_,
+			   const char pass:[*]_event_);
+int *tracefs_event_disable*(struct tracefs_instance pass:[*]_instance_, const char pass:[*]_system_,
+			    const char pass:[*]_event_);
+enum tracefs_enable_state *tracefs_event_is_enabled*(struct tracefs_instance pass:[*]_instance_,
+			 const char pass:[*]_system_, const char pass:[*]_event_);
+--
+
+DESCRIPTION
+-----------
+Trace systems and events related APIs.
+
+The *tracefs_event_systems()* function returns array of strings with the
+names of all registered trace systems, located in the given _tracing_dir_
+directory. This could be NULL or the location of the tracefs mount point
+for the trace systems of the local machine, or it may be a path to a copy
+of the tracefs directory from another machine. The last entry in the array
+is a NULL pointer. The array must be freed with *tracefs_list_free()* API.
+
+The *tracefs_system_events()* function returns array of strings with the
+names of all registered trace events for given trace system specified by
+_system_, located in the given _tracing_dir_ directory. This could be NULL
+or the location of the tracefs mount point for the trace systems of the
+local machine, or it may be a path to a copy of the tracefs directory
+from another machine. The last entry in the array as a NULL pointer.
+The array must be freed with *tracefs_list_free()* API.
+
+The *tracefs_event_enable()* function enables a given event based on
+the _system_ and _event_ passed in for the given _instance_. If _instance_
+is NULL, then the top level tracing directory is used. If _system_
+and _event_ are both NULL, then all events are enabled for the  _instance_.
+If _event_ is NULL then all events within the _system_ are enabled.
+If _system_ is NULL, then all systems are searched and any event within
+a system that matches _event_ is enabled. Both _system_ and _event_ may
+be regular expressions as defined by *regex*(3).
+
+The *tracefs_event_disable()* function disables the events that match
+the _system_ and _event_ parameters for the given _instance_. What events
+are disable follow the same rules as *tracefs_event_enable()* for matching
+events. That is, if _instance_ is NULL, then the top level tracing directory
+is used. If both _system_ and _event_ are NULL then all events are disabled
+for the given _instance_, and so on.
+
+The *tracefs_event_is_enabled()* returns if an event is enabled, a set of
+events are enabled, a system is enabled, or all events are enabled. If both
+_system_ and _event_ are NULL, then it returns the enable state of all events.
+If _system_ is not NULL and _event_ is NULL, then it will check if all the events
+in all the systems that _system_ and return the enable state of those events.
+If _system_ is NULL and _event_ is not NULL, then it will match all the events
+in all systems that match _event_ and return their enabled state. If both _system_
+and _event_ are not NULL, then it will return the enabled state of all matching
+events. The enabled state is defined as:
+
+*TRACEFS_ERROR* - An error occurred including no event were matched.
+
+*TRACEFS_ALL_DISABLED* - All matching events are disabled.
+
+*TRACEFS_ALL_ENABLED* - All matching events are enabled.
+
+*TRACEFS_SOME_ENABLED* - Some matching events were enabled while others were not.
+
+RETURN VALUE
+------------
+The *tracefs_event_systems()* and *tracefs_system_events()* functions return
+an array of strings. The last element in that array is a NULL pointer. The array
+must be freed with *tracefs_list_free()* API. In case of an error, NULL is returned.
+
+Both *tracefs_event_enable()* and *tracefs_event_disable()* return 0 if they found
+any matching events (Note it does not check the previous status of the event. If
+*tracefs_event_enable()* finds an event that is already enabled, and there are no
+other errors, then it will return 0). If an error occurs, even if other events were
+found, it will return -1 and errno will be set. If no errors occur, but no events
+are found that match the _system_ and _event_ parameters, then -1 is returned
+and errno is not set.
+
+The *tracefs_event_is_enabled()* returns the enabled status of the matching events
+or TRACEFS_ERROR on error.
+
+EXAMPLE
+-------
+[source,c]
+--
+#include <tracefs.h>
+
+char **systems = tracefs_event_systems(NULL);
+
+	if (systems) {
+		int i = 0;
+		/* Got registered trace systems from the top trace instance */
+		while (systems[i]) {
+			char **events = tracefs_system_events(NULL, systems[i]);
+			if (events) {
+				/* Got registered events in system[i] from the top trace instance */
+				int j = 0;
+
+				while (events[j]) {
+					/* Got event[j] in system[i] from the top trace instance */
+					j++;
+				}
+				tracefs_list_free(events);
+			}
+			i++;
+		}
+		tracefs_list_free(systems);
+	}
+....
+static int records_walk(struct tep_event *tep, struct tep_record *record, int cpu, void *context)
+{
+	/* Got recorded event on cpu */
+	return 0;
+}
+...
+struct tep_handle *tep = tracefs_local_events(NULL);
+
+	if (!tep) {
+		/* Failed to initialise tep handler with local events */
+		...
+	}
+
+	errno = 0;
+	ret = tracefs_event_enable(NULL, "sched", NULL);
+	if (ret < 0 && !errno)
+		printf("Could not find 'sched' events\n");
+	tracefs_event_enable(NULL, "irq", "irq_handler_\(enter\|exit\)");
+
+	if (tracefs_iterate_raw_events(tep, NULL, NULL, 0, records_walk, NULL) < 0) {
+		/* Error walking through the recorded raw events */
+	}
+
+	/* Disable all events */
+	tracefs_event_disable(NULL, NULL, NULL);
+	tep_free(tep);
+--
+FILES
+-----
+[verse]
+--
+*tracefs.h*
+	Header file to include in order to have access to the library APIs.
+*-ltracefs*
+	Linker switch to add when building a program that uses the library.
+--
+
+SEE ALSO
+--------
+*libtracefs*(3),
+*libtraceevent*(3),
+*trace-cmd*(1)
+
+AUTHOR
+------
+[verse]
+--
+*Steven Rostedt* <rostedt@goodmis.org>
+*Tzvetomir Stoyanov* <tz.stoyanov@gmail.com>
+--
+REPORTING BUGS
+--------------
+Report bugs to  <linux-trace-devel@vger.kernel.org>
+
+LICENSE
+-------
+libtracefs is Free Software licensed under the GNU LGPL 2.1
+
+RESOURCES
+---------
+https://git.kernel.org/pub/scm/libs/libtrace/libtracefs.git/
+
+COPYING
+-------
+Copyright \(C) 2020 VMware, Inc. Free use of this software is granted under
+the terms of the GNU Public License (GPL).

@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update xz-java
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "XZ for Java"
+description: "This aims to be a complete implementation of XZ data compression in pure Java. Single-threaded streamed compression and decompression and random access decompression have been fully implemented. Threading is planned but it is unknown when it will be implemented."
+third_party {
+  license_type: UNENCUMBERED
+  last_upgrade_date {
+    year: 2023
+    month: 11
+    day: 28
+  }
+  identifier {
+    type: "HOMEPAGE"
+    value: "https://tukaani.org/xz/java.html"
+  }
+  identifier {
+    type: "GIT"
+    value: "https://github.com/tukaani-project/xz-java.git"
+    version: "v1.9"
+  }
+}

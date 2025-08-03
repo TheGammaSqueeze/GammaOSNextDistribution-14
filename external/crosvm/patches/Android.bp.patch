@@ -1,0 +1,47 @@
+diff --git b/Android.bp a/Android.bp
+index d3d46248..bc1191a5 100644
+--- b/Android.bp
++++ a/Android.bp
+@@ -36,6 +36,7 @@ rust_binary {
+     name: "crosvm",
+     defaults: ["crosvm_defaults"],
+     host_supported: true,
++    prefer_rlib: true,
+     crate_name: "crosvm",
+     cargo_env_compat: true,
+     srcs: ["src/main.rs"],
+@@ -52,7 +52,6 @@ rust_binary {
+         "gdbstub_arch",
+         "geniezone",
+         "gfxstream",
+-        "gfxstream_stub",
+         "gpu",
+         "gpu_display",
+         "gunyah",
+@@ -107,6 +108,18 @@ rust_binary {
+                 "libthiserror",
+             ],
+         },
++        linux_bionic_arm64: {
++            relative_install_path: "aarch64-linux-bionic",
++        },
++        linux_glibc_x86_64: {
++            relative_install_path: "x86_64-linux-gnu",
++        },
++        linux_musl_x86_64: {
++            relative_install_path: "x86_64-linux-musl",
++        },
++        linux_musl_arm64: {
++            relative_install_path: "aarch64-linux-musl",
++        },
+     },
+     ld_flags: [
+         "-Wl,--rpath,\\$$ORIGIN",
+@@ -191,7 +190,6 @@ rust_test {
+         "gdbstub_arch",
+         "geniezone",
+         "gfxstream",
+-        "gfxstream_stub",
+         "gpu",
+         "gpu_display",
+         "gunyah",

@@ -1,0 +1,17 @@
+diff --git b/rules.mk a/rules.mk
+index 4e31c7c..17355aa 100644
+--- b/rules.mk
++++ a/rules.mk
+@@ -15,9 +15,8 @@ MODULE_RUSTFLAGS += \
+ 	--cfg 'feature="zeroize"' \
+ 
+ MODULE_LIBRARY_DEPS := \
+-	external/rust/crates/base16ct \
+-	external/rust/crates/generic-array \
+-	external/rust/crates/serdect \
+-	external/rust/crates/subtle \
++	external/rust/crates/der \
++	external/rust/crates/pkcs8 \
++	external/rust/crates/zeroize \
+ 
+ include make/library.mk

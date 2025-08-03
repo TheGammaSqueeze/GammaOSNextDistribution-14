@@ -1,0 +1,36 @@
+variable symbol 'int removed_n::var' {_ZN9removed_n3varE} was removed
+
+variable symbol 'int added_n::var' {_ZN7added_n3varE} was added
+
+variable symbol changed from 'int foo::x1' {_ZN3foo2x1E} to 'long foo::x1' {_ZN3foo2x1E}
+  type changed from 'int' to 'long'
+
+variable symbol changed from 'int foo::x2[5]' {_ZN3foo2x2E} to 'long foo::x2[5]' {_ZN3foo2x2E}
+  type changed from 'int[5]' to 'long[5]'
+    element type changed from 'int' to 'long'
+
+variable symbol changed from 'const int foo::x3' {_ZN3foo2x3E} to 'const long foo::x3' {_ZN3foo2x3E}
+  type changed from 'const int' to 'const long'
+    underlying type changed from 'int' to 'long'
+
+function symbol changed from 'int foo::x5()' {_ZN3foo2x5Ev} to 'long foo::x5()' {_ZN3foo2x5Ev}
+  type changed from 'int()' to 'long()'
+    return type changed from 'int' to 'long'
+
+type changed from 'foo::type_definition' = 'int' to 'foo::type_definition' = 'long'
+  resolved type changed from 'int' to 'long'
+
+type 'struct foo::S' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+type 'union foo::U' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+type 'enum foo::E' changed
+  enumerator 'Z' (2) was added
+
+exit code 4

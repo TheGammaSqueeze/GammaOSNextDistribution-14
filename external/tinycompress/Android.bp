@@ -1,0 +1,66 @@
+package {
+    default_applicable_licenses: ["external_tinycompress_license"],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change filtered out the below license kinds as false-positives:
+//   SPDX-license-identifier-LGPL
+//   SPDX-license-identifier-LGPL-2.1
+// See: http://go/android-license-faq
+license {
+    name: "external_tinycompress_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+cc_library_shared {
+    name: "libtinycompress",
+    defaults: ["extended_compress_format_defaults"],
+    vendor: true,
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-macro-redefined",
+        "-Wno-unused-function",
+    ],
+    export_include_dirs: ["include"],
+    srcs: [
+        "compress.c",
+        "utils.c",
+        "compress_hw.c",
+         "compress_plugin.c",
+         "snd_utils.c",
+    ],
+    shared_libs: [
+        "libcutils",
+        "libutils",
+    ],
+    header_libs: [
+        "device_kernel_headers",
+    ],
+}
+
+cc_binary {
+    name: "cplay",
+    vendor: true,
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-macro-redefined"
+    ],
+    local_include_dirs: ["include"],
+    srcs: ["cplay.c"],
+    shared_libs: [
+        "libcutils",
+        "libutils",
+        "libtinycompress",
+    ],
+}

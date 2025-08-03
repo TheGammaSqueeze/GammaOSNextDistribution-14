@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<root>
+   <enumeration>
+     <item value="1" />
+     <item value="2" />
+     <item value="3" />
+   </enumeration>
+
+   <reference ref="enumeration/item" />
+
+</root>

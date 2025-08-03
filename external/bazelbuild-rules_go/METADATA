@@ -1,0 +1,17 @@
+name: "rules_go"
+description:
+    "Bazel build rules for building Go code"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/bazelbuild/rules_go"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/bazelbuild/rules_go"
+  }
+  version: "v0.39.1"
+  last_upgrade_date { year: 2023 month: 6 day: 13 }
+  license_type: NOTICE
+}

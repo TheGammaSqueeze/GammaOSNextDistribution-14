@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+  <selector>
+    <item number="1">one</item>
+    <item value="two">2</item>
+  </selector>
+</doc>

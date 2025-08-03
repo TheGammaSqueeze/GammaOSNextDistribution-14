@@ -1,0 +1,4 @@
+third_party {
+  license_note: "would be NOTICE save for CPL 1.0 in: lib/junit/cpl-v10.html and lib/junit/README.html"
+  license_type: RECIPROCAL
+}

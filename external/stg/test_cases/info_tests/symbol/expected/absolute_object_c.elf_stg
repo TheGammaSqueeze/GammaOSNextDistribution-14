@@ -1,0 +1,29 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+elf_symbol {
+  id: 0x7709bd40
+  name: "x"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xfc0e1dbd
+  full_name: "x"
+}
+elf_symbol {
+  id: 0xb5c9c657
+  name: "y"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xfc0e1dbd
+  full_name: "y"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x7709bd40
+  symbol_id: 0xb5c9c657
+}

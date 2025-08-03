@@ -1,0 +1,86 @@
+/*
+ * Copyright 2023 The Pigweed Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Flex&family=Roboto+Mono:wght@400;500&display=block');
+
+@font-face {
+    font-family: 'Material Symbols Rounded';
+    font-style: normal;
+    font-display: block;
+    src: url('./assets/material_symbols_rounded_subset.woff2') format('woff2');
+}
+
+:root {
+    background-color: #fff;
+    font-family: "Roboto Flex", Arial, sans-serif;
+    font-synthesis: none;
+    font-weight: 400;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    /* Material component properties */
+    --md-icon-font: 'Material Symbols Rounded';
+    --md-icon-font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 200, 'opsz' 58;
+    --md-icon-size: 1.25rem;
+    --md-filled-button-label-text-type: "Roboto Flex", Arial, sans-serif;
+    --md-outlined-button-label-text-type: "Roboto Flex", Arial, sans-serif;
+    --md-icon-button-unselected-icon-color: var(--md-sys-color-on-surface-variant);
+    --md-icon-button-unselected-hover-icon-color: var(--md-sys-color-on-primary-container);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        background-color: #131314;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+button {
+    font-family: "Roboto Flex";
+}
+
+main {
+    height: 100vh;
+    padding: 16px;
+    width: 100vw;
+}
+
+@media (min-width: 840px) {
+    main {
+        padding: 24px;
+    }
+}
+
+a {
+    color: var(--md-sys-color-primary);
+    font-weight: 500;
+    text-decoration: inherit;
+}
+
+a:hover {
+    color: var(--md-sys-color-secondary);
+}
+
+body {
+    display: grid;
+    place-content: start;
+    margin: 0;
+}

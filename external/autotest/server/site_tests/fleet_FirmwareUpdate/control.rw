@@ -1,0 +1,35 @@
+# Copyright (c) 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "Chrome Fleet Software team"
+NAME = "fleet_FirmwareUpdate"
+PURPOSE = "Update OS bundled firmware and verify DUT is good"
+ATTRIBUTES = "suite:fleet_firmware_update"
+CRITERIA = "This test will fail if the device failed to boot after update firmware"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "firmware"
+TEST_TYPE = "server"
+JOB_RETRIES = 0
+PY_VERSION = 3
+
+
+DOC = """
+This test is designed to simulate the same firmware update behavior that
+a ChromeOS user would have. We don't need OS update since it should be handled
+by prejob(provision) already. And this test will update OS bundled firmware(RW only)
+from the DUT and doing some post-update validation. The test includes below steps:
+
+1. Pre-update validation.
+2. Update DUT to OS bundled firmware via /usr/sbin/chromeos-firmwareupdate(RW only).
+3. Reboot.
+4. Post-update validation.
+"""
+
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('fleet_FirmwareUpdate', host=host)
+
+job.parallel_simple(run, machines)

@@ -1,0 +1,13 @@
+name: "notoserifarmenian"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Serif Armenian is a modulated (“serif”) design for texts inthe European Armenian script. It has multiple weights and widths, and107 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notoserifarmenian"
+  }
+  version: "2.005"
+  license_type: NOTICE
+  last_upgrade_date { year: 2020 month: 9 day: 13 }
+}

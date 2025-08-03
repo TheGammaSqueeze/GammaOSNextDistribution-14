@@ -1,0 +1,3 @@
+# This test flakes across all Mesa drivers (Intel KBL+GLK, AMD, and Qualcomm, at least).
+# https://gitlab.freedesktop.org/mesa/mesa/-/issues/4575
+dEQP-VK.wsi.display.get_display_plane_capabilities

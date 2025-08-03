@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="broken.xsl"?>
+<report>
+  <colData colId="F">1</colData>
+  <colData colId="L">5</colData>
+  <colData colId="F">1</colData>
+  <colData colId="L">5</colData>
+  <colData colId="L">2</colData> <!-- If you delete this line it works -->
+  <colData colId="F">2</colData> 
+  <colData colId="L">5</colData>
+  <colData colId="F">2</colData>
+</report>

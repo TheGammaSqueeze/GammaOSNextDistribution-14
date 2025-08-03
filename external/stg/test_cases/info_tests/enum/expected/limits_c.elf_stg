@@ -1,0 +1,229 @@
+version: 0x00000002
+root_id: 0x84ea5130
+primitive {
+  id: 0x33756485
+  name: "unsigned long"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000008
+}
+primitive {
+  id: 0x4585663f
+  name: "unsigned int"
+  encoding: UNSIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+enumeration {
+  id: 0xd3d36586
+  name: "A"
+  definition {
+    underlying_type_id: 0x6720d32f
+    enumerator {
+      name: "Ae"
+      value: -2147483648
+    }
+  }
+}
+enumeration {
+  id: 0x909102c3
+  name: "B"
+  definition {
+    underlying_type_id: 0x6720d32f
+    enumerator {
+      name: "Be"
+      value: -1
+    }
+  }
+}
+enumeration {
+  id: 0x515c78f9
+  name: "C"
+  definition {
+    underlying_type_id: 0x4585663f
+    enumerator {
+      name: "Ce"
+      value: 2147483647
+    }
+  }
+}
+enumeration {
+  id: 0x181e741d
+  name: "D"
+  definition {
+    underlying_type_id: 0x4585663f
+    enumerator {
+      name: "De"
+      value: 2147483648
+    }
+  }
+}
+enumeration {
+  id: 0xd8dfd34f
+  name: "E"
+  definition {
+    underlying_type_id: 0xfc0e1dbd
+    enumerator {
+      name: "Ee"
+      value: -9223372036854775808
+    }
+  }
+}
+enumeration {
+  id: 0x9b93ce42
+  name: "F"
+  definition {
+    underlying_type_id: 0x33756485
+    enumerator {
+      name: "Fe"
+      value: 9223372036854775807
+    }
+  }
+}
+enumeration {
+  id: 0x5a53132a
+  name: "G"
+  definition {
+    underlying_type_id: 0x4585663f
+    enumerator {
+      name: "Ge"
+      value: 16777216
+    }
+  }
+}
+enumeration {
+  id: 0x3717ab70
+  name: "H"
+  definition {
+    underlying_type_id: 0x33756485
+    enumerator {
+      name: "He"
+      value: 281474976710656
+    }
+  }
+}
+enumeration {
+  id: 0xe9d74c38
+  name: "I"
+  definition {
+    underlying_type_id: 0x4585663f
+    enumerator {
+      name: "Ie"
+      value: 4294967295
+    }
+  }
+}
+enumeration {
+  id: 0xaa901a01
+  name: "J"
+  definition {
+    underlying_type_id: 0x33756485
+    enumerator {
+      name: "Je"
+      value: -1
+    }
+  }
+}
+elf_symbol {
+  id: 0x79256de9
+  name: "G"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x5a53132a
+  full_name: "G"
+}
+elf_symbol {
+  id: 0xa7b0241d
+  name: "a"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd3d36586
+  full_name: "a"
+}
+elf_symbol {
+  id: 0xe371117a
+  name: "b"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x909102c3
+  full_name: "b"
+}
+elf_symbol {
+  id: 0x2230fb28
+  name: "c"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x515c78f9
+  full_name: "c"
+}
+elf_symbol {
+  id: 0x63f6f9b1
+  name: "d"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x181e741d
+  full_name: "d"
+}
+elf_symbol {
+  id: 0xa2b65a7e
+  name: "e"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xd8dfd34f
+  full_name: "e"
+}
+elf_symbol {
+  id: 0xe0778f95
+  name: "f"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x9b93ce42
+  full_name: "f"
+}
+elf_symbol {
+  id: 0x68f3ac2c
+  name: "h"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0x3717ab70
+  full_name: "h"
+}
+elf_symbol {
+  id: 0xa9b30393
+  name: "i"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xe9d74c38
+  full_name: "i"
+}
+elf_symbol {
+  id: 0xe98c5fb8
+  name: "j"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xaa901a01
+  full_name: "j"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x79256de9
+  symbol_id: 0xa7b0241d
+  symbol_id: 0xe371117a
+  symbol_id: 0x2230fb28
+  symbol_id: 0x63f6f9b1
+  symbol_id: 0xa2b65a7e
+  symbol_id: 0xe0778f95
+  symbol_id: 0x68f3ac2c
+  symbol_id: 0xa9b30393
+  symbol_id: 0xe98c5fb8
+}

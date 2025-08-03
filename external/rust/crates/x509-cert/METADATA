@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/x509-cert
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "x509-cert"
+description: "Pure Rust implementation of the X.509 Public Key Infrastructure Certificate format as described in RFC 5280."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 12
+    day: 15
+  }
+  homepage: "https://crates.io/crates/x509-cert"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/x509-cert/x509-cert-0.2.4.crate"
+    version: "0.2.4"
+  }
+}

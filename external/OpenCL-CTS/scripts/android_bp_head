@@ -1,0 +1,82 @@
+package {
+    default_applicable_licenses: ["external_OpenCL-CTS_license"],
+}
+
+license {
+    name: "external_OpenCL-CTS_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unlicense",
+    ],
+    license_text: [
+        "LICENSE.txt",
+    ],
+}
+
+cc_library_headers {
+    name: "ocl-harness-headers",
+    export_include_dirs: [
+        "test_common/harness",
+        "test_common"
+    ]
+}
+
+cc_defaults {
+    name: "ocl-harness-defaults",
+    header_libs: [
+        "ocl-harness-headers",
+    ],
+    export_header_lib_headers: [
+        "ocl-harness-headers",
+    ],
+    cflags: [
+        "-DCL_EXPERIMENTAL",
+        "-DCL_TARGET_OPENCL_VERSION=300",
+        "-Wno-#warnings",
+        "-Wno-c++11-narrowing",
+        "-Wno-date-time",
+        "-Wno-deprecated-declarations",
+        "-Wno-format",
+        "-Wno-ignored-qualifiers",
+        "-Wno-implicit-fallthrough",
+        "-Wno-missing-braces",
+        "-Wno-missing-field-initializers",
+        "-Wno-non-virtual-dtor",
+        "-Wno-overloaded-virtual",
+        "-Wno-reorder-ctor",
+        "-Wno-sometimes-uninitialized",
+        "-Wno-unused-parameter",
+        "-fexceptions",
+    ],
+    static_libs: [
+        "ocl-stubs"
+    ],
+}
+
+cc_library {
+    name: "ocl-harness",
+    srcs: [ "test_common/harness/*.cpp", ],
+    defaults: [ "ocl-harness-defaults" ],
+}
+
+cc_defaults {
+    name: "ocl-test-defaults",
+    defaults: [ "ocl-harness-defaults" ],
+    static_libs: [ "ocl-harness" ],
+    compile_multilib: "64",
+    multilib: {
+        lib64: {
+            suffix: "64",
+        },
+    },
+}
+
+cc_defaults {
+    name: "ocl-test-image-defaults",
+    srcs: [ "test_conformance/images/common.cpp" ],
+    export_include_dirs: [ "test_conformance/images" ],
+    defaults: [ "ocl-test-defaults" ],
+}

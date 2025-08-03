@@ -1,0 +1,15 @@
+name: "android-key-attestation"
+description: "Android Key Attestation validation library"
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/android-key-attestation"
+  }
+  version: "e3a09702acdc332ef5a6496c5b78a2ca6d2713f8"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 4
+    day: 18
+  }
+}

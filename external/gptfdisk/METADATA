@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update gptfdisk
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "gptfdisk"
+description: "This package includes the source code for four related disk partitioning programs."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://sourceforge.net/projects/gptfdisk/"
+  }
+  url {
+    type: GIT
+    value: "https://git.code.sf.net/p/gptfdisk/code"
+  }
+  version: "cb4bf320748f701a0ed835d4a410f2960f1ce0bd"
+  license_type: RESTRICTED
+  last_upgrade_date {
+    year: 2023
+    month: 3
+    day: 15
+  }
+}

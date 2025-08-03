@@ -1,0 +1,325 @@
+[
+    {
+        "test_name": "allocations",
+        "binary_name": "ocl-test-allocations",
+        "srcs": [
+            "test_conformance/allocations/*.cpp"
+        ]
+    },
+    {
+        "test_name": "api",
+        "binary_name": "ocl-test-api",
+        "srcs": [
+            "test_conformance/api/*.cpp"
+        ]
+    },
+    {
+        "test_name": "atomics",
+        "binary_name": "ocl-test-atomics",
+        "srcs": [
+            "test_conformance/atomics/*.cpp"
+        ]
+    },
+    {
+        "test_name": "basic",
+        "binary_name": "ocl-test-basic",
+        "srcs": [
+            "test_conformance/basic/*.cpp"
+        ]
+    },
+    {
+        "test_name": "buffers",
+        "binary_name": "ocl-test-buffers",
+        "srcs": [
+            "test_conformance/buffers/*.cpp"
+        ]
+    },
+    {
+        "test_name": "c11-atomics",
+        "binary_name": "ocl-test-c11-atomics",
+        "srcs": [
+            "test_conformance/c11_atomics/*.cpp"
+        ],
+        "timeout": "120m"
+    },
+    {
+        "test_name": "commonfns",
+        "binary_name": "ocl-test-commonfns",
+        "srcs": [
+            "test_conformance/commonfns/*.cpp"
+        ]
+    },
+    {
+        "test_name": "compiler",
+        "binary_name": "ocl-test-compiler",
+        "srcs": [
+            "test_conformance/compiler/*.cpp"
+        ],
+        "data": [
+            "test_conformance/compiler/includeTestDirectory/testIncludeFile.h",
+            "test_conformance/compiler/secondIncludeTestDirectory/testIncludeFile.h"
+        ],
+        "manual_only": true
+    },
+    {
+        "test_name": "computeinfo",
+        "binary_name": "ocl-test-computeinfo",
+        "srcs": [
+            "test_conformance/computeinfo/*.cpp"
+        ]
+    },
+    {
+        "test_name": "contractions",
+        "binary_name": "ocl-test-contractions",
+        "srcs": [
+            "test_conformance/contractions/*.cpp"
+        ]
+    },
+    {
+        "test_name": "conversions",
+        "binary_name": "ocl-test-conversions",
+        "srcs": [
+            "test_conformance/conversions/*.cpp"
+        ],
+        "manual_only": true
+    },
+    {
+        "test_name": "device-execution",
+        "binary_name": "ocl-test-device-execution",
+        "srcs": [
+            "test_conformance/device_execution/*.cpp"
+        ]
+    },
+    {
+        "test_name": "device-partition",
+        "binary_name": "ocl-test-device-partition",
+        "srcs": [
+            "test_conformance/device_partition/*.cpp"
+        ]
+    },
+    {
+        "test_name": "device-timer",
+        "binary_name": "ocl-test-device-timer",
+        "srcs": [
+            "test_conformance/device_timer/*.cpp"
+        ]
+    },
+    {
+        "test_name": "events",
+        "binary_name": "ocl-test-events",
+        "srcs": [
+            "test_conformance/events/*.cpp"
+        ]
+    },
+    {
+        "test_name": "generic-address-space",
+        "binary_name": "ocl-test-generic-address-space",
+        "srcs": [
+            "test_conformance/generic_address_space/*.cpp"
+        ]
+    },
+    {
+        "test_name": "geometrics",
+        "binary_name": "ocl-test-geometrics",
+        "srcs": [
+            "test_conformance/geometrics/*.cpp"
+        ]
+    },
+    {
+        "test_name": "half",
+        "binary_name": "ocl-test-half",
+        "srcs": [
+            "test_conformance/half/*.cpp"
+        ],
+        "manual_only": true
+    },
+    {
+        "test_name": "integer-ops",
+        "binary_name": "ocl-test-integer-ops",
+        "srcs": [
+            "test_conformance/integer_ops/*.cpp"
+        ],
+        "manual_only": true
+    },
+    {
+        "test_name": "math-brute-force",
+        "binary_name": "ocl-test-math-brute-force",
+        "srcs": [
+            "test_conformance/math_brute_force/*.cpp"
+        ],
+        "manual_only": true
+    },
+    {
+        "test_name": "mem-host-flags",
+        "binary_name": "ocl-test-mem-host-flags",
+        "srcs": [
+            "test_conformance/mem_host_flags/*.cpp"
+        ]
+    },
+    {
+        "test_name": "multiple-device-context",
+        "binary_name": "ocl-test-multiple-device-context",
+        "srcs": [
+            "test_conformance/multiple_device_context/*.cpp"
+        ]
+    },
+    {
+        "test_name": "non-uniform-work-group",
+        "binary_name": "ocl-test-non-uniform-work-group",
+        "srcs": [
+            "test_conformance/non_uniform_work_group/*.cpp"
+        ]
+    },
+    {
+        "test_name": "pipes",
+        "binary_name": "ocl-test-pipes",
+        "srcs": [
+            "test_conformance/pipes/*.cpp"
+        ]
+    },
+    {
+        "test_name": "printf",
+        "binary_name": "ocl-test-printf",
+        "srcs": [
+            "test_conformance/printf/*.cpp"
+        ],
+        "manual_only": true
+    },
+    {
+        "test_name": "profiling",
+        "binary_name": "ocl-test-profiling",
+        "srcs": [
+            "test_conformance/profiling/*.cpp"
+        ]
+    },
+    {
+        "test_name": "relationals",
+        "binary_name": "ocl-test-relationals",
+        "srcs": [
+            "test_conformance/relationals/*.cpp"
+        ]
+    },
+    {
+        "test_name": "select",
+        "binary_name": "ocl-test-select",
+        "srcs": [
+            "test_conformance/select/*.cpp"
+        ],
+        "manual_only": true
+    },
+    {
+        "test_name": "spir",
+        "binary_name": "ocl-test-spir",
+        "srcs": [
+            "test_conformance/spir/*.cpp",
+            "test_conformance/math_brute_force/function_list.cpp",
+            "test_common/miniz/miniz.c"
+        ],
+        "data": [ "test_conformance/spir/*.zip" ],
+        "cflags": [
+            "-DFUNCTION_LIST_ULPS_ONLY",
+            "-Wno-unused-private-field"
+        ],
+        "rtti": true,
+        "manual_only": true
+    },
+    {
+        "test_name": "spirv-new",
+        "binary_name": "ocl-test-spirv-new",
+        "srcs": [
+            "test_conformance/spirv_new/*.cpp",
+            "test_conformance/math_brute_force/reference_math.cpp",
+            "test_conformance/math_brute_force/utility.cpp"
+        ],
+        "data": [
+            "test_conformance/spirv_new/spirv_asm/*",
+            "test_conformance/spirv_new/spirv_bin/*"
+        ],
+        "manual_only": true
+    },
+    {
+        "test_name": "subgroups",
+        "binary_name": "ocl-test-subgroups",
+        "srcs": [
+            "test_conformance/subgroups/*.cpp"
+        ]
+    },
+    {
+        "test_name": "svm",
+        "binary_name": "ocl-test-svm",
+        "srcs": [
+            "test_conformance/SVM/*.cpp"
+        ]
+    },
+    {
+        "test_name": "thread-dimensions",
+        "binary_name": "ocl-test-thread-dimensions",
+        "srcs": [
+            "test_conformance/thread_dimensions/*.cpp"
+        ]
+    },
+    {
+        "test_name": "vectors",
+        "binary_name": "ocl-test-vectors",
+        "srcs": [
+            "test_conformance/vectors/*.cpp"
+        ]
+    },
+    {
+        "test_name": "clcopyimage",
+        "binary_name": "ocl-test-image-clcopyimage",
+        "srcs": [
+            "test_conformance/images/clCopyImage/*.cpp"
+        ],
+        "image_type": true
+    },
+    {
+        "test_name": "clfillimage",
+        "binary_name": "ocl-test-image-clfillimage",
+        "srcs": [
+            "test_conformance/images/clFillImage/*.cpp"
+        ],
+        "image_type": true
+    },
+    {
+        "test_name": "clgetinfo",
+        "binary_name": "ocl-test-image-clgetinfo",
+        "srcs": [
+            "test_conformance/images/clGetInfo/*.cpp"
+        ],
+        "image_type": true
+    },
+    {
+        "test_name": "clreadwriteimage",
+        "binary_name": "ocl-test-image-clreadwriteimage",
+        "srcs": [
+            "test_conformance/images/clReadWriteImage/*.cpp"
+        ],
+        "image_type": true
+    },
+    {
+        "test_name": "kernel-image-methods",
+        "binary_name": "ocl-test-image-kernel-image-methods",
+        "srcs": [
+            "test_conformance/images/kernel_image_methods/*.cpp"
+        ],
+        "image_type": true
+    },
+    {
+        "test_name": "kernel-read-write",
+        "binary_name": "ocl-test-image-kernel-read-write",
+        "srcs": [
+            "test_conformance/images/kernel_read_write/*.cpp"
+        ],
+        "manual_only": true,
+        "image_type": true
+    },
+    {
+        "test_name": "samplerlessreads",
+        "binary_name": "ocl-test-image-samplerlessreads",
+        "srcs": [
+            "test_conformance/images/samplerlessReads/*.cpp"
+        ],
+        "image_type": true
+    }
+]

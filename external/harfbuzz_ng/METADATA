@@ -1,0 +1,24 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update harfbuzz_ng
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "harfbuzz_ng"
+description: "HarfBuzz is a text shaping engine."
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/harfbuzz/harfbuzz"
+  }
+  version: "8.2.2"
+  license_type: RESTRICTED
+  license_note: "would be NOTICE save for GPL in:\n"
+  " m4/ax_code_coverage.m4\n"
+  " Also take care when vendoring in not to import content like the\n"
+  " culp/ligatures font with CC-BY-NC-SA licensing. Google does not want to\n"
+  " host CC-BY-NC* content.\n"
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 18
+  }
+}

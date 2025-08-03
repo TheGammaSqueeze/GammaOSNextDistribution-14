@@ -1,0 +1,15 @@
+name: "robolectric"
+description: "Android Unit Testing Framework"
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/robolectric/robolectric"
+  }
+  version: "68ec9953ea0ac7c47588db540145a728a1f00ba8"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 5
+    day: 24
+  }
+}

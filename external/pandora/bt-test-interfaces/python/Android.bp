@@ -1,0 +1,92 @@
+package {
+    default_applicable_licenses: [
+        "external_pandora_bt-test-interfaces_license",
+    ],
+}
+
+genrule {
+    name: "protoc-gen-pandora-python-src",
+    srcs: ["_build/protoc-gen-custom_grpc"],
+    cmd: "cp $(in) $(out)",
+    out: ["protoc-gen-custom_grpc.py"],
+}
+
+python_binary_host {
+    name: "protoc-gen-pandora-python",
+    main: "protoc-gen-custom_grpc.py",
+    srcs: [":protoc-gen-pandora-python-src"],
+    libs: ["libprotobuf-python"],
+}
+
+genrule {
+    name: "pandora-python-gen-src",
+    tools: [
+        "aprotoc",
+        "protoc-gen-pandora-python"
+    ],
+    cmd: "$(location aprotoc)" +
+         "    -Iexternal/pandora/bt-test-interfaces" +
+         "    -Iexternal/protobuf/src" +
+         "    --plugin=protoc-gen-grpc=$(location protoc-gen-pandora-python)" +
+         "    --python_out=$(genDir)" +
+         "    --grpc_out=$(genDir)" +
+         "    $(locations :pandora-protos) &&" +
+         "touch $(genDir)/pandora/py.typed &&" +
+         "touch $(genDir)/pandora/__init__.py",
+    srcs: [
+        ":pandora-protos",
+        ":libprotobuf-internal-protos",
+    ],
+    out: [
+        "pandora/py.typed",
+        "pandora/__init__.py",
+        "pandora/_utils.py",
+        "pandora/a2dp_grpc.py",
+        "pandora/a2dp_grpc_aio.py",
+        "pandora/a2dp_pb2.py",
+        "pandora/a2dp_pb2.pyi",
+        "pandora/host_grpc.py",
+        "pandora/host_grpc_aio.py",
+        "pandora/host_pb2.py",
+        "pandora/host_pb2.pyi",
+        "pandora/l2cap_grpc.py",
+        "pandora/l2cap_grpc_aio.py",
+        "pandora/l2cap_pb2.py",
+        "pandora/l2cap_pb2.pyi",
+        "pandora/security_grpc.py",
+        "pandora/security_grpc_aio.py",
+        "pandora/security_pb2.py",
+        "pandora/security_pb2.pyi",
+    ]
+}
+
+filegroup {
+    name: "pandora-python-src",
+    srcs: [
+        ":pandora-python-gen-src"
+    ],
+    exclude_srcs: [
+        ":pandora-python-stubs",
+    ]
+}
+
+filegroup {
+    name: "pandora-python-stubs",
+    srcs: [
+        ":pandora-python-gen-src{pandora/py.typed}",
+        ":pandora-python-gen-src{pandora/a2dp_pb2.pyi}",
+        ":pandora-python-gen-src{pandora/host_pb2.pyi}",
+        ":pandora-python-gen-src{pandora/l2cap_pb2.pyi}",
+        ":pandora-python-gen-src{pandora/security_pb2.pyi}",
+    ],
+}
+
+python_library_host {
+    name: "pandora-python",
+    srcs: [
+        ":pandora-python-src",
+    ],
+    data: [
+        ":pandora-python-stubs"
+    ]
+}

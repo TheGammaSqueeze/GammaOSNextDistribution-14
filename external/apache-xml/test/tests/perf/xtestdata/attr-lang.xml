@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<doc>
+  <p/>
+  <p xml:lang="en"/>
+  <p xml:lang="EN"/>
+  <p xml:lang="en-ca"/>
+  <p xml:lang="EN-CA"/>
+  <p xml:lang="en-gb"/>
+  <p xml:lang="EN-GB"/>
+  <p xml:lang="en-US"/>
+  <p xml:lang="EN-us"/>
+  <p xml:lang="TH"/>
+  <p xml:lang="pk"/>
+  <p xml:lang="JP"/>
+  <p xml:lang="fr"/>
+  <p xml:lang="FR"/>
+  <p xml:lang="fr-fr"/>
+  <p xml:lang="FR-FR"/>
+  <p xml:lang="fr-ca"/>
+  <p xml:lang="FR-CA"/>
+  <p xml:lang="fr-CF"/>
+  <p xml:lang="FR-cf"/>
+  <p xml:lang="UA"/>
+  <p xml:lang="it-it"/>
+  <span xml:lang="en">
+    <para>en</para>
+  </span>
+  <span xml:lang="en">
+    <div xml:lang="en-US">
+      <para>en-US</para>
+    </div>
+  </span>
+  <span xml:lang="en-US">
+    <para>en-US</para>
+  </span>
+  <span xml:lang="en-US">
+    <div xml:lang="en-CA">
+      <para>en-CA</para>
+    </div>
+  </span>
+  <span xml:lang="fr-CA">
+    <div xml:lang="en-CA">
+      <para>en-CA</para>
+    </div>
+  </span>
+  <span xml:lang="en-US">
+    <div xml:lang="en">
+      <para>en</para>
+    </div>
+  </span>
+  <span xml:lang="fr">
+    <div>
+      <div xml:lang="en-CA">
+        <para>en-CA</para>
+      </div>
+    </div>
+  </span>
+  <span xml:lang="fr-FR">
+    <div>
+      <div>
+        <para>fr-FR</para>
+      </div>
+    </div>
+  </span>
+  <span xml:lang="fr-CA">
+    <div xml:lang="en-CA">
+      <div>
+        <div>
+          <div>
+            <para>en-CA</para>
+          </div>
+        </div>
+      </div>
+    </div>
+  </span>
+  <span xml:lang="fr">
+    <div xml:lang="en-CA">
+      <div xml:lang="FR-FR">
+        <div xml:lang="it-IT">
+          <div xml:lang="en-US">
+            <para>en-US</para>
+          </div>
+        </div>
+      </div>
+    </div>
+  </span>
+  <span xml:lang="JP">
+    <div>
+      <div>
+        <div xml:lang="fr-CA">
+          <div>
+            <para>fr-CA</para>
+          </div>
+        </div>
+      </div>
+    </div>
+  </span>
+</doc>

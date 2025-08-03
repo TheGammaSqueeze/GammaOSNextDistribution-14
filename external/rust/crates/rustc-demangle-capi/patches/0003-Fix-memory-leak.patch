@@ -1,0 +1,36 @@
+From 4eba55790224dd43e88d6a4bbf4fea826a59498f Mon Sep 17 00:00:00 2001
+From: Christopher Ferris <cferris@google.com>
+Date: Fri, 13 Jan 2023 06:30:08 +0000
+Subject: [PATCH] Fix memory leak.
+
+The buffer to hold the demangled name is allocated before the
+name is demangled. If the parse fails, this buffer is not
+deallocated, leaking it. Only create the buffer when the parse
+passes.
+
+Test: Ran address sanitizer on host and verified this leaks without
+Test: the fix and does not with the fix.
+Change-Id: I3ee20727972fc511f63aae2b50f5a34f0c792a5f
+---
+ src/lib.rs | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/lib.rs b/src/lib.rs
+index 7610145..d220ec1 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -163,10 +163,9 @@ unsafe fn rustc_demangle_native(
+         }
+     }
+ 
+-    let mut out_buf = SystemBuffer::from_raw(out, out_size)?;
+-
+     match rustc_demangle::try_demangle(mangled_str) {
+         Ok(demangle) => {
++            let mut out_buf = SystemBuffer::from_raw(out, out_size)?;
+             while write!(out_buf.as_mut_slice(), "{:#}\0", demangle).is_err() {
+                 out_buf.resize()?;
+             }
+-- 
+2.39.0.246.g2a6d74b583-goog
+

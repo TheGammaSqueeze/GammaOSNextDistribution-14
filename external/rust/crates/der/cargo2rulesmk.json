@@ -1,0 +1,3 @@
+{
+  "features": "alloc,derive,flagset,oid,zeroize"
+}

@@ -1,0 +1,15 @@
+name: "rappor"
+description: "RAPPOR is a novel privacy technology that allows inferring statistics about populations while preserving the privacy of individual users."
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/rappor/archive/a13fa964edb7c576366c83f40ff58d7c8c1db759.zip"
+  }
+  version: "a13fa964edb7c576366c83f40ff58d7c8c1db759"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 9
+    day: 19
+  }
+}

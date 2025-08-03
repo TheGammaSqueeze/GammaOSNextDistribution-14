@@ -1,0 +1,18 @@
+
+<html>
+   <body>
+      <h1>Stylesheet Module Structure</h1>
+      <ul>
+         <li>includes dummya.xsl
+            <ul>
+               <li>imports dummyb.xsl
+                  <ul></ul>
+               </li>
+               <li>imports dummyc.xsl
+                  <ul></ul>
+               </li>
+            </ul>
+         </li>
+      </ul>
+   </body>
+</html>

@@ -1,0 +1,24 @@
+# Copyright 2016 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "stub_PassServer.ssp"
+PURPOSE = "Demonstrate success methods of autotests."
+CRITERIA = "This test will always succeed when running in a container."
+ATTRIBUTES = "suite:dummy_server, suite:push_to_prod, suite:skylab_staging_test, suite:dev_drone_image_test, suite:infra_qual"
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "stub"
+TEST_TYPE = "server"
+PY_VERSION = 3
+
+DOC = """
+This is a helper test that will succeed and force to use server-side packaging.
+"""
+
+def run(machine):
+    job.run_test('stub_PassServer', host=hosts.create_host(machine),
+                 expect_ssp=True)
+
+parallel_simple(run, machines)

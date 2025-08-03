@@ -1,0 +1,13 @@
+name: "notosansnabataean"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Nabataean is an unmodulated (“sans serif”) design fortexts in the historical Middle Eastern Nabataean script. It has 45glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosansnabataean"
+  }
+  version: "2.000"
+  license_type: NOTICE
+  last_upgrade_date { year: 2018 month: 3 day: 19 }
+}

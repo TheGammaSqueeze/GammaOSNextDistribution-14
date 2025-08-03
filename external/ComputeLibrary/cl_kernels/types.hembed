@@ -1,0 +1,34 @@
+R"( 
+#ifndef ARM_COMPUTE_TYPES_H
+#define ARM_COMPUTE_TYPES_H
+
+ 
+typedef struct Coordinates2D
+{
+    int x;  
+    int y;  
+} Coordinates2D;
+
+ 
+typedef struct Keypoint
+{
+    int   x;                
+    int   y;                
+    float strength;         
+    float scale;            
+    float orientation;      
+    int   tracking_status;  
+    float error;            
+} Keypoint;
+
+ 
+typedef struct DetectionWindow
+{
+    ushort x;          
+    ushort y;          
+    ushort width;      
+    ushort height;     
+    ushort idx_class;  
+    float  score;      
+} DetectionWindow;
+#endif  )"

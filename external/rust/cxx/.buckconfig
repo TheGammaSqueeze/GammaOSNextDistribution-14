@@ -1,0 +1,17 @@
+[repositories]
+repo = .
+prelude = tools/buck/prelude
+toolchains = tools/buck/toolchains
+config = tools/buck/prelude
+buck = none
+fbcode = none
+fbsource = none
+
+[project]
+# Hide BUCK files under target/package/ from `buck build ...`. Otherwise:
+#   $ buck build ...
+#   //target/package/cxx-0.3.0/tests:ffi references non-existing file or directory 'target/package/cxx-0.3.0/tests/ffi/lib.rs'
+ignore = target
+
+[parser]
+target_platform_detector_spec = target://...->config//platforms:default

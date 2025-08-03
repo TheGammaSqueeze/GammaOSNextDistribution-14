@@ -1,0 +1,9 @@
+{
+  "run_cargo": false,
+  "tests": true,
+  "package": {
+    "p9_wire_format_derive": {
+      "device_supported": false
+    }
+  }
+}

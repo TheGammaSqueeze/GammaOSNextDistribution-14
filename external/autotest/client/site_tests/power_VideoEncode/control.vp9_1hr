@@ -1,0 +1,23 @@
+AUTHOR = "mqg"
+NAME = "power_VideoEncode.vp9_1hr"
+PURPOSE = "Stress test video encode and measure statistics."
+
+CRITERIA = "This test is a benchmark."
+TIME = "LONG"
+TEST_CATEGORY = "Benchmark"
+TEST_CLASS = "power"
+TEST_TYPE = "client"
+PY_VERSION = 3
+
+DOC = """
+This test records power related statistics while encode video file in vp9
+for 1 hr.
+"""
+
+HOURS = 60 * 60
+formats = [('vp9', 'fhd', 24)]
+
+args_dict = utils.args_to_dict(args)
+pdash_note = args_dict.get('pdash_note', '')
+job.run_test('power_VideoEncode', pdash_note=pdash_note,
+             seconds_per_test=HOURS, format=formats)

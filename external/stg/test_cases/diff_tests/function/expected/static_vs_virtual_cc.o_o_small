@@ -1,0 +1,39 @@
+function symbol 'void VirtualToStatic::VirtualToStatic(struct VirtualToStatic*)' {_ZN15VirtualToStaticC2Ev} was removed
+
+variable symbol '_ZTI15VirtualToStatic' was removed
+
+variable symbol '_ZTS15VirtualToStatic' was removed
+
+variable symbol '_ZTV15VirtualToStatic' was removed
+
+function symbol 'void StaticToVirtual::StaticToVirtual(struct StaticToVirtual*)' {_ZN15StaticToVirtualC2Ev} was added
+
+variable symbol '_ZTI15StaticToVirtual' was added
+
+variable symbol '_ZTS15StaticToVirtual' was added
+
+variable symbol '_ZTV15StaticToVirtual' was added
+
+function symbol changed from 'int StaticToVirtual::print()' {_ZN15StaticToVirtual5printEv} to 'int StaticToVirtual::print(struct StaticToVirtual*)' {_ZN15StaticToVirtual5printEv}
+  type changed from 'int()' to 'int(struct StaticToVirtual*)'
+    parameter 1 of type 'struct StaticToVirtual*' was added
+
+function symbol changed from 'int VirtualToStatic::print(struct VirtualToStatic*)' {_ZN15VirtualToStatic5printEv} to 'int VirtualToStatic::print()' {_ZN15VirtualToStatic5printEv}
+  type changed from 'int(struct VirtualToStatic*)' to 'int()'
+    parameter 1 of type 'struct VirtualToStatic*' was removed
+
+type 'struct StaticToVirtual' changed
+  byte size changed from 4 to 16
+  method 'print {_ZN15StaticToVirtual5printEv}' was added
+  member 'int(** _vptr$StaticToVirtual)()' was added
+  member 'int m' changed
+    offset changed from 0 to 64
+
+type 'struct VirtualToStatic' changed
+  byte size changed from 16 to 4
+  method 'print {_ZN15VirtualToStatic5printEv}' was removed
+  member 'int(** _vptr$VirtualToStatic)()' was removed
+  member 'int m' changed
+    offset changed from 64 to 0
+
+exit code 4

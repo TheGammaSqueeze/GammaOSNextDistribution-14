@@ -1,0 +1,25 @@
+digraph "ABI diff" {
+  "0" [shape=rectangle, label="'interface'"]
+  "1" [label="'void foo(struct node*)'"]
+  "2" [label="'void(struct node*)'"]
+  "3" [label="'struct node*'"]
+  "4" [shape=rectangle, label="'struct node'"]
+  "5" [label="'struct leaf* ptr'"]
+  "6" [label="'struct leaf*'"]
+  "7" [color=red, shape=rectangle, label="'struct leaf'"]
+  "7" -> "7:0"
+  "7:0" [color=red, label="byte size changed from 8 to 12"]
+  "8" [label="'int numbers[2]' -> 'int numbers[3]'"]
+  "9" [color=red, label="'int[2]' -> 'int[3]'"]
+  "9" -> "9:0"
+  "9:0" [color=red, label="number of elements changed from 2 to 3"]
+  "8" -> "9" [label=""]
+  "7" -> "8" [label=""]
+  "6" -> "7" [label="pointed-to"]
+  "5" -> "6" [label=""]
+  "4" -> "5" [label=""]
+  "3" -> "4" [label="pointed-to"]
+  "2" -> "3" [label="parameter 1"]
+  "1" -> "2" [label=""]
+  "0" -> "1" [label=""]
+}

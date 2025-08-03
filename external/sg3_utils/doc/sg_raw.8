@@ -1,0 +1,270 @@
+.TH SG_RAW "8" "May 2021" "sg3_utils\-1.47" SG3_UTILS
+.SH NAME
+sg_raw \- send arbitrary SCSI or NVMe command to a device
+.SH SYNOPSIS
+.B sg_raw
+[\fI\-\-binary\fR] [\fI\-\-cmdfile=CF\fR] [\fI\-\-cmdset=CS\fR]
+[\fI\-\-enumerate\fR] [\fI\-\-help\fR] [\fI\-\-infile=IFILE\fR]
+[\fI\-\-nosense\fR] [\fI\-\-nvm\fR] [\fI\-\-outfile=OFILE\fR] [\fI\-\-raw\fR]
+[\fI\-\-readonly\fR] [\fI\-\-request=RLEN\fR] [\fI\-\-scan=FO,LO\fR]
+[\fI\-\-send=SLEN\fR] [\fI\-\-skip=KLEN\fR] [\fI\-\-timeout=SECS\fR]
+[\fI\-\-verbose\fR] [\fI\-\-version\fR]
+\fIDEVICE\fR [CDB0 CDB1 ...]
+.SH DESCRIPTION
+This utility sends an arbitrary SCSI command (between 6 and 256 bytes) to
+the \fIDEVICE\fR. There may be no associated data transfer; or data may be
+read from a file and sent to the \fIDEVICE\fR; or data may be received from
+the \fIDEVICE\fR and then displayed or written to a file. If supported
+by the pass through, bidirectional commands may be sent (i.e. containing
+both data to be sent to the \fIDEVICE\fR and received from the
+\fIDEVICE\fR).
+.PP
+The SCSI command may be between 6 and 256 bytes long. Each command byte is
+specified in plain hex format (00..FF) without a prefix or suffix. The
+command can be given either on the command line or via the
+\fI\-\-cmdfile=CF\fR option. See EXAMPLES section below.
+.PP
+The commands pass through a generic SCSI interface which is implemented
+for several operating systems including Linux, FreeBSD and Windows.
+.PP
+Experimental support has been added to send NVMe Admin and NVM commands to
+the \fIDEVICE\fR. Since all NVMe commands are 64 bytes long it is more
+convenient to use the \fI\-\-cmdfile=CF\fR option rather than type the 64
+bytes of the NVMe command on the command line. See the section on NVME
+below. A heuristic based on command length is used to decide if the given
+command is SCSI or NVMe, to override this heuristic use the
+\fI\-\-cmdset=CS\fR option.
+.SH OPTIONS
+Arguments to long options are mandatory for short options as well.
+The options are arranged in alphabetical order based on the long
+option name.
+.TP
+\fB\-b\fR, \fB\-\-binary\fR
+Dump data in binary form, even when writing to stdout.
+.TP
+\fB\-c\fR, \fB\-\-cmdfile\fR=\fICF\fR
+\fICF\fR is the name of a file which contains the command to be executed.
+Without this option the command must be given on the command line, after
+the options and the \fIDEVICE\fR.
+.TP
+\fB\-C\fR, \fB\-\-cmdset\fR=\fICS\fR
+\fICS\fR is a number to indicate which command set (i.e. SCSI or NVMe)
+to use. 0, the default, causes a heuristic based on command length to be
+used. Use a \fICS\fR of 1 to override that heuristic and choose the SCSI
+command set. Use a \fICS\fR of 2 to override that heuristic and choose
+the NVMe command set.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display usage information and exit.
+.TP
+\fB\-i\fR, \fB\-\-infile\fR=\fIIFILE\fR
+Read binary data from \fIIFILE\fR instead of stdin. This option is ignored
+if \fB\-\-send\fR is not specified. That data, if used, will become the
+command's "data\-out" buffer.
+.TP
+\fB\-n\fR, \fB\-\-nosense\fR
+Don't display SCSI Sense information.
+.TP
+\fB\-N\fR, \fB\-\-nvm\fR
+When sending NVMe commands, the Admin command set is assumed. To send the
+NVM command set (e.g. the Read and Write (user data) commands) this option
+needs to be given.
+.TP
+\fB\-o\fR, \fB\-\-outfile\fR=\fIOFILE\fR
+Write data received from the \fIDEVICE\fR to \fIOFILE\fR. That data is
+the command's "data\-in" buffer. The data is written in binary. By default,
+data is dumped in hex format to stdout.
+If \fIOFILE\fR is '\-' then data is dumped in binary to stdout.
+This option is ignored if \fI\-\-request\fR is not specified.
+.TP
+\fB\-w\fR, \fB\-\-raw\fR
+interpret \fICF\fR (i.e. the command file) as containing binary. The default
+is to assume that it contains ASCII hexadecimal.
+.TP
+\fB\-R\fR, \fB\-\-readonly\fR
+Open \fIDEVICE\fR read\-only. The default (without this option) is to open
+it read\-write.
+.TP
+\fB\-r\fR, \fB\-\-request\fR=\fIRLEN\fR
+Expect to receive up to \fIRLEN\fR bytes of data from the \fIDEVICE\fR.
+\fIRLEN\fR may be suffixed with 'k' to use kilobytes (1024 bytes) instead
+of bytes. \fIRLEN\fR is decimal unless it has a leading '0x' or a
+trailing 'h'.
+.br
+If \fIRLEN\fR is too small (i.e. either smaller than indicated by the
+cdb (typically the "allocation length" field) and/or smaller than the
+\fIDEVICE\fR tries to send back) then the HBA driver may complain. Making
+\fIRLEN\fR larger than required should cause no problems. Most
+SCSI "data\-in" commands return a data block that contains (in its early
+bytes) a length that the \fIDEVICE\fR would "like" to send back if
+the "allocation length" field in the cdb is large enough. In practice, the
+\fIDEVICE\fR will return no more bytes than indicated in the "allocation
+length" field of the cdb.
+.TP
+\fB\-Q\fR, \fB\-\-scan\fR=\fIFO\fR,\fILO\fR
+Scan a range of opcodes (i.e. first byte of each command). The first opcode
+in the scan is \fIFO\fR (which is decimal unless it has a '0x' prefix or 'h'
+suffix). The last opcode in the scan is \fILO\fR. The maximum value of
+\fILO\fR is 255. The remaining bytes of the SCSI/NVMe command are as
+supplied at invocation.
+.br
+Warning: this option can be
+.B dangerous.
+Sending somewhat arbitrary commands to a device can have unexpected results.
+It is recommended that this option is used with the \fI\-\-cmdset=CS\fR
+option where \fICS\fR is 1 or 2 in order to stop the command set possibly
+changing during the scan.
+.TP
+\fB\-s\fR, \fB\-\-send\fR=\fISLEN\fR
+Read \fISLEN\fR bytes of data, either from stdin or from a file, and send
+them to the \fIDEVICE\fR. In the SCSI transport, \fISLEN\fR becomes the
+length (in bytes) of the "data\-out" buffer. \fISLEN\fR is decimal unless
+it has a leading '0x' or a trailing 'h'.
+.br
+It is the responsibility of the user to make sure that the "data\-out"
+length implied or stated in the cdb matches \fISLEN\fR. Note that some
+common SCSI commands such as WRITE(10) have a "transfer length" field whose
+units are logical blocks (which are usually 512 or 4096 bytes long).
+.TP
+\fB\-k\fR, \fB\-\-skip\fR=\fIKLEN\fR
+Skip the first \fIKLEN\fR bytes of the input file or stream. This option
+is ignored if \fI\-\-send\fR is not specified. If \fI\-\-send\fR is given
+and this option is not given, then zero bytes are skipped.
+.TP
+\fB\-t\fR, \fB\-\-timeout\fR=\fISECS\fR
+Wait up to \fISECS\fR seconds for command completion (default: 20).
+Note that if a command times out the operating system may start by
+aborting the command and if that is unsuccessful it may attempt
+to reset the device.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Increase level of verbosity. Can be used multiple times.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version and license information and exit.
+.SH NOTES
+The sg_inq utility can be used to send an INQUIRY command to a device
+to determine its peripheral device type (e.g. '1' for a streaming
+device (tape drive)) which determines which SCSI command sets a device
+should support (e.g. SPC and SSC). The sg_vpd utility reads and decodes
+a device's Vital Product Pages which may contain useful information.
+.PP
+The ability to send more than a 16 byte CDB (in some cases 12 byte CDB)
+may be restricted by the pass\-through interface, the low level driver
+or the transport. In the Linux series 3 kernels, the bsg driver can
+handle longer CDBs, block devices (e.g. /dev/sdc) accessed via the
+SG_IO ioctl cannot handle CDBs longer than 16 bytes, and the sg driver
+can handle longer CDBs from lk 3.17 .
+.PP
+The CDB command name defined by T10 for the given CDB is shown if
+the '\-vv' option is given. The command line syntax still needs to be
+correct, so /dev/null may be used for the \fIDEVICE\fR since the CDB
+command name decoding is done before the \fIDEVICE\fR is checked.
+.PP
+The intention of the \fI\-\-scan=FO,LO\fR option is to slightly simplify
+the process of finding hidden or undocumented commands. It should be used
+with care; for example checking for vendor specific SCSI
+commands: 'sg_raw \-\-cmdset=1 \-\-scan=0xc0,0xff /dev/sg1 0 0 0 0 0 0'.
+.SH NVME SUPPORT
+Support for NVMe (a.k.a. NVM Express) is currently experimental. NVMe concepts
+map reasonably well to the SCSI architecture. A SCSI logical unit (LU) is
+similar to a NVMe namespace (although LUN 0 is very common in SCSI while
+namespace IDs start at 1). A SCSI target device is similar to a NVMe
+controller. SCSI commands vary from 6 to 260 bytes long (although SCSI command
+descriptor blocks (cdb_s) longer than 32 bytes are uncommon) while all NVMe
+commands are currently 64 bytes long. The SCSI architecture makes a clear
+distinction between an initiator (often called a HBA) and a target (device)
+while (at least on the PCIe transport) the NVMe controller plays both roles.
+This utility defaults to assuming the user provided 64 byte command belongs
+to NVMe's Admin command set. To issue commands from the "NVM" command set,
+the \fI\-\-nvm\fR option must be given. Admin and NVM commands are sent to
+submission queue 0.
+.PP
+One significant difference is that SCSI uses a big endian representation
+for integers that are longer than 8 bits (i.e. longer than 1 byte) while
+NVMe uses a little endian representation (like most things that have
+originated from the Intel organisation). NVMe specifications talk about
+Words (16 bits), Double Words (32 bits) and sometimes Quad Words (64
+bits) and has tighter alignment requirements than SCSI.
+.PP
+One difference that impacts this utility is that NVMe places pointers to
+host memory in its commands while SCSI leaves this detail to whichever
+transport it is using (e.g. SAS, iSCSI, SRP). Since this utility takes
+the command from the user (either on the command line or in a file named
+\fICF\fR) but this utility allocates a data\-in or data\-out buffer as
+required, the user does not know in advance what the address of that
+buffer will be. Some special addresses have been introduced to help with
+this problem: the address 0xfffffffffffffffe is interpreted as "use the
+data\-in buffer's address" while 0xfffffffffffffffd is interpreted as "use
+the data\-out buffer's address". Since NVMe uses little endian notation
+then that first address appears in the NVMe command byte stream as "fe"
+followed by seven "ff"s. A similar arrangement is made for the length
+of that buffer (in bytes), but since that is a 32 byte quantity, the
+first 4 bytes (all "ff"s) are removed.
+.PP
+Several command file examples can be found in the inhex directory of this
+package's source tarball: nvme_identify_ctl.hex, nvme_dev_self_test.hex,
+nvme_read_ctl.hex and nvme_write_ctl.hex .
+.PP
+Beware: the NVMe standard often refers to some of its fields as "0's based".
+They are typically counts of something like the number of blocks to be read.
+For example in NVMe Read command, a "0's based" number of blocks field
+containing the value 3 means to read 4 blocks! No, this is not a joke.
+.SH EXAMPLES
+These examples, apart from the last one, use Linux device names. For
+suitable device names in other supported Operating Systems see the
+sg3_utils(8) man page.
+.TP
+sg_raw /dev/scd0 1b 00 00 00 02 00
+Eject the medium in CD drive /dev/scd0.
+.TP
+sg_raw \-r 1k /dev/sg0 12 00 00 00 60 00
+Perform an INQUIRY on /dev/sg0 and dump the response data (up to
+1024 bytes) to stdout.
+.TP
+sg_raw \-s 512 \-i i512.bin /dev/sda 3b 02 00 00 00 00 00 02 00 00
+Showing an example of writing 512 bytes to a sector on a disk
+is a little dangerous. Instead this example will read i512.bin (assumed
+to be 512 bytes long) and use the SCSI WRITE BUFFER command to send
+it to the "data" buffer (that is mode 2). This is a safe operation.
+.TP
+sg_raw \-r 512 \-o o512.bin /dev/sda 3c 02 00 00 00 00 00 02 00 00
+This will use the SCSI READ BUFFER command to read 512 bytes from
+the "data" buffer (i.e. mode 2) then write it to the o512.bin file.
+When used in conjunction with the previous example, if both commands
+work then 'cmp i512.bin o512.bin' should show a match.
+.TP
+sg_raw \-\-infile=urandom.bin \-\-send=512 \-\-request=512 \-\-outfile=out.bin "/dev/bsg/7:0:0:0" 53 00 00 00 00 00 00 00 01 00
+This is a bidirectional XDWRITEREAD(10) command being sent via a Linux
+bsg device. Note that data is being read from "urandom.bin" and sent
+to the device (data\-out) while resulting data (data\-in) is placed
+in the "out.bin" file. Also note the length of both is 512 bytes
+which corresponds to the transfer length of 1 (block) in the cdb (i.e.
+the second last byte). urandom.bin can be produced like this:
+.br
+dd if=/dev/urandom bs=512 count=1 of=urandom.bin
+.TP
+sg_raw.exe PhysicalDrive1 a1 0c 0e 00 00 00 00 00 00 e0 00 00
+This example is from Windows and shows a ATA STANDBY IMMEDIATE command
+being sent to PhysicalDrive1. That ATA command is contained within
+the SCSI ATA PASS\-THROUGH(12) command (see the SAT or SAT\-2 standard at
+https://www.t10.org). Notice that the STANDBY IMMEDIATE command does not
+send or receive any additional data, however if it fails sense data
+should be returned and displayed.
+.TP
+For NVME examples see the files in this package's inhex directory that
+start with 'nvme_' such as inhex/nvme_identify_ctl.hex .
+.SH EXIT STATUS
+The exit status of sg_raw is 0 when it is successful. Otherwise see
+the sg3_utils(8) man page.
+.SH AUTHOR
+Written by Ingo van Lil
+.SH "REPORTING BUGS"
+Report bugs to <inguin at gmx dot de> or to <dgilbert at interlog dot com>.
+.SH COPYRIGHT
+Copyright \(co 2001\-2021 Ingo van Lil
+.br
+This software is distributed under the GPL version 2. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+.B sg_inq, sg_vpd, sg3_utils (sg3_utils), plscsi

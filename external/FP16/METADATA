@@ -1,0 +1,19 @@
+name: "FP16"
+description: "Header-only library for conversion to/from half-precision floating point formats"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/Maratyszcza/FP16"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/Maratyszcza/FP16"
+  }
+  version: "4dfe081cf6bcd15db339cf2680b9281b8451eeb3"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 5
+    day: 14
+  }
+}

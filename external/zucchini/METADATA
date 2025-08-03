@@ -1,0 +1,14 @@
+name: "zucchini"
+description:
+    "zucchini is an diffing algorithm for executables such as ELF, ARM, EXE, "
+    "APK, etc."
+
+third_party {
+  url {
+    type: GIT
+    value: "https://chromium.googlesource.com/chromium/src/components/zucchini/"
+  }
+  version: "769128e925d4591347c4f28ccb1e3e552af5f13b"
+  last_upgrade_date { year: 2021 month: 7 day: 26 }
+  license_type: NOTICE
+}

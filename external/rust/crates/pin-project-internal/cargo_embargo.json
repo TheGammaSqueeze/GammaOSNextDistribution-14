@@ -1,0 +1,8 @@
+{
+  "package": {
+    "pin-project-internal": {
+      "device_supported": false
+    }
+  },
+  "run_cargo": false
+}

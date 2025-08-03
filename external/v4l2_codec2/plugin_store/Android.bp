@@ -1,0 +1,50 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_v4l2_codec2_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-BSD
+    default_applicable_licenses: ["external_v4l2_codec2_license"],
+}
+
+cc_library_shared {
+    name: "libc2plugin_store",
+    vendor_available: true,
+
+    defaults: [
+        "libcodec2-impl-defaults",
+    ],
+
+    srcs: [
+        "DmabufHelpers.cpp",
+        "V4L2PluginStore.cpp",
+        "VendorAllocatorLoader.cpp",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+
+    header_libs: [
+        "libcodec2_internal", // needed for including C2BqBufferPriv.h.
+    ],
+    shared_libs: [
+        "android.hardware.graphics.bufferqueue@2.0",
+        "libchrome",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "libnativewindow",
+        "liblog",
+        "libstagefright_bufferpool@1.0",
+        "libstagefright_bufferqueue_helper",
+        "libstagefright_foundation",
+        "libui",
+    ],
+
+    cflags: [
+      "-Werror",
+      "-Wall",
+      "-Wno-unused-parameter",  // needed for libchrome/base codes
+      "-Wthread-safety",
+    ],
+}

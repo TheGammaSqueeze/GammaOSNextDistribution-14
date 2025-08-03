@@ -1,0 +1,29 @@
+variable symbol 'Scope::UnnamedClass unnamed_class' changed
+  type 'Scope::UnnamedClass' = 'struct { struct Scope::<unnamed struct>::Nested nested; }' changed
+    resolved type 'struct { struct Scope::<unnamed struct>::Nested nested; }' changed
+      byte size changed from 4 to 8
+      member 'struct Scope::<unnamed struct>::Nested nested' changed
+        type 'struct Scope::<unnamed struct>::Nested' changed
+          byte size changed from 4 to 8
+          member changed from 'int x' to 'long x'
+            type changed from 'int' to 'long'
+
+variable symbol 'Scope::UnnamedStruct unnamed_struct' changed
+  type 'Scope::UnnamedStruct' = 'struct { struct Scope::<unnamed struct>::Nested nested; }' changed
+    resolved type 'struct { struct Scope::<unnamed struct>::Nested nested; }' changed
+      byte size changed from 4 to 8
+      member 'struct Scope::<unnamed struct>::Nested nested' changed
+        type 'struct Scope::<unnamed struct>::Nested' changed
+          (already reported)
+
+variable symbol 'Scope::UnnamedUnion unnamed_union' changed
+  type 'Scope::UnnamedUnion' = 'union { struct Scope::<unnamed union>::Nested nested; }' changed
+    resolved type 'union { struct Scope::<unnamed union>::Nested nested; }' changed
+      byte size changed from 4 to 8
+      member 'struct Scope::<unnamed union>::Nested nested' changed
+        type 'struct Scope::<unnamed union>::Nested' changed
+          byte size changed from 4 to 8
+          member changed from 'int x' to 'long x'
+            type changed from 'int' to 'long'
+
+exit code 4

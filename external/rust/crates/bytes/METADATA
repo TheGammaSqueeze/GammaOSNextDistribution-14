@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update external/rust/crates/bytes
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "bytes"
+description: "Types and traits for working with bytes"
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2024
+    month: 1
+    day: 31
+  }
+  homepage: "https://crates.io/crates/bytes"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/bytes/bytes-1.5.0.crate"
+    version: "1.5.0"
+  }
+}

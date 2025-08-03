@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cheap dtd for testing LexicalHandler events -->
+<!ENTITY nbsp   "&#160;" >
+<!ENTITY cent   "&#162;" >
+<!ENTITY pound  "&#163;" >
+<!ENTITY curren "&#164;" >
+<!ENTITY yen    "&#165;" >
+<!ENTITY copy   "&#169;" >
+<!ENTITY test-ent   "an-xsl-entity" >

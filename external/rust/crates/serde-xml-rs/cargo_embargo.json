@@ -1,0 +1,23 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "module_blocklist": [
+    "serde-xml-rs_test_tests_datatypes",
+    "serde-xml-rs_test_tests_failures",
+    "serde-xml-rs_test_tests_migrated",
+    "serde-xml-rs_test_tests_round_trip",
+    "serde-xml-rs_test_tests_test"
+  ],
+  "package": {
+    "serde-xml-rs": {
+      "dep_blocklist": [
+        "libdocmatic",
+        "librstest",
+        "libsimple_logger"
+      ]
+    }
+  },
+  "tests": true
+}

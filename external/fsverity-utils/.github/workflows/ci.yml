@@ -1,0 +1,169 @@
+# SPDX-License-Identifier: MIT
+# Copyright 2021 Google LLC
+#
+# Use of this source code is governed by an MIT-style
+# license that can be found in the LICENSE file or at
+# https://opensource.org/licenses/MIT.
+
+name: CI
+on: [pull_request]
+
+jobs:
+  static-linking-test:
+    name: Test building static library
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: scripts/run-tests.sh static_linking
+
+  dynamic-linking-test:
+    name: Test building dynamic library
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: scripts/run-tests.sh dynamic_linking
+
+  cplusplus-test:
+    name: Test using library from C++ program
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: scripts/run-tests.sh cplusplus
+
+  uninstall-test:
+    name: Test uninstalling
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: scripts/run-tests.sh uninstall
+
+  dash-test:
+    name: Test building using the dash shell
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: scripts/run-tests.sh dash
+
+  license-test:
+    name: Test for correct license info
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: scripts/run-tests.sh license
+
+  gcc-test:
+    name: Test with gcc
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: scripts/run-tests.sh gcc
+
+  clang-test:
+    name: Test with clang
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang
+    - run: scripts/run-tests.sh clang
+
+  _32bit-test:
+    name: Test building 32-bit binaries
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install -y gcc-multilib libssl-dev:i386
+    - run: scripts/run-tests.sh 32bit
+
+  sanitizers-test:
+    name: Test with sanitizers enabled
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang llvm
+    - run: scripts/run-tests.sh sanitizers
+
+  valgrind-test:
+    name: Test with valgrind enabled
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y valgrind
+    - run: scripts/run-tests.sh valgrind
+
+  boringssl-test:
+    name: Test with BoringSSL
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Cache BoringSSL build
+      uses: actions/cache@v2
+      with:
+        key: boringssl
+        path: boringssl
+    - run: make boringssl
+    - run: scripts/run-tests.sh boringssl
+
+  char-test:
+    name: Test with unsigned/signed char
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: scripts/run-tests.sh unsigned_char signed_char
+
+  # FIXME: need a Windows build of libcrypto for this to work
+  #windows-build-test:
+    #name: Windows build tests
+    #runs-on: ubuntu-latest
+    #steps:
+    #- uses: actions/checkout@v2
+    #- name: Install dependencies
+      #run: |
+        #sudo apt-get update
+        #sudo apt-get install -y gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
+    # - run: scripts/run-tests.sh windows_build
+
+  sparse-test:
+    name: Run sparse
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sparse
+    - run: scripts/run-tests.sh sparse
+
+  clang-analyzer-test:
+    name: Run clang static analyzer
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tools
+    - run: scripts/run-tests.sh clang_analyzer
+
+  shellcheck-test:
+    name: Run shellcheck
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck
+    - run: scripts/run-tests.sh shellcheck

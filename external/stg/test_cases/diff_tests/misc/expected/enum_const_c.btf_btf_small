@@ -1,0 +1,9 @@
+function symbol changed from 'Foo getEnum(Foo)' to 'Foo getEnum(const Foo)'
+  type changed from 'Foo(Foo)' to 'Foo(const Foo)'
+    parameter 1 type changed from 'Foo' = 'enum Foo' to 'const Foo'
+      qualifier const added
+
+type 'enum Foo' changed
+  enumerator 'FOO_TWO' value changed from 100 to 2
+
+exit code 4

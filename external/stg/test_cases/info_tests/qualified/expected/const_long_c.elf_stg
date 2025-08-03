@@ -1,0 +1,298 @@
+version: 0x00000002
+root_id: 0x84ea5130
+qualified {
+  id: 0xe3126acd
+  qualifier: CONST
+  qualified_type_id: 0xfc0e1dbd
+}
+primitive {
+  id: 0xfc0e1dbd
+  name: "long"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000008
+}
+member {
+  id: 0x0a01f4af
+  name: "cil"
+  type_id: 0xe3126acd
+  offset: 320
+}
+member {
+  id: 0xedaeeb40
+  name: "cils"
+  type_id: 0xe3126acd
+  offset: 1664
+}
+member {
+  id: 0x999e7913
+  name: "cisl"
+  type_id: 0xe3126acd
+  offset: 896
+}
+member {
+  id: 0xc962410a
+  name: "cl"
+  type_id: 0xe3126acd
+}
+member {
+  id: 0x66b6a49d
+  name: "cli"
+  type_id: 0xe3126acd
+  offset: 128
+}
+member {
+  id: 0x3ec28fbb
+  name: "clis"
+  type_id: 0xe3126acd
+  offset: 1920
+}
+member {
+  id: 0xc5fc75d0
+  name: "cls"
+  type_id: 0xe3126acd
+  offset: 704
+}
+member {
+  id: 0x8893f180
+  name: "clsi"
+  type_id: 0xe3126acd
+  offset: 2176
+}
+member {
+  id: 0xdf7dc4fb
+  name: "csil"
+  type_id: 0xe3126acd
+  offset: 1152
+}
+member {
+  id: 0x35f6068c
+  name: "csl"
+  type_id: 0xe3126acd
+  offset: 512
+}
+member {
+  id: 0x15047367
+  name: "csli"
+  type_id: 0xe3126acd
+  offset: 1408
+}
+member {
+  id: 0x4b41dd07
+  name: "icl"
+  type_id: 0xe3126acd
+  offset: 384
+}
+member {
+  id: 0x4a9f67b8
+  name: "icls"
+  type_id: 0xe3126acd
+  offset: 1728
+}
+member {
+  id: 0xc426445d
+  name: "icsl"
+  type_id: 0xe3126acd
+  offset: 960
+}
+member {
+  id: 0x35215f8e
+  name: "ilc"
+  type_id: 0xe3126acd
+  offset: 448
+}
+member {
+  id: 0x0f947358
+  name: "ilcs"
+  type_id: 0xe3126acd
+  offset: 1792
+}
+member {
+  id: 0x01907246
+  name: "ilsc"
+  type_id: 0xe3126acd
+  offset: 1856
+}
+member {
+  id: 0x49da99b9
+  name: "iscl"
+  type_id: 0xe3126acd
+  offset: 1024
+}
+member {
+  id: 0x90c3741b
+  name: "islc"
+  type_id: 0xe3126acd
+  offset: 1088
+}
+member {
+  id: 0x946ca9b8
+  name: "lc"
+  type_id: 0xe3126acd
+  offset: 64
+}
+member {
+  id: 0x63bc1552
+  name: "lci"
+  type_id: 0xe3126acd
+  offset: 192
+}
+member {
+  id: 0xb4a02dd3
+  name: "lcis"
+  type_id: 0xe3126acd
+  offset: 1984
+}
+member {
+  id: 0xcb36c2fb
+  name: "lcs"
+  type_id: 0xe3126acd
+  offset: 768
+}
+member {
+  id: 0xf8f76ae6
+  name: "lcsi"
+  type_id: 0xe3126acd
+  offset: 2240
+}
+member {
+  id: 0xc8cc0629
+  name: "lic"
+  type_id: 0xe3126acd
+  offset: 256
+}
+member {
+  id: 0x53c916c0
+  name: "lics"
+  type_id: 0xe3126acd
+  offset: 2048
+}
+member {
+  id: 0x798a5330
+  name: "lisc"
+  type_id: 0xe3126acd
+  offset: 2112
+}
+member {
+  id: 0xf0837e5f
+  name: "lsc"
+  type_id: 0xe3126acd
+  offset: 832
+}
+member {
+  id: 0xe637ee4e
+  name: "lsci"
+  type_id: 0xe3126acd
+  offset: 2304
+}
+member {
+  id: 0x67e974e2
+  name: "lsic"
+  type_id: 0xe3126acd
+  offset: 2368
+}
+member {
+  id: 0x4da63353
+  name: "scil"
+  type_id: 0xe3126acd
+  offset: 1216
+}
+member {
+  id: 0x0dafd156
+  name: "scl"
+  type_id: 0xe3126acd
+  offset: 576
+}
+member {
+  id: 0x938d2db4
+  name: "scli"
+  type_id: 0xe3126acd
+  offset: 1472
+}
+member {
+  id: 0xa4f141c8
+  name: "sicl"
+  type_id: 0xe3126acd
+  offset: 1280
+}
+member {
+  id: 0x58e0f4ff
+  name: "silc"
+  type_id: 0xe3126acd
+  offset: 1344
+}
+member {
+  id: 0x7dc4253c
+  name: "slc"
+  type_id: 0xe3126acd
+  offset: 640
+}
+member {
+  id: 0x3d2863c0
+  name: "slci"
+  type_id: 0xe3126acd
+  offset: 1536
+}
+member {
+  id: 0x3d727335
+  name: "slic"
+  type_id: 0xe3126acd
+  offset: 1600
+}
+struct_union {
+  id: 0xf9007b0e
+  kind: STRUCT
+  name: "CL"
+  definition {
+    bytesize: 304
+    member_id: 0xc962410a
+    member_id: 0x946ca9b8
+    member_id: 0x66b6a49d
+    member_id: 0x63bc1552
+    member_id: 0xc8cc0629
+    member_id: 0x0a01f4af
+    member_id: 0x4b41dd07
+    member_id: 0x35215f8e
+    member_id: 0x35f6068c
+    member_id: 0x0dafd156
+    member_id: 0x7dc4253c
+    member_id: 0xc5fc75d0
+    member_id: 0xcb36c2fb
+    member_id: 0xf0837e5f
+    member_id: 0x999e7913
+    member_id: 0xc426445d
+    member_id: 0x49da99b9
+    member_id: 0x90c3741b
+    member_id: 0xdf7dc4fb
+    member_id: 0x4da63353
+    member_id: 0xa4f141c8
+    member_id: 0x58e0f4ff
+    member_id: 0x15047367
+    member_id: 0x938d2db4
+    member_id: 0x3d2863c0
+    member_id: 0x3d727335
+    member_id: 0xedaeeb40
+    member_id: 0x4a9f67b8
+    member_id: 0x0f947358
+    member_id: 0x01907246
+    member_id: 0x3ec28fbb
+    member_id: 0xb4a02dd3
+    member_id: 0x53c916c0
+    member_id: 0x798a5330
+    member_id: 0x8893f180
+    member_id: 0xf8f76ae6
+    member_id: 0xe637ee4e
+    member_id: 0x67e974e2
+  }
+}
+elf_symbol {
+  id: 0x89cb2256
+  name: "cl"
+  is_defined: true
+  symbol_type: OBJECT
+  type_id: 0xf9007b0e
+  full_name: "cl"
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x89cb2256
+}

@@ -1,0 +1,26 @@
+<!-- XML without the zero size object aliasing issue -->
+<abi-corpus version='2.1' path='vmlinux' architecture='elf-arm-aarch64'>
+  <elf-variable-symbols>
+    <elf-symbol name='vm_node_stat' size='256' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes' crc='0xe5c4cf93'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='mm/vmstat.c' language='LANG_C89'>
+    <type-decl name='long long int' size-in-bits='64' id='1eb56b1e'/>
+    <typedef-decl name='__s64' type-id='1eb56b1e' filepath='include/uapi/asm-generic/int-ll64.h' line='30' column='1' id='49659421'/>
+    <typedef-decl name='s64' type-id='49659421' filepath='include/asm-generic/int-ll64.h' line='22' column='1' id='9b7c55ef'/>
+    <class-decl name='atomic64_t' size-in-bits='64' is-struct='yes' naming-typedef-id='28ee064c' visibility='default' filepath='include/linux/types.h' line='176' column='1' id='2fef71f1'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='counter' type-id='9b7c55ef' visibility='default' filepath='include/linux/types.h' line='177' column='1'/>
+      </data-member>
+    </class-decl>
+    <typedef-decl name='atomic64_t' type-id='2fef71f1' filepath='include/linux/types.h' line='178' column='1' id='28ee064c'/>
+    <typedef-decl name='atomic_long_t' type-id='28ee064c' filepath='include/asm-generic/atomic-long.h' line='12' column='1' id='f22a8abb'/>
+    <array-type-def dimensions='1' type-id='f22a8abb' size-in-bits='infinite' id='a922812c'>
+      <subrange length='infinite' type-id='7ff19f0f' id='031f2035'/>
+    </array-type-def>
+    <array-type-def dimensions='1' type-id='f22a8abb' size-in-bits='2048' id='99d12d7b'>
+      <subrange length='32' type-id='7ff19f0f' id='ae5bde82'/>
+    </array-type-def>
+    <var-decl name='vm_numa_stat' type-id='a922812c' mangled-name='vm_numa_stat' visibility='default' filepath='mm/vmstat.c' line='164' column='1' elf-symbol-id='vm_numa_stat'/>
+    <var-decl name='vm_node_stat' type-id='99d12d7b' mangled-name='vm_node_stat' visibility='default' filepath='mm/vmstat.c' line='165' column='1' elf-symbol-id='vm_node_stat'/>
+  </abi-instr>
+</abi-corpus>

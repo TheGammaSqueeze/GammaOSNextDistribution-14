@@ -1,0 +1,56 @@
+package {
+    default_applicable_licenses: ["external_rust_pica_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_rust_pica_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+genrule {
+    name: "libpica_uci_packets",
+    defaults: ["pdl_rust_generator_defaults"],
+    srcs: ["src/uci_packets.pdl"],
+    out: ["uci_packets.rs"],
+}
+
+rust_library_host {
+    name: "libpica",
+    crate_name: "pica",
+    srcs: [
+        "src/lib.rs",
+        ":libpica_uci_packets",
+    ],
+    proc_macros: ["libnum_derive"],
+    rustlibs: [
+        "libanyhow",
+        "libbytes",
+        "libglam",
+        "libhex",
+        "libnum_traits",
+        "libpdl_runtime",
+        "libthiserror",
+        "libserde",
+        "libtokio",
+    ],
+}
+
+rust_binary_host {
+    name: "pica",
+    srcs: ["src/bin/server/mod.rs"],
+    proc_macros: ["libnum_derive"],
+    rustlibs: [
+        "libanyhow",
+        "libpica",
+        "libclap",
+        "libtokio",
+    ],
+}

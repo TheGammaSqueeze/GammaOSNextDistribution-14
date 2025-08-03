@@ -1,0 +1,5 @@
+dupin@google.com
+mrulhania@google.com
+
+#permission controller team
+include platform/frameworks/base:/core/java/android/permission/OWNERS

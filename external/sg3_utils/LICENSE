@@ -1,0 +1,193 @@
+Files: debian/copyright, examples/sg_sat*.c, include/*.h, lib/BSD_LICENSE, lib/*.[ch], src/BSD_LICENSE, src/sg_bg_ctl.c, src/sg_decode_sense.c, src/sg_get_config.c, src/sg_get_elem_status.c, src/sg_get_lba_status.c, src/sg_ident.c, src/sg_luns.c, src/sg_map26.c, src/sg_prevent.c, src/sg_read_attr.c, src/sg_read_block_limits.c, src/sg_read_buffer.c, src/sg_reassign.c, src/sg_referrals.c, src/sg_rem_rest_elem.c, src/sg_rep_density.c, src/sg_rep_pip.c, src/sg_rep_zones.c, src/sg_requests.c, src/sg_reset_wp.c, src/sg_rmsn.c, src/sg_rtpg.c, src/sg_safte.c, src/sg_sanitize.c, src/sg_sat_identify.c, src/sg_sat_phy_event.c, src/sg_sat_read_gplog.c, src/sg_sat_set_features.c, src/sg_scan_win32.c, src/sg_seek.c, src/sg_ses.c, src/sg_ses_microcode.c, src/sg_stpg.c, src/sg_stream_ctl.c, src/sg_sync.c, src/sg_timestamp.c, src/sg_unmap.c, src/sg_verify.c, src/sg_vpd.c, src/sg_vpd_common.c, src/sg_vpd_common.h, src/sg_vpd_vendor.c, src/sg_wr_mode.c, src/sg_write_buffer.c, src/sg_write_same.c, src/sg_write_verify.c, src/sg_write_x.c, src/sg_z_act_query.c, src/sg_zone.c, sg3_utils.spec, testing/sg_chk_asc.c, testing/sg_scat_gath.cpp, testing/sg_scat_gath.h, testing/sg_tst_async.cpp, testing/sg_tst_context.cpp, testing/sg_tst_excl.cpp, testing/sg_tst_excl2.cpp, testing/sg_tst_excl3.cpp, testing/sg_tst_json_builder.c, testing/sg_tst_nvme.c, testing/tst_sg_lib.c, utils/hxascdmp.c
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+------------------
+
+Files: autogen.sh, examples/sg__sat*.c, src/sg_compare_and_write.c
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials provided
+with the distribution.
+
+3. The name of the author may not be used to endorse or promote
+products derived from this software without specific prior written
+permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
+OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+------------------
+
+Files: getopt_long/*.[ch]
+
+This code is derived from software contributed to The NetBSD Foundation
+by Dieter Baron and Thomas Klausner.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. All advertising materials mentioning features or use of this software
+   must display the following acknowledgement:
+       This product includes software developed by the NetBSD
+       Foundation, Inc. and its contributors.
+4. Neither the name of The NetBSD Foundation nor the names of its
+   contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+------------------
+
+Files: Makefile.in, configure, doc/Makefile.in, include/*, lib/Makefile.in, scripts/Makefile.in, src/Makefile.in
+
+This file is free documentation/software; the Free Software Foundation
+gives unlimited permission to copy and/or distribute it,
+with or without modifications, as long as this notice is preserved.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+
+------------------
+
+Files: scripts/cciss_id, scripts/fc_wwpn_id
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation version 2 of the License.
+
+------------------
+
+Files: examples/scsi_inquiry.c, examples/sg_excl.c, examples/sg_simple1.c, examples/sg_simple16.c, examples/sg_simple2.c, examples/sg_simple3.c, examples/sg_simple4.c, examples/sg_simple5.c, examples/sgq_dd.c, lib/sg_pt_linux_nvme.c, ltmain.sh, missing, src/sg_copy_results.c, src/sg_dd.c, src/sg_emc_trespass.c, src/sg_format.c, src/sg_inq.c, src/sg_inq_data.c, src/sg_logs.c, src/sg_map.c, src/sg_modes.c, src/sg_opcodes.c, src/sg_persist.c, src/sg_raw.c, src/sg_rbuf.c, src/sg_rdac.c, src/sg_read.c, src/sg_read_long.c, src/sg_readcap.c, src/sg_reset.c, src/sg_scan_linux.c, src/sg_senddiag.c, src/sg_start.c, src/sg_test_rwbuf.c, src/sg_turs.c, src/sg_write_long.c, src/sg_xcopy.c, src/sginfo.c, src/sgm_dd.c, src/sgp_dd.c, testing/bsg_queue_tst.c, testing/sg_iovec_tst.cpp, testing/sg_mrq_dd.cpp, testing/sg_queue_tst.c, testing/sg_sense_test.c, testing/sg_take_snap.c, testing/sg_tst_bidi.c, testing/sg_tst_ioctl.c, testing/sgh_dd.cpp, testing/sgs_dd.c
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+------------------
+
+Files: testing/uapi_sg.h
+
+SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
+
+------------------
+
+Files: aclocal.m4, ar-lib, compile, config.guess, config.sub, configure, depcomp, ltmain.sh, missing
+
+This file is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <https://www.gnu.org/licenses/>.
+
+As a special exception to the GNU General Public License, if you
+distribute this file as part of a program that contains a
+configuration script generated by Autoconf, you may include it under
+the same distribution terms that you use for the rest of that
+program.  This Exception is an additional permission under section 7
+of the GNU General Public License, version 3 ("GPLv3").
+
+------------------
+
+Files: install-sh
+
+Copyright (C) 1994 X Consortium
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+X CONSORTIUM BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNEC-
+TION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Except as contained in this notice, the name of the X Consortium shall not
+be used in advertising or otherwise to promote the sale, use or other deal-
+ings in this Software without prior written authorization from the X Consor-
+tium.
+
+
+FSF changes to this file are in the public domain.
+
+Calling this script install-sh is preferred over install.sh, to prevent
+'make' implicit rules from creating a file called install from it
+when there is no Makefile.
+
+This script is compatible with the BSD install script, but was written
+from scratch.
+
+------------------

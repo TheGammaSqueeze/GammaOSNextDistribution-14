@@ -1,0 +1,114 @@
+{
+  "pw": {
+    "pw_presubmit": {
+      "format": {
+        "python_formatter": "black",
+        "black_config_file": "$pw_env{PW_ROOT}/.black.toml",
+        "exclude": [
+          "\\bthird_party/fuchsia/repo",
+          "\\bthird_party/.*\\.json$",
+          "\\bpackage\\.lock$",
+          "\\bpw_web/log-viewer/package(-lock)?\\.json",
+          "\\bpw_web/log-viewer/src/assets/material_symbols_rounded_subset\\.woff2",
+          "^patches\\.json$"
+        ]
+      }
+    },
+    "pw_cli": {
+      "plugins": {
+        "build": {
+          "module": "pw_build.pigweed_upstream_build",
+          "function": "pigweed_upstream_main"
+        },
+        "console": {
+          "module": "pw_system.console",
+          "function": "main"
+        },
+        "emu": {
+          "module": "pw_emu.__main__",
+          "function": "main"
+        },
+        "format": {
+          "module": "pw_presubmit.format_code",
+          "function": "main"
+        },
+        "heap-viewer": {
+          "module": "pw_allocator.heap_viewer",
+          "function": "main"
+        },
+        "ide": {
+          "module": "pw_ide.__main__",
+          "function": "main"
+        },
+        "package": {
+          "module": "pw_package.pigweed_packages",
+          "function": "main"
+        },
+        "presubmit": {
+          "module": "pw_presubmit.pigweed_presubmit",
+          "function": "main"
+        },
+        "requires": {
+          "module": "pw_cli.requires",
+          "function": "main"
+        },
+        "rpc": {
+          "module": "pw_hdlc.rpc_console",
+          "function": "main"
+        },
+        "update": {
+          "module": "pw_software_update.cli",
+          "function": "main"
+        },
+        "west": {
+          "module": "pw_env_setup_zephyr.zephyr",
+          "function": "main"
+        }
+      }
+    },
+    "pw_env_setup": {
+      "root_variable": "PW_ROOT",
+      "relative_pigweed_root": ".",
+      "rosetta": "never",
+      "project_actions": [
+        {
+          "import_path": "pw_env_setup",
+          "module_name": "npm_action"
+        }
+      ],
+      "gni_file": "build_overrides/pigweed_environment.gni",
+      "cipd_package_files": [
+        "pw_env_setup/py/pw_env_setup/cipd_setup/upstream.json"
+      ],
+      "virtualenv": {
+        "gn_targets": [
+          "python.install"
+        ],
+        "gn_root": ".",
+        "requirements": [
+          "pw_env_setup/py/pw_env_setup/virtualenv_setup/pigweed_upstream_requirements.txt"
+        ],
+        "constraints": [
+          "pw_env_setup/py/pw_env_setup/virtualenv_setup/constraint.list"
+        ],
+        "pip_install_find_links": [
+          "${PW_MSRV_PYTHON_CIPD_INSTALL_DIR}/pip_cache"
+        ]
+      }
+    },
+    "pw_package": {
+      "allow_middleware_only_packages": true
+    },
+    "pw_doctor": {
+      "new_bug_url": "https://issues.pigweed.dev/new"
+    },
+    "pw_emu": {
+      "target_files": [
+        "pw_emu/qemu-lm3s6965evb.json",
+        "pw_emu/qemu-stm32vldiscovery.json",
+        "pw_emu/qemu-netduinoplus2.json",
+        "pw_emu/renode-stm32f4_discovery.json"
+      ]
+    }
+  }
+}

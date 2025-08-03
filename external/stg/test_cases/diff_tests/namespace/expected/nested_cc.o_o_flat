@@ -1,0 +1,32 @@
+variable symbol 'struct n1::n2::n3::str n1::n2::n3::var_n' {_ZN2n12n22n35var_nE} changed
+  type 'struct n1::n2::n3::str' changed
+
+variable symbol 'struct foo::str n1::n2::n3::var_foo' {_ZN2n12n22n37var_fooE} changed
+  type 'struct foo::str' changed
+
+variable symbol 'struct foo::str n1::n2::var_foo' {_ZN2n12n27var_fooE} changed
+  type 'struct foo::str' changed
+
+variable symbol 'struct foo::str n1::var_foo' {_ZN2n17var_fooE} changed
+  type 'struct foo::str' changed
+
+variable symbol 'struct foo::str foo::var_foo' {_ZN3foo7var_fooE} changed
+  type 'struct foo::str' changed
+
+variable symbol 'struct foo::str var_foo' changed
+  type 'struct foo::str' changed
+
+variable symbol 'struct n1::n2::n3::str var_n' changed
+  type 'struct n1::n2::n3::str' changed
+
+type 'struct n1::n2::n3::str' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+type 'struct foo::str' changed
+  byte size changed from 4 to 8
+  member changed from 'int x' to 'long x'
+    type changed from 'int' to 'long'
+
+exit code 4

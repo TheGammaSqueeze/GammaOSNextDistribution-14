@@ -1,0 +1,89 @@
+filegroup {
+    name: "nano-etc_filegroup",
+    srcs: [
+        "syntax/extra/*",
+        "syntax/*",
+    ],
+}
+
+prebuilt_etc {
+    name: "nano-etc",
+    srcs: [":nano-etc_filegroup"],
+    sub_dir: "nano",
+    system_ext_specific: true,
+}
+
+prebuilt_etc {
+    name: "nano-etc_recovery",
+    srcs: [":nano-etc_filegroup"],
+    sub_dir: "nano",
+    recovery: true,
+}
+
+prebuilt_etc {
+    name: "nano-etc-nanorc",
+    srcs: ["etc/nanorc"],
+    sub_dir: "nano",
+    system_ext_specific: true,
+}
+
+genrule {
+    name: "gen_nano-etc-nanorc_recovery",
+    srcs: ["etc/nanorc"],
+    out: ["nanorc"],
+    cmd: "sed \"s|/system_ext|/system|g\" $(in) > $(out)",
+}
+
+prebuilt_etc {
+    name: "nano-etc-nanorc_recovery",
+    srcs: [":gen_nano-etc-nanorc_recovery"],
+    sub_dir: "nano",
+    recovery: true,
+}
+
+cc_defaults {
+    name: "nano_defaults",
+    srcs: [
+        "src/*.c",
+    ],
+    cflags: [
+        "-DHAVE_CONFIG_H",
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+    ],
+}
+
+cc_binary {
+    name: "nano",
+    defaults: ["nano_defaults"],
+    cflags: [
+        "-DLOCALEDIR=\"/data/locale\"",
+        "-DSYSCONFDIR=\"/system_ext/etc/nano\"",
+    ],
+    shared_libs: [
+        "libncurses",
+    ],
+    required: [
+        "nano-etc",
+        "nano-etc-nanorc",
+    ],
+    system_ext_specific: true,
+}
+
+cc_binary {
+    name: "nano_recovery",
+    stem: "nano",
+    defaults: ["nano_defaults"],
+    cflags: [
+        "-DLOCALEDIR=\"/tmp/locale\"",
+        "-DSYSCONFDIR=\"/system/etc/nano\"",
+    ],
+    shared_libs: [
+        "libncurses_recovery",
+    ],
+    required: [
+        "nano-etc_recovery",
+        "nano-etc-nanorc_recovery",
+    ],
+    recovery: true,
+}

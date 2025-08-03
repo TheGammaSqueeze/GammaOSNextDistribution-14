@@ -1,0 +1,30 @@
+--- android_icu4j/src/main/java/android/icu/number/NumberFormatterSettings.java	2021-01-19 16:26:27.166668436 +0000
++++ android_icu4j/src/main/java/android/icu/number/NumberFormatterSettings.java	2021-01-19 16:26:50.834836446 +0000
+@@ -121,19 +121,10 @@
+      * NumberFormatter.with().unit(Currency.getInstance("USD"))
+      * </pre>
+      *
+-     * Percent:
+-     *
+-     * <pre>
+-     * NumberFormatter.with().unit(NoUnit.PERCENT)
+-     * </pre>
+-     *
+      * <p>
+      * See {@link #perUnit} for information on how to format strings like "5 meters per second".
+      *
+      * <p>
+-     * The default is to render without units (equivalent to {@link NoUnit#BASE}).
+-     *
+-     * <p>
+      * If the input usage is correctly set the output unit <b>will change</b>
+      * according to `usage`, `locale` and `unit` value.
+      * </p>
+@@ -143,7 +134,6 @@
+      * @return The fluent chain.
+      * @see MeasureUnit
+      * @see Currency
+-     * @see NoUnit
+      * @see #perUnit
+      */
+     public T unit(MeasureUnit unit) {

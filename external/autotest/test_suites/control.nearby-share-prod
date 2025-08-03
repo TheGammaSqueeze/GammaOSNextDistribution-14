@@ -1,0 +1,19 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS SW Engprod Team (chromeos-sw-engprod@google.com)"
+NAME = "nearby-share-prod"
+PURPOSE = "Nearby Share tests on ChromeOS devices with prod Android Nearby."
+TIME = "SHORT"
+TEST_CATEGORY = "General"
+TEST_CLASS = "suite"
+TEST_TYPE = "Server"
+DOC = """ This suite runs Nearby Share tests. """
+
+import common
+from autotest_lib.server.cros.dynamic_suite import dynamic_suite
+args_dict['max_runtime_mins'] = 60
+args_dict['name'] = NAME
+args_dict['job'] = job
+dynamic_suite.reimage_and_run(**args_dict)

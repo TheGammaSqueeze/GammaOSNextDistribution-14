@@ -1,0 +1,5 @@
+# Flakes seen in, for example:
+# dEQP-GLES31.functional.synchronization.inter_invocation.ssbo_atomic_write_read
+# dEQP-GLES31.functional.ssbo.layout.2_level_array.packed.column_major_mat3
+# dEQP-GLES31.functional.ssbo.layout.random.arrays_of_arrays.1
+dEQP-GLES31.functional.*ssbo.*

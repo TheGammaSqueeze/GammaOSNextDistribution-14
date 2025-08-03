@@ -1,0 +1,130 @@
+erofs-utils 1.7.1
+
+ * A quick maintenance release includes the following fixes:
+   - fix a build issue of cross-compilation with autoconf (Sandeep Dhavale);
+   - fix an invalid error code in lib/tar.c (Erik Sjölund);
+   - fix corrupted directories with hardlinks.
+
+ -- Gao Xiang <xiang@kernel.org>  Fri, 20 Oct 2023 00:00:00 +0800
+
+erofs-utils 1.7
+
+ * This release includes the following updates:
+   - support arbitrary valid block sizes in addition to page size;
+   - (mkfs.erofs) arrange on-disk meta with Breadth-First Traversal instead;
+   - support long xattr name prefixes (Jingbo Xu);
+   - support UUID functionality without libuuid (Norbert Lange);
+   - (mkfs.erofs, experimental) add DEFLATE algorithm support;
+   - (mkfs.erofs, experimental) support building images directly from tarballs;
+   - (dump.erofs) print more superblock fields (Guo Xuenan);
+   - (mkfs.erofs, experimental) introduce preliminary rebuild mode (Jingbo Xu);
+   - various bugfixes and cleanups (Sandeep Dhavale, Guo Xuenan, Yue Hu,
+           Weizhao Ouyang, Kelvin Zhang, Noboru Asai, Yifan Zhao and Li Yiyan);
+
+ -- Gao Xiang <xiang@kernel.org>  Thu, 21 Sep 2023 00:00:00 +0800
+
+erofs-utils 1.6
+
+ * This release includes the following updates:
+   - support fragments by using `-Efragments` (Yue Hu);
+   - support compressed data deduplication by using `-Ededupe` (Ziyang Zhang);
+   - (erofsfuse) support extended attributes (Huang Jianan);
+   - (mkfs.erofs) support multiple algorithms in a single image (Gao Xiang);
+   - (mkfs.erofs) support chunk-based sparse files (Gao Xiang);
+   - (mkfs.erofs) add volume-label setting support (Naoto Yamaguchi);
+   - (mkfs.erofs) add uid/gid offsetting support (Naoto Yamaguchi);
+   - (mkfs.erofs) pack files entirely by using `-Eall-fragments` (Gao Xiang);
+   - various bugfixes and cleanups;
+
+ -- Gao Xiang <xiang@kernel.org>  Sun, 12 Mar 2023 00:00:00 +0800
+
+erofs-utils 1.5
+
+ * This release includes the following updates:
+   - (fsck.erofs) support filesystem extraction (Igor Ostapenko);
+   - support ztailpacking inline feature for compressed files (Yue Hu);
+   - (dump.erofs) support listing directories;
+   - more liberofs APIs (including iterate APIs) (me, Kelvin Zhang);
+   - use mtime to allow more control over the timestamps (David Anderson);
+   - switch to GPL-2.0+ OR Apache-2.0 dual license for liberofs;
+   - various bugfixes and cleanups;
+
+ -- Gao Xiang <xiang@kernel.org>  Mon, 13 Jun 2022 00:00:00 +0800
+
+erofs-utils 1.4
+
+ * This release includes the following updates:
+   - (experimental) introduce preliminary dump.erofs (Wang Qi, Guo Xuenan);
+   - (experimental) introduce preliminary fsck.erofs (Daeho Jeong);
+   - introduce MicroLZMA compression support (thanks to Lasse Collin);
+   - support chunk-based uncompressed files for deduplication;
+   - support multiple devices for multi-blob CAS container images;
+   - (mkfs.erofs, AOSP) add block list support (Yue Hu, David Anderson);
+   - (mkfs.erofs) support per-inode compress pcluster hints (Huang Jianan);
+   - (mkfs.erofs) add "noinline_data" extended option for DAX;
+   - (mkfs.erofs) introduce --quiet option (suggested by nl6720);
+   - complete MacOS build & functionality;
+   - various bugfixes and cleanups;
+
+ -- Gao Xiang <xiang@kernel.org>  Mon, 22 Nov 2021 00:00:00 +0800
+
+erofs-utils 1.3
+
+ * This release includes the following updates:
+   - support new big pcluster feature together with Linux 5.13+;
+   - optimize buffer allocation logic (Hu Weiwen);
+   - optimize build performance for large directories (Hu Weiwen);
+   - add support to override uid / gid (Hu Weiwen);
+   - add support to adjust lz4 history window size (Huang Jianan);
+   - add a manual for erofsfuse;
+   - add support to limit max decompressed extent size;
+   - various bugfixes and cleanups;
+
+ -- Gao Xiang <xiang@kernel.org>  Tue, 01 Jun 2021 00:00:00 +0800
+
+erofs-utils (1.2.1-1) unstable; urgency=medium
+
+ * A quick maintenance release includes the following updates:
+   - fix reported build issues due to different configurations;
+   - (mkfs.erofs, AOSP) fix sub-directory prefix for canned fs_config;
+   - update some obsoleted email address;
+
+ -- Gao Xiang <xiang@kernel.org>  Sun, 10 Jan 2021 00:00:00 +0800
+
+erofs-utils (1.2-1) unstable; urgency=medium
+
+ * This release includes the following features and bugfixes:
+   - (mkfs.erofs) support selinux file contexts;
+   - (mkfs.erofs) support $SOURCE_DATE_EPOCH;
+   - (mkfs.erofs) support a pre-defined UUID;
+   - (mkfs.erofs) fix random padding for reproducable builds;
+   - (mkfs.erofs) several fixes around hard links;
+   - (mkfs.erofs) minor code cleanups;
+   - (mkfs.erofs, AOSP) support Android fs_config;
+   - (experimental, disabled by default) add erofsfuse approach;
+
+ -- Gao Xiang <xiang@kernel.org>  Sun, 06 Dec 2020 00:00:00 +0800
+
+erofs-utils (1.1-1) unstable; urgency=low
+
+ * a maintenance release includes the following updates:
+   - (mkfs.erofs) add a manual for mkfs.erofs;
+   - (mkfs.erofs) add superblock checksum support;
+   - (mkfs.erofs) add filesystem UUID support;
+   - (mkfs.erofs) add exclude files support;
+   - (mkfs.erofs) fix compiling issues under specific conditions;
+   - (mkfs.erofs) minor code cleanups;
+
+ -- Gao Xiang <xiang@kernel.org>  Tue, 14 Apr 2020 00:00:00 +0800
+
+erofs-utils (1.0-1) unstable; urgency=low
+
+ * first release with the following new features:
+   - (mkfs.erofs) uncompressed file support;
+   - (mkfs.erofs) uncompressed tail-end packing inline data support;
+   - (mkfs.erofs) lz4 / lz4HC compressed file support;
+   - (mkfs.erofs) special file support;
+   - (mkfs.erofs) inline / shared xattrs support;
+   - (mkfs.erofs) Posix ACL support;
+
+ -- Gao Xiang <xiang@kernel.org>  Thu, 24 Oct 2019 00:00:00 +0800

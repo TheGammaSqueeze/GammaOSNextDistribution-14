@@ -1,0 +1,115 @@
+function symbol changed from 'int N()' to 'int(* N())[7]'
+  type changed from 'int()' to 'int(*())[7]'
+    return type changed from 'int' to 'int(*)[7]'
+
+function symbol changed from 'int O()' to 'int* O()'
+  type changed from 'int()' to 'int*()'
+    return type changed from 'int' to 'int*'
+
+function symbol changed from 'int P()' to 'int(* P())()'
+  type changed from 'int()' to 'int(*())()'
+    return type changed from 'int' to 'int(*)()'
+
+function symbol changed from 'int n()' to 'volatile int(* n())[7]'
+  type changed from 'int()' to 'volatile int(*())[7]'
+    return type changed from 'int' to 'volatile int(*)[7]'
+
+function symbol changed from 'int o()' to 'volatile int* o()'
+  type changed from 'int()' to 'volatile int*()'
+    return type changed from 'int' to 'volatile int*'
+
+function symbol changed from 'int p()' to 'int(* p())()'
+  type changed from 'int()' to 'int(*())()'
+    return type changed from 'int' to 'int(*)()'
+
+type 'struct amusement' changed
+  byte size changed from 96 to 816
+  member changed from 'int A' to 'int A[7]'
+    type changed from 'int' to 'int[7]'
+  member changed from 'int B' to 'int* B'
+    offset changed from 32 to 256
+    type changed from 'int' to 'int*'
+  member changed from 'int C' to 'int(* C)()'
+    offset changed from 64 to 320
+    type changed from 'int' to 'int(*)()'
+  member changed from 'int D' to 'int D[7][7]'
+    offset changed from 96 to 384
+    type changed from 'int' to 'int[7][7]'
+  member changed from 'int E' to 'int* E[7]'
+    offset changed from 128 to 1984
+    type changed from 'int' to 'int*[7]'
+  member changed from 'int F' to 'int(* F[7])()'
+    offset changed from 160 to 2432
+    type changed from 'int' to 'int(*[7])()'
+  member changed from 'int G' to 'int(* G)[7]'
+    offset changed from 192 to 2880
+    type changed from 'int' to 'int(*)[7]'
+  member changed from 'int H' to 'int** H'
+    offset changed from 224 to 2944
+    type changed from 'int' to 'int**'
+  member changed from 'int I' to 'int(* I)()'
+    offset changed from 256 to 3008
+    type changed from 'int' to 'int(*)()'
+  member changed from 'int J' to 'int(*(* J)())[7]'
+    offset changed from 288 to 3072
+    type changed from 'int' to 'int(*(*)())[7]'
+  member changed from 'int K' to 'int*(* K)()'
+    offset changed from 320 to 3136
+    type changed from 'int' to 'int*(*)()'
+  member changed from 'int L' to 'int(*(* L)())()'
+    offset changed from 352 to 3200
+    type changed from 'int' to 'int(*(*)())()'
+  member changed from 'int a' to 'volatile int a[7]'
+    offset changed from 384 to 3264
+    type changed from 'int' to 'volatile int[7]'
+  member changed from 'int b' to 'volatile int* const b'
+    offset changed from 416 to 3520
+    type changed from 'int' to 'volatile int* const'
+      qualifier const added
+      underlying type changed from 'int' to 'volatile int*'
+  member changed from 'int c' to 'int(* const c)()'
+    offset changed from 448 to 3584
+    type changed from 'int' to 'int(* const)()'
+      qualifier const added
+      underlying type changed from 'int' to 'int(*)()'
+  member changed from 'int d' to 'volatile int d[7][7]'
+    offset changed from 480 to 3648
+    type changed from 'int' to 'volatile int[7][7]'
+  member changed from 'int e' to 'volatile int* const e[7]'
+    offset changed from 512 to 5248
+    type changed from 'int' to 'volatile int* const[7]'
+  member changed from 'int f' to 'int(* const f[7])()'
+    offset changed from 544 to 5696
+    type changed from 'int' to 'int(* const[7])()'
+  member changed from 'int g' to 'volatile int(* const g)[7]'
+    offset changed from 576 to 6144
+    type changed from 'int' to 'volatile int(* const)[7]'
+      qualifier const added
+      underlying type changed from 'int' to 'volatile int(*)[7]'
+  member changed from 'int h' to 'volatile int* const* const h'
+    offset changed from 608 to 6208
+    type changed from 'int' to 'volatile int* const* const'
+      qualifier const added
+      underlying type changed from 'int' to 'volatile int* const*'
+  member changed from 'int i' to 'int(* const i)()'
+    offset changed from 640 to 6272
+    type changed from 'int' to 'int(* const)()'
+      qualifier const added
+      underlying type changed from 'int' to 'int(*)()'
+  member changed from 'int j' to 'volatile int(*(* const j)())[7]'
+    offset changed from 672 to 6336
+    type changed from 'int' to 'volatile int(*(* const)())[7]'
+      qualifier const added
+      underlying type changed from 'int' to 'volatile int(*(*)())[7]'
+  member changed from 'int k' to 'volatile int*(* const k)()'
+    offset changed from 704 to 6400
+    type changed from 'int' to 'volatile int*(* const)()'
+      qualifier const added
+      underlying type changed from 'int' to 'volatile int*(*)()'
+  member changed from 'int l' to 'int(*(* const l)())()'
+    offset changed from 736 to 6464
+    type changed from 'int' to 'int(*(* const)())()'
+      qualifier const added
+      underlying type changed from 'int' to 'int(*(*)())()'
+
+exit code 4

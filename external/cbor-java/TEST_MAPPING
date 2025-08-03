@@ -1,0 +1,8 @@
+{
+  "mainline-presubmit": [
+    {
+      "name": "CborJavaTestCases[com.google.android.adservices.apex]"
+    }
+  ]
+}
+

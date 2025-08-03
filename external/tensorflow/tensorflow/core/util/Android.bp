@@ -1,0 +1,68 @@
+
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_tensorflow_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_tensorflow_license"],
+}
+
+filegroup(
+    name = "tensorflow_core_util_mobile_srcs_no_runtime",
+    srcs = [
+        "padding.cc",
+        "tensor_format.cc",
+    ],
+)
+
+filegroup(
+    name = "tensorflow_core_util_mobile_srcs_only_runtime",
+    srcs = [
+        "batch_util.cc",
+        "bcast.cc",
+        "command_line_flags.cc",
+        "determinism.cc",
+        "device_name_utils.cc",
+        "dump_graph.cc",
+        "einsum_op_util.cc",
+        "env_var.cc",
+        "equal_graph_def.cc",
+        "example_proto_fast_parsing.cc",
+        "example_proto_helper.cc",
+        "guarded_philox_random.cc",
+        "matmul_autotune.cc",
+        "mirror_pad_mode.cc",
+        "port.cc",
+        "ragged_to_dense_util.cc",
+        "saved_tensor_slice_util.cc",
+        "stat_summarizer.cc",
+        "strided_slice_op.cc",
+        "tensor_slice_reader.cc",
+        "tensor_slice_reader_cache.cc",
+        "tensor_slice_set.cc",
+        "tensor_slice_writer.cc",
+        "use_cudnn.cc",
+        "util.cc",
+        "work_sharder.cc",
+        "sparse/group_iterator.cc",
+        "sparse/sparse_tensor.cc",
+        "tensor_bundle/naming.cc",
+        "tensor_bundle/tensor_bundle.cc",
+        "tensor_bundle/byte_swap.cc",
+    ],
+)

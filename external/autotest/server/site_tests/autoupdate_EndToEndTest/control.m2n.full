@@ -1,0 +1,57 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import logging
+from autotest_lib.client.common_lib import error
+from autotest_lib.client.common_lib import utils
+
+AUTHOR = "kyleshima, Chromium OS"
+NAME = "autoupdate_EndToEndTest.m2n.full"
+TIME = "MEDIUM"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+PY_VERSION = 3
+ATTRIBUTES = "suite:au-m2n"
+JOB_RETRIES = 2
+
+DOC = """
+This tests an M-to-N update. That means it will update from the current stable
+version for this board to ToT. autoupdate_EndToEndTest runs as part of paygen
+and is kicked off differently from other tests. autoupdateEndToEndTest.m2n.full
+will run the same as the other autoupdate tests, so we can detect any
+differences between the two test environments and catch test-breaking changes
+earlier.
+
+M2N tests require lab cache server access to provision the source stable build,
+so they are not easy to run locally.
+
+You need to enable SSH access to the lab cache servers to run this test.
+Refer to the setup instructions here:
+https://g3doc.corp.google.com/company/teams/chrome/ops/fleet/software/onboarding/creating-work-env.md#devserver-environment-for-running-local-tests-with-lab-duts
+
+A quick way to find active image caching servers (devservers) to add to
+shadow_config.ini is to search for "job_repo_url" in the logs of autoupdate
+tests running in the lab. You can use those IP addresses as valid image caching
+servers. See go/cros-au-tests for quick access to test results and logs.
+
+Example usage:
+
+# The target update will be the currently provisioned version on the DUT.
+test_that <DUT> autoupdate_EndToEndTest.m2n.full
+
+# The target update will be the build specified in the args.
+test_that <DUT> autoupdate_EndToEndTest.m2n.full --args="build=R102-14692.0.0"
+
+"""
+
+from autotest_lib.client.common_lib import utils
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('autoupdate_EndToEndTest', host=host, test_conf=None,
+                 m2n=True, **args_dict)
+
+job.parallel_simple(run, machines)

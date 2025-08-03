@@ -1,0 +1,15 @@
+diff --git a/Android.bp b/Android.bp
+index 1e027e2..c650f2e 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -93,7 +93,9 @@ rust_library_host_rlib {
+         "libforeign_types",
+         "liblibc",
+         "libonce_cell",
+-        "libopenssl_sys",
++    ],
++    rlibs: [
++        "libbssl_sys_static",
+     ],
+     proc_macros: ["libopenssl_macros"],
+ }

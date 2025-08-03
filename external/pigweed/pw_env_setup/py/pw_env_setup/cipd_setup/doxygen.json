@@ -1,0 +1,24 @@
+{
+  "packages": [
+    {
+      "path": "pigweed/third_party/doxygen/${platform}",
+      "platforms": [
+        "linux-amd64",
+        "mac-amd64",
+        "windows-amd64"
+      ],
+      "tags": [
+        "version:1.9.6-1"
+      ]
+    },
+    {
+      "path": "pigweed/third_party/doxygen/mac-amd64",
+      "platforms": [
+        "mac-arm64"
+      ],
+      "tags": [
+        "version:1.9.6-1"
+      ]
+    }
+  ]
+}

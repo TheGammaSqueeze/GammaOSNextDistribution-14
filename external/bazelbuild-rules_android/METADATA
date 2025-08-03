@@ -1,0 +1,18 @@
+name: "rules_android"
+description:
+    "Bazel build rules for building Android Apps. "
+    "These are the open-sourced Android build rules from Google3."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/bazelbuild/rules_android"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/bazelbuild/rules_android"
+  }
+  version: "b1ad8136600931878dba61dbb28068bde5d5ed84"
+  last_upgrade_date { year: 2023 month: 10 day: 6 }
+  license_type: NOTICE
+}

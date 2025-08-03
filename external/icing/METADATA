@@ -1,0 +1,17 @@
+name: "Icing Search Library"
+description:
+    "Icing is a fast, embedded, mobile-friendly full-text-search library "
+    "written in C++."
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "http://go/icing-lib-notes"
+  }
+  url {
+    type: PIPER
+    value: "http://google3/third_party/icing/"
+  }
+  last_upgrade_date { year: 2019 month: 12 day: 20 }
+  license_type: NOTICE
+}

@@ -1,0 +1,216 @@
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+license {
+    name: "external_wayland-protocols_freedesktop.org-MIT-license",
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: ["freedesktop.org/COPYING"],
+}
+
+license {
+    name: "external_wayland-protocols_freedesktop.org-ISC-license",
+    license_kinds: [
+        "SPDX-license-identifier-ISC",
+    ],
+    license_text: ["ISC_LICENSE.txt"],
+}
+
+license {
+    name: "external_wayland-protocols_chromium.org-license",
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: ["chromium.org/LICENSE"],
+}
+
+// Build and use the "wayland_protocol_codegen" extension. This is just a bit
+// of glue code to invoke the wayland-scanner code generation tool provided by
+// the core Wayland code (external/wayland) from the Android build system.
+bootstrap_go_package {
+    name: "soong-wayland-protocol-codegen",
+    // licenses: ["Android-Apache-2.0"],
+    pkgPath: "android/soong/external/wayland-protocol",
+    deps: [
+        "blueprint",
+        "blueprint-proptools",
+        "soong-android",
+        "soong-genrule",
+    ],
+    srcs: [
+        "locations.go",
+        "wayland_protocol_codegen.go",
+    ],
+    testSrcs: ["wayland_protocol_codegen_test.go"],
+    pluginFor: ["soong_build"],
+}
+
+// All the MIT licensed freedesktop.org defined extension protocols.
+filegroup {
+    name: "freedesktop.org-MIT-wayland_extension_protocols",
+    licenses: ["external_wayland-protocols_freedesktop.org-MIT-license"],
+    srcs: [
+        "./freedesktop.org/stable/presentation-time/presentation-time.xml",
+        "./freedesktop.org/stable/viewporter/viewporter.xml",
+        "./freedesktop.org/stable/xdg-shell/xdg-shell.xml",
+        "./freedesktop.org/unstable/fullscreen-shell/fullscreen-shell-unstable-v1.xml",
+        "./freedesktop.org/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml",
+        "./freedesktop.org/unstable/input-method/input-method-unstable-v1.xml",
+        "./freedesktop.org/unstable/input-timestamps/input-timestamps-unstable-v1.xml",
+        "./freedesktop.org/unstable/keyboard-shortcuts-inhibit/keyboard-shortcuts-inhibit-unstable-v1.xml",
+        "./freedesktop.org/unstable/linux-dmabuf/linux-dmabuf-unstable-v1.xml",
+        "./freedesktop.org/unstable/linux-explicit-synchronization/linux-explicit-synchronization-unstable-v1.xml",
+        "./freedesktop.org/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml",
+        "./freedesktop.org/unstable/pointer-gestures/pointer-gestures-unstable-v1.xml",
+        "./freedesktop.org/unstable/primary-selection/primary-selection-unstable-v1.xml",
+        "./freedesktop.org/unstable/relative-pointer/relative-pointer-unstable-v1.xml",
+        "./freedesktop.org/unstable/tablet/tablet-unstable-v1.xml",
+        "./freedesktop.org/unstable/tablet/tablet-unstable-v2.xml",
+        "./freedesktop.org/unstable/text-input/text-input-unstable-v1.xml",
+        "./freedesktop.org/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml",
+        "./freedesktop.org/unstable/xdg-foreign/xdg-foreign-unstable-v1.xml",
+        "./freedesktop.org/unstable/xdg-foreign/xdg-foreign-unstable-v2.xml",
+        "./freedesktop.org/unstable/xdg-output/xdg-output-unstable-v1.xml",
+        // Note: Conflicts with freedesktop.org/stable/xdg-shell/xdg-shell.xml
+        // "./freedesktop.org/unstable/xdg-shell/xdg-shell-unstable-v5.xml",
+        "./freedesktop.org/unstable/xdg-shell/xdg-shell-unstable-v6.xml",
+        "./freedesktop.org/unstable/xwayland-keyboard-grab/xwayland-keyboard-grab-unstable-v1.xml",
+    ],
+}
+
+// All the ISC licensed freedesktop.org defined extension protocols.
+filegroup {
+    name: "freedesktop.org-ISC-wayland_extension_protocols",
+    licenses: ["external_wayland-protocols_freedesktop.org-ISC-license"],
+    srcs: [
+        "./freedesktop.org/unstable/text-input/text-input-unstable-v3.xml",
+    ],
+}
+
+// All the chromium.org defined extension protocols.
+filegroup {
+    name: "chromium.org-wayland_extension_protocols",
+    licenses: ["external_wayland-protocols_chromium.org-license"],
+    srcs: [
+        "chromium.org/**/*.xml",
+    ],
+}
+
+// Allows for easy reference to all the extension protocols.
+filegroup {
+    name: "wayland_extension_protocols",
+    srcs: [
+        ":freedesktop.org-MIT-wayland_extension_protocols",
+        ":freedesktop.org-ISC-wayland_extension_protocols",
+        ":chromium.org-wayland_extension_protocols",
+    ],
+}
+
+// Common settings for processing these protocols
+wayland_protocol_codegen_defaults {
+    name: "wayland_extension_protocol_defaults",
+
+    // All the protocol files to generate code for.
+    srcs: [":wayland_extension_protocols"],
+
+    // Use "wayland_scanner" out of external/wayland.
+    tools: ["wayland_scanner"],
+}
+
+// Generate protocol source files used by both client and server
+wayland_protocol_codegen {
+    name: "wayland_extension_protocol_sources",
+    defaults: ["wayland_extension_protocol_defaults"],
+
+    // Specifies the command to run to generate each output file for each input file.
+    cmd: "$(location wayland_scanner) private-code < $(in) > $(out)",
+
+    // There is a 1:1 correspondence between each generated output file and each source file.
+    // The output filename should use the base filename of the protocol file (no extension), and
+    // add a ".c" suffix. For example, "freedesktop.org/stable/xdg-shell/xdg-shell.xml" generates
+    // "xdg-shell.c".
+    output: "$(in).c",
+}
+
+// Generate protocol header files used by the client
+wayland_protocol_codegen {
+    name: "wayland_extension_client_protocol_headers",
+    defaults: ["wayland_extension_protocol_defaults"],
+
+    // Specifies the command to run to generate each output file for each input file.
+    cmd: "$(location wayland_scanner) client-header < $(in) > $(out)",
+
+    // There is a 1:1 correspondence between each generated output file and each source file.
+    // The output filename should use the base filename of the protocol file (no extension), and
+    // add a "-client-protocol.h" suffix. For example,
+    // "freedesktop.org/stable/xdg-shell/xdg-shell.xml" generates "xdg-shell-client-protocol.h".
+    output: "$(in)-client-protocol.h",
+}
+
+// Generate protocol header files used by the server
+wayland_protocol_codegen {
+    name: "wayland_extension_server_protocol_headers",
+    defaults: ["wayland_extension_protocol_defaults"],
+
+    // Specifies the command to run to generate each output file for each input file.
+    cmd: "$(location wayland_scanner) server-header < $(in) > $(out)",
+
+    // There is a 1:1 correspondence between each generated output file and each source file.
+    // The output filename should use the base filename of the protocol file (no extension), and
+    // add a "-server-protocol.h" suffix. For example,
+    // "freedesktop.org/stable/xdg-shell/xdg-shell.xml" generates "xdg-shell-server-protocol.h".
+    output: "$(in)-server-protocol.h",
+}
+
+// Generate a library with the protocol files, configured to export the client
+// header files
+cc_library_static {
+    name: "libwayland_extension_client_protocols",
+    vendor_available: true,
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-g",
+        "-fvisibility=hidden",
+    ],
+    static_libs: ["libwayland_client_static"],
+    generated_sources: ["wayland_extension_protocol_sources"],
+    generated_headers: ["wayland_extension_client_protocol_headers"],
+    export_generated_headers: ["wayland_extension_client_protocol_headers"],
+}
+
+// Generate a library with the protocol files, configured to export the server
+// header files
+cc_library_static {
+    name: "libwayland_extension_server_protocols",
+    vendor_available: true,
+    host_supported: true,
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-g",
+        "-fvisibility=hidden",
+    ],
+    static_libs: ["libwayland_server"],
+    generated_sources: ["wayland_extension_protocol_sources"],
+    generated_headers: ["wayland_extension_server_protocol_headers"],
+    export_generated_headers: ["wayland_extension_server_protocol_headers"],
+}

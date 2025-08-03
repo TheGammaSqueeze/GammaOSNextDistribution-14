@@ -1,0 +1,13 @@
+name: "notosanscham"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Cham is an unmodulated (“sans serif”) design for texts inthe Southeast Asian Cham script. It has multiple weights and 131glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanscham"
+  }
+  version: "1.020"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

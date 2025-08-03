@@ -1,0 +1,97 @@
+package {
+    default_applicable_licenses: ["external_deqp-deps_amber_license"],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_deqp-deps_amber_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+genrule {
+    name: "deqp_amber_gen_vk_wrappers",
+    out: ["vk-wrappers-1-0.inc", "vk-wrappers-1-0.h", "vk-wrappers-1-1.inc", "vk-wrappers-1-1.h"],
+    srcs: ["src/vulkan/vk-funcs-1-0.inc", "src/vulkan/vk-funcs-1-1.inc"],
+    tool_files: ["tools/update_vk_wrappers.py"],
+    cmd: "$(location) $(genDir) $$(dirname $(location src/vulkan/vk-funcs-1-0.inc))/../..",
+}
+
+cc_library_static {
+    name: "deqp_amber",
+    defaults: ["deqp_and_deps_defaults"],
+    export_include_dirs: [
+        "include",
+        ".",
+    ],
+    generated_headers: [
+        "deqp_amber_gen_vk_wrappers",
+    ],
+    header_libs: [
+        "deqp_vulkan_headers",
+    ],
+    srcs: [
+        "src/amber.cc",
+        "src/amberscript/parser.cc",
+        "src/buffer.cc",
+        "src/command_data.cc",
+        "src/command.cc",
+        "src/descriptor_set_and_binding_parser.cc",
+        "src/engine.cc",
+        "src/executor.cc",
+        "src/float16_helper.cc",
+        "src/format.cc",
+        "src/parser.cc",
+        "src/pipeline_data.cc",
+        "src/pipeline.cc",
+        "src/recipe.cc",
+        "src/result.cc",
+        "src/sampler.cc",
+        "src/script.cc",
+        "src/shader_compiler.cc",
+        "src/shader.cc",
+        "src/sleep.cc",
+        "src/tokenizer.cc",
+        "src/type_parser.cc",
+        "src/type.cc",
+        "src/value.cc",
+        "src/verifier.cc",
+        "src/virtual_file_store.cc",
+        "src/vkscript/command_parser.cc",
+        "src/vkscript/datum_type_parser.cc",
+        "src/vkscript/parser.cc",
+        "src/vkscript/section_parser.cc",
+        "src/vulkan_engine_config.cc",
+        "src/vulkan/buffer_backed_descriptor.cc",
+        "src/vulkan/buffer_descriptor.cc",
+        "src/vulkan/command_buffer.cc",
+        "src/vulkan/command_pool.cc",
+        "src/vulkan/compute_pipeline.cc",
+        "src/vulkan/descriptor.cc",
+        "src/vulkan/device.cc",
+        "src/vulkan/engine_vulkan.cc",
+        "src/vulkan/frame_buffer.cc",
+        "src/vulkan/graphics_pipeline.cc",
+        "src/vulkan/image_descriptor.cc",
+        "src/vulkan/index_buffer.cc",
+        "src/vulkan/pipeline.cc",
+        "src/vulkan/push_constant.cc",
+        "src/vulkan/resource.cc",
+        "src/vulkan/sampler_descriptor.cc",
+        "src/vulkan/sampler.cc",
+        "src/vulkan/transfer_buffer.cc",
+        "src/vulkan/transfer_image.cc",
+        "src/vulkan/vertex_buffer.cc",
+    ],
+}

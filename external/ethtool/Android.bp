@@ -1,0 +1,70 @@
+package {
+    default_applicable_licenses: ["external_ethtool_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_ethtool_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+    ],
+    license_text: [
+        "COPYING",
+        "LICENSE",
+    ],
+}
+
+cc_binary {
+    name: "ethtool",
+    local_include_dirs: [
+        "uapi",
+        "libmnl",
+        "libmnl/include",
+    ],
+    srcs: [
+        "libmnl/src/*.c",
+        "netlink/*.c",
+        "[a-s]*.c",
+        "t[a-d]*.c",
+        // avoid test-*.c -- note these are shell globs, not regexps
+        "t[f-z]*.c",
+        "[u-z]*.c",
+    ],
+    cflags: [
+        "-Wno-missing-field-initializers",
+        "-Wno-gnu-pointer-arith",
+        "-Wno-gnu-variable-sized-type-not-at-end",
+        "-Wno-unused-parameter",
+        "-DETHTOOL_ENABLE_NETLINK",
+        // causes a fair bit of binary bloat: "-DETHTOOL_ENABLE_PRETTY_DUMP",
+        "-DPACKAGE=\"ethtool\"",
+        "-DVERSION=\"6.5\"",
+    ],
+    apex_available: [
+        "com.android.tethering",
+        "//apex_available:platform",
+    ],
+    installable: false,
+    min_sdk_version: "30",
+}

@@ -1,0 +1,15 @@
+<html>
+  <body>
+    <h1>Please select a country:</h1>
+    <select id="country">
+      <option value="France">France</option>
+      <option value="Germany">Germany</option>
+      <option value="Israel">Israel</option>
+      <option value="Japan">Japan</option>
+      <option value="Poland">Poland</option>
+      <option value="United States" selected="selected">United States</option>
+      <option value="Venezuela">Venezuela</option>
+    </select>
+    <hr>
+  </body>
+</html>

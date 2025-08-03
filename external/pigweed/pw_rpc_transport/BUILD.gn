@@ -1,0 +1,332 @@
+# Copyright 2023 The Pigweed Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+
+import("//build_overrides/pigweed.gni")
+
+import("$dir_pw_build/target_types.gni")
+import("$dir_pw_chrono/backend.gni")
+import("$dir_pw_docgen/docs.gni")
+import("$dir_pw_protobuf_compiler/proto.gni")
+import("$dir_pw_sync/backend.gni")
+import("$dir_pw_thread/backend.gni")
+import("$dir_pw_unit_test/test.gni")
+
+config("public_include_path") {
+  include_dirs = [ "public" ]
+  visibility = [ ":*" ]
+}
+
+pw_doc_group("docs") {
+  sources = [ "docs.rst" ]
+}
+
+pw_test_group("tests") {
+  tests = [
+    ":egress_ingress_test",
+    ":hdlc_framing_test",
+    ":local_rpc_egress_test",
+    ":packet_buffer_queue_test",
+    ":rpc_integration_test",
+    ":simple_framing_test",
+    ":socket_rpc_transport_test",
+    ":stream_rpc_dispatcher_test",
+  ]
+}
+
+pw_source_set("rpc_transport") {
+  public = [ "public/pw_rpc_transport/rpc_transport.h" ]
+  public_configs = [ ":public_include_path" ]
+  public_deps = [
+    "$dir_pw_bytes",
+    "$dir_pw_function",
+    "$dir_pw_status",
+  ]
+}
+
+pw_source_set("service_registry") {
+  public = [ "public/pw_rpc_transport/service_registry.h" ]
+  public_deps = [
+    ":rpc_transport",
+    "$dir_pw_rpc:client_server",
+    "$dir_pw_span",
+    "$dir_pw_status",
+  ]
+}
+
+pw_source_set("test_loopback_service_registry") {
+  public = [ "public/pw_rpc_transport/test_loopback_service_registry.h" ]
+  public_deps = [
+    ":egress_ingress",
+    ":service_registry",
+    "$dir_pw_work_queue:pw_work_queue",
+    "$dir_pw_work_queue:test_thread",
+  ]
+}
+
+pw_source_set("packet_buffer_queue") {
+  public = [ "public/pw_rpc_transport/internal/packet_buffer_queue.h" ]
+  public_configs = [ ":public_include_path" ]
+  public_deps = [
+    "$dir_pw_bytes",
+    "$dir_pw_containers",
+    "$dir_pw_result",
+    "$dir_pw_status",
+    "$dir_pw_sync:lock_annotations",
+    "$dir_pw_sync:mutex",
+  ]
+  deps = [
+    "$dir_pw_assert:check",
+    "$dir_pw_log",
+  ]
+  visibility = [ ":*" ]
+}
+
+pw_test("packet_buffer_queue_test") {
+  sources = [ "internal/packet_buffer_queue_test.cc" ]
+  deps = [
+    ":packet_buffer_queue",
+    "$dir_pw_bytes",
+    "$dir_pw_containers",
+    "$dir_pw_result",
+    "$dir_pw_status",
+    "$dir_pw_sync:lock_annotations",
+    "$dir_pw_sync:mutex",
+  ]
+}
+
+pw_source_set("local_rpc_egress") {
+  public = [ "public/pw_rpc_transport/local_rpc_egress.h" ]
+  sources = [ "local_rpc_egress.cc" ]
+  public_deps = [
+    ":packet_buffer_queue",
+    ":rpc_transport",
+    "$dir_pw_bytes",
+    "$dir_pw_result",
+    "$dir_pw_rpc:client",
+    "$dir_pw_status",
+    "$dir_pw_sync:thread_notification",
+    "$dir_pw_thread:thread_core",
+  ]
+  deps = [ "$dir_pw_log" ]
+}
+
+pw_test("local_rpc_egress_test") {
+  sources = [ "local_rpc_egress_test.cc" ]
+  enable_if = pw_thread_THREAD_BACKEND == "$dir_pw_thread_stl:thread"
+  deps = [
+    ":local_rpc_egress",
+    ":rpc_transport",
+    ":service_registry",
+    ":test_protos.pwpb_rpc",
+    "$dir_pw_bytes",
+    "$dir_pw_chrono:system_clock",
+    "$dir_pw_rpc:client_server",
+    "$dir_pw_status",
+    "$dir_pw_sync:counting_semaphore",
+    "$dir_pw_sync:thread_notification",
+    "$dir_pw_thread:sleep",
+    "$dir_pw_thread:thread",
+    "$dir_pw_thread_stl:thread",
+  ]
+}
+
+pw_source_set("hdlc_framing") {
+  public = [ "public/pw_rpc_transport/hdlc_framing.h" ]
+  public_configs = [ ":public_include_path" ]
+  public_deps = [
+    ":rpc_transport",
+    "$dir_pw_bytes",
+    "$dir_pw_hdlc:decoder",
+    "$dir_pw_hdlc:default_addresses",
+    "$dir_pw_hdlc:encoder",
+    "$dir_pw_result",
+    "$dir_pw_status",
+    "$dir_pw_stream:pw_stream",
+  ]
+}
+
+pw_test("hdlc_framing_test") {
+  sources = [ "hdlc_framing_test.cc" ]
+  deps = [
+    ":hdlc_framing",
+    "$dir_pw_bytes",
+    "$dir_pw_status",
+  ]
+
+  # TODO: https://pwbug.dev/325509758 - Doesn't work on the Pico yet; hangs
+  # indefinitely.
+  if (pw_build_EXECUTABLE_TARGET_TYPE == "pico_executable") {
+    enable_if = false
+  }
+}
+
+pw_source_set("simple_framing") {
+  public = [ "public/pw_rpc_transport/simple_framing.h" ]
+  public_configs = [ ":public_include_path" ]
+  sources = [ "simple_framing.cc" ]
+  public_deps = [
+    ":rpc_transport",
+    "$dir_pw_assert",
+    "$dir_pw_bytes",
+    "$dir_pw_status",
+  ]
+  deps = [ "$dir_pw_log" ]
+}
+
+pw_test("simple_framing_test") {
+  sources = [ "simple_framing_test.cc" ]
+  deps = [
+    ":simple_framing",
+    "$dir_pw_bytes",
+    "$dir_pw_log",
+    "$dir_pw_status",
+  ]
+
+  # TODO: https://pwbug.dev/325509758 - Doesn't work on the Pico yet; hangs
+  # indefinitely.
+  if (pw_build_EXECUTABLE_TARGET_TYPE == "pico_executable") {
+    enable_if = false
+  }
+}
+
+pw_source_set("egress_ingress") {
+  public = [ "public/pw_rpc_transport/egress_ingress.h" ]
+  sources = [ "egress_ingress.cc" ]
+  public_deps = [
+    ":hdlc_framing",
+    ":rpc_transport",
+    ":simple_framing",
+    "$dir_pw_bytes",
+    "$dir_pw_metric",
+    "$dir_pw_rpc:client",
+    "$dir_pw_status",
+    "$dir_pw_sync:mutex",
+  ]
+  deps = [ "$dir_pw_log" ]
+}
+
+pw_test("egress_ingress_test") {
+  sources = [ "egress_ingress_test.cc" ]
+  enable_if = pw_thread_THREAD_BACKEND != ""
+  deps = [
+    ":egress_ingress",
+    ":service_registry",
+    ":test_protos.pwpb_rpc",
+    "$dir_pw_bytes",
+    "$dir_pw_metric",
+    "$dir_pw_status",
+    "$dir_pw_sync:thread_notification",
+  ]
+
+  # TODO: https://pwbug.dev/325509758 - Doesn't work on the Pico yet; hangs
+  # indefinitely.
+  if (pw_build_EXECUTABLE_TARGET_TYPE == "pico_executable") {
+    enable_if = false
+  }
+}
+
+pw_source_set("socket_rpc_transport") {
+  public = [ "public/pw_rpc_transport/socket_rpc_transport.h" ]
+  sources = [ "socket_rpc_transport.cc" ]
+  public_deps = [
+    ":rpc_transport",
+    "$dir_pw_assert",
+    "$dir_pw_chrono:system_clock",
+    "$dir_pw_status",
+    "$dir_pw_stream:pw_stream",
+    "$dir_pw_stream:socket_stream",
+    "$dir_pw_sync:condition_variable",
+    "$dir_pw_sync:lock_annotations",
+    "$dir_pw_sync:mutex",
+    "$dir_pw_sync:thread_notification",
+    "$dir_pw_thread:sleep",
+    "$dir_pw_thread:thread_core",
+  ]
+  deps = [ "$dir_pw_log" ]
+}
+
+pw_source_set("stream_rpc_frame_sender") {
+  public = [ "public/pw_rpc_transport/stream_rpc_frame_sender.h" ]
+  public_deps = [
+    ":rpc_transport",
+    "$dir_pw_status",
+    "$dir_pw_stream:pw_stream",
+  ]
+}
+
+pw_source_set("stream_rpc_dispatcher") {
+  public = [ "public/pw_rpc_transport/stream_rpc_dispatcher.h" ]
+  public_deps = [
+    ":egress_ingress",
+    "$dir_pw_status",
+    "$dir_pw_stream:pw_stream",
+  ]
+}
+
+pw_test("socket_rpc_transport_test") {
+  sources = [ "socket_rpc_transport_test.cc" ]
+  enable_if = pw_thread_THREAD_BACKEND == "$dir_pw_thread_stl:thread" &&
+              host_os != "win" && pw_sync_CONDITION_VARIABLE_BACKEND != ""
+  deps = [
+    ":socket_rpc_transport",
+    "$dir_pw_bytes",
+    "$dir_pw_log",
+    "$dir_pw_status",
+    "$dir_pw_sync:thread_notification",
+    "$dir_pw_thread:sleep",
+    "$dir_pw_thread:thread",
+    "$dir_pw_thread_stl:thread",
+  ]
+}
+
+pw_test("stream_rpc_dispatcher_test") {
+  sources = [ "stream_rpc_dispatcher_test.cc" ]
+  enable_if = pw_thread_THREAD_BACKEND == "$dir_pw_thread_stl:thread"
+  deps = [
+    ":stream_rpc_dispatcher",
+    "$dir_pw_bytes",
+    "$dir_pw_log",
+    "$dir_pw_status",
+    "$dir_pw_sync:mutex",
+    "$dir_pw_sync:thread_notification",
+    "$dir_pw_thread:thread",
+    "$dir_pw_thread_stl:thread",
+  ]
+}
+
+pw_test("rpc_integration_test") {
+  sources = [ "rpc_integration_test.cc" ]
+  enable_if = pw_thread_THREAD_BACKEND == "$dir_pw_thread_stl:thread" &&
+              host_os != "win" && pw_sync_CONDITION_VARIABLE_BACKEND != ""
+  deps = [
+    ":egress_ingress",
+    ":local_rpc_egress",
+    ":service_registry",
+    ":socket_rpc_transport",
+    ":test_protos.pwpb_rpc",
+    "$dir_pw_chrono:system_clock",
+    "$dir_pw_log",
+    "$dir_pw_rpc:client_server",
+    "$dir_pw_rpc:synchronous_client_api",
+    "$dir_pw_string",
+    "$dir_pw_thread:thread",
+    "$dir_pw_thread_stl:thread",
+  ]
+}
+
+pw_proto_library("test_protos") {
+  sources = [ "internal/test.proto" ]
+  inputs = [ "internal/test.options" ]
+  prefix = "pw_rpc_transport"
+}

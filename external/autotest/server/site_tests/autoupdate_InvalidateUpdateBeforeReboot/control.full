@@ -1,0 +1,36 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "hbarnor, Chromium OS"
+NAME = "autoupdate_InvalidateUpdateBeforeReboot.full"
+TIME = "MEDIUM"
+PURPOSE = "Tests invalidate last update with Nebraska."
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "platform"
+TEST_TYPE = "server"
+ATTRIBUTES = "suite:au-perbuild"
+PY_VERSION = 3
+DOC = """
+This tests the invalidate last update feature.
+
+This test ensures that Update Engine checks for and invalidates a previous
+update if it has not rebooted into it. This is achieved by feeding a full update
+to the update_engine followed by a request to invalidate the update.
+
+We supply a job_repo_url to the test when running locally. In the lab this will
+be passed directly. The job_repo_url is a link to the autotest packages on a
+devserver. The test uses it to find the correct payload to use.
+
+Example usage:
+test_that autoupdate_InvalidateUpdateBeforeReboot.full <DUT> --board=<board> --args="job_repo_url='http://<devserver IP>:8082/static/<board>-release/RXX-XXXXX.X.X/autotest/packages', running_at_desk=True"
+"""
+
+from autotest_lib.client.common_lib import utils
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('autoupdate_InvalidateUpdateBeforeReboot', host=host, **args_dict)
+
+job.parallel_simple(run, machines)

@@ -1,0 +1,38 @@
+/*
+ * ANT Android Host Stack
+ *
+ * Copyright 2018 Dynastream Innovations
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dsi.ant@1.0;
+
+/**
+ * Callbacks to allow the HAL implementation to notify the ANTHALService of events.
+ */
+interface IAntCallbacks {
+
+    /**
+     * Indicate that a message was received on either the data or command channel.
+     */
+    oneway onMessageReceived(vec<uint8_t> data);
+
+    /**
+     * Indicate that a failure condition was detected. The ANTHALService will attempt
+     * a recovery process. The cause parameter is an optional string describing the
+     * failure condition.
+     */
+    oneway onTransportDown(string cause);
+};
+

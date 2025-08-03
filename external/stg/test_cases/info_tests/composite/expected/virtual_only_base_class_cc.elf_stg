@@ -1,0 +1,204 @@
+version: 0x00000002
+root_id: 0x84ea5130
+special {
+  id: 0x48b5725f
+  kind: VOID
+}
+pointer_reference {
+  id: 0x01ec39fc
+  kind: POINTER
+  pointee_type_id: 0x2df0016c
+}
+pointer_reference {
+  id: 0x0b5e55a4
+  kind: POINTER
+  pointee_type_id: 0x0739b00c
+}
+pointer_reference {
+  id: 0x134ef871
+  kind: POINTER
+  pointee_type_id: 0x677b0759
+}
+pointer_reference {
+  id: 0x2df0016c
+  kind: POINTER
+  pointee_type_id: 0x9d80e32f
+}
+pointer_reference {
+  id: 0xc65e4373
+  kind: LVALUE_REFERENCE
+  pointee_type_id: 0x0739b00c
+}
+primitive {
+  id: 0x6720d32f
+  name: "int"
+  encoding: SIGNED_INTEGER
+  bytesize: 0x00000004
+}
+base_class {
+  id: 0x166ca3db
+  type_id: 0x0739b00c
+  inheritance: NON_VIRTUAL
+}
+method {
+  id: 0x4dd47407
+  mangled_name: "_ZN1X1fEv"
+  name: "f"
+  type_id: 0x9f577646
+}
+method {
+  id: 0xb8b6ef68
+  mangled_name: "_ZN1X1gEv"
+  name: "g"
+  vtable_offset: 1
+  type_id: 0x9f577646
+}
+method {
+  id: 0x63c715c4
+  mangled_name: "_ZN1Y1fEv"
+  name: "f"
+  type_id: 0x99535d33
+}
+method {
+  id: 0xe8e61433
+  mangled_name: "_ZN1Y1gEv"
+  name: "g"
+  vtable_offset: 1
+  type_id: 0x99535d33
+}
+member {
+  id: 0x687cadfe
+  name: "_vptr$X"
+  type_id: 0x01ec39fc
+}
+struct_union {
+  id: 0x0739b00c
+  kind: STRUCT
+  name: "X"
+  definition {
+    bytesize: 8
+    method_id: 0x4dd47407
+    method_id: 0xb8b6ef68
+    member_id: 0x687cadfe
+  }
+}
+struct_union {
+  id: 0x677b0759
+  kind: STRUCT
+  name: "Y"
+  definition {
+    bytesize: 8
+    base_class_id: 0x166ca3db
+    method_id: 0x63c715c4
+    method_id: 0xe8e61433
+  }
+}
+function {
+  id: 0x124fc4fa
+  return_type_id: 0x48b5725f
+  parameter_id: 0x0b5e55a4
+}
+function {
+  id: 0x144bef8f
+  return_type_id: 0x48b5725f
+  parameter_id: 0x134ef871
+}
+function {
+  id: 0x99535d33
+  return_type_id: 0x6720d32f
+  parameter_id: 0x134ef871
+}
+function {
+  id: 0x9d80e32f
+  return_type_id: 0x6720d32f
+}
+function {
+  id: 0x9f577646
+  return_type_id: 0x6720d32f
+  parameter_id: 0x0b5e55a4
+}
+function {
+  id: 0xac1773f3
+  return_type_id: 0x6720d32f
+  parameter_id: 0xc65e4373
+}
+elf_symbol {
+  id: 0x10da60a3
+  name: "_Z3foov"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x9d80e32f
+  full_name: "foo"
+}
+elf_symbol {
+  id: 0xbc33871c
+  name: "_Z3funR1X"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0xac1773f3
+  full_name: "fun"
+}
+elf_symbol {
+  id: 0x0bbcf1df
+  name: "_ZN1XC2Ev"
+  is_defined: true
+  symbol_type: FUNCTION
+  binding: WEAK
+  type_id: 0x124fc4fa
+  full_name: "X::X"
+}
+elf_symbol {
+  id: 0x71a2fb93
+  name: "_ZN1Y1fEv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x99535d33
+  full_name: "Y::f"
+}
+elf_symbol {
+  id: 0x938b5d81
+  name: "_ZN1Y1gEv"
+  is_defined: true
+  symbol_type: FUNCTION
+  type_id: 0x99535d33
+  full_name: "Y::g"
+}
+elf_symbol {
+  id: 0x8f2ed63c
+  name: "_ZN1YC2Ev"
+  is_defined: true
+  symbol_type: FUNCTION
+  binding: WEAK
+  type_id: 0x144bef8f
+  full_name: "Y::Y"
+}
+elf_symbol {
+  id: 0x62dbf9a8
+  name: "_ZTI1Y"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x68f7d82f
+  name: "_ZTS1Y"
+  is_defined: true
+  symbol_type: OBJECT
+}
+elf_symbol {
+  id: 0x4df3aa88
+  name: "_ZTV1Y"
+  is_defined: true
+  symbol_type: OBJECT
+}
+interface {
+  id: 0x84ea5130
+  symbol_id: 0x10da60a3
+  symbol_id: 0xbc33871c
+  symbol_id: 0x0bbcf1df
+  symbol_id: 0x71a2fb93
+  symbol_id: 0x938b5d81
+  symbol_id: 0x8f2ed63c
+  symbol_id: 0x62dbf9a8
+  symbol_id: 0x68f7d82f
+  symbol_id: 0x4df3aa88
+}

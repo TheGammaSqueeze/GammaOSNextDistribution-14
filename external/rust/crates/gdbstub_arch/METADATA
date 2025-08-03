@@ -1,0 +1,20 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/gdbstub_arch
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "gdbstub_arch"
+description: "Implementations of `gdbstub::arch::Arch` for various architectures."
+third_party {
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 12
+    day: 16
+  }
+  homepage: "https://crates.io/crates/gdbstub_arch"
+  identifier {
+    type: "Archive"
+    value: "https://static.crates.io/crates/gdbstub_arch/gdbstub_arch-0.3.0.crate"
+    version: "0.3.0"
+  }
+}

@@ -1,0 +1,88 @@
+//#############################################
+// Compile Robolectric processor
+//#############################################
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_robolectric_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-MIT
+    default_applicable_licenses: ["external_robolectric_license"],
+}
+
+java_library_host {
+    name: "libRobolectric_processor_upstream",
+    srcs: ["src/main/java/**/*.java"],
+    java_resource_dirs: ["src/main/resources"],
+    java_resources: ["sdks.txt"],
+    use_tools_jar: true,
+    plugins: [
+        "auto_service_plugin",
+    ],
+    static_libs: [
+        "Robolectric_annotations_upstream",
+        "Robolectric_shadowapi_upstream",
+        "Robolectric_shadows_versioning_upstream",
+        "asm-9.2",
+        "asm-commons-9.2",
+        "asm-tree-9.2",
+        "auto_service_annotations",
+        "auto-common-1.1.2",
+        "gson",
+        "guava",
+        "jsr305",
+    ],
+
+    openjdk9: {
+        javacflags: [
+            "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+        ],
+    },
+}
+
+java_plugin {
+    name: "Robolectric_processor_upstream",
+    processor_class: "org.robolectric.annotation.processing.RobolectricProcessor",
+    static_libs: ["libRobolectric_processor_upstream"],
+}
+
+//#############################################
+// Compile Robolectric processor tests
+//#############################################
+java_test_host {
+    name: "Robolectric_processor_tests_upstream",
+    srcs: ["src/test/java/**/*.java"],
+    java_resource_dirs: ["src/test/resources"],
+    java_resources: [":Robolectric_processor_tests_resources_upstream"],
+    static_libs: [
+        "Robolectric_annotations_upstream",
+        "libRobolectric_processor_upstream",
+        "Robolectric_shadowapi_upstream",
+        "robolectric-javax.annotation-api-1.2",
+        "robolectric-compile-testing-0.19",
+        "mockito",
+        "hamcrest",
+        "guava",
+        "objenesis",
+        "junit",
+        "truth",
+        "gson",
+        "jsr305",
+    ],
+
+    test_suites: ["general-tests"],
+
+    // Disable annotation processing while compiling tests to avoid executing RobolectricProcessor.
+    javacflags: ["-proc:none"],
+}
+
+// Workaround: java_resource_dirs ignores *.java files
+filegroup {
+    name: "Robolectric_processor_tests_resources_upstream",
+    path: "src/test/resources",
+    srcs: ["src/test/resources/**/*.java"],
+}

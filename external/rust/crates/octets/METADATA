@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/octets
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "octets"
+description: "Zero-copy abstraction for parsing and constructing network packets"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/octets"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/octets/octets-0.2.0.crate"
+  }
+  version: "0.2.0"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2022
+    month: 12
+    day: 13
+  }
+}

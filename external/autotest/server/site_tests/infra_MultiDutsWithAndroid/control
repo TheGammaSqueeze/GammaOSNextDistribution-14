@@ -1,0 +1,24 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'xianuowang'
+ATTRIBUTES = "suite:infra_multi_duts_with_android"
+NAME = 'infra_MultiDutsWithAndroid'
+TIME = 'SHORT'
+TEST_CATEGORY = 'General'
+TEST_CLASS = 'stub'
+TEST_TYPE = 'server'
+PY_VERSION = 3
+DOC = """
+Verify the test can create correct host type for Android devices and perform
+basic adb actions.
+"""
+
+
+def run(machine):
+    host = hosts.create_host(machine)
+    companions = hosts.create_companion_hosts(companion_hosts)
+    job.run_test('infra_MultiDutsWithAndroid', host=host, companions=companions)
+
+parallel_simple(run, machines)

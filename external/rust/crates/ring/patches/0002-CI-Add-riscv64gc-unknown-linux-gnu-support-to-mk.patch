@@ -1,0 +1,30 @@
+From cc5f5bfd58adb4d571e165bafb675c1c0267c829 Mon Sep 17 00:00:00 2001
+From: Brian Smith <brian@briansmith.org>
+Date: Wed, 9 Nov 2022 16:44:13 -0800
+Subject: [PATCH 2/2] CI: Add riscv64gc-unknown-linux-gnu support to mk/.
+
+(cherry picked from commit 80544a3edb8481a849f3ff0f8017cab7655dea41)
+Test: builds
+Change-Id: I6e788488b50714908ea67cd8474542d899112e8d
+---
+ include/ring-core/base.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/ring-core/base.h b/include/ring-core/base.h
+index f1a027d1a..223448f5b 100644
+--- a/include/ring-core/base.h
++++ b/include/ring-core/base.h
+@@ -89,6 +89,10 @@
+ #elif defined(__MIPSEL__) && defined(__LP64__)
+ #define OPENSSL_64_BIT
+ #define OPENSSL_MIPS64
++#elif defined(__riscv) && __SIZEOF_POINTER__ == 8
++#define OPENSSL_64_BIT
++#elif defined(__riscv) && __SIZEOF_POINTER__ == 4
++#define OPENSSL_32_BIT
+ #elif defined(__wasm__)
+ #define OPENSSL_32_BIT
+ #else
+-- 
+2.39.1.519.gcb327c4b5f-goog
+

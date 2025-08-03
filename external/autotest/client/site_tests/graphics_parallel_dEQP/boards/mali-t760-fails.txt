@@ -1,0 +1,5 @@
+dEQP-GLES3.functional.shaders.matrix.inverse.dynamic.lowp_mat4_float_vertex,Fail
+dEQP-GLES3.functional.shaders.matrix.inverse.dynamic.mediump_mat3_float_vertex,Fail
+dEQP-GLES3.functional.shaders.matrix.inverse.dynamic.mediump_mat4_float_vertex,Fail
+dEQP-GLES3.functional.shaders.matrix.inverse.dynamic.lowp_mat3_float_vertex,Fail
+dEQP-GLES3.functional.state_query.indexed.transform_feedback_switching_buffer,Fail

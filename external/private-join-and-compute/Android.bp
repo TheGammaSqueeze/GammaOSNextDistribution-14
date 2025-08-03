@@ -1,0 +1,707 @@
+package {
+    default_visibility : ["//visibility:private"],
+    default_applicable_licenses: ["libpjc_license"],
+}
+
+license {
+    name: "libpjc_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["SPDX-license-identifier-Apache-2.0"],
+    license_text: ["LICENSE"],
+}
+
+cc_defaults {
+    name: "libpjc_defaults",
+    host_supported: true,
+}
+
+filegroup {
+    name: "private-join-and-compute-proto",
+    srcs: [
+       "**/*.proto",
+    ],
+    visibility: ["//packages/modules/AdServices:__subpackages__"],
+}
+
+cc_library {
+    name: "libpjc_crypto",
+    min_sdk_version: "30",
+    sdk_version: "current",
+    stl: "libc++_static",
+    visibility: [
+    	"//external/anonymous-counting-tokens:__subpackages__",
+    	"//packages/modules/AdServices/adservices/service-core",
+    ],
+    defaults: ["libpjc_defaults"],
+    srcs: [
+      "private_join_and_compute/crypto/big_num.cc",
+      "private_join_and_compute/crypto/camenisch_shoup.cc",
+      "private_join_and_compute/crypto/commutative_elgamal.cc",
+      "private_join_and_compute/crypto/context.cc",
+      "private_join_and_compute/crypto/dodis_yampolskiy_prf/bb_oblivious_signature.cc",
+      "private_join_and_compute/crypto/dodis_yampolskiy_prf/bb_oblivious_signature.proto",
+      "private_join_and_compute/crypto/dodis_yampolskiy_prf/dy_verifiable_random_function.cc",
+      "private_join_and_compute/crypto/dodis_yampolskiy_prf/dy_verifiable_random_function.proto",
+      "private_join_and_compute/crypto/ec_commutative_cipher.cc",
+      "private_join_and_compute/crypto/ec_group.cc",
+      "private_join_and_compute/crypto/ec_key.proto",
+      "private_join_and_compute/crypto/ec_point.cc",
+      "private_join_and_compute/crypto/ec_point_util.cc",
+      "private_join_and_compute/crypto/elgamal.cc",
+      "private_join_and_compute/crypto/elgamal.proto",
+      "private_join_and_compute/crypto/fixed_base_exp.cc",
+      "private_join_and_compute/crypto/mont_mul.cc",
+      "private_join_and_compute/crypto/openssl_init.cc",
+      "private_join_and_compute/crypto/paillier.cc",
+      "private_join_and_compute/crypto/paillier.proto",
+      "private_join_and_compute/crypto/pedersen_over_zn.cc",
+      "private_join_and_compute/crypto/proto/big_num.proto",
+      "private_join_and_compute/crypto/proto/camenisch_shoup.proto",
+      "private_join_and_compute/crypto/proto/ec_point.proto",
+      "private_join_and_compute/crypto/proto/pedersen.proto",
+      "private_join_and_compute/crypto/proto/proto_util.cc",
+      "private_join_and_compute/crypto/shanks_discrete_log.cc",
+      "private_join_and_compute/crypto/simultaneous_fixed_bases_exp.cc",
+      "private_join_and_compute/crypto/two_modulus_crt.cc",
+    ],
+    export_include_dirs: [
+      "private_join_and_compute/crypto/",
+      ".",
+    ],
+    include_dirs: [
+      "external/protobuf",
+    ],
+    shared_libs: [
+      "libcrypto",
+      "liblog",
+    ],
+    static_libs: [
+      "libpjc_third_party_libabsl",
+    ],
+    cflags: ["-Wno-unused-parameter"],
+    proto: {
+      type: "lite",
+      export_proto_headers: true,
+      local_include_dirs: [
+        ".",
+      ],
+      include_dirs: [
+      	"external/protobuf",
+      ],
+    },
+    sanitize: {
+      integer_overflow: true,
+      misc_undefined: ["bounds"],
+    },
+    apex_available: ["com.android.adservices", "com.android.extservices",],
+    target: {
+        host: {
+            static_libs: [
+                "libprotobuf-cpp-lite",
+            ]
+        },
+	android: {
+	    static_libs: [
+	        "libprotobuf-cpp-lite-ndk",
+	    ]
+	}
+    }
+}
+
+cc_test {
+    name: "libpjc_crypto_test",
+    defaults: ["libpjc_defaults"],
+    srcs: [
+      "private_join_and_compute/crypto/proto/proto_util_test.cc",
+      "private_join_and_compute/crypto/dodis_yampolskiy_prf/dy_verifiable_random_function_test.cc",
+      "private_join_and_compute/crypto/camenisch_shoup_test.cc",
+      "private_join_and_compute/crypto/pedersen_over_zn_test.cc",
+      "private_join_and_compute/crypto/simultaneous_fixed_bases_exp_test.cc",
+    ],
+    shared_libs: [
+      "libcrypto",
+      "liblog",
+      "libpjc_crypto",
+    ],
+    static_libs: [
+      "libgmock",
+      "libpjc_third_party_libabsl",
+    ],
+    include_dirs: [
+      "external/protobuf",
+    ],
+    test_suites: ["general-tests"],
+    target: {
+        host: {
+            static_libs: [
+                "libprotobuf-cpp-lite",
+            ]
+        },
+	android: {
+	    static_libs: [
+	        "libprotobuf-cpp-lite-ndk",
+	    ]
+	}
+    },
+}
+
+/* This test takes longer than the bazel timeout atest uses, and there
+   is no option to override (see b/222233444).
+
+cc_test {
+    name: "libpjc_crypto_bb_oblivious_signature_test",
+    defaults: ["libpjc_defaults"],
+    srcs: [
+      "private_join_and_compute/crypto/dodis_yampolskiy_prf/bb_oblivious_signature_test.cc",
+    ],
+    shared_libs: [
+      "libcrypto",
+      "liblog",
+      "libpjc_crypto",
+    ],
+    static_libs: [
+      "libgmock",
+      "libpjc_third_party_libabsl",
+    ],
+    target: {
+        host: {
+            static_libs: [
+                "libprotobuf-cpp-lite",
+            ]
+        },
+	android: {
+	    static_libs: [
+	        "libprotobuf-cpp-lite-ndk",
+	    ]
+	}
+    }
+}
+*/
+
+cc_library_headers {
+    name: "libpjc_third_party_libabsl_headers",
+    min_sdk_version: "30",
+    sdk_version: "current",
+    device_supported: true,
+    host_supported: true,
+    export_include_dirs: [
+      "third_party/abseil-cpp-20230125.2/",
+    ],
+    apex_available: ["com.android.adservices", "com.android.extservices",],
+}
+
+cc_defaults {
+    name: "libpjc_third_party_libabsl_library_defaults",
+    header_libs: ["libpjc_third_party_libabsl_headers"],
+    export_header_lib_headers: ["libpjc_third_party_libabsl_headers"],
+    cpp_std: "c++17",
+}
+
+cc_library_static {
+    name: "libpjc_third_party_libabsl",
+    min_sdk_version: "30",
+    sdk_version: "current",
+    host_supported: true,
+    stl: "libc++_static",
+    visibility: [
+        "//external/anonymous-counting-tokens:__subpackages__",
+    	"//packages/modules/AdServices/adservices/service-core",
+    ],
+    defaults: ["libpjc_third_party_libabsl_library_defaults"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/cycleclock.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/low_level_alloc.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/raw_logging.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/scoped_set_env.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/spinlock.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/spinlock_wait.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/strerror.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/sysinfo.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/thread_identity.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/throw_delegate.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/internal/unscaledcycleclock.cc",
+        "third_party/abseil-cpp-20230125.2/absl/base/log_severity.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/container/btree_benchmark.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/container/fixed_array_benchmark.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/container/inlined_vector_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/hashtablez_sampler.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/hashtablez_sampler_force_weak_definition.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/container/internal/layout_benchmark.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/container/internal/raw_hash_set_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/raw_hash_set.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/container/internal/raw_hash_set_probe_benchmark.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/crc/crc32c_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/crc32c.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/cpu_detect.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/crc.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/crc_cord_state.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/crc_memcpy_fallback.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/crc_memcpy_x86_64.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/crc_non_temporal_memcpy.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/crc_x86_arm_combined.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/failure_signal_handler.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/internal/address_is_readable.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/internal/demangle.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/internal/elf_mem_image.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/internal/examine_stack.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/internal/stack_consumption.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/internal/vdso_support.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/leak_check.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/debugging/stacktrace_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/stacktrace.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/symbolize.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/commandlineflag.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/flags/flag_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/flag.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/commandlineflag.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/flag.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/private_handle_accessor.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/program_name.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/usage.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/marshalling.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/parse.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/reflection.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/usage.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/usage_config.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/hash/hash_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/hash/internal/city.cc",
+        "third_party/abseil-cpp-20230125.2/absl/hash/internal/hash.cc",
+        "third_party/abseil-cpp-20230125.2/absl/hash/internal/low_level_hash.cc",
+        "third_party/abseil-cpp-20230125.2/absl/hash/internal/print_hash_of.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/die_if_null.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/flags.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/globals.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/initialize.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/check_op.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/conditions.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/globals.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/log_format.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/log_message.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/log_sink_set.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/nullguard.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/proto.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/log/log_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_entry.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_sink.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/numeric/bits_benchmark.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/numeric/int128_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/numeric/int128.cc",
+        "third_party/abseil-cpp-20230125.2/absl/profiling/internal/exponential_biased.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/profiling/internal/periodic_sampler_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/profiling/internal/periodic_sampler.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/random/benchmarks.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/discrete_distribution.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/gaussian_distribution.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/chi_square.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/gaussian_distribution_gentables.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/random/internal/nanobenchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/pool_urbg.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/random/internal/randen_benchmarks.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen_detect.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen_hwaes.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen_round_keys.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen_slow.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/seed_material.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/seed_gen_exception.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/seed_sequences.cc",
+        "third_party/abseil-cpp-20230125.2/absl/status/status.cc",
+        "third_party/abseil-cpp-20230125.2/absl/status/statusor.cc",
+        "third_party/abseil-cpp-20230125.2/absl/status/status_payload_printer.cc",
+         //"third_party/abseil-cpp-20230125.2/absl/strings/ascii_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/ascii.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/atod_manual_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/charconv.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/charconv_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/cord_analysis.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/cord_buffer.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/cord.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/escaping_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/escaping.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/charconv_bigint.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/charconv_parse.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/internal/char_map_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_internal.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_btree.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_btree_navigator.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_btree_reader.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_consume.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_crc.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_ring.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_functions.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_handle.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_info.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_sample_token.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/damerau_levenshtein_distance.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/escaping.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/internal/memutil_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/memutil.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/internal/ostringstream_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/ostringstream.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/pow10_helper.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/arg.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/bind.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/extension.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/float_conversion.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/output.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/parser.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/stringify_sink.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/utf8.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/match.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/numbers_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/numbers.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/str_cat_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/str_cat.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/string_view_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/string_view.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/str_join_benchmark.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/str_replace_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/str_replace.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/strings/str_split_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/str_split.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/substitute.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/barrier.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/synchronization/blocking_counter_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/blocking_counter.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/internal/create_thread_identity.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/synchronization/internal/graphcycles_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/internal/graphcycles.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/internal/per_thread_sem.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/internal/waiter.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/synchronization/mutex_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/mutex.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/notification.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/time/civil_time_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/civil_time.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/time/clock_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/clock.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/time/duration_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/duration.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/time/format_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/format.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/cctz_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/civil_time_detail.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_fixed.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_format.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_if.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_impl.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_info.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_libc.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_lookup.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_posix.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/zone_info_source.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/time/time_benchmark.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/time.cc",
+    ],
+    apex_available: ["com.android.adservices", "com.android.extservices",],
+}
+
+cc_defaults {
+    name: "libpjc_third_party_libabsl_test",
+    defaults: ["libpjc_third_party_libabsl_library_defaults"],
+    host_supported: true,
+    static_libs: [
+      "libgmock",
+      "libpjc_third_party_libabsl",
+    ],
+    rtti: true,
+    cflags: [
+      "-Wno-unused-parameter",
+      "-Wno-unreachable-code-loop-increment",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_container_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/container/btree_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/fixed_array_exception_safety_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/fixed_array_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/flat_hash_map_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/flat_hash_set_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/inlined_vector_exception_safety_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/inlined_vector_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/common_policy_traits_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/compressed_tuple_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/container_memory_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/hash_function_defaults_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/hash_generator_testing.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/hash_policy_testing_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/hash_policy_traits_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/hashtablez_sampler_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/layout_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/node_slot_policy_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/raw_hash_set_allocator_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/raw_hash_set_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/test_instance_tracker.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/test_instance_tracker_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/unordered_map_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/internal/unordered_set_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/node_hash_map_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/node_hash_set_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/container/sample_element_size_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_crc_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/crc/crc32c_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/crc_cord_state_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/crc_memcpy_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/crc/internal/non_temporal_memcpy_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_debugging_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/debugging/failure_signal_handler_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/internal/demangle_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/internal/stack_consumption_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/leak_check_fail_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/leak_check_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/stacktrace_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/debugging/symbolize_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_flags_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/flags/commandlineflag_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/config_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/flag_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/flag_test_defs.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/path_util_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/program_name_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/sequence_lock_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/internal/usage_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/marshalling_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/parse_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/reflection_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/flags/usage_config_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_hash_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/hash/hash_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/hash/internal/city_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/hash/internal/low_level_hash_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_log_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/log/absl_check_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/check_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/die_if_null_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/flags_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/globals_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/stderr_log_sink_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/test_actions.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/test_helpers.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/internal/test_matchers.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_basic_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_entry_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_format_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_macro_hygiene_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_modifier_methods_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_sink_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/log_streamer_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/scoped_mock_log.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/scoped_mock_log_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/stripping_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/log/structured_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_log_test2",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/log/absl_log_basic_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_numeric_test",
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/numeric/bits_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/numeric/int128_stream_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/numeric/int128_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_profiling_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/profiling/internal/exponential_biased_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/profiling/internal/periodic_sampler_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/profiling/internal/sample_recorder_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_status_test",
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/status/statusor_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/status/status_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_strings_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/strings/ascii_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/charconv_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/cord_buffer_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/cord_ring_reader_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/cord_ring_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/cord_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/cordz_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/escaping_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/charconv_bigint_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/charconv_parse_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/char_map_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_data_edge_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_btree_navigator_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_btree_reader_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_btree_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cord_rep_crc_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_functions_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_handle_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_info_statistics_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_info_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_sample_token_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_update_scope_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/cordz_update_tracker_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/damerau_levenshtein_distance_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/memutil_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/ostringstream_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/pow10_helper_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/resize_uninitialized_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/arg_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/bind_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/checker_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/convert_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/extension_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/output_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/str_format/parser_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/string_constant_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/internal/utf8_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/match_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/numbers_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/str_cat_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/str_format_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/string_view_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/strip_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/str_join_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/str_replace_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/str_split_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/strings/substitute_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_synchronization_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/barrier_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/blocking_counter_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/internal/graphcycles_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/internal/per_thread_sem_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/lifetime_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/mutex_method_pointer_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/mutex_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/synchronization/notification_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_random_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/random/bernoulli_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/beta_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/bit_gen_ref_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/discrete_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/distributions_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/examples_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/exponential_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/gaussian_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/generators_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/log_uniform_int_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/mock_distributions_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/mocking_bit_gen_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/poisson_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/seed_sequences_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/uniform_int_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/uniform_real_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/zipf_distribution_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/chi_square_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/distribution_test_util.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/distribution_test_util_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/explicit_seed_seq_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/fastmath_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/fast_uniform_bits_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/generate_real_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/iostream_state_saver_test.cc",
+        //"third_party/abseil-cpp-20230125.2/absl/random/internal/nanobenchmark_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/nonsecure_base_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/pcg_engine_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/pool_urbg_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen_engine_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen_hwaes_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen_slow_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/randen_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/salted_seed_seq_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/seed_material_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/traits_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/uniform_helper_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/random/internal/wide_multiply_test.cc",
+    ],
+}
+
+cc_test {
+    name: "libpjc_third_party_libabsl_time_test",
+    enabled: false,
+    defaults: ["libpjc_third_party_libabsl_test"],
+    srcs: [
+        "third_party/abseil-cpp-20230125.2/absl/time/civil_time_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/clock_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/duration_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/flag_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/format_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/civil_time_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_format_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/cctz/src/time_zone_lookup_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/internal/test_util.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/time_test.cc",
+        "third_party/abseil-cpp-20230125.2/absl/time/time_zone_test.cc",
+    ],
+}

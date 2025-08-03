@@ -1,0 +1,135 @@
+// Automatically generated with:
+// go2bp -rewrite github.com/google/go-cmp/cmp=go-cmp
+
+bootstrap_go_package {
+    name: "go-cmp",
+    pkgPath: "github.com/google/go-cmp/cmp",
+    deps: [
+        "go-cmp-internal-diff",
+        "go-cmp-internal-flags",
+        "go-cmp-internal-function",
+        "go-cmp-internal-teststructs",
+        "go-cmp-internal-value",
+    ],
+    srcs: [
+        "cmp/compare.go",
+        "cmp/export_unsafe.go",
+        "cmp/options.go",
+        "cmp/path.go",
+        "cmp/report.go",
+        "cmp/report_compare.go",
+        "cmp/report_references.go",
+        "cmp/report_reflect.go",
+        "cmp/report_slices.go",
+        "cmp/report_text.go",
+        "cmp/report_value.go",
+    ],
+    testSrcs: [
+        "cmp/options_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-cmpopts",
+    pkgPath: "github.com/google/go-cmp/cmp/cmpopts",
+    deps: [
+        "go-cmp",
+        "go-cmp-internal-function",
+    ],
+    srcs: [
+        "cmp/cmpopts/equate.go",
+        "cmp/cmpopts/ignore.go",
+        "cmp/cmpopts/sort.go",
+        "cmp/cmpopts/struct_filter.go",
+        "cmp/cmpopts/xform.go",
+    ],
+    testSrcs: [
+        "cmp/cmpopts/util_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-internal-diff",
+    pkgPath: "github.com/google/go-cmp/cmp/internal/diff",
+    deps: [
+        "go-cmp-internal-flags",
+    ],
+    srcs: [
+        "cmp/internal/diff/debug_disable.go",
+        "cmp/internal/diff/diff.go",
+    ],
+    testSrcs: [
+        "cmp/internal/diff/diff_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-internal-flags",
+    pkgPath: "github.com/google/go-cmp/cmp/internal/flags",
+    srcs: [
+        "cmp/internal/flags/flags.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-internal-function",
+    pkgPath: "github.com/google/go-cmp/cmp/internal/function",
+    srcs: [
+        "cmp/internal/function/func.go",
+    ],
+    testSrcs: [
+        "cmp/internal/function/func_test.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-internal-testprotos",
+    pkgPath: "github.com/google/go-cmp/cmp/internal/testprotos",
+    srcs: [
+        "cmp/internal/testprotos/protos.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-internal-teststructs",
+    pkgPath: "github.com/google/go-cmp/cmp/internal/teststructs",
+    deps: [
+        "go-cmp-internal-testprotos",
+    ],
+    srcs: [
+        "cmp/internal/teststructs/project1.go",
+        "cmp/internal/teststructs/project2.go",
+        "cmp/internal/teststructs/project3.go",
+        "cmp/internal/teststructs/project4.go",
+        "cmp/internal/teststructs/structs.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-internal-teststructs-foo1",
+    pkgPath: "github.com/google/go-cmp/cmp/internal/teststructs/foo1",
+    srcs: [
+        "cmp/internal/teststructs/foo1/foo.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-internal-teststructs-foo2",
+    pkgPath: "github.com/google/go-cmp/cmp/internal/teststructs/foo2",
+    srcs: [
+        "cmp/internal/teststructs/foo2/foo.go",
+    ],
+}
+
+bootstrap_go_package {
+    name: "go-cmp-internal-value",
+    pkgPath: "github.com/google/go-cmp/cmp/internal/value",
+    srcs: [
+        "cmp/internal/value/name.go",
+        "cmp/internal/value/pointer_unsafe.go",
+        "cmp/internal/value/sort.go",
+    ],
+    testSrcs: [
+        "cmp/internal/value/name_test.go",
+    ],
+}

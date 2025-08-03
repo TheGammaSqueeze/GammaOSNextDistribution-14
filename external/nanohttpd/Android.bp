@@ -1,0 +1,65 @@
+// This module target includes just the single core file: NanoHTTPD.java, which
+// is enough for HTTP 1.1 support and nothing else.
+// ============================================================================
+package {
+    default_applicable_licenses: ["external_nanohttpd_license"],
+}
+
+// Added automatically by a large-scale-change
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_nanohttpd_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "LICENSE.md",
+        "NOTICE",
+    ],
+}
+
+java_library {
+    name: "libnanohttpd",
+    srcs: ["core/src/main/**/*.java"],
+    sdk_version: "current",
+    min_sdk_version: "30",
+    apex_available: ["com.android.wifi"],
+}
+
+// This module target includes SimpleWebServer that supports additional functionality
+// such as serving files from a specified location, resume of downloads, etc.
+// ============================================================================
+java_library {
+    name: "nanohttpd-webserver",
+    srcs: [
+        "core/src/main/**/*.java",
+        "webserver/src/main/**/*.java",
+    ],
+    sdk_version: "current",
+    errorprone: {
+        javacflags: [
+            "-Xep:BadShiftAmount:WARN",
+            "-Xep:DoubleBraceInitialization:WARN",
+        ],
+    },
+}
+
+java_library {
+    name: "nanohttpd-websocket",
+    srcs: [
+        "core/src/main/**/*.java",
+        "websocket/src/main/**/*.java",
+    ],
+    sdk_version: "current",
+    errorprone: {
+        javacflags: [
+            "-Xep:BadShiftAmount:WARN",
+        ],
+    },
+}

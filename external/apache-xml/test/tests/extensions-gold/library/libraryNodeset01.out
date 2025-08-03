@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out>
+<Count>4</Count>
+<Sum>12</Sum>
+<Number>2</Number>
+<Name>docelem</Name>
+<Local-name>docelem</Local-name>
+<Namespace-URIs uri1="http://www.hello.com" uri2="http://www.hello.com" uri3="http://www.cnn.com"/>
+<Value-DOCELEM-Elem1>ELEMENT1A,ELEMENT1B</Value-DOCELEM-Elem1>
+<FE-DOCELEM-STAR>elem1 elem2 elem3 elem3 test:elem3 elem3 elem3 elem4 </FE-DOCELEM-STAR>
+<FE-DOCELEM-ELEM2-STAR>elem2a elem2b </FE-DOCELEM-ELEM2-STAR>
+<AT-DOCELEM-ELEM4>Yahoo</AT-DOCELEM-ELEM4>
+<Copy-of-ELEM1B>
+<elem1b xmlns="http://www.hello.com">,ELEMENT1B</elem1b>
+</Copy-of-ELEM1B>
+</out>

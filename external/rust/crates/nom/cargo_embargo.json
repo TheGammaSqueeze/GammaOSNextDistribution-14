@@ -1,0 +1,11 @@
+{
+  "features": [
+    "alloc",
+    "std"
+  ],
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.virt"
+  ],
+  "run_cargo": false
+}

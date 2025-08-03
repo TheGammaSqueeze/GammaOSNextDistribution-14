@@ -1,0 +1,196 @@
+.TH SG_READCAP "8" "January 2020" "sg3_utils\-1.45" SG3_UTILS
+.SH NAME
+sg_readcap \- send SCSI READ CAPACITY command
+.SH SYNOPSIS
+.B sg_readcap
+[\fI\-\-16\fR] [\fI\-\-brief\fR] [\fI\-\-help\fR] [\fI\-\-hex\fR]
+[\fI\-\-lba=LBA\fR] [\fI\-\-long\fR] [\fI\-\-pmi\fR] [\fI\-\-raw\fR]
+[\fI\-\-readonly\fR] [\fI\-\-verbose\fR] [\fI\-\-version\fR] [\fI\-\-zbc\fR]
+\fIDEVICE\fR
+.PP
+.B sg_readcap
+[\fI\-16\fR] [\fI\-b\fR] [\fI\-h\fR] [\fI\-H\fR] [\fI\-lba=LBA\fR]
+[\fI\-pmi\fR] [\fI\-r\fR] [\fI\-R\fR] [\fI\-v\fR] [\fI\-V\fR] [\fI\-z\fR]
+\fIDEVICE\fR
+.SH DESCRIPTION
+.\" Add any additional description here
+.PP
+The normal action of the SCSI READ CAPACITY command is to fetch the number
+of blocks (and block size) from the \fIDEVICE\fR.
+.PP
+The SCSI READ CAPACITY command (both 10 and 16 byte cdbs) actually yield
+the block address of the last block and the block size. The number of
+blocks is thus one plus the block address of the last block (as blocks
+are counted origin zero (i.e. starting at block zero)). This is the source
+of many "off by one" errors.
+.PP
+The READ CAPACITY(16) response provides additional information not found in
+the READ CAPACITY(10) response. This includes protection and logical block
+provisioning information, plus the number of logical blocks per physical
+block. So even though the media size may not exceed what READ CAPACITY(10)
+can show, it may still be useful to examine the response to READ
+CAPACITY(16). Sadly there are horrible SCSI command set implementations in
+the wild that crash when the READ CAPACITY(16) command is sent to them.
+.PP
+Device capacity is the product of the number of blocks by the block size.
+This utility outputs this figure in bytes, MiB (1048576 bytes per MiB),
+GB (1000000000 bytes per GB) and, if large enough, TB (1000 GB).
+.PP
+If sg_readcap is called without the \fI\-\-long\fR option then the 10 byte
+cdb version (i.e. READ CAPACITY (10)) is sent to the \fIDEVICE\fR. If the
+number of blocks in the response is reported as
+0xffffffff (i.e. (2**32 \- 1) ) and the \fI\-\-hex\fR option has not been
+given, then READ CAPACITY (16) is called and its response is output.
+.PP
+This utility supports two command line syntaxes, the preferred one is
+shown first in the synopsis and explained in this section. A later section
+on the old command line syntax outlines the second group of options.
+.SH OPTIONS
+Arguments to long options are mandatory for short options as well.
+The options are arranged in alphabetical order based on the long
+option name.
+.TP
+\fB\-\-16\fR
+Use the 16 byte cdb variant of the READ CAPACITY command. See the '\-\-long'
+option.
+\fB\-b\fR, \fB\-\-brief\fR
+outputs two hex numbers (prefixed with '0x' and space separated)
+to stdout. The first number is the maximum number of blocks on the
+device (which is one plus the lba of the last accessible block). The
+second number is the size in bytes of each block. If the operation fails
+then "0x0 0x0" is written to stdout.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+print out the usage message then exit.
+.TP
+\fB\-H\fR, \fB\-\-hex\fR
+output the response to the READ CAPACITY command (either the 10 or 16
+byte cdb variant) in ASCII hexadecimal on stdout.
+.TP
+\fB\-L\fR, \fB\-\-lba\fR=\fILBA\fR
+used in conjunction with \fI\-\-pmi\fR option. This variant of READ CAPACITY
+will yield the last block address after \fILBA\fR prior to a delay. For a
+disk, given a \fILBA\fR it yields the highest numbered block on the same
+cylinder (i.e. before the heads need to move). \fILBA\fR is assumed to be
+decimal unless prefixed by "0x" or it has a trailing "h". Defaults to 0.
+This option was made obsolete in SBC\-3 revision 26.
+.TP
+\fB\-l\fR, \fB\-\-long\fR
+Use the 16 byte cdb variant of the READ CAPACITY command. The default
+action is to use the 10 byte cdb variant which limits the maximum
+block address to (2**32 \- 2). When a 10 byte cdb READ CAPACITY command
+is used on a device whose size is too large then a last block address
+of 0xffffffff is returned (if the device complies with SBC\-2 or later).
+.TP
+\fB\-O\fR, \fB\-\-old\fR
+Switch to older style options. Please use as first option.
+.TP
+\fB\-p\fR, \fB\-\-pmi\fR
+partial medium indicator: for finding the next block address prior to
+some delay (e.g. head movement). In the absence of this option, the
+total number of blocks and the block size of the device are output.
+Used in conjunction with the \fI\-\-lba=LBA\fR option. This option was
+made obsolete in SBC\-3 revision 26.
+.TP
+\fB\-r\fR, \fB\-\-raw\fR
+output response in binary to stdout.
+.TP
+\fB\-R\fR, \fB\-\-readonly\fR
+open the \fIDEVICE\fR read\-only (e.g. in Unix with the O_RDONLY flag).
+The default for READ CAPACITY(16) is to open it read\-write. The default
+for READ CAPACITY(10) is to open it read\-only so this option does not
+change anything for this case.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+increase level of verbosity. Can be used multiple times.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+outputs version string then exits.
+.TP
+\fB\-z\fR, \fB\-\-zbc\fR
+additionally prints out the extra ZBC field (RC_BASIS) in the READ CAPACITY
+response. Using the option implicitly sets the \fI\-\-16\fR option.
+.SH NOTES
+The response to READ CAPACITY(16) contains a LBPRZ bit in the SBC\-3
+standard (ANSI INCITS 514\-2014). There was also a LBPRZ bit with the same
+meaning in the Logical block provisioning VPD page (0xb2). Then somewhat
+confusingly T10 expanded the LBPRZ bit to a 3 bit field in SBC\-4 draft
+revision 7, but only in the LB provisioning VPD page. The reason for the
+expansion was to report a new "provisioning initialization pattern"
+state (when an unmapped logical block is read). The new state has been
+assigned LBPRZ=2 in the VPD page and it re\-uses LBPRZ=0 in the READ
+CAPACITY(16) response. LBPRZ=1 retains the same meaning for both variants,
+namely that a block of zeroes will be returned when an unmapped logical block
+is read.
+.SH EXIT STATUS
+The exit status of sg_readcap is 0 when it is successful. Otherwise see
+the sg3_utils(8) man page.
+.SH OLDER COMMAND LINE OPTIONS
+The options in this section were the only ones available prior to sg3_utils
+version 1.23 . Since then this utility defaults to the newer command line
+options which can be overridden by using \fI\-\-old\fR (or \fI\-O\fR) as the
+first option. See the ENVIRONMENT VARIABLES section for another way to
+force the use of these older command line options.
+.TP
+\fB\-16\fR
+Use the 16 byte cdb variant of the READ CAPACITY command.
+Equivalent to \fI\-\-long\fR in the main description.
+.TP
+\fB\-b\fR
+utility outputs two hex numbers (prefixed with '0x' and space separated) to
+stdout. The first number is the maximum number of blocks on the device (which
+is one plus the lba of the last accessible block). The second number is the
+size of each block. If the operation fails then "0x0 0x0" is written to
+stdout.  Equivalent to \fI\-\-brief\fR in the main description.
+.TP
+\fB\-h\fR
+output the usage message then exit. Giving the \fI\-?\fR option also outputs
+the usage message then exits.
+.TP
+\fB\-H\fR
+output the response to the READ CAPACITY command (either the 10 or 16
+byte cdb variant) in ASCII hexadecimal on stdout.
+.TP
+\fB\-lba\fR=\fILBA\fR
+used in conjunction with \fI\-pmi\fR option. This variant of READ CAPACITY
+will yield the last block address after \fILBA\fR prior to a delay.
+Equivalent to \fI\-\-lba=LBA\fR in the main description.
+.TP
+\fB-N\fR, \fB\-\-new\fR
+Switch to the newer style options.
+.TP
+\fB\-pmi\fR
+partial medium indicator: for finding the next block address prior to
+some delay (e.g. head movement). In the absence of this switch, the
+total number of blocks and the block size of the device are output.
+Equivalent to \fI\-\-pmi\fR in the main description.
+.TP
+\fB\-r\fR
+output response in binary (to stdout).
+.TP
+\fB\-R\fR
+Equivalent to \fI\-\-readonly\fR in the main description.
+.TP
+\fB\-v\fR
+verbose: print out cdb of issued commands prior to execution. '\-vv'
+and '\-vvv' are also accepted yielding greater verbosity.
+.TP
+\fB\-V\fR
+outputs version string then exits.
+.TP
+\fB\-z\fR
+Equivalent to \fI\-\-zbc\fR in the main description.
+.SH ENVIRONMENT VARIABLES
+Since sg3_utils version 1.23 the environment variable SG3_UTILS_OLD_OPTS
+can be given. When it is present this utility will expect the older command
+line options. So the presence of this environment variable is equivalent to
+using \fI\-\-old\fR (or \fI\-O\fR) as the first command line option.
+.SH AUTHORS
+Written by Douglas Gilbert
+.SH COPYRIGHT
+Copyright \(co 1999\-2020 Douglas Gilbert
+.br
+This software is distributed under the GPL version 2. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH "SEE ALSO"
+.B sg_inq(sg3_utils)

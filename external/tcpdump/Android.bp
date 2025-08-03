@@ -1,0 +1,83 @@
+package {
+    default_applicable_licenses: ["external_tcpdump_license"],
+}
+
+license {
+    name: "external_tcpdump_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-BSD-4-Clause-UC",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
+cc_defaults {
+    name: "tcpdump_defaults",
+
+    host_supported: false,
+
+    cflags: [
+        "-D_BSD_SOURCE",
+        "-DHAVE_CONFIG_H",
+        "-Wall",
+        "-Werror",
+        "-Wno-sign-compare",
+        "-Wno-address-of-packed-member", // http://b/33566695
+        "-Wno-incompatible-pointer-types-discards-qualifiers",
+    ],
+
+    // Based on the tcpdump Makefile...
+    srcs: [
+        // CSRC
+        "tcpdump.c",
+        // LIBNETDISSECT_SRC
+        "addrtoname.c",
+        "addrtostr.c",
+        "af.c",
+        "ascii_strcasecmp.c",
+        "checksum.c",
+        "cpack.c",
+        "fptype.c",
+        "gmpls.c",
+        "in_cksum.c",
+        "ipproto.c",
+        "l2vpn.c",
+        "machdep.c",
+        "netdissect-alloc.c",
+        "nlpid.c",
+        "ntp.c",
+        "oui.c",
+        "parsenfsfh.c",
+        "print.c",
+        "print-*.c",
+        "netdissect.c",
+        "signature.c",
+        "strtoaddr.c",
+        "util-print.c",
+        // LOCALSRC
+        "smbutil.c",
+    ],
+
+    shared_libs: [
+        "libssl",
+        "libcrypto",
+        "libpcap",
+    ],
+}
+
+cc_binary {
+    name: "tcpdump",
+    defaults: ["tcpdump_defaults"],
+}
+
+cc_binary {
+    name: "tcpdump_vendor",
+    stem: "tcpdump",
+    defaults: ["tcpdump_defaults"],
+    vendor: true,
+}

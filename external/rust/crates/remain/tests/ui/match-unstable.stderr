@@ -1,0 +1,5 @@
+error: E::Bbb should sort before E::Ccc
+  --> tests/ui/match-unstable.rs:20:9
+   |
+20 |         E::Bbb(_, _) => {}
+   |         ^^^^^^

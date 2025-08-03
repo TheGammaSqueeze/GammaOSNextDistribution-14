@@ -1,0 +1,28 @@
+diff --git a/crosvm_control/Android.bp b/crosvm_control/Android.bp
+index 1bce61cdd..ea437fc59 100644
+--- a/crosvm_control/Android.bp
++++ b/crosvm_control/Android.bp
+@@ -25,7 +25,11 @@ rust_ffi_shared {
+         "liblibc",
+         "libvm_control",
+     ],
+-    static_libs: ["libcrosvm_control_test"],
++    // The build.rs file compiles the generated C header just as a test, which
++    // tricks cargo_embargo into thinking there is a library dependency that
++    // doesn't actually exist.
++    //
++    // static_libs: ["libcrosvm_control_test"],
+ }
+ 
+ rust_ffi_static {
+@@ -43,5 +47,9 @@ rust_ffi_static {
+         "liblibc",
+         "libvm_control",
+     ],
+-    static_libs: ["libcrosvm_control_test"],
++    // The build.rs file compiles the generated C header just as a test, which
++    // tricks cargo_embargo into thinking there is a library dependency that
++    // doesn't actually exist.
++    //
++    // static_libs: ["libcrosvm_control_test"],
+ }

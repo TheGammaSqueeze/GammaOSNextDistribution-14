@@ -1,0 +1,93 @@
+#DESCRIPTION:Resource namespaces
+pidns01 pidns01
+pidns02 pidns02
+pidns03 pidns03
+pidns04 pidns04
+pidns05 pidns05
+pidns06 pidns06
+pidns10 pidns10
+pidns12 pidns12
+pidns13 pidns13
+pidns16 pidns16
+pidns17 pidns17
+pidns20 pidns20
+pidns30 pidns30
+pidns31 pidns31
+pidns32 pidns32
+
+mqns_01 mqns_01
+mqns_01_clone mqns_01 -m clone
+mqns_01_unshare mqns_01 -m unshare
+mqns_02 mqns_02
+mqns_02_clone mqns_02 -m clone
+mqns_02_unshare mqns_02 -m unshare
+mqns_03_unshare mqns_03 -m unshare
+mqns_03_clone mqns_03 -m clone
+mqns_04_unshare mqns_04 -m unshare
+mqns_04_clone mqns_04 -m clone
+
+netns_netlink netns_netlink
+netns_breakns_ip_ipv4_netlink netns_breakns.sh
+netns_breakns_ip_ipv6_netlink netns_breakns.sh -6
+netns_breakns_ip_ipv4_ioctl netns_breakns.sh -I
+netns_breakns_ip_ipv6_ioctl netns_breakns.sh -6I
+netns_breakns_ns_exec_ipv4_netlink netns_breakns.sh -e
+netns_breakns_ns_exec_ipv6_netlink netns_breakns.sh -6e
+netns_breakns_ns_exec_ipv4_ioctl netns_breakns.sh -eI
+netns_breakns_ns_exec_ipv6_ioctl netns_breakns.sh -6eI
+netns_comm_ip_ipv4_netlink netns_comm.sh
+netns_comm_ip_ipv6_netlink netns_comm.sh -6
+netns_comm_ip_ipv4_ioctl netns_comm.sh -I
+netns_comm_ip_ipv6_ioctl netns_comm.sh -6I
+netns_comm_ns_exec_ipv4_netlink netns_comm.sh -e
+netns_comm_ns_exec_ipv6_netlink netns_comm.sh -6e
+netns_comm_ns_exec_ipv4_ioctl netns_comm.sh -eI
+netns_comm_ns_exec_ipv6_ioctl netns_comm.sh -6eI
+netns_sysfs netns_sysfs.sh
+
+shmnstest_none shmnstest -m none
+shmnstest_clone shmnstest -m clone
+shmnstest_unshare shmnstest -m unshare
+shmem_2nstest_none shmem_2nstest -m none
+shmem_2nstest_clone shmem_2nstest -m clone
+shmem_2nstest_unshare shmem_2nstest -m unshare
+shm_comm shm_comm
+mesgq_nstest_none mesgq_nstest -m none
+mesgq_nstest_clone mesgq_nstest -m clone
+mesgq_nstest_unshare mesgq_nstest -m unshare
+msg_comm msg_comm
+sem_nstest_none sem_nstest -m none
+sem_nstest_clone sem_nstest -m clone
+sem_nstest_unshare sem_nstest -m unshare
+semtest_2ns_none semtest_2ns -m none
+semtest_2ns_clone semtest_2ns -m clone
+semtest_2ns_unshare semtest_2ns -m unshare
+sem_comm sem_comm
+
+utsname01 utsname01
+utsname02 utsname02
+utsname03_clone utsname03 -m clone
+utsname03_unshare utsname03 -m unshare
+utsname04_clone utsname04 -m clone
+utsname04_unshare utsname04 -m unshare
+
+mountns01 mountns01
+mountns02 mountns02
+mountns03 mountns03
+mountns04 mountns04
+
+userns01 userns01
+userns02 userns02
+userns03 userns03
+userns04 userns04
+userns05 userns05
+userns06 userns06
+userns07 userns07
+userns08 userns08
+
+# time namespaces
+sysinfo03 sysinfo03
+clock_nanosleep03 clock_nanosleep03
+clock_gettime03 clock_gettime03
+timens01 timens01
+timerfd04 timerfd04

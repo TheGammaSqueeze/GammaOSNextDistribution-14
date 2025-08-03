@@ -1,0 +1,19 @@
+name: "psimd"
+description: "Portable 128-bit SIMD intrinsics"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/Maratyszcza/psimd"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/Maratyszcza/psimd"
+  }
+  version: "072586a71b55b7f8c584153d223e95687148a900"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 5
+    day: 18
+  }
+}

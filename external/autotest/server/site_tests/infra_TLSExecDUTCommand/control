@@ -1,0 +1,18 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "dbeckett"
+NAME = "infra_TLSExecDUTCommand"
+TIME = "SHORT"
+TEST_TYPE = "server"
+DOC = """
+Test the TLS ExecDUTCommand API
+"""
+PY_VERSION = 3
+
+def run(machine):
+    job.run_test('infra_TLSExecDUTCommand',
+                 host=hosts.create_host(machine))
+
+parallel_simple(run, machines)

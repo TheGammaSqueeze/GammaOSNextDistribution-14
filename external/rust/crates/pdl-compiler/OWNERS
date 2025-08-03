@@ -1,0 +1,4 @@
+include platform/prebuilts/rust:main:/OWNERS
+henrichataing@google.com
+mgeisler@google.com
+licorne@google.com

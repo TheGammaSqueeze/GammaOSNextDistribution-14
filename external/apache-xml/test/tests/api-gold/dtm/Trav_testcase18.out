@@ -1,0 +1,18 @@
+#### DESCENDANTSORSELFFROMROOT(abs) from F(root)
+ 65536: DOCUMENT #document  Level=1 	Value=null
+ 65537: ELEMENT Document  Level=2 	Value=null
+ 65542: COMMENT #comment  Level=3 	Value=" Default test document "
+ 65543: PROCESSING_INSTRUCTION api  Level=3 	Value="a1="yes" a2="no""
+ 65544: ELEMENT A  Level=3 	Value=null
+ 65545: COMMENT #comment  Level=4 	Value=" A Subtree "
+ 65546: ELEMENT B  Level=4 	Value=null
+ 65547: ELEMENT C  Level=5 	Value=null
+ 65548: ELEMENT D  Level=6 	Value=null
+ 65549: ELEMENT E  Level=7 	Value=null
+ 65550: ELEMENT F  Level=8 	Value=null
+ 65554: ELEMENT Aa  Level=3 	Value=null
+ 65555: ELEMENT Ab  Level=3 	Value=null
+ 65556: ELEMENT Ac  Level=3 	Value=null
+ 65557: ELEMENT Ac1  Level=4 	Value=null
+ 65558: ELEMENT Ad  Level=3 	Value=null
+ 65562: ELEMENT Ad1  Level=4 	Value=null

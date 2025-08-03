@@ -1,0 +1,11 @@
+{
+  "module_name_overrides": {
+    "libprotobuf": "libprotobuf_deprecated"
+  },
+  "package": {
+    "grpcio-compiler": {
+      "device_supported": false
+    }
+  },
+  "tests": true
+}

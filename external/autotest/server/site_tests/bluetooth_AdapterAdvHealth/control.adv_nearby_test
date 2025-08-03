@@ -1,0 +1,36 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterAdvHealth.adv_nearby_test'
+PURPOSE = 'Test basic Nearby share advertising requirements.'
+CRITERIA = 'Adapter should advertise with correct parameters.'
+ATTRIBUTES = 'suite:bluetooth, suite:bluetooth_standalone'
+TIME = 'SHORT'  # ~2 minutes on hatch
+MAX_RESULT_SIZE_KB = 128000
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth'
+PY_VERSION = 3
+
+DOC = """
+Validate that we can register an advertisement with the specific format required
+for new Nearby sharing capabilities. Specifically, the format should be the
+following:
+
+Advertising data:
+    General discoverable flag
+    16 bit Google Service UUID
+
+Scan response data:
+    Service data for Google Service UUID
+"""
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterAdvHealth', host=host, num_iterations=1,
+                 test_name=NAME.split('.')[1], peer_required=False)
+
+parallel_simple(run, machines)

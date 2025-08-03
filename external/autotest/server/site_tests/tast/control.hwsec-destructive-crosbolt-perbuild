@@ -1,0 +1,39 @@
+# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = 'Chromium OS team'
+NAME = 'tast.hwsec-destructive-crosbolt-perbuild'
+TIME = 'MEDIUM'
+TEST_TYPE = 'Server'
+ATTRIBUTES = 'suite:crosbolt_perf_perbuild'
+MAX_RESULT_SIZE_KB = 1024 * 1024
+PY_VERSION = 3
+
+# tast.py uses binaries installed from autotest_server_package.tar.bz2.
+REQUIRE_SSP = True
+
+DOC = '''
+Run the Tast crosbolt performance test suite with test group hwsec_destructive.
+
+Tast is an integration-testing framework analagous to the test-running portion
+of Autotest. See https://chromium.googlesource.com/chromiumos/platform/tast/ for
+more information.
+
+This test runs Tast-based crosbolt performance tests against a remote DUT.
+And runs HWSec Tast-based remote tests that may wipe and recreate
+encstateful in the middle, e.g., via clearing the TPM. It only reports failure
+if the tast process itself (rather than individual Tast tests) fails.
+
+See http://go/tast-failures for information about investigating failures.
+'''
+
+def run(machine):
+    job.run_test('tast',
+                 host=hosts.create_host(machine),
+                 test_exprs=['("group:hwsec_destructive_crosbolt" && hwsec_destructive_crosbolt_perbuild)'],
+                 ignore_test_failures=True,
+                 max_run_sec=18000,  # 5 hours.
+                 command_args=args)
+
+parallel_simple(run, machines)

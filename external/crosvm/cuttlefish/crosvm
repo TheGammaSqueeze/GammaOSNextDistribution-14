@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export LD_PRELOAD=libdrm.so.2
+exec "$(dirname "$0")/$(uname -m)-linux-gnu/$(basename "$0")" "${@}"

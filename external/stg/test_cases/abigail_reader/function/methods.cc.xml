@@ -1,0 +1,63 @@
+<abi-corpus version='2.1'>
+  <elf-function-symbols>
+    <elf-symbol name='_ZN4Func10remove_parEv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN4Func10rename_newEv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN4Func15change_par_nameEi' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN4Func15change_par_typeEl' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN4Func18change_return_typeEv' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='_ZN4Func7add_parEi' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-function-symbols>
+  <elf-variable-symbols>
+    <elf-symbol name='var' size='8' type='object-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+  </elf-variable-symbols>
+  <abi-instr address-size='64' path='methods.cc' language='LANG_C_plus_plus_14'>
+    <type-decl name='int' size-in-bits='32' id='95e97e5e'/>
+    <type-decl name='long' size-in-bits='64' id='c2ecdf53'/>
+    <class-decl name='Func' size-in-bits='64' is-struct='yes' visibility='default' id='8f83cc9f'>
+      <data-member access='public' layout-offset-in-bits='0'>
+        <var-decl name='x' type-id='c2ecdf53' visibility='default'/>
+      </data-member>
+      <member-function access='public'>
+        <function-decl name='change_return_type' mangled-name='_ZN4Func18change_return_typeEv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN4Func18change_return_typeEv'>
+          <parameter type-id='a3871077' is-artificial='yes'/>
+          <return type-id='c2ecdf53'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='add_par' mangled-name='_ZN4Func7add_parEi' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN4Func7add_parEi'>
+          <parameter type-id='a3871077' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='remove_par' mangled-name='_ZN4Func10remove_parEv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN4Func10remove_parEv'>
+          <parameter type-id='a3871077' is-artificial='yes'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='change_par_type' mangled-name='_ZN4Func15change_par_typeEl' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN4Func15change_par_typeEl'>
+          <parameter type-id='a3871077' is-artificial='yes'/>
+          <parameter type-id='c2ecdf53'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='rename_new' mangled-name='_ZN4Func10rename_newEv' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN4Func10rename_newEv'>
+          <parameter type-id='a3871077' is-artificial='yes'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+      <member-function access='public'>
+        <function-decl name='change_par_name' mangled-name='_ZN4Func15change_par_nameEi' visibility='default' binding='global' size-in-bits='64' elf-symbol-id='_ZN4Func15change_par_nameEi'>
+          <parameter type-id='a3871077' is-artificial='yes'/>
+          <parameter type-id='95e97e5e'/>
+          <return type-id='95e97e5e'/>
+        </function-decl>
+      </member-function>
+    </class-decl>
+    <pointer-type-def type-id='8f83cc9f' size-in-bits='64' id='a3871077'/>
+    <var-decl name='var' type-id='8f83cc9f' mangled-name='var' visibility='default' elf-symbol-id='var'/>
+  </abi-instr>
+</abi-corpus>

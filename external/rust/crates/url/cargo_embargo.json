@@ -1,0 +1,19 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.resolv"
+  ],
+  "min_sdk_version": "29",
+  "module_blocklist": [
+    "url_test_tests_debugger_visualizer"
+  ],
+  "package": {
+    "url": {
+      "dep_blocklist": [
+        "libdebugger_test",
+        "libdebugger_test_parser"
+      ]
+    }
+  },
+  "tests": true
+}

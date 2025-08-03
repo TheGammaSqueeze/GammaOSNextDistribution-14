@@ -1,0 +1,35 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = 'chromeos-bluetooth'
+NAME = 'bluetooth_AdapterCLHealth.cl_HID_reports_restart_test.floss'
+PURPOSE = ('Test bluetooth adapter receiving reports from '
+           'bluetooth HID devices after bluetoothd restart.')
+CRITERIA = 'Adapter should receive HID events correctly.'
+# TODO: Remove ['Quick Health'] flag from AdapterCLHealth when moving to stable.
+ATTRIBUTES = 'suite:bluetooth_floss'
+TIME = 'SHORT'
+TEST_CATEGORY = 'Functional'
+TEST_CLASS = 'bluetooth'
+TEST_TYPE = 'server'
+DEPENDENCIES = 'bluetooth, working_bluetooth_btpeer:1'
+PY_VERSION = 3
+
+DOC = """
+Verify that the bluetooth adapter of the DUT could receive HID reports
+sent from a connected bluetooth device correctly before and after the
+bluetooth daemon restart.
+"""
+
+args_dict = utils.args_to_dict(args)
+
+def run(machine):
+    host = hosts.create_host(machine)
+    job.run_test('bluetooth_AdapterCLHealth', host=host,
+                 num_iterations=1, args_dict=args_dict,
+                 test_name=NAME.split('.')[1], floss=True)
+
+parallel_simple(run, machines)

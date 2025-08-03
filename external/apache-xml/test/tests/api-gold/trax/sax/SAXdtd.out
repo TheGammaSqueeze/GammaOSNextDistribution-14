@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<out><head>Testing © entities an-xsl-entity here</head><list>
+  <item>Xalan-J© 1.x</item>
+  <item>Xalan-Jan-xml-entity 2.x</item>
+  <item>Xalan-C 1.x</item>
+  <list>
+    <item>Xalan this is a CDATA section blah&lt;?&lt;!/&gt;blah documentation</item>
+    <item>Xalan  tests</item>
+  </list>
+</list></out>

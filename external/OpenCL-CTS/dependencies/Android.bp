@@ -1,0 +1,38 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_OpenCL-CTS_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_OpenCL-CTS_license"],
+}
+
+cc_library_headers {
+    name: "ocl-headers",
+    export_include_dirs: [ "ocl-headers" ],
+}
+
+cc_library {
+    name: "ocl-stubs",
+    srcs: [ "ocl-stubs/stubs.cpp" ],
+    cflags: [
+        "-DCL_EXPERIMENTAL",
+        "-DCL_TARGET_OPENCL_VERSION=300",
+    ],
+    header_libs: [ "ocl-headers" ],
+    export_header_lib_headers: [ "ocl-headers" ],
+    generated_headers: [ "generated-ocl-apis" ],
+}
+
+genrule {
+    name: "generated-ocl-apis",
+    out: [ "apis.h" ],
+    tool_files: [ "ocl-stubs/apis_generator.py" ],
+    srcs: [
+        "ocl-headers/CL/cl.h",
+        "ocl-headers/CL/cl_gl.h",
+        "ocl-headers/CL/cl_egl.h",
+        "ocl-headers/CL/cl_ext.h",
+    ],
+    cmd: "python3 $(location) $(in) > $(out)"
+}

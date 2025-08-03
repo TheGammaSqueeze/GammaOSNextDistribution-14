@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update rust/crates/virtio-drivers
+# For more info, check https://cs.android.com/android/platform/superproject/+/main:tools/external_updater/README.md
+
+name: "virtio-drivers"
+description: "VirtIO guest drivers."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://crates.io/crates/virtio-drivers"
+  }
+  url {
+    type: ARCHIVE
+    value: "https://static.crates.io/crates/virtio-drivers/virtio-drivers-0.7.1.crate"
+  }
+  version: "0.7.1"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 10
+    day: 12
+  }
+}

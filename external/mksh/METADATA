@@ -1,0 +1,18 @@
+name: "mksh"
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "http://www.mirbsd.org/mksh"
+  }
+  url {
+    type: ARCHIVE
+    value: "http://www.mirbsd.org/MirOS/dist/mir/mksh/mksh-R59c.tgz"
+  }
+  version: "mksh-R59c"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 3
+    day: 31
+  }
+}

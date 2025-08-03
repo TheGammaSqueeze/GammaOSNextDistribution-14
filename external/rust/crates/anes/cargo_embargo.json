@@ -1,0 +1,7 @@
+{
+  "tests": true,
+  "features": [
+    "parser"
+  ],
+  "run_cargo": false
+}

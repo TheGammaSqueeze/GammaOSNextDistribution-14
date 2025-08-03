@@ -1,0 +1,17 @@
+name: "ICU"
+description:
+    "International Components for Unicode"
+
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://icu.unicode.org/"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/unicode-org/icu"
+  }
+  version: "72"
+  last_upgrade_date { year: 2022 month: 11 day: 1 }
+  license_type: RECIPROCAL
+}

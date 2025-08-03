@@ -1,0 +1,105 @@
+/*
+ * ANT Android Host Stack
+ *
+ * Copyright 2018 Dynastream Innovations
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dsi.ant@1.0;
+
+import IAntCallbacks;
+
+interface IAnt {
+
+    /**** Administrative Methods ****/
+
+    /** Retrieve the static properties of the HAL implementation. */
+    getProperties() generates (ImplProps properties);
+
+    /**
+     * Set up callbacks from HAL implementation to ANTHALService.
+     * The callbacks will be set before any of the other methods below are called.
+     * NULL may also be passed here during shutdown to unregister the callbacks.
+     */
+    setCallbacks(IAntCallbacks callbacks);
+
+    /**
+     * Translate a non-0 status code to a string value. This is used by the ANTHALService
+     * to log operational errors to logcat for debugging purposes.
+     */
+    translateStatus(Status status) generates (string translation);
+
+
+
+    /**** Interface state/power control ****/
+
+    /* General Notes
+     *
+     * The ANTHALService will guarantee that calls to enable and disable are mutually exclusive.
+     * If the ANTHALService detects an error condition it will attempt recovery by disabling
+     * and then re-enabling the interface. This includes cases where enable failed,
+     * so it is strongly suggested that disable is able to recover from an inconsistent state.
+     *
+     * If an asynchronous failure condition is detected then the HAL implementation should
+     * report it through the registered callbacks.
+     */
+
+    /**
+     * Enable the ANT stack and transport.
+     *
+     * This will acquire any needed resources and power up the appropriate subsystems.
+     * The implementation must block until this is complete.
+     */
+    enable() generates (Status status);
+
+    /**
+     * Disable the ANT stack and transport.
+     *
+     * This is called when the ANT protocol is no longer in used. The implementation should power
+     * down any subsystems and release any acquired resources. The implementation must block until
+     * this is complete.
+     */
+    disable() generates (Status status);
+
+
+
+    /**** Message Transport Methods ****/
+
+    /* General Notes
+     *
+     * The ANTHALService will guarantee that these methods will not be called while an enable or
+     * disable is in progress.
+     *
+     * The ANT stack uses two separate channels for message transactions, one for data and one for
+     * commands. For a single channel a new send call will not be made until the previous returns.
+     * However, the HAL implementation must be able to handle a message being sent concurrently on
+     * both channels.
+     *
+     * Any non 0 status returned by these will be treated as a fatal error and cause the host stack
+     * to attempt full recovery of the chip.
+     */
+
+    /**
+     * Send a message on the data channel. The provided message will be raw payload, any required framing must be
+     * added by the HAL implementation.
+     */
+    sendDataMessage(vec<uint8_t> msg) generates (Status status);
+
+    /**
+     * Send a message on the command channel. The provided message will be raw payload, any required framing must be
+     * added by the HAL implementation.
+     */
+    sendCommandMessage(vec<uint8_t> msg) generates (Status status);
+};
+

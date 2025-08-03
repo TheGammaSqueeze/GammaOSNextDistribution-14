@@ -1,0 +1,19 @@
+name: "google-fruit"
+description: "Fruit is a dependency injection framework for C++, loosely inspired by the Guice framework for Java. It uses C++ metaprogramming together with some new C++11 features to detect most injection problems at compile-time. It allows to split the implementation code in \"components\" (aka modules) that can be assembled to form other components. From a component with no requirements it\'s then possible to create an injector, that provides an instance of the interfaces exposed by the component."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://github.com/google/fruit"
+  }
+  url {
+    type: GIT
+    value: "https://github.com/google/fruit.git"
+  }
+  version: "70f7c06e305ad7c9e4e99b87672aaa1061d914d6"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2020
+    month: 11
+    day: 30
+  }
+}

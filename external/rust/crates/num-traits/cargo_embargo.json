@@ -1,0 +1,11 @@
+{
+  "apex_available": [
+    "//apex_available:platform",
+    "com.android.btservices",
+    "com.android.compos",
+    "com.android.uwb",
+    "com.android.virt"
+  ],
+  "min_sdk_version": "29",
+  "tests": true
+}

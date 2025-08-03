@@ -1,0 +1,34 @@
+
+typedef int integer;
+   
+class genericMessage
+{
+  
+};
+
+class genericField
+{
+  
+};
+
+class InstrumentType : public genericField
+{
+  string content;
+  
+};
+
+class CounterParty : public genericField
+{
+  string content;
+  
+};
+
+class enquiry : public genericMessage
+{
+  bm:InstrumentType InstrumentType ;
+bm:CounterParty CounterParty ;
+
+};
+
+  no_type_specified 
+  bizmess ;

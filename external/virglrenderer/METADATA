@@ -1,0 +1,23 @@
+# This project was upgraded with external_updater.
+# Usage: tools/external_updater/updater.sh update virglrenderer
+# For more info, check https://cs.android.com/android/platform/superproject/+/master:tools/external_updater/README.md
+
+name: "virglrenderer"
+description: "Virgil is a research project to investigate the possibility of creating a virtual 3D GPU for use inside qemu virtual machines, that allows the guest operating system to use the capabilities of the host GPU to accelerate 3D rendering."
+third_party {
+  url {
+    type: HOMEPAGE
+    value: "https://virgil3d.github.io/"
+  }
+  url {
+    type: GIT
+    value: "https://anongit.freedesktop.org/git/virglrenderer.git"
+  }
+  version: "0.10.4"
+  license_type: NOTICE
+  last_upgrade_date {
+    year: 2023
+    month: 1
+    day: 18
+  }
+}

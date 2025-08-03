@@ -1,0 +1,40 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+filegroup {
+    name: "android_onboarding.AndroidManifest",
+    srcs: [
+        "AndroidManifest.xml",
+    ],
+}
+
+android_library {
+    name: "android_onboarding",
+    manifest: ":android_onboarding.AndroidManifest",
+    dont_merge_manifests: true,
+    static_libs: [
+        "android_onboarding.common",
+        "android_onboarding.contracts",
+        "android_onboarding.contracts.annotations",
+        "android_onboarding.contracts.fragment",
+        "android_onboarding.contracts.provisioning",
+        "android_onboarding.contracts.authmanaged",
+        "android_onboarding.contracts.setupwizard",
+        "android_onboarding.flags",
+        "android_onboarding.nodes",
+        "android_onboarding.versions",
+    ],
+}
+
+android_library {
+    name: "android_onboarding_testing",
+    manifest: ":android_onboarding.AndroidManifest",
+    dont_merge_manifests: true,
+    static_libs: [
+        "android_onboarding.contracts.testing",
+        "android_onboarding.nodes.testing",
+        "android_onboarding.flags.testing",
+        "android_onboarding.testing",
+    ],
+}

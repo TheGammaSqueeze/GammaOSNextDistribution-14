@@ -1,0 +1,14 @@
+name: "jarjar"
+description:
+    "Utility that makes it easy to repackage Java libraries and embed them into "
+    "your own distribution"
+
+third_party {
+  url {
+    type: GIT
+    value: "https://github.com/google/jarjar.git"
+  }
+  version: "8ce1d0abd195c24a75d9ddcb0ea31b1d1b62aaa6"
+  last_upgrade_date { year: 2024 month: 1 day: 12 }
+  license_type: NOTICE
+}

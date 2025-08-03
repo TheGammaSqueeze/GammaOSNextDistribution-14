@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+<doc>
+	<in>
+		<ok>xsl ok</ok>
+		<notok>xsl not ok</notok>
+	</in>	
+</doc>

@@ -1,0 +1,47 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'com.android.library'
+}
+
+dependencies {
+    api deps.checkerFramework
+    api project(path: ':connectedapps-testapp')
+    api project(path: ':connectedapps-testapp_crossuser')
+    implementation project(path: ':connectedapps-annotations')
+    implementation deps.robolectric
+    implementation 'junit:junit:4.13.1'
+    implementation 'com.google.truth:truth:1.1.2'
+    implementation 'androidx.test:core:1.3.0'
+    implementation project(path: ':connectedapps')
+    implementation project(path: ':connectedapps-annotations')
+    implementation project(path: ':connectedapps-processor')
+    annotationProcessor project(path: ':connectedapps-processor')
+    implementation project(path: ':connectedapps-testing')
+    implementation project(path: ':connectedapps-testing-annotations')
+    implementation project(path: ':connectedapps-testapp_types')
+}
+
+android {
+    defaultConfig {
+        compileSdkVersion 30
+        minSdkVersion 26
+    }
+
+    testOptions.unitTests.includeAndroidResources = true
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            java.includes = ["com/google/android/enterprise/connectedapps/*.java"]
+        }
+    }
+}

@@ -1,0 +1,151 @@
+// Copyright (C) 2018 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "external_grpc-grpc-java_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["external_grpc-grpc-java_license"],
+}
+
+java_library {
+    name: "grpc-java-core",
+    host_supported: true,
+    srcs: [
+        "src/main/java/io/grpc/*.java",
+    ],
+    java_resource_dirs: [
+        "src/main/resources",
+    ],
+    static_libs: [
+        "grpc-java-api",
+    ],
+    libs: [
+        "grpc-java-context",
+        "jsr305",
+        "guava",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+    sdk_version: "current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.adservices",
+        "com.android.devicelock",
+        "com.android.extservices",
+        "//apex_available:platform",
+    ],
+}
+
+java_library {
+    name: "grpc-java-core-inprocess",
+    host_supported: true,
+    srcs: [
+        "src/main/java/io/grpc/inprocess/*.java",
+    ],
+    libs: [
+        "error_prone_annotations",
+        "grpc-java-annotation-stubs",
+        "grpc-java-api",
+        "grpc-java-context",
+        "grpc-java-core",
+        "grpc-java-core-internal",
+        "guava",
+        "jsr305",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+    sdk_version: "current",
+}
+
+java_library {
+    name: "grpc-java-core-internal",
+    host_supported: true,
+    srcs: [
+        "src/main/java/io/grpc/internal/*.java",
+    ],
+    libs: [
+        "grpc-java-annotation-stubs",
+        "grpc-java-api",
+        "grpc-java-core",
+        "grpc-java-context",
+        "jsr305",
+        "gson",
+        "error_prone_annotations",
+        "guava",
+        "opencensus-java-api",
+        "opencensus-java-contrib-grpc-metrics",
+        "perfmark-api-lib",
+    ],
+    target: {
+        // For the Android variant, ignore this class since it is optional,
+        // uses javax APIs not available on Android, and is used reflectively
+        // so ignoring it does not affect the functionality of the library.
+        android: {
+            exclude_srcs: [
+                "src/main/java/io/grpc/internal/JndiResourceResolverFactory.java",
+            ],
+        },
+        host: {
+            libs: [
+                "annotations",  // For android.annotation.SuppressLint
+            ]
+        },
+    },
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+    sdk_version: "current",
+    min_sdk_version: "30",
+    apex_available: [
+        "com.android.adservices",
+        "com.android.devicelock",
+        "com.android.extservices",
+        "//apex_available:platform",
+    ],
+    errorprone: {
+        javacflags: [
+            "-Xep:BanJNDI:WARN",
+        ],
+    },
+}
+
+java_library {
+    name: "grpc-java-core-util",
+    host_supported: true,
+    srcs: [
+        "src/main/java/io/grpc/util/*.java",
+    ],
+    libs: [
+        "error_prone_annotations",
+        "grpc-java-annotation-stubs",
+        "grpc-java-api",
+        "grpc-java-core",
+        "grpc-java-core-internal",
+        "jsr305",
+        "guava",
+    ],
+    // b/267831518: Pin tradefed and dependencies to Java 11.
+    java_version: "11",
+    sdk_version: "current",
+    min_sdk_version: "30",
+     apex_available: [
+         "com.android.adservices",
+         "com.android.devicelock",
+         "com.android.extservices",
+         "//apex_available:platform",
+     ],
+}

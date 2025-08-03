@@ -1,0 +1,30 @@
+package {
+    default_applicable_licenses: ["external_rnnoise_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_rnnoise_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-BSD",
+    ],
+    license_text: [
+        "COPYING",
+    ],
+}
+
+cc_library_static {
+    name: "rnnoise_rnn_vad",
+    // vendor needed for libpreprocessing effects.
+    vendor: true,
+    srcs: [
+        "src/rnn_vad_weights.cc",
+    ],
+    export_include_dirs: [
+        "src",
+    ],
+    host_supported: true,
+    visibility: ["//external/webrtc:__subpackages__"],
+}

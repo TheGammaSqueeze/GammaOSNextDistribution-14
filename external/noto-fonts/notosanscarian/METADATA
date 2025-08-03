@@ -1,0 +1,13 @@
+name: "notosanscarian"
+description:
+    "Noto is a global font collection for writing in all modern and ancientlanguages. Noto Sans Carian is an unmodulated (“sans serif”) design for textsin the historical Middle Eastern Carian script. It has 54 glyphs."
+
+third_party {
+  url {
+    type: ARCHIVE
+    value: "https://github.com/google/fonts/tree/main/ofl/notosanscarian"
+  }
+  version: "1.050"
+  license_type: NOTICE
+  last_upgrade_date { year: 2016 month: 3 day: 24 }
+}

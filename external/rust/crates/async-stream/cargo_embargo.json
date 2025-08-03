@@ -1,0 +1,15 @@
+{
+  "tests": true,
+  "package": {
+    "async-stream": {
+      "dep_blocklist": [
+        "libtrybuild"
+      ]
+    }
+  },
+  "module_blocklist": [
+    "async-stream_test_src_lib",
+    "async-stream_test_tests_stream"
+  ],
+  "run_cargo": false
+}

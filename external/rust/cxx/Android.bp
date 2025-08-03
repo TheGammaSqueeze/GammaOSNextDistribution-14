@@ -1,0 +1,98 @@
+package {
+    default_applicable_licenses: ["external_rust_cxx_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+//
+// large-scale-change included anything that looked like it might be a license
+// text as a license_text. e.g. LICENSE, NOTICE, COPYING etc.
+//
+// Please consider removing redundant or irrelevant files from 'license_text:'.
+// See: http://go/android-license-faq
+license {
+    name: "external_rust_cxx_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE-APACHE",
+        "LICENSE-MIT",
+    ],
+}
+
+rust_library {
+    name: "libcxx",
+    crate_name: "cxx",
+    srcs: ["src/lib.rs"],
+    edition: "2018",
+    features: [
+        "alloc",
+        "std",
+    ],
+    rustlibs: [
+        "libanyhow",
+        "libthiserror",
+    ],
+    proc_macros: [
+        "libcxxbridge_macro",
+    ],
+    whole_static_libs: [
+        "libcxxbridge05",
+    ],
+    shared_libs: ["libc++"],
+    host_supported: true,
+    vendor_available: true,
+    product_available: true,
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "29",
+}
+
+cc_library_static {
+    name: "libcxxbridge05",
+    defaults: ["rust_static_cc_lib_defaults"],
+    cflags: ["-DRUST_CXX_NO_EXCEPTIONS"],
+    srcs: ["src/cxx.cc"],
+    host_supported: true,
+    vendor_available: true,
+    product_available: true,
+    apex_available: [
+        "//apex_available:anyapex",
+        "//apex_available:platform",
+    ],
+    min_sdk_version: "29",
+}
+
+cc_library_static {
+    host_supported: true,
+    name: "libcxx-demo-blobstore",
+    srcs: ["demo/src/blobstore.cc"],
+    generated_headers: [
+        "cxx-demo-bridge-header",
+        "cxx-bridge-header",
+    ],
+    generated_sources: ["cxx-demo-bridge-code"],
+}
+
+genrule {
+    name: "cxx-bridge-header",
+    tools: ["cxxbridge"],
+    cmd: "$(location cxxbridge) --header > $(out)",
+    out: ["rust/cxx.h"],
+}

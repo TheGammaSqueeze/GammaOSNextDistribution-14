@@ -1,0 +1,72 @@
+cc_library_static {
+    name: "liblc3",
+    host_supported: true,
+    visibility: [
+        "//packages/modules/Bluetooth:__subpackages__",
+    ],
+    apex_available: [
+        "com.android.btservices",
+    ],
+    srcs: [
+        "src/*.c",
+    ],
+    cflags: [
+        "-O3",
+        "-Wmissing-braces",
+        "-Wno-#warnings",
+        "-Wno-implicit-fallthrough",
+        "-Wno-self-assign",
+        "-Wuninitialized",
+        "-ffast-math",
+    ],
+    target: {
+        android: {
+            sanitize: {
+                misc_undefined: [
+                    "bounds",
+                    "signed-integer-overflow",
+                    "unsigned-integer-overflow",
+                ],
+                cfi: true,
+            },
+        },
+    },
+    export_include_dirs: [
+        "include",
+    ],
+    min_sdk_version: "Tiramisu",
+}
+
+cc_fuzz {
+    name: "liblc3_encoder_fuzzer",
+    srcs: ["fuzz/efuzz.cc"],
+    static_libs: ["liblc3"],
+}
+
+cc_fuzz {
+    name: "liblc3_decoder_fuzzer",
+    srcs: ["fuzz/dfuzz.cc"],
+    static_libs: ["liblc3"],
+}
+
+cc_binary {
+    name: "lc3_encoder",
+    host_supported: true,
+    srcs: [
+        "tools/elc3.c",
+        "tools/lc3bin.c",
+        "tools/wave.c",
+    ],
+    static_libs: ["liblc3"],
+}
+
+cc_binary {
+    name: "lc3_decoder",
+    host_supported: true,
+    srcs: [
+        "tools/dlc3.c",
+        "tools/lc3bin.c",
+        "tools/wave.c",
+    ],
+    static_libs: ["liblc3"],
+}

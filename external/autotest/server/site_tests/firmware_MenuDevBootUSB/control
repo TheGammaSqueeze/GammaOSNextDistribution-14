@@ -1,0 +1,32 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+from autotest_lib.server import utils
+
+AUTHOR = "ChromeOS Team"
+NAME = "firmware_MenuDevBootUSB"
+PURPOSE = "Select external boot menu item on developer screen"
+CRITERIA = "This test will fail the external boot menu item doesn't have any effect"
+ATTRIBUTES = "suite:faft_bios, suite:faft_bios_ro_qual, suite:faft_bios_rw_qual, suite:faft_lv2, suite:faft_bios_tot"
+DEPENDENCIES = "servo_state:WORKING"
+TIME = "MEDIUM"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "firmware"
+TEST_TYPE = "Server"
+JOB_RETRIES = 0
+PY_VERSION = 3
+
+DOC = """
+This test boots from USB disk by menu navigation in developer UI.
+"""
+
+args_dict = utils.args_to_dict(args)
+servo_args = hosts.CrosHost.get_servo_arguments(args_dict)
+
+def run(machine):
+    host = hosts.create_host(machine, servo_args=servo_args)
+    job.run_test("firmware_MenuDevBootUSB", host=host, cmdline_args=args,
+                 disable_sysinfo=True)
+
+parallel_simple(run, machines)
